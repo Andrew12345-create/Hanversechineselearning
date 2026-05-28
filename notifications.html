@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Hanverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #F4D35E;
+            --primary-light: #FF6B6B;
+            --background: #FAFBFC;
+            --surface: #FFFFFF;
+            --text-primary: #1A1A2E;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --radius-lg: 24px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            min-height: 100vh;
+        }
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--surface);
+        }
+        .app-header {
+            background: white;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--background);
+            border: none;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            flex: 1;
+        }
+        .mark-all-btn {
+            font-size: 0.875rem;
+            color: var(--primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .main-content {
+            padding: 1.25rem;
+        }
+        .notification-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+        .notification-card.unread {
+            background: #FFF9F9;
+            border-color: var(--primary-light);
+        }
+        .notification-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.9375rem;
+        }
+        .notification-message {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .empty-text {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+            <h1 class="header-title">Notifications</h1>
+            <button class="mark-all-btn" onclick="markAllRead()">Mark all read</button>
+        </header>
+        <main class="main-content" id="notificationsList">
+            <div class="notification-card unread">
+                <div class="notification-icon" style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);">🔥</div>
+                <div class="notification-content">
+                    <h3 class="notification-title">12 Day Streak!</h3>
+                    <p class="notification-message">Amazing! You've maintained your streak for 12 days.</p>
+                    <span class="notification-time">2 hours ago</span>
+                </div>
+            </div>
+            <div class="notification-card unread">
+                <div class="notification-icon" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);">🏆</div>
+                <div class="notification-content">
+                    <h3 class="notification-title">Achievement Unlocked!</h3>
+                    <p class="notification-message">You've earned "Fast Learner" badge.</p>
+                    <span class="notification-time">5 hours ago</span>
+                </div>
+            </div>
+            <div class="notification-card">
+                <div class="notification-icon" style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);">📚</div>
+                <div class="notification-content">
+                    <h3 class="notification-title">New Lesson Available</h3>
+                    <p class="notification-message">HSK 1 - Lesson 7 is now available!</p>
+                    <span class="notification-time">Yesterday</span>
+                </div>
+            </div>
+            <div class="notification-card">
+                <div class="notification-icon" style="background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);">⏰</div>
+                <div class="notification-content">
+                    <h3 class="notification-title">Daily Reminder</h3>
+                    <p class="notification-message">Don't forget to complete your daily goal!</p>
+                    <span class="notification-time">2 days ago</span>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        function markAllRead() {
+            document.querySelectorAll('.notification-card.unread').forEach(card => {
+                card.classList.remove('unread');
+            });
+        }
+    </script>
+</body>
+</html>

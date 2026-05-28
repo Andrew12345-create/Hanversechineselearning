@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSK 1 - Hanverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="notifications.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #F4D35E;
+            --primary-light: #FF6B6B;
+            --background: #FAFBFC;
+            --surface: #FFFFFF;
+            --text-primary: #1A1A2E;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --radius-lg: 24px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            min-height: 100vh;
+        }
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--surface);
+        }
+        .app-header {
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            padding: 2rem 1.25rem;
+            text-align: center;
+        }
+        .back-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+        .course-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .course-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .course-subtitle {
+            color: var(--text-secondary);
+        }
+        .main-content {
+            padding: 1.25rem;
+            padding-bottom: 100px;
+        }
+        .lesson-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lesson-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(244,211,94, 0.15);
+        }
+        .lesson-card.completed {
+            opacity: 0.6;
+        }
+        .lesson-card.completed .lesson-number {
+            background: #4CAF50;
+        }
+        .lesson-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            background: #E8F5E9;
+            color: #2E7D32;
+            font-weight: 500;
+        }
+        .lesson-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .lesson-info {
+            flex: 1;
+        }
+        .lesson-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .lesson-meta {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+    </style>
+  <script src="notifications-client.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <button class="back-btn" onclick="window.location.href='learn.html'">←</button>
+            <div class="course-icon">🎯</div>
+            <h1 class="course-title">HSK 1</h1>
+            <p class="course-subtitle">150 words • Elementary Level</p>
+        </header>
+        <main class="main-content">
+            <div class="lesson-card completed">
+                <div class="lesson-number">✓</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Self Introduction</h3>
+                    <p class="lesson-meta">15 words • 10 min <span class="lesson-badge">Completed</span></p>
+                </div>
+            </div>
+            <div class="lesson-card" onclick="completeLesson(this, 2)">
+                <div class="lesson-number">2</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Daily Greetings</h3>
+                    <p class="lesson-meta">12 words • 8 min</p>
+                </div>
+            </div>
+            <div class="lesson-card" onclick="completeLesson(this, 3)">
+                <div class="lesson-number">3</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Numbers & Time</h3>
+                    <p class="lesson-meta">20 words • 15 min</p>
+                </div>
+            </div>
+            <div class="lesson-card" onclick="completeLesson(this, 4)">
+                <div class="lesson-number">4</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Shopping</h3>
+                    <p class="lesson-meta">18 words • 12 min</p>
+                </div>
+            </div>
+            <div class="lesson-card" onclick="completeLesson(this, 5)">
+                <div class="lesson-number">5</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Food & Drinks</h3>
+                    <p class="lesson-meta">20 words • 15 min</p>
+                </div>
+            </div>
+            <div class="lesson-card" onclick="completeLesson(this, 6)">
+                <div class="lesson-number">6</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Directions</h3>
+                    <p class="lesson-meta">15 words • 10 min</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        function completeLesson(card, lessonNum) {
+            const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+            const users = JSON.parse(localStorage.getItem('hanverse_users') || '{}');
+            
+            // Ensure user starts at level 1 with XP 0 if not set
+            if (!user.level || user.level < 1) user.level = 1;
+            if (typeof user.xp !== 'number') user.xp = 0;
+            
+            if (!user.email) return;
+            
+            card.classList.add('completed');
+            card.onclick = null;
+            card.querySelector('.lesson-number').textContent = '✓';
+            
+            const xpGain = 50;
+            user.xp += xpGain;
+            
+            if (user.xp >= user.level * 100) {
+              user.level += 1;
+              Notify.levelUp(user.level, 'lvl_' + user.level + '_' + user.email);
+            }
+            
+            users[user.email].xp = user.xp;
+            users[user.email].level = user.level;
+            
+            localStorage.setItem('hanverse_user', JSON.stringify(user));
+            localStorage.setItem('hanverse_users', JSON.stringify(users));
+
+            Notify.toast(`Lesson completed! +${xpGain} XP! 🎉`, 'success', 2500);
+            Notify.showXP(xpGain);
+            Notify.miniConfetti();
+            
+            if(user.xp >= 100 && user.xp < 150){
+              Notify.achievementUnlock(4,'lesson_100_' + user.email);
+            }
+        }
+    </script>
+<script>
+  window.addEventListener('load', () => {
+    try {
+      if (window.HanverseNotifications && window.HanverseNotifications.init) {
+        window.HanverseNotifications.init();
+      }
+    } catch (e) {}
+  });
+</script>
+</body>
+</html>

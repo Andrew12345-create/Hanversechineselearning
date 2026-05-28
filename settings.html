@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Hanverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #F4D35E;
+            --primary-light: #FF6B6B;
+            --background: #FAFBFC;
+            --surface: #FFFFFF;
+            --text-primary: #1A1A2E;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            min-height: 100vh;
+        }
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--surface);
+        }
+        .app-header {
+            background: white;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--background);
+            border: none;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .main-content {
+            padding: 1.25rem;
+        }
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 1.5rem 0 0.75rem;
+        }
+        .section-title:first-child {
+            margin-top: 0;
+        }
+        .setting-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .setting-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .setting-icon {
+            font-size: 1.5rem;
+        }
+        .setting-info h3 {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            margin-bottom: 0.125rem;
+        }
+        .setting-info p {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 28px;
+            background: #E5E7EB;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+        .setting-value {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        select {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.875rem;
+        }
+        .save-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1.5rem;
+        }
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(244,211,94, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <button class="back-btn" onclick="window.location.href='profile.html'">←</button>
+            <h1 class="header-title">Settings</h1>
+        </header>
+        <main class="main-content">
+            <h2 class="section-title">Notifications</h2>
+            <div class="setting-item">
+                <div class="setting-left">
+                    <span class="setting-icon">🔔</span>
+                    <div class="setting-info">
+                        <h3>Push Notifications</h3>
+                        <p>Receive learning reminders</p>
+                    </div>
+                </div>
+                <div class="toggle-switch active" id="togglePushNotifications"
+                     onclick="toggleSetting(this, 'Push Notifications')"></div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-left">
+                    <span class="setting-icon">⏰</span>
+                    <div class="setting-info">
+                        <h3>Daily Reminder</h3>
+                        <p>Set your study time</p>
+                    </div>
+                </div>
+                <div class="setting-value">
+                    <select>
+                        <option>9:00 AM</option>
+                        <option>12:00 PM</option>
+                        <option>6:00 PM</option>
+                        <option>8:00 PM</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2 class="section-title">Learning</h2>
+            <div class="setting-item">
+                <div class="setting-left">
+                    <span class="setting-icon">🎯</span>
+                    <div class="setting-info">
+                        <h3>Daily Goal</h3>
+                        <p>Lessons per day</p>
+                    </div>
+                </div>
+                <div class="setting-value">
+                    <select>
+                        <option>10 lessons</option>
+                        <option selected>20 lessons</option>
+                        <option>30 lessons</option>
+                        <option>50 lessons</option>
+                    </select>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-left">
+                    <span class="setting-icon">🔊</span>
+                    <div class="setting-info">
+                        <h3>Sound Effects</h3>
+                        <p>Play sounds during lessons</p>
+                    </div>
+                </div>
+                <div class="toggle-switch active" id="toggleSoundEffects"
+                     onclick="toggleSetting(this, 'Sound Effects')"></div>
+            </div>
+
+            <h2 class="section-title">Account</h2>
+            <div class="setting-item" onclick="window.location.href='profile.html'">
+                <div class="setting-left">
+                    <span class="setting-icon">👤</span>
+                    <div class="setting-info">
+                        <h3>Edit Profile</h3>
+                        <p>Update your information</p>
+                    </div>
+                </div>
+                <span>›</span>
+            </div>
+            <div class="setting-item">
+                <div class="setting-left">
+                    <span class="setting-icon">🌐</span>
+                    <div class="setting-info">
+                        <h3>Language</h3>
+                        <p>App language</p>
+                    </div>
+                </div>
+                <div class="setting-value">
+                    <select>
+                        <option selected>English</option>
+                        <option>中文</option>
+                        <option>Español</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2 class="section-title">About</h2>
+            <div class="setting-item">
+                <div class="setting-left">
+                    <span class="setting-icon">ℹ️</span>
+                    <div class="setting-info">
+                        <h3>Version</h3>
+                        <p>1.0.0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-left">
+                    <span class="setting-icon">📄</span>
+                    <div class="setting-info">
+                        <h3>Privacy Policy</h3>
+                    </div>
+                </div>
+                <span>›</span>
+            </div>
+            <div class="setting-item">
+                <div class="setting-left">
+                    <span class="setting-icon">📋</span>
+                    <div class="setting-info">
+                        <h3>Terms of Service</h3>
+                    </div>
+                </div>
+                <span>›</span>
+            </div>
+
+            <button class="save-btn" id="saveSettingsBtn">Save Settings</button>
+        </main>
+    </div>
+    <script src="notifications.js"></script>
+    <script>
+        function toggleSetting(toggleEl, settingName) {
+            var isActive = toggleEl.classList.toggle('active');
+            var msg = isActive
+                ? settingName + ' turned ON ✓'
+                : settingName + ' turned OFF';
+            var type = isActive ? 'success' : 'warn';
+            Notify.toast(msg, type, 3000);
+        }
+
+        document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+            var selects = document.querySelectorAll('select');
+            var settings = {};
+            selects.forEach(function(s) {
+                settings[s.parentElement.parentElement.querySelector('h3').textContent] = s.value;
+            });
+            Notify.toast('Settings saved successfully! ✅', 'success', 3500);
+            Notify.miniConfetti();
+        });
+
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                Notify.toast('Settings loaded — tap the toggles to change preferences ✨', 'info', 4000);
+            }, 800);
+        });
+    </script>
+</body>
+</html>

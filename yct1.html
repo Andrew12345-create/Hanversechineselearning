@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YCT 1 - Hanverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #F4D35E;
+            --primary-light: #FF6B6B;
+            --background: #FAFBFC;
+            --surface: #FFFFFF;
+            --text-primary: #1A1A2E;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --radius-lg: 24px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            min-height: 100vh;
+        }
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--surface);
+        }
+        .app-header {
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+            padding: 2rem 1.25rem;
+            text-align: center;
+        }
+        .back-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+        .course-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .course-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .course-subtitle {
+            color: var(--text-secondary);
+        }
+        .main-content {
+            padding: 1.25rem;
+            padding-bottom: 100px;
+        }
+        .lesson-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lesson-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(244,211,94, 0.15);
+        }
+        .lesson-card.completed {
+            opacity: 0.6;
+        }
+        .lesson-card.completed .lesson-number {
+            background: #4CAF50;
+        }
+        .lesson-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            background: #E8F5E9;
+            color: #2E7D32;
+            font-weight: 500;
+        }
+        .lesson-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .lesson-info {
+            flex: 1;
+        }
+        .lesson-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .lesson-meta {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <button class="back-btn" onclick="window.location.href='learn.html'">←</button>
+            <div class="course-icon">🌱</div>
+            <h1 class="course-title">YCT 1</h1>
+            <p class="course-subtitle">80 words • Beginner Level</p>
+        </header>
+        <main class="main-content">
+            <div class="lesson-card completed">
+                <div class="lesson-number">✓</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Greetings</h3>
+                    <p class="lesson-meta">10 words • 5 min <span class="lesson-badge">Completed</span></p>
+                </div>
+            </div>
+            <div class="lesson-card completed">
+                <div class="lesson-number">✓</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Numbers 1-10</h3>
+                    <p class="lesson-meta">10 words • 8 min <span class="lesson-badge">Completed</span></p>
+                </div>
+            </div>
+            <div class="lesson-card" onclick="completeLesson(this, 3)">
+                <div class="lesson-number">3</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Family Members</h3>
+                    <p class="lesson-meta">12 words • 10 min</p>
+                </div>
+            </div>
+            <div class="lesson-card" onclick="completeLesson(this, 4)">
+                <div class="lesson-number">4</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Colors</h3>
+                    <p class="lesson-meta">8 words • 6 min</p>
+                </div>
+            </div>
+            <div class="lesson-card" onclick="completeLesson(this, 5)">
+                <div class="lesson-number">5</div>
+                <div class="lesson-info">
+                    <h3 class="lesson-title">Basic Verbs</h3>
+                    <p class="lesson-meta">15 words • 12 min</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="notifications.js"></script>
+    <script>
+        function completeLesson(card, lessonNum) {
+            const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+            const users = JSON.parse(localStorage.getItem('hanverse_users') || '{}');
+
+            if (!user.level || user.level < 1) user.level = 1;
+            if (typeof user.xp !== 'number') user.xp = 0;
+
+            if (!user.email) return;
+
+            card.classList.add('completed');
+            card.onclick = null;
+            card.querySelector('.lesson-number').textContent = '✓';
+
+            const xpGain = 50;
+            user.xp += xpGain;
+
+            let leveledUp = false;
+            if (user.xp >= user.level * 100) {
+                user.level += 1;
+                leveledUp = true;
+            }
+
+            users[user.email].xp = user.xp;
+            users[user.email].level = user.level;
+
+            localStorage.setItem('hanverse_user', JSON.stringify(user));
+            localStorage.setItem('hanverse_users', JSON.stringify(users));
+
+            Notify.toast(`Lesson completed! +${xpGain} XP`, 'success', 3000);
+            Notify.showXP(xpGain);
+            Notify.miniConfetti();
+
+            if (leveledUp) {
+                setTimeout(() => {
+                    Notify.levelUp(user.level, 'yct1_lesson_' + lessonNum);
+                }, 800);
+            }
+        }
+
+        window.addEventListener('load', function() {
+            const completedCount = document.querySelectorAll('.lesson-card.completed').length;
+            if (completedCount > 0) {
+                setTimeout(function() {
+                    Notify.toast('Welcome back! ' + completedCount + ' lessons already done 🌱', 'info', 4000);
+                }, 600);
+            }
+        });
+    </script>
+</body>
+</html>

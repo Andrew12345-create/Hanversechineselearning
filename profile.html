@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Profile - Hanverse</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Notifications system -->
+<script src="notifications.js"></script>
+
+<style>
+
+:root{
+
+--red:#E63946;
+--yellow:#F4D35E;
+--blue:#4EA8DE;
+--green:#74C69D;
+--bg:#FFFDF7;
+--surface:#FFFFFF;
+--text-primary:#1A1A2E;
+--text-secondary:#6B7280;
+--border:#E5E7EB;
+
+}
+
+*{
+
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+
+}
+
+body{
+
+background:var(--bg);
+padding:25px;
+color:#333;
+
+}
+
+
+/* NAVBAR */
+
+nav{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:18px 30px;
+
+background:white;
+
+border-radius:25px;
+margin-bottom:40px;
+
+box-shadow:
+0 4px 20px rgba(0,0,0,.05);
+
+}
+
+.logo{
+
+display:flex;
+align-items:center;
+gap:10px;
+
+font-size:28px;
+font-weight:700;
+
+color:var(--red);
+
+}
+
+.logo-badge{
+
+background:var(--yellow);
+
+padding:8px;
+
+border-radius:50%;
+
+}
+
+nav ul{
+
+display:flex;
+	gap:18px;
+list-style:none;
+
+}
+
+nav a{
+
+text-decoration:none;
+color:#444;
+position:relative;
+
+}
+
+nav a.active{
+
+color:var(--red);
+font-weight:700;
+
+}
+
+nav a.active::after{
+
+content:"";
+
+position:absolute;
+
+height:4px;
+width:100%;
+left:0;
+bottom:-8px;
+
+background:var(--yellow);
+border-radius:20px;
+
+}
+
+.btn{
+
+padding:12px 24px;
+border:none;
+border-radius:40px;
+cursor:pointer;
+font-weight:600;
+transition:.3s;
+
+}
+
+.btn-main{
+background:var(--red);
+color:white;
+}
+
+.btn-yellow{
+background:var(--yellow);
+}
+
+.btn:active{transform:scale(.97);}
+
+
+/* PROFILE HERO */
+
+.profile-hero{
+
+background:linear-gradient(135deg,var(--yellow) 0%,var(--blue) 100%);
+padding:50px 40px;
+border-radius:35px;
+margin-bottom:35px;
+display:flex;
+gap:30px;
+align-items:center;
+  box-shadow:0 15px 40px rgba(230,57,70,.15);
+animation:slide .8s;
+
+}
+
+@keyframes slide{
+from{opacity:0;transform:translateY(30px);}
+to  {opacity:1;transform:translateY(0);}
+}
+
+.avatar{
+
+height:110px;
+width:110px;
+border-radius:50%;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:52px;
+flex-shrink:0;
+border:5px solid rgba(255,255,255,.4);
+}
+
+.profile-info h1{
+font-size:1.8rem;
+color:white;
+margin-bottom:6px;
+}
+
+.profile-info p{
+opacity:.9;
+color:white;
+font-size:.95rem;
+margin-bottom:12px;
+}
+
+.level-badge{
+
+display:inline-block;
+padding:8px 18px;
+border-radius:20px;
+background:rgba(255,255,255,.2);
+color:white;
+font-weight:700;
+font-size:.95rem;
+
+}
+
+.level-arrow{
+
+margin-left:6px;
+font-size:1rem;
+
+}
+
+
+/* STATS */
+
+.stats-grid{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:18px;
+margin-bottom:35px;
+
+}
+
+.stat-card{
+
+background:white;
+padding:22px;
+border-radius:25px;
+text-align:center;
+box-shadow:0 8px 20px rgba(0,0,0,.05);
+transition:transform .3s ease, box-shadow .3s ease;
+
+}
+
+.stat-card:hover{
+
+transform:translateY(-4px);
+box-shadow:0 14px 32px rgba(0,0,0,.08);
+
+}
+
+.stat-card .icon{
+
+font-size:2rem;
+margin-bottom:8px;
+
+}
+
+.stat-card h2{
+
+font-size:2rem;
+color:var(--red);
+margin-bottom:4px;
+
+}
+
+.stat-card p{
+
+font-size:.8rem;
+color:var(--text-secondary);
+
+}
+
+.stat-week{
+
+display:flex;
+align-items:center;
+justify-content:center;
+gap:6px;
+font-size:.78rem;
+color:var(--green);
+font-weight:600;
+margin-top:4px;
+
+}
+
+
+/* SECTIONS */
+
+.section{
+
+background:white;
+padding:30px;
+border-radius:30px;
+margin-bottom:30px;
+box-shadow:0 8px 20px rgba(0,0,0,.05);
+
+}
+
+.section h2{
+
+color:var(--blue);
+margin-bottom:20px;
+font-size:1.3rem;
+
+}
+
+/* progress */
+.yct-track{
+
+display:flex;
+align-items:center;
+gap:16px;
+
+}
+
+.progress-ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
+
+.progress-ring-wrap svg{transform:rotate(-90deg);}
+
+.progress-ring-bg{
+fill:none;stroke:#eee;stroke-width:8;
+}
+
+.progress-ring-fill{
+fill:none;stroke:var(--green);stroke-width:8;
+stroke-linecap:round;
+transition:stroke-dashoffset 1.5s cubic-bezier(.34,1.56,.64,1);
+}
+
+.progress-ring-text{
+
+position:absolute;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:1.1rem;
+font-weight:700;
+color:var(--green);
+
+}
+
+.yct-info{flex:1;}
+
+.yct-info .yct-label{font-weight:700;font-size:1rem;color:var(--text-primary);}
+
+.yct-info .yct-sub{font-size:.82rem;color:var(--text-secondary);margin-top:4px;}
+
+.yct-meter{
+height:10px;background:#eee;border-radius:20px;overflow:hidden;margin-top:10px;
+}
+
+.yct-fill{
+height:100%;border-radius:20px;
+background:linear-gradient(90deg,var(--green),var(--blue));
+transition:width 1.5s cubic-bezier(.34,1.56,.64,1);
+width:0%;
+}
+
+
+/* achievements */
+.badge-grid{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+gap:14px;
+
+}
+
+.ach-badge{
+
+background:#f9f9f9;
+border:2px solid var(--border);
+border-radius:18px;
+padding:16px 10px;
+text-align:center;
+font-size:.85rem;
+font-weight:600;
+color:var(--text-secondary);
+transition:transform .3s, border-color .3s;
+
+}
+
+.ach-badge:nth-child(1){border-color:var(--yellow);color:#8a6d00;}
+  .ach-badge:nth-child(2){border-color:var(--yellow);color:var(--yellow);}
+.ach-badge:nth-child(3){border-color:var(--blue);color:#1a5f8f;}
+.ach-badge:nth-child(4){border-color:var(--green);color:#1e6640;}
+
+.ach-badge .ach-emoji{font-size:2rem;display:block;margin-bottom:6px;}
+
+.ach-badge:hover{transform:translateY(-3px);}
+
+
+/* activity */
+.activity-list{display:flex;flex-direction:column;gap:12px;}
+
+.act-item{
+
+padding:16px;
+background:#f9f9f9;
+border-radius:16px;
+display:flex;
+align-items:center;
+gap:14px;
+transition:background .2s;
+
+}
+
+.act-item:hover{background:#f0f0f0;}
+
+.act-dot{
+
+width:12px;height:12px;border-radius:50%;flex-shrink:0;
+
+}
+
+.act-dot.green{background:var(--green);}
+.act-dot.red  {background:var(--red);}
+.act-dot.blue {background:var(--blue);}
+
+.act-text{flex:1;font-size:.9rem;color:var(--text-primary);}
+
+.act-time{font-size:.78rem;color:var(--text-secondary);white-space:nowrap;}
+
+
+/* notifications */
+.notif-list{display:flex;flex-direction:column;gap:12px;}
+
+.notif-card{
+
+padding:16px;
+border:1px solid var(--border);
+border-radius:16px;
+display:flex;
+gap:12px;
+transition:border-color .2s;
+cursor:pointer;
+
+}
+
+.notif-card:hover{border-color:var(--blue);}
+
+.notif-card.unread{border-color:var(--yellow);background:#FFFDF0;}
+
+.notif-icon{
+
+width:44px;height:44px;border-radius:14px;
+display:flex;align-items:center;justify-content:center;
+font-size:1.3rem;flex-shrink:0;
+
+}
+
+.notif-body{flex:1;min-width:0;}
+
+.notif-title{font-weight:700;font-size:.9rem;margin-bottom:3px;}
+
+.notif-msg{font-size:.82rem;color:var(--text-secondary);}
+
+.notif-time{margin-top:4px;font-size:.75rem;color:var(--text-secondary);}
+
+
+/* settings */
+.setting-row{
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:16px 0;
+border-bottom:1px solid var(--border);
+
+}
+
+.setting-row:last-child{border-bottom:none;}
+
+.setting-label{font-weight:600;font-size:.95rem;}
+
+.setting-sub{font-size:.78rem;color:var(--text-secondary);margin-top:2px;}
+
+.toggle{
+
+width:48px;height:28px;border-radius:999px;
+border:none;cursor:pointer;position:relative;
+background:#ddd;transition:background .3s;
+
+}
+
+.toggle.on{background:var(--green);}
+
+.toggle::after{
+
+content:'';position:absolute;top:3px;left:3px;
+width:22px;height:22px;border-radius:50%;
+background:white;transition:transform .3s ease;
+box-shadow:0 2px 6px rgba(0,0,0,.2);
+
+}
+
+.toggle.on::after{transform:translateX(20px);}
+
+
+/* LOADING SKELETON */
+.skeleton{
+
+background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+background-size:200% 100%;
+animation:shimmer 1.5s infinite;
+border-radius:12px;
+
+}
+
+@keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
+
+
+
+/* BOTTOM NAV */
+.bottom-nav{
+
+position:fixed;
+bottom:0;left:50%;transform:translateX(-50%);
+width:100%;max-width:430px;
+background:var(--surface);
+border-top:1px solid var(--border);
+display:flex;justify-content:space-around;
+padding:.75rem 1rem;
+padding-bottom:max(.75rem,env(safe-area-inset-bottom));
+z-index:100;
+
+}
+
+.nav-item{
+
+display:flex;flex-direction:column;align-items:center;gap:.25rem;
+padding:.5rem;border-radius:12px;cursor:pointer;text-decoration:none;
+color:var(--text-secondary);min-width:60px;
+-webkit-tap-highlight-color:transparent;
+
+}
+
+.nav-item:active{transform:scale(.98);}
+
+.nav-item.active{color:var(--red);}
+.nav-item.active .nav-icon{
+background:var(--red);color:white;
+}
+
+.nav-icon{
+
+width:40px;height:40px;border-radius:12px;
+display:flex;align-items:center;justify-content:center;
+font-size:1.25rem;background:var(--bg);
+
+}
+
+.nav-label{font-size:.68rem;font-weight:500;}
+
+
+/* RESPONSIVE */
+@media(max-width:900px){
+
+nav{flex-direction:column;gap:16px;}
+
+nav ul{flex-wrap:wrap;justify-content:center;gap:16px;}
+
+.profile-hero{flex-direction:column;text-align:center;}
+
+.yct-track{flex-direction:column;align-items:stretch;}
+
+.progress-ring-wrap{align-self:center;}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+
+<div class="logo">
+  <div class="logo-badge">🐼</div>
+  Hanverse
+</div>
+
+<ul>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="learn.html">Learn</a></li>
+  <li><a href="profile.html" class="active">Profile</a></li>
+</ul>
+
+<button class="btn btn-main" onclick="logout()">Logout</button>
+
+</nav>
+
+
+<!-- ═══ PROFILE HERO ═══ -->
+<section class="profile-hero" id="profileHero" style="display:none;">
+
+  <div class="avatar" id="avatar">😊</div>
+
+  <div class="profile-info">
+
+    <h1 id="name">—</h1>
+    <p id="tagline">Continue your Mandarin journey.</p>
+
+    <div class="level-badge" id="levelBadge">
+      Level <span id="levelNum">—</span>
+      <span class="level-arrow" id="levelArrow"></span>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- loading skeleton -->
+<section class="profile-hero" id="loadingHero">
+  <div class="skeleton" style="height:110px;width:110px;border-radius:50%;"></div>
+  <div class="profile-info">
+    <div class="skeleton" style="height:28px;width:200px;margin-bottom:8px;"></div>
+    <div class="skeleton" style="height:16px;width:260px;margin-bottom:12px;"></div>
+    <div class="skeleton" style="height:32px;width:120px;border-radius:20px;"></div>
+  </div>
+</section>
+
+
+<!-- ═══ XP STATS ═══ -->
+<div class="stats-grid" id="statsGrid" style="display:none;">
+
+  <div class="stat-card" id="xpCard">
+    <div class="icon">✨</div>
+    <h2 id="xp">0</h2>
+    <p>XP Earned</p>
+    <div class="stat-week">▲ from last week</div>
+  </div>
+
+  <div class="stat-card" id="streakCard">
+    <div class="icon">🔥</div>
+    <h2 id="streak">0</h2>
+    <p>Day Streak</p>
+    <div class="stat-week" id="streakMsg">&#8203;</div>
+  </div>
+
+  <div class="stat-card" id="lessonsCard">
+    <div class="icon">📚</div>
+    <h2 id="lessons">0</h2>
+    <p>Lessons Done</p>
+    <div class="stat-week">&#8203;</div>
+  </div>
+
+  <div class="stat-card" id="wordsCard">
+    <div class="icon">🧠</div>
+    <h2 id="words">0</h2>
+    <p>Words Learned</p>
+    <div class="stat-week">&#8203;</div>
+  </div>
+
+</div>
+
+
+<!-- ═══ YCT PROGRESS ═══ -->
+<section class="section" id="yctSection" style="display:none;">
+
+  <h2>📖 YCT Progress</h2>
+
+  <div class="yct-track">
+    <div class="progress-ring-wrap">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <circle class="progress-ring-bg" cx="40" cy="40" r="34"/>
+        <circle class="progress-ring-fill" id="ringFill" cx="40" cy="40" r="34"
+          stroke-dasharray="213.6" stroke-dashoffset="213.6"/>
+      </svg>
+      <div class="progress-ring-text" id="ringText">0%</div>
+    </div>
+    <div class="yct-info">
+      <div class="yct-label" id="yctLabel">Loading…</div>
+      <div class="yct-sub"  id="yctSub">Your YCT learning journey</div>
+      <div class="yct-meter"><div class="yct-fill" id="yctFill"></div></div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══ ACHIEVEMENTS ═══ -->
+<section class="section" id="achSection" style="display:none;">
+
+  <h2>🏆 Achievements</h2>
+
+  <div class="badge-grid" id="badgeGrid">
+
+    <div class="ach-badge"><span class="ach-emoji">🎯</span>First Lesson</div>
+    <div class="ach-badge"><span class="ach-emoji">🔥</span>7 Day Streak</div>
+    <div class="ach-badge"><span class="ach-emoji">⭐</span>50 Words</div>
+    <div class="ach-badge"><span class="ach-emoji">🎮</span>Game Master</div>
+
+  </div>
+
+</section>
+
+
+<!-- ═══ RECENT ACTIVITY ═══ -->
+<section class="section" id="activitySection" style="display:none;">
+
+  <h2>🕒 Recent Activity</h2>
+
+  <div class="activity-list" id="activityList">
+    <div class="skeleton" style="height:52px;border-radius:16px;"></div>
+    <div class="skeleton" style="height:52px;border-radius:16px;"></div>
+    <div class="skeleton" style="height:52px;border-radius:16px;"></div>
+  </div>
+
+</section>
+
+
+<!-- ═══ NOTIFICATIONS ═══ -->
+<section class="section" id="notifSection" style="display:none;">
+
+  <h2>🔔 Notifications</h2>
+  <div class="notif-list" id="notifList"></div>
+
+</section>
+
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item">
+    <div class="nav-icon">🏠</div>
+    <span class="nav-label">Home</span>
+  </a>
+  <a href="learn.html" class="nav-item">
+    <div class="nav-icon">📚</div>
+    <span class="nav-label">Learn</span>
+  </a>
+  <a href="practice.html" class="nav-item">
+    <div class="nav-icon">🎯</div>
+    <span class="nav-label">Practice</span>
+  </a>
+  <a href="profile.html" class="nav-item active">
+    <div class="nav-icon">👤</div>
+    <span class="nav-label">Profile</span>
+  </a>
+</nav>
+
+
+<!-- ═══ MAIN SCRIPT ═══ -->
+<script>
+
+/* ─────────────── SESSION CHECK ─────────────── */
+const SESSION_KEY = 'hanverse_user';
+
+function requireSession() {
+  const raw = localStorage.getItem(SESSION_KEY);
+  if (!raw) { window.location.href = 'login.html'; return null; }
+  try { return JSON.parse(raw); } catch { window.location.href = 'login.html'; return null; }
+}
+
+/* ─────────────── FETCH FROM PSQL ─────────────── */
+async function loadFromDB(userId) {
+  try {
+    const r = await fetch(`/api/user/${encodeURIComponent(userId)}`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch(e) {
+    console.error('DB load error:', e);
+    return null;
+  }
+}
+
+/* ─────────────── RENDER ╀ RENDER ╀ RENDER ─────────────── */
+function renderProfile(data) {
+
+  const user       = data.user || {};
+  const achievements = (data.achievements || []).slice(0, 10);
+  const notifications = (data.notifications || []).slice(0, 5);
+  const progress   = (data.progress || []);
+
+  /* ── profile hero ── */
+  document.getElementById('loadingHero').style.display = 'none';
+  const hero = document.getElementById('profileHero');
+  hero.style.display = 'flex';
+
+  document.getElementById('name').textContent      = user.full_name || user.username || 'Learner';
+  document.getElementById('avatar').textContent    = '🐼';
+  document.getElementById('levelNum').textContent  = user.level || 1;
+  document.getElementById('levelArrow').textContent = user.streak_days >= 7 ? ' 🔥' : '';
+
+  if (data.progress && data.progress.length > 0) {
+    document.getElementById('tagline').textContent =
+      `${data.progress.length} YCT lessons started — keep going!`;
+  } else {
+    document.getElementById('tagline').textContent = 'Start your Mandarin adventure today!';
+  }
+
+  /* ── stats ── */
+  document.getElementById('statsGrid').style.display = 'grid';
+  document.getElementById('xp').textContent     = user.xp     || 0;
+  document.getElementById('streak').textContent = user.streak_days || 0;
+  document.getElementById('lessons').textContent = data.progress ? data.progress.length : 0;
+  document.getElementById('words').textContent   = user.words   || progress.reduce((s,p) => s + (p.words_count || 0), 0);
+
+  /* streak message */
+  const streakMsg = document.getElementById('streakMsg');
+  const sd = user.streak_days || 0;
+  streakMsg.textContent  = sd >= 7 ? '🔥 Hot streak!' : sd >= 3 ? '💪 Great streak!' : '';
+  streakMsg.style.color  = sd >= 7 ? 'var(--red)' : sd >= 3 ? 'var(--yellow)' : 'var(--green)';
+
+  /* ── YCT progress ── */
+  const totalWords = 80; // YCT 1 target
+  const wordsKnown = user.words || 0;
+  const pct = Math.min(100, Math.round((wordsKnown / totalWords) * 100));
+
+  document.getElementById('yctSection').style.display = 'block';
+  document.getElementById('yctLabel').textContent = `YCT 1 — ${wordsKnown}/${totalWords} words`;
+  document.getElementById('yctSub').textContent  = pct >= 100 ? 'YCT 1 Complete! 🎉' : `${100 - pct} more words to YCT 1!`;
+  document.getElementById('ringText').textContent = pct + '%';
+  document.getElementById('yctFill').style.width  = pct + '%';
+
+  /* circle dash: circumference = 2πr = 2*3.1416*34 ≈ 213.6 */
+  const circumference = 213.6;
+  const offset = circumference - (pct / 100) * circumference;
+  const ring = document.getElementById('ringFill');
+  setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
+
+  /* ── achievements ── */
+  if (achievements.length > 0) {
+    document.getElementById('achSection').style.display = 'block';
+    const grid = document.getElementById('badgeGrid');
+    grid.innerHTML = achievements.slice(0, 6).map(a => {
+      const e = a.icon || a.emoji || '🏆';
+      const t = a.title  || a.name  || 'Achievement';
+      return `<div class="ach-badge"><span class="ach-emoji">${e}</span>${t}</div>`;
+    }).join('');
+  }
+
+  /* ── recent activity ── */
+  if (data.progress && data.progress.length > 0) {
+    document.getElementById('activitySection').style.display = 'block';
+    const list = document.getElementById('activityList');
+    const rows = data.progress.slice(0, 5).map((p, i) => {
+      const pts = p.points_earned || 0;
+      const pct2 = p.progress_pct || 0;
+      const title = p.lesson_title || p.lesson_name || `Lesson ${p.lesson_id || i+1}`;
+      const dot   = pts >= 90 ? 'green' : pts >= 50 ? 'blue' : 'red';
+      return `<div class="act-item">
+        <div class="act-dot ${dot}"></div>
+        <span class="act-text">Completed: ${title}</span>
+        <span class="act-time">${pct2}%</span>
+      </div>`;
+    }).join('');
+    list.innerHTML = rows || '<div class="act-item"><span class="act-text">No activity yet</span></div>';
+  }
+
+  /* ── notifications ── */
+  if (notifications.length > 0) {
+    document.getElementById('notifSection').style.display = 'block';
+    const nList = document.getElementById('notifList');
+    nList.innerHTML = notifications.map(n => {
+      const icon  = n.icon  || n.emoji  || '🔔';
+      const title = n.title || n.message || 'Notification';
+      const msg   = n.message || n.body   || '';
+      const time  = n.time_ago || n.created_at || '';
+      const isNew = !n.is_read;
+      return `<div class="notif-card ${isNew ? 'unread' : ''}" data-id="${n.notification_id || n.id || ''}">
+        <div class="notif-icon" style="background:linear-gradient(135deg,#FFFDF0,#F4D35E);">${icon}</div>
+        <div class="notif-body">
+          <div class="notif-title">${title}</div>
+          <div class="notif-msg">${msg}</div>
+          <div class="notif-time">${time}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+}
+
+
+/* ─────────────── MAIN INIT ─────────────── */
+(async function init() {
+
+  const user = requireSession();
+  if (!user) return;
+
+  const userId = user.user_id || user.userId;
+  if (!userId) { window.location.href = 'login.html'; return; }
+
+  /* show loading skeleton */
+  document.getElementById('loadingHero').style.display = 'flex';
+
+  /* fetch from DB */
+  const data = await loadFromDB(userId);
+
+  if (!data || !data.user) {
+    Notify.toast('Could not load profile data. 😅','error',3500);
+    document.getElementById('loadingHero').style.display = 'none';
+    document.getElementById('profileHero').style.display = 'flex';
+    document.getElementById('name').textContent = user.fullName || user.username || 'Learner';
+    document.getElementById('avatar').textContent = user.profile_picture ? '👤' : '🐼';
+    document.getElementById('levelNum').textContent = user.level || 1;
+    return;
+  }
+
+  renderProfile(data);
+
+  /* success toast */
+  setTimeout(() => {
+    Notify.toast(`Profile loaded — Level ${data.user.level || 1}! ⭐`,'star',3000);
+    Notify.miniConfetti();
+  }, 500);
+
+  /* stat hover pulse */
+  document.querySelectorAll('.stat-card').forEach(c=>{
+    c.addEventListener('mouseenter',()=>{
+      const h2 = c.querySelector('h2');
+    if(h2){ h2.style.color='var(--blue)'; }
+    c.addEventListener('mouseleave',()=>{
+      const h2 = c.querySelector('h2');
+      if(h2){ h2.style.color='var(--yellow)'; }
+    });
+  });
+
+  /* notif dismiss */
+  document.querySelectorAll('.notif-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      card.classList.remove('unread');
+      Notify.toast('Notification dismissed','info',1500);
+    });
+  });
+
+  /* bottom nav sounds */
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    item.addEventListener('click', function(){
+      Notify.toast('Navigating… ✨','info',1200);
+    });
+  });
+
+})();
+
+/* ─────────────── LOGOUT ─────────────── */
+function logout(){
+  Notify.toast('Goodbye! See you soon! 👋','info',2500);
+  setTimeout(()=>{
+    localStorage.removeItem(SESSION_KEY);
+    window.location.href = 'login.html';
+  },600);
+}
+
+</script>
+
+</body>
+</html>

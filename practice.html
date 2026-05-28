@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice - Hanverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="notifications.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #F4D35E;
+            --primary-light: #FF6B6B;
+            --background: #FAFBFC;
+            --surface: #FFFFFF;
+            --text-primary: #1A1A2E;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --radius-lg: 24px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: var(--surface);
+        }
+        .app-header {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .app-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.25rem;
+            color: white;
+        }
+        .app-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .main-content {
+            padding: 1.25rem;
+            padding-bottom: 110px;
+            padding-bottom: max(110px, env(safe-area-inset-bottom));
+        }
+        .stats-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .stats-banner h2 {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        .stats-banner p {
+            opacity: 0.9;
+            font-size: 0.875rem;
+        }
+        .practice-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .practice-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .practice-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .practice-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .practice-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 1rem;
+            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+.nav-item{
+            display: flex;
+            min-width: 52px;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-secondary);
+            min-width: 60px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item:active {
+            transform: scale(0.98);
+        }
+        .nav-item.active {
+            color: var(--primary);
+        }
+        .nav-item.active .nav-icon {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+        }
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background: var(--background);
+        }
+.nav-label {
+            font-size: 0.64rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="app-logo">汉</div>
+            <span class="app-title">Practice</span>
+        </header>
+        <main class="main-content">
+            <div class="stats-banner">
+                <h2>156</h2>
+                <p>Words Practiced This Week</p>
+            </div>
+            <div class="practice-card">
+                <div class="practice-icon" style="background: linear-gradient(135deg, #FFE5E5 0%, #FFCDD2 100%);">📝</div>
+                <h3 class="practice-title">Flashcards</h3>
+                <p class="practice-desc">Review vocabulary with interactive flashcards</p>
+            </div>
+            <div class="practice-card">
+                <div class="practice-icon" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);">🎮</div>
+                <h3 class="practice-title">Quiz Mode</h3>
+                <p class="practice-desc">Test your knowledge with timed quizzes</p>
+            </div>
+            <div class="practice-card">
+                <div class="practice-icon" style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);">✍️</div>
+                <h3 class="practice-title">Writing Practice</h3>
+                <p class="practice-desc">Practice writing Chinese characters</p>
+            </div>
+            <div class="practice-card">
+                <div class="practice-icon" style="background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);">🗣️</div>
+                <h3 class="practice-title">Speaking Practice</h3>
+                <p class="practice-desc">Improve pronunciation with voice recognition</p>
+            </div>
+        </main>
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="learn.html" class="nav-item">
+                <div class="nav-icon">📚</div>
+                <span class="nav-label">Learn</span>
+            </a>
+            <a href="practice.html" class="nav-item active">
+                <div class="nav-icon">🎯</div>
+                <span class="nav-label">Practice</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <span class="nav-label">Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- ── Notifications ── -->
+    <script src="notifications.js"></script>
+    <script>
+    /* ── Practice card click ── */
+    const cardMessages = {
+      'Flashcards':    {msg:'Great practice session! +20 XP', emoji:'📝'},
+      'Quiz Mode':     {msg:'Quiz unlocked! Test your skills!', emoji:'🎮'},
+      'Writing Practice': {msg:'Practice mode ready!', emoji:'✍️'},
+      'Speaking Practice': {msg:'Let\'s get speaking!', emoji:'🗣️'},
+    };
+
+    document.querySelectorAll('.practice-card').forEach(card=>{
+      card.addEventListener('click', function(e){
+        const titleEl = this.querySelector('.practice-title');
+        const title   = titleEl ? titleEl.textContent : '';
+        const info    = cardMessages[title] || {msg:'Practice mode coming soon!','xp':10,emoji:'🎯'};
+
+        /* ripple */
+        const rect = this.getBoundingClientRect();
+        const r = document.createElement('div');
+        r.className = 'n-ripple-container';
+        const ring = document.createElement('div');
+        ring.className = 'n-ripple';
+        ring.style.cssText = `width:30px;height:30px;
+          left:${e.clientX-rect.left-15}px;
+          top:${e.clientY-rect.top-15}px;
+          background:rgba(78,168,222,.35);`;
+        this.style.position='relative';
+        this.style.overflow='hidden';
+        this.appendChild(r);
+        r.appendChild(ring);
+        setTimeout(()=>r.remove(),700);
+
+        Notify.toast(info.msg,'xp',2800);
+        Notify.showXP(info.xp || 10);
+        Notify.miniConfetti();
+      });
+    });
+
+    /* ── Hover sparkle ── */
+    document.querySelectorAll('.practice-card').forEach(card=>{
+      card.addEventListener('mouseenter',()=>{
+        Notify.badgePulse(card.querySelector('.practice-icon'));
+      });
+    });
+
+    /* ── Bottom nav item ── */
+    document.querySelectorAll('.nav-item').forEach(item=>{
+      item.addEventListener('click',function(){
+        Notify.toast('Navigating... ✨','info',1500);
+      });
+    });
+
+    /* ── Stats banner ── */
+    setTimeout(()=>{
+      Notify.toast('You\'ve practiced 156 words this week! 🎯','xp',3500);
+      Notify.miniConfetti();
+    },1200);
+
+    </script>
+    </body>
+</html>

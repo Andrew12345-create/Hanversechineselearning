@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Hanverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #F4D35E;
+            --primary-light: #FF6B6B;
+            --secondary: #1D3557;
+            --background: #FAFBFC;
+            --surface: #FFFFFF;
+            --text-primary: #1A1A2E;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --radius-lg: 24px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1D3557 0%, #457B9D 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .signup-container {
+            max-width: 400px;
+            width: 90%;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 24px rgba(244,211,94, 0.4);
+        }
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(244,211,94, 0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(244,211,94, 0.4);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        .login-link a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .error-message {
+            background: #FFEBEE;
+            color: #C62828;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="logo-section">
+            <div class="logo">汉</div>
+            <h1>Create Account</h1>
+            <p class="subtitle">Start your Chinese learning journey</p>
+        </div>
+        <form id="signupForm">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="johndoe" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="login.html">Sign in</a>
+        </div>
+    </div>
+    <script src="notifications.js"></script>
+    <script>
+        const API_URL = '/api';
+
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var fullName = document.getElementById('fullName').value.trim();
+            var username = document.getElementById('username').value.trim();
+            var email = document.getElementById('email').value.trim();
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirmPassword').value;
+            var errorMsg = document.getElementById('errorMessage');
+            var btn = document.querySelector('.btn');
+
+            // Client-side validation with toast feedback
+            if (!fullName || !username || !email || !password || !confirmPassword) {
+                Notify.toast('Please fill in all fields', 'warn', 4000);
+                return;
+            }
+
+            if (password.length < 6) {
+                Notify.toast('Password must be at least 6 characters', 'warn', 4000);
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                Notify.toast('Passwords do not match', 'warn', 4000);
+                return;
+            }
+
+            // Disable button during signup
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+            errorMsg.style.display = 'none';
+
+            try {
+                var response = await fetch(API_URL + '/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password, fullName: fullName, username: username })
+                });
+
+                var data = await response.json();
+
+                if (!response.ok) {
+                    Notify.toast(data.error || 'Signup failed. Please try again.', 'error', 4000);
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                    return;
+                }
+
+                Notify.toast('Account created successfully! 🎉', 'success', 4000);
+                Notify.miniConfetti();
+
+                setTimeout(function() {
+                    window.location.href = 'login.html';
+                }, 1500);
+
+            } catch (err) {
+                console.error('Signup error:', err);
+                Notify.toast('Connection error. Is the server running?', 'error', 5000);
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>
