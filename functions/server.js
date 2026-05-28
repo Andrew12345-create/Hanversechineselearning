@@ -2,6 +2,9 @@ const express = require('express');
 const pkg = require('pg');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const { Pool } = pkg;
 const app = express();
@@ -449,6 +452,61 @@ exports.handler = async (event, context) => {
             level: 1,
             streak_days: 0
           }
+        })
+      };
+    }
+
+    if (event.httpMethod === 'GET' && path.startsWith('/api/user/')) {
+      const userId = path.replace('/api/user/', '');
+
+      if (!userId) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'User ID is required' })
+        };
+      }
+
+      const userResult = await pool.query(
+        'SELECT * FROM users WHERE user_id = $1',
+        [userId]
+      );
+
+      if (userResult.rows.length === 0) {
+        return {
+          statusCode: 404,
+          headers,
+          body: JSON.stringify({ error: 'User not found' })
+        };
+      }
+
+      const user = userResult.rows[0];
+      const progressResult = await pool.query(
+        'SELECT * FROM user_progress WHERE user_id = $1',
+        [userId]
+      );
+      const achievementsResult = await pool.query(
+        'SELECT * FROM achievements WHERE user_id = $1',
+        [userId]
+      );
+      const notificationsResult = await pool.query(
+        'SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20',
+        [userId]
+      );
+      const settingsResult = await pool.query(
+        'SELECT * FROM user_settings WHERE user_id = $1',
+        [userId]
+      );
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          user,
+          progress: progressResult.rows,
+          achievements: achievementsResult.rows,
+          notifications: notificationsResult.rows,
+          settings: settingsResult.rows[0] || null
         })
       };
     }
