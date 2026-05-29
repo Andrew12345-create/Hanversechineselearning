@@ -1,11 +1,15 @@
 [build]
-  command = "npm run build"
+  # Frontend is plain static HTML, so no build step is required.
+  command = ""
   publish = "."
   functions = "functions"
-  functionsNodeVersion = 18
+  functionsNodeVersion = "18"
 
 [build.environment]
   NODE_VERSION = "18"
+
+# Netlify Functions will handle /api/*, static files are served from the repo root.
+
 
 [[redirects]]
   from = "/"
@@ -15,5 +19,6 @@
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/server/:splat"
+
   status = 200
 
