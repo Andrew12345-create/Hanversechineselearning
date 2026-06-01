@@ -15,8 +15,13 @@ app.use(cors());
 app.use(express.json());
 
 // Database connection pool
+const databaseUrl = process.env.DATABASE_URL || process.env.eDATABASE_URL || process.env.NEON_DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error('Missing DATABASE_URL. Set it in .env for local development or in Netlify environment variables.');
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
   ssl: {
     rejectUnauthorized: false
   }

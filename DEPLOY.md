@@ -13,6 +13,8 @@ In Netlify Dashboard, go to **Site Settings > Environment Variables** and add:
 | `PORT` | `3000` |
 | `NODE_ENV` | `production` |
 
+> Use `DATABASE_URL` consistently in both local `.env` and Netlify environment variables.
+
 ## Deployment Steps
 
 ### Option 1: Deploy from Git

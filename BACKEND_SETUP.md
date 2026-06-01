@@ -12,11 +12,13 @@ npm install
 ```
 
 2. **Configure database connection:**
-The `.env` file already contains your Neon database connection string. Verify it matches:
+Copy `.env.example` to `.env` and verify the `DATABASE_URL` value matches your Neon database connection string:
 ```
 DATABASE_URL=postgresql://neondb_owner:npg_2GbziUBo9RvI@ep-little-brook-airyxne9-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 PORT=3000
+NODE_ENV=development
 ```
+Note: the server reads `DATABASE_URL` for both local and Netlify environments.
 
 3. **Start the server:**
 ```bash
