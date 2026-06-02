@@ -3,13 +3,39 @@ import pkg from 'pg';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
+import { existsSync } from 'fs';
+import path from 'path';
 
 dotenv.config();
 
 const { Pool } = pkg;
 const app = express();
 
+const isMobileOrTablet = (userAgent = '') => /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|tablet|kindle|silk|playbook/i.test(userAgent);
+const tryServeAppVersion = (req, res, next) => {
+  if (req.method !== 'GET') return next();
+  const ua = req.headers['user-agent'] || '';
+  if (!isMobileOrTablet(ua)) return next();
+
+  const originalPath = req.path;
+  if (originalPath === '/' || originalPath === '/index.html') {
+    req.url = '/index-app.html';
+    return next();
+  }
+
+  if (originalPath.endsWith('.html') && !originalPath.endsWith('-app.html')) {
+    const appVersionPath = originalPath.replace(/\.html$/, '-app.html');
+    const appFile = path.join(process.cwd(), appVersionPath);
+    if (existsSync(appFile)) {
+      req.url = appVersionPath;
+    }
+  }
+
+  return next();
+};
+
 // Middleware
+app.use(tryServeAppVersion);
 app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));

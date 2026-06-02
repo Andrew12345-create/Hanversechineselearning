@@ -229,6 +229,24 @@ font-size:1rem;
 
 }
 
+/* ADMIN TAG */
+.admin-tag{
+  margin-top:10px;
+  display:inline-block;
+  padding:10px 18px;
+  border-radius:999px;
+  background:#0B0F1A;
+  border:2px solid var(--red);
+  color:white;
+  font-weight:900;
+  letter-spacing:0.08em;
+  box-shadow:0 10px 30px rgba(230,57,70,.35);
+  animation:adminPulse 1.2s ease-in-out infinite;
+}
+@keyframes adminPulse{
+  0%,100%{transform:scale(1);filter:brightness(1);}
+  50%{transform:scale(1.04);filter:brightness(1.15);}
+}
 
 /* STATS */
 
@@ -620,6 +638,11 @@ nav ul{flex-wrap:wrap;justify-content:center;gap:16px;}
       <span class="level-arrow" id="levelArrow"></span>
     </div>
 
+    <!-- Admin tag (only shown for admins) -->
+    <div class="admin-tag" id="adminTag" style="display:none;">
+      🛡️ ADMIN
+    </div>
+
   </div>
 
 </section>
@@ -803,6 +826,13 @@ function renderProfile(data) {
   document.getElementById('levelNum').textContent  = user.level || 1;
   document.getElementById('levelArrow').textContent = user.streak_days >= 7 ? ' 🔥' : '';
   document.getElementById('apiStatus').textContent = data.apiStatus || (data.user ? 'Server: connected ✅' : 'Server: offline ⚠️');
+
+  // Admin tag
+  const adminTag = document.getElementById('adminTag');
+  const isAdmin = Boolean(data?.user?.is_admin);
+  if (adminTag) {
+    adminTag.style.display = isAdmin ? 'inline-block' : 'none';
+  }
 
   if (data.progress && data.progress.length > 0) {
     document.getElementById('tagline').textContent =

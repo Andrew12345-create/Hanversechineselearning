@@ -237,18 +237,32 @@ app.get('/api/user/:userId', async (req, res) => {
     // Fetch all related user data
     const progressResult = await pool.query(
       'SELECT * FROM user_progress WHERE user_id = $1',
-      [id]
+      [userId]
     );
 
     const achievementsResult = await pool.query(
       'SELECT * FROM achievements WHERE user_id = $1',
-      [id]
+      [userId]
     );
 
     const vocabResult = await pool.query(
       'SELECT * FROM vocabulary_progress WHERE user_id = $1',
-      [id]
+      [userId]
     );
+
+    // Admin indicator
+    // Schema currently does not include an admin column, so this returns false by default.
+    // If you add `is_admin` (boolean) later, this will automatically start returning true.
+    let is_admin = false;
+    try {
+      const isAdminRow = await pool.query(
+        'SELECT is_admin FROM users WHERE user_id = $1',
+        [userId]
+      );
+      is_admin = Boolean(isAdminRow.rows?.[0]?.is_admin);
+    } catch (e) {
+      is_admin = false;
+    }
 
     res.json({
       user: {
