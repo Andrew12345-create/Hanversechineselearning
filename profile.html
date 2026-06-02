@@ -210,6 +210,18 @@ font-size:.95rem;
 
 }
 
+.api-status{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px;
+  margin-top:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.2);
+  color:white;
+  font-size:.92rem;
+}
+
 .level-arrow{
 
 margin-left:6px;
@@ -601,6 +613,7 @@ nav ul{flex-wrap:wrap;justify-content:center;gap:16px;}
 
     <h1 id="name">—</h1>
     <p id="tagline">Continue your Mandarin journey.</p>
+    <div class="api-status" id="apiStatus">Checking server status…</div>
 
     <div class="level-badge" id="levelBadge">
       Level <span id="levelNum">—</span>
@@ -755,12 +768,19 @@ function requireSession() {
 
 /* ─────────────── FETCH FROM PSQL ─────────────── */
 async function loadFromDB(userId) {
+  const endpoint = `/api/user/${encodeURIComponent(userId)}`;
+  console.info('Fetching profile from API:', endpoint, { userId });
   try {
-    const r = await fetch(`/api/user/${encodeURIComponent(userId)}`);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return await r.json();
-  } catch(e) {
-    console.error('DB load error:', e);
+    const r = await fetch(endpoint);
+    if (!r.ok) {
+      const body = await r.text().catch(() => '');
+      throw new Error(`HTTP ${r.status}: ${body}`);
+    }
+    const result = await r.json();
+    console.info('Profile API response received:', result);
+    return result;
+  } catch (e) {
+    console.error('DB load error:', e, { endpoint, userId });
     return null;
   }
 }
@@ -782,6 +802,7 @@ function renderProfile(data) {
   document.getElementById('avatar').textContent    = '🐼';
   document.getElementById('levelNum').textContent  = user.level || 1;
   document.getElementById('levelArrow').textContent = user.streak_days >= 7 ? ' 🔥' : '';
+  document.getElementById('apiStatus').textContent = data.apiStatus || (data.user ? 'Server: connected ✅' : 'Server: offline ⚠️');
 
   if (data.progress && data.progress.length > 0) {
     document.getElementById('tagline').textContent =
@@ -886,18 +907,24 @@ function renderProfile(data) {
   document.getElementById('loadingHero').style.display = 'flex';
 
   /* fetch from DB */
+  console.info('Initializing profile page for user:', userId, user);
   const data = await loadFromDB(userId);
 
   if (!data || !data.user) {
-    Notify.toast('Could not load profile data. 😅','error',3500);
-    document.getElementById('loadingHero').style.display = 'none';
-    document.getElementById('profileHero').style.display = 'flex';
-    document.getElementById('name').textContent = user.fullName || user.username || 'Learner';
-    document.getElementById('avatar').textContent = user.profile_picture ? '👤' : '🐼';
-    document.getElementById('levelNum').textContent = user.level || 1;
+    console.warn('Profile load failed; falling back to cached local session data.', { userId, data });
+    Notify.toast('Could not load profile data from server. Showing cached profile instead.','warning',3500);
+    renderProfile({
+      user,
+      progress: [],
+      achievements: [],
+      notifications: [],
+      apiStatus: 'Server: offline — showing cached profile ⚠️'
+    });
     return;
   }
 
+  console.info('Profile data loaded successfully from server.');
+  data.apiStatus = 'Server: connected ✅';
   renderProfile(data);
 
   /* success toast */
@@ -906,16 +933,21 @@ function renderProfile(data) {
     Notify.miniConfetti();
   }, 500);
 
-  /* stat hover pulse */
-  document.querySelectorAll('.stat-card').forEach(c=>{
-    c.addEventListener('mouseenter',()=>{
-      const h2 = c.querySelector('h2');
-    if(h2){ h2.style.color='var(--blue)'; }
-    c.addEventListener('mouseleave',()=>{
-      const h2 = c.querySelector('h2');
-      if(h2){ h2.style.color='var(--yellow)'; }
+  document.querySelectorAll('.stat-card').forEach(c => {
+    const h2 = c.querySelector('h2');
+
+    c.addEventListener('mouseenter', () => {
+      if (h2) h2.style.color = 'var(--blue)';
+    });
+
+    c.addEventListener('mouseleave', () => {
+      if (h2) h2.style.color = 'var(--yellow)';
     });
   });
+
+  /* stat hover pulse */
+  // (Removed corrupted nested event-listener block that could break script parsing)
+
 
   /* notif dismiss */
   document.querySelectorAll('.notif-card').forEach(card=>{

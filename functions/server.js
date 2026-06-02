@@ -1,9 +1,9 @@
-const serverless = require('serverless-http');
-const express = require('express');
-const pkg = require('pg');
-const cors = require('cors');
-const bcrypt = require('bcrypt');
-const dotenv = require('dotenv');
+import serverless from 'serverless-http';
+import express from 'express';
+import pkg from 'pg';
+import cors from 'cors';
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -15,7 +15,15 @@ app.use(cors());
 app.use(express.json());
 
 // Database connection pool
-const databaseUrl = process.env.DATABASE_URL || process.env.eDATABASE_URL || process.env.NEON_DATABASE_URL;
+const normalizeDatabaseUrl = (rawUrl) => {
+  if (!rawUrl) return rawUrl;
+  let url = rawUrl.trim();
+  url = url.replace(/^psql\s+/i, '');
+  url = url.replace(/^['"]|['"]$/g, '');
+  return url;
+};
+
+const databaseUrl = normalizeDatabaseUrl(process.env.DATABASE_URL || process.env.eDATABASE_URL || process.env.NEON_DATABASE_URL);
 if (!databaseUrl) {
   throw new Error('Missing DATABASE_URL. Set it in .env for local development or in Netlify environment variables.');
 }
@@ -211,13 +219,13 @@ app.post('/api/signup', async (req, res) => {
 });
 
 // Get user data endpoint
-app.get('/api/user/:id', async (req, res) => {
+app.get('/api/user/:userId', async (req, res) => {
   try {
-    const { id } = req.params;
+    const userId = req.params.userId || req.params.id;
 
     const userResult = await pool.query(
       'SELECT * FROM users WHERE user_id = $1',
-      [id]
+      [userId]
     );
 
     if (userResult.rows.length === 0) {
@@ -270,4 +278,4 @@ app.get('/api/health', (req, res) => {
 });
 
 // Export handler for Netlify Functions using serverless-http
-module.exports.handler = serverless(app);
+export const handler = serverless(app);

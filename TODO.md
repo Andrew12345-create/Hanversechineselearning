@@ -1,8 +1,12 @@
-- [x] Plan approved by user
-- [x] Updated `server.js` default port 3001 → 3000
-- [x] Reduced desktop navbar link spacing (gap 30px → 18px) in `index.html`, `learn.html`, `profile.html`
-- [x] Reduced bottom-nav crowding in `practice.html` (min-width + smaller label font)
-- [ ] Fix any unintended `learn.html` formatting/syntax issues introduced during nav spacing edits (JS/HTML parsing errors reported)
-- [ ] Verify all pages render: index.html, learn.html, practice.html, profile.html
-- [ ] Run server and confirm localhost:3000 works
+# TODO - DB Connection & Multi-page Support
+
+- [x] Update `.env` with Neon Postgres connection string as `DATABASE_URL`
+- [x] Update `server.js` to ensure Neon SSL settings work with pg (no incorrect SSL override)
+- [x] Update `server.js` to listen on `0.0.0.0` so pages can reach API in more environments
+- [x] Add `GET /api/health/db` endpoint for quick verification (`SELECT 1`)
+- [x] Start server and verify `/api/health/db`
+- [x] Smoke test login/signup flows
+
+
+
 

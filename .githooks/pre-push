@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e
+
+# Prevent .env files from being pushed once hooks are enabled.
+check_files() {
+  git diff --cached --name-only | grep -Eq '^\.env($|\.|$)' && return 0
+  while read local_ref local_sha remote_ref remote_sha; do
+    if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+      range="$local_sha"
+    else
+      range="$remote_sha..$local_sha"
+    fi
+
+    if [ -n "$range" ] && git diff --name-only "$range" | grep -Eq '^\.env($|\.|$)'; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+if check_files; then
+  echo "ERROR: .env or related environment file is included in the push. Remove it before pushing."
+  echo "Make sure .env is listed in .gitignore and not staged or committed."
+  exit 1
+fi
+
+exit 0

@@ -15,7 +15,15 @@ app.use(express.json());
 app.use(express.static('.'));
 
 // Database connection pool
-const databaseUrl = process.env.DATABASE_URL || process.env.eDATABASE_URL || process.env.NEON_DATABASE_URL;
+const normalizeDatabaseUrl = (rawUrl) => {
+  if (!rawUrl) return rawUrl;
+  let url = rawUrl.trim();
+  url = url.replace(/^psql\s+/i, '');
+  url = url.replace(/^['"]|['"]$/g, '');
+  return url;
+};
+
+const databaseUrl = normalizeDatabaseUrl(process.env.DATABASE_URL || process.env.eDATABASE_URL || process.env.NEON_DATABASE_URL);
 if (!databaseUrl) {
   throw new Error('Missing DATABASE_URL. Set it in .env for local development or in Netlify environment variables.');
 }
@@ -23,9 +31,11 @@ if (!databaseUrl) {
 const pool = new Pool({
   connectionString: databaseUrl,
   ssl: {
-    rejectUnauthorized: false
-  }
+    // Neon requires SSL; connection string already includes sslmode=require&channel_binding=require.
+    rejectUnauthorized: false,
+  },
 });
+
 
 // Test database connection
 pool.connect((err, client, release) => {
@@ -203,8 +213,20 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
+// Health endpoint (DB connectivity check)
+app.get('/api/health/db', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('DB health check failed:', e);
+    return res.status(503).json({ ok: false, error: 'Database connection failed' });
+  }
+});
+
 // Get user data endpoint
 app.get('/api/user/:userId', async (req, res) => {
+
   try {
     const { userId } = req.params;
 
@@ -254,6 +276,7 @@ app.get('/api/user/:userId', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
+
