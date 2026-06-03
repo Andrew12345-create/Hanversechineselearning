@@ -239,6 +239,52 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
+// Admin — full DB overview (admin only)
+app.get('/api/admin/overview', async (req, res) => {
+  try {
+    const { userId } = req.query;
+    const check = await pool.query('SELECT is_admin FROM users WHERE user_id = $1', [userId]);
+    if (!check.rows.length || !check.rows[0].is_admin) return res.status(403).json({ error: 'Forbidden' });
+
+    const [users, progress, achievements, goals, notifications, vocab, settings] = await Promise.all([
+      pool.query('SELECT user_id,username,full_name,email,xp,level,streak_days,last_active,is_admin,created_at FROM users ORDER BY created_at DESC'),
+      pool.query('SELECT * FROM user_progress ORDER BY completed_at DESC NULLS LAST'),
+      pool.query('SELECT * FROM achievements ORDER BY earned_at DESC'),
+      pool.query('SELECT * FROM daily_goals ORDER BY goal_date DESC'),
+      pool.query('SELECT * FROM notifications ORDER BY created_at DESC LIMIT 100'),
+      pool.query('SELECT * FROM vocabulary_progress'),
+      pool.query('SELECT * FROM user_settings'),
+    ]);
+
+    res.json({
+      users: users.rows,
+      progress: progress.rows,
+      achievements: achievements.rows,
+      daily_goals: goals.rows,
+      notifications: notifications.rows,
+      vocabulary: vocab.rows,
+      settings: settings.rows,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update profile picture
+app.post('/api/user/:userId/pfp', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { profile_picture } = req.body;
+    if (!profile_picture) return res.status(400).json({ error: 'No image provided' });
+    await pool.query('UPDATE users SET profile_picture = $1 WHERE user_id = $2', [profile_picture, userId]);
+    res.json({ success: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to update profile picture' });
+  }
+});
+
 // Health endpoint (DB connectivity check)
 app.get('/api/health/db', async (req, res) => {
   try {
@@ -287,12 +333,28 @@ app.get('/api/user/:userId', async (req, res) => {
       [userId]
     );
 
+    const vocabResult = await pool.query(
+      'SELECT * FROM vocabulary_progress WHERE user_id = $1',
+      [userId]
+    );
+
     res.json({
-      user,
+      user: {
+        user_id: user.user_id,
+        username: user.username,
+        full_name: user.full_name,
+        xp: user.xp,
+        level: user.level,
+        streak_days: user.streak_days,
+        profile_picture: user.profile_picture,
+        is_admin: user.is_admin || false,
+        created_at: user.created_at
+      },
       progress: progressResult.rows,
       achievements: achievementsResult.rows,
       notifications: notificationsResult.rows,
-      settings: settingsResult.rows[0]
+      settings: settingsResult.rows[0],
+      vocabulary: vocabResult.rows
     });
 
   } catch (error) {

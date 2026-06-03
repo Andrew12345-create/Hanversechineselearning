@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hanverse Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+--yellow:#F4D35E;
+--red:#E63946;
+--blue:#4EA8DE;
+--green:#74C69D;
+--dark:#1A1A2E;
+--bg:#0D0D1A;
+--surface:#141428;
+--card:#1C1C35;
+--border:rgba(255,255,255,.07);
+--text:#E8E8F0;
+--muted:#8888AA;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* TOP BAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 36px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.admin-logo{
+  width:44px;height:44px;border-radius:14px;
+  background:linear-gradient(135deg,#ff416c,#ff4b2b);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 4px 16px rgba(255,65,108,.4);
+}
+.topbar h1{font-size:1.2rem;font-weight:800;color:#fff;}
+.topbar h1 span{color:#ff6b6b;}
+.back-btn{
+  padding:10px 20px;border-radius:999px;border:none;cursor:pointer;
+  background:rgba(255,255,255,.07);color:var(--text);font-weight:600;
+  font-size:.82rem;transition:.2s;
+}
+.back-btn:hover{background:rgba(255,255,255,.13);}
+
+/* STATS ROW */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+  padding:28px 36px 0;
+}
+.stat-pill{
+  background:var(--card);border-radius:20px;padding:22px 24px;
+  border:1px solid var(--border);
+}
+.stat-pill .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.stat-pill .val{font-size:2rem;font-weight:800;}
+.stat-pill:nth-child(1) .val{color:var(--yellow);}
+.stat-pill:nth-child(2) .val{color:var(--blue);}
+.stat-pill:nth-child(3) .val{color:var(--green);}
+.stat-pill:nth-child(4) .val{color:#ff6b6b;}
+
+/* TABS */
+.tabs{
+  display:flex;gap:6px;padding:28px 36px 0;flex-wrap:wrap;
+}
+.tab{
+  padding:10px 20px;border-radius:999px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-weight:600;font-size:.82rem;
+  cursor:pointer;transition:.2s;
+}
+.tab:hover{background:rgba(255,255,255,.06);color:var(--text);}
+.tab.active{background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;border-color:transparent;box-shadow:0 4px 16px rgba(255,65,108,.35);}
+
+/* TABLE SECTION */
+.section{padding:24px 36px 48px;}
+.section-title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.count-badge{padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:.75rem;color:var(--muted);}
+
+.table-wrap{overflow-x:auto;border-radius:18px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+thead tr{background:rgba(255,255,255,.04);}
+th{padding:13px 16px;text-align:left;color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.07em;white-space:nowrap;}
+td{padding:13px 16px;border-top:1px solid var(--border);color:var(--text);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+tr:hover td{background:rgba(255,255,255,.03);}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;}
+.pill-green{background:rgba(116,198,157,.15);color:var(--green);}
+.pill-red{background:rgba(230,57,70,.15);color:var(--red);}
+.pill-blue{background:rgba(78,168,222,.15);color:var(--blue);}
+.pill-yellow{background:rgba(244,211,94,.15);color:var(--yellow);}
+
+/* USER CARD GRID */
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
+.user-card{
+  background:var(--card);border-radius:20px;padding:22px;
+  border:1px solid var(--border);display:flex;gap:16px;align-items:center;
+}
+.user-pfp{
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--yellow),var(--blue));
+  display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;
+}
+.user-pfp img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.user-info h3{font-size:.9rem;font-weight:700;color:#fff;}
+.user-info p{font-size:.75rem;color:var(--muted);margin-top:2px;}
+.user-meta{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;}
+
+/* LOADING */
+.loading{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px;gap:20px;
+}
+.spinner{
+  width:48px;height:48px;border-radius:50%;
+  border:4px solid rgba(255,65,108,.2);
+  border-top-color:#ff416c;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading p{color:var(--muted);font-weight:600;}
+
+/* ACCESS DENIED */
+.denied{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:80vh;gap:16px;text-align:center;
+}
+.denied h2{font-size:2rem;color:#ff416c;}
+.denied p{color:var(--muted);}
+
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .topbar,.section,.tabs,.stats-row{padding-left:18px;padding-right:18px;}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading"><div class="spinner"></div><p>Verifying access…</p></div>
+</div>
+
+<script>
+(async function(){
+  const stored = localStorage.getItem('hanverse_user');
+  if (!stored) { location.href='login.html'; return; }
+  const { user_id } = JSON.parse(stored);
+  if (!user_id) { location.href='login.html'; return; }
+
+  const res = await fetch('/api/admin/overview?userId=' + user_id);
+  if (res.status === 403) {
+    document.getElementById('app').innerHTML = `
+      <div class="denied">
+        <div style="font-size:4rem;">🚫</div>
+        <h2>Access Denied</h2>
+        <p>You are not an administrator.</p>
+        <button onclick="location.href='profile.html'" class="back-btn" style="margin-top:12px;">← Back to Profile</button>
+      </div>`;
+    return;
+  }
+  const db = await res.json();
+
+  // Compute summary stats
+  const totalUsers = db.users.length;
+  const adminCount = db.users.filter(u => u.is_admin).length;
+  const totalXP = db.users.reduce((s,u) => s + (u.xp||0), 0);
+  const completedLessons = db.progress.filter(p => p.completed).length;
+
+  // Tab state
+  let activeTab = 'users';
+
+  function fmt(val) {
+    if (val === null || val === undefined) return '<span style="color:#555">—</span>';
+    if (typeof val === 'boolean') return val ? '<span class="pill pill-green">Yes</span>' : '<span class="pill pill-red">No</span>';
+    if (typeof val === 'string' && val.length > 60) return `<span title="${val.replace(/"/g,"'")}">${val.slice(0,58)}…</span>`;
+    return String(val);
+  }
+
+  function renderTable(rows, skipCols=[]) {
+    if (!rows.length) return '<p style="color:var(--muted);padding:20px;">No records found.</p>';
+    const cols = Object.keys(rows[0]).filter(c => !skipCols.includes(c));
+    return `<div class="table-wrap"><table>
+      <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(row=>`<tr>${cols.map(c=>`<td>${fmt(row[c])}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  function renderUsers() {
+    return `<div class="user-grid">${db.users.map(u => {
+      const pfp = u.profile_picture ? `<img src="${u.profile_picture}" alt="pfp">` : '🐼';
+      return `<div class="user-card">
+        <div class="user-pfp">${pfp}</div>
+        <div class="user-info">
+          <h3>${u.full_name || u.username}</h3>
+          <p>@${u.username} · ${u.email}</p>
+          <div class="user-meta">
+            ${u.is_admin ? '<span class="pill pill-red">👑 Admin</span>' : '<span class="pill pill-blue">User</span>'}
+            <span class="pill pill-yellow">⭐ ${(u.xp||0).toLocaleString()} XP</span>
+            <span class="pill pill-green">Lv ${u.level||1}</span>
+            <span class="pill" style="background:rgba(255,255,255,.06);color:var(--muted);">🔥 ${u.streak_days||0}d</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  const tabs = [
+    { id:'users',    label:'👥 Users',        count: db.users.length },
+    { id:'progress', label:'📚 Progress',      count: db.progress.length },
+    { id:'achievements', label:'🏅 Achievements', count: db.achievements.length },
+    { id:'goals',    label:'🎯 Daily Goals',   count: db.daily_goals.length },
+    { id:'notifications', label:'🔔 Notifications', count: db.notifications.length },
+    { id:'vocab',    label:'🧠 Vocabulary',    count: db.vocabulary.length },
+    { id:'settings', label:'⚙️ Settings',      count: db.settings.length },
+  ];
+
+  function getContent() {
+    switch(activeTab) {
+      case 'users':         return renderUsers();
+      case 'progress':      return renderTable(db.progress);
+      case 'achievements':  return renderTable(db.achievements);
+      case 'goals':         return renderTable(db.daily_goals);
+      case 'notifications': return renderTable(db.notifications);
+      case 'vocab':         return renderTable(db.vocabulary);
+      case 'settings':      return renderTable(db.settings, ['password_hash']);
+      default: return '';
+    }
+  }
+
+  function render() {
+    document.getElementById('app').innerHTML = `
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="admin-logo">👑</div>
+          <h1>Hanverse <span>Admin</span></h1>
+        </div>
+        <button class="back-btn" onclick="location.href='profile.html'">← Back to Profile</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-pill"><div class="label">Total Users</div><div class="val">${totalUsers}</div></div>
+        <div class="stat-pill"><div class="label">Admins</div><div class="val">${adminCount}</div></div>
+        <div class="stat-pill"><div class="label">Total XP</div><div class="val">${totalXP.toLocaleString()}</div></div>
+        <div class="stat-pill"><div class="label">Lessons Done</div><div class="val">${completedLessons}</div></div>
+      </div>
+
+      <div class="tabs">
+        ${tabs.map(t=>`<button class="tab${activeTab===t.id?' active':''}" onclick="switchTab('${t.id}')">${t.label} <span style="opacity:.6;">(${t.count})</span></button>`).join('')}
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          ${tabs.find(t=>t.id===activeTab)?.label}
+          <span class="count-badge">${tabs.find(t=>t.id===activeTab)?.count} records</span>
+        </div>
+        ${getContent()}
+      </div>
+    `;
+  }
+
+  window.switchTab = function(id) {
+    activeTab = id;
+    render();
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>

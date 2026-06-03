@@ -12,6 +12,7 @@ CREATE TABLE users (
     streak_days INTEGER DEFAULT 0,
     last_active DATE,
     profile_picture VARCHAR(255),
+    is_admin BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

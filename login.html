@@ -1,31 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport"
 content="width=device-width,initial-scale=1">
 
 <title>Hanverse Login</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
 
 <style>
 
+/* ==========================================
+   HANVERSE BRAND SYSTEM
+========================================== */
+
 :root{
 
---red:#F4D35E;
---yellow:#E63946;
+--yellow:#F4D35E;
+--red:#E63946;
 --blue:#4EA8DE;
 --green:#74C69D;
+
 --bg:#FFFDF7;
 
+--surface:#FFFFFF;
+
+--text-primary:#1A1A2E;
+--text-secondary:#6B7280;
+
+--border:#E5E7EB;
+
 }
+
+/* ==========================================
+   RESET
+========================================== */
 
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Poppins,sans-serif;
+font-family:'Poppins',sans-serif;
+}
+
+html{
+scroll-behavior:smooth;
 }
 
 body{
@@ -39,22 +63,70 @@ display:flex;
 justify-content:center;
 align-items:center;
 
-padding:25px;
+padding:30px;
 
 overflow:hidden;
 
+position:relative;
+
 }
 
+/* ==========================================
+   BACKGROUND BLOBS
+========================================== */
 
-/* CONTAINER */
+body::before{
+
+content:'';
+
+position:absolute;
+
+width:700px;
+height:700px;
+
+border-radius:50%;
+
+background:
+rgba(78,168,222,.08);
+
+top:-350px;
+left:-350px;
+
+}
+
+body::after{
+
+content:'';
+
+position:absolute;
+
+width:600px;
+height:600px;
+
+border-radius:50%;
+
+background:
+rgba(244,211,94,.08);
+
+bottom:-300px;
+right:-300px;
+
+}
+
+/* ==========================================
+   LOGIN CONTAINER
+========================================== */
 
 .container{
+
+position:relative;
+
+z-index:2;
 
 display:flex;
 
 width:100%;
-
-max-width:1100px;
+max-width:1150px;
 
 background:white;
 
@@ -63,9 +135,9 @@ border-radius:40px;
 overflow:hidden;
 
 box-shadow:
-0 15px 35px rgba(0,0,0,.08);
+0 25px 60px rgba(0,0,0,.08);
 
-animation:fade .8s;
+animation:fade .8s ease;
 
 }
 
@@ -74,21 +146,26 @@ animation:fade .8s;
 from{
 
 opacity:0;
-transform:translateY(40px);
+
+transform:
+translateY(30px);
 
 }
 
 to{
 
 opacity:1;
-transform:translateY(0);
+
+transform:
+translateY(0);
 
 }
 
 }
 
-
-/* LEFT */
+/* ==========================================
+   LEFT PANEL
+========================================== */
 
 .left{
 
@@ -98,12 +175,14 @@ background:
 linear-gradient(
 135deg,
 var(--blue),
-#7bc7f4
+#7BC7F4
 );
 
 padding:60px;
 
 color:white;
+
+position:relative;
 
 display:flex;
 
@@ -111,72 +190,145 @@ flex-direction:column;
 
 justify-content:center;
 
-position:relative;
+overflow:hidden;
 
 }
 
-.left h1{
+/* FLOATING CHINESE CHARACTERS */
 
-font-size:45px;
+.char{
 
-margin:20px 0;
+position:absolute;
+
+font-size:80px;
+
+font-weight:800;
+
+opacity:.08;
+
+pointer-events:none;
 
 }
 
-.left p{
-
-line-height:1.8;
-
+.c1{
+top:40px;
+left:40px;
 }
 
+.c2{
+top:120px;
+right:60px;
+}
 
-.panda{
+.c3{
+bottom:120px;
+left:60px;
+}
 
-font-size:120px;
-
-margin-top:30px;
-
-animation:float 4s infinite;
-
+.c4{
+bottom:50px;
+right:50px;
 }
 
 .star{
 
 position:absolute;
 
+top:40px;
+right:40px;
+
 font-size:40px;
 
 color:var(--yellow);
 
-right:50px;
-top:50px;
+}
+
+/* BRAND TEXT */
+
+.welcome-label{
+
+font-size:18px;
+
+opacity:.95;
 
 }
 
- @keyframes float{
- 
- 50%{
+.left h1{
 
- transform:
- translateY(-15px);
+font-size:58px;
 
- }
+line-height:1.05;
 
- }
+margin:15px 0;
 
- @keyframes n-shake{
- 0%,100%{transform:translateX(0);}
- 15%{transform:translateX(-8px);}
- 30%{transform:translateX(8px);}
- 45%{transform:translateX(-5px);}
- 60%{transform:translateX(5px);}
- 75%{transform:translateX(-2px);}
- }
- .n-shake{animation:n-shake .55s ease;}
+}
 
+.left p{
 
+line-height:1.9;
 
-/* RIGHT */
+font-size:17px;
+
+max-width:480px;
+
+}
+
+/* TRUST BADGES */
+
+.trust-list{
+
+margin-top:35px;
+
+display:flex;
+
+flex-direction:column;
+
+gap:14px;
+
+}
+
+.trust-item{
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+font-weight:600;
+
+font-size:15px;
+
+}
+
+/* PANDA */
+
+.panda{
+
+font-size:120px;
+
+margin-top:35px;
+
+animation:float 4s infinite ease-in-out;
+
+cursor:pointer;
+
+}
+
+@keyframes float{
+
+50%{
+
+transform:
+translateY(-15px);
+
+}
+
+}
+
+/* ==========================================
+   RIGHT PANEL
+========================================== */
 
 .right{
 
@@ -192,27 +344,53 @@ flex-direction:column;
 
 }
 
-
 .logo{
 
-font-size:35px;
+font-size:40px;
 
-font-weight:700;
+font-weight:800;
 
-color:var(--red);
+color:var(--yellow);
 
-margin-bottom:15px;
+margin-bottom:10px;
 
 }
 
 .subtitle{
 
-margin-bottom:35px;
+color:var(--text-secondary);
 
-color:#777;
+margin-bottom:30px;
+
+line-height:1.7;
 
 }
 
+.login-header{
+
+margin-bottom:25px;
+
+}
+
+.login-header h2{
+
+font-size:30px;
+
+margin-bottom:8px;
+
+color:var(--text-primary);
+
+}
+
+.login-header p{
+
+color:var(--text-secondary);
+
+}
+
+/* ==========================================
+   INPUTS
+========================================== */
 
 .input-group{
 
@@ -222,6 +400,17 @@ position:relative;
 
 }
 
+.input-label{
+
+display:block;
+
+margin-bottom:8px;
+
+font-weight:600;
+
+color:var(--text-primary);
+
+}
 
 input{
 
@@ -229,34 +418,86 @@ width:100%;
 
 padding:18px;
 
-border:none;
+font-size:16px;
 
 border-radius:18px;
 
-background:#f4f4f4;
+border:2px solid transparent;
 
-font-size:16px;
+background:#F8FAFC;
+
+transition:.3s;
 
 }
 
 input:focus{
 
-outline:2px solid var(--blue);
+outline:none;
+
+border-color:var(--blue);
+
+background:white;
 
 }
-
 
 .eye{
 
 position:absolute;
 
-right:20px;
-top:20px;
+right:18px;
+top:50px;
 
 cursor:pointer;
 
+font-size:18px;
+
 }
 
+/* ==========================================
+   LOGIN OPTIONS
+========================================== */
+
+.options{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:25px;
+
+font-size:14px;
+
+}
+
+.options a{
+
+color:var(--red);
+
+text-decoration:none;
+
+font-weight:700;
+
+}
+
+.remember{
+
+display:flex;
+align-items:center;
+gap:8px;
+
+}
+
+.remember input{
+
+width:auto;
+
+}
+
+/* ==========================================
+   BUTTONS
+========================================== */
 
 .btn{
 
@@ -268,25 +509,43 @@ border:none;
 
 border-radius:40px;
 
-font-weight:600;
+font-weight:700;
 
 cursor:pointer;
-
-margin-top:10px;
 
 transition:.3s;
 
 }
 
+/* HANVERSE PRIMARY BUTTON */
 
 .login{
 
-background:var(--red);
+background:
+linear-gradient(
+135deg,
+var(--yellow),
+#FFD95A
+);
 
-color:white;
+color:#333;
+
+box-shadow:
+0 12px 30px
+rgba(244,211,94,.35);
 
 }
 
+.login:hover{
+
+transform:
+translateY(-3px);
+
+box-shadow:
+0 18px 40px
+rgba(244,211,94,.45);
+
+}
 
 .google{
 
@@ -298,12 +557,12 @@ margin-top:15px;
 
 }
 
-.btn:hover{
+.google:hover{
 
-transform:translateY(-3px);
+transform:
+translateY(-3px);
 
 }
-
 
 .bottom{
 
@@ -313,17 +572,19 @@ text-align:center;
 
 }
 
-
 .bottom a{
 
 color:var(--red);
 
-text-decoration:none;
+font-weight:700;
 
-font-weight:600;
+text-decoration:none;
 
 }
 
+/* ==========================================
+   MOBILE
+========================================== */
 
 @media(max-width:900px){
 
@@ -347,27 +608,70 @@ padding:40px;
 
 }
 
+.left h1{
+
+font-size:42px;
+
+}
+
+.panda{
+
+font-size:90px;
+
+}
+
+}
+
+@media(max-width:600px){
+
+.right{
+
+padding:30px;
+
+}
+
+.left{
+
+padding:30px;
+
+}
+
+.left h1{
+
+font-size:34px;
+
+}
+
+.logo{
+
+font-size:34px;
+
+}
+
 }
 
 </style>
-  <script src="device-redirect.js"></script>
-  <link rel="stylesheet" href="app.css">
+
 </head>
 
-<body class="app-page">
-
+<body>
 
 <div class="container">
 
+<!-- LEFT SIDE -->
+
 <div class="left">
 
+<div class="char c1">你</div>
+<div class="char c2">好</div>
+<div class="char c3">学</div>
+<div class="char c4">汉</div>
+
 <div class="star">
-
 ⭐
-
 </div>
 
-<p>
+<p class="welcome-label">
 
 Welcome to
 
@@ -381,9 +685,29 @@ Hanverse
 
 <p>
 
-Continue your Mandarin learning journey with stories, games and structured YCT lessons.
+Continue your Mandarin learning journey through stories, games, achievements and structured YCT lessons.
 
 </p>
+
+<div class="trust-list">
+
+<div class="trust-item">
+⭐ Structured YCT Curriculum
+</div>
+
+<div class="trust-item">
+🏆 XP & Achievements
+</div>
+
+<div class="trust-item">
+📈 Progress Tracking
+</div>
+
+<div class="trust-item">
+🤖 AI Learning Assistant
+</div>
+
+</div>
 
 <div class="panda">
 
@@ -393,7 +717,7 @@ Continue your Mandarin learning journey with stories, games and structured YCT l
 
 </div>
 
-
+<!-- RIGHT SIDE -->
 
 <div class="right">
 
@@ -405,30 +729,65 @@ Hanverse
 
 <p class="subtitle">
 
-Log in to continue learning
+Learn Mandarin Through Stories,
+Games & AI
 
 </p>
 
+<div class="login-header">
 
+<h2>
+
+Welcome Back 👋
+
+</h2>
+
+<p>
+
+Log in to continue where you left off.
+
+</p>
+
+</div>
+<!-- ==========================================
+   EMAIL
+========================================== -->
 
 <div class="input-group">
+
+<label class="input-label">
+
+Email Address
+
+</label>
+
 <input
-  type="email"
-  id="email"
-  placeholder="Email">
+type="email"
+id="email"
+placeholder="Enter your email">
+
 </div>
 
-
+<!-- ==========================================
+   PASSWORD
+========================================== -->
 
 <div class="input-group">
+
+<label class="input-label">
+
+Password
+
+</label>
+
 <input
-  type="password"
-  id="password"
-  placeholder="Password">
+type="password"
+id="password"
+placeholder="Enter your password">
 
 <span
 class="eye"
-onclick="toggle()">
+onclick="togglePassword()">
 
 👁️
 
@@ -436,21 +795,47 @@ onclick="toggle()">
 
 </div>
 
+<!-- ==========================================
+   OPTIONS
+========================================== -->
 
+<div class="options">
 
-<button class="btn login" id="loginBtn">
+<label class="remember">
+
+<input type="checkbox">
+
+Remember Me
+
+</label>
+
+<a href="forgot-password.html">
+
+Forgot Password?
+
+</a>
+
+</div>
+
+<!-- ==========================================
+   BUTTONS
+========================================== -->
+
+<button
+class="btn login"
+id="loginBtn">
+
 Log In
+
 </button>
 
-
-
-<button class="btn google">
+<button
+class="btn google"
+id="googleBtn">
 
 🌐 Continue with Google
 
 </button>
-
-
 
 <div class="bottom">
 
@@ -464,142 +849,364 @@ Sign Up
 
 </div>
 
-
-
 </div>
 
 </div>
-
-
 
 <script src="notifications.js"></script>
 
 <script>
 
-function comingSoon(e){e&&e.preventDefault();Notify.toast('Coming soon! 🚀','info',3000);}
+/* ==========================================
+   CONFIG
+========================================== */
 
-function addRipple(e,color){
-  const btn=e.currentTarget;
-  const rect=btn.getBoundingClientRect();
-  const r=document.createElement('div');
-  r.className='n-ripple-container';
-  const ring=document.createElement('div');
-  ring.className='n-ripple';
-  ring.style.cssText=`width:30px;height:30px;left:${e.clientX-rect.left-15}px;top:${e.clientY-rect.top-15}px;background:${color||'rgba(78,168,222,.35)'};`;
-  btn.style.position='relative'; btn.style.overflow='hidden';
-  btn.appendChild(r); r.appendChild(ring);
-  setTimeout(()=>r.remove(),700);
-}
-function shake(el){
-  el.classList.remove('n-shake');
-  void el.offsetWidth;
-  el.classList.add('n-shake');
-  setTimeout(()=>el.classList.remove('n-shake'),600);
-}
-function toggle(){
-  const pw=document.getElementById('password');
-  pw.type=pw.type==='password'?'text':'password';
-  Notify.toast(pw.type==='text'?'Password visible 👁️':'Password hidden 🔒','info',1500);
+const API_URL='/api';
+const SESSION_KEY='hanverse_user';
+
+/* ==========================================
+   PASSWORD TOGGLE
+========================================== */
+
+function togglePassword(){
+
+const pw=
+document.getElementById(
+'password'
+);
+
+pw.type=
+pw.type==='password'
+? 'text'
+: 'password';
+
+if(window.Notify){
+
+Notify.toast(
+
+pw.type==='text'
+? 'Password visible 👁️'
+: 'Password hidden 🔒',
+
+'info',
+1500
+
+);
+
 }
 
-const API_URL = '/api';
+}
 
-/* ── Input focus toasts ── */
-document.getElementById('email').addEventListener('focus',()=>Notify.toast('Enter your email address 📧','info',1800));
-document.getElementById('password').addEventListener('focus',()=>Notify.toast('Enter your password 🔐','info',1800));
+/* ==========================================
+   INPUT TOASTS
+========================================== */
+
+document
+.getElementById('email')
+.addEventListener('focus',()=>{
+
+if(window.Notify){
+
+Notify.toast(
+'Enter your email 📧',
+'info',
+1500
+);
+
+}
+
+});
+
+document
+.getElementById('password')
+.addEventListener('focus',()=>{
+
+if(window.Notify){
+
+Notify.toast(
+'Enter your password 🔐',
+'info',
+1500
+);
+
+}
+
+});
+
+/* ==========================================
+   ENTER TO LOGIN
+========================================== */
+
+document
+.addEventListener(
+'keydown',
+e=>{
+
+if(e.key==='Enter'){
+
+login();
+
+}
+
+}
+);
+
+/* ==========================================
+   LOGIN FUNCTION
+========================================== */
 
 async function login(){
-  const email=document.getElementById('email').value.trim();
-  const password=document.getElementById('password').value;
 
-  if(!email||!password){
-    Notify.toast('Please enter both email and password! 📧','error',3000);
-    shake(document.getElementById('email').parentElement);
-    return;
-  }
+const email=
+document
+.getElementById('email')
+.value.trim();
 
-  const btn=document.getElementById('loginBtn');
-  btn.disabled=true;
-  btn.textContent='Signing in… 🔄';
-  Notify.toast('Connecting to database… 🗄️','info',2500);
+const password=
+document
+.getElementById('password')
+.value;
 
-  try {
-    const resp=await fetch(API_URL+'/login',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email,password})
-    });
-    const data=await resp.json();
+if(!email || !password){
 
-    if(!resp.ok||!data.success){
-      btn.disabled=false;
-      btn.textContent='Log In';
-      if(resp.status===503||resp.status===500){
-        Notify.toast('Database is connecting… please try again 💫','error',4500);
-      } else {
-        Notify.toast(data.error||'Login failed. Check your details. ❌','error',4000);
-      }
-      shake(btn);
-      return;
-    }
+Notify.toast(
+'Please enter email and password 📧',
+'error',
+3000
+);
 
-    localStorage.setItem('hanverse_user', JSON.stringify({
-      user_id:data.user.user_id,
-      username:data.user.username,
-      fullName:data.user.full_name,
-      email:data.user.email,
-      xp:data.user.xp,
-      level:data.user.level,
-      streak:data.user.streak_days,
-      profile_picture:data.user.profile_picture,
-      created_at:data.user.created_at,
-    }));
+return;
 
-    const user=data.user;
-    Notify.toast('Login successful! Welcome back! 🎉','success',2500);
-    Notify.showXP(50);
-    Notify.miniConfetti();
-
-    if(user.streak&&user.streak>=7) Notify.streakFire(user.streak);
-    if(user.level>=5) Notify.toast(`Level ${user.level} — amazing progress! 🏆`,'star',3000);
-
-    setTimeout(()=>window.location.href='profile.html',900);
-  } catch(e){
-    console.error(e);
-    btn.disabled=false;
-    btn.textContent='Log In';
-    Notify.toast('Cannot reach server. Check your connection. 🌐','error',5000);
-  }
 }
 
-document.getElementById('loginBtn').addEventListener('click',(e)=>{
-  e.preventDefault();
-  addRipple(e);
-  login();
-});
-document.querySelectorAll('.btn,.google').forEach(btn=>{
-  btn.addEventListener('click',e=>addRipple(e));
-});
+const btn=
+document.getElementById(
+'loginBtn'
+);
 
-const panda=document.querySelector('.panda');
+btn.disabled=true;
+
+btn.innerHTML=
+'Signing In... 🔄';
+
+try{
+
+const response=
+await fetch(
+API_URL+'/login',
+{
+method:'POST',
+headers:{
+'Content-Type':
+'application/json'
+},
+body:JSON.stringify({
+email,
+password
+})
+}
+);
+
+const data=
+await response.json();
+
+if(
+!response.ok ||
+!data.success
+){
+
+btn.disabled=false;
+
+btn.innerHTML=
+'Log In';
+
+Notify.toast(
+data.error ||
+'Login failed ❌',
+'error',
+4000
+);
+
+return;
+
+}
+
+/* ==========================================
+   STORE SESSION
+========================================== */
+
+localStorage.setItem(
+SESSION_KEY,
+JSON.stringify({
+
+user_id:
+data.user.user_id,
+
+username:
+data.user.username,
+
+fullName:
+data.user.full_name,
+
+email:
+data.user.email,
+
+xp:
+data.user.xp,
+
+level:
+data.user.level,
+
+streak:
+data.user.streak_days,
+
+profile_picture:
+data.user.profile_picture
+
+})
+);
+
+/* ==========================================
+   SUCCESS
+========================================== */
+
+Notify.toast(
+'Welcome back! 🎉',
+'success',
+2500
+);
+
+Notify.showXP(50);
+
+Notify.miniConfetti();
+
+if(data.user.level >= 5){
+
+Notify.toast(
+`Level ${data.user.level} Scholar! 🏆`,
+'star',
+3000
+);
+
+}
+
+if(data.user.streak_days >= 7){
+
+Notify.streakFire(
+data.user.streak_days
+);
+
+}
+
+setTimeout(()=>{
+
+window.location.href=
+'profile.html';
+
+},900);
+
+}
+catch(error){
+
+console.error(error);
+
+btn.disabled=false;
+
+btn.innerHTML=
+'Log In';
+
+Notify.toast(
+'Cannot connect to server 🌐',
+'error',
+5000
+);
+
+}
+
+}
+
+/* ==========================================
+   BUTTON EVENTS
+========================================== */
+
+document
+.getElementById(
+'loginBtn'
+)
+.addEventListener(
+'click',
+login
+);
+
+document
+.getElementById(
+'googleBtn'
+)
+.addEventListener(
+'click',
+()=>{
+
+Notify.toast(
+'Google Sign-In coming soon 🚀',
+'info',
+3000
+);
+
+}
+);
+
+/* ==========================================
+   PANDA INTERACTION
+========================================== */
+
+const panda=
+document.querySelector(
+'.panda'
+);
+
 if(panda){
-  panda.addEventListener('click',()=>{
-    Notify.toast('Panda loves Mandarin learners! 🐼💜','heart',2500);
-    Notify.showXP(5);
-  });
+
+panda.addEventListener(
+'click',
+()=>{
+
+Notify.toast(
+'Panda loves Mandarin learners! 🐼',
+'heart',
+2500
+);
+
+Notify.showXP(5);
+
 }
-document.querySelector('.google').addEventListener('click',()=>{
-  Notify.toast('Google sign-in coming soon! 😊','info',3000);
-});
+);
 
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    Notify.toast('Welcome back! Log in to continue learning ✨','star',3000);
-    Notify.miniConfetti();
-  },800);
-});
+}
+
+/* ==========================================
+   PAGE LOAD
+========================================== */
+
+window.addEventListener(
+'load',
+()=>{
+
+setTimeout(()=>{
+
+Notify.toast(
+'Welcome back! Ready to learn? ✨',
+'star',
+3000
+);
+
+Notify.miniConfetti();
+
+},800);
+
+}
+);
+
 </script>
-
 
 </body>
 </html>

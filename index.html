@@ -1,21 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Hanverse</title>
+<title>Hanverse | Learn Mandarin Through Stories, Games & AI</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
 :root{
---red:#F4D35E;
---yellow:#E63946;
---blue:#4EA8DE;
---green:#74C69D;
---bg:#FFFDF7;
+--primary:#2563EB;
+--secondary:#14B8A6;
+--accent:#F59E0B;
+--dark:#0F172A;
+--text:#334155;
+--muted:#64748B;
+--bg:#F8FAFC;
+--white:#FFFFFF;
+--shadow:0 20px 50px rgba(15,23,42,.08);
 }
 
 *{
@@ -25,1113 +34,914 @@ box-sizing:border-box;
 font-family:'Poppins',sans-serif;
 }
 
-body{
-background:var(--bg);
-color:#333;
-overflow-x:hidden;
-}
-
 html{
 scroll-behavior:smooth;
 }
 
+body{
+background:var(--bg);
+color:var(--dark);
+overflow-x:hidden;
+}
 
-/* NAVBAR */
+body::before{
+content:'';
+position:fixed;
+inset:0;
+z-index:-2;
+background:
+radial-gradient(circle at 15% 20%,rgba(37,99,235,.08),transparent 35%),
+radial-gradient(circle at 80% 70%,rgba(20,184,166,.08),transparent 35%);
+}
 
 nav{
-
+position:sticky;
+top:0;
+z-index:1000;
 display:flex;
 justify-content:space-between;
 align-items:center;
-
 padding:18px 8%;
-
-background:white;
-
-position:sticky;
-top:0;
-
-z-index:1000;
-
-box-shadow:
-0 4px 20px rgba(0,0,0,.05);
-
+background:rgba(255,255,255,.85);
+backdrop-filter:blur(18px);
+border-bottom:1px solid rgba(0,0,0,.05);
 }
 
 .logo{
-
 display:flex;
 align-items:center;
-gap:10px;
-
-font-size:28px;
-font-weight:700;
-
-color:var(--red);
-
+gap:12px;
+font-size:30px;
+font-weight:800;
+color:var(--primary);
 }
 
 .logo-badge{
-
-background:var(--yellow);
-
-padding:8px;
-
+width:48px;
+height:48px;
 border-radius:50%;
-
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,var(--primary),var(--secondary));
+color:white;
+font-size:24px;
 }
 
 nav ul{
-
-	display:flex;
-	gap:18px;
-	list-style:none;
-
+display:flex;
+gap:32px;
+list-style:none;
 }
 
 nav a{
-
 text-decoration:none;
-color:#444;
-font-weight:500;
-position:relative;
-
-}
-
-nav a.active{
-
-color:var(--red);
-
-font-weight:700;
-
-}
-
-nav a.active::after{
-
-content:"";
-
-position:absolute;
-
-height:4px;
-
-width:100%;
-
-left:0;
-bottom:-8px;
-
-background:var(--yellow);
-
-border-radius:30px;
-
+color:var(--muted);
+font-weight:600;
+transition:.3s;
 }
 
 nav a:hover{
-
-color:var(--red);
-
+color:var(--primary);
 }
 
 .nav-buttons{
-
 display:flex;
-gap:10px;
-
+gap:12px;
 }
-
-
-
-/* BUTTONS */
 
 .btn{
-
 padding:13px 24px;
-
 border:none;
-
-border-radius:40px;
-
+border-radius:999px;
+font-weight:700;
 cursor:pointer;
-
-font-weight:600;
-
 transition:.3s;
-
 }
 
-.btn-main{
-
-background:var(--red);
-
-color:white;
-
-}
-
-.btn-main:hover{
-
+.btn:hover{
 transform:translateY(-3px);
-
-box-shadow:
-0 10px 25px rgba(244,211,94,.25);
-
 }
 
-.btn-secondary{
-
-background:var(--yellow);
-
-color:#333;
-
+.btn-login{
+background:white;
+border:1px solid #dbeafe;
+color:var(--dark);
 }
 
-
-/* HERO */
+.btn-signup{
+background:linear-gradient(135deg,var(--primary),var(--secondary));
+color:white;
+box-shadow:0 10px 25px rgba(37,99,235,.25);
+}
 
 .hero{
-
-padding:90px 8%;
-
-display:flex;
-
-justify-content:space-between;
+min-height:90vh;
+padding:100px 8%;
+display:grid;
+grid-template-columns:1.1fr 1fr;
+gap:70px;
 align-items:center;
-
-gap:60px;
-
 }
-
-.hero-text{
-
-flex:1;
-
-animation:slide .8s;
-
-}
-
-@keyframes slide{
-
-from{
-
-opacity:0;
-transform:translateY(30px);
-
-}
-
-to{
-
-opacity:1;
-transform:translateY(0);
-
-}
-
-}
-
 
 .tag{
-
 display:inline-block;
-
-padding:8px 18px;
-
-background:
-rgba(78,168,222,.15);
-
-color:var(--blue);
-
-border-radius:30px;
-
-margin-bottom:20px;
-
-font-weight:600;
-
+padding:10px 18px;
+background:#DBEAFE;
+color:var(--primary);
+font-weight:700;
+border-radius:999px;
+margin-bottom:25px;
 }
 
 .hero h1{
-
-font-size:64px;
-
-line-height:1.1;
-
-margin-bottom:20px;
-
+font-size:clamp(52px,6vw,82px);
+line-height:1.05;
+margin-bottom:25px;
 }
 
-.red{
-
-color:var(--red);
-
-}
-
-.blue{
-
-color:var(--blue);
-
+.gradient{
+background:linear-gradient(90deg,var(--primary),var(--secondary));
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
 .hero p{
-
-font-size:18px;
-
-line-height:1.8;
-
-color:#666;
-
-max-width:600px;
-
+font-size:19px;
+line-height:1.9;
+color:var(--muted);
+max-width:650px;
 margin-bottom:35px;
-
 }
 
 .hero-buttons{
-
 display:flex;
 gap:15px;
 flex-wrap:wrap;
-
 }
 
-
-
-/* PANDA CARD */
-
-.hero-right{
-
-flex:1;
-
-display:flex;
-justify-content:center;
-
-}
-
-.learning-card{
-
-height:360px;
-width:360px;
-
+.hero-card{
+width:100%;
+max-width:520px;
+height:500px;
 background:white;
-
 border-radius:40px;
-
+box-shadow:var(--shadow);
 display:flex;
 justify-content:center;
 align-items:center;
-
-font-size:120px;
-
 position:relative;
-
-box-shadow:
-0 15px 30px rgba(0,0,0,.05);
-
-animation:float 4s infinite;
-
-transition:box-shadow .4s ease, transform .4s ease;
-
+overflow:hidden;
 }
 
-.learning-card:hover{
-box-shadow:
-0 20px 45px rgba(0,0,0,.1),
-0 0 32px rgba(78,168,222,.18);
-transform:translateY(-6px) scale(1.01) !important;
+.panda{
+font-size:150px;
 }
 
-@keyframes float{
-
-50%{
-
-transform:
-translateY(-15px);
-
-}
-
-}
-
-.badge{
-
+.float-char{
 position:absolute;
-
-padding:10px 16px;
-
-border-radius:20px;
-
-font-size:14px;
-font-weight:600;
-
+font-size:60px;
+font-weight:800;
+opacity:.08;
 }
 
-.yct{
+.c1{top:30px;left:25px;}
+.c2{top:60px;right:40px;}
+.c3{bottom:40px;left:40px;}
+.c4{bottom:30px;right:30px;}
 
-top:-10px;
-left:-10px;
-
-background:var(--yellow);
-
+.trust-section{
+padding:20px 8% 80px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
 }
 
-.progress{
-
-bottom:20px;
-right:-10px;
-
-background:var(--green);
-
+.trust-card{
+background:white;
+padding:24px;
+border-radius:24px;
+text-align:center;
+font-weight:700;
+box-shadow:0 10px 25px rgba(0,0,0,.05);
 }
-
-.star{
-
-position:absolute;
-
-top:35px;
-right:35px;
-
-font-size:35px;
-
-color:var(--yellow);
-
-}
-
-
-
-/* STATS */
 
 .stats{
-
-padding:60px 8%;
-
-display:flex;
-justify-content:center;
-
-gap:25px;
-
-flex-wrap:wrap;
-
+padding:0 8% 100px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:24px;
 }
 
-.stat{
-
+.stat-card{
 background:white;
-
 padding:35px;
-
-width:220px;
-
 border-radius:30px;
-
 text-align:center;
-
-box-shadow:
-0 10px 25px rgba(0,0,0,.05);
-
-border-top:
-5px solid var(--blue);
-
-transition:transform .3s ease, box-shadow .3s ease;
-
+box-shadow:0 15px 35px rgba(0,0,0,.05);
 }
 
-.stat:hover{
-
-transform:translateY(-5px);
-box-shadow:0 16px 36px rgba(0,0,0,.08);
-
-}
-
-.stat h2{
-
-font-size:42px;
-
-color:var(--red);
-
+.stat-card h2{
+font-size:48px;
+color:var(--primary);
 margin-bottom:10px;
-
-transition:color .3s ease;
-
 }
-
-
-
-/* FEATURES */
 
 .features{
+padding:100px 8%;
+}
 
-padding:90px 8%;
-
+.section-title{
+font-size:48px;
 text-align:center;
-
+margin-bottom:15px;
 }
 
-.title{
-
-font-size:42px;
-
-margin-bottom:20px;
-
+.section-subtitle{
+text-align:center;
+max-width:700px;
+margin:auto;
+color:var(--muted);
+line-height:1.8;
+margin-bottom:60px;
 }
 
-.grid{
-
+.feature-grid{
 display:grid;
-
-grid-template-columns:
-repeat(auto-fit,minmax(240px,1fr));
-
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
 gap:25px;
-
-margin-top:50px;
-
 }
 
-.box{
-
+.feature-card{
 background:white;
-
 padding:35px;
-
-border-radius:25px;
-
-box-shadow:
-0 10px 25px rgba(0,0,0,.05);
-
-transition:.3s;
-
-cursor:pointer;
-
-.position:relative;
-overflow:hidden;
-
+border-radius:30px;
+box-shadow:0 15px 35px rgba(0,0,0,.05);
 }
 
-.box::before{
-
-content:'';
-
-position:absolute;
-inset:0;
-border-radius:25px;
-
-background:linear-gradient(135deg,rgba(78,168,222,.08),rgba(116,198,157,.08));
-opacity:0;
-transition:opacity .3s ease;
-
+.feature-icon{
+font-size:48px;
+margin-bottom:20px;
 }
 
-.box:hover::before{
-opacity:1;
+.screenshots{
+padding:100px 8%;
 }
 
-.box:hover{
-
-transform:
-translateY(-8px);
-box-shadow:0 20px 40px rgba(0,0,0,.1);
-
+.screenshot-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:25px;
 }
 
-.icon{
-
-font-size:40px;
-
-transition:transform .4s cubic-bezier(.34,1.56,.64,1);
-
+.screenshot-card{
+background:white;
+padding:25px;
+border-radius:30px;
+box-shadow:0 15px 35px rgba(0,0,0,.05);
 }
 
-.box:hover .icon{
-
-transform:scale(1.18) rotate(-6deg);
-
-}
-
-.box h3{
-
-margin:15px 0;
-
-color:var(--blue);
-
-transition:color .3s ease;
-
-}
-
-.box:hover h3{
-color:var(--red);
-}
-
-
-
-/* FOOTER CARD */
-
-.end{
-
-padding:80px 8%;
-
+.placeholder-image{
+height:250px;
+border-radius:20px;
+background:linear-gradient(135deg,#DBEAFE,#E0F2FE);
 display:flex;
 justify-content:center;
-
-}
-
-.end-card{
-
-background:white;
-
-padding:45px;
-
-border-radius:35px;
-
-text-align:center;
-
-width:100%;
-max-width:850px;
-
-border:
-3px dashed var(--yellow);
-
-box-shadow:
-0 10px 25px rgba(0,0,0,.05);
-
-transition:transform .3s ease, box-shadow .3s ease;
-
-}
-
-.end-card:hover{
-
-transform:translateY(-5px);
-box-shadow:0 16px 36px rgba(0,0,0,.1);
-
-}
-
-.end-card h2{
-
-color:var(--blue);
-
+align-items:center;
+font-size:90px;
 margin-bottom:20px;
-
-}
-
-footer{
-
-padding:30px;
-
-text-align:center;
-
-color:#777;
-
-}
-
-
-/* MOBILE */
-
-@media(max-width:900px){
-
-nav{
-
-flex-direction:column;
-gap:20px;
-
-}
-
-nav ul{
-
-flex-wrap:wrap;
-justify-content:center;
-
-}
-
-.hero{
-
-flex-direction:column;
-
-text-align:center;
-
-}
-
-.hero h1{
-
-font-size:42px;
-
-}
-
-.hero-buttons{
-
-justify-content:center;
-
-}
-
-.learning-card{
-
-height:280px;
-width:280px;
-
-}
-
-}
-
-/* ── CARD CLICK RIPPLE ── */
-.ripple-ring{
-position:absolute;border-radius:50%;
-border:3px solid rgba(244,211,94,.5);
-transform:scale(0);
-animation:ripple-out .5s ease-out forwards;
-pointer-events:none;
-}
-@keyframes ripple-out{
-to{transform:scale(4);opacity:0;}
 }
 
 </style>
-  <script src="device-redirect.js"></script>
-  <link rel="stylesheet" href="app.css">
 </head>
 
-
-<body class="app-page">
-
+<body>
 
 <nav>
 
 <div class="logo">
-
-<div class="logo-badge">
-
-🐼
-
-</div>
-
+<div class="logo-badge">🐼</div>
 Hanverse
-
 </div>
-
 
 <ul>
-
-<li>
-<a href="index.html"
-class="active">
-Home
-</a>
-</li>
-
-<li>
-<a href="learn.html">
-Learn
-</a>
-</li>
-
-<li>
-<a href="#"
-onclick="comingSoon(event)">
-Worksheets
-</a>
-</li>
-
-<li>
-<a href="#"
-onclick="comingSoon(event)">
-Parents
-</a>
-</li>
-
+<li><a href="index.html">Home</a></li>
+<li><a href="learn.html">Learn</a></li>
+<li><a href="worksheets.html">Worksheets</a></li>
+<li><a href="parents.html">Parents</a></li>
 </ul>
 
-
 <div class="nav-buttons">
+<button class="btn btn-login" onclick="window.location.href='login.html'">Log In</button>
+<button class="btn btn-signup" onclick="window.location.href='signup.html'">Sign Up</button>
+</div>
+
+</nav>
+
+<section class="hero">
+
+<div>
+
+<div class="tag">
+✨ Structured YCT Learning
+</div>
+
+<h1>
+Learn Mandarin Through
+<span class="gradient">Stories, Games & AI</span>
+</h1>
+
+<p>
+Built specifically for children all over the world, Hanverse helps
+Master Mandarin through interactive games,
+stories, videos, AI tutors and structured
+YCT learning pathways.
+</p>
+
+<div class="hero-buttons">
+
+<button class="btn btn-signup"
+onclick="window.location.href='signup.html'">
+Start Learning Free
+</button>
+
+<button class="btn btn-login">
+Watch Demo
+</button>
+
+</div>
+
+</div>
+
+<div class="hero-card">
+
+<div class="float-char c1">你</div>
+<div class="float-char c2">好</div>
+<div class="float-char c3">学</div>
+<div class="float-char c4">汉</div>
+
+<div class="panda">🐼</div>
+
+</div>
+
+</section>
+<!-- =======================================
+     PARENTS SECTION
+======================================= -->
+
+<section class="parents-section">
+
+<h2 class="section-title">
+Why Parents Love Hanverse
+</h2>
+
+<p class="section-subtitle">
+Designed to help children learn Mandarin safely,
+effectively and consistently.
+</p>
+
+<div class="feature-grid">
+
+<div class="feature-card">
+<div class="feature-icon">🛡️</div>
+<h3>Safe Learning Environment</h3>
+<p>
+Child-friendly content and carefully designed
+learning experiences.
+</p>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">📊</div>
+<h3>Track Progress</h3>
+<p>
+Monitor lessons completed, badges earned
+and overall growth.
+</p>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">🎯</div>
+<h3>Structured Learning</h3>
+<p>
+Follow a proven YCT pathway from beginner
+to advanced.
+</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- =======================================
+     TESTIMONIALS
+======================================= -->
+
+<section class="testimonials">
+
+<h2 class="section-title">
+What Learners Say
+</h2>
+
+<p class="section-subtitle">
+Building confidence through fun and engaging
+Mandarin learning.
+</p>
+
+<div class="testimonial-grid">
+
+<div class="testimonial-card">
+<p>
+"Learning Mandarin has never been this fun.
+I love the games!"
+</p>
+<h4>— Student</h4>
+</div>
+
+<div class="testimonial-card">
+<p>
+"The structured lessons make it easy to follow
+and improve."
+</p>
+<h4>— Parent</h4>
+</div>
+
+<div class="testimonial-card">
+<p>
+"The AI tutor helps me practice every day."
+</p>
+<h4>— Learner</h4>
+</div>
+
+</div>
+
+</section>
+
+<!-- =======================================
+     TEAM SECTION
+======================================= -->
+
+<section class="team-section">
+
+<h2 class="section-title">
+Meet The Team
+</h2>
+
+<p class="section-subtitle">
+Passionate about making Mandarin accessible
+for African children.
+</p>
+
+<div class="team-grid">
+
+<div class="team-card">
+
+<div class="team-photo">
+👩🏽
+</div>
+
+<h3>Kimberly</h3>
+
+<p class="team-role">
+Co-Founder & CEO
+</p>
+
+<p>
+Business & Strategy Lead
+</p>
+
+</div>
+
+<div class="team-card">
+
+<div class="team-photo">
+👨🏽
+</div>
+
+<h3>Andrew</h3>
+
+<p class="team-role">
+Co-Founder & Language Expert
+</p>
+
+<p>
+Curriculum Development &
+Mandarin Content
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =======================================
+     CTA SECTION
+======================================= -->
+
+<section class="cta-section">
+
+<div class="cta-card">
+
+<h2>
+Start Your Mandarin Adventure Today 🌟
+</h2>
+
+<p>
+Join Hanverse and begin learning through
+stories, games and AI.
+</p>
+
+<div class="hero-buttons">
 
 <button
-class="btn btn-secondary"
-onclick="location.href='login.html'">
+class="btn btn-signup"
+onclick="window.location.href='signup.html'">
+
+Create Free Account
+
+</button>
+
+<button
+class="btn btn-login"
+onclick="window.location.href='login.html'">
 
 Log In
 
 </button>
 
-
-<button
-class="btn btn-main"
-onclick="location.href='signup.html'">
-
-Sign Up
-
-</button>
-
-</div>
-
-</nav>
-
-
-
-<section class="hero">
-
-<div class="hero-text">
-
-<div class="tag">
-
-✨ Structured YCT Learning
-
-</div>
-
-<h1>
-
-Learn Mandarin Through
-
-<span class="red">
-
-Stories
-
-</span>,
-
-<span class="blue">
-
-Games
-
-</span>
-
-& AI
-
-</h1>
-
-<p>
-
-Built for African children using videos, stories and structured YCT learning.
-
-</p>
-
-
-<div class="hero-buttons">
-
-<button
-class="btn btn-main"
-onclick="location.href='learn.html'">
-
-Start Learning
-
-</button>
-
-
-<button
-class="btn btn-secondary"
-onclick="location.href='signup.html'">
-
-Join Free
-
-</button>
-
-</div>
-
-</div>
-
-
-
-<div class="hero-right">
-
-<div class="learning-card" id="pandaCard">
-
-🐼
-
-<div class="badge yct">
-
-YCT 1–4
-
-</div>
-
-<div class="badge progress">
-
-Progress +
-
-</div>
-
-<div class="star">
-
-⭐
-
-</div>
-
 </div>
 
 </div>
 
 </section>
 
-
-
-<section class="stats">
-
-<div class="stat" id="studentsStat">
-
-<h2 id="students">
-
-0
-
-</h2>
-
-<p>
-
-Students
-
-</p>
-
-</div>
-
-
-<div class="stat" id="lessonsStat">
-
-<h2 id="lessons">
-
-0
-
-</h2>
-
-<p>
-
-Lessons
-
-</p>
-
-</div>
-
-
-<div class="stat" id="gamesStat">
-
-<h2 id="games">
-
-0
-
-</h2>
-
-<p>
-
-Games
-
-</p>
-
-</div>
-
-</section>
-
-
-
-<section class="features">
-
-<h2 class="title">
-
-Why Hanverse?
-
-</h2>
-
-
-<div class="grid">
-
-<div class="box" onclick="featureClick(this)">
-
-<div class="icon">
-
-🎮
-
-</div>
-
-<h3>
-
-Interactive Games
-
-</h3>
-
-<p>
-
-Learn while having fun
-
-</p>
-
-</div>
-
-
-
-<div class="box" onclick="featureClick(this)">
-
-<div class="icon">
-
-📺
-
-</div>
-
-<h3>
-
-Video Lessons
-
-</h3>
-
-<p>
-
-Stories and visual learning
-
-</p>
-
-</div>
-
-
-
-<div class="box" onclick="featureClick(this)">
-
-<div class="icon">
-
-🏆
-
-</div>
-
-<h3>
-
-Achievements
-
-</h3>
-
-<p>
-
-Earn rewards and badges
-
-</p>
-
-</div>
-
-
-
-<div class="box" onclick="featureClick(this)">
-
-<div class="icon">
-
-📈
-
-</div>
-
-<h3>
-
-Progress Tracking
-
-</h3>
-
-<p>
-
-Continue where you stopped
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-
-
-<section class="end">
-
-<div class="end-card">
-
-<h2>
-
-Start your Mandarin adventure 🌟
-
-</h2>
-
-<button
-class="btn btn-main"
-onclick="location.href='signup.html'">
-
-Create Account
-
-</button>
-
-</div>
-
-</section>
+<!-- =======================================
+     FOOTER
+======================================= -->
 
 <footer>
 
-© Hanverse 2026
+<div class="footer-grid">
+
+<div>
+
+<h3 class="footer-logo">
+🐼 Hanverse
+</h3>
+
+<p>
+Learn Mandarin through stories,
+games, videos and AI.
+</p>
+
+</div>
+
+<div>
+
+<h4>Platform</h4>
+
+<a href="index.html">Home</a>
+<a href="learn.html">Learn</a>
+<a href="signup.html">Sign Up</a>
+<a href="login.html">Log In</a>
+
+</div>
+
+<div>
+
+<h4>Resources</h4>
+
+<a href="worksheets.html">Worksheets</a>
+<a href="parents.html">Parents</a>
+<a href="#">Blog</a>
+<a href="#">Support</a>
+
+</div>
+
+<div>
+
+<h4>Connect</h4>
+
+<a href="#">Instagram</a>
+<a href="#">TikTok</a>
+<a href="#">LinkedIn</a>
+<a href="#">YouTube</a>
+
+</div>
+
+</div>
+
+<hr>
+
+<p class="copyright">
+© 2026 Hanverse. All rights reserved.
+</p>
 
 </footer>
 
+<!-- =======================================
+     JAVASCRIPT
+======================================= -->
 
-
-<!-- ════════════════════════════════════
-     NOTIFICATION SYSTEM
-     ════════════════════════════════════ -->
-<script src="notifications.js"></script>
+<script src="nav-user.js"></script>
 
 <script>
 
-function comingSoon(e){
-e.preventDefault();
-Notify.toast('This feature is coming soon! Stay tuned 🚀','info',3500);
+function animateCounter(id,target,suffix=''){
+
+const element=document.getElementById(id);
+
+if(!element) return;
+
+let count=0;
+
+const increment=Math.ceil(target/60);
+
+const timer=setInterval(()=>{
+
+count+=increment;
+
+if(count>=target){
+
+count=target;
+clearInterval(timer);
+
 }
 
-/* ── Feature click flash ── */
-function featureClick(el){
-Notify.toast('Awesome feature coming! 🎮','xp',2000);
-Notify.miniConfetti();
+element.innerText=count+suffix;
+
+},25);
+
 }
 
-/* ── Panda card click ── */
-document.getElementById('pandaCard').addEventListener('click',function(){
-Notify.toast('You are doing great! Keep going! 🐼','heart',2500);
-Notify.miniConfetti();
-Notify.showXP(10);
-});
-
-/* ── Stat hover color effects ── */
-const statIds = ['studentsStat','lessonsStat','gamesStat'];
-statIds.forEach((id,i)=>{
-const el = document.getElementById(id);
-if(!el) return;
-el.addEventListener('mouseenter',()=>{
-Notify.badgePulse(el);
-});
-});
-
-/* ── Animated counter ── */
-let s=0,l=0,g=0,done={s:false,l:false,g:false};
-
-let count=setInterval(()=>{
-if(s<500 && !done.s){
-s+=5;
-document.getElementById('students').innerText=s+'+';
-if(s>=500){ done.s=true; }
-}
-
-if(l<240 && !done.l){
-l+=3;
-document.getElementById('lessons').innerText=l+'+';
-if(l>=240){ done.l=true; }
-}
-
-if(g<30 && !done.g){
-g+=1;
-document.getElementById('games').innerText=g+'+';
-if(g>=30){ done.g=true; }
-}
-
-if(done.s&&done.l&&done.g){
-clearInterval(count);
-setTimeout(()=>{
-Notify.toast('500+ students and growing! Join the fun! 🎉','success',4000);
-Notify.miniConfetti();
-},300);
-}
-},25)
-
-/* ── Show XP when stats reach milestones ── */
-  function showStatsMilestones(){
-  if(s>=200 && !window._ms200){window._ms200=true;Notify.toast('200+ learners! So much growth! 🌱','star',2500);Notify.miniConfetti();Notify.achievementUnlock(7,'panda_welcome');}
-  if(s>=400 && !window._ms400){window._ms400=true;Notify.toast('400+ learners and growing!'  ,'star',2500);}
-  if(s>=500 && !window._ms500){window._ms500=true;Notify.toast('500+ learners! 🎉','heart',4000);Notify.confetti();Notify.achievementUnlock(7,'500_learners');}
-  }
-
-/* ── Page load celebration ── */
 window.addEventListener('load',()=>{
-setTimeout(()=>{
-Notify.toast('Welcome to Hanverse! Start your adventure! 🐼','heart',3500);
-Notify.miniConfetti();
-},800);
+
+animateCounter('students',500,'+');
+animateCounter('lessons',240,'+');
+animateCounter('games',30,'+');
+animateCounter('satisfaction',95,'%');
+
 });
 
-setInterval(showStatsMilestones,200);
+const revealElements=document.querySelectorAll(
+'.feature-card,.stat-card,.testimonial-card,.team-card,.trust-card,.screenshot-card'
+);
+
+const observer=new IntersectionObserver(entries=>{
+
+entries.forEach(entry=>{
+
+if(entry.isIntersecting){
+
+entry.target.classList.add('show');
+
+}
+
+});
+
+},{
+threshold:.15
+});
+
+revealElements.forEach(el=>{
+
+if(el){
+observer.observe(el);
+}
+
+});
 
 </script>
+
+<style>
+
+/* ==========================================
+   PARENTS SECTION
+========================================== */
+
+.parents-section{
+padding:100px 8%;
+background:white;
+}
+
+/* ==========================================
+   TESTIMONIALS
+========================================== */
+
+.testimonials{
+padding:100px 8%;
+}
+
+.testimonial-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:25px;
+}
+
+.testimonial-card{
+background:white;
+padding:35px;
+border-radius:30px;
+box-shadow:0 15px 35px rgba(0,0,0,.05);
+}
+
+.testimonial-card p{
+line-height:1.8;
+margin-bottom:20px;
+}
+
+/* ==========================================
+   TEAM SECTION
+========================================== */
+
+.team-section{
+padding:100px 8%;
+background:white;
+}
+
+.team-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:30px;
+max-width:900px;
+margin:auto;
+}
+
+.team-card{
+background:white;
+padding:40px;
+border-radius:30px;
+text-align:center;
+box-shadow:0 15px 35px rgba(0,0,0,.05);
+}
+
+.team-photo{
+width:120px;
+height:120px;
+margin:auto;
+margin-bottom:20px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:60px;
+background:linear-gradient(
+135deg,
+#DBEAFE,
+#E0F2FE
+);
+}
+
+.team-role{
+color:var(--primary);
+font-weight:700;
+margin:10px 0;
+}
+
+/* ==========================================
+   CTA SECTION
+========================================== */
+
+.cta-section{
+padding:100px 8%;
+}
+
+.cta-card{
+background:linear-gradient(
+135deg,
+var(--primary),
+var(--secondary)
+);
+padding:70px;
+border-radius:40px;
+text-align:center;
+color:white;
+}
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+footer{
+padding:80px 8% 40px;
+background:#0F172A;
+color:white;
+}
+
+.footer-grid{
+display:grid;
+grid-template-columns:2fr 1fr 1fr 1fr;
+gap:40px;
+margin-bottom:40px;
+}
+
+.footer-logo{
+font-size:32px;
+margin-bottom:15px;
+}
+
+footer a{
+display:block;
+margin-bottom:10px;
+text-decoration:none;
+color:#CBD5E1;
+}
+
+footer a:hover{
+color:white;
+}
+
+footer hr{
+border:none;
+height:1px;
+background:rgba(255,255,255,.1);
+margin:30px 0;
+}
+
+.copyright{
+text-align:center;
+color:#94A3B8;
+}
+
+/* ==========================================
+   SCROLL REVEAL
+========================================== */
+
+.feature-card,
+.stat-card,
+.testimonial-card,
+.team-card,
+.trust-card,
+.screenshot-card{
+opacity:0;
+transform:translateY(30px);
+transition:all .7s ease;
+}
+
+.show{
+opacity:1 !important;
+transform:translateY(0) !important;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media(max-width:1100px){
+
+.hero{
+grid-template-columns:1fr;
+text-align:center;
+}
+
+.hero-buttons{
+justify-content:center;
+}
+
+.trust-section,
+.stats,
+.screenshot-grid,
+.testimonial-grid,
+.footer-grid{
+grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+@media(max-width:768px){
+
+nav{
+flex-direction:column;
+gap:20px;
+}
+
+nav ul{
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.team-grid,
+.trust-section,
+.stats,
+.feature-grid,
+.screenshot-grid,
+.testimonial-grid,
+.footer-grid{
+grid-template-columns:1fr;
+}
+
+.hero h1{
+font-size:48px;
+}
+
+.section-title{
+font-size:36px;
+}
+
+}
+
+</style>
 
 </body>
 </html>
