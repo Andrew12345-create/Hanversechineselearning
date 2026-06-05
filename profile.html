@@ -516,7 +516,6 @@ color:var(--green);
 display:none;
 align-items:center;
 gap:8px;
-margin-top:14px;
 padding:10px 22px;
 border-radius:999px;
 font-weight:800;
@@ -647,8 +646,10 @@ id="levelBadge">
 
 </div>
 
-<div id="adminTag" class="admin-tag">👑 &nbsp;Administrator</div>
-<a id="adminBtn" href="admin.html" style="display:none;margin-top:14px;padding:10px 22px;border-radius:999px;font-weight:800;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#1A1A2E,#4EA8DE);box-shadow:0 4px 18px rgba(30,30,60,.35);text-decoration:none;width:fit-content;transition:.2s;">⚙️ &nbsp;Admin Panel</a>
+<div id="adminControls" style="display:none;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center;">
+  <div id="adminTag" class="admin-tag" style="margin-top:0;">👑 &nbsp;Administrator</div>
+  <a id="adminBtn" href="admin.html" style="padding:10px 22px;border-radius:999px;font-weight:800;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#1A1A2E,#4EA8DE);box-shadow:0 4px 18px rgba(30,30,60,.35);text-decoration:none;transition:.2s;">⚙️ &nbsp;Admin Panel</a>
+</div>
 
 <div class="hero-stats">
 
@@ -977,8 +978,9 @@ async function loadProfile() {
   });
 
   if (u.is_admin) {
+    const ctrl = document.getElementById('adminControls');
+    ctrl.style.display = 'flex';
     document.getElementById('adminTag').classList.add('visible');
-    document.getElementById('adminBtn').style.display = 'inline-flex';
   }
 
   // YCT Progress — highest YCT level from progress

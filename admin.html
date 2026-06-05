@@ -70,10 +70,10 @@ tr:hover td{background:rgba(255,255,255,.025);}
 .user-info h3{font-size:.9rem;font-weight:700;color:#fff;}
 .user-info p{font-size:.75rem;color:var(--muted);margin-top:2px;}
 .user-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
-.user-actions{display:flex;gap:8px;margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
-.edit-field-btn{flex:1;padding:7px;border-radius:8px;border:none;background:rgba(78,168,222,.12);color:var(--blue);font-weight:600;font-size:.75rem;cursor:pointer;transition:.15s;}
+.user-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+.edit-field-btn{padding:7px 4px;border-radius:8px;border:none;background:rgba(78,168,222,.12);color:var(--blue);font-weight:600;font-size:.72rem;cursor:pointer;transition:.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .edit-field-btn:hover{background:rgba(78,168,222,.25);}
-.del-user-btn{padding:7px 14px;border-radius:8px;border:none;background:rgba(230,57,70,.12);color:var(--red);font-weight:700;font-size:.75rem;cursor:pointer;transition:.15s;}
+.del-user-btn{grid-column:1/-1;padding:7px;border-radius:8px;border:none;background:rgba(230,57,70,.12);color:var(--red);font-weight:700;font-size:.75rem;cursor:pointer;transition:.15s;}
 .del-user-btn:hover{background:rgba(230,57,70,.28);}
 
 /* modal */
@@ -304,10 +304,14 @@ tr:hover td{background:rgba(255,255,255,.025);}
     </table></div>`;
   }
 
+  const FIELD_LABELS = {
+    username:'Username', full_name:'Full Name', email:'Email',
+    xp:'XP', level:'Level', streak_days:'Streak', is_admin:'Admin'
+  };
+
   function renderUsers() {
     return `<div class="user-grid">${db.users.map(u => {
       const pfp = u.profile_picture ? `<img src="${u.profile_picture}" alt="pfp">` : '🐼';
-      const editableFields = EDITABLE.users;
       return `<div class="user-card">
         <div class="user-card-top">
           <div class="user-pfp">${pfp}</div>
@@ -323,8 +327,8 @@ tr:hover td{background:rgba(255,255,255,.025);}
           <span class="pill" style="background:rgba(255,255,255,.06);color:var(--muted);">🔥 ${u.streak_days||0}d</span>
         </div>
         <div class="user-actions">
-          ${editableFields.map(f => `<button class="edit-field-btn" onclick="openEdit('users','${u.user_id}','${f}','${String(u[f]||'').replace(/'/g,'&#39;')}')" title="Edit ${f}">✏️ ${f}</button>`).join('')}
-          <button class="del-user-btn" onclick="openDelete('users','${u.user_id}')">🗑</button>
+          ${EDITABLE.users.map(f => `<button class="edit-field-btn" onclick="openEdit('users','${u.user_id}','${f}','${String(u[f]||'').replace(/'/g,'&#39;')}')" title="Edit ${f}">✏️ ${FIELD_LABELS[f]||f}</button>`).join('')}
+          <button class="del-user-btn" onclick="openDelete('users','${u.user_id}')">🗑 Delete User</button>
         </div>
       </div>`;
     }).join('')}</div>`;
