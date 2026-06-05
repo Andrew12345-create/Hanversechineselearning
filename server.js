@@ -239,6 +239,41 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
+// Admin edit row
+app.post('/api/admin/edit', async (req, res) => {
+  try {
+    const { adminPassword, table, primaryValue, field, value } = req.body;
+    if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
+    const allowed = {
+      users:               { pk: 'user_id',         editable: ['username','full_name','email','xp','level','streak_days','is_admin','profile_picture'] },
+      user_progress:       { pk: 'progress_id',     editable: ['completed','score','course_type','course_level','lesson_id'] },
+      achievements:        { pk: 'achievement_id',  editable: ['achievement_type','achievement_name'] },
+      daily_goals:         { pk: 'goal_id',         editable: ['target_lessons','completed_lessons','target_xp','earned_xp','completed'] },
+      notifications:       { pk: 'notification_id', editable: ['title','message','type','is_read'] },
+      vocabulary_progress: { pk: 'vocab_id',        editable: ['word','mastery_level','review_count'] },
+      user_settings:       { pk: 'setting_id',      editable: ['daily_reminder','sound_enabled','notifications_enabled','language_preference','theme'] },
+    };
+    const cfg = allowed[table];
+    if (!cfg) return res.status(400).json({ error: 'Invalid table' });
+    if (!cfg.editable.includes(field)) return res.status(400).json({ error: 'Field not editable' });
+    await pool.query(`UPDATE ${table} SET ${field} = $1 WHERE ${cfg.pk} = $2`, [value, primaryValue]);
+    res.json({ success: true });
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Edit failed' }); }
+});
+
+// Admin delete row
+app.post('/api/admin/delete', async (req, res) => {
+  try {
+    const { adminPassword, table, primaryValue } = req.body;
+    if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
+    const pks = { users:'user_id', user_progress:'progress_id', achievements:'achievement_id', daily_goals:'goal_id', notifications:'notification_id', vocabulary_progress:'vocab_id', user_settings:'setting_id' };
+    const pk = pks[table];
+    if (!pk) return res.status(400).json({ error: 'Invalid table' });
+    await pool.query(`DELETE FROM ${table} WHERE ${pk} = $1`, [primaryValue]);
+    res.json({ success: true });
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Delete failed' }); }
+});
+
 // Admin — full DB overview (admin only)
 app.get('/api/admin/overview', async (req, res) => {
   try {

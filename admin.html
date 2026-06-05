@@ -7,56 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
---yellow:#F4D35E;
---red:#E63946;
---blue:#4EA8DE;
---green:#74C69D;
---dark:#1A1A2E;
---bg:#0D0D1A;
---surface:#141428;
---card:#1C1C35;
---border:rgba(255,255,255,.07);
---text:#E8E8F0;
---muted:#8888AA;
+--yellow:#F4D35E;--red:#E63946;--blue:#4EA8DE;--green:#74C69D;
+--bg:#0D0D1A;--surface:#141428;--card:#1C1C35;--border:rgba(255,255,255,.07);
+--text:#E8E8F0;--muted:#8888AA;
 }
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);min-height:100vh;}
 
-/* TOP BAR */
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 36px;
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:100;
-}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 36px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
 .topbar-left{display:flex;align-items:center;gap:14px;}
-.admin-logo{
-  width:44px;height:44px;border-radius:14px;
-  background:linear-gradient(135deg,#ff416c,#ff4b2b);
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;
-  box-shadow:0 4px 16px rgba(255,65,108,.4);
-}
+.admin-logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#ff416c,#ff4b2b);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(255,65,108,.4);}
 .topbar h1{font-size:1.2rem;font-weight:800;color:#fff;}
 .topbar h1 span{color:#ff6b6b;}
-.back-btn{
-  padding:10px 20px;border-radius:999px;border:none;cursor:pointer;
-  background:rgba(255,255,255,.07);color:var(--text);font-weight:600;
-  font-size:.82rem;transition:.2s;
-}
+.back-btn{padding:10px 20px;border-radius:999px;border:none;cursor:pointer;background:rgba(255,255,255,.07);color:var(--text);font-weight:600;font-size:.82rem;transition:.2s;}
 .back-btn:hover{background:rgba(255,255,255,.13);}
 
-/* STATS ROW */
-.stats-row{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
-  padding:28px 36px 0;
-}
-.stat-pill{
-  background:var(--card);border-radius:20px;padding:22px 24px;
-  border:1px solid var(--border);
-}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:28px 36px 0;}
+.stat-pill{background:var(--card);border-radius:20px;padding:22px 24px;border:1px solid var(--border);}
 .stat-pill .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
 .stat-pill .val{font-size:2rem;font-weight:800;}
 .stat-pill:nth-child(1) .val{color:var(--yellow);}
@@ -64,19 +31,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .stat-pill:nth-child(3) .val{color:var(--green);}
 .stat-pill:nth-child(4) .val{color:#ff6b6b;}
 
-/* TABS */
-.tabs{
-  display:flex;gap:6px;padding:28px 36px 0;flex-wrap:wrap;
-}
-.tab{
-  padding:10px 20px;border-radius:999px;border:1px solid var(--border);
-  background:transparent;color:var(--muted);font-weight:600;font-size:.82rem;
-  cursor:pointer;transition:.2s;
-}
+.tabs{display:flex;gap:6px;padding:28px 36px 0;flex-wrap:wrap;}
+.tab{padding:10px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:.82rem;cursor:pointer;transition:.2s;}
 .tab:hover{background:rgba(255,255,255,.06);color:var(--text);}
 .tab.active{background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;border-color:transparent;box-shadow:0 4px 16px rgba(255,65,108,.35);}
 
-/* TABLE SECTION */
 .section{padding:24px 36px 48px;}
 .section-title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
 .count-badge{padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:.75rem;color:var(--muted);}
@@ -85,49 +44,63 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 table{width:100%;border-collapse:collapse;font-size:.8rem;}
 thead tr{background:rgba(255,255,255,.04);}
 th{padding:13px 16px;text-align:left;color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.07em;white-space:nowrap;}
-td{padding:13px 16px;border-top:1px solid var(--border);color:var(--text);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-tr:hover td{background:rgba(255,255,255,.03);}
+td{padding:10px 16px;border-top:1px solid var(--border);color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+tr:hover td{background:rgba(255,255,255,.025);}
+
+/* editable cell */
+.editable{cursor:pointer;border-radius:6px;padding:4px 8px;transition:.15s;}
+.editable:hover{background:rgba(78,168,222,.15);color:var(--blue);}
+.cell-input{background:#0D0D1A;border:1.5px solid var(--blue);border-radius:6px;color:#fff;padding:4px 8px;font-size:.8rem;font-family:'Poppins',sans-serif;width:100%;min-width:80px;outline:none;}
+
+.del-btn{background:rgba(230,57,70,.12);border:none;color:var(--red);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.75rem;font-weight:700;transition:.15s;}
+.del-btn:hover{background:rgba(230,57,70,.28);}
+
 .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;}
 .pill-green{background:rgba(116,198,157,.15);color:var(--green);}
 .pill-red{background:rgba(230,57,70,.15);color:var(--red);}
 .pill-blue{background:rgba(78,168,222,.15);color:var(--blue);}
 .pill-yellow{background:rgba(244,211,94,.15);color:var(--yellow);}
 
-/* USER CARD GRID */
-.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
-.user-card{
-  background:var(--card);border-radius:20px;padding:22px;
-  border:1px solid var(--border);display:flex;gap:16px;align-items:center;
-}
-.user-pfp{
-  width:52px;height:52px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,var(--yellow),var(--blue));
-  display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;
-}
+/* user cards */
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;}
+.user-card{background:var(--card);border-radius:20px;padding:22px;border:1px solid var(--border);}
+.user-card-top{display:flex;gap:14px;align-items:center;margin-bottom:12px;}
+.user-pfp{width:52px;height:52px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--yellow),var(--blue));display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;}
 .user-pfp img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .user-info h3{font-size:.9rem;font-weight:700;color:#fff;}
 .user-info p{font-size:.75rem;color:var(--muted);margin-top:2px;}
-.user-meta{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;}
+.user-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.user-actions{display:flex;gap:8px;margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+.edit-field-btn{flex:1;padding:7px;border-radius:8px;border:none;background:rgba(78,168,222,.12);color:var(--blue);font-weight:600;font-size:.75rem;cursor:pointer;transition:.15s;}
+.edit-field-btn:hover{background:rgba(78,168,222,.25);}
+.del-user-btn{padding:7px 14px;border-radius:8px;border:none;background:rgba(230,57,70,.12);color:var(--red);font-weight:700;font-size:.75rem;cursor:pointer;transition:.15s;}
+.del-user-btn:hover{background:rgba(230,57,70,.28);}
 
-/* LOADING */
-.loading{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:80px;gap:20px;
-}
-.spinner{
-  width:48px;height:48px;border-radius:50%;
-  border:4px solid rgba(255,65,108,.2);
-  border-top-color:#ff416c;
-  animation:spin .8s linear infinite;
-}
+/* modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border-radius:24px;padding:36px;width:100%;max-width:420px;border:1px solid var(--border);box-shadow:0 30px 80px rgba(0,0,0,.5);}
+.modal h2{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:6px;}
+.modal .subtitle{font-size:.82rem;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.modal label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+.modal input{width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);background:#0D0D1A;color:#fff;font-size:.9rem;font-family:'Poppins',sans-serif;outline:none;margin-bottom:8px;}
+.modal input:focus{border-color:var(--blue);}
+.modal-new-val{width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);background:#0D0D1A;color:#fff;font-size:.9rem;font-family:'Poppins',sans-serif;outline:none;margin-bottom:20px;}
+.modal-new-val:focus{border-color:var(--blue);}
+.modal-err{font-size:.8rem;color:var(--red);margin-bottom:14px;min-height:18px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-confirm{flex:1;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;font-weight:700;cursor:pointer;font-size:.9rem;transition:.2s;}
+.modal-confirm:hover{opacity:.88;}
+.modal-cancel{padding:13px 20px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-weight:600;cursor:pointer;font-size:.9rem;}
+
+/* delete confirm modal */
+.modal-del{border-top:3px solid var(--red);}
+
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:20px;}
+.spinner{width:48px;height:48px;border-radius:50%;border:4px solid rgba(255,65,108,.2);border-top-color:#ff416c;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading p{color:var(--muted);font-weight:600;}
-
-/* ACCESS DENIED */
-.denied{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:80vh;gap:16px;text-align:center;
-}
+.denied{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px;text-align:center;}
 .denied h2{font-size:2rem;color:#ff416c;}
 .denied p{color:var(--muted);}
 
@@ -135,12 +108,41 @@ tr:hover td{background:rgba(255,255,255,.03);}
   .stats-row{grid-template-columns:repeat(2,1fr);}
   .topbar,.section,.tabs,.stats-row{padding-left:18px;padding-right:18px;}
 }
-@media(max-width:600px){
-  .stats-row{grid-template-columns:1fr 1fr;}
-}
 </style>
 </head>
 <body>
+
+<!-- Password / Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2>🔐 Confirm Edit</h2>
+    <div class="subtitle">Enter the admin password to save changes to <strong id="modalFieldLabel"></strong>.</div>
+    <label>New Value</label>
+    <input class="modal-new-val" id="modalNewVal" placeholder="New value…">
+    <label>Admin Password</label>
+    <input type="password" id="modalPassword" placeholder="admin123">
+    <div class="modal-err" id="modalErr"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmEdit()">Save Change</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal modal-del">
+    <h2>🗑️ Delete Record</h2>
+    <div class="subtitle">This will permanently delete the record. Enter the admin password to confirm.</div>
+    <label>Admin Password</label>
+    <input type="password" id="deletePassword" placeholder="admin123">
+    <div class="modal-err" id="deleteErr"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button class="modal-confirm" style="background:linear-gradient(135deg,#E63946,#c0392b);" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
 
 <div id="app">
   <div class="loading"><div class="spinner"></div><p>Verifying access…</p></div>
@@ -155,85 +157,204 @@ tr:hover td{background:rgba(255,255,255,.03);}
 
   const res = await fetch('/api/admin/overview?userId=' + user_id);
   if (res.status === 403) {
-    document.getElementById('app').innerHTML = `
-      <div class="denied">
-        <div style="font-size:4rem;">🚫</div>
-        <h2>Access Denied</h2>
-        <p>You are not an administrator.</p>
-        <button onclick="location.href='profile.html'" class="back-btn" style="margin-top:12px;">← Back to Profile</button>
-      </div>`;
+    document.getElementById('app').innerHTML = `<div class="denied"><div style="font-size:4rem;">🚫</div><h2>Access Denied</h2><p>You are not an administrator.</p><button onclick="location.href='profile.html'" class="back-btn" style="margin-top:12px;">← Back to Profile</button></div>`;
     return;
   }
   const db = await res.json();
 
-  // Compute summary stats
   const totalUsers = db.users.length;
   const adminCount = db.users.filter(u => u.is_admin).length;
   const totalXP = db.users.reduce((s,u) => s + (u.xp||0), 0);
   const completedLessons = db.progress.filter(p => p.completed).length;
 
-  // Tab state
   let activeTab = 'users';
 
+  // Edit modal state
+  let pendingEdit = null;
+  let pendingDelete = null;
+
+  const TABLE_PKS = {
+    users:'user_id', user_progress:'progress_id', achievements:'achievement_id',
+    daily_goals:'goal_id', notifications:'notification_id',
+    vocabulary_progress:'vocab_id', user_settings:'setting_id'
+  };
+
+  const EDITABLE = {
+    users: ['username','full_name','email','xp','level','streak_days','is_admin'],
+    user_progress: ['completed','score','course_type','course_level','lesson_id'],
+    achievements: ['achievement_type','achievement_name'],
+    daily_goals: ['target_lessons','completed_lessons','target_xp','earned_xp','completed'],
+    notifications: ['title','message','type','is_read'],
+    vocabulary_progress: ['word','mastery_level','review_count'],
+    user_settings: ['daily_reminder','sound_enabled','notifications_enabled','language_preference','theme'],
+  };
+
+  window.closeModal = () => {
+    document.getElementById('editModal').classList.remove('open');
+    document.getElementById('modalErr').textContent = '';
+    document.getElementById('modalPassword').value = '';
+    pendingEdit = null;
+  };
+
+  window.closeDeleteModal = () => {
+    document.getElementById('deleteModal').classList.remove('open');
+    document.getElementById('deleteErr').textContent = '';
+    document.getElementById('deletePassword').value = '';
+    pendingDelete = null;
+  };
+
+  window.openEdit = (table, pkVal, field, currentVal) => {
+    pendingEdit = { table, pkVal, field };
+    document.getElementById('modalFieldLabel').textContent = field;
+    document.getElementById('modalNewVal').value = currentVal === '—' ? '' : currentVal;
+    document.getElementById('modalErr').textContent = '';
+    document.getElementById('modalPassword').value = '';
+    document.getElementById('editModal').classList.add('open');
+    setTimeout(() => document.getElementById('modalNewVal').focus(), 80);
+  };
+
+  window.openDelete = (table, pkVal) => {
+    pendingDelete = { table, pkVal };
+    document.getElementById('deleteErr').textContent = '';
+    document.getElementById('deletePassword').value = '';
+    document.getElementById('deleteModal').classList.add('open');
+    setTimeout(() => document.getElementById('deletePassword').focus(), 80);
+  };
+
+  window.confirmEdit = async () => {
+    const pw = document.getElementById('modalPassword').value.trim();
+    const newVal = document.getElementById('modalNewVal').value;
+    document.getElementById('modalErr').textContent = '';
+    if (!pw) { document.getElementById('modalErr').textContent = 'Enter the admin password.'; return; }
+
+    const r = await fetch('/api/admin/edit', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ adminPassword: pw, table: pendingEdit.table, primaryValue: pendingEdit.pkVal, field: pendingEdit.field, value: newVal })
+    });
+    const d = await r.json();
+    if (!r.ok) { document.getElementById('modalErr').textContent = d.error || 'Failed.'; return; }
+
+    // Update local db cache
+    const pk = TABLE_PKS[pendingEdit.table];
+    const tableKey = pendingEdit.table === 'user_progress' ? 'progress' :
+                     pendingEdit.table === 'daily_goals' ? 'daily_goals' :
+                     pendingEdit.table === 'vocabulary_progress' ? 'vocabulary' :
+                     pendingEdit.table === 'user_settings' ? 'settings' : pendingEdit.table;
+    const arr = db[tableKey] || db[pendingEdit.table];
+    if (arr) {
+      const row = arr.find(r => String(r[pk]) === String(pendingEdit.pkVal));
+      if (row) row[pendingEdit.field] = newVal;
+    }
+    closeModal();
+    render();
+  };
+
+  window.confirmDelete = async () => {
+    const pw = document.getElementById('deletePassword').value.trim();
+    document.getElementById('deleteErr').textContent = '';
+    if (!pw) { document.getElementById('deleteErr').textContent = 'Enter the admin password.'; return; }
+
+    const r = await fetch('/api/admin/delete', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ adminPassword: pw, table: pendingDelete.table, primaryValue: pendingDelete.pkVal })
+    });
+    const d = await r.json();
+    if (!r.ok) { document.getElementById('deleteErr').textContent = d.error || 'Failed.'; return; }
+
+    const pk = TABLE_PKS[pendingDelete.table];
+    const tableKey = pendingDelete.table === 'user_progress' ? 'progress' :
+                     pendingDelete.table === 'daily_goals' ? 'daily_goals' :
+                     pendingDelete.table === 'vocabulary_progress' ? 'vocabulary' :
+                     pendingDelete.table === 'user_settings' ? 'settings' : pendingDelete.table;
+    const arr = db[tableKey] || db[pendingDelete.table];
+    if (arr) {
+      const idx = arr.findIndex(r => String(r[pk]) === String(pendingDelete.pkVal));
+      if (idx > -1) arr.splice(idx, 1);
+    }
+    closeDeleteModal();
+    render();
+  };
+
   function fmt(val) {
-    if (val === null || val === undefined) return '<span style="color:#555">—</span>';
-    if (typeof val === 'boolean') return val ? '<span class="pill pill-green">Yes</span>' : '<span class="pill pill-red">No</span>';
-    if (typeof val === 'string' && val.length > 60) return `<span title="${val.replace(/"/g,"'")}">${val.slice(0,58)}…</span>`;
+    if (val === null || val === undefined) return '—';
+    if (typeof val === 'boolean') return val ? 'true' : 'false';
+    if (typeof val === 'string' && val.length > 55) return val.slice(0,53) + '…';
     return String(val);
   }
 
-  function renderTable(rows, skipCols=[]) {
+  function renderTable(rows, tableName, skipCols=[]) {
     if (!rows.length) return '<p style="color:var(--muted);padding:20px;">No records found.</p>';
+    const pk = TABLE_PKS[tableName];
+    const editable = EDITABLE[tableName] || [];
     const cols = Object.keys(rows[0]).filter(c => !skipCols.includes(c));
     return `<div class="table-wrap"><table>
-      <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
-      <tbody>${rows.map(row=>`<tr>${cols.map(c=>`<td>${fmt(row[c])}</td>`).join('')}</tr>`).join('')}</tbody>
+      <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th>Actions</th></tr></thead>
+      <tbody>${rows.map(row => {
+        const pkVal = row[pk];
+        const cells = cols.map(c => {
+          const v = fmt(row[c]);
+          const bool = typeof row[c] === 'boolean';
+          if (editable.includes(c)) {
+            return `<td><span class="editable" title="Click to edit" onclick="openEdit('${tableName}','${pkVal}','${c}','${String(row[c]).replace(/'/g,'&#39;')}')">${bool ? (row[c]?'<span class=\'pill pill-green\'>Yes</span>':'<span class=\'pill pill-red\'>No</span>') : v}</span></td>`;
+          }
+          return `<td>${bool ? (row[c]?'<span class="pill pill-green">Yes</span>':'<span class="pill pill-red">No</span>') : v}</td>`;
+        }).join('');
+        return `<tr>${cells}<td><button class="del-btn" onclick="openDelete('${tableName}','${pkVal}')">🗑 Delete</button></td></tr>`;
+      }).join('')}</tbody>
     </table></div>`;
   }
 
   function renderUsers() {
     return `<div class="user-grid">${db.users.map(u => {
       const pfp = u.profile_picture ? `<img src="${u.profile_picture}" alt="pfp">` : '🐼';
+      const editableFields = EDITABLE.users;
       return `<div class="user-card">
-        <div class="user-pfp">${pfp}</div>
-        <div class="user-info">
-          <h3>${u.full_name || u.username}</h3>
-          <p>@${u.username} · ${u.email}</p>
-          <div class="user-meta">
-            ${u.is_admin ? '<span class="pill pill-red">👑 Admin</span>' : '<span class="pill pill-blue">User</span>'}
-            <span class="pill pill-yellow">⭐ ${(u.xp||0).toLocaleString()} XP</span>
-            <span class="pill pill-green">Lv ${u.level||1}</span>
-            <span class="pill" style="background:rgba(255,255,255,.06);color:var(--muted);">🔥 ${u.streak_days||0}d</span>
+        <div class="user-card-top">
+          <div class="user-pfp">${pfp}</div>
+          <div class="user-info">
+            <h3>${u.full_name || u.username}</h3>
+            <p>@${u.username} · ${u.email}</p>
           </div>
+        </div>
+        <div class="user-meta">
+          ${u.is_admin ? '<span class="pill pill-red">👑 Admin</span>' : '<span class="pill pill-blue">User</span>'}
+          <span class="pill pill-yellow">⭐ ${(u.xp||0).toLocaleString()} XP</span>
+          <span class="pill pill-green">Lv ${u.level||1}</span>
+          <span class="pill" style="background:rgba(255,255,255,.06);color:var(--muted);">🔥 ${u.streak_days||0}d</span>
+        </div>
+        <div class="user-actions">
+          ${editableFields.map(f => `<button class="edit-field-btn" onclick="openEdit('users','${u.user_id}','${f}','${String(u[f]||'').replace(/'/g,'&#39;')}')" title="Edit ${f}">✏️ ${f}</button>`).join('')}
+          <button class="del-user-btn" onclick="openDelete('users','${u.user_id}')">🗑</button>
         </div>
       </div>`;
     }).join('')}</div>`;
   }
 
   const tabs = [
-    { id:'users',    label:'👥 Users',        count: db.users.length },
-    { id:'progress', label:'📚 Progress',      count: db.progress.length },
-    { id:'achievements', label:'🏅 Achievements', count: db.achievements.length },
-    { id:'goals',    label:'🎯 Daily Goals',   count: db.daily_goals.length },
-    { id:'notifications', label:'🔔 Notifications', count: db.notifications.length },
-    { id:'vocab',    label:'🧠 Vocabulary',    count: db.vocabulary.length },
-    { id:'settings', label:'⚙️ Settings',      count: db.settings.length },
+    { id:'users',         label:'👥 Users',         get count(){ return db.users.length; } },
+    { id:'progress',      label:'📚 Progress',       get count(){ return db.progress.length; } },
+    { id:'achievements',  label:'🏅 Achievements',   get count(){ return db.achievements.length; } },
+    { id:'goals',         label:'🎯 Daily Goals',    get count(){ return db.daily_goals.length; } },
+    { id:'notifications', label:'🔔 Notifications',  get count(){ return db.notifications.length; } },
+    { id:'vocab',         label:'🧠 Vocabulary',     get count(){ return db.vocabulary.length; } },
+    { id:'settings',      label:'⚙️ Settings',       get count(){ return db.settings.length; } },
   ];
 
   function getContent() {
     switch(activeTab) {
       case 'users':         return renderUsers();
-      case 'progress':      return renderTable(db.progress);
-      case 'achievements':  return renderTable(db.achievements);
-      case 'goals':         return renderTable(db.daily_goals);
-      case 'notifications': return renderTable(db.notifications);
-      case 'vocab':         return renderTable(db.vocabulary);
-      case 'settings':      return renderTable(db.settings, ['password_hash']);
+      case 'progress':      return renderTable(db.progress,      'user_progress');
+      case 'achievements':  return renderTable(db.achievements,  'achievements');
+      case 'goals':         return renderTable(db.daily_goals,   'daily_goals');
+      case 'notifications': return renderTable(db.notifications, 'notifications');
+      case 'vocab':         return renderTable(db.vocabulary,    'vocabulary_progress');
+      case 'settings':      return renderTable(db.settings,      'user_settings');
       default: return '';
     }
   }
 
   function render() {
+    const cur = tabs.find(t => t.id === activeTab);
     document.getElementById('app').innerHTML = `
       <div class="topbar">
         <div class="topbar-left">
@@ -242,34 +363,32 @@ tr:hover td{background:rgba(255,255,255,.03);}
         </div>
         <button class="back-btn" onclick="location.href='profile.html'">← Back to Profile</button>
       </div>
-
       <div class="stats-row">
         <div class="stat-pill"><div class="label">Total Users</div><div class="val">${totalUsers}</div></div>
         <div class="stat-pill"><div class="label">Admins</div><div class="val">${adminCount}</div></div>
         <div class="stat-pill"><div class="label">Total XP</div><div class="val">${totalXP.toLocaleString()}</div></div>
         <div class="stat-pill"><div class="label">Lessons Done</div><div class="val">${completedLessons}</div></div>
       </div>
-
       <div class="tabs">
         ${tabs.map(t=>`<button class="tab${activeTab===t.id?' active':''}" onclick="switchTab('${t.id}')">${t.label} <span style="opacity:.6;">(${t.count})</span></button>`).join('')}
       </div>
-
       <div class="section">
-        <div class="section-title">
-          ${tabs.find(t=>t.id===activeTab)?.label}
-          <span class="count-badge">${tabs.find(t=>t.id===activeTab)?.count} records</span>
-        </div>
+        <div class="section-title">${cur.label} <span class="count-badge">${cur.count} records</span></div>
         ${getContent()}
-      </div>
-    `;
+      </div>`;
   }
 
-  window.switchTab = function(id) {
-    activeTab = id;
-    render();
-  };
+  window.switchTab = id => { activeTab = id; render(); };
 
   render();
+
+  // Close modals on overlay click
+  document.getElementById('editModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+  document.getElementById('deleteModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDeleteModal(); });
+
+  // Enter key submits
+  document.getElementById('modalPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmEdit(); });
+  document.getElementById('deletePassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmDelete(); });
 })();
 </script>
 </body>
