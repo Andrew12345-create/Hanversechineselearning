@@ -649,59 +649,24 @@ Sign Up
 </nav>
 
 <section class="dashboard">
-
 <div class="dashboard-card">
-
 <div>
-
-<h2>
-Welcome Back 👋
-</h2>
-
-<p>
-Continue your Mandarin journey.
-</p>
-
+<h2 id="learnWelcome">Welcome Back 👋</h2>
+<p>Continue your Mandarin journey.</p>
 </div>
-
 <div class="stat">
-
-<h3>
-🔥 12
-</h3>
-
-<p>
-Day Streak
-</p>
-
+<h3 id="learnStreak">🔥 —</h3>
+<p>Day Streak</p>
 </div>
-
 <div class="stat">
-
-<h3>
-⭐ 420
-</h3>
-
-<p>
-XP
-</p>
-
+<h3 id="learnXP">⭐ —</h3>
+<p>XP</p>
 </div>
-
 <div class="stat">
-
-<h3>
-🏆 4
-</h3>
-
-<p>
-Level
-</p>
-
+<h3 id="learnLevel">🏆 —</h3>
+<p>Level</p>
 </div>
-
 </div>
-
 </section>
 
 <section class="hero">
@@ -1116,101 +1081,15 @@ Start Learning
      FOOTER
 ========================================== -->
 
-<footer
-style="
-padding:80px 8%;
-background:#0F172A;
-color:white;
-margin-top:80px;
-">
-
-<div
-style="
-display:grid;
-grid-template-columns:
-2fr 1fr 1fr 1fr;
-gap:40px;
-">
-
-<div>
-
-<h2>
-🐼 Hanverse
-</h2>
-
-<br>
-
-<p>
-
-Learn Mandarin through
-stories, games and AI.
-
-</p>
-
+<footer style="padding:64px 7% 32px;background:#0F172A;color:white;margin-top:60px;">
+<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:32px;">
+<div><h2 style="margin-bottom:12px;">🐼 Hanverse</h2><p style="color:#94A3B8;line-height:1.7;font-size:.9rem;">Learn Mandarin through stories, games and AI.</p></div>
+<div><h4 style="margin-bottom:14px;">Platform</h4><p style="color:#94A3B8;"><a href="index.html" style="color:#94A3B8;text-decoration:none;display:block;margin-bottom:8px;transition:.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94A3B8'">Home</a><a href="learn.html" style="color:#94A3B8;text-decoration:none;display:block;margin-bottom:8px;transition:.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94A3B8'">Learn</a></p></div>
+<div><h4 style="margin-bottom:14px;">Resources</h4><p style="color:#94A3B8;font-size:.9rem;">Parents<br>Support<br>FAQ</p></div>
+<div><h4 style="margin-bottom:14px;">Social</h4><p style="color:#94A3B8;font-size:.9rem;">Instagram<br>TikTok<br>YouTube</p></div>
 </div>
-
-<div>
-
-<h4>
-Platform
-</h4>
-
-<br>
-
-<p>Home</p>
-<p>Learn</p>
-<p>Worksheets</p>
-
-</div>
-
-<div>
-
-<h4>
-Resources
-</h4>
-
-<br>
-
-<p>Parents</p>
-<p>Support</p>
-<p>FAQ</p>
-
-</div>
-
-<div>
-
-<h4>
-Social
-</h4>
-
-<br>
-
-<p>Instagram</p>
-<p>TikTok</p>
-<p>YouTube</p>
-
-</div>
-
-</div>
-
-<hr
-style="
-margin:40px 0;
-border:none;
-height:1px;
-background:rgba(255,255,255,.1);
-">
-
-<p
-style="
-text-align:center;
-opacity:.7;
-">
-
-© Hanverse 2026
-
-</p>
-
+<hr style="border:none;height:1px;background:rgba(255,255,255,.08);margin:24px 0;">
+<p style="text-align:center;color:#64748B;font-size:.85rem;">© Hanverse 2026</p>
 </footer>
 
 <!-- ==========================================
@@ -1429,37 +1308,31 @@ window.addEventListener(
 async()=>{
 
 if(window.Notify){
-
 setTimeout(()=>{
-
-Notify.toast(
-'Welcome back learner! 🐼',
-'heart',
-3000
-);
-
+Notify.toast('Welcome back learner! 🐼','heart',3000);
 },600);
-
 }
 
-const user=
-getSessionUser();
-
-const userId=
-user.user_id ||
-user.userId;
+const user=getSessionUser();
+const userId=user.user_id||user.userId;
 
 if(userId){
+// Populate dashboard stats from API
+try{
+const r=await fetch('/api/user/'+userId);
+if(r.ok){
+const d=await r.json();
+const u=d.user;
+const el=n=>document.getElementById(n);
+if(el('learnWelcome'))el('learnWelcome').textContent='Welcome back, '+(u.username||'Learner')+' 👋';
+if(el('learnStreak'))el('learnStreak').textContent='🔥 '+u.streak_days;
+if(el('learnXP'))el('learnXP').textContent='⭐ '+u.xp;
+if(el('learnLevel'))el('learnLevel').textContent='🏆 '+u.level;
+}
+}catch(e){}
 
-const courses=
-await loadUserCourses(
-userId
-);
-
-renderYCTSections(
-courses
-);
-
+const courses=await loadUserCourses(userId);
+renderYCTSections(courses);
 }
 
 });

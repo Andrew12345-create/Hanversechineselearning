@@ -15,567 +15,200 @@ href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;
 rel="stylesheet">
 
 <style>
-
-/* ==========================================
-   HANVERSE BRAND SYSTEM
-========================================== */
-
 :root{
-
---yellow:#F4D35E;
---red:#E63946;
---blue:#4EA8DE;
---green:#74C69D;
-
---bg:#FFFDF7;
---surface:#FFFFFF;
-
---text-primary:#1A1A2E;
---text-secondary:#6B7280;
-
---border:#E5E7EB;
-
---shadow-sm:
-0 8px 20px rgba(0,0,0,.05);
-
---shadow:
-0 20px 50px rgba(0,0,0,.08);
-
---shadow-lg:
-0 30px 70px rgba(0,0,0,.12);
-
+--yellow:#F4D35E;--red:#E63946;--blue:#4EA8DE;--green:#74C69D;
+--bg:#FFFDF7;--surface:#FFFFFF;
+--text-primary:#1A1A2E;--text-secondary:#6B7280;--border:#E5E7EB;
+--shadow-sm:0 8px 20px rgba(0,0,0,.05);
+--shadow:0 20px 50px rgba(0,0,0,.08);
+--shadow-lg:0 30px 70px rgba(0,0,0,.12);
 }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text-primary);padding:24px;overflow-x:hidden;}
+body::before{content:'';position:fixed;width:700px;height:700px;top:-350px;left:-350px;border-radius:50%;background:rgba(78,168,222,.07);z-index:-2;}
+body::after{content:'';position:fixed;width:600px;height:600px;bottom:-300px;right:-300px;border-radius:50%;background:rgba(244,211,94,.07);z-index:-2;}
 
-*{
-
-margin:0;
-padding:0;
-box-sizing:border-box;
-
-font-family:'Poppins',sans-serif;
-
-}
-
-html{
-
-scroll-behavior:smooth;
-
-}
-
-body{
-
-background:var(--bg);
-
-color:var(--text-primary);
-
-padding:24px;
-
-overflow-x:hidden;
-
-position:relative;
-
-}
-
-/* ==========================================
-   BACKGROUND
-========================================== */
-
-body::before{
-
-content:'';
-
-position:fixed;
-
-width:750px;
-height:750px;
-
-top:-380px;
-left:-380px;
-
-border-radius:50%;
-
-background:
-rgba(78,168,222,.08);
-
-z-index:-2;
-
-}
-
-body::after{
-
-content:'';
-
-position:fixed;
-
-width:650px;
-height:650px;
-
-bottom:-320px;
-right:-320px;
-
-border-radius:50%;
-
-background:
-rgba(244,211,94,.08);
-
-z-index:-2;
-
-}
-
-/* ==========================================
-   NAVBAR
-========================================== */
-
+/* NAV */
 nav{
-
-display:flex;
-
-justify-content:space-between;
-align-items:center;
-
-padding:18px 30px;
-
-background:
-rgba(255,255,255,.82);
-
-backdrop-filter:blur(20px);
-
-border-radius:25px;
-
-margin-bottom:28px;
-
-box-shadow:var(--shadow-sm);
-
+display:flex;justify-content:space-between;align-items:center;
+padding:16px 28px;
+background:rgba(255,255,255,.85);backdrop-filter:blur(20px);
+border-radius:22px;margin-bottom:26px;
+box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,.04);
 }
-
-.logo{
-
-display:flex;
-align-items:center;
-gap:12px;
-
-font-size:30px;
-font-weight:800;
-
-color:var(--yellow);
-
-}
-
+.logo{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;color:var(--yellow);text-decoration:none;}
 .logo-badge{
-
-width:50px;
-height:50px;
-
-border-radius:50%;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-background:
-linear-gradient(
-135deg,
-var(--yellow),
-#FFD95A
-);
-
-font-size:24px;
-
+width:46px;height:46px;border-radius:50%;
+display:flex;justify-content:center;align-items:center;
+background:linear-gradient(135deg,var(--yellow),#FFD95A);font-size:22px;
 }
-
-nav ul{
-
-display:flex;
-
-gap:24px;
-
-list-style:none;
-
-}
-
+nav ul{display:flex;gap:22px;list-style:none;}
 nav a{
-
-text-decoration:none;
-
-font-weight:600;
-
-color:var(--text-secondary);
-
-transition:.3s;
-
+text-decoration:none;font-weight:600;font-size:.9rem;
+color:var(--text-secondary);transition:.25s;position:relative;padding-bottom:2px;
 }
-
-nav a:hover{
-
-color:var(--red);
-
-}
-
-nav a.active{
-
-color:var(--red);
-
-}
-
+nav a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:var(--red);border-radius:2px;transition:.25s;}
+nav a:hover{color:var(--red);}
+nav a:hover::after,nav a.active::after{width:100%;}
+nav a.active{color:var(--red);}
 .logout-btn{
-
-padding:12px 24px;
-
-border:none;
-
-border-radius:999px;
-
-font-weight:700;
-
-cursor:pointer;
-
-background:
-linear-gradient(
-135deg,
-var(--yellow),
-#FFD95A
-);
-
+padding:11px 22px;border:none;border-radius:999px;font-weight:700;font-size:.88rem;
+cursor:pointer;background:linear-gradient(135deg,var(--yellow),#FFD95A);
+transition:.25s;color:var(--text-primary);
 }
+.logout-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(244,211,94,.4);}
 
-/* ==========================================
-   PROFILE HERO
-========================================== */
-
+/* PROFILE HERO */
 .profile-hero{
-
-position:relative;
-
-overflow:hidden;
-
-display:flex;
-align-items:center;
-gap:30px;
-
-padding:55px;
-
-border-radius:38px;
-
-margin-bottom:28px;
-
-background:
-linear-gradient(
-135deg,
-#F4D35E 0%,
-#FFD95A 35%,
-#6DBBF1 100%
-);
-
+position:relative;overflow:hidden;
+display:flex;align-items:center;gap:28px;
+padding:50px;
+border-radius:36px;margin-bottom:26px;
+background:linear-gradient(135deg,#F4D35E 0%,#FFD95A 35%,#6DBBF1 100%);
 box-shadow:var(--shadow-lg);
-
 }
-
-.hero-char{
-
-position:absolute;
-
-font-size:90px;
-
-font-weight:800;
-
-opacity:.08;
-
-pointer-events:none;
-
-}
-
-.hc1{
-top:30px;
-left:30px;
-}
-
-.hc2{
-top:50px;
-right:50px;
-}
-
-.hc3{
-bottom:50px;
-left:50px;
-}
-
-.hc4{
-bottom:40px;
-right:40px;
-}
-
+.hero-char{position:absolute;font-size:88px;font-weight:800;opacity:.07;pointer-events:none;}
+.hc1{top:28px;left:28px;}.hc2{top:48px;right:48px;}.hc3{bottom:48px;left:48px;}.hc4{bottom:38px;right:38px;}
 .avatar{
-
-width:120px;
-height:120px;
-
-border-radius:50%;
-
-background:white;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-font-size:62px;
-
-box-shadow:
-0 15px 35px rgba(0,0,0,.12);
-
+width:118px;height:118px;border-radius:50%;background:white;
+display:flex;justify-content:center;align-items:center;
+font-size:60px;box-shadow:0 12px 30px rgba(0,0,0,.14);
+cursor:pointer;transition:.25s;flex-shrink:0;position:relative;
 }
-
-.profile-info h1{
-
-font-size:2rem;
-
-color:white;
-
-margin-bottom:8px;
-
-}
-
-.profile-info p{
-
-color:white;
-
-line-height:1.7;
-
-}
-
+.avatar:hover{transform:scale(1.04);}
+.profile-info h1{font-size:1.9rem;color:white;margin-bottom:7px;}
+.profile-info p{color:rgba(255,255,255,.9);line-height:1.7;}
 .level-badge{
-
-display:inline-block;
-
-margin-top:15px;
-
-padding:10px 18px;
-
-border-radius:999px;
-
-background:
-rgba(255,255,255,.18);
-
-color:white;
-
-font-weight:700;
-
+display:inline-block;margin-top:14px;padding:9px 18px;
+border-radius:999px;background:rgba(255,255,255,.18);
+color:white;font-weight:700;font-size:.88rem;
 }
-
-.hero-stats{
-
-display:flex;
-
-gap:12px;
-
-margin-top:15px;
-
-flex-wrap:wrap;
-
-}
-
+.hero-stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
 .hero-stat{
-
-padding:10px 16px;
-
-border-radius:999px;
-
-background:
-rgba(255,255,255,.18);
-
-color:white;
-
-font-weight:700;
-
+padding:9px 16px;border-radius:999px;
+background:rgba(255,255,255,.18);color:white;font-weight:700;font-size:.86rem;
 }
 
-/* ==========================================
-   QUICK DASHBOARD
-========================================== */
-
+/* QUICK DASHBOARD */
 .quick-dashboard{
-
-display:grid;
-
-grid-template-columns:
-repeat(4,1fr);
-
-gap:18px;
-
-margin-bottom:28px;
-
+display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px;
 }
-
 .quick-card{
-
-background:white;
-
-padding:24px;
-
-border-radius:24px;
-
-text-align:center;
-
-box-shadow:var(--shadow-sm);
-
+background:white;padding:22px;border-radius:22px;
+text-align:center;box-shadow:var(--shadow-sm);
+border:1px solid rgba(0,0,0,.04);transition:.25s;
 }
+.quick-card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.09);}
+.quick-card h3{font-size:1.9rem;margin-top:8px;font-weight:800;}
+.quick-card p{font-size:.82rem;color:var(--text-secondary);margin-top:4px;}
+.quick-card:nth-child(1) h3{color:var(--red);}
+.quick-card:nth-child(2) h3{color:#D4A800;}
+.quick-card:nth-child(3) h3{color:var(--blue);}
+.quick-card:nth-child(4) h3{color:var(--green);}
 
-.quick-card h3{
-
-font-size:2rem;
-
-margin-top:10px;
-
-}
-
-.quick-card:nth-child(1) h3{
-color:var(--red);
-}
-
-.quick-card:nth-child(2) h3{
-color:#D4A800;
-}
-
-.quick-card:nth-child(3) h3{
-color:var(--blue);
-}
-
-.quick-card:nth-child(4) h3{
-color:var(--green);
-}
-
-/* ==========================================
-   MAIN STATS
-========================================== */
-
+/* STATS GRID */
 .stats-grid{
-
-display:grid;
-
-grid-template-columns:
-repeat(4,1fr);
-
-gap:20px;
-
-margin-bottom:30px;
-
+display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:26px;
 }
-
 .stat-card{
+background:white;padding:22px;border-radius:22px;
+text-align:center;box-shadow:var(--shadow-sm);
+border:1px solid rgba(0,0,0,.04);transition:.25s;
+}
+.stat-card:hover{transform:translateY(-4px);}
+.stat-card .icon{font-size:1.9rem;margin-bottom:10px;}
+.stat-card h2{font-size:1.9rem;font-weight:800;margin-bottom:4px;}
+.stat-card p{font-size:.82rem;color:var(--text-secondary);}
+#xp{color:#D4A800;}#streak{color:var(--red);}#lessons{color:var(--blue);}#words{color:var(--green);}
 
-background:white;
+/* CONTENT SECTIONS */
+.content-section{
+background:white;padding:28px;
+border-radius:22px;margin-bottom:24px;
+box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,.04);
+}
+.content-section h2{font-size:1.1rem;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
 
-padding:24px;
+/* PROGRESS BAR */
+.progress-bar-track{height:12px;background:#F0F0F0;border-radius:999px;overflow:hidden;margin:12px 0;}
+.progress-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--yellow),var(--green));transition:width 1.2s cubic-bezier(.4,0,.2,1);}
 
-border-radius:24px;
-
+/* BADGES */
+.badges-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+gap:14px;
+}
+.badge-card{
+border-radius:20px;
+padding:20px 12px;
 text-align:center;
-
-box-shadow:var(--shadow-sm);
-
+border:2px solid transparent;
+transition:.25s;
+cursor:default;
 }
-
-.stat-card .icon{
-
-font-size:2rem;
-
-margin-bottom:12px;
-
+.badge-card.earned{
+background:white;
+border-color:rgba(0,0,0,.06);
+box-shadow:0 8px 22px rgba(0,0,0,.07);
 }
+.badge-card.earned:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.11);}
+.badge-card.locked{
+background:#F3F4F6;
+border-color:#E5E7EB;
+opacity:.65;
+filter:grayscale(1);
+}
+.badge-icon{font-size:2.4rem;margin-bottom:8px;}
+.badge-name{font-size:.78rem;font-weight:700;margin-bottom:4px;}
+.badge-desc{font-size:.7rem;color:var(--text-secondary);line-height:1.4;}
+.badge-card.earned .badge-name{color:var(--text-primary);}
+.badge-card.locked .badge-name{color:#9CA3AF;}
+.badge-earned-label{
+display:inline-block;margin-top:8px;
+padding:3px 10px;border-radius:999px;
+font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+}
+.badge-card.earned .badge-earned-label{background:rgba(116,198,157,.18);color:#2D7A5A;}
+.badge-card.locked .badge-earned-label{background:#E5E7EB;color:#9CA3AF;}
 
-#xp{
-color:#D4A800;
+/* ACTIVITY FEED */
+.activity-item{
+padding:12px 0;border-bottom:1px solid var(--border);
+font-size:.88rem;color:var(--text-secondary);display:flex;align-items:center;gap:10px;
 }
+.activity-item:last-child{border-bottom:none;}
 
-#streak{
-color:var(--red);
-}
-
-#lessons{
-color:var(--blue);
-}
-
-#words{
-color:var(--green);
-}
-
-.avatar-spinner{
-  width:40px;
-  height:40px;
-  border:4px solid rgba(255,255,255,.35);
-  border-top-color:#fff;
-  border-radius:50%;
-  animation:avatarSpin .8s linear infinite;
-}
-@keyframes avatarSpin{
-  to{transform:rotate(360deg);}
-}
+/* AVATAR SPINNER */
+.avatar-spinner{width:38px;height:38px;border:4px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:avatarSpin .8s linear infinite;}
+@keyframes avatarSpin{to{transform:rotate(360deg);}}
 
 /* ADMIN TAG */
-
 .admin-tag{
-display:none;
-align-items:center;
-gap:8px;
-padding:10px 22px;
-border-radius:999px;
-font-weight:800;
-font-size:.82rem;
-letter-spacing:.08em;
-text-transform:uppercase;
-color:#fff;
-background:linear-gradient(135deg,#ff416c,#ff4b2b);
-box-shadow:0 4px 22px rgba(255,65,108,.5);
+display:none;align-items:center;gap:8px;padding:9px 20px;border-radius:999px;
+font-weight:800;font-size:.8rem;letter-spacing:.07em;text-transform:uppercase;
+color:#fff;background:linear-gradient(135deg,#ff416c,#ff4b2b);
+box-shadow:0 4px 20px rgba(255,65,108,.45);
 animation:adminPulse 2.4s ease-in-out infinite;
-width:fit-content;
 }
-
-.admin-tag.visible{
-display:inline-flex;
-}
-
+.admin-tag.visible{display:inline-flex;}
 @keyframes adminPulse{
-0%,100%{box-shadow:0 4px 22px rgba(255,65,108,.5);}
-50%{box-shadow:0 4px 40px rgba(255,65,108,.9),0 0 0 7px rgba(255,65,108,.15);}
+0%,100%{box-shadow:0 4px 20px rgba(255,65,108,.45);}
+50%{box-shadow:0 4px 38px rgba(255,65,108,.85),0 0 0 6px rgba(255,65,108,.12);}
 }
 
 /* RESPONSIVE */
-
 @media(max-width:900px){
-
-.profile-hero{
-
-flex-direction:column;
-text-align:center;
-
+.profile-hero{flex-direction:column;text-align:center;padding:36px 24px;}
+.quick-dashboard{grid-template-columns:repeat(2,1fr);}
+.stats-grid{grid-template-columns:repeat(2,1fr);}
 }
-
-.quick-dashboard{
-
-grid-template-columns:
-repeat(2,1fr);
-
-}
-
-.stats-grid{
-
-grid-template-columns:
-repeat(2,1fr);
-
-}
-
-}
-
 @media(max-width:600px){
-
-.quick-dashboard,
-.stats-grid{
-
-grid-template-columns:1fr;
-
+.quick-dashboard,.stats-grid{grid-template-columns:1fr 1fr;}
+nav ul{display:none;}
+.profile-hero{padding:28px 18px;}
 }
-
-}
-
 </style>
 
 </head>
@@ -836,78 +469,29 @@ Words Learned
      YCT PROGRESS
 ========================================== -->
 
-<section
-style="
-background:white;
-padding:30px;
-border-radius:24px;
-margin-bottom:30px;
-box-shadow:0 8px 20px rgba(0,0,0,.05);
-">
-
-<h2
-style="margin-bottom:20px;">
-
-📖 YCT Progress
-
-</h2>
-
-<p>Current Level: <strong id="yctLevel">—</strong></p>
-<br>
-<div style="height:14px;background:#E5E7EB;border-radius:999px;overflow:hidden;">
-  <div id="yctBar" style="height:100%;width:0%;background:linear-gradient(90deg,#F4D35E,#74C69D);"></div>
-</div>
-<br>
-<p id="yctPct">—</p>
-
+<section class="content-section">
+<h2>📖 YCT Progress</h2>
+<p style="font-size:.9rem;color:var(--text-secondary);">Current Level: <strong id="yctLevel" style="color:var(--text-primary);">—</strong></p>
+<div class="progress-bar-track"><div id="yctBar" class="progress-bar-fill" style="width:0%;"></div></div>
+<p id="yctPct" style="font-size:.88rem;color:var(--text-secondary);">—</p>
 </section>
 
 <!-- ==========================================
      ACHIEVEMENTS
 ========================================== -->
 
-<section
-style="
-background:white;
-padding:30px;
-border-radius:24px;
-margin-bottom:30px;
-box-shadow:0 8px 20px rgba(0,0,0,.05);
-">
-
-<h2
-style="margin-bottom:20px;">
-
-🏅 Achievements
-
-</h2>
-
-<ul id="achievementsList" style="padding-left:20px;line-height:2;"></ul>
-
+<section class="content-section">
+<h2>🏅 Badges</h2>
+<div class="badges-grid" id="badgesGrid"></div>
 </section>
 
 <!-- ==========================================
      ACTIVITY FEED
 ========================================== -->
 
-<section
-style="
-background:white;
-padding:30px;
-border-radius:24px;
-margin-bottom:30px;
-box-shadow:0 8px 20px rgba(0,0,0,.05);
-">
-
-<h2
-style="margin-bottom:20px;">
-
-📈 Recent Activity
-
-</h2>
-
+<section class="content-section">
+<h2>📈 Recent Activity</h2>
 <div id="activityFeed"></div>
-
 </section>
 
 <!-- ==========================================
@@ -991,19 +575,50 @@ async function loadProfile() {
   const yctPct = Math.round((yctCompleted / yctTotal) * 100);
   document.getElementById('yctLevel').textContent = `YCT ${maxYct}`;
   document.getElementById('yctBar').style.width = yctPct + '%';
+  setTimeout(()=>{ document.getElementById('yctBar').style.width = yctPct + '%'; }, 100);
   document.getElementById('yctPct').textContent = yctPct + '% Complete';
 
-  // Achievements
-  const list = document.getElementById('achievementsList');
-  const icons = { streak:'🔥', xp:'⭐', lesson:'📚', level:'🏆' };
-  if ((data.achievements || []).length) {
-    list.innerHTML = data.achievements.map(a => {
-      const icon = icons[a.achievement_type] || '🎖️';
-      return `<li>${icon} ${a.achievement_name}</li>`;
-    }).join('');
-  } else {
-    list.innerHTML = '<li>No achievements yet — keep going!</li>';
-  }
+  // Badges
+  const BADGES = [
+    // XP
+    { id:'xp_100',    icon:'⭐', name:'First Star',      desc:'Earn 100 XP',          color:'#F4D35E', check:(u,p,v)=> u.xp >= 100 },
+    { id:'xp_500',    icon:'🌟', name:'Rising Star',     desc:'Earn 500 XP',          color:'#FFB800', check:(u,p,v)=> u.xp >= 500 },
+    { id:'xp_1000',   icon:'💫', name:'XP Hunter',       desc:'Earn 1,000 XP',        color:'#FF9500', check:(u,p,v)=> u.xp >= 1000 },
+    { id:'xp_5000',   icon:'🏅', name:'XP Legend',       desc:'Earn 5,000 XP',        color:'#E63946', check:(u,p,v)=> u.xp >= 5000 },
+    // Streak
+    { id:'streak_3',  icon:'🔥', name:'On Fire',         desc:'3-day streak',         color:'#FF6B35', check:(u,p,v)=> u.streak_days >= 3 },
+    { id:'streak_7',  icon:'🗓️', name:'Week Warrior',    desc:'7-day streak',         color:'#E63946', check:(u,p,v)=> u.streak_days >= 7 },
+    { id:'streak_30', icon:'💪', name:'Unstoppable',     desc:'30-day streak',        color:'#C1121F', check:(u,p,v)=> u.streak_days >= 30 },
+    // Lessons
+    { id:'lesson_1',  icon:'📖', name:'First Lesson',    desc:'Complete 1 lesson',    color:'#4EA8DE', check:(u,p,v)=> p >= 1 },
+    { id:'lesson_10', icon:'📚', name:'Bookworm',        desc:'Complete 10 lessons',  color:'#2563EB', check:(u,p,v)=> p >= 10 },
+    { id:'lesson_50', icon:'🎓', name:'Scholar',         desc:'Complete 50 lessons',  color:'#7C3AED', check:(u,p,v)=> p >= 50 },
+    // Level
+    { id:'level_5',   icon:'🏆', name:'Level 5',         desc:'Reach level 5',        color:'#74C69D', check:(u,p,v)=> u.level >= 5 },
+    { id:'level_10',  icon:'👑', name:'Level 10',        desc:'Reach level 10',       color:'#2D9A60', check:(u,p,v)=> u.level >= 10 },
+    // Vocab
+    { id:'vocab_10',  icon:'🧠', name:'Word Collector',  desc:'Learn 10 words',       color:'#A855F7', check:(u,p,v)=> v >= 10 },
+    { id:'vocab_50',  icon:'📝', name:'Vocab Master',    desc:'Learn 50 words',       color:'#7C3AED', check:(u,p,v)=> v >= 50 },
+    // Special
+    { id:'first_login',icon:'🐼','name':'Panda Initiate',desc:'Log in for the first time', color:'#4EA8DE', check:()=> true },
+    { id:'admin',     icon:'👑', name:'Administrator',   desc:'Hanverse admin',       color:'#FF416C', check:(u)=> u.is_admin },
+  ];
+
+  const completedLessons = (data.progress || []).filter(p => p.completed).length;
+  const vocabCount = (data.vocabulary || []).length;
+  const isAdmin = u.is_admin;
+
+  const grid = document.getElementById('badgesGrid');
+  grid.innerHTML = BADGES.map(b => {
+    const earned = isAdmin || b.check(u, completedLessons, vocabCount);
+    const glow = earned ? `filter:drop-shadow(0 0 7px ${b.color}99)` : '';
+    return `<div class="badge-card ${earned ? 'earned' : 'locked'}" title="${b.desc}">
+      <div class="badge-icon" style="${glow}">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+      <span class="badge-earned-label">${earned ? '✓ Earned' : 'Locked'}</span>
+    </div>`;
+  }).join('');
 
   // Activity Feed — recent completed lessons
   const feed = document.getElementById('activityFeed');
@@ -1012,10 +627,10 @@ async function loadProfile() {
     .slice(0, 5);
   if (recent.length) {
     feed.innerHTML = recent.map(p =>
-      `<p>📚 Completed ${p.course_type} ${p.course_level} — Lesson ${p.lesson_id}</p><br>`
+      `<div class="activity-item">📚 <span>Completed ${p.course_type} ${p.course_level} — Lesson ${p.lesson_id}</span></div>`
     ).join('');
   } else {
-    feed.innerHTML = '<p>No recent activity yet.</p>';
+    feed.innerHTML = '<div class="activity-item">No recent activity yet.</div>';
   }
 }
 

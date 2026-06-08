@@ -188,6 +188,42 @@ tr:hover td{background:rgba(255,255,255,.025);}
   </div>
 </div>
 
+<!-- Create User Modal -->
+<div class="modal-overlay" id="createUserModal">
+  <div class="modal">
+    <h2>➕ Create User</h2>
+    <div class="subtitle">Fill out the details, then confirm with the admin password.</div>
+
+    <label>Username</label>
+    <input id="createUsername" placeholder="e.g. jane_doe" autocomplete="off" />
+
+    <label>Full Name</label>
+    <input id="createFullName" placeholder="e.g. Jane Doe" autocomplete="off" />
+
+    <label>Email</label>
+    <input id="createEmail" placeholder="e.g. jane@example.com" autocomplete="off" />
+
+    <label>Password</label>
+    <input id="createPassword" type="password" placeholder="temporary password" />
+
+    <label style="text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="createIsAdmin" style="width:18px;height:18px;" />
+      Make Admin
+    </label>
+
+    <label>Admin Password</label>
+    <input type="password" id="createAdminPassword" placeholder="admin123" />
+
+    <div class="modal-err" id="createUserErr"></div>
+
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeCreateUserModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmCreateUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+
 <div id="app">
   <div class="loading"><div class="spinner"></div><p>Verifying access…</p></div>
 </div>
@@ -242,6 +278,66 @@ tr:hover td{background:rgba(255,255,255,.025);}
     document.getElementById('banReason').value = '';
     pendingBan = null;
   };
+
+  window.closeCreateUserModal = () => {
+    document.getElementById('createUserModal').classList.remove('open');
+    document.getElementById('createUserErr').textContent = '';
+    document.getElementById('createUsername').value = '';
+    document.getElementById('createFullName').value = '';
+    document.getElementById('createEmail').value = '';
+    document.getElementById('createPassword').value = '';
+    document.getElementById('createIsAdmin').checked = false;
+    document.getElementById('createAdminPassword').value = '';
+  };
+
+  window.openCreateUserModal = () => {
+    document.getElementById('createUserModal').classList.add('open');
+    document.getElementById('createUserErr').textContent = '';
+    setTimeout(() => document.getElementById('createUsername').focus(), 50);
+  };
+
+  window.confirmCreateUser = async () => {
+    const adminPassword = document.getElementById('createAdminPassword').value.trim();
+    const username = document.getElementById('createUsername').value.trim();
+    const fullName = document.getElementById('createFullName').value.trim();
+    const email = document.getElementById('createEmail').value.trim();
+    const password = document.getElementById('createPassword').value;
+    const isAdmin = document.getElementById('createIsAdmin').checked;
+
+    document.getElementById('createUserErr').textContent = '';
+
+    if (!adminPassword) { document.getElementById('createUserErr').textContent = 'Enter the admin password.'; return; }
+    if (!username || !fullName || !email || !password) { document.getElementById('createUserErr').textContent = 'All fields are required.'; return; }
+
+    const r = await fetch('/api/admin/create-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        adminPassword,
+        email,
+        password,
+        fullName,
+        username,
+        isAdmin,
+      })
+    });
+
+    const d = await r.json();
+    if (!r.ok) {
+      document.getElementById('createUserErr').textContent = d.error || 'Failed to create user.';
+      return;
+    }
+
+    // Update local cache
+    db.users.unshift(d.user);
+    totalUsers = db.users.length;
+    adminCount = db.users.filter(u => u.is_admin).length;
+    totalXP = db.users.reduce((s,u) => s + (u.xp||0), 0);
+
+    closeCreateUserModal();
+    render();
+  };
+
   window.closeUnbanModal = () => {
     document.getElementById('unbanModal').classList.remove('open');
     document.getElementById('unbanErr').textContent = '';
@@ -478,7 +574,10 @@ tr:hover td{background:rgba(255,255,255,.025);}
           <div class="admin-logo">👑</div>
           <h1>Hanverse <span>Admin</span></h1>
         </div>
-        <button class="back-btn" onclick="location.href='profile.html'">← Back to Profile</button>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="back-btn" onclick="openCreateUserModal()">➕ Create User</button>
+          <button class="back-btn" onclick="location.href='profile.html'">← Back to Profile</button>
+        </div>
       </div>
       <div class="stats-row">
         <div class="stat-pill"><div class="label">Total Users</div><div class="val">${totalUsers}</div></div>
@@ -495,6 +594,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
       </div>`;
   }
 
+
   window.switchTab = id => { activeTab = id; render(); };
 
   render();
@@ -504,9 +604,12 @@ tr:hover td{background:rgba(255,255,255,.025);}
   document.getElementById('deleteModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDeleteModal(); });
   document.getElementById('banModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeBanModal(); });
   document.getElementById('unbanModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeUnbanModal(); });
+  document.getElementById('createUserModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeCreateUserModal(); });
 
   // Enter key submits
+  document.getElementById('createAdminPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmCreateUser(); });
   document.getElementById('modalPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmEdit(); });
+
   document.getElementById('deletePassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmDelete(); });
   document.getElementById('banPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmBan(); });
   document.getElementById('unbanPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmUnban(); });

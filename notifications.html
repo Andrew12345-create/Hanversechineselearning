@@ -75,8 +75,13 @@
             transition: all 0.2s;
         }
         .notification-card.unread {
-            background: #FFF9F9;
-            border-color: var(--primary-light);
+            background: #FFFBF0;
+            border-color: var(--primary);
+        }
+        .notification-card:hover{
+            box-shadow:0 4px 16px rgba(0,0,0,.07);
+            transform:translateY(-1px);
+            transition:all .2s;
         }
         .notification-icon {
             width: 48px;
@@ -124,7 +129,7 @@
 <body class="app-page">
     <div class="app-container">
         <header class="app-header">
-            <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+            <button class="back-btn" onclick="history.length>1?history.back():window.location.href='index.html'">←</button>
             <h1 class="header-title">Notifications</h1>
             <button class="mark-all-btn" onclick="markAllRead()">Mark all read</button>
         </header>

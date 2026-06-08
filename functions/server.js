@@ -241,6 +241,59 @@ app.post('/api/admin/delete', async (req, res) => {
   } catch (e) { console.error(e); res.status(500).json({ error: 'Delete failed' }); }
 });
 
+// Admin — create user
+app.post('/api/admin/create-user', async (req, res) => {
+  try {
+    const { adminPassword, email, password, fullName, username, isAdmin } = req.body;
+    if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
+
+    if (!email || !password || !fullName || !username) {
+      return res.status(400).json({ error: 'email, password, fullName, username are required' });
+    }
+
+    const existing = await pool.query(
+      'SELECT 1 FROM users WHERE email = $1 OR username = $2',
+      [email, username]
+    );
+    if (existing.rows.length) return res.status(400).json({ error: 'Email or username already exists' });
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `INSERT INTO users (username, email, password_hash, full_name, last_active, is_admin)
+       VALUES ($1, $2, $3, $4, CURRENT_DATE, $5)
+       RETURNING *`,
+      [username, email, passwordHash, fullName, Boolean(isAdmin)]
+    );
+
+    const user = result.rows[0];
+
+    // Ensure default settings exist
+    await pool.query('INSERT INTO user_settings (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING', [user.user_id]);
+
+    res.json({
+      success: true,
+      user: {
+        user_id: user.user_id,
+        username: user.username,
+        email: user.email,
+        full_name: user.full_name,
+        xp: user.xp || 0,
+        level: user.level || 1,
+        streak_days: 0,
+        is_admin: user.is_admin || false,
+        is_banned: user.is_banned || false,
+        banned_reason: user.banned_reason || null,
+        created_at: user.created_at,
+        profile_picture: user.profile_picture || null,
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Create user failed' });
+  }
+});
+
 // Admin overview
 app.get('/api/admin/overview', async (req, res) => {
   try {
@@ -273,6 +326,7 @@ app.get('/api/admin/overview', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 // Health
 app.get('/api/health', (req, res) => res.json({ ok: true }));

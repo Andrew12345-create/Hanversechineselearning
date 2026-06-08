@@ -66,19 +66,21 @@
             padding-bottom: max(110px, env(safe-area-inset-bottom));
         }
         .stats-banner {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            background: linear-gradient(135deg, #1A1A2E 0%, #16213e 100%);
             border-radius: 20px;
             padding: 1.5rem;
             color: white;
             margin-bottom: 1.5rem;
             text-align: center;
+            box-shadow: 0 8px 24px rgba(26,26,46,.25);
         }
         .stats-banner h2 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin-bottom: 0.25rem;
+            color: var(--primary);
         }
         .stats-banner p {
-            opacity: 0.9;
+            opacity: 0.75;
             font-size: 0.875rem;
         }
         .practice-card {
@@ -88,12 +90,16 @@
             margin-bottom: 1rem;
             border: 2px solid var(--border);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(.4,0,.2,1);
+            position: relative;
+            overflow: hidden;
         }
         .practice-card:hover {
             border-color: var(--primary);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(244,211,94,.18);
         }
+        .practice-card:active{transform:translateY(-1px);}
         .practice-icon {
             width: 60px;
             height: 60px;
@@ -179,7 +185,7 @@
         </header>
         <main class="main-content">
             <div class="stats-banner">
-                <h2>156</h2>
+                <h2 id="wordsPracticed">—</h2>
                 <p>Words Practiced This Week</p>
             </div>
             <div class="practice-card">
@@ -226,6 +232,21 @@
     <!-- ── Notifications ── -->
     <script src="notifications.js"></script>
     <script>
+    /* ── Load real word count ── */
+    (async()=>{
+      try{
+        const stored=localStorage.getItem('hanverse_user');
+        if(!stored)return;
+        const {user_id}=JSON.parse(stored);
+        const r=await fetch('/api/user/'+user_id);
+        if(!r.ok)return;
+        const d=await r.json();
+        const count=(d.vocabulary||[]).length;
+        const el=document.getElementById('wordsPracticed');
+        if(el)el.textContent=count||'0';
+      }catch(e){}
+    })();
+
     /* ── Practice card click ── */
     const cardMessages = {
       'Flashcards':    {msg:'Great practice session! +20 XP', emoji:'📝'},
