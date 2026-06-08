@@ -164,6 +164,26 @@
     });
   }
 
+  function showBanOverlay(reason) {
+    if (document.getElementById('hanverseBanOverlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'hanverseBanOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(20,0,0,.92);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);';
+    overlay.innerHTML = `
+      <div style="background:#1A1A2E;border:2px solid #E63946;border-radius:24px;padding:48px 40px;max-width:460px;width:90%;text-align:center;box-shadow:0 0 60px rgba(230,57,70,.4);">
+        <div style="font-size:64px;margin-bottom:16px;">🚫</div>
+        <h2 style="color:#E63946;font-size:26px;font-weight:800;margin-bottom:12px;font-family:'Poppins',sans-serif;">You've Been Banned</h2>
+        <p style="color:#9CA3AF;font-size:14px;line-height:1.8;font-family:'Poppins',sans-serif;margin-bottom:8px;">Your account has been suspended from Hanverse.</p>
+        ${reason ? `<p style="color:#F8FAFC;font-size:14px;background:rgba(230,57,70,.15);border-radius:12px;padding:12px 16px;font-family:'Poppins',sans-serif;margin:16px 0;"><strong>Reason:</strong> ${reason}</p>` : ''}
+        <p style="color:#6B7280;font-size:12px;font-family:'Poppins',sans-serif;margin-top:16px;">If you believe this is a mistake, contact support.</p>
+        <button onclick="localStorage.removeItem('hanverse_user');window.location.href='login.html';" style="margin-top:24px;padding:12px 28px;background:#E63946;color:#fff;border:none;border-radius:999px;font-weight:700;font-size:14px;font-family:'Poppins',sans-serif;cursor:pointer;">Log Out</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', e => e.stopImmediatePropagation(), true);
+    document.addEventListener('click', e => { if (!overlay.contains(e.target)) e.stopImmediatePropagation(); }, true);
+  }
+
   function run() {
     inject(null);
 
@@ -175,7 +195,8 @@
     fetch('/api/user/' + u.user_id)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        const pfp = data && data.user && data.user.profile_picture;
+        const user = data && data.user;
+        const pfp = user && user.profile_picture;
         const el = document.getElementById('navUserAvatar');
         if (!el) return;
         if (pfp) {
@@ -186,6 +207,9 @@
           el.appendChild(img);
         } else {
           el.innerHTML = '\uD83D\uDC3C';
+        }
+        if (user && user.is_banned) {
+          showBanOverlay(user.banned_reason);
         }
       })
       .catch(() => {

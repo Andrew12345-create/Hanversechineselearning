@@ -44,6 +44,10 @@ app.post('/api/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) return res.status(401).json({ error: 'Invalid email or password' });
 
+    if (user.is_banned) {
+      return res.status(403).json({ error: 'banned', reason: user.banned_reason || 'Your account has been banned.' });
+    }
+
     const [progress, achievements, dailyGoals, notifications, settings, vocab] = await Promise.all([
       pool.query('SELECT * FROM user_progress WHERE user_id = $1', [user.user_id]),
       pool.query('SELECT * FROM achievements WHERE user_id = $1', [user.user_id]),
@@ -77,6 +81,8 @@ app.post('/api/login', async (req, res) => {
         streak_days: newStreak,
         profile_picture: user.profile_picture,
         is_admin: user.is_admin || false,
+        is_banned: user.is_banned || false,
+        banned_reason: user.banned_reason || null,
         created_at: user.created_at,
       },
       progress: progress.rows,
@@ -157,6 +163,8 @@ app.get('/api/user/:userId', async (req, res) => {
         streak_days: user.streak_days,
         profile_picture: user.profile_picture,
         is_admin: user.is_admin || false,
+        is_banned: user.is_banned || false,
+        banned_reason: user.banned_reason || null,
         created_at: user.created_at,
       },
       progress: progress.rows,
@@ -185,13 +193,26 @@ app.post('/api/user/:userId/pfp', async (req, res) => {
   }
 });
 
+// Ban / unban user
+app.post('/api/admin/ban', async (req, res) => {
+  try {
+    const { adminPassword, userId, banned, reason } = req.body;
+    if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
+    await pool.query(
+      'UPDATE users SET is_banned = $1, banned_reason = $2 WHERE user_id = $3',
+      [banned, banned ? (reason || null) : null, userId]
+    );
+    res.json({ success: true });
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Ban action failed' }); }
+});
+
 // Admin edit row
 app.post('/api/admin/edit', async (req, res) => {
   try {
     const { adminPassword, table, primaryValue, field, value } = req.body;
     if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
     const allowed = {
-      users:               { pk: 'user_id',         editable: ['username','full_name','email','xp','level','streak_days','is_admin','profile_picture'] },
+      users: { pk: 'user_id', editable: ['username','full_name','email','xp','level','streak_days','is_admin','is_banned','banned_reason','profile_picture'] },
       user_progress:       { pk: 'progress_id',     editable: ['completed','score','course_type','course_level','lesson_id'] },
       achievements:        { pk: 'achievement_id',  editable: ['achievement_type','achievement_name'] },
       daily_goals:         { pk: 'goal_id',         editable: ['target_lessons','completed_lessons','target_xp','earned_xp','completed'] },
@@ -229,7 +250,7 @@ app.get('/api/admin/overview', async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
 
     const [users, progress, achievements, goals, notifications, vocab, settings] = await Promise.all([
-      pool.query('SELECT user_id,username,full_name,email,xp,level,streak_days,last_active,profile_picture,is_admin,created_at FROM users ORDER BY created_at DESC'),
+      pool.query('SELECT user_id,username,full_name,email,xp,level,streak_days,last_active,profile_picture,is_admin,is_banned,banned_reason,created_at FROM users ORDER BY created_at DESC'),
       pool.query('SELECT * FROM user_progress ORDER BY completed_at DESC NULLS LAST'),
       pool.query('SELECT * FROM achievements ORDER BY earned_at DESC'),
       pool.query('SELECT * FROM daily_goals ORDER BY goal_date DESC'),

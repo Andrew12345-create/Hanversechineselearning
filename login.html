@@ -1010,6 +1010,27 @@ password
 const data=
 await response.json();
 
+if(response.status===403 && data.error==='banned'){
+
+btn.disabled=false;
+btn.innerHTML='Log In';
+
+document.querySelector('.right').innerHTML=`
+<div style="text-align:center;padding:20px 0;">
+  <div style="font-size:72px;margin-bottom:20px;">🚫</div>
+  <h2 style="font-size:26px;color:#E63946;margin-bottom:12px;">Account Banned</h2>
+  <p style="color:#6B7280;line-height:1.8;margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto;">
+    Your account has been banned from Hanverse.<br><br>
+    <strong style="color:#1A1A2E;">Reason:</strong><br>
+    ${data.reason || 'Violation of community guidelines.'}
+  </p>
+  <p style="font-size:13px;color:#9CA3AF;">If you believe this is a mistake, please contact support.</p>
+</div>`;
+
+return;
+
+}
+
 if(
 !response.ok ||
 !data.success

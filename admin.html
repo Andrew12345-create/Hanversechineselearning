@@ -96,6 +96,18 @@ tr:hover td{background:rgba(255,255,255,.025);}
 /* delete confirm modal */
 .modal-del{border-top:3px solid var(--red);}
 
+/* ban modal */
+.modal-ban{ border-top: 3px solid #ff416c; }
+.ban-reason-input{ width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);background:#0D0D1A;color:#fff;font-size:.9rem;font-family:'Poppins',sans-serif;outline:none;margin-bottom:20px;resize:vertical;min-height:80px; }
+.ban-reason-input:focus{ border-color:#ff416c; }
+
+/* unban button */
+.unban-btn{ flex:1;padding:7px;border-radius:8px;border:none;background:rgba(116,198,157,.15);color:var(--green);font-weight:700;font-size:.75rem;cursor:pointer;transition:.15s; }
+.unban-btn:hover{ background:rgba(116,198,157,.3); }
+.ban-btn{ flex:1;padding:7px;border-radius:8px;border:none;background:rgba(255,65,108,.12);color:#ff6b6b;font-weight:700;font-size:.75rem;cursor:pointer;transition:.15s; }
+.ban-btn:hover{ background:rgba(255,65,108,.28); }
+.banned-badge{ display:inline-block;padding:3px 10px;border-radius:999px;background:rgba(230,57,70,.2);color:var(--red);font-size:.72rem;font-weight:800;border:1px solid rgba(230,57,70,.3); }
+
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:20px;}
 .spinner{width:48px;height:48px;border-radius:50%;border:4px solid rgba(255,65,108,.2);border-top-color:#ff416c;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -111,6 +123,38 @@ tr:hover td{background:rgba(255,255,255,.025);}
 </style>
 </head>
 <body>
+
+<!-- Ban Modal -->
+<div class="modal-overlay" id="banModal">
+  <div class="modal modal-ban">
+    <h2>🚫 Ban User</h2>
+    <div class="subtitle">Enter a reason for the ban and confirm with the admin password.</div>
+    <label>Ban Reason</label>
+    <textarea class="ban-reason-input" id="banReason" placeholder="e.g. Violation of community guidelines…"></textarea>
+    <label>Admin Password</label>
+    <input type="password" id="banPassword" placeholder="admin123">
+    <div class="modal-err" id="banErr"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeBanModal()">Cancel</button>
+      <button class="modal-confirm" style="background:linear-gradient(135deg,#ff416c,#c0392b);" onclick="confirmBan()">Ban User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Unban Modal -->
+<div class="modal-overlay" id="unbanModal">
+  <div class="modal">
+    <h2>✅ Unban User</h2>
+    <div class="subtitle">Enter the admin password to lift this ban.</div>
+    <label>Admin Password</label>
+    <input type="password" id="unbanPassword" placeholder="admin123">
+    <div class="modal-err" id="unbanErr"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeUnbanModal()">Cancel</button>
+      <button class="modal-confirm" style="background:linear-gradient(135deg,#74C69D,#2ecc71);" onclick="confirmUnban()">Unban User</button>
+    </div>
+  </div>
+</div>
 
 <!-- Password / Edit Modal -->
 <div class="modal-overlay" id="editModal">
@@ -172,6 +216,8 @@ tr:hover td{background:rgba(255,255,255,.025);}
   // Edit modal state
   let pendingEdit = null;
   let pendingDelete = null;
+  let pendingBan = null;
+  let pendingUnban = null;
 
   const TABLE_PKS = {
     users:'user_id', user_progress:'progress_id', achievements:'achievement_id',
@@ -187,6 +233,66 @@ tr:hover td{background:rgba(255,255,255,.025);}
     notifications: ['title','message','type','is_read'],
     vocabulary_progress: ['word','mastery_level','review_count'],
     user_settings: ['daily_reminder','sound_enabled','notifications_enabled','language_preference','theme'],
+  };
+
+  window.closeBanModal = () => {
+    document.getElementById('banModal').classList.remove('open');
+    document.getElementById('banErr').textContent = '';
+    document.getElementById('banPassword').value = '';
+    document.getElementById('banReason').value = '';
+    pendingBan = null;
+  };
+  window.closeUnbanModal = () => {
+    document.getElementById('unbanModal').classList.remove('open');
+    document.getElementById('unbanErr').textContent = '';
+    document.getElementById('unbanPassword').value = '';
+    pendingUnban = null;
+  };
+  window.openBan = (userId) => {
+    pendingBan = { userId };
+    document.getElementById('banErr').textContent = '';
+    document.getElementById('banPassword').value = '';
+    document.getElementById('banReason').value = '';
+    document.getElementById('banModal').classList.add('open');
+    setTimeout(() => document.getElementById('banReason').focus(), 80);
+  };
+  window.openUnban = (userId) => {
+    pendingUnban = { userId };
+    document.getElementById('unbanErr').textContent = '';
+    document.getElementById('unbanPassword').value = '';
+    document.getElementById('unbanModal').classList.add('open');
+    setTimeout(() => document.getElementById('unbanPassword').focus(), 80);
+  };
+  window.confirmBan = async () => {
+    const pw = document.getElementById('banPassword').value.trim();
+    const reason = document.getElementById('banReason').value.trim();
+    document.getElementById('banErr').textContent = '';
+    if (!pw) { document.getElementById('banErr').textContent = 'Enter the admin password.'; return; }
+    const r = await fetch('/api/admin/ban', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminPassword: pw, userId: pendingBan.userId, banned: true, reason })
+    });
+    const d = await r.json();
+    if (!r.ok) { document.getElementById('banErr').textContent = d.error || 'Failed.'; return; }
+    const u = db.users.find(u => String(u.user_id) === String(pendingBan.userId));
+    if (u) { u.is_banned = true; u.banned_reason = reason; }
+    closeBanModal();
+    render();
+  };
+  window.confirmUnban = async () => {
+    const pw = document.getElementById('unbanPassword').value.trim();
+    document.getElementById('unbanErr').textContent = '';
+    if (!pw) { document.getElementById('unbanErr').textContent = 'Enter the admin password.'; return; }
+    const r = await fetch('/api/admin/ban', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminPassword: pw, userId: pendingUnban.userId, banned: false })
+    });
+    const d = await r.json();
+    if (!r.ok) { document.getElementById('unbanErr').textContent = d.error || 'Failed.'; return; }
+    const u = db.users.find(u => String(u.user_id) === String(pendingUnban.userId));
+    if (u) { u.is_banned = false; u.banned_reason = null; }
+    closeUnbanModal();
+    render();
   };
 
   window.closeModal = () => {
@@ -311,23 +417,30 @@ tr:hover td{background:rgba(255,255,255,.025);}
 
   function renderUsers() {
     return `<div class="user-grid">${db.users.map(u => {
-      const pfp = u.profile_picture ? `<img src="${u.profile_picture}" alt="pfp">` : '🐼';
-      return `<div class="user-card">
+      const pfp = u.profile_picture ? `<img src="${u.profile_picture}" alt="pfp">` : '\uD83D\uDC3C';
+      const isBanned = u.is_banned;
+      return `<div class="user-card" style="${isBanned ? 'border-color:rgba(230,57,70,.35);' : ''}">
         <div class="user-card-top">
           <div class="user-pfp">${pfp}</div>
           <div class="user-info">
             <h3>${u.full_name || u.username}</h3>
-            <p>@${u.username} · ${u.email}</p>
+            <p>@${u.username} \u00b7 ${u.email}</p>
           </div>
         </div>
         <div class="user-meta">
-          ${u.is_admin ? '<span class="pill pill-red">👑 Admin</span>' : '<span class="pill pill-blue">User</span>'}
-          <span class="pill pill-yellow">⭐ ${(u.xp||0).toLocaleString()} XP</span>
+          ${u.is_admin ? '<span class="pill pill-red">\uD83D\uDC51 Admin</span>' : '<span class="pill pill-blue">User</span>'}
+          ${isBanned ? '<span class="banned-badge">\uD83D\uDEAB BANNED</span>' : ''}
+          <span class="pill pill-yellow">\u2B50 ${(u.xp||0).toLocaleString()} XP</span>
           <span class="pill pill-green">Lv ${u.level||1}</span>
-          <span class="pill" style="background:rgba(255,255,255,.06);color:var(--muted);">🔥 ${u.streak_days||0}d</span>
+          <span class="pill" style="background:rgba(255,255,255,.06);color:var(--muted);">\uD83D\uDD25 ${u.streak_days||0}d</span>
         </div>
+        ${isBanned ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(230,57,70,.08);border-radius:10px;font-size:.75rem;color:var(--red);"><strong>Ban reason:</strong> ${u.banned_reason || 'No reason given'}</div>` : ''}
         <div class="user-actions">
-          ${EDITABLE.users.map(f => `<button class="edit-field-btn" onclick="openEdit('users','${u.user_id}','${f}','${String(u[f]||'').replace(/'/g,'&#39;')}')" title="Edit ${f}">✏️ ${FIELD_LABELS[f]||f}</button>`).join('')}
+          ${EDITABLE.users.map(f => `<button class="edit-field-btn" onclick="openEdit('users','${u.user_id}','${f}','${String(u[f]||'').replace(/'/g,'&#39;')}')" title="Edit ${f}">\u270F\uFE0F ${FIELD_LABELS[f]||f}</button>`).join('')}
+          ${isBanned
+            ? `<button class="unban-btn" onclick="openUnban('${u.user_id}')">\u2705 Unban</button>`
+            : `<button class="ban-btn" onclick="openBan('${u.user_id}')">\uD83D\uDEAB Ban</button>`
+          }
           <button class="del-user-btn" onclick="openDelete('users','${u.user_id}')">🗑 Delete User</button>
         </div>
       </div>`;
@@ -389,10 +502,14 @@ tr:hover td{background:rgba(255,255,255,.025);}
   // Close modals on overlay click
   document.getElementById('editModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
   document.getElementById('deleteModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDeleteModal(); });
+  document.getElementById('banModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeBanModal(); });
+  document.getElementById('unbanModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeUnbanModal(); });
 
   // Enter key submits
   document.getElementById('modalPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmEdit(); });
   document.getElementById('deletePassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmDelete(); });
+  document.getElementById('banPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmBan(); });
+  document.getElementById('unbanPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmUnban(); });
 })();
 </script>
 </body>
