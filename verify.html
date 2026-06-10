@@ -393,6 +393,11 @@ async function verifyEmail(){
     loginBtn.style.display =
       'inline-block';
 
+    // Auto-redirect to login after 2 seconds
+    setTimeout(() => {
+      window.location.href = 'login.html?verified=1';
+    }, 2000);
+
   }
   catch(error){
 

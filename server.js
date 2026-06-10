@@ -402,8 +402,8 @@ app.get('/api/verify-email', async (req, res) => {
     if (new Date(row.expires_at) < new Date()) return res.status(400).json({ error: 'Token expired' });
     await pool.query('UPDATE users SET is_verified = TRUE WHERE user_id = $1', [row.user_id]);
     await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [row.user_id]);
-    const frontend = process.env.FRONTEND_URL || 'https://hanverse.netlify.app';
-    return res.redirect(`${frontend}/login.html?verified=1`);
+    console.log('Email verified for user:', row.user_id);
+    return res.json({ success: true, message: 'Email verified successfully' });
   } catch (e) {
     console.error('Verify email error:', e);
     return res.status(500).json({ error: 'Verification failed' });
