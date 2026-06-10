@@ -236,7 +236,21 @@ background:white;
 box-shadow:0 0 0 4px rgba(116,198,157,.12);
 }
 
-.eye{
+input.input--error{
+border-color:var(--red) !important;
+background:#FFF5F5;
+box-shadow:0 0 0 4px rgba(230,57,70,.1) !important;
+}
+
+.field-error{
+font-size:.78rem;
+color:var(--red);
+font-weight:600;
+margin-top:5px;
+display:none;
+}
+
+.field-error.visible{ display:block; }
 position:absolute;
 right:18px;
 top:44px;
@@ -386,6 +400,7 @@ text-decoration:none;
 <div class="input-group">
 <label class="input-label">Username</label>
 <input type="text" id="username" placeholder="hanverse_user">
+<span class="field-error" id="usernameError">❌ Username already taken</span>
 </div>
 
 </div>
@@ -507,6 +522,25 @@ document.getElementById('fullName').addEventListener('focus', () => {
 
 document.getElementById('username').addEventListener('focus', () => {
   Notify.toast('Pick a unique username 🎮', 'info', 1500);
+});
+
+let usernameTimer;
+document.getElementById('username').addEventListener('input', async () => {
+  const val = document.getElementById('username').value.trim();
+  const input = document.getElementById('username');
+  const err = document.getElementById('usernameError');
+  input.classList.remove('input--error');
+  err.classList.remove('visible');
+  clearTimeout(usernameTimer);
+  if (!val) return;
+  usernameTimer = setTimeout(async () => {
+    const res = await fetch(API_URL + '/check-username?username=' + encodeURIComponent(val));
+    const data = await res.json();
+    if (data.taken) {
+      input.classList.add('input--error');
+      err.classList.add('visible');
+    }
+  }, 350);
 });
 
 document.getElementById('email').addEventListener('focus', () => {
