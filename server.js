@@ -315,10 +315,10 @@ app.post('/api/signup', async (req, res) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Create user
+    // Create user with is_verified set to false
     const result = await pool.query(
-      `INSERT INTO users (username, email, password_hash, full_name, last_active)
-       VALUES ($1, $2, $3, $4, CURRENT_DATE)
+      `INSERT INTO users (username, email, password_hash, full_name, last_active, is_verified)
+       VALUES ($1, $2, $3, $4, CURRENT_DATE, FALSE)
        RETURNING *`,
       [username, email, passwordHash, fullName]
     );
@@ -332,10 +332,24 @@ app.post('/api/signup', async (req, res) => {
       [user.user_id]
     );
 
-    // Send welcome email (non-blocking)
-    sendEmail(user.email, user.full_name, 'welcome')
-      .then(info => console.log('Welcome email sent:', info.messageId))
-      .catch(e => console.error('Welcome email failed:', e.message));
+    // Generate and store verification token
+    const token = crypto.randomBytes(24).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await pool.query(
+      `INSERT INTO email_verifications (user_id, token, expires_at)
+       VALUES ($1, $2, $3)`,
+      [user.user_id, token, expiresAt]
+    );
+
+    // Send verification email and welcome email (non-blocking)
+    Promise.all([
+      sendEmail(user.email, user.full_name, 'verify', { token })
+        .then(() => console.log('Verification email sent:', user.email))
+        .catch(e => console.error('Verification email failed:', e.message)),
+      sendEmail(user.email, user.full_name, 'welcome')
+        .then(info => console.log('Welcome email sent:', info.messageId))
+        .catch(e => console.error('Welcome email failed:', e.message))
+    ]).catch(e => console.error('Signup emails failed:', e.message));
 
     res.json({
       success: true,

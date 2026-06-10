@@ -154,11 +154,24 @@ app.post('/api/signup', async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      'INSERT INTO users (username, email, password_hash, full_name, last_active) VALUES ($1,$2,$3,$4,CURRENT_DATE) RETURNING *',
+      'INSERT INTO users (username, email, password_hash, full_name, last_active, is_verified) VALUES ($1,$2,$3,$4,CURRENT_DATE,FALSE) RETURNING *',
       [username, email, passwordHash, fullName]
     );
     const user = result.rows[0];
     await pool.query('INSERT INTO user_settings (user_id) VALUES ($1)', [user.user_id]);
+
+    // Generate and store verification token
+    const token = crypto.randomBytes(24).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await pool.query(
+      `INSERT INTO email_verifications (user_id, token, expires_at)
+       VALUES ($1, $2, $3)`,
+      [user.user_id, token, expiresAt]
+    );
+
+    // Send verification email (non-blocking)
+    sendEmail(user.email, user.full_name, 'verify', { token })
+      .catch(e => console.error('Functions: verification email failed:', e.message));
 
     res.json({
       success: true,
