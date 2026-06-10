@@ -1,238 +1,538 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Hanverse</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #F4D35E;
-            --primary-light: #FF6B6B;
-            --secondary: #1D3557;
-            --background: #FAFBFC;
-            --surface: #FFFFFF;
-            --text-primary: #1A1A2E;
-            --text-secondary: #6B7280;
-            --border: #E5E7EB;
-            --radius-lg: 24px;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1A1A2E 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-        .signup-container {
-            max-width: 420px;
-            width: 100%;
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: 2.75rem 2.25rem;
-            box-shadow: 0 30px 70px rgba(0,0,0,.35);
-        }
-        .logo-section {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Noto Serif SC', serif;
-            font-size: 2.5rem;
-            color: white;
-            margin-bottom: 1rem;
-            box-shadow: 0 8px 24px rgba(244,211,94, 0.4);
-        }
-        h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-        input {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.2s;
-            background: #FAFBFC;
-        }
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(244,211,94, 0.15);
-        }
-        .btn {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 1rem;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(244,211,94, 0.4);
-        }
-        .btn:active {
-            transform: translateY(0);
-        }
-        .login-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-        .login-link a {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
-        }
-        .error-message {
-            background: #FFEBEE;
-            color: #C62828;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-            display: none;
-        }
-    </style>
-  <script src="device-redirect.js"></script>
-  <link rel="stylesheet" href="app.css">
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>Hanverse Sign Up</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<style>
+
+:root{
+--yellow:#F4D35E;
+--red:#E63946;
+--blue:#4EA8DE;
+--green:#74C69D;
+--bg:#FFFDF7;
+--surface:#FFFFFF;
+--text-primary:#1A1A2E;
+--text-secondary:#6B7280;
+--border:#E5E7EB;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+html{ scroll-behavior:smooth; }
+
+body{
+background:var(--bg);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+}
+
+body::before{
+content:'';
+position:fixed;
+z-index:0;
+width:700px;
+height:700px;
+border-radius:50%;
+background:rgba(116,198,157,.09);
+top:-350px;
+left:-350px;
+}
+
+body::after{
+content:'';
+position:fixed;
+z-index:0;
+width:600px;
+height:600px;
+border-radius:50%;
+background:rgba(244,211,94,.08);
+bottom:-300px;
+right:-300px;
+}
+
+.container{
+position:relative;
+z-index:2;
+display:flex;
+width:100%;
+max-width:1150px;
+background:white;
+border-radius:40px;
+overflow:hidden;
+box-shadow:0 25px 60px rgba(0,0,0,.08);
+animation:fade .8s ease;
+}
+
+@keyframes fade{
+from{ opacity:0; transform:translateY(30px); }
+to{   opacity:1; transform:translateY(0); }
+}
+
+/* LEFT PANEL — green, distinct from login's blue */
+
+.left{
+flex:1;
+background:linear-gradient(135deg,var(--green),#52B788);
+padding:60px;
+color:white;
+position:relative;
+display:flex;
+flex-direction:column;
+justify-content:center;
+}
+
+.char{
+position:absolute;
+font-size:80px;
+font-weight:800;
+opacity:.08;
+pointer-events:none;
+}
+.c1{ top:40px;   left:40px; }
+.c2{ top:120px;  right:60px; }
+.c3{ bottom:120px; left:60px; }
+.c4{ bottom:50px;  right:50px; }
+
+.star{
+position:absolute;
+top:40px;
+right:40px;
+font-size:40px;
+color:var(--yellow);
+}
+
+.welcome-label{ font-size:18px; opacity:.95; }
+
+.left h1{
+font-size:58px;
+line-height:1.05;
+margin:15px 0;
+}
+
+.left p{
+line-height:1.9;
+font-size:17px;
+max-width:480px;
+}
+
+.trust-list{
+margin-top:35px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.trust-item{
+display:flex;
+align-items:center;
+gap:12px;
+font-weight:600;
+font-size:15px;
+}
+
+.panda{
+font-size:120px;
+margin-top:35px;
+animation:float 4s infinite ease-in-out;
+cursor:pointer;
+}
+
+@keyframes float{
+50%{ transform:translateY(-15px); }
+}
+
+/* RIGHT PANEL */
+
+.right{
+flex:1;
+padding:50px 60px;
+display:flex;
+justify-content:center;
+flex-direction:column;
+overflow-y:auto;
+}
+
+.logo{
+font-size:40px;
+font-weight:800;
+color:var(--yellow);
+margin-bottom:10px;
+}
+
+.subtitle{
+color:var(--text-secondary);
+margin-bottom:24px;
+line-height:1.7;
+}
+
+.signup-header{
+margin-bottom:20px;
+}
+
+.signup-header h2{
+font-size:28px;
+margin-bottom:6px;
+color:var(--text-primary);
+}
+
+.signup-header p{
+color:var(--text-secondary);
+}
+
+/* Two-column row for name + username */
+
+.row-2{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+}
+
+.input-group{
+margin-bottom:16px;
+position:relative;
+}
+
+.input-label{
+display:block;
+margin-bottom:7px;
+font-weight:600;
+color:var(--text-primary);
+font-size:.9rem;
+}
+
+input{
+width:100%;
+padding:14px 18px;
+font-size:14px;
+border-radius:16px;
+border:1.5px solid transparent;
+background:#F8FAFC;
+transition:.25s;
+}
+
+input:focus{
+outline:none;
+border-color:var(--green);
+background:white;
+box-shadow:0 0 0 4px rgba(116,198,157,.12);
+}
+
+.eye{
+position:absolute;
+right:18px;
+top:44px;
+cursor:pointer;
+font-size:18px;
+}
+
+/* password strength bar */
+
+.strength-bar{
+height:4px;
+border-radius:999px;
+background:#E5E7EB;
+margin-top:6px;
+overflow:hidden;
+}
+
+.strength-fill{
+height:100%;
+width:0%;
+border-radius:999px;
+transition:.3s;
+}
+
+.btn{
+width:100%;
+padding:15px;
+border:none;
+border-radius:40px;
+font-weight:700;
+font-size:.95rem;
+cursor:pointer;
+transition:.25s;
+}
+
+/* signup uses green, login uses yellow — clear distinction */
+
+.signup-btn{
+background:linear-gradient(135deg,var(--green),#52B788);
+color:#fff;
+box-shadow:0 10px 26px rgba(116,198,157,.38);
+margin-top:6px;
+}
+
+.signup-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 16px 36px rgba(116,198,157,.48);
+}
+
+.google{
+background:white;
+border:1.5px solid #E5E7EB;
+margin-top:12px;
+color:var(--text-primary);
+}
+
+.google:hover{
+transform:translateY(-2px);
+border-color:var(--green);
+box-shadow:0 8px 20px rgba(0,0,0,.07);
+}
+
+.bottom{
+margin-top:24px;
+text-align:center;
+}
+
+.bottom a{
+color:var(--red);
+font-weight:700;
+text-decoration:none;
+}
+
+@media(max-width:900px){
+.container{ flex-direction:column; }
+.left{ padding:40px; text-align:center; }
+.right{ padding:40px; }
+.left h1{ font-size:42px; }
+.panda{ font-size:90px; }
+.row-2{ grid-template-columns:1fr; }
+}
+
+@media(max-width:600px){
+.right{ padding:30px; }
+.left{ padding:30px; }
+.left h1{ font-size:34px; }
+.logo{ font-size:34px; }
+}
+
+</style>
 </head>
-<body class="app-page">
-    <div class="signup-container">
-        <div class="logo-section">
-            <div class="logo">汉</div>
-            <h1>Create Account</h1>
-            <p class="subtitle">Start your Chinese learning journey</p>
-        </div>
-        <form id="signupForm">
-            <div class="error-message" id="errorMessage"></div>
-            <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" placeholder="John Doe" required>
-            </div>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="johndoe" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="your@email.com" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="••••••••" required>
-            </div>
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn">Create Account</button>
-        </form>
-        <div class="login-link">
-            Already have an account? <a href="login.html">Sign in</a>
-        </div>
-    </div>
-    <script src="notifications.js"></script>
-    <script>
-        const API_URL = '/api';
 
-        document.getElementById('signupForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            var fullName = document.getElementById('fullName').value.trim();
-            var username = document.getElementById('username').value.trim();
-            var email = document.getElementById('email').value.trim();
-            var password = document.getElementById('password').value;
-            var confirmPassword = document.getElementById('confirmPassword').value;
-            var errorMsg = document.getElementById('errorMessage');
-            var btn = document.querySelector('.btn');
+<body>
 
-            // Client-side validation with toast feedback
-            if (!fullName || !username || !email || !password || !confirmPassword) {
-                Notify.toast('Please fill in all fields', 'warn', 4000);
-                return;
-            }
+<div class="container">
 
-            if (password.length < 6) {
-                Notify.toast('Password must be at least 6 characters', 'warn', 4000);
-                return;
-            }
+<!-- LEFT -->
 
-            if (password !== confirmPassword) {
-                Notify.toast('Passwords do not match', 'warn', 4000);
-                return;
-            }
+<div class="left">
 
-            // Disable button during signup
-            btn.disabled = true;
-            btn.textContent = 'Creating account...';
-            errorMsg.style.display = 'none';
+<div class="char c1">汉</div>
+<div class="char c2">字</div>
+<div class="char c3">学</div>
+<div class="char c4">习</div>
 
-            try {
-                var response = await fetch(API_URL + '/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, password: password, fullName: fullName, username: username })
-                });
+<div class="star">🌱</div>
 
-                var data = await response.json();
+<p class="welcome-label">Join</p>
 
-                if (!response.ok) {
-                    Notify.toast(data.error || 'Signup failed. Please try again.', 'error', 4000);
-                    btn.disabled = false;
-                    btn.textContent = 'Create Account';
-                    return;
-                }
+<h1>Hanverse</h1>
 
-                Notify.toast('Account created successfully! 🎉', 'success', 4000);
-                Notify.miniConfetti();
+<p>Start your Mandarin learning adventure. Build vocabulary, earn XP, and track your progress from day one.</p>
 
-                setTimeout(function() {
-                    window.location.href = 'login.html';
-                }, 1500);
+<div class="trust-list">
 
-            } catch (err) {
-                console.error('Signup error:', err);
-                Notify.toast('Connection error. Is the server running?', 'error', 5000);
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
-            }
-        });
-    </script>
+<div class="trust-item">🌱 Free to Get Started</div>
+<div class="trust-item">⭐ Earn XP from Lesson 1</div>
+<div class="trust-item">📈 Personalised Progress</div>
+<div class="trust-item">🤖 AI Learning Assistant</div>
+
+</div>
+
+<div class="panda">🐼</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="right">
+
+<div class="logo">Hanverse</div>
+
+<p class="subtitle">Learn Mandarin Through Stories,<br>Games & AI</p>
+
+<div class="signup-header">
+<h2>Create Account ✨</h2>
+<p>Fill in your details to get started.</p>
+</div>
+
+<div class="row-2">
+
+<div class="input-group">
+<label class="input-label">Full Name</label>
+<input type="text" id="fullName" placeholder="Your full name">
+</div>
+
+<div class="input-group">
+<label class="input-label">Username</label>
+<input type="text" id="username" placeholder="hanverse_user">
+</div>
+
+</div>
+
+<div class="input-group">
+<label class="input-label">Email Address</label>
+<input type="email" id="email" placeholder="your@email.com">
+</div>
+
+<div class="input-group">
+<label class="input-label">Password</label>
+<input type="password" id="password" placeholder="At least 6 characters" oninput="updateStrength(this.value)">
+<span class="eye" onclick="togglePw('password')">👁️</span>
+<div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+</div>
+
+<div class="input-group">
+<label class="input-label">Confirm Password</label>
+<input type="password" id="confirmPassword" placeholder="Repeat password">
+<span class="eye" onclick="togglePw('confirmPassword')">👁️</span>
+</div>
+
+<button class="btn signup-btn" id="signupBtn">Create Account</button>
+
+<button class="btn google" id="googleBtn">🌐 Continue with Google</button>
+
+<div class="bottom">
+Already have an account? <a href="login.html">Log In</a>
+</div>
+
+</div>
+
+</div>
+
+<script src="notifications.js"></script>
+
+<script>
+
+const API_URL = '/api';
+
+function togglePw(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function updateStrength(val) {
+  const fill = document.getElementById('strengthFill');
+  let score = 0;
+  if (val.length >= 6)  score++;
+  if (val.length >= 10) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const pct   = (score / 5) * 100;
+  const color = score <= 1 ? '#E63946' : score <= 3 ? '#F4D35E' : '#74C69D';
+  fill.style.width = pct + '%';
+  fill.style.background = color;
+}
+
+document.getElementById('signupBtn').addEventListener('click', async () => {
+  const fullName        = document.getElementById('fullName').value.trim();
+  const username        = document.getElementById('username').value.trim();
+  const email           = document.getElementById('email').value.trim();
+  const password        = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  const btn             = document.getElementById('signupBtn');
+
+  if (!fullName || !username || !email || !password || !confirmPassword) {
+    Notify.toast('Please fill in all fields 📝', 'warn', 4000); return;
+  }
+  if (password.length < 6) {
+    Notify.toast('Password must be at least 6 characters 🔐', 'warn', 4000); return;
+  }
+  if (password !== confirmPassword) {
+    Notify.toast('Passwords do not match ❌', 'warn', 4000); return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Creating account… 🔄';
+
+  try {
+    const res  = await fetch(API_URL + '/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, fullName, username })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      Notify.toast(data.error || 'Signup failed ❌', 'error', 4000);
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+      return;
+    }
+
+    Notify.toast('Account created! Welcome to Hanverse 🎉', 'success', 4000);
+    Notify.miniConfetti();
+    setTimeout(() => window.location.href = 'login.html', 1500);
+
+  } catch (err) {
+    Notify.toast('Cannot connect to server 🌐', 'error', 5000);
+    btn.disabled = false;
+    btn.textContent = 'Create Account';
+  }
+});
+
+document.getElementById('googleBtn').addEventListener('click', () => {
+  Notify.toast('Google Sign-In coming soon 🚀', 'info', 3000);
+});
+
+document.querySelector('.panda').addEventListener('click', () => {
+  Notify.toast('Panda is rooting for you! 🐼', 'heart', 2500);
+  Notify.showXP(5);
+});
+
+document.getElementById('fullName').addEventListener('focus', () => {
+  Notify.toast('Enter your full name 📝', 'info', 1500);
+});
+
+document.getElementById('username').addEventListener('focus', () => {
+  Notify.toast('Pick a unique username 🎮', 'info', 1500);
+});
+
+document.getElementById('email').addEventListener('focus', () => {
+  Notify.toast('Enter your email 📧', 'info', 1500);
+});
+
+document.getElementById('password').addEventListener('focus', () => {
+  Notify.toast('Choose a strong password 🔐', 'info', 1500);
+});
+
+document.getElementById('confirmPassword').addEventListener('focus', () => {
+  Notify.toast('Repeat your password 🔒', 'info', 1500);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('signupBtn').click();
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    Notify.toast('Welcome! Let\'s get you started ✨', 'star', 3000);
+    Notify.miniConfetti();
+  }, 800);
+});
+
+</script>
+
 </body>
 </html>

@@ -14,9 +14,31 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 body{background:var(--bg);color:var(--text);min-height:100vh;}
 
+body.light{--bg:#f8fafc;--surface:#ffffff;--card:#f8fafc;--border:rgba(15,23,42,.08);--text:#0f172a;--muted:#64748b;}
+body.light .topbar{background:var(--surface);}
+body.light .modal, body.light .user-card, body.light .table-wrap, body.light .modal{background:var(--card);}
+body.light .back-btn, body.light .theme-toggle-btn{background:rgba(15,23,42,.06);color:var(--text);}
+body.light .back-btn:hover, body.light .theme-toggle-btn:hover{background:rgba(15,23,42,.12);}
+body.light .topbar h1{color:#0f172a;}
+body.light .section-title, body.light .modal h2, body.light .user-info h3{color:var(--text);}
+body.light .modal .subtitle, body.light .modal label, body.light .user-info p, body.light th, body.light td{color:var(--text);}
+body.light .stat-pill, body.light .tab, body.light .pill, body.light .modal-cancel{background:rgba(15,23,42,.03);}
+body.light .editable:hover{background:rgba(78,168,222,.12);}
+body.light .modal-overlay{background:rgba(0,0,0,.7);}
+body.light .modal input,
+body.light .modal-new-val,
+body.light .ban-reason-input{
+  background:#f1f5f9;
+  color:var(--text);
+  border-color:rgba(15,23,42,.12);
+}
+body.light .modal h2{color:#0f172a;}
+
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 36px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
 .topbar-left{display:flex;align-items:center;gap:14px;}
 .admin-logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#ff416c,#ff4b2b);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(255,65,108,.4);}
+.theme-toggle-btn{padding:10px 20px;border-radius:999px;border:none;cursor:pointer;background:rgba(255,255,255,.08);color:var(--text);font-weight:600;font-size:.82rem;transition:.2s;}
+.theme-toggle-btn:hover{background:rgba(255,255,255,.16);}
 .topbar h1{font-size:1.2rem;font-weight:800;color:#fff;}
 .topbar h1 span{color:#ff6b6b;}
 .back-btn{padding:10px 20px;border-radius:999px;border:none;cursor:pointer;background:rgba(255,255,255,.07);color:var(--text);font-weight:600;font-size:.82rem;transition:.2s;}
@@ -573,6 +595,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
         <div class="topbar-left">
           <div class="admin-logo">👑</div>
           <h1>Hanverse <span>Admin</span></h1>
+          <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">Light Mode</button>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
           <button class="back-btn" onclick="openCreateUserModal()">➕ Create User</button>
@@ -595,9 +618,32 @@ tr:hover td{background:rgba(255,255,255,.025);}
   }
 
 
+  function setThemeButton() {
+    const btn = document.getElementById('themeToggleBtn');
+    if (!btn) return;
+    btn.textContent = document.body.classList.contains('light') ? 'Dark Mode' : 'Light Mode';
+  }
+
+  function applyStoredTheme() {
+    const storedTheme = localStorage.getItem('hanverse_theme');
+    if (storedTheme === 'light') {
+      document.body.classList.add('light');
+    } else {
+      document.body.classList.remove('light');
+    }
+  }
+
+  window.toggleTheme = () => {
+    const isLight = document.body.classList.toggle('light');
+    localStorage.setItem('hanverse_theme', isLight ? 'light' : 'dark');
+    setThemeButton();
+  };
+
   window.switchTab = id => { activeTab = id; render(); };
 
+  applyStoredTheme();
   render();
+  setThemeButton();
 
   // Close modals on overlay click
   document.getElementById('editModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
