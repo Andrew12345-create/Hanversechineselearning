@@ -1,1187 +1,1281 @@
-<!DOCTYPE html>
-<html lang="en">
+  <!DOCTYPE html>
+  <html lang="en">
 
-<head>
+  <head>
 
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
+  <meta name="viewport"
+  content="width=device-width,initial-scale=1">
 
-<title>Hanverse Login</title>
+  <title>Hanverse Login</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+  rel="stylesheet">
 
-<style>
+  <style>
 
-/* ==========================================
-   HANVERSE BRAND SYSTEM
-========================================== */
+  /* ==========================================
+    HANVERSE BRAND SYSTEM
+  ========================================== */
 
-:root{
+  :root{
 
---yellow:#F4D35E;
---red:#E63946;
---blue:#4EA8DE;
---green:#74C69D;
+  --yellow:#F4D35E;
+  --red:#E63946;
+  --blue:#4EA8DE;
+  --green:#74C69D;
 
---bg:#FFFDF7;
+  --bg:#FFFDF7;
 
---surface:#FFFFFF;
+  --surface:#FFFFFF;
 
---text-primary:#1A1A2E;
---text-secondary:#6B7280;
+  --text-primary:#1A1A2E;
+  --text-secondary:#6B7280;
 
---border:#E5E7EB;
+  --border:#E5E7EB;
 
-}
+  }
 
-/* ==========================================
-   RESET
-========================================== */
+  /* ==========================================
+    RESET
+  ========================================== */
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
+  *{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+  }
 
-html{
-scroll-behavior:smooth;
-}
+  html{
+  scroll-behavior:smooth;
+  }
 
-body{
+  body{
 
-background:var(--bg);
+  background:var(--bg);
 
-min-height:100vh;
+  min-height:100vh;
 
-display:flex;
+  display:flex;
 
-justify-content:center;
-align-items:center;
+  justify-content:center;
+  align-items:center;
 
-padding:30px;
+  padding:30px;
 
-}
+  }
 
-/* ==========================================
-   BACKGROUND BLOBS
-========================================== */
+  /* ==========================================
+    BACKGROUND BLOBS
+  ========================================== */
 
-body::before{
+  body::before{
 
-content:'';
+  content:'';
 
-position:fixed;
-z-index:0;
+  position:fixed;
+  z-index:0;
 
-width:700px;
-height:700px;
+  width:700px;
+  height:700px;
 
-border-radius:50%;
+  border-radius:50%;
 
-background:
-rgba(78,168,222,.08);
+  background:
+  rgba(78,168,222,.08);
 
-top:-350px;
-left:-350px;
+  top:-350px;
+  left:-350px;
 
-}
+  }
 
-body::after{
+  body::after{
 
-content:'';
+  content:'';
 
-position:fixed;
-z-index:0;
+  position:fixed;
+  z-index:0;
 
-width:600px;
-height:600px;
+  width:600px;
+  height:600px;
 
-border-radius:50%;
+  border-radius:50%;
 
-background:
-rgba(244,211,94,.08);
+  background:
+  rgba(244,211,94,.08);
 
-bottom:-300px;
-right:-300px;
+  bottom:-300px;
+  right:-300px;
 
-}
+  }
 
-/* ==========================================
-   LOGIN CONTAINER
-========================================== */
+  /* ==========================================
+    LOGIN CONTAINER
+  ========================================== */
 
-.container{
+  .container{
 
-position:relative;
+  position:relative;
 
-z-index:2;
+  z-index:2;
 
-display:flex;
+  display:flex;
 
-width:100%;
-max-width:1150px;
+  width:100%;
+  max-width:1150px;
 
-background:white;
+  background:white;
 
-border-radius:40px;
+  border-radius:40px;
 
-overflow:hidden;
+  overflow:hidden;
 
-box-shadow:
-0 25px 60px rgba(0,0,0,.08);
+  box-shadow:
+  0 25px 60px rgba(0,0,0,.08);
 
-animation:fade .8s ease;
+  animation:fade .8s ease;
 
-}
+  }
 
-@keyframes fade{
+  @keyframes fade{
 
-from{
+  from{
 
-opacity:0;
+  opacity:0;
 
-transform:
-translateY(30px);
+  transform:
+  translateY(30px);
 
-}
+  }
 
-to{
+  to{
 
-opacity:1;
+  opacity:1;
 
-transform:
-translateY(0);
+  transform:
+  translateY(0);
 
-}
+  }
 
-}
+  }
 
-/* ==========================================
-   LEFT PANEL
-========================================== */
+  /* ==========================================
+    LEFT PANEL
+  ========================================== */
 
-.left{
+  .left{
 
-flex:1;
+  flex:1;
 
-background:
-linear-gradient(
-135deg,
-var(--blue),
-#7BC7F4
-);
+  background:
+  linear-gradient(
+  135deg,
+  var(--blue),
+  #7BC7F4
+  );
 
-padding:60px;
+  padding:60px;
 
-color:white;
+  color:white;
 
-position:relative;
+  position:relative;
 
-display:flex;
+  display:flex;
 
-flex-direction:column;
+  flex-direction:column;
 
-justify-content:center;
+  justify-content:center;
 
-}
+  }
 
-/* FLOATING CHINESE CHARACTERS */
+  /* FLOATING CHINESE CHARACTERS */
 
-.char{
+  .char{
 
-position:absolute;
+  position:absolute;
 
-font-size:80px;
+  font-size:80px;
 
-font-weight:800;
+  font-weight:800;
 
-opacity:.08;
+  opacity:.08;
 
-pointer-events:none;
+  pointer-events:none;
 
-}
+  }
 
-.c1{
-top:40px;
-left:40px;
-}
+  .c1{
+  top:40px;
+  left:40px;
+  }
 
-.c2{
-top:120px;
-right:60px;
-}
+  .c2{
+  top:120px;
+  right:60px;
+  }
 
-.c3{
-bottom:120px;
-left:60px;
-}
+  .c3{
+  bottom:120px;
+  left:60px;
+  }
 
-.c4{
-bottom:50px;
-right:50px;
-}
+  .c4{
+  bottom:50px;
+  right:50px;
+  }
 
-.star{
+  .star{
 
-position:absolute;
+  position:absolute;
 
-top:40px;
-right:40px;
+  top:40px;
+  right:40px;
 
-font-size:40px;
+  font-size:40px;
 
-color:var(--yellow);
+  color:var(--yellow);
 
-}
+  }
 
-/* BRAND TEXT */
+  /* BRAND TEXT */
 
-.welcome-label{
+  .welcome-label{
 
-font-size:18px;
+  font-size:18px;
 
-opacity:.95;
+  opacity:.95;
 
-}
+  }
 
-.left h1{
+  .left h1{
 
-font-size:58px;
+  font-size:58px;
 
-line-height:1.05;
+  line-height:1.05;
 
-margin:15px 0;
+  margin:15px 0;
 
-}
+  }
 
-.left p{
+  .left p{
 
-line-height:1.9;
+  line-height:1.9;
 
-font-size:17px;
+  font-size:17px;
 
-max-width:480px;
+  max-width:480px;
 
-}
+  }
 
-/* TRUST BADGES */
+  /* TRUST BADGES */
 
-.trust-list{
+  .trust-list{
 
-margin-top:35px;
+  margin-top:35px;
 
-display:flex;
+  display:flex;
 
-flex-direction:column;
+  flex-direction:column;
 
-gap:14px;
+  gap:14px;
 
-}
+  }
 
-.trust-item{
+  .trust-item{
 
-display:flex;
+  display:flex;
 
-align-items:center;
+  align-items:center;
 
-gap:12px;
+  gap:12px;
 
-font-weight:600;
+  font-weight:600;
 
-font-size:15px;
+  font-size:15px;
 
-}
+  }
 
-/* PANDA */
+  /* PANDA */
 
-.panda{
+  .panda{
 
-font-size:120px;
+  font-size:120px;
 
-margin-top:35px;
+  margin-top:35px;
 
-animation:float 4s infinite ease-in-out;
+  animation:float 4s infinite ease-in-out;
 
-cursor:pointer;
+  cursor:pointer;
 
-}
+  }
 
-@keyframes float{
+  @keyframes float{
 
-50%{
+  50%{
 
-transform:
-translateY(-15px);
+  transform:
+  translateY(-15px);
 
-}
+  }
 
-}
+  }
 
-/* ==========================================
-   RIGHT PANEL
-========================================== */
+  /* ==========================================
+    RIGHT PANEL
+  ========================================== */
 
-.right{
+  .right{
 
-flex:1;
+  flex:1;
 
-padding:60px;
+  padding:60px;
 
-display:flex;
+  display:flex;
 
-justify-content:center;
+  justify-content:center;
 
-flex-direction:column;
+  flex-direction:column;
 
-}
+  }
 
-.logo{
+  .logo{
 
-font-size:40px;
+  font-size:40px;
 
-font-weight:800;
+  font-weight:800;
 
-color:var(--yellow);
+  color:var(--yellow);
 
-margin-bottom:10px;
+  margin-bottom:10px;
 
-}
+  }
 
-.subtitle{
+  .subtitle{
 
-color:var(--text-secondary);
+  color:var(--text-secondary);
 
-margin-bottom:30px;
+  margin-bottom:30px;
 
-line-height:1.7;
+  line-height:1.7;
 
-}
+  }
 
-.login-header{
+  .login-header{
 
-margin-bottom:25px;
+  margin-bottom:25px;
 
-}
+  }
 
-.login-header h2{
+  .login-header h2{
 
-font-size:30px;
+  font-size:30px;
 
-margin-bottom:8px;
+  margin-bottom:8px;
 
-color:var(--text-primary);
+  color:var(--text-primary);
 
-}
+  }
 
-.login-header p{
+  .login-header p{
 
-color:var(--text-secondary);
+  color:var(--text-secondary);
 
-}
+  }
 
-/* ==========================================
-   INPUTS
-========================================== */
+  /* ==========================================
+    INPUTS
+  ========================================== */
 
-.input-group{
+  .input-group{
 
-margin-bottom:20px;
+  margin-bottom:20px;
 
-position:relative;
+  position:relative;
 
-}
+  }
 
-.input-label{
+  .input-label{
 
-display:block;
+  display:block;
 
-margin-bottom:8px;
+  margin-bottom:8px;
 
-font-weight:600;
+  font-weight:600;
 
-color:var(--text-primary);
+  color:var(--text-primary);
 
-}
+  }
 
-input{
-width:100%;
-padding:15px 18px;
-font-size:15px;
-border-radius:16px;
-border:1.5px solid transparent;
-background:#F8FAFC;
-transition:.25s;
-}
-input:focus{
-outline:none;
-border-color:var(--blue);
-background:white;
-box-shadow:0 0 0 4px rgba(78,168,222,.1);
-}
+  input{
+  width:100%;
+  padding:15px 18px;
+  font-size:15px;
+  border-radius:16px;
+  border:1.5px solid transparent;
+  background:#F8FAFC;
+  transition:.25s;
+  }
+  input:focus{
+  outline:none;
+  border-color:var(--blue);
+  background:white;
+  box-shadow:0 0 0 4px rgba(78,168,222,.1);
+  }
 
-.eye{
+  .eye{
 
-position:absolute;
+  position:absolute;
 
-right:18px;
-top:50px;
+  right:18px;
+  top:50px;
 
-cursor:pointer;
+  cursor:pointer;
 
-font-size:18px;
+  font-size:18px;
 
-}
+  }
 
-/* ==========================================
-   LOGIN OPTIONS
-========================================== */
+  /* ==========================================
+    LOGIN OPTIONS
+  ========================================== */
 
-.options{
+  .options{
 
-display:flex;
+  display:flex;
 
-justify-content:space-between;
+  justify-content:space-between;
 
-align-items:center;
+  align-items:center;
 
-margin-bottom:25px;
+  margin-bottom:25px;
 
-font-size:14px;
+  font-size:14px;
 
-}
+  }
 
-.options a{
+  .options a{
 
-color:var(--red);
+  color:var(--red);
 
-text-decoration:none;
+  text-decoration:none;
 
-font-weight:700;
+  font-weight:700;
 
-}
+  }
 
-.remember{
+  .remember{
 
-display:flex;
-align-items:center;
-gap:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
 
-}
+  }
 
-.remember input{
+  .remember input{
 
-width:auto;
+  width:auto;
 
-}
+  }
 
-/* ==========================================
-   BUTTONS
-========================================== */
+  /* ==========================================
+    BUTTONS
+  ========================================== */
 
-.btn{
-width:100%;
-padding:15px;
-border:none;
-border-radius:40px;
-font-weight:700;
-font-size:.95rem;
-cursor:pointer;
-transition:.25s;
-}
+  .btn{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:40px;
+  font-weight:700;
+  font-size:.95rem;
+  cursor:pointer;
+  transition:.25s;
+  }
 
-/* HANVERSE PRIMARY BUTTON */
+  /* HANVERSE PRIMARY BUTTON */
 
-.login{
-background:linear-gradient(135deg,var(--yellow),#FFD95A);
-color:#1A1A2E;
-box-shadow:0 10px 26px rgba(244,211,94,.38);
-}
-.login:hover{
-transform:translateY(-2px);
-box-shadow:0 16px 36px rgba(244,211,94,.48);
-}
+  .login{
+  background:linear-gradient(135deg,var(--yellow),#FFD95A);
+  color:#1A1A2E;
+  box-shadow:0 10px 26px rgba(244,211,94,.38);
+  }
+  .login:hover{
+  transform:translateY(-2px);
+  box-shadow:0 16px 36px rgba(244,211,94,.48);
+  }
 
-.google{
-background:white;
-border:1.5px solid #E5E7EB;
-margin-top:12px;
-color:var(--text-primary);
-}
-.google:hover{
-transform:translateY(-2px);
-border-color:var(--blue);
-box-shadow:0 8px 20px rgba(0,0,0,.07);
-}
+  .google{
+  background:white;
+  border:1.5px solid #E5E7EB;
+  margin-top:12px;
+  color:var(--text-primary);
+  }
+  .google:hover{
+  transform:translateY(-2px);
+  border-color:var(--blue);
+  box-shadow:0 8px 20px rgba(0,0,0,.07);
+  }
 
-.bottom{
+  .bottom{
 
-margin-top:30px;
+  margin-top:30px;
 
-text-align:center;
+  text-align:center;
 
-}
+  }
 
-.bottom a{
+  .bottom a{
 
-color:var(--red);
+  color:var(--red);
 
-font-weight:700;
+  font-weight:700;
 
-text-decoration:none;
+  text-decoration:none;
 
-}
+  }
 
-/* ==========================================
-   MOBILE
-========================================== */
+  /* ==========================================
+    MOBILE
+  ========================================== */
 
-@media(max-width:900px){
+  @media(max-width:900px){
 
-.container{
+  .container{
 
-flex-direction:column;
+  flex-direction:column;
 
-}
+  }
 
-.left{
+  .left{
 
-padding:40px;
+  padding:40px;
 
-text-align:center;
+  text-align:center;
 
-}
+  }
 
-.right{
+  .right{
 
-padding:40px;
+  padding:40px;
 
-}
+  }
 
-.left h1{
+  .left h1{
 
-font-size:42px;
+  font-size:42px;
 
-}
+  }
 
-.panda{
+  .panda{
 
-font-size:90px;
+  font-size:90px;
 
-}
+  }
 
-}
+  }
 
-@media(max-width:600px){
+  @media(max-width:600px){
 
-.right{
+  .right{
 
-padding:30px;
+  padding:30px;
 
-}
+  }
 
-.left{
+  .left{
 
-padding:30px;
+  padding:30px;
 
-}
+  }
 
-.left h1{
+  .left h1{
 
-font-size:34px;
+  font-size:34px;
 
-}
+  }
 
-.logo{
+  .logo{
 
-font-size:34px;
+  font-size:34px;
 
-}
+  }
 
-}
+  }
 
-</style>
+  </style>
 
-</head>
+  </head>
 
-<body>
+  <body>
 
 <div class="container">
 
-<!-- LEFT SIDE -->
+    <!-- LEFT PANEL -->
 
-<div class="left">
+    <div class="left">
 
-<div class="char c1">你</div>
-<div class="char c2">好</div>
-<div class="char c3">学</div>
-<div class="char c4">汉</div>
+        <div class="char c1">你</div>
+        <div class="char c2">好</div>
+        <div class="char c3">学</div>
+        <div class="char c4">汉</div>
 
-<div class="star">
-⭐
-</div>
+        <div class="star">⭐</div>
 
-<p class="welcome-label">
+        <p class="welcome-label">
+            Welcome to
+        </p>
 
-Welcome to
+        <h1>Hanverse</h1>
 
-</p>
+        <p>
+            Continue your Mandarin learning journey through stories,
+            games, achievements and structured YCT lessons.
+        </p>
 
-<h1>
+        <div class="trust-list">
 
-Hanverse
+            <div class="trust-item">
+                ⭐ Structured YCT Curriculum
+            </div>
 
-</h1>
+            <div class="trust-item">
+                🏆 XP & Achievements
+            </div>
 
-<p>
+            <div class="trust-item">
+                📈 Progress Tracking
+            </div>
 
-Continue your Mandarin learning journey through stories, games, achievements and structured YCT lessons.
+            <div class="trust-item">
+                🤖 AI Learning Assistant
+            </div>
 
-</p>
+        </div>
 
-<div class="trust-list">
+        <div class="panda">
+            🐼
+        </div>
 
-<div class="trust-item">
-⭐ Structured YCT Curriculum
-</div>
+    </div>
 
-<div class="trust-item">
-🏆 XP & Achievements
-</div>
+    <!-- RIGHT PANEL -->
 
-<div class="trust-item">
-📈 Progress Tracking
-</div>
+    <div class="right">
 
-<div class="trust-item">
-🤖 AI Learning Assistant
-</div>
+        <div class="logo">
+            Hanverse
+        </div>
 
-</div>
+        <p class="subtitle">
+            Learn Mandarin Through Stories,
+            Games & AI
+        </p>
 
-<div class="panda">
+        <div class="login-header">
 
-🐼
+            <h2>
+                Welcome Back 👋
+            </h2>
 
-</div>
+            <p>
+                Log in to continue where you left off.
+            </p>
 
-</div>
+        </div>
 
-<!-- RIGHT SIDE -->
+        <!-- EMAIL -->
 
-<div class="right">
+        <div class="input-group">
 
-<div class="logo">
+            <label class="input-label">
+                Email Address
+            </label>
 
-Hanverse
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter your email">
 
-</div>
+        </div>
 
-<p class="subtitle">
+        <!-- PASSWORD -->
 
-Learn Mandarin Through Stories,
-Games & AI
+        <div class="input-group">
 
-</p>
+            <label class="input-label">
+                Password
+            </label>
 
-<div class="login-header">
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter your password">
 
-<h2>
+            <span
+                class="eye"
+                onclick="togglePassword()">
+                👁️
+            </span>
 
-Welcome Back 👋
+        </div>
 
-</h2>
+        <!-- OPTIONS -->
 
-<p>
+        <div class="options">
 
-Log in to continue where you left off.
+            <label class="remember">
 
-</p>
+                <input
+                    type="checkbox"
+                    id="rememberMe">
 
-</div>
-<!-- ==========================================
-   EMAIL
-========================================== -->
+                Remember Me
 
-<div class="input-group">
+            </label>
 
-<label class="input-label">
+            <div
+                style="
+                display:flex;
+                gap:12px;
+                align-items:center;
+                ">
 
-Email Address
+                <a
+                    href="#"
+                    id="resendVerification">
 
-</label>
+                    Verify Email
 
-<input
-type="email"
-id="email"
-placeholder="Enter your email">
+                </a>
 
-</div>
+                <a
+                    href="forgot-password.html">
 
-<!-- ==========================================
-   PASSWORD
-========================================== -->
+                    Forgot Password?
 
-<div class="input-group">
+                </a>
 
-<label class="input-label">
+            </div>
 
-Password
+        </div>
 
-</label>
+        <!-- BUTTONS -->
 
-<input
-type="password"
-id="password"
-placeholder="Enter your password">
+        <button
+            class="btn login"
+            id="loginBtn">
 
-<span
-class="eye"
-onclick="togglePassword()">
+            Log In
 
-👁️
+        </button>
 
-</span>
+        <button
+            class="btn google"
+            id="googleBtn">
 
-</div>
+            🌐 Continue with Google
 
-<!-- ==========================================
-   OPTIONS
-========================================== -->
+        </button>
 
-<div class="options">
+        <div class="bottom">
 
-<label class="remember">
+            Don't have an account?
 
-<input type="checkbox">
+            <a href="signup.html">
+                Sign Up
+            </a>
 
-Remember Me
+        </div>
 
-</label>
-
-<a href="forgot-password.html">
-
-Forgot Password?
-
-</a>
-
-</div>
-
-<!-- ==========================================
-   BUTTONS
-========================================== -->
-
-<button
-class="btn login"
-id="loginBtn">
-
-Log In
-
-</button>
-
-<button
-class="btn google"
-id="googleBtn">
-
-🌐 Continue with Google
-
-</button>
-
-<div class="bottom">
-
-Don't have an account?
-
-<a href="signup.html">
-
-Sign Up
-
-</a>
-
-</div>
-
-</div>
+    </div>
 
 </div>
 
 <script src="notifications.js"></script>
 
-<script>
+  <script>
 
-/* ==========================================
-   CONFIG
-========================================== */
+  /* ==========================================
+    CONFIG
+  ========================================== */
 
-const API_URL='/api';
-const SESSION_KEY='hanverse_user';
+  const API_URL='/api';
+  const SESSION_KEY='hanverse_user';
 
-/* ==========================================
-   PASSWORD TOGGLE
-========================================== */
+  /* ==========================================
+    PASSWORD TOGGLE
+  ========================================== */
 
-function togglePassword(){
+  function togglePassword(){
 
-const pw=
-document.getElementById(
-'password'
-);
+  const pw=
+  document.getElementById(
+  'password'
+  );
 
-pw.type=
-pw.type==='password'
-? 'text'
-: 'password';
+  pw.type=
+  pw.type==='password'
+  ? 'text'
+  : 'password';
 
-if(window.Notify){
+  if(window.Notify){
 
-Notify.toast(
+  Notify.toast(
 
-pw.type==='text'
-? 'Password visible 👁️'
-: 'Password hidden 🔒',
+  pw.type==='text'
+  ? 'Password visible 👁️'
+  : 'Password hidden 🔒',
 
-'info',
-1500
+  'info',
+  1500
 
-);
+  );
 
-}
+  }
 
-}
+  }
 
-/* ==========================================
-   INPUT TOASTS
-========================================== */
+  /* ==========================================
+    INPUT TOASTS
+  ========================================== */
 
-document
-.getElementById('email')
-.addEventListener('focus',()=>{
+  document
+  .getElementById('email')
+  .addEventListener('focus',()=>{
 
-if(window.Notify){
+  if(window.Notify){
 
-Notify.toast(
-'Enter your email 📧',
-'info',
-1500
-);
+  Notify.toast(
+  'Enter your email 📧',
+  'info',
+  1500
+  );
 
-}
+  }
 
-});
+  });
 
-document
-.getElementById('password')
-.addEventListener('focus',()=>{
+  document
+  .getElementById('password')
+  .addEventListener('focus',()=>{
 
-if(window.Notify){
+  if(window.Notify){
 
-Notify.toast(
-'Enter your password 🔐',
-'info',
-1500
-);
+  Notify.toast(
+  'Enter your password 🔐',
+  'info',
+  1500
+  );
 
-}
+  }
 
-});
+  });
 
-/* ==========================================
-   ENTER TO LOGIN
-========================================== */
+  /* ==========================================
+    ENTER TO LOGIN
+  ========================================== */
 
-document
-.addEventListener(
-'keydown',
-e=>{
+  document
+  .addEventListener(
+  'keydown',
+  e=>{
 
-if(e.key==='Enter'){
+  if(e.key==='Enter'){
 
-login();
+  login();
 
-}
+  }
 
-}
-);
+  }
+  );
 
-/* ==========================================
-   LOGIN FUNCTION
-========================================== */
+  /* ==========================================
+    LOGIN FUNCTION
+  ========================================== */
 
-async function login(){
+  async function login(){
 
-const email=
-document
-.getElementById('email')
-.value.trim();
+  const email=
+  document
+  .getElementById('email')
+  .value.trim();
 
-const password=
-document
-.getElementById('password')
-.value;
+  const password=
+  document
+  .getElementById('password')
+  .value;
 
-if(!email || !password){
+  if(!email || !password){
 
-Notify.toast(
-'Please enter email and password 📧',
-'error',
-3000
-);
+  Notify.toast(
+  'Please enter email and password 📧',
+  'error',
+  3000
+  );
 
-return;
+  return;
 
-}
+  }
 
-const btn=
-document.getElementById(
-'loginBtn'
-);
+  const btn=
+  document.getElementById(
+  'loginBtn'
+  );
 
-btn.disabled=true;
+  btn.disabled=true;
 
-btn.innerHTML=
-'Signing In... 🔄';
+  btn.innerHTML=
+  'Signing In... 🔄';
 
-try{
+  try{
 
-const response=
-await fetch(
-API_URL+'/login',
-{
-method:'POST',
-headers:{
-'Content-Type':
-'application/json'
-},
-body:JSON.stringify({
-email,
-password
-})
-}
-);
+  const response=
+  await fetch(
+  API_URL+'/login',
+  {
+  method:'POST',
+  headers:{
+  'Content-Type':
+  'application/json'
+  },
+  body:JSON.stringify({
+  email,
+  password
+  })
+  }
+  );
 
-const data=
-await response.json();
+  const data=
+  await response.json();
 
-if(response.status===403 && data.error==='banned'){
+ if(
+  response.status === 403 &&
+  data.error === 'banned'
+){
 
-btn.disabled=false;
-btn.innerHTML='Log In';
+  btn.disabled=false;
+  btn.innerHTML='Log In';
 
-document.querySelector('.right').innerHTML=`
-<div style="text-align:center;padding:20px 0;">
-  <div style="font-size:72px;margin-bottom:20px;">🚫</div>
-  <h2 style="font-size:26px;color:#E63946;margin-bottom:12px;">Account Banned</h2>
-  <p style="color:#6B7280;line-height:1.8;margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto;">
-    Your account has been banned from Hanverse.<br><br>
-    <strong style="color:#1A1A2E;">Reason:</strong><br>
-    ${data.reason || 'Violation of community guidelines.'}
-  </p>
-  <p style="font-size:13px;color:#9CA3AF;">If you believe this is a mistake, please contact support.</p>
-</div>`;
+  document.querySelector('.right').innerHTML=`
+  <div style="text-align:center;padding:20px 0;">
+    <div style="font-size:72px;margin-bottom:20px;">🚫</div>
+    <h2 style="font-size:26px;color:#E63946;margin-bottom:12px;">Account Banned</h2>
+    <p style="color:#6B7280;line-height:1.8;margin-bottom:24px;">
+      ${data.reason || 'Violation of community guidelines.'}
+    </p>
+  </div>`;
 
-return;
-
+  return;
 }
 
 if(
-!response.ok ||
-!data.success
+  response.status === 403 &&
+  data.error === 'not_verified'
 ){
 
-btn.disabled=false;
+  btn.disabled=false;
+  btn.innerHTML='Log In';
 
-btn.innerHTML=
-'Log In';
+  Notify.toast(
+    'Please verify your email first 📧',
+    'warn',
+    5000
+  );
 
-Notify.toast(
-data.error ||
-'Login failed ❌',
-'error',
-4000
-);
-
-return;
-
+  return;
 }
 
-/* ==========================================
-   STORE SESSION
-========================================== */
+if(
+  !response.ok ||
+  !data.success
+){
 
-localStorage.setItem(
-SESSION_KEY,
-JSON.stringify({
+  btn.disabled=false;
 
-user_id:
-data.user.user_id,
+  btn.innerHTML='Log In';
 
-username:
-data.user.username,
+  Notify.toast(
+    data.error ||
+    'Login failed ❌',
+    'error',
+    4000
+  );
 
-fullName:
-data.user.full_name,
+  return;
+}{
 
-email:
-data.user.email,
+  btn.disabled=false;
 
-xp:
-data.user.xp,
+  btn.innerHTML=
+  'Log In';
 
-level:
-data.user.level,
+  Notify.toast(
+  data.error ||
+  'Login failed ❌',
+  'error',
+  4000
+  );
 
-streak:
-data.user.streak_days,
+  return;
 
-profile_picture:
-data.user.profile_picture
+  }
 
-})
-);
+  /* ==========================================
+    STORE SESSION
+  ========================================== */
 
-/* ==========================================
-   SUCCESS
-========================================== */
+  localStorage.setItem(
+  SESSION_KEY,
+  JSON.stringify({
 
-Notify.toast(
-'Welcome back! 🎉',
-'success',
-2500
-);
+  user_id:
+  data.user.user_id,
 
-Notify.showXP(50);
+  username:
+  data.user.username,
 
-Notify.miniConfetti();
+  fullName:
+  data.user.full_name,
 
-if(data.user.level >= 5){
+  email:
+  data.user.email,
 
-Notify.toast(
-`Level ${data.user.level} Scholar! 🏆`,
-'star',
-3000
-);
+  xp:
+  data.user.xp,
 
-}
+  level:
+  data.user.level,
 
-if(data.user.streak_days >= 7){
+  streak:
+  data.user.streak_days,
 
-Notify.streakFire(
-data.user.streak_days
-);
+  profile_picture:
+  data.user.profile_picture
 
-}
+  })
+  );
 
-setTimeout(()=>{
+  /* ==========================================
+    SUCCESS
+  ========================================== */
 
-window.location.href=
-'profile.html';
+  Notify.toast(
+  'Welcome back! 🎉',
+  'success',
+  2500
+  );
 
-},900);
+  Notify.showXP(50);
 
-}
-catch(error){
+  Notify.miniConfetti();
 
-console.error(error);
+  if(data.user.level >= 5){
 
-btn.disabled=false;
+  Notify.toast(
+  `Level ${data.user.level} Scholar! 🏆`,
+  'star',
+  3000
+  );
 
-btn.innerHTML=
-'Log In';
+  }
 
-Notify.toast(
-'Cannot connect to server 🌐',
-'error',
-5000
-);
+  if(data.user.streak_days >= 7){
 
-}
+  Notify.streakFire(
+  data.user.streak_days
+  );
 
-}
+  }
 
-/* ==========================================
-   BUTTON EVENTS
-========================================== */
+  setTimeout(()=>{
 
-document
-.getElementById(
-'loginBtn'
-)
-.addEventListener(
-'click',
-login
-);
+  window.location.href=
+  'profile.html';
 
-document
-.getElementById(
-'googleBtn'
-)
-.addEventListener(
-'click',
-()=>{
+  },900);
 
-Notify.toast(
-'Google Sign-In coming soon 🚀',
-'info',
-3000
-);
+  }
+  catch(error){
 
-}
-);
+  console.error(error);
 
-/* ==========================================
-   PANDA INTERACTION
-========================================== */
+  btn.disabled=false;
 
-const panda=
-document.querySelector(
-'.panda'
-);
+  btn.innerHTML=
+  'Log In';
 
-if(panda){
+  Notify.toast(
+  'Cannot connect to server 🌐',
+  'error',
+  5000
+  );
 
-panda.addEventListener(
-'click',
-()=>{
+  }
 
-Notify.toast(
-'Panda loves Mandarin learners! 🐼',
-'heart',
-2500
-);
+  }
+  /* ==========================================
+    RESEND VERIFICATION EMAIL
+  ========================================== */
 
-Notify.showXP(5);
+  document
+  .getElementById('resendVerification')
+  .addEventListener('click', async e => {
 
-}
-);
+    e.preventDefault();
 
-}
+    const email =
+      document
+      .getElementById('email')
+      .value
+      .trim();
 
-/* ==========================================
-   PAGE LOAD
-========================================== */
+    if(!email){
 
-window.addEventListener(
-'load',
-()=>{
+      Notify.toast(
+        'Enter your email first 📧',
+        'warn',
+        3000
+      );
 
-setTimeout(()=>{
+      return;
+    }
 
-Notify.toast(
-'Welcome back! Ready to learn? ✨',
-'star',
-3000
-);
+    try{
 
-Notify.miniConfetti();
+      const response =
+        await fetch(
+          API_URL +
+          '/resend-verification',
+          {
+            method:'POST',
+            headers:{
+              'Content-Type':
+              'application/json'
+            },
+            body:JSON.stringify({
+              email
+            })
+          }
+        );
 
-},800);
+      const data =
+        await response.json();
 
-}
-);
+      if(!response.ok){
 
-</script>
+        Notify.toast(
+          data.error ||
+          'Unable to send email ❌',
+          'error',
+          4000
+        );
 
-</body>
-</html>
+        return;
+      }
+
+      Notify.toast(
+        'Verification email sent 📧',
+        'success',
+        4000
+      );
+
+    }
+    catch(error){
+
+      Notify.toast(
+        'Cannot connect to server 🌐',
+        'error',
+        4000
+      );
+
+    }
+
+  });
+
+  /* ==========================================
+    BUTTON EVENTS
+  ========================================== */
+
+  document
+  .getElementById(
+  'loginBtn'
+  )
+  .addEventListener(
+  'click',
+  login
+  );
+
+  document
+  .getElementById(
+  'googleBtn'
+  )
+  .addEventListener(
+  'click',
+  ()=>{
+
+  Notify.toast(
+  'Google Sign-In coming soon 🚀',
+  'info',
+  3000
+  );
+
+  }
+  );
+
+  /* ==========================================
+    PANDA INTERACTION
+  ========================================== */
+
+  const panda=
+  document.querySelector(
+  '.panda'
+  );
+
+  if(panda){
+
+  panda.addEventListener(
+  'click',
+  ()=>{
+
+  Notify.toast(
+  'Panda loves Mandarin learners! 🐼',
+  'heart',
+  2500
+  );
+
+  Notify.showXP(5);
+
+  }
+  );
+
+  }
+
+  /* ==========================================
+    PAGE LOAD
+  ========================================== */
+
+  window.addEventListener(
+  'load',
+  ()=>{
+
+  setTimeout(()=>{
+
+  Notify.toast(
+  'Welcome back! Ready to learn? ✨',
+  'star',
+  3000
+  );
+
+  Notify.miniConfetti();
+
+  },800);
+
+  }
+  );
+
+  </script>
+
+  </body>
+  </html>

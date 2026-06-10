@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt';
 import { existsSync } from 'fs';
 import path from 'path';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 dotenv.config();
 
@@ -54,9 +55,28 @@ async function sendEmail(to, name, type, data = {}) {
       header: { bg: 'linear-gradient(135deg,#F4D35E,#D4A800)', emoji: '⭐', title: 'XP Updated!', sub: 'Your hard work is paying off.' },
       body: `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 🎉</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Your XP has been updated. Keep learning to earn even more!</p><div style="background:#FFFBEB;border-radius:14px;padding:18px 20px;margin-bottom:28px;text-align:center;"><div style="font-size:52px;">⭐</div><p style="margin:8px 0 0;font-size:1.4rem;font-weight:800;color:#D4A800;">${Number(data.xp).toLocaleString()} XP</p></div>`,
     },
+    verify: {
+      subject: '🔒 Verify your Hanverse email',
+      header: { bg: 'linear-gradient(135deg,#4EA8DE,#7BC7F4)', emoji: '🔒', title: 'Verify your email', sub: 'Confirm your Hanverse account' },
+      body: ''
+    },
   };
   const t = templates[type];
   if (!t) return;
+  // Special handling for verify template to include token link
+  if (type === 'verify') {
+    const frontend = process.env.FRONTEND_URL || 'https://hanverse.netlify.app';
+    const verifyLink = data.link || `${frontend}/verify.html?token=${data.token}`;
+    const verifyBody = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to verify your email address for Hanverse. This link expires in 24 hours.</p><div style="text-align:center;margin:24px 0;"><a href="${verifyLink}" style="display:inline-block;background:linear-gradient(135deg,#4EA8DE,#7BC7F4);color:#fff;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Verify my email</a></div>`;
+    const info = await mailer.sendMail({
+      from: '"Hanverse" <andrewmunamwangi@gmail.com>',
+      to,
+      subject: t.subject,
+      html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FFFDF7;border-radius:24px;overflow:hidden;"><div style="background:${t.header.bg};padding:40px 40px 30px;text-align:center;"><div style="font-size:60px;">${t.header.emoji}</div><h1 style="margin:14px 0 0;color:#fff;font-size:26px;font-weight:800;">${t.header.title}</h1><p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:15px;">${t.header.sub}</p></div><div style="padding:36px 40px;">${verifyBody}<p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p></div></div>`,
+    });
+    console.log(`[email:verify] sent to ${to} — ${info.messageId}`);
+    return info;
+  }
   const info = await mailer.sendMail({
     from: '"Hanverse" <andrewmunamwangi@gmail.com>',
     to,
@@ -129,6 +149,20 @@ pool.connect((err, client, release) => {
   } else {
     console.log('Database connected successfully');
     release();
+    // Ensure email verification schema exists
+    (async () => {
+      try {
+        await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE");
+        await pool.query(`CREATE TABLE IF NOT EXISTS email_verifications (
+          user_id INTEGER PRIMARY KEY,
+          token TEXT,
+          expires_at TIMESTAMPTZ
+        )`);
+        console.log('Email verification schema ready');
+      } catch (e) {
+        console.error('Failed to ensure verification schema:', e.message);
+      }
+    })();
   }
 });
 
@@ -162,6 +196,10 @@ app.post('/api/login', async (req, res) => {
 
     if (user.is_banned) {
       return res.status(403).json({ error: 'banned', reason: user.banned_reason || 'Your account has been banned.' });
+    }
+
+    if (user.is_verified === false) {
+      return res.status(403).json({ error: 'not_verified' });
     }
 
     // Fetch all related user data
@@ -316,6 +354,59 @@ app.post('/api/signup', async (req, res) => {
   } catch (error) {
     console.error('Signup error:', error);
     res.status(500).json({ error: 'Server error during signup' });
+  }
+});
+
+// Resend verification email (minimal - checks email and returns JSON)
+app.post('/api/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+    const userRes = await pool.query('SELECT user_id, full_name, email FROM users WHERE email = $1', [email]);
+    if (!userRes.rows.length) return res.status(400).json({ error: 'No account with that email' });
+
+    const user = userRes.rows[0];
+    const token = crypto.randomBytes(24).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await pool.query(
+      `INSERT INTO email_verifications (user_id, token, expires_at)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id) DO UPDATE SET token = $2, expires_at = $3`,
+      [user.user_id, token, expiresAt]
+    );
+
+    // Send verification email
+    try {
+      await sendEmail(user.email, user.full_name, 'verify', { token });
+      console.log('Resend verification email sent to:', email);
+      return res.json({ success: true, message: 'Verification email sent' });
+    } catch (err) {
+      console.error('Failed to send verification email:', err.message);
+      return res.status(500).json({ error: 'Failed to send verification email' });
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Failed to resend verification' });
+  }
+});
+
+// Verify email token
+app.get('/api/verify-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ error: 'Token is required' });
+    const vRes = await pool.query('SELECT user_id, expires_at FROM email_verifications WHERE token = $1', [token]);
+    if (!vRes.rows.length) return res.status(400).json({ error: 'Invalid or expired token' });
+    const row = vRes.rows[0];
+    if (new Date(row.expires_at) < new Date()) return res.status(400).json({ error: 'Token expired' });
+    await pool.query('UPDATE users SET is_verified = TRUE WHERE user_id = $1', [row.user_id]);
+    await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [row.user_id]);
+    const frontend = process.env.FRONTEND_URL || 'https://hanverse.netlify.app';
+    return res.redirect(`${frontend}/login.html?verified=1`);
+  } catch (e) {
+    console.error('Verify email error:', e);
+    return res.status(500).json({ error: 'Verification failed' });
   }
 });
 

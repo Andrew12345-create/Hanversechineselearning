@@ -2,16 +2,12 @@
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Hanverse Sign Up</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
@@ -34,7 +30,9 @@ box-sizing:border-box;
 font-family:'Poppins',sans-serif;
 }
 
-html{ scroll-behavior:smooth; }
+html{
+scroll-behavior:smooth;
+}
 
 body{
 background:var(--bg);
@@ -48,25 +46,25 @@ padding:30px;
 body::before{
 content:'';
 position:fixed;
-z-index:0;
 width:700px;
 height:700px;
 border-radius:50%;
 background:rgba(116,198,157,.09);
 top:-350px;
 left:-350px;
+z-index:0;
 }
 
 body::after{
 content:'';
 position:fixed;
-z-index:0;
 width:600px;
 height:600px;
 border-radius:50%;
 background:rgba(244,211,94,.08);
 bottom:-300px;
 right:-300px;
+z-index:0;
 }
 
 .container{
@@ -83,11 +81,17 @@ animation:fade .8s ease;
 }
 
 @keyframes fade{
-from{ opacity:0; transform:translateY(30px); }
-to{   opacity:1; transform:translateY(0); }
+from{
+opacity:0;
+transform:translateY(30px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
-/* LEFT PANEL — green, distinct from login's blue */
+/* LEFT */
 
 .left{
 flex:1;
@@ -107,10 +111,11 @@ font-weight:800;
 opacity:.08;
 pointer-events:none;
 }
-.c1{ top:40px;   left:40px; }
-.c2{ top:120px;  right:60px; }
-.c3{ bottom:120px; left:60px; }
-.c4{ bottom:50px;  right:50px; }
+
+.c1{top:40px;left:40px;}
+.c2{top:120px;right:60px;}
+.c3{bottom:120px;left:60px;}
+.c4{bottom:50px;right:50px;}
 
 .star{
 position:absolute;
@@ -120,7 +125,10 @@ font-size:40px;
 color:var(--yellow);
 }
 
-.welcome-label{ font-size:18px; opacity:.95; }
+.welcome-label{
+font-size:18px;
+opacity:.95;
+}
 
 .left h1{
 font-size:58px;
@@ -152,22 +160,24 @@ font-size:15px;
 .panda{
 font-size:120px;
 margin-top:35px;
-animation:float 4s infinite ease-in-out;
 cursor:pointer;
+animation:float 4s infinite ease-in-out;
 }
 
 @keyframes float{
-50%{ transform:translateY(-15px); }
+50%{
+transform:translateY(-15px);
+}
 }
 
-/* RIGHT PANEL */
+/* RIGHT */
 
 .right{
 flex:1;
 padding:50px 60px;
 display:flex;
-justify-content:center;
 flex-direction:column;
+justify-content:center;
 overflow-y:auto;
 }
 
@@ -197,8 +207,6 @@ color:var(--text-primary);
 .signup-header p{
 color:var(--text-secondary);
 }
-
-/* Two-column row for name + username */
 
 .row-2{
 display:grid;
@@ -236,29 +244,36 @@ background:white;
 box-shadow:0 0 0 4px rgba(116,198,157,.12);
 }
 
-input.input--error{
-border-color:var(--red) !important;
+.input--error{
+border-color:var(--red)!important;
 background:#FFF5F5;
-box-shadow:0 0 0 4px rgba(230,57,70,.1) !important;
+box-shadow:0 0 0 4px rgba(230,57,70,.10)!important;
 }
 
 .field-error{
-font-size:.78rem;
-color:var(--red);
-font-weight:600;
-margin-top:5px;
 display:none;
+font-size:.78rem;
+font-weight:600;
+color:var(--red);
+margin-top:5px;
 }
 
-.field-error.visible{ display:block; }
+.field-error.visible{
+display:block;
+}
+
+/* FIXED EYE ICON */
+
+.eye{
 position:absolute;
 right:18px;
 top:44px;
 cursor:pointer;
 font-size:18px;
+user-select:none;
 }
 
-/* password strength bar */
+/* PASSWORD STRENGTH */
 
 .strength-bar{
 height:4px;
@@ -271,8 +286,8 @@ overflow:hidden;
 .strength-fill{
 height:100%;
 width:0%;
-border-radius:999px;
 transition:.3s;
+border-radius:999px;
 }
 
 .btn{
@@ -286,11 +301,13 @@ cursor:pointer;
 transition:.25s;
 }
 
-/* signup uses green, login uses yellow — clear distinction */
-
 .signup-btn{
-background:linear-gradient(135deg,var(--green),#52B788);
-color:#fff;
+background:linear-gradient(
+135deg,
+var(--green),
+#52B788
+);
+color:white;
 box-shadow:0 10px 26px rgba(116,198,157,.38);
 margin-top:6px;
 }
@@ -298,6 +315,12 @@ margin-top:6px;
 .signup-btn:hover{
 transform:translateY(-2px);
 box-shadow:0 16px 36px rgba(116,198,157,.48);
+}
+
+.signup-btn:disabled{
+opacity:.7;
+cursor:not-allowed;
+transform:none;
 }
 
 .google{
@@ -319,25 +342,58 @@ text-align:center;
 }
 
 .bottom a{
-color:var(--red);
-font-weight:700;
 text-decoration:none;
+font-weight:700;
+color:var(--red);
 }
 
 @media(max-width:900px){
-.container{ flex-direction:column; }
-.left{ padding:40px; text-align:center; }
-.right{ padding:40px; }
-.left h1{ font-size:42px; }
-.panda{ font-size:90px; }
-.row-2{ grid-template-columns:1fr; }
+
+.container{
+flex-direction:column;
+}
+
+.left{
+padding:40px;
+text-align:center;
+}
+
+.right{
+padding:40px;
+}
+
+.left h1{
+font-size:42px;
+}
+
+.panda{
+font-size:90px;
+}
+
+.row-2{
+grid-template-columns:1fr;
+}
+
 }
 
 @media(max-width:600px){
-.right{ padding:30px; }
-.left{ padding:30px; }
-.left h1{ font-size:34px; }
-.logo{ font-size:34px; }
+
+.left{
+padding:30px;
+}
+
+.right{
+padding:30px;
+}
+
+.left h1{
+font-size:34px;
+}
+
+.logo{
+font-size:34px;
+}
+
 }
 
 </style>
@@ -346,8 +402,6 @@ text-decoration:none;
 <body>
 
 <div class="container">
-
-<!-- LEFT -->
 
 <div class="left">
 
@@ -362,28 +416,30 @@ text-decoration:none;
 
 <h1>Hanverse</h1>
 
-<p>Start your Mandarin learning adventure. Build vocabulary, earn XP, and track your progress from day one.</p>
+<p>
+Start your Mandarin learning adventure.
+Build vocabulary, earn XP and track your progress from day one.
+</p>
 
 <div class="trust-list">
-
 <div class="trust-item">🌱 Free to Get Started</div>
 <div class="trust-item">⭐ Earn XP from Lesson 1</div>
 <div class="trust-item">📈 Personalised Progress</div>
 <div class="trust-item">🤖 AI Learning Assistant</div>
-
 </div>
 
 <div class="panda">🐼</div>
 
 </div>
 
-<!-- RIGHT -->
-
 <div class="right">
 
 <div class="logo">Hanverse</div>
 
-<p class="subtitle">Learn Mandarin Through Stories,<br>Games & AI</p>
+<p class="subtitle">
+Learn Mandarin Through Stories,<br>
+Games & AI
+</p>
 
 <div class="signup-header">
 <h2>Create Account ✨</h2>
@@ -400,7 +456,9 @@ text-decoration:none;
 <div class="input-group">
 <label class="input-label">Username</label>
 <input type="text" id="username" placeholder="hanverse_user">
-<span class="field-error" id="usernameError">❌ Username already taken</span>
+<div class="field-error" id="usernameError">
+❌ Username already taken
+</div>
 </div>
 
 </div>
@@ -412,23 +470,42 @@ text-decoration:none;
 
 <div class="input-group">
 <label class="input-label">Password</label>
-<input type="password" id="password" placeholder="At least 6 characters" oninput="updateStrength(this.value)">
+<input
+type="password"
+id="password"
+placeholder="At least 6 characters"
+oninput="updateStrength(this.value)"
+>
 <span class="eye" onclick="togglePw('password')">👁️</span>
-<div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+
+<div class="strength-bar">
+<div class="strength-fill" id="strengthFill"></div>
+</div>
 </div>
 
 <div class="input-group">
 <label class="input-label">Confirm Password</label>
-<input type="password" id="confirmPassword" placeholder="Repeat password">
+
+<input
+type="password"
+id="confirmPassword"
+placeholder="Repeat password"
+>
+
 <span class="eye" onclick="togglePw('confirmPassword')">👁️</span>
 </div>
 
-<button class="btn signup-btn" id="signupBtn">Create Account</button>
+<button class="btn signup-btn" id="signupBtn">
+Create Account
+</button>
 
-<button class="btn google" id="googleBtn">🌐 Continue with Google</button>
+<button class="btn google" id="googleBtn">
+🌐 Continue with Google
+</button>
 
 <div class="bottom">
-Already have an account? <a href="login.html">Log In</a>
+Already have an account?
+<a href="login.html">Log In</a>
 </div>
 
 </div>
@@ -436,137 +513,491 @@ Already have an account? <a href="login.html">Log In</a>
 </div>
 
 <script src="notifications.js"></script>
-
 <script>
 
 const API_URL = '/api';
 
-function togglePw(id) {
-  const el = document.getElementById(id);
-  el.type = el.type === 'password' ? 'text' : 'password';
+let usernameTaken = false;
+let usernameTimer = null;
+
+/* --------------------------
+   PASSWORD TOGGLE
+--------------------------- */
+
+function togglePw(id){
+  const field = document.getElementById(id);
+
+  field.type =
+    field.type === 'password'
+      ? 'text'
+      : 'password';
 }
 
-function updateStrength(val) {
-  const fill = document.getElementById('strengthFill');
+/* --------------------------
+   PASSWORD STRENGTH
+--------------------------- */
+
+function updateStrength(val){
+
+  const fill =
+    document.getElementById('strengthFill');
+
   let score = 0;
-  if (val.length >= 6)  score++;
-  if (val.length >= 10) score++;
-  if (/[A-Z]/.test(val)) score++;
-  if (/[0-9]/.test(val)) score++;
-  if (/[^A-Za-z0-9]/.test(val)) score++;
-  const pct   = (score / 5) * 100;
-  const color = score <= 1 ? '#E63946' : score <= 3 ? '#F4D35E' : '#74C69D';
+
+  if(val.length >= 6) score++;
+  if(val.length >= 10) score++;
+  if(/[A-Z]/.test(val)) score++;
+  if(/[0-9]/.test(val)) score++;
+  if(/[^A-Za-z0-9]/.test(val)) score++;
+
+  const pct = (score / 5) * 100;
+
+  const color =
+    score <= 1
+      ? '#E63946'
+      : score <= 3
+      ? '#F4D35E'
+      : '#74C69D';
+
   fill.style.width = pct + '%';
   fill.style.background = color;
 }
 
-document.getElementById('signupBtn').addEventListener('click', async () => {
-  const fullName        = document.getElementById('fullName').value.trim();
-  const username        = document.getElementById('username').value.trim();
-  const email           = document.getElementById('email').value.trim();
-  const password        = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
-  const btn             = document.getElementById('signupBtn');
+/* --------------------------
+   VALIDATORS
+--------------------------- */
 
-  if (!fullName || !username || !email || !password || !confirmPassword) {
-    Notify.toast('Please fill in all fields 📝', 'warn', 4000); return;
+function isValidEmail(email){
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    .test(email);
+
+}
+
+function isValidUsername(username){
+
+  return /^[a-zA-Z0-9_]{3,20}$/
+    .test(username);
+
+}
+
+/* --------------------------
+   USERNAME CHECK
+--------------------------- */
+
+document
+.getElementById('username')
+.addEventListener('input', () => {
+
+  const input =
+    document.getElementById('username');
+
+  const err =
+    document.getElementById('usernameError');
+
+  const value =
+    input.value.trim();
+
+  usernameTaken = false;
+
+  input.classList.remove('input--error');
+  err.classList.remove('visible');
+
+  clearTimeout(usernameTimer);
+
+  if(!value) return;
+
+  if(!isValidUsername(value)){
+
+    err.textContent =
+      '❌ Use 3-20 letters, numbers or underscores';
+
+    err.classList.add('visible');
+    input.classList.add('input--error');
+
+    return;
   }
-  if (password.length < 6) {
-    Notify.toast('Password must be at least 6 characters 🔐', 'warn', 4000); return;
+
+  usernameTimer = setTimeout(async () => {
+
+    try{
+
+      const res = await fetch(
+        API_URL +
+        '/check-username?username=' +
+        encodeURIComponent(value)
+      );
+
+      if(!res.ok) return;
+
+      const data = await res.json();
+
+      if(data.taken){
+
+        usernameTaken = true;
+
+        err.textContent =
+          '❌ Username already taken';
+
+        err.classList.add('visible');
+
+        input.classList.add('input--error');
+      }
+
+    }catch(error){
+
+      console.error(
+        'Username check failed:',
+        error
+      );
+
+    }
+
+  },350);
+
+});
+
+/* --------------------------
+   SIGNUP
+--------------------------- */
+
+document
+.getElementById('signupBtn')
+.addEventListener('click', async () => {
+
+  const btn =
+    document.getElementById('signupBtn');
+
+  if(btn.disabled){
+    return;
   }
-  if (password !== confirmPassword) {
-    Notify.toast('Passwords do not match ❌', 'warn', 4000); return;
+
+  const fullName =
+    document
+      .getElementById('fullName')
+      .value
+      .trim();
+
+  const username =
+    document
+      .getElementById('username')
+      .value
+      .trim();
+
+  const email =
+    document
+      .getElementById('email')
+      .value
+      .trim();
+
+  const password =
+    document
+      .getElementById('password')
+      .value;
+
+  const confirmPassword =
+    document
+      .getElementById('confirmPassword')
+      .value;
+
+  /* REQUIRED */
+
+  if(
+    !fullName ||
+    !username ||
+    !email ||
+    !password ||
+    !confirmPassword
+  ){
+
+    Notify.toast(
+      'Please fill in all fields 📝',
+      'warn',
+      4000
+    );
+
+    return;
+  }
+
+  /* EMAIL */
+
+  if(!isValidEmail(email)){
+
+    Notify.toast(
+      'Please enter a valid email 📧',
+      'warn',
+      4000
+    );
+
+    return;
+  }
+
+  /* USERNAME */
+
+  if(!isValidUsername(username)){
+
+    Notify.toast(
+      'Username must be 3-20 letters, numbers or underscores 🎮',
+      'warn',
+      4000
+    );
+
+    return;
+  }
+
+  if(usernameTaken){
+
+    Notify.toast(
+      'Please choose another username ❌',
+      'warn',
+      4000
+    );
+
+    return;
+  }
+
+  /* PASSWORD */
+
+  if(password.length < 6){
+
+    Notify.toast(
+      'Password must be at least 6 characters 🔐',
+      'warn',
+      4000
+    );
+
+    return;
+  }
+
+  if(password !== confirmPassword){
+
+    Notify.toast(
+      'Passwords do not match ❌',
+      'warn',
+      4000
+    );
+
+    return;
   }
 
   btn.disabled = true;
-  btn.textContent = 'Creating account… 🔄';
+  btn.textContent =
+    'Creating Account... 🔄';
 
-  try {
-    const res  = await fetch(API_URL + '/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, fullName, username })
-    });
-    const data = await res.json();
+  try{
 
-    if (!res.ok) {
-      Notify.toast(data.error || 'Signup failed ❌', 'error', 4000);
+    const response =
+      await fetch(
+        API_URL + '/signup',
+        {
+          method:'POST',
+          headers:{
+            'Content-Type':
+              'application/json'
+          },
+          body:JSON.stringify({
+            fullName,
+            username,
+            email,
+            password
+          })
+        }
+      );
+
+    let data = {};
+
+    try{
+      data = await response.json();
+    }catch{
+      data = {};
+    }
+
+    if(!response.ok){
+
+      Notify.toast(
+        data.error ||
+        'Signup failed ❌',
+        'error',
+        5000
+      );
+
       btn.disabled = false;
-      btn.textContent = 'Create Account';
+      btn.textContent =
+        'Create Account';
+
       return;
     }
 
-    Notify.toast('Account created! Welcome to Hanverse 🎉', 'success', 4000);
-    Notify.miniConfetti();
-    setTimeout(() => window.location.href = 'login.html', 1500);
+    Notify.toast(
+      'Account created! Welcome to Hanverse 🎉',
+      'success',
+      4000
+    );
 
-  } catch (err) {
-    Notify.toast('Cannot connect to server 🌐', 'error', 5000);
-    btn.disabled = false;
-    btn.textContent = 'Create Account';
+    Notify.miniConfetti();
+
+    setTimeout(() => {
+
+      window.location.href =
+        'login.html';
+
+    },1500);
+
   }
+  catch(error){
+
+    console.error(error);
+
+    Notify.toast(
+      'Cannot connect to server 🌐',
+      'error',
+      5000
+    );
+
+    btn.disabled = false;
+    btn.textContent =
+      'Create Account';
+  }
+
 });
 
-document.getElementById('googleBtn').addEventListener('click', () => {
-  Notify.toast('Google Sign-In coming soon 🚀', 'info', 3000);
+/* --------------------------
+   GOOGLE BUTTON
+--------------------------- */
+
+document
+.getElementById('googleBtn')
+.addEventListener('click', () => {
+
+  Notify.toast(
+    'Google Sign-In coming soon 🚀',
+    'info',
+    3000
+  );
+
 });
 
-document.querySelector('.panda').addEventListener('click', () => {
-  Notify.toast('Panda is rooting for you! 🐼', 'heart', 2500);
+/* --------------------------
+   PANDA XP
+--------------------------- */
+
+document
+.querySelector('.panda')
+.addEventListener('click', () => {
+
+  Notify.toast(
+    'Panda is rooting for you! 🐼',
+    'heart',
+    2500
+  );
+
   Notify.showXP(5);
+
 });
 
-document.getElementById('fullName').addEventListener('focus', () => {
-  Notify.toast('Enter your full name 📝', 'info', 1500);
+/* --------------------------
+   FIELD HINTS
+--------------------------- */
+
+document
+.getElementById('fullName')
+.addEventListener('focus', () => {
+
+  Notify.toast(
+    'Enter your full name 📝',
+    'info',
+    1500
+  );
+
 });
 
-document.getElementById('username').addEventListener('focus', () => {
-  Notify.toast('Pick a unique username 🎮', 'info', 1500);
+document
+.getElementById('username')
+.addEventListener('focus', () => {
+
+  Notify.toast(
+    'Pick a unique username 🎮',
+    'info',
+    1500
+  );
+
 });
 
-let usernameTimer;
-document.getElementById('username').addEventListener('input', async () => {
-  const val = document.getElementById('username').value.trim();
-  const input = document.getElementById('username');
-  const err = document.getElementById('usernameError');
-  input.classList.remove('input--error');
-  err.classList.remove('visible');
-  clearTimeout(usernameTimer);
-  if (!val) return;
-  usernameTimer = setTimeout(async () => {
-    const res = await fetch(API_URL + '/check-username?username=' + encodeURIComponent(val));
-    const data = await res.json();
-    if (data.taken) {
-      input.classList.add('input--error');
-      err.classList.add('visible');
+document
+.getElementById('email')
+.addEventListener('focus', () => {
+
+  Notify.toast(
+    'Enter your email 📧',
+    'info',
+    1500
+  );
+
+});
+
+document
+.getElementById('password')
+.addEventListener('focus', () => {
+
+  Notify.toast(
+    'Choose a strong password 🔐',
+    'info',
+    1500
+  );
+
+});
+
+document
+.getElementById('confirmPassword')
+.addEventListener('focus', () => {
+
+  Notify.toast(
+    'Repeat your password 🔒',
+    'info',
+    1500
+  );
+
+});
+
+/* --------------------------
+   ENTER KEY
+--------------------------- */
+
+document
+.addEventListener('keydown', e => {
+
+  if(e.key === 'Enter'){
+
+    const btn =
+      document.getElementById('signupBtn');
+
+    if(!btn.disabled){
+      btn.click();
     }
-  }, 350);
+
+  }
+
 });
 
-document.getElementById('email').addEventListener('focus', () => {
-  Notify.toast('Enter your email 📧', 'info', 1500);
-});
+/* --------------------------
+   WELCOME
+--------------------------- */
 
-document.getElementById('password').addEventListener('focus', () => {
-  Notify.toast('Choose a strong password 🔐', 'info', 1500);
-});
+window
+.addEventListener('load', () => {
 
-document.getElementById('confirmPassword').addEventListener('focus', () => {
-  Notify.toast('Repeat your password 🔒', 'info', 1500);
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('signupBtn').click();
-});
-
-window.addEventListener('load', () => {
   setTimeout(() => {
-    Notify.toast('Welcome! Let\'s get you started ✨', 'star', 3000);
+
+    Notify.toast(
+      "Welcome! Let's get you started ✨",
+      'star',
+      3000
+    );
+
     Notify.miniConfetti();
-  }, 800);
+
+  },800);
+
 });
 
 </script>
-
-</body>
-</html>
