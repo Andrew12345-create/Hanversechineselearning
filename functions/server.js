@@ -42,6 +42,11 @@ const pool = new Pool({
       token TEXT,
       expires_at TIMESTAMPTZ
     )`);
+    await pool.query(`CREATE TABLE IF NOT EXISTS password_resets (
+      user_id INTEGER PRIMARY KEY,
+      token TEXT,
+      expires_at TIMESTAMPTZ
+    )`);
     console.log('Functions: email verification schema ready');
   } catch (e) {
     console.error('Functions: failed to ensure verification schema', e.message);
@@ -57,16 +62,52 @@ const mailer = nodemailer.createTransport({
   tls: { rejectUnauthorized: false },
 });
 
+mailer.verify((err) => {
+  if (err) console.error('Functions SMTP connection failed:', err.message);
+  else console.log('Functions SMTP ready ✓');
+});
+
 async function sendEmail(to, name, type, data = {}) {
   const first = name ? name.split(' ')[0] : 'Learner';
+  const frontend = process.env.FRONTEND_URL || 'https://hanverse.netlify.app';
+  const templates = {
+    welcome: {
+      subject: '🐼 Welcome to Hanverse!',
+      header: { bg: 'linear-gradient(135deg,#74C69D,#52B788)', emoji: '🐼', title: 'Welcome to Hanverse!', sub: 'Your Mandarin journey starts now.' },
+      body: `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Your account is all set! Here's what's waiting for you:</p><div style="display:grid;gap:12px;margin-bottom:28px;"><div style="background:#F0FDF4;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">📚</span> <strong>Structured YCT curriculum from Level 1</strong></div><div style="background:#EFF6FF;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">⭐</span> <strong>Earn XP and level up as you learn</strong></div><div style="background:#FFFBEB;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">🔥</span> <strong>Build a daily streak and track progress</strong></div><div style="background:#FFF0F0;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">🤖</span> <strong>AI learning assistant to help you along</strong></div></div>`,
+    },
+    verify: {
+      subject: '🔒 Verify your Hanverse email',
+      header: { bg: 'linear-gradient(135deg,#4EA8DE,#7BC7F4)', emoji: '🔒', title: 'Verify your email', sub: 'Confirm your Hanverse account' },
+      body: '',
+    },
+    reset: {
+      subject: '🔑 Reset your Hanverse password',
+      header: { bg: 'linear-gradient(135deg,#F4D35E,#FFD95A)', emoji: '🔑', title: 'Reset your password', sub: 'Securely reset your account password' },
+      body: '',
+    },
+  };
+
+  const template = templates[type];
+  if (!template) throw new Error(`Unsupported email type: ${type}`);
+
+  let bodyHtml = template.body;
   if (type === 'verify') {
-    const frontend = process.env.FRONTEND_URL || 'https://hanverse.netlify.app';
     const link = data.link || `${frontend}/verify.html?token=${data.token}`;
-    const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FFFDF7;border-radius:24px;overflow:hidden;"><div style="background:linear-gradient(135deg,#4EA8DE,#7BC7F4);padding:40px 40px 30px;text-align:center;"><div style="font-size:60px;">🔒</div><h1 style="margin:14px 0 0;color:#fff;font-size:26px;font-weight:800;">Verify your email</h1><p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:15px;">Confirm your Hanverse account</p></div><div style="padding:36px 40px;"><p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to verify your email address for Hanverse. This link expires in 24 hours.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#4EA8DE,#7BC7F4);color:#fff;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Verify my email</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p></div></div>`;
-    const info = await mailer.sendMail({ from: '"Hanverse" <andrewmunamwangi@gmail.com>', to, subject: '🔒 Verify your Hanverse email', html });
-    console.log('[functions:email:verify] sent to', to, info.messageId);
-    return info;
+    bodyHtml = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to verify your email address for Hanverse. This link expires in 24 hours.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#4EA8DE,#7BC7F4);color:#fff;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Verify my email</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p>`;
   }
+
+  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FFFDF7;border-radius:24px;overflow:hidden;"><div style="background:${template.header.bg};padding:40px 40px 30px;text-align:center;"><div style="font-size:60px;">${template.header.emoji}</div><h1 style="margin:14px 0 0;color:#fff;font-size:26px;font-weight:800;">${template.header.title}</h1><p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:15px;">${template.header.sub}</p></div><div style="padding:36px 40px;">${bodyHtml}${type === 'welcome' ? '<a href="https://hanverse.netlify.app/login.html" style="display:block;text-align:center;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:800;font-size:16px;padding:16px;border-radius:40px;text-decoration:none;">Go to Hanverse 🚀</a><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">The Hanverse Team 🐼</p>' : ''}</div></div>`;
+
+  const info = await mailer.sendMail({
+    from: '"Hanverse" <andrewmunamwangi@gmail.com>',
+    to,
+    subject: template.subject,
+    html,
+  });
+
+  console.log(`[functions:email:${type}] sent to ${to} — ${info.messageId}`);
+  return info;
 }
 
 // Login
@@ -169,9 +210,15 @@ app.post('/api/signup', async (req, res) => {
       [user.user_id, token, expiresAt]
     );
 
-    // Send verification email (non-blocking)
-    sendEmail(user.email, user.full_name, 'verify', { token })
-      .catch(e => console.error('Functions: verification email failed:', e.message));
+    // Send verification email and welcome email (non-blocking)
+    Promise.all([
+      sendEmail(user.email, user.full_name, 'verify', { token })
+        .then(() => console.log('Functions: verification email sent:', user.email))
+        .catch(e => console.error('Functions: verification email failed:', e.message)),
+      sendEmail(user.email, user.full_name, 'welcome')
+        .then(info => console.log('Functions: welcome email sent:', info.messageId))
+        .catch(e => console.error('Functions: welcome email failed:', e.message)),
+    ]).catch((e) => console.error('Functions: signup emails failed:', e.message));
 
     res.json({
       success: true,
@@ -222,6 +269,53 @@ app.post('/api/resend-verification', async (req, res) => {
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'Failed to resend verification' });
+  }
+});
+
+app.post('/api/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+    const userRes = await pool.query('SELECT user_id, full_name, email FROM users WHERE email = $1', [email]);
+    if (!userRes.rows.length) return res.status(200).json({ success: true, message: 'If that email exists, a reset link has been sent.' });
+
+    const user = userRes.rows[0];
+    const token = crypto.randomBytes(24).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    await pool.query(
+      `INSERT INTO password_resets (user_id, token, expires_at)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id) DO UPDATE SET token = $2, expires_at = $3`,
+      [user.user_id, token, expiresAt]
+    );
+
+    await sendEmail(user.email, user.full_name, 'reset', { token });
+    console.log('Functions: password reset email sent to', email);
+    return res.json({ success: true, message: 'If that email exists, a reset link has been sent.' });
+  } catch (e) {
+    console.error('Functions: forgot-password error:', e);
+    return res.status(500).json({ error: 'Failed to send password reset email' });
+  }
+});
+
+app.post('/api/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password are required' });
+
+    const resetRes = await pool.query('SELECT user_id, expires_at FROM password_resets WHERE token = $1', [token]);
+    if (!resetRes.rows.length) return res.status(400).json({ error: 'Invalid or expired token' });
+    const resetRow = resetRes.rows[0];
+    if (new Date(resetRow.expires_at) < new Date()) return res.status(400).json({ error: 'Token expired' });
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE user_id = $2', [passwordHash, resetRow.user_id]);
+    await pool.query('DELETE FROM password_resets WHERE user_id = $1', [resetRow.user_id]);
+
+    return res.json({ success: true, message: 'Password reset successfully' });
+  } catch (e) {
+    console.error('Functions: reset-password error:', e);
+    return res.status(500).json({ error: 'Failed to reset password' });
   }
 });
 

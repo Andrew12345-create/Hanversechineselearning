@@ -987,40 +987,20 @@ if(
   return;
 }
 
-if(
+if (
   !response.ok ||
   !data.success
-){
-
-  btn.disabled=false;
-
-  btn.innerHTML='Log In';
-
+) {
+  btn.disabled = false;
+  btn.innerHTML = 'Log In';
   Notify.toast(
     data.error ||
     'Login failed ❌',
     'error',
     4000
   );
-
   return;
-}{
-
-  btn.disabled=false;
-
-  btn.innerHTML=
-  'Log In';
-
-  Notify.toast(
-  data.error ||
-  'Login failed ❌',
-  'error',
-  4000
-  );
-
-  return;
-
-  }
+}
 
   /* ==========================================
     STORE SESSION
