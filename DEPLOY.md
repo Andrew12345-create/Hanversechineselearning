@@ -9,11 +9,16 @@ In Netlify Dashboard, go to **Site Settings > Environment Variables** and add:
 
 | Variable | Value |
 |----------|-------|
-| `DATABASE_URL` | `postgresql://neondb_owner:npg_2GbziUBo9RvI@ep-little-brook-airyxne9-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require` |
-| `PORT` | `3000` |
+| `DATABASE_URL` | `postgresql://...` |
+| `BREVO_SMTP_KEY` | *(required for emails: password reset + verification)* |
+| `EMAIL_FROM` | *(recommended; must be a sender address verified in Brevo)* |
+| `FRONTEND_URL` | `https://<your-site>.netlify.app` *(optional; if unset, links are built from request Origin)* |
+
 | `NODE_ENV` | `production` |
 
-> Use `DATABASE_URL` consistently in both local `.env` and Netlify environment variables.
+
+> Use `DATABASE_URL` consistently in both local `.env` and Netlify environment variables. Also set `BREVO_SMTP_KEY` or password-reset emails will fail.
+
 
 ## Deployment Steps
 

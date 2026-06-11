@@ -9,6 +9,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+if (!process.env.BREVO_SMTP_KEY) {
+  console.error('Functions: Missing BREVO_SMTP_KEY. Verification + password reset emails will fail.');
+}
+
+// IMPORTANT: set EMAIL_FROM in your environment to a sender address verified in Brevo.
+const EMAIL_FROM = process.env.EMAIL_FROM || '"Hanverse" <andrewmunamwangi@gmail.com>';
+
 const { Pool } = pkg;
 const app = express();
 
@@ -92,15 +99,19 @@ async function sendEmail(to, name, type, data = {}) {
   if (!template) throw new Error(`Unsupported email type: ${type}`);
 
   let bodyHtml = template.body;
+
   if (type === 'verify') {
     const link = data.link || `${frontend}/verify.html?token=${data.token}`;
     bodyHtml = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to verify your email address for Hanverse. This link expires in 24 hours.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#4EA8DE,#7BC7F4);color:#fff;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Verify my email</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p>`;
+  } else if (type === 'reset') {
+    const link = data.link || `${frontend}/forgot-password.html?token=${data.token}`;
+    bodyHtml = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to reset your Hanverse password. This link expires in one hour.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Reset my password</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p>`;
   }
 
   const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FFFDF7;border-radius:24px;overflow:hidden;"><div style="background:${template.header.bg};padding:40px 40px 30px;text-align:center;"><div style="font-size:60px;">${template.header.emoji}</div><h1 style="margin:14px 0 0;color:#fff;font-size:26px;font-weight:800;">${template.header.title}</h1><p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:15px;">${template.header.sub}</p></div><div style="padding:36px 40px;">${bodyHtml}${type === 'welcome' ? '<a href="https://hanverse.netlify.app/login.html" style="display:block;text-align:center;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:800;font-size:16px;padding:16px;border-radius:40px;text-decoration:none;">Go to Hanverse 🚀</a><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">The Hanverse Team 🐼</p>' : ''}</div></div>`;
 
   const info = await mailer.sendMail({
-    from: '"Hanverse" <andrewmunamwangi@gmail.com>',
+    from: EMAIL_FROM,
     to,
     subject: template.subject,
     html,
@@ -210,18 +221,29 @@ app.post('/api/signup', async (req, res) => {
       [user.user_id, token, expiresAt]
     );
 
-    // Send verification email and welcome email (non-blocking)
-    Promise.all([
-      sendEmail(user.email, user.full_name, 'verify', { token })
-        .then(() => console.log('Functions: verification email sent:', user.email))
-        .catch(e => console.error('Functions: verification email failed:', e.message)),
-      sendEmail(user.email, user.full_name, 'welcome')
-        .then(info => console.log('Functions: welcome email sent:', info.messageId))
-        .catch(e => console.error('Functions: welcome email failed:', e.message)),
-    ]).catch((e) => console.error('Functions: signup emails failed:', e.message));
+    const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || 'https://hanverse.netlify.app').replace(/\/$/, '');
+    const verifyLink = `${frontendBase}/verify.html?token=${token}`;
+
+    // Send verification email (await so we can report failures clearly)
+    let verificationEmailSent = false;
+    try {
+      await sendEmail(user.email, user.full_name, 'verify', { token, link: verifyLink });
+      verificationEmailSent = true;
+      console.log('Functions: verification email sent:', user.email);
+    } catch (err) {
+      console.error('Functions: verification email failed:', err.message);
+    }
+
+    // Welcome email is optional; send non-blocking
+    sendEmail(user.email, user.full_name, 'welcome')
+      .then((info) => console.log('Functions: welcome email sent:', info.messageId))
+      .catch((e) => console.error('Functions: welcome email failed:', e.message));
 
     res.json({
       success: true,
+      message: verificationEmailSent
+        ? 'Account created. Verification email sent.'
+        : 'Account created, but verification email could not be sent. Please use Resend Verification.',
       user: {
         user_id: user.user_id,
         username: user.username,
@@ -259,7 +281,10 @@ app.post('/api/resend-verification', async (req, res) => {
     );
 
     try {
-      await sendEmail(user.email, user.full_name, 'verify', { token });
+      const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || 'https://hanverse.netlify.app').replace(/\/$/, '');
+      const verifyLink = `${frontendBase}/verify.html?token=${token}`;
+
+      await sendEmail(user.email, user.full_name, 'verify', { token, link: verifyLink });
       console.log('Functions: verification email sent to', email);
       return res.json({ success: true, message: 'Verification email sent' });
     } catch (err) {
@@ -289,7 +314,10 @@ app.post('/api/forgot-password', async (req, res) => {
       [user.user_id, token, expiresAt]
     );
 
-    await sendEmail(user.email, user.full_name, 'reset', { token });
+    const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || 'https://hanverse.netlify.app').replace(/\/$/, '');
+    const resetLink = `${frontendBase}/forgot-password.html?token=${token}`;
+
+    await sendEmail(user.email, user.full_name, 'reset', { token, link: resetLink });
     console.log('Functions: password reset email sent to', email);
     return res.json({ success: true, message: 'If that email exists, a reset link has been sent.' });
   } catch (e) {
