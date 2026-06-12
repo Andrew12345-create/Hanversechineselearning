@@ -1,41 +1,48 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Hanverse Learn</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
+/* ==========================================
+   HANVERSE DESIGN SYSTEM
+========================================== */
+
 :root{
 
---primary:#2563EB;
---secondary:#14B8A6;
---accent:#F59E0B;
+--red:#E63946;
+--yellow:#F4D35E;
+--blue:#4EA8DE;
+--green:#74C69D;
 
---success:#22C55E;
-
---bg:#F8FAFC;
+--bg:#FFFDF7;
 --surface:#FFFFFF;
 
---dark:#0F172A;
---text:#334155;
---muted:#64748B;
+--text:#1F2937;
+--muted:#6B7280;
 
---border:#E2E8F0;
+--border:#E5E7EB;
 
 --shadow:
-0 20px 50px rgba(15,23,42,.08);
+0 20px 50px rgba(0,0,0,.08);
 
 }
+
+/* ==========================================
+   RESET
+========================================== */
 
 *{
 margin:0;
@@ -44,26 +51,25 @@ box-sizing:border-box;
 font-family:'Poppins',sans-serif;
 }
 
-body{
-
-background:var(--bg);
-
-color:var(--dark);
-
-overflow-x:hidden;
-
-}
-
 html{
 scroll-behavior:smooth;
 }
+
+body{
+background:var(--bg);
+color:var(--text);
+overflow-x:hidden;
+}
+
+/* ==========================================
+   BACKGROUND EFFECTS
+========================================== */
 
 body::before{
 
 content:'';
 
 position:fixed;
-
 inset:0;
 
 z-index:-2;
@@ -72,19 +78,21 @@ background:
 
 radial-gradient(
 circle at 10% 20%,
-rgba(37,99,235,.08),
+rgba(230,57,70,.08),
 transparent 35%
 ),
 
 radial-gradient(
 circle at 90% 80%,
-rgba(20,184,166,.08),
+rgba(78,168,222,.08),
 transparent 35%
 );
 
 }
 
-/* NAV */
+/* ==========================================
+   NAVBAR
+========================================== */
 
 nav{
 
@@ -100,10 +108,9 @@ align-items:center;
 padding:18px 8%;
 
 background:
-rgba(255,255,255,.85);
+rgba(255,255,255,.92);
 
-backdrop-filter:
-blur(20px);
+backdrop-filter:blur(18px);
 
 border-bottom:
 1px solid rgba(0,0,0,.05);
@@ -114,20 +121,19 @@ border-bottom:
 
 display:flex;
 align-items:center;
-
 gap:12px;
 
 font-size:28px;
 font-weight:800;
 
-color:var(--primary);
+color:var(--red);
 
 }
 
 .logo-badge{
 
-width:48px;
-height:48px;
+width:52px;
+height:52px;
 
 border-radius:50%;
 
@@ -138,20 +144,19 @@ align-items:center;
 background:
 linear-gradient(
 135deg,
-var(--primary),
-var(--secondary)
+var(--red),
+var(--yellow)
 );
 
-color:white;
-
 font-size:24px;
+
+color:white;
 
 }
 
 nav ul{
 
 display:flex;
-
 gap:28px;
 
 list-style:none;
@@ -166,50 +171,46 @@ font-weight:600;
 
 color:var(--muted);
 
-transition:.3s;
+transition:.25s;
 
 }
 
-nav a:hover{
+nav a:hover,
+nav a.active{
 
-color:var(--primary);
-
-}
-
-.active{
-
-color:var(--primary);
+color:var(--red);
 
 }
 
 .nav-buttons{
 
 display:flex;
-
 gap:12px;
 
 }
+
+/* ==========================================
+   BUTTONS
+========================================== */
 
 .btn{
 
 padding:13px 24px;
 
 border:none;
-
 border-radius:999px;
 
 font-weight:700;
 
 cursor:pointer;
 
-transition:.3s;
+transition:.25s;
 
 }
 
 .btn:hover{
 
-transform:
-translateY(-3px);
+transform:translateY(-3px);
 
 }
 
@@ -217,182 +218,82 @@ translateY(-3px);
 
 background:white;
 
-border:
-1px solid #dbeafe;
+border:1px solid var(--border);
 
 }
 
 .btn-main{
 
+color:white;
+
 background:
 linear-gradient(
 135deg,
-var(--primary),
-var(--secondary)
+var(--red),
+var(--blue)
 );
 
-color:white;
-
 }
 
-/* DASHBOARD */
-
-.dashboard{
-
-padding:40px 8%;
-
-}
-
-.dashboard-card{
-
-background:white;
-
-padding:35px;
-
-border-radius:35px;
-
-box-shadow:
-var(--shadow);
-
-display:grid;
-
-grid-template-columns:
-2fr 1fr 1fr 1fr;
-
-gap:20px;
-
-align-items:center;
-
-}
-
-.dashboard h2{
-
-margin-bottom:10px;
-
-}
-
-.stat{
-
-text-align:center;
-
-}
-
-.stat h3{
-
-font-size:34px;
-
-color:var(--primary);
-
-}
-
-/* HERO */
-
-.hero{
-
-padding:80px 8%;
-
-display:grid;
-
-grid-template-columns:
-1.1fr 1fr;
-
-gap:70px;
-
-align-items:center;
-
-}
-
-.hero h1{
-
-font-size:
-clamp(52px,6vw,78px);
-
-line-height:1.05;
-
-margin-bottom:20px;
-
-}
-
-.gradient{
-
-background:
-linear-gradient(
-90deg,
-var(--primary),
-var(--secondary)
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-}
-
-.hero p{
-
-font-size:18px;
-
-line-height:1.8;
-
-color:var(--muted);
-
-margin-bottom:30px;
-
-}
-
-.hero-card{
-
-height:450px;
-
-background:white;
-
-border-radius:40px;
-
-box-shadow:var(--shadow);
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-position:relative;
-
-overflow:hidden;
-
-}
-
-.hero-card span{
-
-font-size:130px;
-
-}
-
-.float-char{
-
-position:absolute;
-
-font-size:60px;
-
-opacity:.05;
-
-font-weight:800;
-
-}
-
-.c1{top:30px;left:30px;}
-.c2{top:60px;right:40px;}
-.c3{bottom:40px;left:40px;}
-.c4{bottom:30px;right:30px;}
-
-/* LEARNING PATH */
-
-.path{
-
-padding:80px 8%;
-
-}
+/* ==========================================
+   HEADINGS
+========================================== */
 
 .section-title{
 
-font-size:42px;
+font-size:46px;
+
+text-align:center;
+
+margin-bottom:15px;
+
+}
+
+.section-subtitle{
+
+max-width:760px;
+
+margin:auto;
+
+text-align:center;
+
+color:var(--muted);
+
+line-height:1.8;
+
+margin-bottom:50px;
+
+}
+
+/* ==========================================
+   LEVEL QUIZ
+========================================== */
+
+.level-quiz{
+
+padding:90px 8%;
+
+}
+
+.quiz-card{
+
+max-width:800px;
+
+margin:auto;
+
+background:white;
+
+padding:45px;
+
+border-radius:32px;
+
+box-shadow:var(--shadow);
+
+}
+
+.quiz-card h3{
+
+font-size:32px;
 
 margin-bottom:15px;
 
@@ -400,17 +301,173 @@ text-align:center;
 
 }
 
-.section-subtitle{
+.quiz-card p{
 
 text-align:center;
 
+color:var(--muted);
+
+line-height:1.8;
+
+margin-bottom:25px;
+
+}
+
+.quiz-card select{
+
+width:100%;
+
+padding:16px;
+
+border:2px solid var(--border);
+
+border-radius:18px;
+
+font-size:16px;
+
+margin-bottom:25px;
+
+outline:none;
+
+}
+
+.quiz-card select:focus{
+
+border-color:var(--blue);
+
+}
+
+.quiz-actions{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+gap:20px;
+
+}
+
+.assessment-link{
+
+background:none;
+border:none;
+
+cursor:pointer;
+
+font-weight:600;
+
+font-size:14px;
+
+text-align:left;
+
+color:var(--blue);
+
+}
+
+.assessment-link:hover{
+
+text-decoration:underline;
+
+}
+
+#levelResult{
+
+display:none;
+
+margin-top:30px;
+
+padding:25px;
+
+border-radius:20px;
+
+background:#F8FAFC;
+
+}
+
+/* ==========================================
+   MODALS
+========================================== */
+
+.modal{
+
+position:fixed;
+
+inset:0;
+
+display:none;
+
+justify-content:center;
+align-items:center;
+
+background:
+rgba(0,0,0,.65);
+
+backdrop-filter:blur(8px);
+
+z-index:9999;
+
+padding:20px;
+
+}
+
+.modal.show{
+
+display:flex;
+
+}
+
+.modal-card{
+
+background:white;
+
+width:100%;
 max-width:700px;
 
-margin:auto;
+border-radius:30px;
 
-margin-bottom:50px;
+padding:35px;
 
-color:var(--muted);
+box-shadow:
+0 30px 80px rgba(0,0,0,.25);
+
+animation:popup .25s ease;
+
+}
+
+@keyframes popup{
+
+from{
+opacity:0;
+transform:scale(.92);
+}
+
+to{
+opacity:1;
+transform:scale(1);
+}
+
+}
+
+.modal-close{
+
+float:right;
+
+background:none;
+border:none;
+
+font-size:26px;
+
+cursor:pointer;
+
+}
+
+/* ==========================================
+   LEARNING PATH
+========================================== */
+
+.path{
+
+padding:90px 8%;
 
 }
 
@@ -419,7 +476,7 @@ color:var(--muted);
 display:grid;
 
 grid-template-columns:
-repeat(4,1fr);
+repeat(auto-fit,minmax(240px,1fr));
 
 gap:25px;
 
@@ -431,36 +488,37 @@ background:white;
 
 padding:30px;
 
-border-radius:30px;
+border-radius:28px;
 
 text-align:center;
 
 box-shadow:var(--shadow);
 
-transition:.3s;
+transition:.25s;
 
 }
 
 .path-card:hover{
 
-transform:
-translateY(-8px);
+transform:translateY(-8px);
 
 }
 
 .path-icon{
 
-font-size:48px;
+font-size:52px;
 
 margin-bottom:15px;
 
 }
 
-/* LESSONS */
+/* ==========================================
+   LESSONS
+========================================== */
 
 .lessons{
 
-padding:80px 8%;
+padding:90px 8%;
 
 }
 
@@ -481,242 +539,1385 @@ background:white;
 
 padding:30px;
 
-border-radius:30px;
+border-radius:28px;
 
 box-shadow:var(--shadow);
 
-transition:.3s;
-
 cursor:pointer;
+
+transition:.25s;
 
 }
 
 .lesson-card:hover{
 
-transform:
-translateY(-8px);
+transform:translateY(-8px);
 
 }
 
-.lesson-card h3{
+/* ==========================================
+   FAQ
+========================================== */
 
-color:var(--primary);
+.faq{
 
-margin-bottom:12px;
+padding:90px 8%;
 
 }
 
-.progress{
+.faq-container{
 
-height:12px;
+max-width:900px;
 
-background:#e5e7eb;
+margin:auto;
 
-border-radius:999px;
+}
+
+.faq-item{
+
+background:white;
+
+margin-bottom:16px;
+
+border-radius:22px;
 
 overflow:hidden;
 
-margin-top:15px;
+box-shadow:var(--shadow);
 
 }
 
-.fill{
+.faq-question{
 
-height:100%;
+width:100%;
 
-background:
-linear-gradient(
-90deg,
-var(--secondary),
-var(--success)
-);
+border:none;
 
-width:0;
+background:white;
 
-transition:2s;
+padding:22px;
+
+font-size:18px;
+
+font-weight:700;
+
+cursor:pointer;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+.faq-answer{
+
+max-height:0;
+
+overflow:hidden;
+
+transition:max-height .3s ease;
 
 }
 
-.badge{
+.faq-answer p{
 
-display:inline-block;
+padding:0 22px 22px;
 
-padding:8px 14px;
+line-height:1.8;
 
-border-radius:999px;
-
-background:#dcfce7;
-
-color:#15803d;
-
-font-size:12px;
-
-margin-top:15px;
+color:var(--muted);
 
 }
+
+.faq-item.active .faq-answer{
+
+max-height:300px;
+
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
 
 @media(max-width:900px){
 
-.hero,
-.dashboard-card{
-
-grid-template-columns:1fr;
-
-}
-
-.path-grid{
-
-grid-template-columns:1fr;
-
-}
-
 nav{
- flex-direction:column;
- gap:20px;
+
+flex-direction:column;
+gap:18px;
 
 }
 
-/* Level Selection Modal */
-.level-modal{
- position:fixed;
- top:0;
- left:0;
- right:0;
- bottom:0;
- background:rgba(0,0,0,.7);
- display:flex;
- align-items:center;
- justify-content:center;
- z-index:1000;
+nav ul{
+
+flex-wrap:wrap;
+justify-content:center;
+
 }
 
-.level-modal.hidden{
- display:none;
+.section-title{
+
+font-size:36px;
+
 }
 
-.level-modal-content{
- background:white;
- padding:40px;
- border-radius:24px;
- text-align:center;
- max-width:400px;
- width:90%;
+.quiz-card{
+
+padding:25px;
+
 }
 
-.level-modal-content h2{
- font-size:1.8rem;
- margin-bottom:10px;
+.quiz-actions{
+
+flex-direction:column;
+
 }
 
-.level-modal-content p{
- color:var(--muted);
- margin-bottom:25px;
+.assessment-link{
+
+text-align:center;
+
 }
 
-.level-options{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:15px;
 }
 
-.level-btn{
- padding:20px;
- border:none;
- border-radius:16px;
- background:linear-gradient(135deg,var(--primary),var(--secondary));
- color:white;
- font-weight:700;
- font-size:1rem;
- cursor:pointer;
- transition:.2s;
-}
+</style>
 
-.level-btn:hover{
- transform:translateY(-2px);
- box-shadow:0 8px 20px rgba(37,99,235,.25);
-}
+</head>
+<body>
 
-.level-desc{
-  font-size:.75rem;
-  font-weight:400;
-  opacity:.9;
-  display:block;
-  margin-top:5px;
-}
+<!-- ==========================================
+     NAVIGATION
+========================================== -->
 
-/* Subscription Modal */
-<div id="subscriptionModal" class="hidden">
-  <div class="subscription-card">
-    <button class="subscription-close" onclick="document.getElementById('subscriptionModal').classList.add('hidden')">✕</button>
-    <img src="subscription-card-placeholder.png" alt="Hanverse Subscription Options" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'500\' height=\'400\' viewBox=\'0 0 500 400\'><rect width=\'500\' height=\'400\' fill=\'%23f0f9ff\'/><text x=\'50%25\' y=\'50%25\' font-family=\'Arial, sans-serif\' font-size=\'20\' fill=\'%2360a5fa\' text-anchor=\'middle\' dominant-baseline=\'middle\'>Hanverse Subscription Card</text></svg>';">
-    <!-- Alternative fallback content if image doesn't load -->
-    <div style="display: none;" id="subscriptionFallback">
-      <h2 style="padding: 20px; text-align: center; color: var(--primary);">Subscription Options</h2>
-      <div style="padding: 20px;">
-        <p style="margin-bottom: 15px; text-align: center;">Thank you for choosing a Hanverse course!</p>
-        <p style="text-align: center;">Complete your subscription to unlock premium features.</p>
-      </div>
-    </div>
-  </div>
+<nav>
+
+<div class="logo">
+
+<div class="logo-badge">
+🐼
 </div>
 
-#subscriptionModal.hidden{
- display:none;
+Hanverse
+
+</div>
+
+<ul>
+
+<li>
+<a href="index.html">
+Home
+</a>
+</li>
+
+<li>
+<a href="learn.html" class="active">
+Learn
+</a>
+</li>
+
+<li>
+<a href="#">
+Worksheets
+</a>
+</li>
+
+<li>
+<a href="#">
+Parents
+</a>
+</li>
+
+</ul>
+
+<div class="nav-buttons">
+
+<button
+class="btn btn-login"
+onclick="location.href='login.html'">
+Log In </button>
+
+<button
+class="btn btn-main"
+onclick="location.href='signup.html'">
+Sign Up </button>
+
+</div>
+
+</nav>
+
+<!-- ==========================================
+     LEVEL QUIZ
+========================================== -->
+
+<section class="level-quiz">
+
+<h2 class="section-title">
+🎯 Find Your Chinese Level
+</h2>
+
+<p class="section-subtitle">
+
+Answer one quick question so Hanverse can personalise your learning experience.
+
+</p>
+
+<div class="quiz-card">
+
+<h3>
+What level are you currently studying?
+</h3>
+
+<p>
+Choose the option that best matches your current Chinese level.
+</p>
+
+<select id="levelSelect">
+
+<option value="">
+Select your level
+</option>
+
+<option value="beginner">
+Complete Beginner
+</option>
+
+<option value="yct1">
+YCT 1
+</option>
+
+<option value="yct2">
+YCT 2
+</option>
+
+<option value="yct3">
+YCT 3
+</option>
+
+<option value="yct4">
+YCT 4+
+</option>
+
+</select>
+
+<div class="quiz-actions">
+
+<button
+class="assessment-link"
+onclick="openAssessment()">
+
+🤔 Don't understand? <br>
+Take a quick assessment instead
+
+</button>
+
+<button
+class="btn btn-main"
+onclick="saveLevel()">
+
+Continue Learning
+
+</button>
+
+</div>
+
+<div id="levelResult"></div>
+
+</div>
+
+</section>
+
+<!-- ==========================================
+     QUICK ASSESSMENT MODAL
+========================================== -->
+
+<div
+id="assessmentModal"
+class="modal">
+
+<div class="modal-card">
+
+<button
+class="modal-close"
+onclick="closeAssessment()">
+
+✕
+
+</button>
+
+<h2 style="margin-bottom:20px;">
+Quick Placement Assessment
+</h2>
+
+<p style="
+margin-bottom:30px;
+color:var(--muted);
+line-height:1.8;
+">
+
+Answer these 3 quick questions and Hanverse will recommend a level.
+
+</p>
+
+<!-- QUESTION 1 -->
+
+<div style="margin-bottom:30px;">
+
+<h3>
+1. What does 你好 mean?
+</h3>
+
+<label>
+<input type="radio" name="q1" value="0">
+ Goodbye
+</label>
+
+<br><br>
+
+<label>
+<input type="radio" name="q1" value="1">
+ Hello
+</label>
+
+<br><br>
+
+<label>
+<input type="radio" name="q1" value="0">
+ Thank You
+</label>
+
+</div>
+
+<!-- QUESTION 2 -->
+
+<div style="margin-bottom:30px;">
+
+<h3>
+2. What number is 三 ?
+</h3>
+
+<label>
+<input type="radio" name="q2" value="0">
+ 1
+</label>
+
+<br><br>
+
+<label>
+<input type="radio" name="q2" value="0">
+ 2
+</label>
+
+<br><br>
+
+<label>
+<input type="radio" name="q2" value="1">
+ 3
+</label>
+
+</div>
+
+<!-- QUESTION 3 -->
+
+<div style="margin-bottom:30px;">
+
+<h3>
+3. What does 我喜欢中文 mean?
+</h3>
+
+<label>
+<input type="radio" name="q3" value="1">
+ I Like Chinese
+</label>
+
+<br><br>
+
+<label>
+<input type="radio" name="q3" value="0">
+ Good Morning
+</label>
+
+<br><br>
+
+<label>
+<input type="radio" name="q3" value="0">
+ I Am Chinese
+</label>
+
+</div>
+
+<button
+class="btn btn-main"
+style="width:100%;"
+onclick="submitAssessment()">
+
+Get My Recommended Level
+
+</button>
+
+</div>
+
+</div>
+
+<!-- ==========================================
+     PREMIUM SUBSCRIPTION POPUP
+========================================== -->
+
+<div
+id="subscriptionModal"
+class="modal">
+
+<div
+class="modal-card"
+style="
+max-width:900px;
+padding:0;
+overflow:hidden;
+">
+
+<button
+class="modal-close"
+style="
+position:absolute;
+right:20px;
+top:20px;
+z-index:2;
+background:white;
+width:40px;
+height:40px;
+border-radius:50%;
+"
+onclick="closeSubscription()">
+
+✕
+
+</button>
+
+<img
+src="pay-hanverse-subscription-card.png"
+alt="Hanverse Premium"
+style="
+width:100%;
+display:block;
+cursor:pointer;
+"
+onclick="location.href='payment.html'">
+
+</div>
+
+</div>
+<!-- ==========================================
+     LEARNING PATHS
+========================================== -->
+
+<section class="path">
+
+<h2 class="section-title">
+Your Learning Journey
+</h2>
+
+<p class="section-subtitle">
+
+Follow the official Youth Chinese Test (YCT) pathway and grow from beginner to confident Mandarin speaker.
+
+</p>
+
+<div class="path-grid">
+
+<div class="path-card">
+
+<div class="path-icon">
+🌱
+</div>
+
+<h3>YCT 1</h3>
+
+<p>
+Learn greetings, numbers, family members, colours and everyday vocabulary.
+</p>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+📚
+</div>
+
+<h3>YCT 2</h3>
+
+<p>
+Build longer sentences and strengthen listening and reading skills.
+</p>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+🚀
+</div>
+
+<h3>YCT 3</h3>
+
+<p>
+Handle conversations, stories and more advanced vocabulary.
+</p>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+🏆
+</div>
+
+<h3>YCT 4</h3>
+
+<p>
+Prepare for advanced communication and official examinations.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================================
+     WHY HANVERSE
+========================================== -->
+
+<section class="path">
+
+<h2 class="section-title">
+Why Learn With Hanverse?
+</h2>
+
+<p class="section-subtitle">
+
+Everything you need to master Mandarin in one place.
+
+</p>
+
+<div class="path-grid">
+
+<div class="path-card">
+
+<div class="path-icon">
+🎥
+</div>
+
+<h3>Video Lessons</h3>
+
+<p>
+Watch engaging explanations and examples from every course.
+</p>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+📝
+</div>
+
+<h3>Worksheets</h3>
+
+<p>
+Practise vocabulary, grammar and characters with printable activities.
+</p>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+🏅
+</div>
+
+<h3>Achievements</h3>
+
+<p>
+Earn XP, badges and rewards as you progress.
+</p>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+🤖
+</div>
+
+<h3>AI Assistant</h3>
+
+<p>
+Get help whenever you are stuck.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================================
+     FREE LESSON PREVIEW
+========================================== -->
+
+<section class="lessons">
+
+<h2 class="section-title">
+Try Free Lessons
+</h2>
+
+<p class="section-subtitle">
+
+Start learning immediately or unlock everything with Premium.
+
+</p>
+
+<div class="lesson-grid">
+
+<div class="lesson-card">
+
+<h3>
+🆓 Lesson 1: Hello!
+</h3>
+
+<p>
+Learn greetings and introductions in Mandarin.
+</p>
+
+</div>
+
+<div class="lesson-card">
+
+<h3>
+🆓 Lesson 2: Numbers
+</h3>
+
+<p>
+Learn how to count from 1 to 10.
+</p>
+
+</div>
+
+<div
+class="lesson-card"
+onclick="openSubscription()">
+
+<h3>
+🔒 Family Members
+</h3>
+
+<p>
+Premium Lesson
+</p>
+
+</div>
+
+<div
+class="lesson-card"
+onclick="openSubscription()">
+
+<h3>
+🔒 Daily Activities
+</h3>
+
+<p>
+Premium Lesson
+</p>
+
+</div>
+
+<div
+class="lesson-card"
+onclick="openSubscription()">
+
+<h3>
+🔒 Chinese Characters
+</h3>
+
+<p>
+Premium Lesson
+</p>
+
+</div>
+
+<div
+class="lesson-card"
+onclick="openSubscription()">
+
+<h3>
+🔒 Listening Practice
+</h3>
+
+<p>
+Premium Lesson
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================================
+     PREMIUM BENEFITS
+========================================== -->
+
+<section class="path">
+
+<h2 class="section-title">
+Premium Membership
+</h2>
+
+<p class="section-subtitle">
+
+Unlock the full Hanverse experience for only $4 per month.
+
+</p>
+
+<div class="path-grid">
+
+<div class="path-card">
+
+<div class="path-icon">
+📖
+</div>
+
+<h3>
+Full Course Access
+</h3>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+🎥
+</div>
+
+<h3>
+All Video Lessons
+</h3>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+⭐
+</div>
+
+<h3>
+Paid Member Tag
+</h3>
+
+</div>
+
+<div class="path-card">
+
+<div class="path-icon">
+🏆
+</div>
+
+<h3>
+Achievements & XP
+</h3>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================================
+     FAQ
+========================================== -->
+
+<section class="faq">
+
+<h2 class="section-title">
+Frequently Asked Questions
+</h2>
+
+<p class="section-subtitle">
+
+Everything you need to know before getting started.
+
+</p>
+
+<div class="faq-container">
+
+<div class="faq-item">
+
+<button class="faq-question">
+
+What do I get with Premium?
+
+<span>+</span>
+
+</button>
+
+<div class="faq-answer">
+
+<p>
+
+✅ Full access to all courses
+
+<br><br>
+
+✅ All video lessons
+
+<br><br>
+
+✅ Paid Member Tag
+
+<br><br>
+
+✅ Premium worksheets
+
+<br><br>
+
+✅ Progress tracking
+
+<br><br>
+
+✅ XP and achievements
+
+<br><br>
+
+✅ Future updates
+
+</p>
+
+</div>
+
+</div>
+
+<div class="faq-item">
+
+<button class="faq-question">
+
+How much does Premium cost?
+
+<span>+</span>
+
+</button>
+
+<div class="faq-answer">
+
+<p>
+
+Premium costs only
+
+<strong>$4/month</strong>.
+
+</p>
+
+</div>
+
+</div>
+
+<div class="faq-item">
+
+<button class="faq-question">
+
+Can I cancel anytime?
+
+<span>+</span>
+
+</button>
+
+<div class="faq-answer">
+
+<p>
+
+Yes. You can cancel whenever you like.
+
+</p>
+
+</div>
+
+</div>
+
+<div class="faq-item">
+
+<button class="faq-question">
+
+Do I need experience?
+
+<span>+</span>
+
+</button>
+
+<div class="faq-answer">
+
+<p>
+
+No. Hanverse is designed for complete beginners.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================================
+     FOOTER
+========================================== -->
+
+<footer
+style="
+padding:60px 8%;
+text-align:center;
+border-top:1px solid var(--border);
+margin-top:50px;
+">
+
+<h2 style="
+color:var(--red);
+margin-bottom:10px;
+">
+
+🐼 Hanverse
+
+</h2>
+
+<p style="
+color:var(--muted);
+">
+
+Learn Chinese. Explore the World.
+
+</p>
+
+<p style="
+margin-top:15px;
+color:var(--muted);
+font-size:14px;
+">
+
+© 2026 Hanverse. All Rights Reserved.
+
+</p>
+
+</footer>
+<script>
+
+/* ==========================================
+   HANVERSE SESSION
+========================================== */
+
+const stored =
+localStorage.getItem(
+'hanverse_user'
+);
+
+const currentUser =
+stored
+? JSON.parse(stored)
+: null;
+
+/* ==========================================
+   MODALS
+========================================== */
+
+function openAssessment(){
+
+document
+.getElementById(
+'assessmentModal'
+)
+.classList.add(
+'show'
+);
+
 }
 
-#subscriptionModal.show{
- display:flex;
- animation:fadeIn .3s ease;
+function closeAssessment(){
+
+document
+.getElementById(
+'assessmentModal'
+)
+.classList.remove(
+'show'
+);
+
 }
 
-@keyframes fadeIn{
- from{opacity:0;}
- to{opacity:1;}
+function openSubscription(){
+
+document
+.getElementById(
+'subscriptionModal'
+)
+.classList.add(
+'show'
+);
+
 }
 
-.subscription-card{
- position:relative;
- max-width:500px;
- width:90%;
- max-height:90vh;
- border-radius:24px;
- overflow:hidden;
- box-shadow:0 25px 70px rgba(0,0,0,.4);
- background: white;
- animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1);
+function closeSubscription(){
+
+document
+.getElementById(
+'subscriptionModal'
+)
+.classList.remove(
+'show'
+);
+
 }
 
-@keyframes scaleIn{
- from{transform:scale(.8);opacity:0;}
- to{transform:scale(1);opacity:1;}
+/* ==========================================
+   SAVE DROPDOWN LEVEL
+========================================== */
+
+async function saveLevel(){
+
+const level =
+document.getElementById(
+'levelSelect'
+).value;
+
+if(!level){
+
+alert(
+'Please select your level.'
+);
+
+return;
+
 }
 
-.subscription-card img{
- width:100%;
- height:auto;
- display:block;
+await saveLevelToDatabase(
+level
+);
+
+showRecommendation(
+level
+);
+
+setTimeout(()=>{
+
+openSubscription();
+
+},1500);
+
 }
 
-.subscription-close{
- position:absolute;
- top:16px;
- right:16px;
- background:rgba(255,255,255,.9);
- backdrop-filter:blur(10px);
- border:none;
- width:40px;
- height:40px;
- border-radius:50%;
- font-size:20px;
- cursor:pointer;
- color:#333;
- font-weight: bold;
- box-shadow: 0 4px 12px rgba(0,0,0,.15);
- transition: all 0.2s ease;
- z-index: 10;
+/* ==========================================
+   QUICK ASSESSMENT
+========================================== */
+
+function calculateLevel(){
+
+let score = 0;
+
+const answers =
+document.querySelectorAll(
+'#assessmentModal input[type="radio"]:checked'
+);
+
+answers.forEach(answer=>{
+
+score +=
+Number(answer.value);
+
+});
+
+if(score <= 1){
+
+return 'yct1';
+
 }
 
-.subscription-close:hover {
- transform: scale(1.1);
- background:rgba(255,255,255,1);
+if(score === 2){
+
+return 'yct2';
+
 }
+
+return 'yct3';
+
+}
+
+async function submitAssessment(){
+
+const answered =
+document.querySelectorAll(
+'#assessmentModal input[type="radio"]:checked'
+);
+
+if(answered.length < 3){
+
+alert(
+'Please answer all 3 questions.'
+);
+
+return;
+
+}
+
+const level =
+calculateLevel();
+
+await saveLevelToDatabase(
+level
+);
+
+closeAssessment();
+
+showRecommendation(
+level
+);
+
+setTimeout(()=>{
+
+openSubscription();
+
+},1500);
+
+}
+
+/* ==========================================
+   DATABASE SAVE
+========================================== */
+
+async function saveLevelToDatabase(level){
+
+if(!currentUser){
+
+console.warn(
+'No logged in user.'
+);
+
+return;
+
+}
+
+try{
+
+const response =
+await fetch(
+'/.netlify/functions/save-level',
+{
+
+method:'POST',
+
+headers:{
+'Content-Type':
+'application/json'
+},
+
+body:JSON.stringify({
+
+userId:
+currentUser.user_id,
+
+level
+
+})
+
+}
+
+);
+
+const data =
+await response.json();
+
+if(!data.success){
+
+console.error(
+data.error
+);
+
+}
+
+}
+catch(error){
+
+console.error(
+'Save level error:',
+error
+);
+
+}
+
+}
+
+/* ==========================================
+   RECOMMENDATION
+========================================== */
+
+function showRecommendation(level){
+
+const result =
+document.getElementById(
+'levelResult'
+);
+
+let levelName =
+level.toUpperCase();
+
+if(level === 'beginner'){
+
+levelName =
+'YCT 1';
+
+}
+
+result.style.display =
+'block';
+
+result.innerHTML = `
+
+<h3 style="
+margin-bottom:15px;
+color:#E63946;
+">
+
+Recommended Path:
+${levelName}
+
+</h3>
+
+<p style="
+line-height:1.9;
+">
+
+Some Hanverse content is free.
+
+<br><br>
+
+Unlock:
+
+<br><br>
+
+✅ Full Course Access
+
+<br>
+
+✅ All Video Lessons
+
+<br>
+
+✅ Paid Member Tag
+
+<br>
+
+✅ Premium Worksheets
+
+<br>
+
+✅ Progress Tracking
+
+<br>
+
+✅ XP & Achievements
+
+<br>
+
+✅ Future Updates
+
+<br><br>
+
+<strong>
+Only $4/month
+</strong>
+
+</p>
+
+`;
+
+result.scrollIntoView({
+behavior:'smooth'
+});
+
+}
+
+/* ==========================================
+   FAQ ACCORDION
+========================================== */
+
+document
+.querySelectorAll(
+'.faq-question'
+)
+.forEach(question=>{
+
+question.addEventListener(
+'click',
+()=>{
+
+question
+.parentElement
+.classList
+.toggle(
+'active'
+);
+
+});
+
+});
+
+/* ==========================================
+   CLICK OUTSIDE MODALS
+========================================== */
+
+window.addEventListener(
+'click',
+event=>{
+
+const assessment =
+document.getElementById(
+'assessmentModal'
+);
+
+const subscription =
+document.getElementById(
+'subscriptionModal'
+);
+
+if(event.target === assessment){
+
+closeAssessment();
+
+}
+
+if(event.target === subscription){
+
+closeSubscription();
+
+}
+
+});
+
+/* ==========================================
+   PAGE READY
+========================================== */
+
+window.addEventListener(
+'load',
+()=>{
+
+console.log(
+'Hanverse Learn Ready 🚀'
+);
+
+});
+
+</script>
+
+</body>
+
+</html>
