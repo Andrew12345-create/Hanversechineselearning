@@ -229,16 +229,18 @@
         </nav>
     </div>
 
-    <!-- ── Notifications ── -->
-    <script src="notifications.js"></script>
-    <script>
-    /* ── Load real word count ── */
-    (async()=>{
-      try{
-        const stored=localStorage.getItem('hanverse_user');
-        if(!stored)return;
-        const {user_id}=JSON.parse(stored);
-        const r=await fetch('/api/user/'+user_id);
+<!-- ── Notifications ── -->
+     <script src="notifications.js"></script>
+     <script>
+     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
+
+     /* ── Load real word count ── */
+     (async()=>{
+       try{
+         const stored=localStorage.getItem('hanverse_user');
+         if(!stored)return;
+         const {user_id}=JSON.parse(stored);
+         const r=await fetch(API_URL+'/user/'+user_id);
         if(!r.ok)return;
         const d=await r.json();
         const count=(d.vocabulary||[]).length;

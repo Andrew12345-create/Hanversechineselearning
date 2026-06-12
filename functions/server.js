@@ -215,8 +215,8 @@ app.post('/api/login', async (req, res) => {
 // Signup
 app.post('/api/signup', async (req, res) => {
   try {
-    const { email, password, fullName, username } = req.body;
-    if (!email || !password || !fullName || !username)
+    const { email, password, full_name, username } = req.body;
+    if (!email || !password || !full_name || !username)
       return res.status(400).json({ error: 'All fields are required' });
 
     const existing = await pool.query(
@@ -227,7 +227,7 @@ app.post('/api/signup', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const result = await pool.query(
       'INSERT INTO users (username, email, password_hash, full_name, last_active, is_verified) VALUES ($1,$2,$3,$4,CURRENT_DATE,FALSE) RETURNING *',
-      [username, email, passwordHash, fullName]
+      [username, email, passwordHash, full_name]
     );
     const user = result.rows[0];
     await pool.query('INSERT INTO user_settings (user_id) VALUES ($1)', [user.user_id]);

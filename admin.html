@@ -252,12 +252,13 @@ tr:hover td{background:rgba(255,255,255,.025);}
 
 <script>
 (async function(){
+  const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
   const stored = localStorage.getItem('hanverse_user');
   if (!stored) { location.href='login.html'; return; }
   const { user_id } = JSON.parse(stored);
   if (!user_id) { location.href='login.html'; return; }
 
-  const res = await fetch('/api/admin/overview?userId=' + user_id);
+  const res = await fetch(API_URL + '/admin/overview?userId=' + user_id);
   if (res.status === 403) {
     document.getElementById('app').innerHTML = `<div class="denied"><div style="font-size:4rem;">🚫</div><h2>Access Denied</h2><p>You are not an administrator.</p><button onclick="location.href='profile.html'" class="back-btn" style="margin-top:12px;">← Back to Profile</button></div>`;
     return;
@@ -331,7 +332,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
     if (!adminPassword) { document.getElementById('createUserErr').textContent = 'Enter the admin password.'; return; }
     if (!username || !fullName || !email || !password) { document.getElementById('createUserErr').textContent = 'All fields are required.'; return; }
 
-    const r = await fetch('/api/admin/create-user', {
+    const r = await fetch(API_URL + '/admin/create-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -386,22 +387,22 @@ tr:hover td{background:rgba(255,255,255,.025);}
     const reason = document.getElementById('banReason').value.trim();
     document.getElementById('banErr').textContent = '';
     if (!pw) { document.getElementById('banErr').textContent = 'Enter the admin password.'; return; }
-    const r = await fetch('/api/admin/ban', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminPassword: pw, userId: pendingBan.userId, banned: true, reason })
-    });
-    const d = await r.json();
-    if (!r.ok) { document.getElementById('banErr').textContent = d.error || 'Failed.'; return; }
-    const u = db.users.find(u => String(u.user_id) === String(pendingBan.userId));
-    if (u) { u.is_banned = true; u.banned_reason = reason; }
-    closeBanModal();
-    render();
-  };
-  window.confirmUnban = async () => {
-    const pw = document.getElementById('unbanPassword').value.trim();
-    document.getElementById('unbanErr').textContent = '';
-    if (!pw) { document.getElementById('unbanErr').textContent = 'Enter the admin password.'; return; }
-    const r = await fetch('/api/admin/ban', {
+const r = await fetch(API_URL + '/admin/ban', {
+       method: 'POST', headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ adminPassword: pw, userId: pendingBan.userId, banned: true, reason })
+     });
+     const d = await r.json();
+     if (!r.ok) { document.getElementById('banErr').textContent = d.error || 'Failed.'; return; }
+     const u = db.users.find(u => String(u.user_id) === String(pendingBan.userId));
+     if (u) { u.is_banned = true; u.banned_reason = reason; }
+     closeBanModal();
+     render();
+   };
+   window.confirmUnban = async () => {
+     const pw = document.getElementById('unbanPassword').value.trim();
+     document.getElementById('unbanErr').textContent = '';
+     if (!pw) { document.getElementById('unbanErr').textContent = 'Enter the admin password.'; return; }
+     const r = await fetch(API_URL + '/admin/ban', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ adminPassword: pw, userId: pendingUnban.userId, banned: false })
     });
@@ -451,7 +452,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
     document.getElementById('modalErr').textContent = '';
     if (!pw) { document.getElementById('modalErr').textContent = 'Enter the admin password.'; return; }
 
-    const r = await fetch('/api/admin/edit', {
+    const r = await fetch(API_URL + '/admin/edit', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ adminPassword: pw, table: pendingEdit.table, primaryValue: pendingEdit.pkVal, field: pendingEdit.field, value: newVal })
     });
@@ -478,7 +479,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
     document.getElementById('deleteErr').textContent = '';
     if (!pw) { document.getElementById('deleteErr').textContent = 'Enter the admin password.'; return; }
 
-    const r = await fetch('/api/admin/delete', {
+    const r = await fetch(API_URL + '/admin/delete', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ adminPassword: pw, table: pendingDelete.table, primaryValue: pendingDelete.pkVal })
     });

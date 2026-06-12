@@ -442,9 +442,12 @@ Games & AI
 </p>
 
 <div class="signup-header">
-<h2>Create Account ✨</h2>
-<p>Fill in your details to get started.</p>
+ <h2>Create Account ✨</h2>
+ <p>Fill in your details to get started.</p>
 </div>
+
+<div class="field-error" id="errorMessage" style="display:none; background:#FFF5F5; padding:12px; border-radius:16px; margin-bottom:16px;"></div>
+<div class="field-error" id="successMessage" style="display:none; background:#F0FDF4; padding:12px; border-radius:16px; margin-bottom:16px; color:var(--green);"></div>
 
 <div class="row-2">
 
@@ -519,8 +522,10 @@ Already have an account?
 // Section 1 - Initialization
 // ==========================================
 
-// API URL
-const API_URL = "/api";
+// API URL - dynamically determine based on environment
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : '/api';
 
 // Form Elements
 const signupForm =

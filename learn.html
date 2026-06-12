@@ -1135,6 +1135,34 @@ Notify.showXP(10);
 }
 
 });
+});
+
+/* SESSION */
+
+const SESSION_KEY =
+'hanverse_user';
+
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
+
+function getSessionUser(){
+
+try{
+
+return JSON.parse(
+localStorage.getItem(
+SESSION_KEY
+) || '{}'
+);
+
+}catch{
+
+return {};
+
+}
+
+}
+
+});
 
 });
 
@@ -1198,7 +1226,7 @@ try{
 
 const response =
 await fetch(
-`/api/courses?student_id=${encodeURIComponent(userId)}`
+`${API_URL}/courses?student_id=${encodeURIComponent(userId)}`
 );
 
 if(!response.ok)
@@ -1319,7 +1347,7 @@ const userId=user.user_id||user.userId;
 if(userId){
 // Populate dashboard stats from API
 try{
-const r=await fetch('/api/user/'+userId);
+const r=await fetch(API_URL+'/user/'+userId);
 if(r.ok){
 const d=await r.json();
 const u=d.user;

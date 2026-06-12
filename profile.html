@@ -502,13 +502,15 @@ Words Learned
 
 <script>
 
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
+
 async function loadProfile() {
   const stored = localStorage.getItem('hanverse_user');
   if (!stored) { window.location.href = 'login.html'; return; }
   const { user_id } = JSON.parse(stored);
   if (!user_id) { window.location.href = 'login.html'; return; }
 
-  const res = await fetch(`/api/user/${user_id}`);
+  const res = await fetch(`${API_URL}/user/${user_id}`);
   if (!res.ok) { window.location.href = 'login.html'; return; }
   const data = await res.json();
   const u = data.user;
@@ -552,7 +554,7 @@ async function loadProfile() {
       // also update nav chip avatar
       const navAvatar = document.getElementById('navUserAvatar');
       if (navAvatar) { navAvatar.innerHTML = '<img src="' + b64 + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="pfp">'; }
-      await fetch('/api/user/' + user_id + '/pfp', {
+      await fetch(API_URL + '/user/' + user_id + '/pfp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profile_picture: b64 })
