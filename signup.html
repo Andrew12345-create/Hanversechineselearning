@@ -514,490 +514,420 @@ Already have an account?
 
 <script src="notifications.js"></script>
 <script>
+// ==========================================
+// HANVERSE SIGNUP SYSTEM
+// Section 1 - Initialization
+// ==========================================
 
-const API_URL = '/api';
+// API URL
+const API_URL = "/api";
 
-let usernameTaken = false;
-let usernameTimer = null;
+// Form Elements
+const signupForm =
+    document.getElementById("signupForm");
 
-/* --------------------------
-   PASSWORD TOGGLE
---------------------------- */
+const usernameInput =
+    document.getElementById("username");
 
-function togglePw(id){
-  const field = document.getElementById(id);
+const fullNameInput =
+    document.getElementById("fullName");
 
-  field.type =
-    field.type === 'password'
-      ? 'text'
-      : 'password';
+const emailInput =
+    document.getElementById("email");
+
+const passwordInput =
+    document.getElementById("password");
+
+const confirmPasswordInput =
+    document.getElementById("confirmPassword");
+
+const signupButton =
+    document.getElementById("signupBtn");
+
+// Messages
+const errorMessage =
+    document.getElementById("errorMessage");
+
+const successMessage =
+    document.getElementById("successMessage");
+
+
+// ==========================================
+// Notifications
+// ==========================================
+
+function saveNotification(
+    title,
+    message,
+    icon = "🔔"
+) {
+
+    const notifications =
+        JSON.parse(
+            localStorage.getItem(
+                "hanverse_notifications"
+            ) || "[]"
+        );
+
+    notifications.unshift({
+        id: Date.now(),
+        title,
+        message,
+        icon,
+        unread: true,
+        created_at:
+            new Date().toISOString()
+    });
+
+    localStorage.setItem(
+        "hanverse_notifications",
+        JSON.stringify(notifications)
+    );
 }
 
-/* --------------------------
-   PASSWORD STRENGTH
---------------------------- */
 
-function updateStrength(val){
+// ==========================================
+// Message Functions
+// ==========================================
 
-  const fill =
-    document.getElementById('strengthFill');
+function showError(message) {
 
-  let score = 0;
+    if (!errorMessage) return;
 
-  if(val.length >= 6) score++;
-  if(val.length >= 10) score++;
-  if(/[A-Z]/.test(val)) score++;
-  if(/[0-9]/.test(val)) score++;
-  if(/[^A-Za-z0-9]/.test(val)) score++;
+    errorMessage.textContent =
+        message;
 
-  const pct = (score / 5) * 100;
+    errorMessage.style.display =
+        "block";
 
-  const color =
-    score <= 1
-      ? '#E63946'
-      : score <= 3
-      ? '#F4D35E'
-      : '#74C69D';
+    if (successMessage) {
 
-  fill.style.width = pct + '%';
-  fill.style.background = color;
+        successMessage.style.display =
+            "none";
+
+    }
 }
 
-/* --------------------------
-   VALIDATORS
---------------------------- */
+function showSuccess(message) {
 
-function isValidEmail(email){
+    if (!successMessage) return;
 
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    .test(email);
+    successMessage.textContent =
+        message;
 
+    successMessage.style.display =
+        "block";
+
+    if (errorMessage) {
+
+        errorMessage.style.display =
+            "none";
+
+    }
 }
 
-function isValidUsername(username){
+function clearMessages() {
 
-  return /^[a-zA-Z0-9_]{3,20}$/
-    .test(username);
+    if (errorMessage) {
 
-}
-
-/* --------------------------
-   USERNAME CHECK
---------------------------- */
-
-document
-.getElementById('username')
-.addEventListener('input', () => {
-
-  const input =
-    document.getElementById('username');
-
-  const err =
-    document.getElementById('usernameError');
-
-  const value =
-    input.value.trim();
-
-  usernameTaken = false;
-
-  input.classList.remove('input--error');
-  err.classList.remove('visible');
-
-  clearTimeout(usernameTimer);
-
-  if(!value) return;
-
-  if(!isValidUsername(value)){
-
-    err.textContent =
-      '❌ Use 3-20 letters, numbers or underscores';
-
-    err.classList.add('visible');
-    input.classList.add('input--error');
-
-    return;
-  }
-
-  usernameTimer = setTimeout(async () => {
-
-    try{
-
-      const res = await fetch(
-        API_URL +
-        '/check-username?username=' +
-        encodeURIComponent(value)
-      );
-
-      if(!res.ok) return;
-
-      const data = await res.json();
-
-      if(data.taken){
-
-        usernameTaken = true;
-
-        err.textContent =
-          '❌ Username already taken';
-
-        err.classList.add('visible');
-
-        input.classList.add('input--error');
-      }
-
-    }catch(error){
-
-      console.error(
-        'Username check failed:',
-        error
-      );
+        errorMessage.style.display =
+            "none";
 
     }
 
-  },350);
+    if (successMessage) {
 
-});
+        successMessage.style.display =
+            "none";
 
-/* --------------------------
-   SIGNUP
---------------------------- */
+    }
+}
 
-document
-.getElementById('signupBtn')
-.addEventListener('click', async () => {
 
-  const btn =
-    document.getElementById('signupBtn');
+// ==========================================
+// Button States
+// ==========================================
 
-  if(btn.disabled){
-    return;
-  }
+function setLoadingState() {
 
-  const fullName =
-    document
-      .getElementById('fullName')
-      .value
-      .trim();
+    signupButton.disabled = true;
 
-  const username =
-    document
-      .getElementById('username')
-      .value
-      .trim();
+    signupButton.innerHTML =
+        "Creating Account...";
+}
 
-  const email =
-    document
-      .getElementById('email')
-      .value
-      .trim();
+function resetButtonState() {
 
-  const password =
-    document
-      .getElementById('password')
-      .value;
+    signupButton.disabled = false;
 
-  const confirmPassword =
-    document
-      .getElementById('confirmPassword')
-      .value;
+    signupButton.innerHTML =
+        "Create Account";
+}
 
-  /* REQUIRED */
 
-  if(
-    !fullName ||
-    !username ||
-    !email ||
-    !password ||
-    !confirmPassword
-  ){
+// ==========================================
+// Validation
+// ==========================================
 
-    Notify.toast(
-      'Please fill in all fields 📝',
-      'warn',
-      4000
-    );
+function validateForm() {
 
-    return;
-  }
+    const username =
+        usernameInput.value.trim();
 
-  /* EMAIL */
+    const fullName =
+        fullNameInput.value.trim();
 
-  if(!isValidEmail(email)){
+    const email =
+        emailInput.value.trim();
 
-    Notify.toast(
-      'Please enter a valid email 📧',
-      'warn',
-      4000
-    );
+    const password =
+        passwordInput.value;
 
-    return;
-  }
+    const confirmPassword =
+        confirmPasswordInput.value;
 
-  /* USERNAME */
+    if (
+        !username ||
+        !fullName ||
+        !email ||
+        !password ||
+        !confirmPassword
+    ) {
 
-  if(!isValidUsername(username)){
+        showError(
+            "Please fill in all fields."
+        );
 
-    Notify.toast(
-      'Username must be 3-20 letters, numbers or underscores 🎮',
-      'warn',
-      4000
-    );
+        return false;
+    }
 
-    return;
-  }
+    if (
+        password.length < 6
+    ) {
 
-  if(usernameTaken){
+        showError(
+            "Password must be at least 6 characters."
+        );
 
-    Notify.toast(
-      'Please choose another username ❌',
-      'warn',
-      4000
-    );
+        return false;
+    }
 
-    return;
-  }
+    if (
+        password !==
+        confirmPassword
+    ) {
 
-  /* PASSWORD */
+        showError(
+            "Passwords do not match."
+        );
 
-  if(password.length < 6){
+        return false;
+    }
 
-    Notify.toast(
-      'Password must be at least 6 characters 🔐',
-      'warn',
-      4000
-    );
+    return true;
+}
 
-    return;
-  }
 
-  if(password !== confirmPassword){
+// ==========================================
+// Signup Function
+// ==========================================
 
-    Notify.toast(
-      'Passwords do not match ❌',
-      'warn',
-      4000
-    );
+async function signupUser() {
 
-    return;
-  }
+    clearMessages();
 
-  btn.disabled = true;
-  btn.textContent =
-    'Creating Account... 🔄';
+    if (!validateForm()) {
 
-  try{
+        return;
 
-    const response =
-      await fetch(
-        API_URL + '/signup',
-        {
-          method:'POST',
-          headers:{
-            'Content-Type':
-              'application/json'
-          },
-          body:JSON.stringify({
-            fullName,
-            username,
-            email,
-            password
-          })
+    }
+
+    setLoadingState();
+
+    const username =
+        usernameInput.value.trim();
+
+    const fullName =
+        fullNameInput.value.trim();
+
+    const email =
+        emailInput.value.trim();
+
+    const password =
+        passwordInput.value;
+
+    try {
+
+        // API request starts here...
+                const response = await fetch(
+            `${API_URL}/signup`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+                body: JSON.stringify({
+                    username,
+                    full_name: fullName,
+                    email,
+                    password
+                })
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            showError(
+                data.error ||
+                data.message ||
+                "Signup failed."
+            );
+
+            resetButtonState();
+
+            return;
         }
-      );
 
-    let data = {};
+        // ==========================================
+        // Notifications
+        // ==========================================
 
-    try{
-      data = await response.json();
-    }catch{
-      data = {};
+        saveNotification(
+            "Welcome to Hanverse! 🎉",
+            "Your account has been created successfully.",
+            "🎉"
+        );
+
+        saveNotification(
+            "Verify Your Email 📧",
+            "Please verify your email address to unlock all features.",
+            "📧"
+        );
+
+        showSuccess(
+            "Account created successfully!"
+        );
+
+        // Optional local save
+        if (data.user) {
+
+            localStorage.setItem(
+                "hanverse_user",
+                JSON.stringify(data.user)
+            );
+
+        }
+
+        setTimeout(() => {
+
+            window.location.href =
+                "login.html";
+
+        }, 2000);
+
+    }
+    catch (error) {
+
+        console.error(
+            "Signup Error:",
+            error
+        );
+
+        showError(
+            "Unable to connect to server."
+        );
+
+    }
+    finally {
+
+        resetButtonState();
+
     }
 
-    if(!response.ok){
+}
 
-      Notify.toast(
-        data.error ||
-        'Signup failed ❌',
-        'error',
-        5000
-      );
 
-      btn.disabled = false;
-      btn.textContent =
-        'Create Account';
+// ==========================================
+// Password Toggle
+// ==========================================
 
-      return;
+function togglePassword() {
+
+    if (!passwordInput) return;
+
+    passwordInput.type =
+        passwordInput.type === "password"
+            ? "text"
+            : "password";
+}
+
+function toggleConfirmPassword() {
+
+    if (!confirmPasswordInput)
+        return;
+
+    confirmPasswordInput.type =
+        confirmPasswordInput.type ===
+        "password"
+            ? "text"
+            : "password";
+}
+
+
+// ==========================================
+// Form Submit
+// ==========================================
+
+if (signupForm) {
+
+    signupForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            await signupUser();
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// Enter Key Support
+// ==========================================
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            signupUser();
+
+        }
+
     }
+);
 
-    Notify.toast(
-      'Account created! Welcome to Hanverse 🎉',
-      'success',
-      4000
-    );
 
-    Notify.miniConfetti();
+// ==========================================
+// Page Ready
+// ==========================================
 
-    setTimeout(() => {
+window.addEventListener(
+    "load",
+    function() {
 
-      window.location.href =
-        'login.html';
+        console.log(
+            "Hanverse Signup Ready 🚀"
+        );
 
-    },1500);
-
-  }
-  catch(error){
-
-    console.error(error);
-
-    Notify.toast(
-      'Cannot connect to server 🌐',
-      'error',
-      5000
-    );
-
-    btn.disabled = false;
-    btn.textContent =
-      'Create Account';
-  }
-
-});
-
-/* --------------------------
-   GOOGLE BUTTON
---------------------------- */
-
-document
-.getElementById('googleBtn')
-.addEventListener('click', () => {
-
-  Notify.toast(
-    'Google Sign-In coming soon 🚀',
-    'info',
-    3000
-  );
-
-});
-
-/* --------------------------
-   PANDA XP
---------------------------- */
-
-document
-.querySelector('.panda')
-.addEventListener('click', () => {
-
-  Notify.toast(
-    'Panda is rooting for you! 🐼',
-    'heart',
-    2500
-  );
-
-  Notify.showXP(5);
-
-});
-
-/* --------------------------
-   FIELD HINTS
---------------------------- */
-
-document
-.getElementById('fullName')
-.addEventListener('focus', () => {
-
-  Notify.toast(
-    'Enter your full name 📝',
-    'info',
-    1500
-  );
-
-});
-
-document
-.getElementById('username')
-.addEventListener('focus', () => {
-
-  Notify.toast(
-    'Pick a unique username 🎮',
-    'info',
-    1500
-  );
-
-});
-
-document
-.getElementById('email')
-.addEventListener('focus', () => {
-
-  Notify.toast(
-    'Enter your email 📧',
-    'info',
-    1500
-  );
-
-});
-
-document
-.getElementById('password')
-.addEventListener('focus', () => {
-
-  Notify.toast(
-    'Choose a strong password 🔐',
-    'info',
-    1500
-  );
-
-});
-
-document
-.getElementById('confirmPassword')
-.addEventListener('focus', () => {
-
-  Notify.toast(
-    'Repeat your password 🔒',
-    'info',
-    1500
-  );
-
-});
-
-/* --------------------------
-   ENTER KEY
---------------------------- */
-
-document
-.addEventListener('keydown', e => {
-
-  if(e.key === 'Enter'){
-
-    const btn =
-      document.getElementById('signupBtn');
-
-    if(!btn.disabled){
-      btn.click();
     }
-
-  }
-
-});
-
-/* --------------------------
-   WELCOME
---------------------------- */
-
-window
-.addEventListener('load', () => {
-
-  setTimeout(() => {
-
-    Notify.toast(
-      "Welcome! Let's get you started ✨",
-      'star',
-      3000
-    );
-
-    Notify.miniConfetti();
-
-  },800);
-
-});
-
+);
 </script>

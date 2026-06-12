@@ -869,327 +869,311 @@ input:hover{
 <script src="notifications.js"></script>
 
 <script>
-const API_URL = window.location.origin + '/api';
-const SESSION_KEY = 'hanverse_user';
+// ==========================================
+// HANVERSE LOGIN SYSTEM
+// Section 1 - Initialization
+// ==========================================
 
-/* ---------------------------
-   NOTIFICATIONS
---------------------------- */
+// API URL
+const API_URL = "https://hanverse.netlify.app/.netlify/functions";
 
-function saveNotification(title, message, icon = '🔔') {
+// Form Elements
+const loginForm = document.getElementById("loginForm");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const loginButton = document.getElementById("loginBtn");
 
-  const notifications =
-    JSON.parse(
-      localStorage.getItem(
-        'hanverse_notifications'
-      ) || '[]'
+// Error Display
+const errorMessage = document.getElementById("errorMessage");
+
+// Success Display
+const successMessage = document.getElementById("successMessage");
+
+
+// ==========================================
+// Utility Functions
+// ==========================================
+
+function showError(message) {
+
+    if (!errorMessage) return;
+
+    errorMessage.textContent = message;
+    errorMessage.style.display = "block";
+
+    if (successMessage) {
+        successMessage.style.display = "none";
+    }
+}
+
+function showSuccess(message) {
+
+    if (!successMessage) return;
+
+    successMessage.textContent = message;
+    successMessage.style.display = "block";
+
+    if (errorMessage) {
+        errorMessage.style.display = "none";
+    }
+}
+
+function clearMessages() {
+
+    if (errorMessage) {
+        errorMessage.style.display = "none";
+    }
+
+    if (successMessage) {
+        successMessage.style.display = "none";
+    }
+}
+
+
+// ==========================================
+// Button States
+// ==========================================
+
+function setLoadingState() {
+
+    if (!loginButton) return;
+
+    loginButton.disabled = true;
+    loginButton.innerHTML = "Logging in...";
+}
+
+function resetButtonState() {
+
+    if (!loginButton) return;
+
+    loginButton.disabled = false;
+    loginButton.innerHTML = "Login";
+}
+
+
+// ==========================================
+// Login Function
+// ==========================================
+
+async function loginUser(email, password) {
+
+    try {
+
+        clearMessages();
+
+        setLoadingState();
+
+        // Validation
+        if (!email || !password) {
+
+            showError("Please enter your email and password.");
+
+            resetButtonState();
+
+            return;
+        }
+
+        // Request begins here
+                const response = await fetch(
+            `${API_URL}/login`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            showError(
+                data.message ||
+                data.error ||
+                "Login failed."
+            );
+
+            resetButtonState();
+
+            return;
+        }
+
+        // Save JWT Token
+        if (data.token) {
+
+            localStorage.setItem(
+                "hanverse_token",
+                data.token
+            );
+
+        }
+
+        // Save User
+        if (data.user) {
+
+            localStorage.setItem(
+                "hanverse_user",
+                JSON.stringify(data.user)
+            );
+
+        }
+
+        // Create Notification
+        const notifications =
+            JSON.parse(
+                localStorage.getItem(
+                    "hanverse_notifications"
+                ) || "[]"
+            );
+
+        notifications.unshift({
+            id: Date.now(),
+            title: "Welcome Back!",
+            message:
+                "Successfully logged into Hanverse.",
+            icon: "🎉",
+            unread: true,
+            created_at: new Date().toISOString()
+        });
+
+        localStorage.setItem(
+            "hanverse_notifications",
+            JSON.stringify(notifications)
+        );
+
+        showSuccess(
+            "Login successful!"
+        );
+
+        setTimeout(() => {
+
+            window.location.href =
+                "profile.html";
+
+        }, 1200);
+
+    }
+    catch (error) {
+
+        console.error(
+            "Login Error:",
+            error
+        );
+
+        showError(
+            "Unable to connect to server."
+        );
+    }
+    finally {
+
+        resetButtonState();
+
+    }
+}
+
+
+// ==========================================
+// Form Submit
+// ==========================================
+
+if (loginForm) {
+
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            await loginUser(
+                emailInput.value.trim(),
+                passwordInput.value
+            );
+
+        }
     );
 
-  notifications.unshift({
-    id: Date.now(),
-    title,
-    message,
-    icon,
-    time: 'Just now',
-    unread: true
-  });
-
-  localStorage.setItem(
-    'hanverse_notifications',
-    JSON.stringify(notifications)
-  );
 }
 
-/* ---------------------------
-   FALLBACK NOTIFY
---------------------------- */
 
-if (!window.Notify) {
+// ==========================================
+// Enter Key Support
+// ==========================================
 
-  window.Notify = {
-    toast: (msg) => alert(msg),
-    showXP: () => {},
-    miniConfetti: () => {},
-    streakFire: () => {}
-  };
+document.addEventListener(
+    "keydown",
+    function(event) {
 
-}
+        if (event.key === "Enter") {
 
-/* ---------------------------
-   PASSWORD TOGGLE
---------------------------- */
+            if (
+                document.activeElement === emailInput ||
+                document.activeElement === passwordInput
+            ) {
+
+                loginUser(
+                    emailInput.value.trim(),
+                    passwordInput.value
+                );
+
+            }
+
+        }
+
+    }
+);
+
+
+// ==========================================
+// Password Toggle
+// ==========================================
 
 function togglePassword() {
 
-  const field =
-    document.getElementById('password');
+    const field =
+        document.getElementById(
+            "password"
+        );
 
-  field.type =
-    field.type === 'password'
-      ? 'text'
-      : 'password';
+    if (!field) return;
+
+    field.type =
+        field.type === "password"
+            ? "text"
+            : "password";
 }
 
-/* ---------------------------
-   LOGIN
---------------------------- */
 
-async function login() {
+// ==========================================
+// Auto Login Check
+// ==========================================
 
-  const email =
-    document
-      .getElementById('email')
-      .value
-      .trim();
+window.addEventListener(
+    "load",
+    function() {
 
-  const password =
-    document
-      .getElementById('password')
-      .value;
+        const token =
+            localStorage.getItem(
+                "hanverse_token"
+            );
 
-  if (!email || !password) {
+        if (token) {
 
-    Notify.toast(
-      'Please enter email and password',
-      'warn'
-    );
+            console.log(
+                "Existing session found."
+            );
 
-    return;
-  }
-
-  const btn =
-    document.getElementById(
-      'loginBtn'
-    );
-
-  btn.disabled = true;
-  btn.innerHTML = 'Signing In...';
-
-  try {
-
-    const response =
-      await fetch(
-        `${API_URL}/login`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
-          body: JSON.stringify({
-            email,
-            password
-          })
         }
-      );
-
-    const data =
-      await response.json();
-
-    if (!response.ok) {
-
-      Notify.toast(
-        data.error ||
-        'Login failed',
-        'error'
-      );
-
-      btn.disabled = false;
-      btn.innerHTML = 'Log In';
-
-      return;
-    }
-
-    localStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify(data.user)
-    );
-
-    saveNotification(
-      'Welcome Back!',
-      'Great to see you again.',
-      '👋'
-    );
-
-    saveNotification(
-      'Daily Goal',
-      'Complete a lesson today to keep your streak alive.',
-      '🔥'
-    );
-
-    Notify.toast(
-      'Welcome back! 🎉',
-      'success'
-    );
-
-    Notify.miniConfetti();
-
-    setTimeout(() => {
-
-      window.location.href =
-        'profile.html';
-
-    }, 1000);
-
-  }
-  catch (error) {
-
-    console.error(error);
-
-    Notify.toast(
-      'Cannot connect to server 🌐',
-      'error'
-    );
-
-    btn.disabled = false;
-    btn.innerHTML = 'Log In';
-  }
-}
-
-/* ---------------------------
-   VERIFY EMAIL
---------------------------- */
-
-async function resendVerification() {
-
-  const email =
-    document
-      .getElementById('email')
-      .value
-      .trim();
-
-  if (!email) {
-
-    Notify.toast(
-      'Enter your email first 📧',
-      'warn'
-    );
-
-    return;
-  }
-
-  try {
-
-    const response =
-      await fetch(
-        `${API_URL}/resend-verification`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
-          body: JSON.stringify({
-            email
-          })
-        }
-      );
-
-    const data =
-      await response.json();
-
-    if (!response.ok) {
-
-      Notify.toast(
-        data.error ||
-        'Verification failed',
-        'error'
-      );
-
-      return;
-    }
-
-    saveNotification(
-      'Verification Email Sent',
-      'Check your inbox for a verification link.',
-      '📧'
-    );
-
-    Notify.toast(
-      'Verification email sent 📧',
-      'success'
-    );
-
-  }
-  catch (error) {
-
-    console.error(error);
-
-    Notify.toast(
-      'Server error',
-      'error'
-    );
-  }
-}
-
-/* ---------------------------
-   BUTTONS
---------------------------- */
-
-document
-.getElementById('loginBtn')
-.addEventListener(
-  'click',
-  login
-);
-
-document
-.getElementById('resendVerification')
-.addEventListener(
-  'click',
-  (e) => {
-    e.preventDefault();
-    resendVerification();
-  }
-);
-
-document
-.addEventListener(
-  'keydown',
-  (e) => {
-
-    if (e.key === 'Enter') {
-
-      login();
 
     }
-
-  }
 );
 
-/* ---------------------------
-   PANDA FUN
---------------------------- */
-
-document
-.querySelector('.panda')
-.addEventListener(
-  'click',
-  () => {
-
-    Notify.toast(
-      'Panda wishes you luck! 🐼',
-      'heart'
-    );
-
-    Notify.showXP(5);
-  }
-);
-
-/* ---------------------------
-   PAGE READY
---------------------------- */
-
-window
-.addEventListener(
-  'load',
-  () => {
-
-    console.log(
-      'Hanverse Login Ready'
-    );
-
-  }
+console.log(
+    "Hanverse Login Ready 🚀"
 );
 </script>
 
