@@ -601,7 +601,80 @@
   font-size:34px;
 
   }
+.container{
+  border:1px solid rgba(255,255,255,.4);
+  backdrop-filter:blur(20px);
+}
 
+.right{
+  background:
+  linear-gradient(
+    180deg,
+    #ffffff,
+    #fffdf8
+  );
+}
+
+.logo{
+  background:
+  linear-gradient(
+    135deg,
+    #F4D35E,
+    #E63946
+  );
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.login-header h2{
+  background:
+  linear-gradient(
+    135deg,
+    #4EA8DE,
+    #E63946
+  );
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+input{
+  border:2px solid transparent;
+}
+
+input:hover{
+  border-color:#4EA8DE;
+}
+
+.login{
+  position:relative;
+  overflow:hidden;
+}
+
+.login::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+  linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.4),
+    transparent
+  );
+  transform:translateX(-100%);
+  transition:.7s;
+}
+
+.login:hover::before{
+  transform:translateX(100%);
+}
+
+.trust-item{
+  background:rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:12px 16px;
+  backdrop-filter:blur(8px);
+}
   }
 
   </style>
@@ -794,468 +867,103 @@
 </div>
 
 <script src="notifications.js"></script>
+<script>
+const API_URL = window.location.origin + '/api';
+const SESSION_KEY = 'hanverse_user';
 
-  <script>
-
-  /* ==========================================
-    CONFIG
-  ========================================== */
-
-  const API_URL='/api';
-  const SESSION_KEY='hanverse_user';
-
-  /* ==========================================
-    PASSWORD TOGGLE
-  ========================================== */
-
-  function togglePassword(){
-
-  const pw=
-  document.getElementById(
-  'password'
-  );
-
-  pw.type=
-  pw.type==='password'
-  ? 'text'
-  : 'password';
-
-  if(window.Notify){
-
-  Notify.toast(
-
-  pw.type==='text'
-  ? 'Password visible 👁️'
-  : 'Password hidden 🔒',
-
-  'info',
-  1500
-
-  );
-
-  }
-
-  }
-
-  /* ==========================================
-    INPUT TOASTS
-  ========================================== */
-
-  document
-  .getElementById('email')
-  .addEventListener('focus',()=>{
-
-  if(window.Notify){
-
-  Notify.toast(
-  'Enter your email 📧',
-  'info',
-  1500
-  );
-
-  }
-
-  });
-
-  document
-  .getElementById('password')
-  .addEventListener('focus',()=>{
-
-  if(window.Notify){
-
-  Notify.toast(
-  'Enter your password 🔐',
-  'info',
-  1500
-  );
-
-  }
-
-  });
-
-  /* ==========================================
-    ENTER TO LOGIN
-  ========================================== */
-
-  document
-  .addEventListener(
-  'keydown',
-  e=>{
-
-  if(e.key==='Enter'){
-
-  login();
-
-  }
-
-  }
-  );
-
-  /* ==========================================
-    LOGIN FUNCTION
-  ========================================== */
-
-  async function login(){
-
-  const email=
-  document
-  .getElementById('email')
-  .value.trim();
-
-  const password=
-  document
-  .getElementById('password')
-  .value;
-
-  if(!email || !password){
-
-  Notify.toast(
-  'Please enter email and password 📧',
-  'error',
-  3000
-  );
-
-  return;
-
-  }
-
-  const btn=
-  document.getElementById(
-  'loginBtn'
-  );
-
-  btn.disabled=true;
-
-  btn.innerHTML=
-  'Signing In... 🔄';
-
-  try{
-
-  const response=
-  await fetch(
-  API_URL+'/login',
-  {
-  method:'POST',
-  headers:{
-  'Content-Type':
-  'application/json'
-  },
-  body:JSON.stringify({
-  email,
-  password
-  })
-  }
-  );
-
-  const data=
-  await response.json();
-
- if(
-  response.status === 403 &&
-  data.error === 'banned'
-){
-
-  btn.disabled=false;
-  btn.innerHTML='Log In';
-
-  document.querySelector('.right').innerHTML=`
-  <div style="text-align:center;padding:20px 0;">
-    <div style="font-size:72px;margin-bottom:20px;">🚫</div>
-    <h2 style="font-size:26px;color:#E63946;margin-bottom:12px;">Account Banned</h2>
-    <p style="color:#6B7280;line-height:1.8;margin-bottom:24px;">
-      ${data.reason || 'Violation of community guidelines.'}
-    </p>
-  </div>`;
-
-  return;
+if (!window.Notify) {
+  window.Notify = {
+    toast: (msg) => alert(msg),
+    showXP: () => {},
+    miniConfetti: () => {},
+    streakFire: () => {}
+  };
 }
 
-if(
-  response.status === 403 &&
-  data.error === 'not_verified'
-){
-
-  btn.disabled=false;
-  btn.innerHTML='Log In';
-
-  Notify.toast(
-    'Please verify your email first 📧',
-    'warn',
-    5000
-  );
-
-  return;
+function togglePassword() {
+  const pw = document.getElementById('password');
+  pw.type = pw.type === 'password' ? 'text' : 'password';
 }
 
-if (
-  !response.ok ||
-  !data.success
-) {
-  btn.disabled = false;
-  btn.innerHTML = 'Log In';
-  Notify.toast(
-    data.error ||
-    'Login failed ❌',
-    'error',
-    4000
-  );
-  return;
-}
+async function login() {
 
-  /* ==========================================
-    STORE SESSION
-  ========================================== */
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
 
-  localStorage.setItem(
-  SESSION_KEY,
-  JSON.stringify({
-
-  user_id:
-  data.user.user_id,
-
-  username:
-  data.user.username,
-
-  fullName:
-  data.user.full_name,
-
-  email:
-  data.user.email,
-
-  xp:
-  data.user.xp,
-
-  level:
-  data.user.level,
-
-  streak:
-  data.user.streak_days,
-
-  profile_picture:
-  data.user.profile_picture
-
-  })
-  );
-
-  /* ==========================================
-    SUCCESS
-  ========================================== */
-
-  Notify.toast(
-  'Welcome back! 🎉',
-  'success',
-  2500
-  );
-
-  Notify.showXP(50);
-
-  Notify.miniConfetti();
-
-  if(data.user.level >= 5){
-
-  Notify.toast(
-  `Level ${data.user.level} Scholar! 🏆`,
-  'star',
-  3000
-  );
-
+  if (!email || !password) {
+    Notify.toast('Please enter email and password');
+    return;
   }
 
-  if(data.user.streak_days >= 7){
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = 'Signing In...';
 
-  Notify.streakFire(
-  data.user.streak_days
-  );
+  try {
 
-  }
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
 
-  setTimeout(()=>{
+    const text = await response.text();
 
-  window.location.href=
-  'profile.html';
+    let data;
 
-  },900);
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.error(text);
+      throw new Error('Server returned HTML instead of JSON');
+    }
 
-  }
-  catch(error){
-
-  console.error(error);
-
-  btn.disabled=false;
-
-  btn.innerHTML=
-  'Log In';
-
-  Notify.toast(
-  'Cannot connect to server 🌐',
-  'error',
-  5000
-  );
-
-  }
-
-  }
-  /* ==========================================
-    RESEND VERIFICATION EMAIL
-  ========================================== */
-
-  document
-  .getElementById('resendVerification')
-  .addEventListener('click', async e => {
-
-    e.preventDefault();
-
-    const email =
-      document
-      .getElementById('email')
-      .value
-      .trim();
-
-    if(!email){
-
-      Notify.toast(
-        'Enter your email first 📧',
-        'warn',
-        3000
-      );
-
+    if (!response.ok) {
+      Notify.toast(data.error || 'Login failed');
+      btn.disabled = false;
+      btn.innerHTML = 'Log In';
       return;
     }
 
-    try{
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify(data.user)
+    );
 
-      const response =
-        await fetch(
-          API_URL +
-          '/resend-verification',
-          {
-            method:'POST',
-            headers:{
-              'Content-Type':
-              'application/json'
-            },
-            body:JSON.stringify({
-              email
-            })
-          }
-        );
+    Notify.toast('Welcome back! 🎉');
 
-      const data =
-        await response.json();
+    setTimeout(() => {
+      window.location.href = 'profile.html';
+    }, 1000);
 
-      if(!response.ok){
+  } catch (err) {
 
-        Notify.toast(
-          data.error ||
-          'Unable to send email ❌',
-          'error',
-          4000
-        );
+    console.error(err);
 
-        return;
-      }
+    Notify.toast(
+      'Server connection failed'
+    );
 
-      Notify.toast(
-        'Verification email sent 📧',
-        'success',
-        4000
-      );
-
-    }
-    catch(error){
-
-      Notify.toast(
-        'Cannot connect to server 🌐',
-        'error',
-        4000
-      );
-
-    }
-
-  });
-
-  /* ==========================================
-    BUTTON EVENTS
-  ========================================== */
-
-  document
-  .getElementById(
-  'loginBtn'
-  )
-  .addEventListener(
-  'click',
-  login
-  );
-
-  document
-  .getElementById(
-  'googleBtn'
-  )
-  .addEventListener(
-  'click',
-  ()=>{
-
-  Notify.toast(
-  'Google Sign-In coming soon 🚀',
-  'info',
-  3000
-  );
-
+    btn.disabled = false;
+    btn.innerHTML = 'Log In';
   }
-  );
+}
 
-  /* ==========================================
-    PANDA INTERACTION
-  ========================================== */
+document
+  .getElementById('loginBtn')
+  .addEventListener('click', login);
 
-  const panda=
-  document.querySelector(
-  '.panda'
-  );
-
-  if(panda){
-
-  panda.addEventListener(
-  'click',
-  ()=>{
-
-  Notify.toast(
-  'Panda loves Mandarin learners! 🐼',
-  'heart',
-  2500
-  );
-
-  Notify.showXP(5);
-
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    login();
   }
-  );
-
-  }
-
-  /* ==========================================
-    PAGE LOAD
-  ========================================== */
-
-  window.addEventListener(
-  'load',
-  ()=>{
-
-  setTimeout(()=>{
-
-  Notify.toast(
-  'Welcome back! Ready to learn? ✨',
-  'star',
-  3000
-  );
-
-  Notify.miniConfetti();
-
-  },800);
-
-  }
-  );
-
-  </script>
+});
+</script>
 
   </body>
   </html>
