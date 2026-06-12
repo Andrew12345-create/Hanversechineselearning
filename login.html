@@ -879,6 +879,8 @@ const API_URL = window.location.hostname === 'localhost' || window.location.host
   ? 'http://localhost:3000/api' 
   : '/api';
 
+const SESSION_KEY = 'hanverse_user';
+
 // Form Elements
 const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
@@ -949,7 +951,19 @@ function resetButtonState() {
     if (!loginButton) return;
 
     loginButton.disabled = false;
-    loginButton.innerHTML = "Login";
+    loginButton.innerHTML = "Log In";
+}
+
+
+// ==========================================
+// Password Toggle
+// ==========================================
+
+function togglePassword() {
+    const pwd = document.getElementById("password");
+    if (pwd) {
+        pwd.type = pwd.type === "password" ? "text" : "password";
+    }
 }
 
 
@@ -959,10 +973,13 @@ function resetButtonState() {
 
 async function loginUser(email, password) {
 
-  const btn = document.getElementById('loginBtn');
-  if(!btn) return;
+   const btn = document.getElementById('loginBtn');
+   if(!btn) return;
+   
+   btn.disabled = true;
+   btn.innerHTML = "Logging in...";
 
-  try{
+   try{
 
     const response=
     await fetch(
@@ -989,14 +1006,15 @@ async function loginUser(email, password) {
         console.error('JSON Parse Error:', jsonError);
         console.error('Raw response text:', await response.text()); // Log raw response for debugging
         
+        btn.disabled=false;
+        btn.innerHTML='Log In';
+        
         Notify.toast(
           'Server returned invalid response format 🚨',
           'error',
           4000
         );
         
-        btn.disabled=false;
-        btn.innerHTML='Log In';
         return;
       }
     } else {
@@ -1007,6 +1025,8 @@ async function loginUser(email, password) {
         // If we can't parse the error response, create a generic one
         data = { error: `Server error: ${response.status} ${response.statusText}` };
       }
+      btn.disabled=false;
+      btn.innerHTML='Log In';
     }
 
     if(
@@ -1053,7 +1073,7 @@ async function loginUser(email, password) {
       btn.disabled = false;
       btn.innerHTML = 'Log In';
       Notify.toast(
-        data.error ||
+        data.details || data.error ||
         'Login failed ❌',
         'error',
         4000
@@ -1110,6 +1130,22 @@ async function loginUser(email, password) {
 
     Notify.miniConfetti();
 
+    // Display recent notifications if any
+    if(data.notifications && Array.isArray(data.notifications) && data.notifications.length > 0) {
+      // Show latest notification
+      const latestNotification = data.notifications[0];
+      if(latestNotification.message) {
+        Notify.toast(
+          `Latest: ${latestNotification.message}`,
+          'info',
+          3000
+        );
+      }
+      
+      // Store all notifications for later use
+      localStorage.setItem('user_notifications', JSON.stringify(data.notifications));
+    }
+
     if(data.user.level >= 5){
 
     Notify.toast(
@@ -1164,3 +1200,77 @@ async function loginUser(email, password) {
   }
 
 }
+
+// Add event listener for resend verification email
+document.addEventListener('DOMContentLoaded', function() {
+   const resendVerificationLink = document.getElementById('resendVerification');
+   if (resendVerificationLink) {
+     resendVerificationLink.addEventListener('click', async function(e) {
+       e.preventDefault();
+       
+       const emailInput = document.getElementById('email');
+       const email = emailInput ? emailInput.value.trim() : '';
+       
+       if (!email) {
+         Notify.toast('Please enter your email address first 📧', 'warn', 4000);
+         return;
+       }
+       
+       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+       if (!emailRegex.test(email)) {
+         Notify.toast('Please enter a valid email address 📧', 'error', 4000);
+         return;
+       }
+       
+       resendVerificationLink.style.pointerEvents = 'none';
+       const originalText = resendVerificationLink.textContent;
+       resendVerificationLink.textContent = 'Sending...';
+       
+       try {
+         const response = await fetch(`${API_URL}/resend-verification`, {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({ email })
+         });
+         
+         const data = await response.json();
+         
+         if (response.ok && data.success) {
+           Notify.toast('Verification email sent! Check your inbox 📬', 'success', 5000);
+         } else {
+           Notify.toast(data.error || 'Failed to send verification email 🚨', 'error', 5000);
+         }
+       } catch (error) {
+         console.error('Error resending verification:', error);
+         Notify.toast('Network error - unable to send verification email 🌐', 'error', 5000);
+       } finally {
+         resendVerificationLink.style.pointerEvents = 'auto';
+         resendVerificationLink.textContent = originalText;
+       }
+     });
+   }
+
+   const loginBtn = document.getElementById('loginBtn');
+   if (loginBtn) {
+     loginBtn.addEventListener('click', function() {
+       const email = document.getElementById('email').value;
+       const password = document.getElementById('password').value;
+       loginUser(email, password);
+     });
+   }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    loginUser(email, password);
+  }
+});
+
+</script>
+</body>
+
+</html>

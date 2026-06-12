@@ -1,29 +1,17 @@
 {
   "version": 2,
-  "routes": [
+  "builds": [
     {
-      "src": "/login",
-      "dest": "/login.html"
+      "src": "server.js",
+      "use": "@vercel/node"
     },
     {
-      "src": "/signup",
-      "dest": "/signup.html"
-    },
-    {
-      "src": "/forgot-password",
-      "dest": "/forgot-password.html"
-    },
-    {
-      "src": "/verify",
-      "dest": "/verify.html"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "src": "**/*.html",
+      "use": "@vercel/static"
     }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/server.js" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }

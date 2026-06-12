@@ -60,6 +60,13 @@ const pool = new Pool({
   }
 })();
 
+// Test DB connection
+pool.query('SELECT 1').then(() => {
+  console.log('Functions: Database connected ✓');
+}).catch(e => {
+  console.error('Functions: Database connection failed:', e.message);
+});
+
 // Mailer for functions
 const mailer = nodemailer.createTransport({
   host: 'smtp-relay.brevo.com',
@@ -113,8 +120,7 @@ async function sendEmail(to, name, type, data = {}) {
     bodyHtml = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to reset your Hanverse password. This link expires in one hour.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Reset my password</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p>`;
   }
 
-  const defaultFrontendUrl = 'https://' + 'hanverse.netlify.app'; // Split to avoid direct string detection
-  const frontendUrl = process.env.FRONTEND_URL || defaultFrontendUrl;
+  const frontendUrl = process.env.FRONTEND_URL || frontend;
   const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FFFDF7;border-radius:24px;overflow:hidden;"><div style="background:${template.header.bg};padding:40px 40px 30px;text-align:center;"><div style="font-size:60px;">${template.header.emoji}</div><h1 style="margin:14px 0 0;color:#fff;font-size:26px;font-weight:800;">${template.header.title}</h1><p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:15px;">${template.header.sub}</p></div><div style="padding:36px 40px;">${bodyHtml}${type === 'welcome' ? '<a href="' + frontendUrl + '/login.html" style="display:block;text-align:center;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:800;font-size:16px;padding:16px;border-radius:40px;text-decoration:none;">Go to Hanverse 🚀</a><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">The Hanverse Team 🐼</p>' : ''}</div></div>`;
 
   const info = await mailer.sendMail({
@@ -145,7 +151,9 @@ app.post('/api/login', async (req, res) => {
       return res.status(403).json({ error: 'banned', reason: user.banned_reason || 'Your account has been banned.' });
     }
 
-    if (user.is_verified === false) {
+    // Handle null/undefined is_verified (treat as unverified if null)
+    const isVerified = user.is_verified === true;
+    if (!isVerified) {
       return res.status(403).json({ error: 'not_verified' });
     }
 
@@ -159,9 +167,14 @@ app.post('/api/login', async (req, res) => {
     ]);
 
     const today = new Date();
-    const lastActive = new Date(user.last_active);
-    const daysDiff = Math.floor((today - lastActive) / 86400000);
-    let newStreak = user.streak_days;
+    let lastActiveDate;
+    try {
+      lastActiveDate = user.last_active ? new Date(user.last_active) : today;
+    } catch {
+      lastActiveDate = today;
+    }
+    const daysDiff = Math.floor((today - lastActiveDate) / 86400000);
+    let newStreak = user.streak_days || 0;
     if (daysDiff === 1) newStreak += 1;
     else if (daysDiff > 1) newStreak = 1;
 
@@ -194,8 +207,8 @@ app.post('/api/login', async (req, res) => {
       vocabulary: vocab.rows,
     });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Server error during login' });
+    console.error('Login error:', e.message);
+    res.status(500).json({ error: 'Server error during login', details: e.message });
   }
 });
 
@@ -567,7 +580,12 @@ app.get('/api/admin/overview', async (req, res) => {
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.get('/api/health/db', async (req, res) => {
   try { await pool.query('SELECT 1'); res.json({ ok: true }); }
-  catch (e) { res.status(503).json({ ok: false }); }
+  catch (e) { res.status(503).json({ ok: false, error: e.message }); }
+});
+
+// Test DB on module load
+pool.query('SELECT now()').catch(e => {
+  console.error('Functions: DB connection test failed:', e.message);
 });
 
 export const handler = serverless(app);

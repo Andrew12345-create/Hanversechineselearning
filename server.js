@@ -414,8 +414,6 @@ app.post('/api/login', async (req, res) => {
     }
   });
 
-  const port = process.env.PORT || 3000;
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+  // The server instance is already created at the top of the file with proper error handling
+// and lifecycle management. The server instance is exported for serverless integration.
+// This duplicate listen call is removed to avoid starting the server twice.

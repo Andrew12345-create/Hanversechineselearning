@@ -855,48 +855,40 @@ async function signupUser() {
 // Password Toggle
 // ==========================================
 
-function togglePassword() {
-
-    if (!passwordInput) return;
-
-    passwordInput.type =
-        passwordInput.type === "password"
-            ? "text"
-            : "password";
+function togglePw(fieldId) {
+    const input = document.getElementById(fieldId);
+    if (input) {
+        input.type = input.type === "password" ? "text" : "password";
+    }
 }
 
-function toggleConfirmPassword() {
-
-    if (!confirmPasswordInput)
-        return;
-
-    confirmPasswordInput.type =
-        confirmPasswordInput.type ===
-        "password"
-            ? "text"
-            : "password";
+function updateStrength(password) {
+    const strengthFill = document.getElementById("strengthFill");
+    if (!strengthFill) return;
+    
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[!@#$%^&*]/.test(password)) score++;
+    
+    const colors = ["", "#E63946", "#F4D35E", "#74C69D", "#4EA8DE", "#2B8A3E"];
+    strengthFill.style.width = (score * 20) + "%";
+    strengthFill.style.background = colors[score] || "";
 }
 
 
 // ==========================================
-// Form Submit
+// Button Click Handler
 // ==========================================
 
-if (signupForm) {
-
-    signupForm.addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-            await signupUser();
-
-        }
-    );
-
+const signupBtn = document.getElementById("signupBtn");
+if (signupBtn) {
+    signupBtn.addEventListener("click", async function() {
+        await signupUser();
+    });
 }
-
 
 // ==========================================
 // Enter Key Support
@@ -905,13 +897,9 @@ if (signupForm) {
 document.addEventListener(
     "keydown",
     function(event) {
-
         if (event.key === "Enter") {
-
             signupUser();
-
         }
-
     }
 );
 
@@ -923,11 +911,9 @@ document.addEventListener(
 window.addEventListener(
     "load",
     function() {
-
         console.log(
             "Hanverse Signup Ready 🚀"
         );
-
     }
 );
 </script>
