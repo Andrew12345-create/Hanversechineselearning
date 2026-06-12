@@ -870,98 +870,128 @@ input:hover{
 
 <script>
 const API_URL = window.location.origin + '/api';
-
-if (!window.Notify) {
-  window.Notify = {
-    toast: (msg) => alert(msg),
-    showXP: () => {},
-    miniConfetti: () => {},
-    streakFire: () => {}
-  };
-}
-
 const SESSION_KEY = 'hanverse_user';
 
-/* FALLBACK NOTIFICATIONS */
+/* ---------------------------
+   NOTIFICATIONS
+--------------------------- */
+
+function saveNotification(title, message, icon = '🔔') {
+
+  const notifications =
+    JSON.parse(
+      localStorage.getItem(
+        'hanverse_notifications'
+      ) || '[]'
+    );
+
+  notifications.unshift({
+    id: Date.now(),
+    title,
+    message,
+    icon,
+    time: 'Just now',
+    unread: true
+  });
+
+  localStorage.setItem(
+    'hanverse_notifications',
+    JSON.stringify(notifications)
+  );
+}
+
+/* ---------------------------
+   FALLBACK NOTIFY
+--------------------------- */
+
 if (!window.Notify) {
+
   window.Notify = {
     toast: (msg) => alert(msg),
     showXP: () => {},
     miniConfetti: () => {},
     streakFire: () => {}
   };
+
 }
 
-/* PASSWORD TOGGLE */
+/* ---------------------------
+   PASSWORD TOGGLE
+--------------------------- */
+
 function togglePassword() {
-  const pw = document.getElementById('password');
-  pw.type = pw.type === 'password' ? 'text' : 'password';
+
+  const field =
+    document.getElementById('password');
+
+  field.type =
+    field.type === 'password'
+      ? 'text'
+      : 'password';
 }
 
-/* LOGIN */
+/* ---------------------------
+   LOGIN
+--------------------------- */
+
 async function login() {
 
-  const email = document
-    .getElementById('email')
-    .value
-    .trim();
+  const email =
+    document
+      .getElementById('email')
+      .value
+      .trim();
 
-  const password = document
-    .getElementById('password')
-    .value;
+  const password =
+    document
+      .getElementById('password')
+      .value;
 
   if (!email || !password) {
+
     Notify.toast(
-      'Please enter email and password'
+      'Please enter email and password',
+      'warn'
     );
+
     return;
   }
 
   const btn =
-    document.getElementById('loginBtn');
+    document.getElementById(
+      'loginBtn'
+    );
 
   btn.disabled = true;
   btn.innerHTML = 'Signing In...';
 
   try {
 
-    const response = await fetch(
-      `${API_URL}/login`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type':
-          'application/json'
-        },
-        body: JSON.stringify({
-          email,
-          password
-        })
-      }
-    );
-
-    const text =
-      await response.text();
-
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    }
-    catch {
-
-      console.error(text);
-
-      throw new Error(
-        'Server returned HTML instead of JSON'
+    const response =
+      await fetch(
+        `${API_URL}/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+          body: JSON.stringify({
+            email,
+            password
+          })
+        }
       );
-    }
+
+    const data =
+      await response.json();
 
     if (!response.ok) {
 
       Notify.toast(
         data.error ||
-        'Login failed'
+        'Login failed',
+        'error'
       );
 
       btn.disabled = false;
@@ -975,23 +1005,40 @@ async function login() {
       JSON.stringify(data.user)
     );
 
-    Notify.toast(
-      'Welcome back! 🎉'
+    saveNotification(
+      'Welcome Back!',
+      'Great to see you again.',
+      '👋'
     );
 
+    saveNotification(
+      'Daily Goal',
+      'Complete a lesson today to keep your streak alive.',
+      '🔥'
+    );
+
+    Notify.toast(
+      'Welcome back! 🎉',
+      'success'
+    );
+
+    Notify.miniConfetti();
+
     setTimeout(() => {
+
       window.location.href =
         'profile.html';
+
     }, 1000);
 
   }
-  catch (err) {
+  catch (error) {
 
-    console.error(err);
+    console.error(error);
 
     Notify.toast(
-      err.message ||
-      'Unable to connect'
+      'Cannot connect to server 🌐',
+      'error'
     );
 
     btn.disabled = false;
@@ -999,19 +1046,23 @@ async function login() {
   }
 }
 
-/* RESEND VERIFICATION */
+/* ---------------------------
+   VERIFY EMAIL
+--------------------------- */
+
 async function resendVerification() {
 
   const email =
     document
-    .getElementById('email')
-    .value
-    .trim();
+      .getElementById('email')
+      .value
+      .trim();
 
   if (!email) {
 
     Notify.toast(
-      'Enter your email first'
+      'Enter your email first 📧',
+      'warn'
     );
 
     return;
@@ -1023,12 +1074,12 @@ async function resendVerification() {
       await fetch(
         `${API_URL}/resend-verification`,
         {
-          method:'POST',
-          headers:{
+          method: 'POST',
+          headers: {
             'Content-Type':
-            'application/json'
+              'application/json'
           },
-          body:JSON.stringify({
+          body: JSON.stringify({
             email
           })
         }
@@ -1041,67 +1092,106 @@ async function resendVerification() {
 
       Notify.toast(
         data.error ||
-        'Failed'
+        'Verification failed',
+        'error'
       );
 
       return;
     }
 
+    saveNotification(
+      'Verification Email Sent',
+      'Check your inbox for a verification link.',
+      '📧'
+    );
+
     Notify.toast(
-      'Verification email sent'
+      'Verification email sent 📧',
+      'success'
     );
 
   }
-  catch(err) {
+  catch (error) {
 
-    console.error(err);
+    console.error(error);
 
     Notify.toast(
-      'Server error'
+      'Server error',
+      'error'
     );
   }
 }
 
-/* EVENTS */
+/* ---------------------------
+   BUTTONS
+--------------------------- */
 
 document
-  .getElementById('loginBtn')
-  .addEventListener(
-    'click',
-    login
-  );
+.getElementById('loginBtn')
+.addEventListener(
+  'click',
+  login
+);
 
 document
-  .getElementById(
-    'resendVerification'
-  )
-  .addEventListener(
-    'click',
-    (e) => {
-      e.preventDefault();
-      resendVerification();
+.getElementById('resendVerification')
+.addEventListener(
+  'click',
+  (e) => {
+    e.preventDefault();
+    resendVerification();
+  }
+);
+
+document
+.addEventListener(
+  'keydown',
+  (e) => {
+
+    if (e.key === 'Enter') {
+
+      login();
+
     }
-  );
+
+  }
+);
+
+/* ---------------------------
+   PANDA FUN
+--------------------------- */
 
 document
-  .addEventListener(
-    'keydown',
-    (e) => {
-      if (e.key === 'Enter') {
-        login();
-      }
-    }
-  );
+.querySelector('.panda')
+.addEventListener(
+  'click',
+  () => {
 
-window.addEventListener(
+    Notify.toast(
+      'Panda wishes you luck! 🐼',
+      'heart'
+    );
+
+    Notify.showXP(5);
+  }
+);
+
+/* ---------------------------
+   PAGE READY
+--------------------------- */
+
+window
+.addEventListener(
   'load',
   () => {
+
     console.log(
       'Hanverse Login Ready'
     );
+
   }
 );
-</script> 
+</script>
 
 
   </body>
