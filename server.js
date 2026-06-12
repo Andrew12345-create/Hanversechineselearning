@@ -1,43 +1,70 @@
   import { fileURLToPath } from 'url';
-  import express from 'express';
-  import pkg from 'pg';
-  import cors from 'cors';
-  import dotenv from 'dotenv';
-  import bcrypt from 'bcrypt';
-  import { existsSync } from 'fs';
-  import path from 'path';
-  import nodemailer from 'nodemailer';
-  import crypto from 'crypto';
+import express from 'express';
+import pkg from 'pg';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+import { existsSync } from 'fs';
+import path from 'path';
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
-    dotenv.config();
+dotenv.config();
 
-  if (!process.env.BREVO_SMTP_KEY) {
-    console.error('Missing BREVO_SMTP_KEY. Verification + password reset emails will fail.');
-  }
-  app.get('/login', (req, res) => {
+if (!process.env.BREVO_SMTP_KEY) {
+  console.error('Missing BREVO_SMTP_KEY. Verification + password reset emails will fail.');
+}
+
+// IMPORTANT: set EMAIL_FROM in your environment to a sender address verified in Brevo.
+const EMAIL_FROM =
+  process.env.EMAIL_FROM ||
+  '"Hanverse" <andrewmunamwangi@gmail.com>';
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
+
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'signup.html'));
 });
 
-  // IMPORTANT: set EMAIL_FROM in your environment to a sender address verified in Brevo.
-  const EMAIL_FROM = process.env.EMAIL_FROM || '"Hanverse" <andrewmunamwangi@gmail.com>';
+app.get('/verify', (req, res) => {
+  res.sendFile(path.join(__dirname, 'verify.html'));
+});
 
-  // ── Mailer ──────────────────────────────────────────────
-  const mailer = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: '91f82d001@smtp-brevo.com',
-      pass: process.env.BREVO_SMTP_KEY,
-    },
-    tls: { rejectUnauthorized: false },
-  });
+app.get('/forgot-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'forgot-password.html'));
+});
 
-  mailer.verify((err) => {
-    if (err) console.error('SMTP connection failed:', err.message);
+// ── Mailer ──────────────────────────────────────────────
+const mailer = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: '91f82d001@smtp-brevo.com',
+    pass: process.env.BREVO_SMTP_KEY,
+  },
+  tls: { rejectUnauthorized: false },
+});
+
+mailer.verify((err) => {
+  if (err) console.error('SMTP connection failed:', err.message);
+  else console.log('SMTP ready ✓');
+});
     else console.log('SMTP ready ✓');
   });
 
