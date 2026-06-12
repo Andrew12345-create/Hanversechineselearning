@@ -58,17 +58,21 @@ const mailer = nodemailer.createTransport({
     user: '91f82d001@smtp-brevo.com',
     pass: process.env.BREVO_SMTP_KEY,
   },
-  tls: { rejectUnauthorized: false },
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
 mailer.verify((err) => {
-  if (err) console.error('SMTP connection failed:', err.message);
-  else console.log('SMTP ready ✓');
+  if (err) {
+    console.error('SMTP connection failed:', err.message);
+  } else {
+    console.log('SMTP ready ✓');
+  }
 });
-    else console.log('SMTP ready ✓');
-  });
 
-  async function sendEmail(to, name, type, data = {}) {
+async function sendEmail(to, name, type, data = {}) {
+
     const first = name ? name.split(' ')[0] : 'Learner';
     const DEFAULT_FRONTEND_URL = 'https://' + 'hanverse.netlify.app'; // Avoid direct string detection
     const frontend = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
@@ -126,12 +130,11 @@ mailer.verify((err) => {
     port: process.env.DB_PORT,
   });
 
-  const app = express();
+
   app.use(cors());
   app.use(express.json());
  
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
 
 app.use(express.static(__dirname));
 
