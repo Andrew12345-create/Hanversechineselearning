@@ -1,3 +1,4 @@
+  import { fileURLToPath } from 'url';
   import express from 'express';
   import pkg from 'pg';
   import cors from 'cors';
@@ -95,8 +96,7 @@
   const app = express();
   app.use(cors());
   app.use(express.json());
-  import { fileURLToPath } from 'url';
-import path from 'path';
+ 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -283,10 +283,6 @@ app.get('/', (req, res) => {
     }
   });
 
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
   const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
