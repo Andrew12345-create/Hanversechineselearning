@@ -95,6 +95,16 @@
   const app = express();
   app.use(cors());
   app.use(express.json());
+  import { fileURLToPath } from 'url';
+import path from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
   // Signup endpoint
   app.post('/api/signup', async (req, res) => {
@@ -277,3 +287,8 @@
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
+  const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
