@@ -519,20 +519,73 @@ const premiumBenefits = [
    PAYMENT HANDLER
 ========================================== */
 
-async function startPayment(){
+aasync function startPayment(){
 
-if(!currentUser){
+    if(!currentUser){
 
-alert(
-'Please log in first.'
-);
+        alert('Please log in first.');
 
-window.location.href =
-'login.html';
+        window.location.href =
+        'login.html';
 
-return;
+        return;
+
+    }
+
+    try{
+
+        const response =
+        await fetch(
+        '/.netlify/functions/create-checkout-session',
+        {
+            method:'POST',
+
+            headers:{
+                'Content-Type':
+                'application/json'
+            },
+
+            body:JSON.stringify({
+
+                userId:
+                currentUser.user_id,
+
+                email:
+                currentUser.email
+
+            })
+
+        });
+
+        const data =
+        await response.json();
+
+        if(!data.success){
+
+            throw new Error(
+            data.error
+            );
+
+        }
+
+        window.location.href =
+        data.url;
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(
+        'Unable to start payment.'
+        );
+
+    }
 
 }
+return;
+
+
 
 const button =
 document.querySelector('.btn');
