@@ -877,7 +877,7 @@ input:hover{
 // API URL - dynamically determine based on environment
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:3000/api' 
-  : '/api';
+  : '/.netlify/functions/server';
 
 // Form Elements
 const loginForm = document.getElementById("loginForm");
@@ -1174,7 +1174,7 @@ async function loginUser(email, password) {
         'Login failed - please try again ❌',
         'error',
         4000
-      );A
+      );
     }
 
   }

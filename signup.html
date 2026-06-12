@@ -525,7 +525,7 @@ Already have an account?
 // API URL - dynamically determine based on environment
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000/api'
-    : '/api';
+    : '/.netlify/functions/server';
 
 // Form Elements
 const signupForm =
@@ -763,8 +763,8 @@ async function signupUser() {
 
     try {
 
-        // API request starts here...
-                const response = await fetch(
+// API request starts here...
+        const response = await fetch(
             `${API_URL}/signup`,
             {
                 method: "POST",
