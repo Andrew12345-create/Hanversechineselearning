@@ -72,7 +72,7 @@ box-shadow:var(--shadow);
 
 }
 
-/* LEFT */
+/* LEFT SIDE */
 
 .left{
 
@@ -87,14 +87,11 @@ var(--blue),
 
 color:white;
 
-position:relative;
-
 }
 
 .left h1{
 
 font-size:56px;
-
 margin-bottom:15px;
 
 }
@@ -102,7 +99,6 @@ margin-bottom:15px;
 .left p{
 
 line-height:1.9;
-
 margin-bottom:30px;
 
 }
@@ -118,9 +114,9 @@ gap:18px;
 .benefit{
 
 background:
-rgba(255,255,255,.12);
+rgba(255,255,255,.15);
 
-padding:14px 18px;
+padding:15px 18px;
 
 border-radius:16px;
 
@@ -128,7 +124,7 @@ font-weight:600;
 
 }
 
-/* RIGHT */
+/* RIGHT SIDE */
 
 .right{
 
@@ -142,8 +138,7 @@ justify-content:center;
 
 .price{
 
-font-size:62px;
-
+font-size:64px;
 font-weight:800;
 
 color:var(--red);
@@ -155,7 +150,6 @@ line-height:1;
 .price span{
 
 font-size:18px;
-
 font-weight:500;
 
 color:var(--muted);
@@ -164,13 +158,13 @@ color:var(--muted);
 
 .user-box{
 
-padding:16px;
+margin:25px 0;
 
-border-radius:16px;
+padding:18px;
 
 background:#F8FAFC;
 
-margin:25px 0;
+border-radius:16px;
 
 }
 
@@ -178,9 +172,9 @@ margin:25px 0;
 
 border:2px solid var(--border);
 
-padding:25px;
-
 border-radius:24px;
+
+padding:25px;
 
 }
 
@@ -200,13 +194,10 @@ border:none;
 
 border-radius:999px;
 
-font-weight:700;
-
-font-size:16px;
-
 cursor:pointer;
 
-margin-top:20px;
+font-size:16px;
+font-weight:700;
 
 background:
 linear-gradient(
@@ -216,6 +207,8 @@ var(--blue)
 );
 
 color:white;
+
+margin-top:20px;
 
 transition:.25s;
 
@@ -231,11 +224,72 @@ transform:translateY(-3px);
 
 text-align:center;
 
-margin-top:15px;
+font-size:14px;
 
 color:var(--muted);
 
-font-size:14px;
+margin-top:15px;
+
+}
+
+.success-modal{
+
+position:fixed;
+
+inset:0;
+
+background:
+rgba(0,0,0,.7);
+
+display:none;
+
+justify-content:center;
+align-items:center;
+
+z-index:9999;
+
+}
+
+.success-card{
+
+background:white;
+
+padding:40px;
+
+border-radius:30px;
+
+width:90%;
+max-width:500px;
+
+text-align:center;
+
+}
+
+.success-card h2{
+
+color:var(--green);
+
+margin-bottom:15px;
+
+}
+
+.success-btn{
+
+margin-top:20px;
+
+background:var(--red);
+
+color:white;
+
+border:none;
+
+padding:14px 24px;
+
+border-radius:999px;
+
+cursor:pointer;
+
+font-weight:700;
 
 }
 
@@ -277,9 +331,7 @@ font-size:40px;
 </h1>
 
 <p>
-
 Unlock the complete Hanverse learning experience and accelerate your Mandarin journey.
-
 </p>
 
 <div class="benefits">
@@ -350,7 +402,8 @@ Hanverse Premium Membership
 Recurring Monthly Subscription
 </p>
 
-<p style="margin-top:20px;
+<p style="
+margin-top:20px;
 font-weight:700;
 font-size:20px;
 ">
@@ -379,86 +432,75 @@ Continue to Payment
 </div>
 
 </div>
+<!-- SUCCESS MODAL -->
 
-<script>
+<div
+id="successModal"
+class="success-modal">
 
-/* ==========================================
-   LOAD USER
-========================================== */
+<div class="success-card">
 
-const stored =
-localStorage.getItem(
-'hanverse_user'
-);
+<h2>
+🎉 Payment Successful
+</h2>
 
-if(stored){
+<p style="
+line-height:1.8;
+margin-top:10px;
+">
 
-const user =
-JSON.parse(stored);
+Welcome to Hanverse Premium.
 
-document
-.getElementById('userBox')
-.innerHTML = `
+<br><br>
 
-<strong>
-${user.fullName || user.username}
-</strong>
+Your Premium Membership has been activated.
+
+<br><br>
+
+✅ Full Course Access
 
 <br>
 
-${user.email}
+✅ All Video Lessons
 
-`;
+<br>
 
-}
+✅ Paid Member Tag
 
-/* ==========================================
-   PAYMENT
-========================================== */
+<br>
 
+✅ Premium Worksheets
 
+<br>
 
+✅ Progress Tracking
 
+<br>
 
+✅ XP Bonuses
 
+<br>
 
-const response =
-await fetch(
-'/.netlify/functions/create-checkout-session'
-);
+✅ Achievements
 
-const data =
-await response.json();
+</p>
 
-window.location.href =
-data.url;
+<button
+class="success-btn"
+onclick="window.location.href='learn.html'">
 
+Start Learning
 
+</button>
 
-async function startPayment(){
+</div>
 
-const response =
-await fetch(
-'/.netlify/functions/create-checkout-session'
-);
+</div>
 
-const data =
-await response.json();
-
-window.location.href =
-data.url;
-
-}
-
-</script>
-
-</body>
-
-</html>
 <script>
 
 /* ==========================================
-   LOAD USER
+   USER SESSION
 ========================================== */
 
 const stored =
@@ -470,67 +512,57 @@ let currentUser = null;
 
 if(stored){
 
-currentUser =
-JSON.parse(stored);
+    currentUser =
+    JSON.parse(stored);
 
-document
-.getElementById('userBox')
-.innerHTML = `
+    document
+    .getElementById(
+    'userBox'
+    )
+    .innerHTML = `
 
-<strong>
-${currentUser.fullName || currentUser.username}
-</strong>
+    <strong>
+    ${currentUser.fullName || currentUser.username}
+    </strong>
 
-<br>
+    <br>
 
-${currentUser.email}
+    ${currentUser.email}
 
-`;
+    `;
 
 }
 else{
 
-document.getElementById('userBox')
-.innerHTML = `
+    document
+    .getElementById(
+    'userBox'
+    )
+    .innerHTML = `
 
-<strong>
-Guest User
-</strong>
+    <strong>
+    Guest User
+    </strong>
 
-<br>
+    <br>
 
-Please login first.
+    Please log in first.
 
-`;
+    `;
 
 }
 
 /* ==========================================
-   PREMIUM BENEFITS DISPLAY
-========================================== */
-
-const premiumBenefits = [
-
-'Full Course Access',
-'All Video Lessons',
-'Paid Member Tag',
-'Premium Worksheets',
-'Progress Tracking',
-'Achievements & XP',
-'Future Updates',
-'Priority Support'
-
-];
-
-/* ==========================================
-   PAYMENT HANDLER
+   START PAYMENT
 ========================================== */
 
 async function startPayment(){
 
     if(!currentUser){
 
-        alert('Please log in first.');
+        alert(
+        'Please log in first.'
+        );
 
         window.location.href =
         'login.html';
@@ -539,12 +571,21 @@ async function startPayment(){
 
     }
 
+    const button =
+    document.querySelector('.btn');
+
+    button.disabled = true;
+
+    button.innerHTML =
+    'Processing...';
+
     try{
 
         const response =
         await fetch(
         '/.netlify/functions/create-checkout-session',
         {
+
             method:'POST',
 
             headers:{
@@ -558,7 +599,10 @@ async function startPayment(){
                 currentUser.user_id,
 
                 email:
-                currentUser.email
+                currentUser.email,
+
+                plan:
+                'premium'
 
             })
 
@@ -570,7 +614,8 @@ async function startPayment(){
         if(!data.success){
 
             throw new Error(
-            data.error
+            data.error ||
+            'Unable to create checkout session.'
             );
 
         }
@@ -587,86 +632,81 @@ async function startPayment(){
         'Unable to start payment.'
         );
 
+        button.disabled = false;
+
+        button.innerHTML =
+        'Continue to Payment';
+
     }
-
-}
-return;
-
-
-
-const button =
-document.querySelector('.btn');
-
-button.disabled = true;
-
-button.innerHTML =
-'Processing...';
-
-try{
-
-const response =
-await fetch(
-'/.netlify/functions/create-checkout-session',
-{
-method:'POST',
-
-headers:{
-'Content-Type':
-'application/json'
-},
-
-body:JSON.stringify({
-
-userId:
-currentUser.user_id,
-
-email:
-currentUser.email,
-
-plan:
-'premium'
-
-})
-
-}
-);
-
-const data =
-await response.json();
-
-if(!data.success){
-
-throw new Error(
-data.error
-);
-
-}
-
-/* Redirect to Stripe */
-
-window.location.href =
-data.url;
-
-}
-catch(error){
-
-console.error(error);
-
-alert(
-'Unable to start payment.'
-);
-
-button.disabled = false;
-
-button.innerHTML =
-'Continue to Payment';
-
-}
 
 }
 
 /* ==========================================
-   PAYMENT SUCCESS CHECK
+   PREMIUM STATUS
+========================================== */
+
+async function checkPremiumStatus(){
+
+    if(!currentUser){
+
+        return;
+
+    }
+
+    try{
+
+        const response =
+        await fetch(
+        '/.netlify/functions/check-premium',
+        {
+
+            method:'POST',
+
+            headers:{
+                'Content-Type':
+                'application/json'
+            },
+
+            body:JSON.stringify({
+
+                userId:
+                currentUser.user_id
+
+            })
+
+        });
+
+        const data =
+        await response.json();
+
+        if(data.premium){
+
+            const button =
+            document.querySelector('.btn');
+
+            button.innerHTML =
+            'Premium Active ✅';
+
+            button.disabled = true;
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+        'Premium check failed:',
+        error
+        );
+
+    }
+
+}
+
+checkPremiumStatus();
+
+/* ==========================================
+   PAYMENT SUCCESS
 ========================================== */
 
 const params =
@@ -679,158 +719,16 @@ params.get('payment')
 === 'success'
 ){
 
-showSuccess();
+    document
+    .getElementById(
+    'successModal'
+    )
+    .style.display =
+    'flex';
 
 }
-
-function showSuccess(){
-
-document.body.insertAdjacentHTML(
-'beforeend',
-
-`
-
-<div style="
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.7);
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:9999;
-">
-
-<div style="
-background:white;
-padding:40px;
-border-radius:30px;
-max-width:500px;
-width:90%;
-text-align:center;
-">
-
-<h2 style="
-color:#74C69D;
-margin-bottom:15px;
-">
-
-🎉 Payment Successful
-
-</h2>
-
-<p style="
-line-height:1.8;
-margin-bottom:25px;
-">
-
-Welcome to Hanverse Premium.
-
-Your Paid Member Tag,
-Premium Lessons,
-Worksheets,
-Videos,
-XP Bonuses and
-Achievements have been unlocked.
-
-</p>
-
-<button
-onclick="window.location.href='learn.html'"
-style="
-background:#E63946;
-color:white;
-border:none;
-padding:14px 25px;
-border-radius:999px;
-cursor:pointer;
-font-weight:700;
-">
-
-Start Learning
-
-</button>
-
-</div>
-
-</div>
-
-`
-
-);
-
-}
-
-/* ==========================================
-   PREMIUM STATUS CHECK
-========================================== */
-
-async function checkPremiumStatus(){
-
-if(!currentUser){
-
-return;
-
-}
-
-try{
-
-const response =
-await fetch(
-'/.netlify/functions/check-premium',
-{
-method:'POST',
-
-headers:{
-'Content-Type':
-'application/json'
-},
-
-body:JSON.stringify({
-
-userId:
-currentUser.user_id
-
-})
-
-}
-);
-
-const data =
-await response.json();
-
-if(
-data.premium === true
-){
-
-document.querySelector(
-'.btn'
-).innerHTML =
-
-'Premium Active ✅';
-
-document.querySelector(
-'.btn'
-).disabled = true;
-
-}
-
-}
-catch(error){
-
-console.error(error);
-
-}
-
-}
-
-checkPremiumStatus();
 
 </script>
-
-</body>
-
-</html>
-
 
 </body>
 
