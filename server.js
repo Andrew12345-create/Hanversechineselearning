@@ -298,8 +298,8 @@ app.post('/api/login', async (req, res) => {
       });
 
     } catch (error) {
-      console.error('Signup error:', error);
-      res.status(500).json({ error: 'Server error during signup' });
+      console.error('Signup error:', error.message);
+      res.status(500).json({ error: 'Server error during signup', details: error.message });
     }
   });
 

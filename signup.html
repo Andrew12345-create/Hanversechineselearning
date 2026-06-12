@@ -782,7 +782,7 @@ async function signupUser() {
         if (!response.ok) {
 
             showError(
-                data.error ||
+                data.details || data.error ||
                 data.message ||
                 "Signup failed."
             );
