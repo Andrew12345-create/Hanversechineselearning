@@ -869,374 +869,471 @@ input:hover{
 <script src="notifications.js"></script>
 
 <script>
-// ==========================================
-// HANVERSE LOGIN SYSTEM
-// Section 1 - Initialization
-// ==========================================
 
-// API URL - dynamically determine based on environment
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://localhost:3000/api' 
-  : '/api';
+/* ==========================================
+   HANVERSE LOGIN SYSTEM
+========================================== */
 
-// Form Elements
-const loginForm = document.getElementById("loginForm");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const loginButton = document.getElementById("loginBtn");
+const API_URL =
+window.location.hostname === 'localhost' ||
+window.location.hostname === '127.0.0.1'
+? 'http://localhost:3000/api'
+: '/api';
 
-// Error Display
-const errorMessage = document.getElementById("errorMessage");
+const SESSION_KEY =
+'hanverse_user';
 
-// Success Display
-const successMessage = document.getElementById("successMessage");
+/* ==========================================
+   ELEMENTS
+========================================== */
 
+const loginForm =
+document.getElementById('loginForm');
 
-// ==========================================
-// Utility Functions
-// ==========================================
+const emailInput =
+document.getElementById('email');
 
-function showError(message) {
+const passwordInput =
+document.getElementById('password');
 
-    if (!errorMessage) return;
+const loginButton =
+document.getElementById('loginBtn');
 
-    errorMessage.textContent = message;
-    errorMessage.style.display = "block";
+const errorMessage =
+document.getElementById('errorMessage');
 
-    if (successMessage) {
-        successMessage.style.display = "none";
+const successMessage =
+document.getElementById('successMessage');
+
+/* ==========================================
+   MESSAGES
+========================================== */
+
+function showError(message){
+
+    if(!errorMessage) return;
+
+    errorMessage.textContent =
+    message;
+
+    errorMessage.style.display =
+    'block';
+
+    if(successMessage){
+
+        successMessage.style.display =
+        'none';
+
     }
+
 }
 
-function showSuccess(message) {
+function showSuccess(message){
 
-    if (!successMessage) return;
+    if(!successMessage) return;
 
-    successMessage.textContent = message;
-    successMessage.style.display = "block";
+    successMessage.textContent =
+    message;
 
-    if (errorMessage) {
-        errorMessage.style.display = "none";
+    successMessage.style.display =
+    'block';
+
+    if(errorMessage){
+
+        errorMessage.style.display =
+        'none';
+
     }
+
 }
 
-function clearMessages() {
+function clearMessages(){
 
-    if (errorMessage) {
-        errorMessage.style.display = "none";
+    if(errorMessage){
+
+        errorMessage.style.display =
+        'none';
+
     }
 
-    if (successMessage) {
-        successMessage.style.display = "none";
+    if(successMessage){
+
+        successMessage.style.display =
+        'none';
+
     }
+
 }
 
+/* ==========================================
+   BUTTON STATES
+========================================== */
 
-// ==========================================
-// Button States
-// ==========================================
+function setLoadingState(){
 
-function setLoadingState() {
-
-    if (!loginButton) return;
+    if(!loginButton) return;
 
     loginButton.disabled = true;
-    loginButton.innerHTML = "Logging in...";
+
+    loginButton.innerHTML =
+    'Logging In...';
+
 }
 
-function resetButtonState() {
+function resetButtonState(){
 
-    if (!loginButton) return;
+    if(!loginButton) return;
 
     loginButton.disabled = false;
-    loginButton.innerHTML = "Login";
+
+    loginButton.innerHTML =
+    'Log In';
+
 }
 
+/* ==========================================
+   LOGIN
+========================================== */
 
-// ==========================================
-// Login Function
-// ==========================================
+async function loginUser(email,password){
 
-async function loginUser(email, password) {
+    try{
 
-  const btn = document.getElementById('loginBtn');
-  if(!btn) return;
+        setLoadingState();
 
-  try{
+        const response =
+        await fetch(
+        `${API_URL}/login`,
+        {
 
-    const response=
-    await fetch(
-    API_URL+'/login',
-    {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
+            method:'POST',
+
+            headers:{
+                'Content-Type':
+                'application/json'
+            },
+
+            body:JSON.stringify({
+
+                email,
+                password
+
+            })
+
+        });
+
+        const data =
+        await response.json();
+
+        /* ======================================
+           BANNED
+        ====================================== */
+
+        if(
+        response.status === 403 &&
+        data.error === 'banned'
+        ){
+
+            document.querySelector(
+            '.right'
+            ).innerHTML = `
+
+            <div style="
+            text-align:center;
+            padding:30px;
+            ">
+
+                <div style="
+                font-size:70px;
+                margin-bottom:15px;
+                ">
+                🚫
+                </div>
+
+                <h2 style="
+                color:#E63946;
+                margin-bottom:10px;
+                ">
+                Account Banned
+                </h2>
+
+                <p>
+                ${data.reason || 'Violation of community guidelines.'}
+                </p>
+
+            </div>
+
+            `;
+
+            return;
+
+        }
+
+        /* ======================================
+           NOT VERIFIED
+        ====================================== */
+
+        if(
+        response.status === 403 &&
+        data.error === 'not_verified'
+        ){
+
+            showError(
+            'Please verify your email first.'
+            );
+
+            return;
+
+        }
+
+        /* ======================================
+           FAILED LOGIN
+        ====================================== */
+
+        if(
+        !response.ok ||
+        !data.success
+        ){
+
+            showError(
+            data.error ||
+            'Invalid email or password.'
+            );
+
+            return;
+
+        }
+
+        /* ======================================
+           STORE SESSION
+        ====================================== */
+
+        localStorage.setItem(
+
+        SESSION_KEY,
+
+        JSON.stringify({
+
+            user_id:
+            data.user.user_id,
+
+            username:
+            data.user.username,
+
+            fullName:
+            data.user.full_name,
+
+            email:
+            data.user.email,
+
+            xp:
+            data.user.xp,
+
+            level:
+            data.user.level,
+
+            streak:
+            data.user.streak_days,
+
+            profile_picture:
+            data.user.profile_picture
+
+        })
+
+        );
+
+        /* ======================================
+           SUCCESS
+        ====================================== */
+
+        showSuccess(
+        'Login successful!'
+        );
+
+        setTimeout(()=>{
+
+            window.location.href =
+            'profile.html';
+
+        },1000);
+
+    }
+    catch(error){
+
+        console.error(
+        'Login Error:',
+        error
+        );
+
+        showError(
+        'Unable to connect to server.'
+        );
+
+    }
+    finally{
+
+        resetButtonState();
+
+    }
+
+}
+
+/* ==========================================
+   LOGIN BUTTON
+========================================== */
+
+if(loginButton){
+
+    loginButton.addEventListener(
+    'click',
+    async function(event){
+
+        event.preventDefault();
+
+        clearMessages();
+
+        const email =
+        emailInput.value.trim();
+
+        const password =
+        passwordInput.value;
+
+        if(!email){
+
+            showError(
+            'Please enter your email.'
+            );
+
+            return;
+
+        }
+
+        if(!password){
+
+            showError(
+            'Please enter your password.'
+            );
+
+            return;
+
+        }
+
+        await loginUser(
         email,
         password
-      })
-    }
-    );
-
-    let data = {}; // Initialize with default empty object
-
-    // Check if response is ok before trying to parse JSON
-    if(response.ok){
-      try {
-        data = await response.json();
-      } catch(jsonError) {
-        console.error('JSON Parse Error:', jsonError);
-        console.error('Raw response text:', await response.text()); // Log raw response for debugging
-        
-        Notify.toast(
-          'Server returned invalid response format 🚨',
-          'error',
-          4000
         );
-        
-        btn.disabled=false;
-        btn.innerHTML='Log In';
-        return;
-      }
-    } else {
-      // Try to get error details from response
-      try {
-        data = await response.json();
-      } catch {
-        // If we can't parse the error response, create a generic one
-        data = { error: `Server error: ${response.status} ${response.statusText}` };
-      }
-    }
 
-    if(
-      response.status === 403 &&
-      data.error === 'banned'
-    ){
-
-      btn.disabled=false;
-      btn.innerHTML='Log In';
-
-      document.querySelector('.right').innerHTML=`
-        <div style="text-align:center;padding:20px 0;">
-          <div style="font-size:72px;margin-bottom:20px;">🚫</div>
-          <h2 style="font-size:26px;color:#E63946;margin-bottom:12px;">Account Banned</h2>
-          <p style="color:#6B7280;line-height:1.8;margin-bottom:24px;">
-            ${data.reason || 'Violation of community guidelines.'}
-          </p>
-        </div>`;
-
-      return;
-    }
-
-    if(
-      response.status === 403 &&
-      data.error === 'not_verified'
-    ){
-
-      btn.disabled=false;
-      btn.innerHTML='Log In';
-
-      Notify.toast(
-        'Please verify your email first 📧',
-        'warn',
-        5000
-      );
-
-      return;
-    }
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
-      btn.disabled = false;
-      btn.innerHTML = 'Log In';
-      Notify.toast(
-        data.error ||
-        'Login failed ❌',
-        'error',
-        4000
-      );
-      return;
-    }
-
-    /* ==========================================
-      STORE SESSION
-    ========================================== */
-
-    localStorage.setItem(
-    SESSION_KEY,
-    JSON.stringify({
-
-      user_id:
-      data.user.user_id,
-
-      username:
-      data.user.username,
-
-      fullName:
-      data.user.full_name,
-
-      email:
-      data.user.email,
-
-      xp:
-      data.user.xp,
-
-      level:
-      data.user.level,
-
-      streak:
-      data.user.streak_days,
-
-      profile_picture:
-      data.user.profile_picture
-
-    })
-    );
-
-    /* ==========================================
-      SUCCESS
-    ========================================== */
-
-    Notify.toast(
-    'Welcome back! 🎉',
-    'success',
-    2500
-    );
-
-    Notify.showXP(50);
-
-    Notify.miniConfetti();
-
-    // Display recent notifications if any
-    if(data.notifications && Array.isArray(data.notifications) && data.notifications.length > 0) {
-      // Show latest notification
-      const latestNotification = data.notifications[0];
-      if(latestNotification.message) {
-        Notify.toast(
-          `Latest: ${latestNotification.message}`,
-          'info',
-          3000
-        );
-      }
-      
-      // Store all notifications for later use
-      localStorage.setItem('user_notifications', JSON.stringify(data.notifications));
-    }
-
-    if(data.user.level >= 5){
-
-    Notify.toast(
-      `Level ${data.user.level} Scholar! 🏆`,
-      'star',
-      3000
-    );
-
-    }
-
-    if(data.user.streak_days >= 7){
-
-    Notify.streakFire(
-      data.user.streak_days
-    );
-
-    }
-
-    setTimeout(()=>{
-
-    window.location.href=
-      'profile.html';
-
-    },900);
-
-  }
-  catch(error){
-
-    console.error('Login Error:', error);
-
-    const btn = document.getElementById('loginBtn');
-    if(btn) {
-      btn.disabled=false;
-      btn.innerHTML='Log In';
-    }
-
-    // Check if it's a network error
-    if(error.name === 'TypeError' && error.message.includes('fetch')) {
-      Notify.toast(
-        'Network error - unable to connect to server 🌐',
-        'error',
-        5000
-      );
-    } else {
-      Notify.toast(
-        'Login failed - please try again ❌',
-        'error',
-        4000
-      );A
-    }
-
-  }
+    });
 
 }
 
-// Add event listener for resend verification email
-document.addEventListener('DOMContentLoaded', function() {
-  const resendVerificationLink = document.getElementById('resendVerification');
-  if (resendVerificationLink) {
-    resendVerificationLink.addEventListener('click', async function(e) {
-      e.preventDefault();
-      
-      const emailInput = document.getElementById('email');
-      const email = emailInput ? emailInput.value.trim() : '';
-      
-      if (!email) {
-        Notify.toast('Please enter your email address first 📧', 'warn', 4000);
-        return;
-      }
-      
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        Notify.toast('Please enter a valid email address 📧', 'error', 4000);
-        return;
-      }
-      
-      // Disable the link temporarily and show loading state
-      resendVerificationLink.style.pointerEvents = 'none';
-      const originalText = resendVerificationLink.textContent;
-      resendVerificationLink.textContent = 'Sending...';
-      
-      try {
-        const response = await fetch(`${API_URL}/resend-verification`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.success) {
-          Notify.toast('Verification email sent! Check your inbox 📬', 'success', 5000);
-        } else {
-          Notify.toast(data.error || 'Failed to send verification email 🚨', 'error', 5000);
-        }
-      } catch (error) {
-        console.error('Error resending verification:', error);
-        Notify.toast('Network error - unable to send verification email 🌐', 'error', 5000);
-      } finally {
-        // Restore the link
-        resendVerificationLink.style.pointerEvents = 'auto';
-        resendVerificationLink.textContent = originalText;
-      }
+/* ==========================================
+   ENTER KEY SUPPORT
+========================================== */
+
+if(loginForm){
+
+    loginForm.addEventListener(
+    'submit',
+    async function(event){
+
+        event.preventDefault();
+
+        loginButton.click();
+
     });
-  }
+
+}
+
+/* ==========================================
+   RESEND VERIFICATION
+========================================== */
+
+document.addEventListener(
+'DOMContentLoaded',
+function(){
+
+    const resendLink =
+    document.getElementById(
+    'resendVerification'
+    );
+
+    if(!resendLink) return;
+
+    resendLink.addEventListener(
+    'click',
+    async function(event){
+
+        event.preventDefault();
+
+        const email =
+        emailInput.value.trim();
+
+        if(!email){
+
+            showError(
+            'Enter your email first.'
+            );
+
+            return;
+
+        }
+
+        try{
+
+            const response =
+            await fetch(
+            `${API_URL}/resend-verification`,
+            {
+
+                method:'POST',
+
+                headers:{
+                    'Content-Type':
+                    'application/json'
+                },
+
+                body:JSON.stringify({
+                    email
+                })
+
+            });
+
+            const data =
+            await response.json();
+
+            if(
+            response.ok &&
+            data.success
+            ){
+
+                showSuccess(
+                'Verification email sent.'
+                );
+
+            }
+            else{
+
+                showError(
+                data.error ||
+                'Unable to send email.'
+                );
+
+            }
+
+        }
+        catch(error){
+
+            console.error(error);
+
+            showError(
+            'Network error.'
+            );
+
+        }
+
+    });
+
 });
 
 </script>
-</body>
-
-</html>
