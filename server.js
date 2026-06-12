@@ -27,27 +27,52 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(express.static(__dirname));
+// Serve static files
+app.use(express.static('.'));
 
-app.get('/', (req, res) => {
+// All routes are handled directly in the main app, not a separate router
+// Define API routes directly on the main app
+
+// Handle all other routes by serving index.html
+// This ensures client-side routing works properly
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html'));
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ 
+    success: false, 
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
 });
 
-app.get('/signup', (req, res) => {
-  res.sendFile(path.join(__dirname, 'signup.html'));
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\nShutting down gracefully...');
+  if (pool) await pool.end();
+  process.exit(0);
 });
 
-app.get('/verify', (req, res) => {
-  res.sendFile(path.join(__dirname, 'verify.html'));
+const PORT = process.env.PORT || 3000;
+
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
-app.get('/forgot-password', (req, res) => {
-  res.sendFile(path.join(__dirname, 'forgot-password.html'));
-});
+import serverless from 'serverless-http';
+
+// Create separate router for API routes to export for serverless
+const apiRouter = express.Router();
+
+// Import and use all API routes in the apiRouter
+// (all the routes like /api/login, /api/signup, etc. would need to be defined on this router)
+
+app.use('/api', apiRouter);
+
+export const handler = serverless(app);
 
 // ── Mailer ──────────────────────────────────────────────
 const mailer = nodemailer.createTransport({
@@ -145,63 +170,73 @@ app.get('/', (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email and password are required'
-      });
+    const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (!userResult.rows.length) return res.status(401).json({ error: 'Invalid email or password' });
+
+    const user = userResult.rows[0];
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match) return res.status(401).json({ error: 'Invalid email or password' });
+
+    if (user.is_banned) {
+      return res.status(403).json({ error: 'banned', reason: user.banned_reason || 'Your account has been banned.' });
     }
 
-    const result = await pool.query(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
+    if (user.is_verified === false) {
+      return res.status(403).json({ error: 'not_verified' });
+    }
+
+    const [progress, achievements, dailyGoals, notifications, settings, vocab] = await Promise.all([
+      pool.query('SELECT * FROM user_progress WHERE user_id = $1', [user.user_id]),
+      pool.query('SELECT * FROM achievements WHERE user_id = $1', [user.user_id]),
+      pool.query('SELECT * FROM daily_goals WHERE user_id = $1 AND goal_date = CURRENT_DATE', [user.user_id]),
+      pool.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20', [user.user_id]),
+      pool.query('SELECT * FROM user_settings WHERE user_id = $1', [user.user_id]),
+      pool.query('SELECT * FROM vocabulary_progress WHERE user_id = $1', [user.user_id]),
+    ]);
+
+    const today = new Date();
+    const lastActive = new Date(user.last_active);
+    const daysDiff = Math.floor((today - lastActive) / 86400000);
+    let newStreak = user.streak_days;
+    if (daysDiff === 1) newStreak += 1;
+    else if (daysDiff > 1) newStreak = 1;
+
+    await pool.query(
+      'UPDATE users SET last_active = CURRENT_DATE, streak_days = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2',
+      [newStreak, user.user_id]
     );
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid email or password'
-      });
-    }
-
-    const user = result.rows[0];
-
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
-
-    if (!passwordMatch) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid email or password'
-      });
-    }
 
     return res.json({
       success: true,
       user: {
         user_id: user.user_id,
         username: user.username,
-        full_name: user.full_name,
         email: user.email,
-        xp: user.xp || 0,
-        level: user.level || 1,
-        streak_days: user.streak_days || 0,
-        profile_picture: user.profile_picture || null
-      }
+        full_name: user.full_name,
+        xp: user.xp,
+        level: user.level,
+        streak_days: newStreak,
+        profile_picture: user.profile_picture,
+        is_admin: user.is_admin || false,
+        is_banned: user.is_banned || false,
+        banned_reason: user.banned_reason || null,
+        created_at: user.created_at,
+      },
+      progress: progress.rows,
+      achievements: achievements.rows,
+      dailyGoals: dailyGoals.rows,
+      notifications: notifications.rows,
+      settings: settings.rows[0] || null,
+      vocabulary: vocab.rows,
     });
-
-  } catch (error) {
-    console.error('Login error:', error);
-
-    return res.status(500).json({
-      success: false,
-      error: 'Login failed'
-    });
+  } catch (e) {
+    console.error('Login error:', e);
+    res.status(500).json({ error: 'Server error during login' });
   }
 });
+
   // Signup endpoint
   app.post('/api/signup', async (req, res) => {
     try {

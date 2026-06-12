@@ -874,8 +874,10 @@ input:hover{
 // Section 1 - Initialization
 // ==========================================
 
-// API URL
-const API_URL = "https://hanverse.netlify.app/.netlify/functions";
+// API URL - dynamically determine based on environment
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:3000/api' 
+  : '/api';
 
 // Form Elements
 const loginForm = document.getElementById("loginForm");
@@ -957,226 +959,208 @@ function resetButtonState() {
 
 async function loginUser(email, password) {
 
-    try {
+  const btn = document.getElementById('loginBtn');
+  if(!btn) return;
 
-        clearMessages();
+  try{
 
-        setLoadingState();
-
-        // Validation
-        if (!email || !password) {
-
-            showError("Please enter your email and password.");
-
-            resetButtonState();
-
-            return;
-        }
-
-        // Request begins here
-                const response = await fetch(
-            `${API_URL}/login`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-
-            showError(
-                data.message ||
-                data.error ||
-                "Login failed."
-            );
-
-            resetButtonState();
-
-            return;
-        }
-
-        // Save JWT Token
-        if (data.token) {
-
-            localStorage.setItem(
-                "hanverse_token",
-                data.token
-            );
-
-        }
-
-        // Save User
-        if (data.user) {
-
-            localStorage.setItem(
-                "hanverse_user",
-                JSON.stringify(data.user)
-            );
-
-        }
-
-        // Create Notification
-        const notifications =
-            JSON.parse(
-                localStorage.getItem(
-                    "hanverse_notifications"
-                ) || "[]"
-            );
-
-        notifications.unshift({
-            id: Date.now(),
-            title: "Welcome Back!",
-            message:
-                "Successfully logged into Hanverse.",
-            icon: "🎉",
-            unread: true,
-            created_at: new Date().toISOString()
-        });
-
-        localStorage.setItem(
-            "hanverse_notifications",
-            JSON.stringify(notifications)
-        );
-
-        showSuccess(
-            "Login successful!"
-        );
-
-        setTimeout(() => {
-
-            window.location.href =
-                "profile.html";
-
-        }, 1200);
-
+    const response=
+    await fetch(
+    API_URL+'/login',
+    {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        email,
+        password
+      })
     }
-    catch (error) {
-
-        console.error(
-            "Login Error:",
-            error
-        );
-
-        showError(
-            "Unable to connect to server."
-        );
-    }
-    finally {
-
-        resetButtonState();
-
-    }
-}
-
-
-// ==========================================
-// Form Submit
-// ==========================================
-
-if (loginForm) {
-
-    loginForm.addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-            await loginUser(
-                emailInput.value.trim(),
-                passwordInput.value
-            );
-
-        }
     );
 
-}
+    let data = {}; // Initialize with default empty object
 
-
-// ==========================================
-// Enter Key Support
-// ==========================================
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "Enter") {
-
-            if (
-                document.activeElement === emailInput ||
-                document.activeElement === passwordInput
-            ) {
-
-                loginUser(
-                    emailInput.value.trim(),
-                    passwordInput.value
-                );
-
-            }
-
-        }
-
-    }
-);
-
-
-// ==========================================
-// Password Toggle
-// ==========================================
-
-function togglePassword() {
-
-    const field =
-        document.getElementById(
-            "password"
+    // Check if response is ok before trying to parse JSON
+    if(response.ok){
+      try {
+        data = await response.json();
+      } catch(jsonError) {
+        console.error('JSON Parse Error:', jsonError);
+        console.error('Raw response text:', await response.text()); // Log raw response for debugging
+        
+        Notify.toast(
+          'Server returned invalid response format 🚨',
+          'error',
+          4000
         );
+        
+        btn.disabled=false;
+        btn.innerHTML='Log In';
+        return;
+      }
+    } else {
+      // Try to get error details from response
+      try {
+        data = await response.json();
+      } catch {
+        // If we can't parse the error response, create a generic one
+        data = { error: `Server error: ${response.status} ${response.statusText}` };
+      }
+    }
 
-    if (!field) return;
+    if(
+      response.status === 403 &&
+      data.error === 'banned'
+    ){
 
-    field.type =
-        field.type === "password"
-            ? "text"
-            : "password";
-}
+      btn.disabled=false;
+      btn.innerHTML='Log In';
 
+      document.querySelector('.right').innerHTML=`
+        <div style="text-align:center;padding:20px 0;">
+          <div style="font-size:72px;margin-bottom:20px;">🚫</div>
+          <h2 style="font-size:26px;color:#E63946;margin-bottom:12px;">Account Banned</h2>
+          <p style="color:#6B7280;line-height:1.8;margin-bottom:24px;">
+            ${data.reason || 'Violation of community guidelines.'}
+          </p>
+        </div>`;
 
-// ==========================================
-// Auto Login Check
-// ==========================================
+      return;
+    }
 
-window.addEventListener(
-    "load",
-    function() {
+    if(
+      response.status === 403 &&
+      data.error === 'not_verified'
+    ){
 
-        const token =
-            localStorage.getItem(
-                "hanverse_token"
-            );
+      btn.disabled=false;
+      btn.innerHTML='Log In';
 
-        if (token) {
+      Notify.toast(
+        'Please verify your email first 📧',
+        'warn',
+        5000
+      );
 
-            console.log(
-                "Existing session found."
-            );
+      return;
+    }
 
-        }
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      btn.disabled = false;
+      btn.innerHTML = 'Log In';
+      Notify.toast(
+        data.error ||
+        'Login failed ❌',
+        'error',
+        4000
+      );
+      return;
+    }
+
+    /* ==========================================
+      STORE SESSION
+    ========================================== */
+
+    localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify({
+
+      user_id:
+      data.user.user_id,
+
+      username:
+      data.user.username,
+
+      fullName:
+      data.user.full_name,
+
+      email:
+      data.user.email,
+
+      xp:
+      data.user.xp,
+
+      level:
+      data.user.level,
+
+      streak:
+      data.user.streak_days,
+
+      profile_picture:
+      data.user.profile_picture
+
+    })
+    );
+
+    /* ==========================================
+      SUCCESS
+    ========================================== */
+
+    Notify.toast(
+    'Welcome back! 🎉',
+    'success',
+    2500
+    );
+
+    Notify.showXP(50);
+
+    Notify.miniConfetti();
+
+    if(data.user.level >= 5){
+
+    Notify.toast(
+      `Level ${data.user.level} Scholar! 🏆`,
+      'star',
+      3000
+    );
 
     }
-);
 
-console.log(
-    "Hanverse Login Ready 🚀"
-);
-</script>
+    if(data.user.streak_days >= 7){
 
+    Notify.streakFire(
+      data.user.streak_days
+    );
 
-  </body>
-  </html>
+    }
+
+    setTimeout(()=>{
+
+    window.location.href=
+      'profile.html';
+
+    },900);
+
+  }
+  catch(error){
+
+    console.error('Login Error:', error);
+
+    const btn = document.getElementById('loginBtn');
+    if(btn) {
+      btn.disabled=false;
+      btn.innerHTML='Log In';
+    }
+
+    // Check if it's a network error
+    if(error.name === 'TypeError' && error.message.includes('fetch')) {
+      Notify.toast(
+        'Network error - unable to connect to server 🌐',
+        'error',
+        5000
+      );
+    } else {
+      Notify.toast(
+        'Login failed - please try again ❌',
+        'error',
+        4000
+      );
+    }
+
+  }
+
+}
