@@ -142,6 +142,66 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email and password are required'
+      });
+    }
+
+    const result = await pool.query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+
+    const user = result.rows[0];
+
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password_hash
+    );
+
+    if (!passwordMatch) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: {
+        user_id: user.user_id,
+        username: user.username,
+        full_name: user.full_name,
+        email: user.email,
+        xp: user.xp || 0,
+        level: user.level || 1,
+        streak_days: user.streak_days || 0,
+        profile_picture: user.profile_picture || null
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Login failed'
+    });
+  }
+});
   // Signup endpoint
   app.post('/api/signup', async (req, res) => {
     try {
