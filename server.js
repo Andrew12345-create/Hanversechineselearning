@@ -14,6 +14,12 @@
   if (!process.env.BREVO_SMTP_KEY) {
     console.error('Missing BREVO_SMTP_KEY. Verification + password reset emails will fail.');
   }
+  app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
+app.get('/signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'signup.html'));
+});
 
   // IMPORTANT: set EMAIL_FROM in your environment to a sender address verified in Brevo.
   const EMAIL_FROM = process.env.EMAIL_FROM || '"Hanverse" <andrewmunamwangi@gmail.com>';
