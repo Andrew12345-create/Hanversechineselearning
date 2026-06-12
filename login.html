@@ -868,9 +868,11 @@ input:hover{
 
 <script src="notifications.js"></script>
 <script>
+<script>
 const API_URL = window.location.origin + '/api';
 const SESSION_KEY = 'hanverse_user';
 
+/* FALLBACK NOTIFICATIONS */
 if (!window.Notify) {
   window.Notify = {
     toast: (msg) => alert(msg),
@@ -880,53 +882,81 @@ if (!window.Notify) {
   };
 }
 
+/* PASSWORD TOGGLE */
 function togglePassword() {
   const pw = document.getElementById('password');
   pw.type = pw.type === 'password' ? 'text' : 'password';
 }
 
+/* LOGIN */
 async function login() {
 
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+  const email = document
+    .getElementById('email')
+    .value
+    .trim();
+
+  const password = document
+    .getElementById('password')
+    .value;
 
   if (!email || !password) {
-    Notify.toast('Please enter email and password');
+    Notify.toast(
+      'Please enter email and password'
+    );
     return;
   }
 
-  const btn = document.getElementById('loginBtn');
+  const btn =
+    document.getElementById('loginBtn');
+
   btn.disabled = true;
   btn.innerHTML = 'Signing In...';
 
   try {
 
-    const response = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email,
-        password
-      })
-    });
+    const response = await fetch(
+      `${API_URL}/login`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type':
+          'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      }
+    );
 
-    const text = await response.text();
+    const text =
+      await response.text();
 
     let data;
 
     try {
       data = JSON.parse(text);
-    } catch {
+    }
+    catch {
+
       console.error(text);
-      throw new Error('Server returned HTML instead of JSON');
+
+      throw new Error(
+        'Server returned HTML instead of JSON'
+      );
     }
 
     if (!response.ok) {
-      Notify.toast(data.error || 'Login failed');
+
+      Notify.toast(
+        data.error ||
+        'Login failed'
+      );
+
       btn.disabled = false;
       btn.innerHTML = 'Log In';
+
       return;
     }
 
@@ -935,18 +965,23 @@ async function login() {
       JSON.stringify(data.user)
     );
 
-    Notify.toast('Welcome back! 🎉');
+    Notify.toast(
+      'Welcome back! 🎉'
+    );
 
     setTimeout(() => {
-      window.location.href = 'profile.html';
+      window.location.href =
+        'profile.html';
     }, 1000);
 
-  } catch (err) {
+  }
+  catch (err) {
 
     console.error(err);
 
     Notify.toast(
-      'Server connection failed'
+      err.message ||
+      'Unable to connect'
     );
 
     btn.disabled = false;
@@ -954,15 +989,109 @@ async function login() {
   }
 }
 
+/* RESEND VERIFICATION */
+async function resendVerification() {
+
+  const email =
+    document
+    .getElementById('email')
+    .value
+    .trim();
+
+  if (!email) {
+
+    Notify.toast(
+      'Enter your email first'
+    );
+
+    return;
+  }
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_URL}/resend-verification`,
+        {
+          method:'POST',
+          headers:{
+            'Content-Type':
+            'application/json'
+          },
+          body:JSON.stringify({
+            email
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (!response.ok) {
+
+      Notify.toast(
+        data.error ||
+        'Failed'
+      );
+
+      return;
+    }
+
+    Notify.toast(
+      'Verification email sent'
+    );
+
+  }
+  catch(err) {
+
+    console.error(err);
+
+    Notify.toast(
+      'Server error'
+    );
+  }
+}
+
+/* EVENTS */
+
 document
   .getElementById('loginBtn')
-  .addEventListener('click', login);
+  .addEventListener(
+    'click',
+    login
+  );
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    login();
+document
+  .getElementById(
+    'resendVerification'
+  )
+  .addEventListener(
+    'click',
+    (e) => {
+      e.preventDefault();
+      resendVerification();
+    }
+  );
+
+document
+  .addEventListener(
+    'keydown',
+    (e) => {
+      if (e.key === 'Enter') {
+        login();
+      }
+    }
+  );
+
+window.addEventListener(
+  'load',
+  () => {
+    console.log(
+      'Hanverse Login Ready'
+    );
   }
-});
+);
+</script> 
 </script>
 
   </body>
