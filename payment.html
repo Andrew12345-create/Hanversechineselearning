@@ -608,8 +608,13 @@ async function startPayment(){
 
         });
 
-        const data =
-        await response.json();
+        const text =
+await response.text();
+
+console.log(text);
+
+const data =
+JSON.parse(text);
 
         if(!data.success){
 
@@ -676,8 +681,13 @@ async function checkPremiumStatus(){
 
         });
 
-        const data =
-        await response.json();
+        const text =
+await response.text();
+
+console.log('check-premium response:', text);
+
+const data =
+JSON.parse(text);
 
         if(data.premium){
 
