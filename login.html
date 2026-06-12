@@ -867,8 +867,19 @@ input:hover{
 </div>
 
 <script src="notifications.js"></script>
+
 <script>
-<script>
+const API_URL = window.location.origin + '/api';
+const SESSION_KEY = 'hanverse_user';
+
+if (!window.Notify) {
+  window.Notify = {
+    toast: (msg) => alert(msg),
+    showXP: () => {},
+    miniConfetti: () => {},
+    streakFire: () => {}
+  };
+}
 const API_URL = window.location.origin + '/api';
 const SESSION_KEY = 'hanverse_user';
 
@@ -1092,7 +1103,7 @@ window.addEventListener(
   }
 );
 </script> 
-</script>
+
 
   </body>
   </html>
