@@ -8,7 +8,12 @@
     "prepare": "node ./scripts/setup-git-hooks.js",
     "build": "echo 'No build step for static site' && exit 0",
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "start:local": "node start-local.js",
+    "dev:local": "HOST=localhost PORT=3000 NODE_ENV=development node --watch server.js",
+    "setup:db": "node init_local_db.js",
+    "test:connection": "node check_db.js",
+    "init:db": "node init_local_db.js"
   },
   "keywords": [],
   "author": "",

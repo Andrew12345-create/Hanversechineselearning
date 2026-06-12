@@ -1,110 +1,78 @@
+#!/usr/bin/env node
+/**
+ * Simple script to test database connection
+ */
+import { Pool } from 'pg';
 import dotenv from 'dotenv';
-import pkg from 'pg';
-import { fileURLToPath } from 'url';
-import path from 'path';
 
 dotenv.config();
 
-const { Pool } = pkg;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL, 
-  ssl: { rejectUnauthorized: false } 
-});
-
-async function checkDatabase() {
-  try {
-    console.log('Connecting to database...');
-    
-    // Test the connection
-    const testResult = await pool.query('SELECT NOW()');
-    console.log('Connected to database successfully!\n');
-    
-    // Check existing tables
-    console.log('Checking existing tables...');
-    const tablesResult = await pool.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-      AND table_type = 'BASE TABLE';
-    `);
-    
-    console.log('Existing tables:');
-    tablesResult.rows.forEach(table => {
-      console.log(`- ${table.table_name}`);
+// Support both DATABASE_URL and individual DB params for local connections
+const pool = (process.env.DATABASE_URL || process.env.NEON_DATABASE_URL)
+  ? new Pool({
+      connectionString: (process.env.DATABASE_URL || process.env.NEON_DATABASE_URL).replace(/^psql\s+/i, '').replace(/^['"]|['"]$/g, ''),
+      ssl: { rejectUnauthorized: false },
+    })
+  : new Pool({
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'hanverse_dev',
+      password: process.env.DB_PASSWORD || 'postgres',
+      port: process.env.DB_PORT || 5432,
     });
-    console.log('');
+
+console.log('Testing database connection...');
+console.log('Configuration:');
+console.log(`  Host: ${process.env.DB_HOST || 'localhost'}`);
+console.log(`  Database: ${process.env.DB_NAME || 'hanverse_dev'}`);
+console.log(`  User: ${process.env.DB_USER || 'postgres'}`);
+console.log(`  Port: ${process.env.DB_PORT || 5432}`);
+
+async function testConnection() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT NOW()');
+    console.log('\n✅ Database connection successful!');
+    console.log('Current timestamp from database:', result.rows[0].now);
+    client.release();
     
-    // Check if users table has any records
-    const userCount = await pool.query('SELECT COUNT(*) FROM users;');
-    console.log(`Users in database: ${userCount.rows[0].count}`);
-    
-    if (parseInt(userCount.rows[0].count) > 0) {
-      // Show a few sample users (without passwords)
-      const sampleUsers = await pool.query('SELECT user_id, username, email, full_name, created_at FROM users LIMIT 5;');
-      console.log('\nSample users:');
-      sampleUsers.rows.forEach(user => {
-        console.log(`ID: ${user.user_id}, Username: ${user.username}, Email: ${user.email}, Name: ${user.full_name}, Created: ${user.created_at}`);
-      });
-    } else {
-      console.log('\nNo users found in database.');
+    // Test if our tables exist
+    try {
+      const tablesResult = await pool.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public'
+        AND table_name IN ('users', 'user_progress', 'achievements', 'daily_goals', 'notifications', 'user_settings', 'vocabulary_progress', 'email_verifications', 'password_resets')
+      `);
       
-      // Insert a sample user if none exist
-      console.log('\nInserting a sample user...');
-      const bcrypt = await import('bcrypt');
-      const passwordHash = await bcrypt.default.hash('Password123!', 10);
-      
-      const result = await pool.query(`
-        INSERT INTO users (username, email, password_hash, full_name, xp, level, streak_days, is_verified, created_at) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-        RETURNING user_id, username, email, full_name
-      `, [
-        'testuser', 
-        'test@example.com', 
-        passwordHash, 
-        'Test User', 
-        0, 
-        1, 
-        0, 
-        true, 
-        new Date()
-      ]);
-      
-      console.log('Sample user created:');
-      console.log(`ID: ${result.rows[0].user_id}, Username: ${result.rows[0].username}, Email: ${result.rows[0].email}, Name: ${result.rows[0].full_name}`);
+      console.log(`\nFound ${tablesResult.rows.length} Hanverse tables in the database`);
+      if (tablesResult.rows.length > 0) {
+        console.log('Tables:', tablesResult.rows.map(r => r.table_name).join(', '));
+      }
+    } catch (tableErr) {
+      console.log('\n⚠️ Could not verify table existence:', tableErr.message);
     }
     
-    // Check other tables
-    console.log('\nChecking other tables...');
-    
-    const progressCount = await pool.query('SELECT COUNT(*) FROM user_progress;');
-    console.log(`Progress records: ${progressCount.rows[0].count}`);
-    
-    const achievementsCount = await pool.query('SELECT COUNT(*) FROM achievements;');
-    console.log(`Achievements: ${achievementsCount.rows[0].count}`);
-    
-    const goalsCount = await pool.query('SELECT COUNT(*) FROM daily_goals;');
-    console.log(`Daily goals: ${goalsCount.rows[0].count}`);
-    
-    const notificationsCount = await pool.query('SELECT COUNT(*) FROM notifications;');
-    console.log(`Notifications: ${notificationsCount.rows[0].count}`);
-    
-    const settingsCount = await pool.query('SELECT COUNT(*) FROM user_settings;');
-    console.log(`User settings: ${settingsCount.rows[0].count}`);
-    
-    const vocabCount = await pool.query('SELECT COUNT(*) FROM vocabulary_progress;');
-    console.log(`Vocabulary records: ${vocabCount.rows[0].count}`);
-    
-  } catch (error) {
-    console.error('Error checking database:', error);
-    throw error;
-  } finally {
     await pool.end();
-    console.log('\nDatabase connection closed.');
+    console.log('\nTest completed successfully!');
+  } catch (err) {
+    console.error('\n❌ Database connection failed:', err.message);
+    
+    if (err.code === 'ECONNREFUSED') {
+      console.error('\n💡 The PostgreSQL server is not running locally.');
+      console.error('   Please install and start PostgreSQL.');
+      console.error('   On Windows, you can start PostgreSQL from Services.msc');
+    } else if (err.code === '28P01') {
+      console.error('\n💡 Incorrect username or password for PostgreSQL.');
+      console.error('   Please check your DB_USER and DB_PASSWORD in the .env file.');
+    } else if (err.code === '3D000') {
+      console.error('\n💡 Database does not exist.');
+      console.error('   Run: npm run init:db to create the database and tables');
+    }
+    
+    await pool.end();
+    process.exit(1);
   }
 }
 
-// Run the check
-checkDatabase().catch(console.error);
+testConnection();

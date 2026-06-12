@@ -11,18 +11,36 @@
 npm install
 ```
 
-2. **Configure database connection:**
-Copy `.env.example` to `.env` and verify the `DATABASE_URL` value matches your Neon database connection string:
+2. **Configure environment variables:**
+Copy `.env.example` to `.env` and set the appropriate values:
+
 ```
-DATABASE_URL=postgresql://neondb_owner:npg_2GbziUBo9RvI@ep-little-brook-airyxne9-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+# Database Configuration
+DB_USER=your_db_user
+DB_HOST=localhost
+DB_NAME=your_database_name
+DB_PASSWORD=your_db_password
+DB_PORT=5432
+
+# Email Configuration (Brevo SMTP)
 BREVO_SMTP_KEY=your_brevo_smtp_key   # required for verification + password reset emails
 EMAIL_FROM="Hanverse" <your-verified-sender@yourdomain.com>   # recommended; verified sender in Brevo
-FRONTEND_URL=http://localhost:3000   # optional; if unset, links are built from the request Origin
-PORT=3000
-NODE_ENV=development
-```
-Note: the server reads `DATABASE_URL` for both local and Netlify environments. `BREVO_SMTP_KEY` is required if you want forgot-password / verification emails to send.
 
+# Frontend URL Configuration
+FRONTEND_URL=http://localhost:3000   # for localhost development
+# FRONTEND_URL=https://hanverse.netlify.app   # for production (uncomment when deploying)
+
+# Server Configuration
+PORT=3000                            # port to run the server on
+HOST=0.0.0.0                         # host to bind to (0.0.0.0 for external access, localhost for local-only)
+NODE_ENV=development                 # development or production
+```
+
+**Important notes:**
+- The `BREVO_SMTP_KEY` is required if you want verification and password reset emails to send
+- For localhost development, `FRONTEND_URL` should be set to `http://localhost:3000` to ensure email links work properly
+- When deploying to production, update `FRONTEND_URL` to your production URL
+- The `HOST` variable controls whether the server accepts connections from external addresses (use 0.0.0.0) or only local connections (use localhost/127.0.0.1)
 
 3. **Start the server:**
 ```bash
@@ -34,7 +52,7 @@ Or for development with auto-reload:
 npm run dev
 ```
 
-The server will start on `http://localhost:3000`.
+The server will start on `http://localhost:3000` (or whatever host/port you've configured).
 
 ## API Endpoints
 
@@ -104,9 +122,15 @@ Fetches user data by ID.
    - 10 XP is awarded for login
    - Level is updated if XP threshold reached
 
+## Localhost vs Production Configuration
+
+The server automatically detects the environment and adjusts email links accordingly:
+- In development (`NODE_ENV=development`): Email links point to `http://localhost:3000` for local testing
+- In production: Email links point to the production URL specified in `FRONTEND_URL`
+
 ## Database Connection
 
-The server uses the `pg` (node-postgres) library to connect to Neon PostgreSQL. The connection pool handles multiple requests efficiently.
+The server uses the `pg` (node-postgres) library to connect to PostgreSQL. The connection pool handles multiple requests efficiently.
 
 ## Security Notes
 

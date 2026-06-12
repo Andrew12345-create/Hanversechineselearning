@@ -1,4 +1,4 @@
-  import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import pkg from 'pg';
 import cors from 'cors';
@@ -57,9 +57,10 @@ process.on('SIGINT', async () => {
 });
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0'; // Allow configuration of host
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Server running on ${HOST}:${PORT}`);
 });
 
 import serverless from 'serverless-http';
@@ -99,7 +100,10 @@ mailer.verify((err) => {
 async function sendEmail(to, name, type, data = {}) {
 
     const first = name ? name.split(' ')[0] : 'Learner';
-    const DEFAULT_FRONTEND_URL = 'https://' + 'hanverse.netlify.app'; // Avoid direct string detection
+    // For localhost development, use localhost as frontend URL, otherwise use production URL
+    const DEFAULT_FRONTEND_URL = process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:3000' 
+      : 'https://' + 'hanverse.netlify.app'; // Avoid direct string detection
     const frontend = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
 
     const templates = {
@@ -147,13 +151,46 @@ async function sendEmail(to, name, type, data = {}) {
   }
 
   const { Pool } = pkg;
-  const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-  });
+  
+  // Create the pool with error handling - support both DATABASE_URL and individual DB params
+  let pool;
+  try {
+    // Prefer DATABASE_URL if available (cloud PostgreSQL services)
+    if (process.env.DATABASE_URL || process.env.NEON_DATABASE_URL) {
+      const databaseUrl = (process.env.DATABASE_URL || process.env.NEON_DATABASE_URL).replace(/^psql\s+/i, '').replace(/^['"]|['"]$/g, '');
+      pool = new Pool({
+        connectionString: databaseUrl,
+        ssl: { rejectUnauthorized: false },
+      });
+    } else {
+      // Fall back to individual DB parameters for local development
+      pool = new Pool({
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: process.env.DB_PORT,
+      });
+    }
+  
+    // Test the connection
+    pool.query('SELECT NOW()', (err, res) => {
+      if (err) {
+        console.error('Database connection failed:', err.message);
+        console.error('Please check your database configuration in .env file');
+        console.error('For local development without a database, you can:');
+        console.error('- Install PostgreSQL locally');
+        console.error('- Use a cloud PostgreSQL service like Supabase or ElephantSQL');
+        console.error('- See LOCAL_DEV_SETUP.md for detailed instructions');
+      } else {
+        console.log('Database connected successfully ✓');
+      }
+    });
+  } catch (error) {
+    console.error('Error creating database pool:', error.message);
+    console.error('Please verify your database configuration in .env file');
+    pool = null;
+  }
 
 
   app.use(cors());
@@ -169,6 +206,11 @@ app.get('/', (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   try {
+    // Check if database pool is available
+    if (!pool) {
+      return res.status(500).json({ error: 'Database connection unavailable. Please check your database configuration.' });
+    }
+    
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
@@ -233,13 +275,25 @@ app.post('/api/login', async (req, res) => {
     });
   } catch (e) {
     console.error('Login error:', e);
-    res.status(500).json({ error: 'Server error during login' });
+    // Provide more specific error message for database connection issues
+    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
+      return res.status(500).json({ 
+        error: 'Database connection error', 
+        message: 'Unable to connect to the database. Please check your database configuration.' 
+      });
+    }
+    res.status(500).json({ error: 'Server error during login', details: e.message });
   }
 });
 
   // Signup endpoint
   app.post('/api/signup', async (req, res) => {
     try {
+      // Check if database pool is available
+      if (!pool) {
+        return res.status(500).json({ error: 'Database connection unavailable. Please check your database configuration.' });
+      }
+      
       const { username, email, password, full_name } = req.body;
       if (!username || !email || !password || !full_name) return res.status(400).json({ error: 'All fields are required' });
 
@@ -299,6 +353,13 @@ app.post('/api/login', async (req, res) => {
 
     } catch (error) {
       console.error('Signup error:', error.message);
+      // Provide more specific error message for database connection issues
+      if (error.code === 'ECONNREFUSED' || error.message.includes('connection') || error.message.includes('database')) {
+        return res.status(500).json({ 
+          error: 'Database connection error', 
+          message: 'Unable to connect to the database. Please check your database configuration.' 
+        });
+      }
       res.status(500).json({ error: 'Server error during signup', details: error.message });
     }
   });
@@ -306,6 +367,11 @@ app.post('/api/login', async (req, res) => {
   // Forgot password endpoint
   app.post('/api/forgot-password', async (req, res) => {
     try {
+      // Check if database pool is available
+      if (!pool) {
+        return res.status(500).json({ error: 'Database connection unavailable. Please check your database configuration.' });
+      }
+      
       const { email } = req.body;
       if (!email) return res.status(400).json({ error: 'Email is required' });
       
@@ -323,7 +389,11 @@ app.post('/api/login', async (req, res) => {
         [user.user_id, token, expiresAt]
       );
 
-      const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || 'https://hanverse.netlify.app').replace(/\/$/, '');
+      // For localhost development, use localhost as frontend URL, otherwise use production URL
+      const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
+        ? 'http://localhost:3000' 
+        : 'https://hanverse.netlify.app';
+      const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || defaultFrontendUrl).replace(/\/$/, '');
       const resetLink = `${frontendBase}/forgot-password.html?token=${token}`;
 
       await sendEmail(user.email, user.full_name, 'reset', { token, link: resetLink });
@@ -331,6 +401,13 @@ app.post('/api/login', async (req, res) => {
       return res.json({ success: true, message: 'If that email exists, a reset link has been sent.' });
     } catch (e) {
       console.error('Forgot-password error:', e);
+      // Provide more specific error message for database connection issues
+      if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
+        return res.status(500).json({ 
+          error: 'Database connection error', 
+          message: 'Unable to connect to the database. Please check your database configuration.' 
+        });
+      }
       return res.status(500).json({ error: 'Failed to send password reset email' });
     }
   });
@@ -338,6 +415,11 @@ app.post('/api/login', async (req, res) => {
   // Reset password endpoint
   app.post('/api/reset-password', async (req, res) => {
     try {
+      // Check if database pool is available
+      if (!pool) {
+        return res.status(500).json({ error: 'Database connection unavailable. Please check your database configuration.' });
+      }
+      
       const { token, newPassword } = req.body;
       if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password are required' });
 
@@ -353,6 +435,13 @@ app.post('/api/login', async (req, res) => {
       return res.json({ success: true, message: 'Password reset successfully' });
     } catch (e) {
       console.error('Reset-password error:', e);
+      // Provide more specific error message for database connection issues
+      if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
+        return res.status(500).json({ 
+          error: 'Database connection error', 
+          message: 'Unable to connect to the database. Please check your database configuration.' 
+        });
+      }
       return res.status(500).json({ error: 'Failed to reset password' });
     }
   });
@@ -360,6 +449,11 @@ app.post('/api/login', async (req, res) => {
   // Verify email endpoint
   app.get('/api/verify-email', async (req, res) => {
     try {
+      // Check if database pool is available
+      if (!pool) {
+        return res.status(500).json({ error: 'Database connection unavailable. Please check your database configuration.' });
+      }
+      
       const { token } = req.query;
       if (!token) return res.status(400).json({ error: 'Token is required' });
       
@@ -374,6 +468,13 @@ app.post('/api/login', async (req, res) => {
       return res.json({ success: true, message: 'Email verified successfully' });
     } catch (e) {
       console.error('Verify error:', e);
+      // Provide more specific error message for database connection issues
+      if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
+        return res.status(500).json({ 
+          error: 'Database connection error', 
+          message: 'Unable to connect to the database. Please check your database configuration.' 
+        });
+      }
       return res.status(500).json({ error: 'Verification failed' });
     }
   });
@@ -381,6 +482,11 @@ app.post('/api/login', async (req, res) => {
   // Resend verification email endpoint
   app.post('/api/resend-verification', async (req, res) => {
     try {
+      // Check if database pool is available
+      if (!pool) {
+        return res.status(500).json({ error: 'Database connection unavailable. Please check your database configuration.' });
+      }
+      
       const { email } = req.body;
       if (!email) return res.status(400).json({ error: 'Email is required' });
       const userRes = await pool.query('SELECT user_id, full_name, email FROM users WHERE email = $1', [email]);
@@ -398,7 +504,11 @@ app.post('/api/login', async (req, res) => {
       );
 
       try {
-        const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || 'https://hanverse.netlify.app').replace(/\/$/, '');
+        // For localhost development, use localhost as frontend URL, otherwise use production URL
+        const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
+          ? 'http://localhost:3000' 
+          : 'https://hanverse.netlify.app';
+        const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || defaultFrontendUrl).replace(/\/$/, '');
         const verifyLink = `${frontendBase}/verify.html?token=${token}`;
 
         await sendEmail(user.email, user.full_name, 'verify', { token, link: verifyLink });
@@ -410,10 +520,74 @@ app.post('/api/login', async (req, res) => {
       }
     } catch (e) {
       console.error(e);
+      // Provide more specific error message for database connection issues
+      if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
+        return res.status(500).json({ 
+          error: 'Database connection error', 
+          message: 'Unable to connect to the database. Please check your database configuration.' 
+        });
+      }
       return res.status(500).json({ error: 'Failed to resend verification' });
     }
   });
 
-  // The server instance is already created at the top of the file with proper error handling
-// and lifecycle management. The server instance is exported for serverless integration.
-// This duplicate listen call is removed to avoid starting the server twice.
+  // Get courses for a student
+  app.get('/api/courses', async (req, res) => {
+    try {
+      const { student_id } = req.query;
+      if (!student_id) return res.status(400).json({ error: 'student_id is required' });
+
+      const progress = await pool.query(
+        'SELECT * FROM user_progress WHERE user_id = $1 AND course_type = $2',
+        [student_id, 'YCT']
+      );
+
+      // Format as courses
+      const courses = [];
+      const byLevel = {};
+      progress.rows.forEach(row => {
+        const level = row.course_level;
+        if (!byLevel[level]) {
+          byLevel[level] = { yct_level: level, title: `YCT Level ${level}`, description: `Chinese Young Learner Test Level ${level}`, lessons: [] };
+          courses.push(byLevel[level]);
+        }
+        byLevel[level].lessons.push(row.lesson_id);
+      });
+
+      res.json(courses);
+    } catch (e) {
+      console.error('Get courses error:', e);
+      res.status(500).json({ error: 'Failed to get courses' });
+    }
+  });
+
+  // Set user's YCT level (free unlock)
+  app.post('/api/set-level', async (req, res) => {
+    try {
+      const { user_id, level } = req.body;
+      if (!user_id || !level || level < 1 || level > 4) {
+        return res.status(400).json({ error: 'user_id and valid level (1-4) are required' });
+      }
+
+      const lessons = 20;
+      const placeholders = [];
+      const params = [user_id, level];
+      for (let i = 1; i <= lessons; i++) {
+        placeholders.push(`($1, 'YCT', $2, ${i}, FALSE)`);
+      }
+      
+      await pool.query('DELETE FROM user_progress WHERE user_id = $1 AND course_type = $2', [user_id, 'YCT']);
+      await pool.query(
+        `INSERT INTO user_progress (user_id, course_type, course_level, lesson_id, completed) VALUES ${placeholders.join(',')}`,
+        params
+      );
+
+      res.json({ success: true, message: `YCT Level ${level} unlocked!` });
+    } catch (e) {
+      console.error('Set level error:', e);
+      res.status(500).json({ error: 'Failed to set level' });
+    }
+  });
+
+  // Removed the duplicate PORT/HOST declarations and server.listen() call
+  // The server instance is already created earlier in the file
