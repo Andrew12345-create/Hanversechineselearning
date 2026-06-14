@@ -867,8 +867,14 @@ input:hover{
 </div>
 
 <script src="notifications.js"></script>
-
+<script src="notifications-client.js"></script>
 <script>
+// Initialize notifications when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.HanverseNotifications && window.HanverseNotifications.init) {
+        window.HanverseNotifications.init();
+    }
+});
 
 /* ==========================================
    HANVERSE LOGIN SYSTEM
@@ -891,109 +897,43 @@ const loginForm =
 document.getElementById('loginForm');
 
 const emailInput =
-document.getElementById('email');
+ document.getElementById('email');
 
 const passwordInput =
-document.getElementById('password');
+ document.getElementById('password');
 
 const loginButton =
-document.getElementById('loginBtn');
-
-const errorMessage =
-document.getElementById('errorMessage');
-
-const successMessage =
-document.getElementById('successMessage');
+ document.getElementById('loginBtn');
 
 /* ==========================================
    MESSAGES
-========================================== */
-
-function showError(message){
-
-    if(!errorMessage) return;
-
-    errorMessage.textContent =
-    message;
-
-    errorMessage.style.display =
-    'block';
-
-    if(successMessage){
-
-        successMessage.style.display =
-        'none';
-
-    }
-
-}
-
-function showSuccess(message){
-
-    if(!successMessage) return;
-
-    successMessage.textContent =
-    message;
-
-    successMessage.style.display =
-    'block';
-
-    if(errorMessage){
-
-        errorMessage.style.display =
-        'none';
-
-    }
-
-}
-
-function clearMessages(){
-
-    if(errorMessage){
-
-        errorMessage.style.display =
-        'none';
-
-    }
-
-    if(successMessage){
-
-        successMessage.style.display =
-        'none';
-
-    }
-
-}
-
-/* ==========================================
-   BUTTON STATES
-========================================== */
+ ========================================== */
 
 function setLoadingState(){
-
     if(!loginButton) return;
-
     loginButton.disabled = true;
-
     loginButton.innerHTML =
     'Logging In...';
-
 }
 
 function resetButtonState(){
-
     if(!loginButton) return;
-
     loginButton.disabled = false;
-
     loginButton.innerHTML =
     'Log In';
+}
 
+function showError(message){
+    Notify.toast(message, 'error');
+}
+
+function showSuccess(message){
+    Notify.toast(message, 'success');
 }
 
 /* ==========================================
-   LOGIN
-========================================== */
+    LOGIN
+ ========================================== */
 
 async function loginUser(email,password){
 
@@ -1002,6 +942,7 @@ async function loginUser(email,password){
         setLoadingState();
 
         const response =
+
         await fetch(
         `${API_URL}/login`,
         {
@@ -1146,9 +1087,10 @@ async function loginUser(email,password){
            SUCCESS
         ====================================== */
 
-        showSuccess(
-        'Login successful!'
-        );
+showSuccess(
+         'Login successful!'
+     );
+     Notify.confetti({ particleCount: 60, duration: 1500 });
 
         setTimeout(()=>{
 
@@ -1190,7 +1132,7 @@ if(loginButton){
 
         event.preventDefault();
 
-        clearMessages();
+     
 
         const email =
         emailInput.value.trim();
@@ -1337,3 +1279,6 @@ function(){
 });
 
 </script>
+
+</body>
+</html>

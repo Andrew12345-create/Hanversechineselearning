@@ -1,4 +1,4 @@
-import serverless from 'serverless-http';
+
 import express from 'express';
 import pkg from 'pg';
 import cors from 'cors';
@@ -93,16 +93,15 @@ mailer.verify((err) => {
 
 async function sendEmail(to, name, type, data = {}) {
   const first = name ? name.split(' ')[0] : 'Learner';
-  // For localhost development, use localhost as frontend URL, otherwise use production URL
-  const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:3000' 
-    : 'https://' + 'hanverse.netlify.app'; // Split to avoid direct string detection
-  const frontend = process.env.FRONTEND_URL || defaultFrontendUrl;
+
+  const prodFrontendBase = 'https://hanverse.netlify.app';
+  const frontendBase = (process.env.FRONTEND_URL || prodFrontendBase).replace(/\/$/, '');
+
   const templates = {
     welcome: {
       subject: '🐼 Welcome to Hanverse!',
       header: { bg: 'linear-gradient(135deg,#74C69D,#52B788)', emoji: '🐼', title: 'Welcome to Hanverse!', sub: 'Your Mandarin journey starts now.' },
-      body: `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Your account is all set! Here's what's waiting for you:</p><div style="display:grid;gap:12px;margin-bottom:28px;"><div style="background:#F0FDF4;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">📚</span> <strong>Structured YCT curriculum from Level 1</strong></div><div style="background:#EFF6FF;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">⭐</span> <strong>Earn XP and level up as you learn</strong></div><div style="background:#FFFBEB;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">🔥</span> <strong>Build a daily streak and track progress</strong></div><div style="background:#FFF0F0;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">🤖</span> <strong>AI learning assistant to help you along</strong></div></div>`,
+      body: `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Your account is all set! Here's what's waiting for you:</p><div style="display:grid;gap:12px;margin-bottom:28px;"><div style="background:#F0FDF4;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">📚</span> <strong>Structured YCT curriculum from Level 1</strong></div><div style="background:#EFF6FF;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">⭐</span> <strong>Earn XP and level up as you learn</strong></div><div style="background:#FFFBEB;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">🔥</span> <strong>Build a daily streak and track progress</strong></div><div style="background:#FFF0F0;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">🤖</span> <strong>AI learning assistant to help you along</strong></div></div>`
     },
     verify: {
       subject: '🔒 Verify your Hanverse email',
@@ -122,25 +121,16 @@ async function sendEmail(to, name, type, data = {}) {
   let bodyHtml = template.body;
 
   if (type === 'verify') {
-    // For localhost development, use localhost as frontend URL, otherwise use production URL
-    const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000' 
-      : 'https://' + 'hanverse.netlify.app'; // Split to avoid direct string detection
-    const frontend = process.env.FRONTEND_URL || defaultFrontendUrl;
-    const link = data.link || `${frontend}/verify.html?token=${data.token}`;
+    const token = data.token;
+    const link = data.link || `${frontendBase}/verify.html?token=${token}`;
     bodyHtml = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to verify your email address for Hanverse. This link expires in 24 hours.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#4EA8DE,#7BC7F4);color:#fff;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Verify my email</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p>`;
   } else if (type === 'reset') {
-    // For localhost development, use localhost as frontend URL, otherwise use production URL
-    const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000' 
-      : 'https://' + 'hanverse.netlify.app'; // Split to avoid direct string detection
-    const frontend = process.env.FRONTEND_URL || defaultFrontendUrl;
-    const link = data.link || `${frontend}/forgot-password.html?token=${data.token}`;
+    const token = data.token;
+    const link = data.link || `${frontendBase}/forgot-password.html?token=${token}`;
     bodyHtml = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to reset your Hanverse password. This link expires in one hour.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Reset my password</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p>`;
   }
 
-  const frontendUrl = process.env.FRONTEND_URL || frontend;
-  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FFFDF7;border-radius:24px;overflow:hidden;"><div style="background:${template.header.bg};padding:40px 40px 30px;text-align:center;"><div style="font-size:60px;">${template.header.emoji}</div><h1 style="margin:14px 0 0;color:#fff;font-size:26px;font-weight:800;">${template.header.title}</h1><p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:15px;">${template.header.sub}</p></div><div style="padding:36px 40px;">${bodyHtml}${type === 'welcome' ? '<a href="' + frontendUrl + '/login.html" style="display:block;text-align:center;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:800;font-size:16px;padding:16px;border-radius:40px;text-decoration:none;">Go to Hanverse 🚀</a><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">The Hanverse Team 🐼</p>' : ''}</div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FFFDF7;border-radius:24px;overflow:hidden;"><div style="background:${template.header.bg};padding:40px 40px 30px;text-align:center;"><div style="font-size:60px;">${template.header.emoji}</div><h1 style="margin:14px 0 0;color:#fff;font-size:26px;font-weight:800;">${template.header.title}</h1><p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:15px;">${template.header.sub}</p></div><div style="padding:36px 40px;">${bodyHtml}${type === 'welcome' ? '<a href="' + frontendBase + '/login.html" style="display:block;text-align:center;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:800;font-size:16px;padding:16px;border-radius:40px;text-decoration:none;">Go to Hanverse 🚀</a><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">The Hanverse Team 🐼</p>' : ''}</div></div>`;
 
   const info = await mailer.sendMail({
     from: EMAIL_FROM,
@@ -153,180 +143,7 @@ async function sendEmail(to, name, type, data = {}) {
   return info;
 }
 
-// Login
-app.post('/api/login', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
 
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
-
-    const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (!userResult.rows.length) return res.status(401).json({ error: 'Invalid email or password' });
-
-    const user = userResult.rows[0];
-    const match = await bcrypt.compare(password, user.password_hash);
-    if (!match) return res.status(401).json({ error: 'Invalid email or password' });
-
-    if (user.is_banned) {
-      return res.status(403).json({ error: 'banned', reason: user.banned_reason || 'Your account has been banned.' });
-    }
-
-    // Handle null/undefined is_verified (treat as unverified if null)
-    const isVerified = user.is_verified === true;
-    if (!isVerified) {
-      return res.status(403).json({ error: 'not_verified' });
-    }
-
-    const [progress, achievements, dailyGoals, notifications, settings, vocab] = await Promise.all([
-      pool.query('SELECT * FROM user_progress WHERE user_id = $1', [user.user_id]),
-      pool.query('SELECT * FROM achievements WHERE user_id = $1', [user.user_id]),
-      pool.query('SELECT * FROM daily_goals WHERE user_id = $1 AND goal_date = CURRENT_DATE', [user.user_id]),
-      pool.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20', [user.user_id]),
-      pool.query('SELECT * FROM user_settings WHERE user_id = $1', [user.user_id]),
-      pool.query('SELECT * FROM vocabulary_progress WHERE user_id = $1', [user.user_id]),
-    ]);
-
-    const today = new Date();
-    let lastActiveDate;
-    try {
-      lastActiveDate = user.last_active ? new Date(user.last_active) : today;
-    } catch {
-      lastActiveDate = today;
-    }
-    const daysDiff = Math.floor((today - lastActiveDate) / 86400000);
-    let newStreak = user.streak_days || 0;
-    if (daysDiff === 1) newStreak += 1;
-    else if (daysDiff > 1) newStreak = 1;
-
-    await pool.query(
-      'UPDATE users SET last_active = CURRENT_DATE, streak_days = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2',
-      [newStreak, user.user_id]
-    );
-
-    res.json({
-      success: true,
-      user: {
-        user_id: user.user_id,
-        username: user.username,
-        email: user.email,
-        full_name: user.full_name,
-        xp: user.xp,
-        level: user.level,
-        streak_days: newStreak,
-        profile_picture: user.profile_picture,
-        is_admin: user.is_admin || false,
-        is_banned: user.is_banned || false,
-        banned_reason: user.banned_reason || null,
-        created_at: user.created_at,
-      },
-      progress: progress.rows,
-      achievements: achievements.rows,
-      dailyGoals: dailyGoals.rows,
-      notifications: notifications.rows,
-      settings: settings.rows[0] || null,
-      vocabulary: vocab.rows,
-    });
-  } catch (e) {
-    console.error('Login error:', e.message);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Server error during login', details: e.message });
-  }
-});
-
-// Signup
-app.post('/api/signup', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { email, password, full_name, username } = req.body;
-    if (!email || !password || !full_name || !username)
-      return res.status(400).json({ error: 'All fields are required' });
-
-    const existing = await pool.query(
-      'SELECT 1 FROM users WHERE email = $1 OR username = $2', [email, username]
-    );
-    if (existing.rows.length) return res.status(400).json({ error: 'Email or username already exists' });
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      'INSERT INTO users (username, email, password_hash, full_name, last_active, is_verified) VALUES ($1,$2,$3,$4,CURRENT_DATE,FALSE) RETURNING *',
-      [username, email, passwordHash, full_name]
-    );
-    const user = result.rows[0];
-    await pool.query('INSERT INTO user_settings (user_id) VALUES ($1)', [user.user_id]);
-
-    // Generate and store verification token
-    const token = crypto.randomBytes(24).toString('hex');
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    await pool.query(
-      `INSERT INTO email_verifications (user_id, token, expires_at)
-       VALUES ($1, $2, $3)`,
-      [user.user_id, token, expiresAt]
-    );
-
-    // For localhost development, use localhost as frontend URL, otherwise use production URL
-    const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000' 
-      : 'https://hanverse.netlify.app';
-    const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || defaultFrontendUrl).replace(/\/$/, '');
-    const verifyLink = `${frontendBase}/verify.html?token=${token}`;
-
-    // Send verification email (await so we can report failures clearly)
-    let verificationEmailSent = false;
-    try {
-      await sendEmail(user.email, user.full_name, 'verify', { token, link: verifyLink });
-      verificationEmailSent = true;
-      console.log('Functions: verification email sent:', user.email);
-    } catch (err) {
-      console.error('Functions: verification email failed:', err.message);
-    }
-
-    // Welcome email is optional; send non-blocking
-    sendEmail(user.email, user.full_name, 'welcome')
-      .then((info) => console.log('Functions: welcome email sent:', info.messageId))
-      .catch((e) => console.error('Functions: welcome email failed:', e.message));
-
-    res.json({
-      success: true,
-      message: verificationEmailSent
-        ? 'Account created. Verification email sent.'
-        : 'Account created, but verification email could not be sent. Please use Resend Verification.',
-      user: {
-        user_id: user.user_id,
-        username: user.username,
-        email: user.email,
-        full_name: user.full_name,
-        xp: 0,
-        level: 1,
-        streak_days: 0,
-        is_admin: false,
-      },
-    });
-  } catch (e) {
-    console.error('Signup error:', e.message);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Server error during signup', details: e.message });
-  }
-});
 
 // Resend verification email (minimal - checks email and returns JSON)
 app.post('/api/resend-verification', async (req, res) => {
@@ -353,12 +170,9 @@ app.post('/api/resend-verification', async (req, res) => {
     );
 
     try {
-      // For localhost development, use localhost as frontend URL, otherwise use production URL
-      const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3000' 
-        : 'https://hanverse.netlify.app';
-      const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || defaultFrontendUrl).replace(/\/$/, '');
+      const frontendBase = (process.env.FRONTEND_URL || 'https://hanverse.netlify.app').replace(/\/$/, '');
       const verifyLink = `${frontendBase}/verify.html?token=${token}`;
+
 
       await sendEmail(user.email, user.full_name, 'verify', { token, link: verifyLink });
       console.log('Functions: verification email sent to', email);
@@ -402,12 +216,9 @@ app.post('/api/forgot-password', async (req, res) => {
       [user.user_id, token, expiresAt]
     );
 
-    // For localhost development, use localhost as frontend URL, otherwise use production URL
-    const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000' 
-      : 'https://hanverse.netlify.app';
-    const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || defaultFrontendUrl).replace(/\/$/, '');
+    const frontendBase = (process.env.FRONTEND_URL || 'https://hanverse.netlify.app').replace(/\/$/, '');
     const resetLink = `${frontendBase}/forgot-password.html?token=${token}`;
+
 
     await sendEmail(user.email, user.full_name, 'reset', { token, link: resetLink });
     console.log('Functions: password reset email sent to', email);

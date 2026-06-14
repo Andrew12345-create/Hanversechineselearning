@@ -446,9 +446,6 @@ Games & AI
  <p>Fill in your details to get started.</p>
 </div>
 
-<div class="field-error" id="errorMessage" style="display:none; background:#FFF5F5; padding:12px; border-radius:16px; margin-bottom:16px;"></div>
-<div class="field-error" id="successMessage" style="display:none; background:#F0FDF4; padding:12px; border-radius:16px; margin-bottom:16px; color:var(--green);"></div>
-
 <div class="row-2">
 
 <div class="input-group">
@@ -516,6 +513,15 @@ Already have an account?
 </div>
 
 <script src="notifications.js"></script>
+<script src="notifications-client.js"></script>
+<script>
+// Initialize notifications when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.HanverseNotifications && window.HanverseNotifications.init) {
+        window.HanverseNotifications.init();
+    }
+});
+</script>
 <script>
 // ==========================================
 // HANVERSE SIGNUP SYSTEM
@@ -548,13 +554,6 @@ const confirmPasswordInput =
 
 const signupButton =
     document.getElementById("signupBtn");
-
-// Messages
-const errorMessage =
-    document.getElementById("errorMessage");
-
-const successMessage =
-    document.getElementById("successMessage");
 
 
 // ==========================================
@@ -596,56 +595,14 @@ function saveNotification(
 // ==========================================
 
 function showError(message) {
-
-    if (!errorMessage) return;
-
-    errorMessage.textContent =
-        message;
-
-    errorMessage.style.display =
-        "block";
-
-    if (successMessage) {
-
-        successMessage.style.display =
-            "none";
-
-    }
+    Notify.toast(message, 'error');
 }
 
 function showSuccess(message) {
-
-    if (!successMessage) return;
-
-    successMessage.textContent =
-        message;
-
-    successMessage.style.display =
-        "block";
-
-    if (errorMessage) {
-
-        errorMessage.style.display =
-            "none";
-
-    }
+    Notify.toast(message, 'success');
 }
 
 function clearMessages() {
-
-    if (errorMessage) {
-
-        errorMessage.style.display =
-            "none";
-
-    }
-
-    if (successMessage) {
-
-        successMessage.style.display =
-            "none";
-
-    }
 }
 
 
@@ -813,112 +770,9 @@ async function signupUser() {
             "📧"
         );
 
-        showSuccess(
-            "Account created successfully!"
-        );
-
-        // Optional local save
-        if (data.user) {
-
-            localStorage.setItem(
-                "hanverse_user",
-                JSON.stringify(data.user)
-            );
-
-        }
-
-        setTimeout(() => {
-
-            window.location.href =
-                "login.html";
-
-        }, 2000);
-
-    }
-    catch (error) {
-
-        console.error(
-            "Signup Error:",
-            error
-        );
-
-        showError(
-            "Unable to connect to server."
-        );
-
-    }
-    finally {
-
-        resetButtonState();
-
-    }
-
-}
-
-
-// ==========================================
-// Password Toggle
-// ==========================================
-
-function togglePw(fieldId) {
-    const input = document.getElementById(fieldId);
-    if (input) {
-        input.type = input.type === "password" ? "text" : "password";
-    }
-}
-
-function updateStrength(password) {
-    const strengthFill = document.getElementById("strengthFill");
-    if (!strengthFill) return;
-    
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[!@#$%^&*]/.test(password)) score++;
-    
-    const colors = ["", "#E63946", "#F4D35E", "#74C69D", "#4EA8DE", "#2B8A3E"];
-    strengthFill.style.width = (score * 20) + "%";
-    strengthFill.style.background = colors[score] || "";
-}
-
-
-// ==========================================
-// Button Click Handler
-// ==========================================
-
-const signupBtn = document.getElementById("signupBtn");
-if (signupBtn) {
-    signupBtn.addEventListener("click", async function() {
-        await signupUser();
-    });
-}
-
-// ==========================================
-// Enter Key Support
-// ==========================================
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-        if (event.key === "Enter") {
-            signupUser();
-        }
-    }
-);
-
-
-// ==========================================
-// Page Ready
-// ==========================================
-
-window.addEventListener(
-    "load",
-    function() {
-        console.log(
-            "Hanverse Signup Ready 🚀"
-        );
-    }
-);
-</script>
+showSuccess(
+             "Account created successfully!"
+         );
+         Notify.confetti({ particleCount: 80, duration: 2000 });
+```
+```

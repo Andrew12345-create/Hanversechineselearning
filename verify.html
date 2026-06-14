@@ -293,13 +293,18 @@ Go To Login
 </div>
 
 </div>
-<script>
+<script src="notifications.js"></script>
+ <script>
 
-/* ==========================================
-   CONFIG
-========================================== */
+ /* ==========================================
+    CONFIG
+ ========================================== */
 
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
+ const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
+
+ const FRONTEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+   ? 'http://localhost:3000' 
+   : 'https://hanverse.netlify.app';
 
 /* ==========================================
    ELEMENTS
@@ -393,10 +398,10 @@ async function verifyEmail(){
     loginBtn.style.display =
       'inline-block';
 
-    // Auto-redirect to login after 2 seconds
-    setTimeout(() => {
-      window.location.href = 'login.html?verified=1';
-    }, 2000);
+// Auto-redirect to login after 2 seconds
+     setTimeout(() => {
+       window.location.href = FRONTEND_URL + '/login.html?verified=1';
+     }, 2000);
 
   }
   catch(error){
@@ -423,14 +428,11 @@ async function verifyEmail(){
 ========================================== */
 
 loginBtn.addEventListener(
-  'click',
-  ()=>{
-
-    window.location.href =
-      'login.html';
-
-  }
-);
+   'click',
+   ()=>{
+     window.location.href = FRONTEND_URL + '/login.html';
+   }
+ );
 
 /* ==========================================
    PAGE LOAD

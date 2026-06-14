@@ -499,8 +499,14 @@ Words Learned
 ========================================== -->
 
 <script src="nav-user.js"></script>
-
+<script src="notifications-client.js"></script>
 <script>
+// Initialize notifications when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.HanverseNotifications && window.HanverseNotifications.init) {
+        window.HanverseNotifications.init();
+    }
+});
 
 const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
 
@@ -510,10 +516,11 @@ async function loadProfile() {
   const { user_id } = JSON.parse(stored);
   if (!user_id) { window.location.href = 'login.html'; return; }
 
-  const res = await fetch(`${API_URL}/user/${user_id}`);
-  if (!res.ok) { window.location.href = 'login.html'; return; }
-  const data = await res.json();
-  const u = data.user;
+  try {
+    const res = await fetch(`${API_URL}/user/${user_id}`);
+    if (!res.ok) { window.location.href = 'login.html'; return; }
+    const data = await res.json();
+    const u = data.user;
 
   const lessons = (data.progress || []).filter(p => p.completed).length;
   const words = (data.vocabulary || []).length;
@@ -558,7 +565,7 @@ async function loadProfile() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profile_picture: b64 })
-      });
+      }).catch(()=>{});
     };
     reader.readAsDataURL(file);
   });
@@ -634,17 +641,7 @@ async function loadProfile() {
   } else {
     feed.innerHTML = '<div class="activity-item">No recent activity yet.</div>';
   }
-}
-
-document.querySelector('.logout-btn').addEventListener('click', () => {
-  localStorage.removeItem('hanverse_user');
+} catch {
   window.location.href = 'login.html';
-});
-
-window.addEventListener('load', loadProfile);
-
+}
 </script>
-
-</body>
-
-</html>

@@ -35,9 +35,6 @@ app.use(express.static('.'));
 
 // Handle all other routes by serving index.html
 // This ensures client-side routing works properly
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -100,11 +97,8 @@ mailer.verify((err) => {
 async function sendEmail(to, name, type, data = {}) {
 
     const first = name ? name.split(' ')[0] : 'Learner';
-    // For localhost development, use localhost as frontend URL, otherwise use production URL
-    const DEFAULT_FRONTEND_URL = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000' 
-      : 'https://' + 'hanverse.netlify.app'; // Avoid direct string detection
-    const frontend = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
+    // Always use hanverse.netlify.app for email links (can be overridden with FRONTEND_URL env var)
+    const frontend = process.env.FRONTEND_URL || 'https://hanverse.netlify.app';
 
     const templates = {
       welcome: {
@@ -389,11 +383,8 @@ app.post('/api/login', async (req, res) => {
         [user.user_id, token, expiresAt]
       );
 
-      // For localhost development, use localhost as frontend URL, otherwise use production URL
-      const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3000' 
-        : 'https://hanverse.netlify.app';
-      const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || defaultFrontendUrl).replace(/\/$/, '');
+      // Always use hanverse.netlify.app for password reset email links
+      const frontendBase = (process.env.FRONTEND_URL || 'https://hanverse.netlify.app').replace(/\/$/, '');
       const resetLink = `${frontendBase}/forgot-password.html?token=${token}`;
 
       await sendEmail(user.email, user.full_name, 'reset', { token, link: resetLink });
@@ -503,13 +494,9 @@ app.post('/api/login', async (req, res) => {
         [user.user_id, token, expiresAt]
       );
 
-      try {
-        // For localhost development, use localhost as frontend URL, otherwise use production URL
-        const defaultFrontendUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3000' 
-          : 'https://hanverse.netlify.app';
-        const frontendBase = (process.env.FRONTEND_URL || req.get('origin') || defaultFrontendUrl).replace(/\/$/, '');
-        const verifyLink = `${frontendBase}/verify.html?token=${token}`;
+      // Always use hanverse.netlify.app for verification email links
+      const frontendBase = (process.env.FRONTEND_URL || 'https://hanverse.netlify.app').replace(/\/$/, '');
+      const verifyLink = `${frontendBase}/verify.html?token=${token}`;
 
         await sendEmail(user.email, user.full_name, 'verify', { token, link: verifyLink });
         console.log('Verification email sent to', email);
