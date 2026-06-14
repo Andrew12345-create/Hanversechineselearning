@@ -61,3 +61,6 @@ exports.handler = async (event) => {
     };
   }
 };
+console.log(
+  process.env.STRIPE_SECRET_KEY?.slice(0,15)
+);
