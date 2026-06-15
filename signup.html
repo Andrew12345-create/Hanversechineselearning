@@ -771,8 +771,118 @@ async function signupUser() {
         );
 
 showSuccess(
-             "Account created successfully!"
-         );
-         Notify.confetti({ particleCount: 80, duration: 2000 });
-```
-```
+    "Account created successfully!"
+);
+Notify.confetti({ particleCount: 80, duration: 2000 });
+
+setTimeout(() => {
+    window.location.href = 'verify.html?just_signedup=1';
+}, 1000);
+
+return;
+
+} catch (error) {
+
+console.error("Signup Error:", error);
+
+showError(
+    "Unable to connect to server."
+);
+
+resetButtonState();
+
+}
+
+}
+
+
+// ==========================================
+// Utility Functions
+// ==========================================
+
+function togglePw(fieldId) {
+
+const field = document.getElementById(fieldId);
+
+if (field && field.type === 'password') {
+
+field.type = 'text';
+
+} else if (field) {
+
+field.type = 'password';
+
+}
+
+}
+
+function updateStrength(password) {
+
+const fill = document.getElementById('strengthFill');
+
+if (!fill) return;
+
+let score = 0;
+
+if (password.length >= 6) score += 25;
+
+if (password.length >= 10) score += 25;
+
+if (/[A-Z]/.test(password) && /[0-9]/.test(password)) score += 25;
+
+if (/[^A-Za-z0-9]/.test(password)) score += 25;
+
+fill.style.width = score + '%';
+
+if (score < 50) {
+
+fill.style.background = '#E63946';
+
+} else if (score < 75) {
+
+fill.style.background = '#F4D35E';
+
+} else {
+
+fill.style.background = '#74C69D';
+
+}
+
+}
+
+
+// ==========================================
+// Signup Button Handler
+// ==========================================
+
+if (signupButton) {
+
+signupButton.addEventListener(
+    'click',
+    async function(event) {
+
+        event.preventDefault();
+
+        await signupUser();
+
+    }
+);
+
+}
+
+
+</script>
+
+</body>
+</html>
+        event.preventDefault();
+
+        await signupUser();
+
+    }
+);
+
+}
+
+
+

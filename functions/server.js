@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import serverless from 'serverless-http';
 
 dotenv.config();
 
@@ -604,6 +605,94 @@ if (pool) {
     console.error('Functions: DB connection test failed:', e.message);
   });
 }
+
+// LOGIN
+app.post('/api/login', async (req, res) => {
+  try {
+    if (!pool) {
+      return res.status(500).json({
+        error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.',
+      });
+    }
+
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (!userResult.rows.length) return res.status(401).json({ error: 'Invalid email or password' });
+
+    const user = userResult.rows[0];
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match) return res.status(401).json({ error: 'Invalid email or password' });
+
+    if (user.is_banned) {
+      return res.status(403).json({ error: 'banned', reason: user.banned_reason || 'Your account has been banned.' });
+    }
+
+    if (user.is_verified === false) {
+      return res.status(403).json({ error: 'not_verified' });
+    }
+
+    const [progress, achievements, dailyGoals, notifications, settings, vocab] = await Promise.all([
+      pool.query('SELECT * FROM user_progress WHERE user_id = $1', [user.user_id]),
+      pool.query('SELECT * FROM achievements WHERE user_id = $1', [user.user_id]),
+      pool.query('SELECT * FROM daily_goals WHERE user_id = $1 AND goal_date = CURRENT_DATE', [user.user_id]),
+      pool.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20', [user.user_id]),
+      pool.query('SELECT * FROM user_settings WHERE user_id = $1', [user.user_id]),
+      pool.query('SELECT * FROM vocabulary_progress WHERE user_id = $1', [user.user_id]),
+    ]);
+
+    const today = new Date();
+    const lastActive = new Date(user.last_active);
+    const daysDiff = Math.floor((today - lastActive) / 86400000);
+    let newStreak = user.streak_days;
+
+    if (daysDiff === 1) newStreak += 1;
+    else if (daysDiff > 1) newStreak = 1;
+
+    await pool.query(
+      'UPDATE users SET last_active = CURRENT_DATE, streak_days = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2',
+      [newStreak, user.user_id]
+    );
+
+    return res.json({
+      success: true,
+      user: {
+        user_id: user.user_id,
+        username: user.username,
+        email: user.email,
+        full_name: user.full_name,
+        xp: user.xp,
+        level: user.level,
+        streak_days: newStreak,
+        profile_picture: user.profile_picture,
+        is_admin: user.is_admin || false,
+        is_banned: user.is_banned || false,
+        banned_reason: user.banned_reason || null,
+        created_at: user.created_at,
+      },
+      progress: progress.rows,
+      achievements: achievements.rows,
+      dailyGoals: dailyGoals.rows,
+      notifications: notifications.rows,
+      settings: settings.rows[0] || null,
+      vocabulary: vocab.rows,
+    });
+  } catch (e) {
+    console.error('Functions login error:', e);
+
+    if (e.code === 'ECONNREFUSED' || (e.message && (e.message.includes('connection') || e.message.includes('database')))) {
+      return res.status(500).json({
+        error: 'Functions: Database connection error',
+        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.',
+      });
+    }
+
+    return res.status(500).json({ error: 'Server error during login', details: e.message });
+  }
+});
 
 // Get courses for a student
 app.get('/api/courses', async (req, res) => {

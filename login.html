@@ -1173,110 +1173,148 @@ if(loginButton){
    ENTER KEY SUPPORT
 ========================================== */
 
-if(loginForm){
+if(emailInput){
+  emailInput.addEventListener('keypress', function(e){
+    if(e.key === 'Enter') loginButton.click();
+  });
+}
 
-    loginForm.addEventListener(
-    'submit',
-    async function(event){
-
-        event.preventDefault();
-
-        loginButton.click();
-
-    });
-
+if(passwordInput){
+  passwordInput.addEventListener('keypress', function(e){
+    if(e.key === 'Enter') loginButton.click();
+  });
 }
 
 /* ==========================================
    RESEND VERIFICATION
 ========================================== */
 
-document.addEventListener(
-'DOMContentLoaded',
-function(){
+const resendLink = document.getElementById('resendVerification');
 
-    const resendLink =
-    document.getElementById(
-    'resendVerification'
-    );
-
-    if(!resendLink) return;
-
+  if (resendLink) {
     resendLink.addEventListener(
-    'click',
-    async function(event){
+      'click',
+      async function(event) {
 
         event.preventDefault();
 
-        const email =
-        emailInput.value.trim();
+        const email = emailInput.value.trim();
 
-        if(!email){
+        if (!email) {
 
-            showError(
+          showError(
             'Enter your email first.'
-            );
+          );
 
-            return;
+          return;
 
         }
 
-        try{
+        try {
 
-            const response =
+          const response =
             await fetch(
-            `${API_URL}/resend-verification`,
-            {
+              `${API_URL}/resend-verification`,
+              {
 
                 method:'POST',
 
                 headers:{
-                    'Content-Type':
-                    'application/json'
+                  'Content-Type':
+                  'application/json'
                 },
 
                 body:JSON.stringify({
-                    email
+                  email
                 })
 
-            });
-
-            const data =
-            await response.json();
-
-            if(
-            response.ok &&
-            data.success
-            ){
-
-                showSuccess(
-                'Verification email sent.'
-                );
-
-            }
-            else{
-
-                showError(
-                data.error ||
-                'Unable to send email.'
-                );
-
-            }
-
-        }
-        catch(error){
-
-            console.error(error);
-
-            showError(
-            'Network error.'
+              }
             );
 
+          const data =
+            await response.json();
+
+          if (response.ok && data.success) {
+
+            showSuccess(
+              'Verification email sent.'
+            );
+
+          }
+          else {
+
+            showError(
+              data.error ||
+                'Unable to send email.'
+            );
+
+          }
+
+        }
+        catch(error) {
+
+          console.error(error);
+
+showError(
+            'Network error.'
+          );
+
         }
 
-    });
+      }
+    );
+  }
 
-});
+
+/* ==========================================
+   TOGGLE PASSWORD VISIBILITY
+========================================== */
+
+function togglePassword() {
+
+const pwd = document.getElementById('password');
+
+if (pwd && pwd.type === 'password') {
+
+pwd.type = 'text';
+
+} else if (pwd) {
+
+pwd.type = 'password';
+
+}
+
+}
+
+
+</script>
+
+}
+    );
+  }
+
+
+
+/* ==========================================
+   TOGGLE PASSWORD VISIBILITY
+========================================== */
+
+function togglePassword() {
+
+const pwd = document.getElementById('password');
+
+if (pwd && pwd.type === 'password') {
+
+pwd.type = 'text';
+
+} else if (pwd) {
+
+pwd.type = 'password';
+
+}
+
+}
+
 
 </script>
 
