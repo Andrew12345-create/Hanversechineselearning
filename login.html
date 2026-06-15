@@ -869,451 +869,381 @@ input:hover{
 <script src="notifications.js"></script>
 <script src="notifications-client.js"></script>
 <script>
-// Initialize notifications when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.HanverseNotifications && window.HanverseNotifications.init) {
-        window.HanverseNotifications.init();
-    }
-});
-
 /* ==========================================
    HANVERSE LOGIN SYSTEM
 ========================================== */
 
-const API_URL =
-window.location.hostname === 'localhost' ||
-window.location.hostname === '127.0.0.1'
-? 'http://localhost:3000/api'
-: '/api';
+const API_URL = '/api';
 
-const SESSION_KEY =
-'hanverse_user';
+const SESSION_KEY = 'hanverse_user';
 
 /* ==========================================
    ELEMENTS
 ========================================== */
 
-const loginForm =
-document.getElementById('loginForm');
-
-const emailInput =
- document.getElementById('email');
-
-const passwordInput =
- document.getElementById('password');
-
-const loginButton =
- document.getElementById('loginBtn');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('loginBtn');
+const googleBtn = document.getElementById('googleBtn');
+const resendBtn = document.getElementById('resendVerification');
 
 /* ==========================================
-   MESSAGES
- ========================================== */
+   UTILITIES
+========================================== */
 
-function setLoadingState(){
-    if(!loginButton) return;
-    loginButton.disabled = true;
-    loginButton.innerHTML =
-    'Logging In...';
+function showError(message) {
+    if (window.Notify) {
+        Notify.toast(message, 'error');
+    } else {
+        alert(message);
+    }
 }
 
-function resetButtonState(){
-    if(!loginButton) return;
-    loginButton.disabled = false;
-    loginButton.innerHTML =
-    'Log In';
+function showSuccess(message) {
+    if (window.Notify) {
+        Notify.toast(message, 'success');
+    } else {
+        alert(message);
+    }
 }
 
-function showError(message){
-    Notify.toast(message, 'error');
+function setLoading(loading) {
+
+    if (!loginBtn) return;
+
+    loginBtn.disabled = loading;
+
+    loginBtn.textContent =
+        loading ? 'Logging In...' : 'Log In';
 }
 
-function showSuccess(message){
-    Notify.toast(message, 'success');
+function saveUserSession(user) {
+
+    localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({
+            user_id: user.user_id,
+            username: user.username,
+            fullName: user.full_name,
+            email: user.email,
+            xp: user.xp || 0,
+            level: user.level || 1,
+            streak: user.streak_days || 0,
+            profile_picture: user.profile_picture || ''
+        })
+    );
+
+}
+
+function redirectToProfile() {
+
+    setTimeout(() => {
+        window.location.href = 'profile.html';
+    }, 1000);
+
 }
 
 /* ==========================================
-    LOGIN
- ========================================== */
+   LOGIN
+========================================== */
 
-async function loginUser(email,password){
+async function loginUser() {
 
-    try{
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
 
-        setLoadingState();
+    if (!email) {
+        showError('Please enter your email.');
+        return;
+    }
 
-        const response =
+    if (!password) {
+        showError('Please enter your password.');
+        return;
+    }
 
-        await fetch(
-        `${API_URL}/login`,
-        {
+    try {
 
-            method:'POST',
+        setLoading(true);
+        console.log("API_URL:", API_URL);
+console.log("Login URL:", `${API_URL}/login`);
 
-            headers:{
-                'Content-Type':
-                'application/json'
-            },
+        const response = await fetch(
+            `${API_URL}/login`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    password
+                })
+            }
+        );
 
-            body:JSON.stringify({
+        const data = await response.json();
 
-                email,
-                password
+        /* ACCOUNT BANNED */
 
-            })
+        if (
+            response.status === 403 &&
+            data.error === 'banned'
+        ) {
 
-        });
-
-        const data =
-        await response.json();
-
-        /* ======================================
-           BANNED
-        ====================================== */
-
-        if(
-        response.status === 403 &&
-        data.error === 'banned'
-        ){
-
-            document.querySelector(
-            '.right'
-            ).innerHTML = `
-
-            <div style="
-            text-align:center;
-            padding:30px;
-            ">
-
-                <div style="
-                font-size:70px;
-                margin-bottom:15px;
-                ">
-                🚫
+            document.querySelector('.right').innerHTML = `
+                <div style="text-align:center;padding:40px;">
+                    <div style="font-size:70px;">🚫</div>
+                    <h2 style="margin-top:15px;color:#E63946;">
+                        Account Banned
+                    </h2>
+                    <p style="margin-top:10px;">
+                        ${data.reason || 'Violation of community guidelines.'}
+                    </p>
                 </div>
-
-                <h2 style="
-                color:#E63946;
-                margin-bottom:10px;
-                ">
-                Account Banned
-                </h2>
-
-                <p>
-                ${data.reason || 'Violation of community guidelines.'}
-                </p>
-
-            </div>
-
             `;
 
             return;
-
         }
 
-        /* ======================================
-           NOT VERIFIED
-        ====================================== */
+        /* EMAIL NOT VERIFIED */
 
-        if(
-        response.status === 403 &&
-        data.error === 'not_verified'
-        ){
+        if (
+            response.status === 403 &&
+            data.error === 'not_verified'
+        ) {
 
             showError(
-            'Please verify your email first.'
+                'Please verify your email before logging in.'
             );
 
             return;
-
         }
 
-        /* ======================================
-           FAILED LOGIN
-        ====================================== */
+        /* LOGIN FAILED */
 
-        if(
-        !response.ok ||
-        !data.success
-        ){
+        if (!response.ok || !data.success) {
 
             showError(
-            data.error ||
-            'Invalid email or password.'
+                data.error ||
+                'Invalid email or password.'
             );
 
             return;
-
         }
 
-        /* ======================================
-           STORE SESSION
-        ====================================== */
+        /* SUCCESS */
 
-        localStorage.setItem(
+        saveUserSession(data.user);
 
-        SESSION_KEY,
+        showSuccess('Login successful!');
 
-        JSON.stringify({
+        if (
+            window.Notify &&
+            typeof Notify.confetti === 'function'
+        ) {
+            Notify.confetti({
+                particleCount: 60,
+                duration: 1500
+            });
+        }
 
-            user_id:
-            data.user.user_id,
-
-            username:
-            data.user.username,
-
-            fullName:
-            data.user.full_name,
-
-            email:
-            data.user.email,
-
-            xp:
-            data.user.xp,
-
-            level:
-            data.user.level,
-
-            streak:
-            data.user.streak_days,
-
-            profile_picture:
-            data.user.profile_picture
-
-        })
-
-        );
-
-        /* ======================================
-           SUCCESS
-        ====================================== */
-
-showSuccess(
-         'Login successful!'
-     );
-     Notify.confetti({ particleCount: 60, duration: 1500 });
-
-        setTimeout(()=>{
-
-            window.location.href =
-            'profile.html';
-
-        },1000);
+        redirectToProfile();
 
     }
-    catch(error){
+    catch (error) {
 
         console.error(
-        'Login Error:',
-        error
+            'Login Error:',
+            error
         );
 
         showError(
-        'Unable to connect to server.'
+            'Unable to connect to server.'
         );
 
     }
-    finally{
+    finally {
 
-        resetButtonState();
+        setLoading(false);
 
     }
 
-}
-
-/* ==========================================
-   LOGIN BUTTON
-========================================== */
-
-if(loginButton){
-
-    loginButton.addEventListener(
-    'click',
-    async function(event){
-
-        event.preventDefault();
-
-     
-
-        const email =
-        emailInput.value.trim();
-
-        const password =
-        passwordInput.value;
-
-        if(!email){
-
-            showError(
-            'Please enter your email.'
-            );
-
-            return;
-
-        }
-
-        if(!password){
-
-            showError(
-            'Please enter your password.'
-            );
-
-            return;
-
-        }
-
-        await loginUser(
-        email,
-        password
-        );
-
-    });
-
-}
-
-/* ==========================================
-   ENTER KEY SUPPORT
-========================================== */
-
-if(emailInput){
-  emailInput.addEventListener('keypress', function(e){
-    if(e.key === 'Enter') loginButton.click();
-  });
-}
-
-if(passwordInput){
-  passwordInput.addEventListener('keypress', function(e){
-    if(e.key === 'Enter') loginButton.click();
-  });
 }
 
 /* ==========================================
    RESEND VERIFICATION
 ========================================== */
 
-const resendLink = document.getElementById('resendVerification');
+async function resendVerification() {
 
-  if (resendLink) {
-    resendLink.addEventListener(
-      'click',
-      async function(event) {
+    const email = emailInput.value.trim();
 
-        event.preventDefault();
+    if (!email) {
 
-        const email = emailInput.value.trim();
-
-        if (!email) {
-
-          showError(
+        showError(
             'Enter your email first.'
-          );
+        );
 
-          return;
+        return;
+    }
 
-        }
+    try {
 
-        try {
-
-          const response =
-            await fetch(
-              `${API_URL}/resend-verification`,
-              {
-
-                method:'POST',
-
-                headers:{
-                  'Content-Type':
-                  'application/json'
+        const response = await fetch(
+            `${API_URL}/resend-verification`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-
-                body:JSON.stringify({
-                  email
+                body: JSON.stringify({
+                    email
                 })
+            }
+        );
 
-              }
-            );
+        const data = await response.json();
 
-          const data =
-            await response.json();
-
-          if (response.ok && data.success) {
+        if (
+            response.ok &&
+            data.success
+        ) {
 
             showSuccess(
-              'Verification email sent.'
+                'Verification email sent.'
             );
 
-          }
-          else {
+        } else {
 
             showError(
-              data.error ||
-                'Unable to send email.'
+                data.error ||
+                'Unable to send verification email.'
             );
 
-          }
-
         }
-        catch(error) {
 
-          console.error(error);
+    }
+    catch (error) {
 
-showError(
+        console.error(error);
+
+        showError(
             'Network error.'
-          );
+        );
 
-        }
+    }
 
-      }
-    );
-  }
-
+}
 
 /* ==========================================
-   TOGGLE PASSWORD VISIBILITY
+   GOOGLE LOGIN
+========================================== */
+
+async function googleLogin() {
+
+    try {
+
+        window.location.href =
+            `${API_URL}/auth/google`;
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        showError(
+            'Google login unavailable.'
+        );
+
+    }
+
+}
+
+/* ==========================================
+   PASSWORD TOGGLE
 ========================================== */
 
 function togglePassword() {
 
-const pwd = document.getElementById('password');
+    const input =
+        document.getElementById('password');
 
-if (pwd && pwd.type === 'password') {
+    if (!input) return;
 
-pwd.type = 'text';
-
-} else if (pwd) {
-
-pwd.type = 'password';
-
-}
+    input.type =
+        input.type === 'password'
+            ? 'text'
+            : 'password';
 
 }
 
+/* ==========================================
+   EVENT LISTENERS
+========================================== */
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        if (
+            window.HanverseNotifications &&
+            window.HanverseNotifications.init
+        ) {
+            window.HanverseNotifications.init();
+        }
+
+        if (loginBtn) {
+            loginBtn.addEventListener(
+                'click',
+                loginUser
+            );
+        }
+
+        if (googleBtn) {
+            googleBtn.addEventListener(
+                'click',
+                googleLogin
+            );
+        }
+
+        if (resendBtn) {
+            resendBtn.addEventListener(
+                'click',
+                function (e) {
+                    e.preventDefault();
+                    resendVerification();
+                }
+            );
+        }
+
+        if (emailInput) {
+            emailInput.addEventListener(
+                'keydown',
+                function (e) {
+                    if (e.key === 'Enter') {
+                        loginUser();
+                    }
+                }
+            );
+        }
+
+        if (passwordInput) {
+            passwordInput.addEventListener(
+                'keydown',
+                function (e) {
+                    if (e.key === 'Enter') {
+                        loginUser();
+                    }
+                }
+            );
+        }
+
+    }
+);
 
 </script>
 
-}
-    );
-  }
-
-
-
-/* ==========================================
-   TOGGLE PASSWORD VISIBILITY
-========================================== */
-
-function togglePassword() {
-
-const pwd = document.getElementById('password');
-
-if (pwd && pwd.type === 'password') {
-
-pwd.type = 'text';
-
-} else if (pwd) {
-
-pwd.type = 'password';
-
-}
-
-}
 
 
 </script>

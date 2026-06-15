@@ -501,147 +501,544 @@ Words Learned
 <script src="nav-user.js"></script>
 <script src="notifications-client.js"></script>
 <script>
-// Initialize notifications when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.HanverseNotifications && window.HanverseNotifications.init) {
+/* ==========================================
+   HANVERSE PROFILE
+========================================== */
+
+const API_URL = '/api';
+const SESSION_KEY = 'hanverse_user';
+
+/* ==========================================
+   NOTIFICATIONS
+========================================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    if (
+        window.HanverseNotifications &&
+        window.HanverseNotifications.init
+    ) {
         window.HanverseNotifications.init();
     }
+
+    loadProfile();
+
+    const logoutBtn =
+        document.querySelector('.logout-btn');
+
+    if (logoutBtn) {
+
+        logoutBtn.addEventListener('click', () => {
+
+            localStorage.removeItem(
+                SESSION_KEY
+            );
+
+            window.location.href =
+                'login.html';
+
+        });
+
+    }
+
 });
 
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
+/* ==========================================
+   PROFILE LOADER
+========================================== */
 
 async function loadProfile() {
-  const stored = localStorage.getItem('hanverse_user');
-  if (!stored) { window.location.href = 'login.html'; return; }
-  const { user_id } = JSON.parse(stored);
-  if (!user_id) { window.location.href = 'login.html'; return; }
 
-  try {
-    const res = await fetch(`${API_URL}/user/${user_id}`);
-    if (!res.ok) { window.location.href = 'login.html'; return; }
-    const data = await res.json();
-    const u = data.user;
+    try {
 
-  const lessons = (data.progress || []).filter(p => p.completed).length;
-  const words = (data.vocabulary || []).length;
+        const stored =
+            localStorage.getItem(
+                SESSION_KEY
+            );
 
-  // Stats
-  document.getElementById('name').textContent = u.full_name || u.username;
-  document.getElementById('heroXP').textContent = u.xp;
-  document.getElementById('heroStreak').textContent = u.streak_days;
-  document.getElementById('heroLessons').textContent = lessons;
-  document.getElementById('quickXP').textContent = u.xp;
-  document.getElementById('quickStreak').textContent = u.streak_days;
-  document.getElementById('quickLevel').textContent = u.level;
-  document.getElementById('quickLessons').textContent = lessons;
-  document.getElementById('xp').textContent = u.xp;
-  document.getElementById('streak').textContent = u.streak_days;
-  document.getElementById('lessons').textContent = lessons;
-  document.getElementById('words').textContent = words;
-  document.getElementById('levelNum').textContent = u.level;
+        if (!stored) {
 
-  // Profile avatar — load from DB
-  const avatarEl = document.getElementById('avatar');
-  function setAvatar(src) {
-    avatarEl.innerHTML = '<img src="' + src + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="pfp"><div style="position:absolute;bottom:4px;right:4px;width:28px;height:28px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);">📷</div>';
-  }
-  if (u.profile_picture) {
-    setAvatar(u.profile_picture);
-  } else {
-    avatarEl.innerHTML = '🐼<div style="position:absolute;bottom:4px;right:4px;width:28px;height:28px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);">📷</div>';
-  }
+            window.location.href =
+                'login.html';
 
-  document.getElementById('pfpInput').addEventListener('change', async function() {
-    const file = this.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const b64 = e.target.result;
-      setAvatar(b64);
-      // also update nav chip avatar
-      const navAvatar = document.getElementById('navUserAvatar');
-      if (navAvatar) { navAvatar.innerHTML = '<img src="' + b64 + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="pfp">'; }
-      await fetch(API_URL + '/user/' + user_id + '/pfp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile_picture: b64 })
-      }).catch(()=>{});
-    };
-    reader.readAsDataURL(file);
-  });
+            return;
 
-  if (u.is_admin) {
-    const ctrl = document.getElementById('adminControls');
-    ctrl.style.display = 'flex';
-    document.getElementById('adminTag').classList.add('visible');
-  }
+        }
 
-  // YCT Progress — highest YCT level from progress
-  const yctRows = (data.progress || []).filter(p => p.course_type === 'YCT');
-  const maxYct = yctRows.length ? Math.max(...yctRows.map(p => p.course_level)) : 1;
-  const yctCompleted = yctRows.filter(p => p.completed && p.course_level === maxYct).length;
-  const yctTotal = yctRows.filter(p => p.course_level === maxYct).length || 1;
-  const yctPct = Math.round((yctCompleted / yctTotal) * 100);
-  document.getElementById('yctLevel').textContent = `YCT ${maxYct}`;
-  document.getElementById('yctBar').style.width = yctPct + '%';
-  setTimeout(()=>{ document.getElementById('yctBar').style.width = yctPct + '%'; }, 100);
-  document.getElementById('yctPct').textContent = yctPct + '% Complete';
+        const session =
+            JSON.parse(stored);
 
-  // Badges
-  const BADGES = [
-    // XP
-    { id:'xp_100',    icon:'⭐', name:'First Star',      desc:'Earn 100 XP',          color:'#F4D35E', check:(u,p,v)=> u.xp >= 100 },
-    { id:'xp_500',    icon:'🌟', name:'Rising Star',     desc:'Earn 500 XP',          color:'#FFB800', check:(u,p,v)=> u.xp >= 500 },
-    { id:'xp_1000',   icon:'💫', name:'XP Hunter',       desc:'Earn 1,000 XP',        color:'#FF9500', check:(u,p,v)=> u.xp >= 1000 },
-    { id:'xp_5000',   icon:'🏅', name:'XP Legend',       desc:'Earn 5,000 XP',        color:'#E63946', check:(u,p,v)=> u.xp >= 5000 },
-    // Streak
-    { id:'streak_3',  icon:'🔥', name:'On Fire',         desc:'3-day streak',         color:'#FF6B35', check:(u,p,v)=> u.streak_days >= 3 },
-    { id:'streak_7',  icon:'🗓️', name:'Week Warrior',    desc:'7-day streak',         color:'#E63946', check:(u,p,v)=> u.streak_days >= 7 },
-    { id:'streak_30', icon:'💪', name:'Unstoppable',     desc:'30-day streak',        color:'#C1121F', check:(u,p,v)=> u.streak_days >= 30 },
-    // Lessons
-    { id:'lesson_1',  icon:'📖', name:'First Lesson',    desc:'Complete 1 lesson',    color:'#4EA8DE', check:(u,p,v)=> p >= 1 },
-    { id:'lesson_10', icon:'📚', name:'Bookworm',        desc:'Complete 10 lessons',  color:'#2563EB', check:(u,p,v)=> p >= 10 },
-    { id:'lesson_50', icon:'🎓', name:'Scholar',         desc:'Complete 50 lessons',  color:'#7C3AED', check:(u,p,v)=> p >= 50 },
-    // Level
-    { id:'level_5',   icon:'🏆', name:'Level 5',         desc:'Reach level 5',        color:'#74C69D', check:(u,p,v)=> u.level >= 5 },
-    { id:'level_10',  icon:'👑', name:'Level 10',        desc:'Reach level 10',       color:'#2D9A60', check:(u,p,v)=> u.level >= 10 },
-    // Vocab
-    { id:'vocab_10',  icon:'🧠', name:'Word Collector',  desc:'Learn 10 words',       color:'#A855F7', check:(u,p,v)=> v >= 10 },
-    { id:'vocab_50',  icon:'📝', name:'Vocab Master',    desc:'Learn 50 words',       color:'#7C3AED', check:(u,p,v)=> v >= 50 },
-    // Special
-    { id:'first_login',icon:'🐼','name':'Panda Initiate',desc:'Log in for the first time', color:'#4EA8DE', check:()=> true },
-    { id:'admin',     icon:'👑', name:'Administrator',   desc:'Hanverse admin',       color:'#FF416C', check:(u)=> u.is_admin },
-  ];
+        const userId =
+            session.user_id;
 
-  const completedLessons = (data.progress || []).filter(p => p.completed).length;
-  const vocabCount = (data.vocabulary || []).length;
-  const isAdmin = u.is_admin;
+        if (!userId) {
 
-  const grid = document.getElementById('badgesGrid');
-  grid.innerHTML = BADGES.map(b => {
-    const earned = isAdmin || b.check(u, completedLessons, vocabCount);
-    const glow = earned ? `filter:drop-shadow(0 0 7px ${b.color}99)` : '';
-    return `<div class="badge-card ${earned ? 'earned' : 'locked'}" title="${b.desc}">
-      <div class="badge-icon" style="${glow}">${b.icon}</div>
-      <div class="badge-name">${b.name}</div>
-      <div class="badge-desc">${b.desc}</div>
-      <span class="badge-earned-label">${earned ? '✓ Earned' : 'Locked'}</span>
-    </div>`;
-  }).join('');
+            window.location.href =
+                'login.html';
 
-  // Activity Feed — recent completed lessons
-  const feed = document.getElementById('activityFeed');
-  const recent = (data.progress || []).filter(p => p.completed && p.completed_at)
-    .sort((a,b) => new Date(b.completed_at) - new Date(a.completed_at))
-    .slice(0, 5);
-  if (recent.length) {
-    feed.innerHTML = recent.map(p =>
-      `<div class="activity-item">📚 <span>Completed ${p.course_type} ${p.course_level} — Lesson ${p.lesson_id}</span></div>`
-    ).join('');
-  } else {
-    feed.innerHTML = '<div class="activity-item">No recent activity yet.</div>';
-  }
-} catch {
-  window.location.href = 'login.html';
+            return;
+
+        }
+
+        const response =
+            await fetch(
+                `${API_URL}/user/${userId}`
+            );
+
+        if (!response.ok) {
+
+            console.error(
+                'Failed profile fetch'
+            );
+
+            window.location.href =
+                'login.html';
+
+            return;
+
+        }
+
+        const data =
+            await response.json();
+
+        renderProfile(data);
+
+    }
+    catch (error) {
+
+        console.error(
+            'Profile Error:',
+            error
+        );
+
+        window.location.href =
+            'login.html';
+
+    }
+
+}
+
+/* ==========================================
+   PROFILE RENDER
+========================================== */
+
+function renderProfile(data) {
+
+    const user =
+        data.user || {};
+
+    const progress =
+        data.progress || [];
+
+    const vocabulary =
+        data.vocabulary || [];
+
+    const completedLessons =
+        progress.filter(
+            p => p.completed
+        ).length;
+
+    const wordsLearned =
+        vocabulary.length;
+
+    /* HERO */
+
+    setText(
+        'name',
+        user.full_name ||
+        user.username ||
+        'Learner'
+    );
+
+    setText(
+        'heroXP',
+        user.xp || 0
+    );
+
+    setText(
+        'heroStreak',
+        user.streak_days || 0
+    );
+
+    setText(
+        'heroLessons',
+        completedLessons
+    );
+
+    /* QUICK CARDS */
+
+    setText(
+        'quickXP',
+        user.xp || 0
+    );
+
+    setText(
+        'quickStreak',
+        user.streak_days || 0
+    );
+
+    setText(
+        'quickLevel',
+        user.level || 1
+    );
+
+    setText(
+        'quickLessons',
+        completedLessons
+    );
+
+    /* MAIN STATS */
+
+    setText(
+        'xp',
+        user.xp || 0
+    );
+
+    setText(
+        'streak',
+        user.streak_days || 0
+    );
+
+    setText(
+        'lessons',
+        completedLessons
+    );
+
+    setText(
+        'words',
+        wordsLearned
+    );
+
+    setText(
+        'levelNum',
+        user.level || 1
+    );
+
+    renderAvatar(user);
+
+    renderAdmin(user);
+
+    renderYCT(progress);
+
+    renderBadges(
+        user,
+        completedLessons,
+        wordsLearned
+    );
+
+    renderActivity(progress);
+
+}
+
+/* ==========================================
+   AVATAR
+========================================== */
+
+function renderAvatar(user) {
+
+    const avatar =
+        document.getElementById(
+            'avatar'
+        );
+
+    if (!avatar) return;
+
+    const camera =
+        `<div style="
+        position:absolute;
+        bottom:4px;
+        right:4px;
+        width:28px;
+        height:28px;
+        border-radius:50%;
+        background:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:14px;
+        box-shadow:0 2px 8px rgba(0,0,0,.2);
+        ">📷</div>`;
+
+    if (user.profile_picture) {
+
+        avatar.innerHTML = `
+            <img
+                src="${user.profile_picture}"
+                style="
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                border-radius:50%;
+                "
+            >
+            ${camera}
+        `;
+
+    } else {
+
+        avatar.innerHTML =
+            `🐼${camera}`;
+
+    }
+
+}
+
+/* ==========================================
+   ADMIN
+========================================== */
+
+function renderAdmin(user) {
+
+    if (!user.is_admin)
+        return;
+
+    const controls =
+        document.getElementById(
+            'adminControls'
+        );
+
+    if (controls) {
+
+        controls.style.display =
+            'flex';
+
+    }
+
+    const tag =
+        document.getElementById(
+            'adminTag'
+        );
+
+    if (tag) {
+
+        tag.classList.add(
+            'visible'
+        );
+
+    }
+
+}
+
+/* ==========================================
+   YCT
+========================================== */
+
+function renderYCT(progress) {
+
+    const yct =
+        progress.filter(
+            p =>
+            p.course_type ===
+            'YCT'
+        );
+
+    const level =
+        yct.length
+            ? Math.max(
+                ...yct.map(
+                    p =>
+                    p.course_level
+                )
+              )
+            : 1;
+
+    const completed =
+        yct.filter(
+            p =>
+            p.course_level ===
+                level &&
+            p.completed
+        ).length;
+
+    const total =
+        yct.filter(
+            p =>
+            p.course_level ===
+            level
+        ).length || 1;
+
+    const percent =
+        Math.round(
+            (
+                completed /
+                total
+            ) * 100
+        );
+
+    setText(
+        'yctLevel',
+        `YCT ${level}`
+    );
+
+    document.getElementById(
+        'yctBar'
+    ).style.width =
+        percent + '%';
+
+    setText(
+        'yctPct',
+        percent +
+        '% Complete'
+    );
+
+}
+
+/* ==========================================
+   BADGES
+========================================== */
+
+function renderBadges(
+    user,
+    lessons,
+    words
+) {
+
+    const grid =
+        document.getElementById(
+            'badgesGrid'
+        );
+
+    if (!grid) return;
+
+    const badges = [
+
+        {
+            icon:'⭐',
+            name:'First Star',
+            earned:user.xp >= 100
+        },
+
+        {
+            icon:'🔥',
+            name:'On Fire',
+            earned:user.streak_days >= 3
+        },
+
+        {
+            icon:'📚',
+            name:'Bookworm',
+            earned:lessons >= 10
+        },
+
+        {
+            icon:'🧠',
+            name:'Word Collector',
+            earned:words >= 10
+        },
+
+        {
+            icon:'🏆',
+            name:'Level 5',
+            earned:user.level >= 5
+        },
+
+        {
+            icon:'👑',
+            name:'Administrator',
+            earned:user.is_admin
+        }
+
+    ];
+
+    grid.innerHTML =
+        badges.map(
+            b => `
+            <div class="badge-card ${
+                b.earned
+                ? 'earned'
+                : 'locked'
+            }">
+                <div class="badge-icon">
+                    ${b.icon}
+                </div>
+                <div class="badge-name">
+                    ${b.name}
+                </div>
+                <span class="badge-earned-label">
+                    ${
+                        b.earned
+                        ? '✓ Earned'
+                        : 'Locked'
+                    }
+                </span>
+            </div>
+        `
+        ).join('');
+
+}
+
+/* ==========================================
+   ACTIVITY
+========================================== */
+
+function renderActivity(
+    progress
+) {
+
+    const feed =
+        document.getElementById(
+            'activityFeed'
+        );
+
+    if (!feed) return;
+
+    const recent =
+        progress
+        .filter(
+            p =>
+            p.completed
+        )
+        .slice(-5)
+        .reverse();
+
+    if (!recent.length) {
+
+        feed.innerHTML =
+            `
+            <div class="activity-item">
+                No activity yet.
+            </div>
+            `;
+
+        return;
+
+    }
+
+    feed.innerHTML =
+        recent.map(
+            p => `
+            <div class="activity-item">
+                📚 Completed
+                ${p.course_type}
+                ${p.course_level}
+                Lesson
+                ${p.lesson_id}
+            </div>
+        `
+        ).join('');
+
+}
+
+/* ==========================================
+   HELPERS
+========================================== */
+
+function setText(
+    id,
+    value
+) {
+
+    const el =
+        document.getElementById(
+            id
+        );
+
+    if (el) {
+
+        el.textContent =
+            value;
+
+    }
+
 }
 </script>
