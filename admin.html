@@ -154,7 +154,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
     <label>Ban Reason</label>
     <textarea class="ban-reason-input" id="banReason" placeholder="e.g. Violation of community guidelines…"></textarea>
     <label>Admin Password</label>
-    <input type="password" id="banPassword" placeholder="admin123">
+    <input type="password" id="banPassword" placeholder="">
     <div class="modal-err" id="banErr"></div>
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeBanModal()">Cancel</button>
@@ -169,7 +169,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
     <h2>✅ Unban User</h2>
     <div class="subtitle">Enter the admin password to lift this ban.</div>
     <label>Admin Password</label>
-    <input type="password" id="unbanPassword" placeholder="admin123">
+    <input type="password" id="unbanPassword" placeholder="">
     <div class="modal-err" id="unbanErr"></div>
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeUnbanModal()">Cancel</button>
@@ -186,7 +186,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
     <label>New Value</label>
     <input class="modal-new-val" id="modalNewVal" placeholder="New value…">
     <label>Admin Password</label>
-    <input type="password" id="modalPassword" placeholder="admin123">
+    <input type="password" id="modalPassword" placeholder="">
     <div class="modal-err" id="modalErr"></div>
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeModal()">Cancel</button>
@@ -201,7 +201,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
     <h2>🗑️ Delete Record</h2>
     <div class="subtitle">This will permanently delete the record. Enter the admin password to confirm.</div>
     <label>Admin Password</label>
-    <input type="password" id="deletePassword" placeholder="admin123">
+    <input type="password" id="deletePassword" placeholder="">
     <div class="modal-err" id="deleteErr"></div>
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeDeleteModal()">Cancel</button>
@@ -234,7 +234,7 @@ tr:hover td{background:rgba(255,255,255,.025);}
     </label>
 
     <label>Admin Password</label>
-    <input type="password" id="createAdminPassword" placeholder="admin123" />
+    <input type="password" id="createAdminPassword" placeholder="">
 
     <div class="modal-err" id="createUserErr"></div>
 
@@ -245,422 +245,483 @@ tr:hover td{background:rgba(255,255,255,.025);}
   </div>
 </div>
 
-
 <div id="app">
   <div class="loading"><div class="spinner"></div><p>Verifying access…</p></div>
 </div>
 
 <script>
 (async function(){
-  const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
+  // Use the same origin for relative calls when deployed.
+  // On localhost, fall back to relative /api as well to avoid port mismatch (e.g., functions).
+  const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '/api' : '/api';
+
+
   const stored = localStorage.getItem('hanverse_user');
   if (!stored) { location.href='login.html'; return; }
   const { user_id } = JSON.parse(stored);
   if (!user_id) { location.href='login.html'; return; }
 
-  const res = await fetch(API_URL + '/admin/overview?userId=' + user_id);
-  if (res.status === 403) {
-    document.getElementById('app').innerHTML = `<div class="denied"><div style="font-size:4rem;">🚫</div><h2>Access Denied</h2><p>You are not an administrator.</p><button onclick="location.href='profile.html'" class="back-btn" style="margin-top:12px;">← Back to Profile</button></div>`;
-    return;
-  }
-  const db = await res.json();
+  // Initial access check:
+  // /api/admin/overview is token-gated and returns 401 when there is no Bearer token.
+  // Go directly to the admin-password gate to avoid incorrect status handling.
 
-  const totalUsers = db.users.length;
-  const adminCount = db.users.filter(u => u.is_admin).length;
-  const totalXP = db.users.reduce((s,u) => s + (u.xp||0), 0);
-  const completedLessons = db.progress.filter(p => p.completed).length;
 
-  let activeTab = 'users';
+  // Password gate (no password hinting anywhere on the page)
+  document.getElementById('app').innerHTML = `<div class="loading"><div class="spinner"></div><p>Enter admin password to continue…</p></div>`;
 
-  // Edit modal state
-  let pendingEdit = null;
-  let pendingDelete = null;
-  let pendingBan = null;
-  let pendingUnban = null;
+  const authHtml = `
+    <div class="modal-overlay open" id="authModal">
+      <div class="modal">
+        <h2>🔐 Admin Access</h2>
+        <div class="subtitle">Enter the admin password to unlock this page.</div>
+        <label>Admin Password</label>
+        <input type="password" id="authPassword" placeholder="">
+        <div class="modal-err" id="authErr"></div>
+        <div class="modal-btns">
+          <button class="modal-cancel" onclick="document.getElementById('authModal').remove();location.href='profile.html'">Cancel</button>
+          <button class="modal-confirm" onclick="window.confirmAdminAuth()">Unlock</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', authHtml);
 
-  const TABLE_PKS = {
-    users:'user_id', user_progress:'progress_id', achievements:'achievement_id',
-    daily_goals:'goal_id', notifications:'notification_id',
-    vocabulary_progress:'vocab_id', user_settings:'setting_id'
-  };
+  let adminToken = null;
 
-  const EDITABLE = {
-    users: ['username','full_name','email','xp','level','streak_days','is_admin'],
-    user_progress: ['completed','score','course_type','course_level','lesson_id'],
-    achievements: ['achievement_type','achievement_name'],
-    daily_goals: ['target_lessons','completed_lessons','target_xp','earned_xp','completed'],
-    notifications: ['title','message','type','is_read'],
-    vocabulary_progress: ['word','mastery_level','review_count'],
-    user_settings: ['daily_reminder','sound_enabled','notifications_enabled','language_preference','theme'],
-  };
+  window.confirmAdminAuth = async () => {
+    const pw = document.getElementById('authPassword').value.trim();
+    document.getElementById('authErr').textContent = '';
+    if (!pw) { document.getElementById('authErr').textContent = 'Enter the admin password.'; return; }
 
-  window.closeBanModal = () => {
-    document.getElementById('banModal').classList.remove('open');
-    document.getElementById('banErr').textContent = '';
-    document.getElementById('banPassword').value = '';
-    document.getElementById('banReason').value = '';
-    pendingBan = null;
-  };
-
-  window.closeCreateUserModal = () => {
-    document.getElementById('createUserModal').classList.remove('open');
-    document.getElementById('createUserErr').textContent = '';
-    document.getElementById('createUsername').value = '';
-    document.getElementById('createFullName').value = '';
-    document.getElementById('createEmail').value = '';
-    document.getElementById('createPassword').value = '';
-    document.getElementById('createIsAdmin').checked = false;
-    document.getElementById('createAdminPassword').value = '';
-  };
-
-  window.openCreateUserModal = () => {
-    document.getElementById('createUserModal').classList.add('open');
-    document.getElementById('createUserErr').textContent = '';
-    setTimeout(() => document.getElementById('createUsername').focus(), 50);
-  };
-
-  window.confirmCreateUser = async () => {
-    const adminPassword = document.getElementById('createAdminPassword').value.trim();
-    const username = document.getElementById('createUsername').value.trim();
-    const fullName = document.getElementById('createFullName').value.trim();
-    const email = document.getElementById('createEmail').value.trim();
-    const password = document.getElementById('createPassword').value;
-    const isAdmin = document.getElementById('createIsAdmin').checked;
-
-    document.getElementById('createUserErr').textContent = '';
-
-    if (!adminPassword) { document.getElementById('createUserErr').textContent = 'Enter the admin password.'; return; }
-    if (!username || !fullName || !email || !password) { document.getElementById('createUserErr').textContent = 'All fields are required.'; return; }
-
-    const r = await fetch(API_URL + '/admin/create-user', {
+    const r = await fetch(API_URL + '/admin/verify-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        adminPassword,
-        email,
-        password,
-        fullName,
-        username,
-        isAdmin,
-      })
+      body: JSON.stringify({ userId: user_id, adminPassword: pw })
     });
 
     const d = await r.json();
     if (!r.ok) {
-      document.getElementById('createUserErr').textContent = d.error || 'Failed to create user.';
+      document.getElementById('authErr').textContent = d.error || 'Access denied.';
       return;
     }
 
-    // Update local cache
-    db.users.unshift(d.user);
-    totalUsers = db.users.length;
-    adminCount = db.users.filter(u => u.is_admin).length;
-    totalXP = db.users.reduce((s,u) => s + (u.xp||0), 0);
+    adminToken = d.adminToken;
 
-    closeCreateUserModal();
-    render();
-  };
-
-  window.closeUnbanModal = () => {
-    document.getElementById('unbanModal').classList.remove('open');
-    document.getElementById('unbanErr').textContent = '';
-    document.getElementById('unbanPassword').value = '';
-    pendingUnban = null;
-  };
-  window.openBan = (userId) => {
-    pendingBan = { userId };
-    document.getElementById('banErr').textContent = '';
-    document.getElementById('banPassword').value = '';
-    document.getElementById('banReason').value = '';
-    document.getElementById('banModal').classList.add('open');
-    setTimeout(() => document.getElementById('banReason').focus(), 80);
-  };
-  window.openUnban = (userId) => {
-    pendingUnban = { userId };
-    document.getElementById('unbanErr').textContent = '';
-    document.getElementById('unbanPassword').value = '';
-    document.getElementById('unbanModal').classList.add('open');
-    setTimeout(() => document.getElementById('unbanPassword').focus(), 80);
-  };
-  window.confirmBan = async () => {
-    const pw = document.getElementById('banPassword').value.trim();
-    const reason = document.getElementById('banReason').value.trim();
-    document.getElementById('banErr').textContent = '';
-    if (!pw) { document.getElementById('banErr').textContent = 'Enter the admin password.'; return; }
-const r = await fetch(API_URL + '/admin/ban', {
-       method: 'POST', headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ adminPassword: pw, userId: pendingBan.userId, banned: true, reason })
-     });
-     const d = await r.json();
-     if (!r.ok) { document.getElementById('banErr').textContent = d.error || 'Failed.'; return; }
-     const u = db.users.find(u => String(u.user_id) === String(pendingBan.userId));
-     if (u) { u.is_banned = true; u.banned_reason = reason; }
-     closeBanModal();
-     render();
-   };
-   window.confirmUnban = async () => {
-     const pw = document.getElementById('unbanPassword').value.trim();
-     document.getElementById('unbanErr').textContent = '';
-     if (!pw) { document.getElementById('unbanErr').textContent = 'Enter the admin password.'; return; }
-     const r = await fetch(API_URL + '/admin/ban', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminPassword: pw, userId: pendingUnban.userId, banned: false })
+    const dbRes = await fetch(API_URL + '/admin/overview', {
+      headers: { 'Authorization': 'Bearer ' + adminToken }
     });
-    const d = await r.json();
-    if (!r.ok) { document.getElementById('unbanErr').textContent = d.error || 'Failed.'; return; }
-    const u = db.users.find(u => String(u.user_id) === String(pendingUnban.userId));
-    if (u) { u.is_banned = false; u.banned_reason = null; }
-    closeUnbanModal();
-    render();
-  };
 
-  window.closeModal = () => {
-    document.getElementById('editModal').classList.remove('open');
-    document.getElementById('modalErr').textContent = '';
-    document.getElementById('modalPassword').value = '';
-    pendingEdit = null;
-  };
-
-  window.closeDeleteModal = () => {
-    document.getElementById('deleteModal').classList.remove('open');
-    document.getElementById('deleteErr').textContent = '';
-    document.getElementById('deletePassword').value = '';
-    pendingDelete = null;
-  };
-
-  window.openEdit = (table, pkVal, field, currentVal) => {
-    pendingEdit = { table, pkVal, field };
-    document.getElementById('modalFieldLabel').textContent = field;
-    document.getElementById('modalNewVal').value = currentVal === '—' ? '' : currentVal;
-    document.getElementById('modalErr').textContent = '';
-    document.getElementById('modalPassword').value = '';
-    document.getElementById('editModal').classList.add('open');
-    setTimeout(() => document.getElementById('modalNewVal').focus(), 80);
-  };
-
-  window.openDelete = (table, pkVal) => {
-    pendingDelete = { table, pkVal };
-    document.getElementById('deleteErr').textContent = '';
-    document.getElementById('deletePassword').value = '';
-    document.getElementById('deleteModal').classList.add('open');
-    setTimeout(() => document.getElementById('deletePassword').focus(), 80);
-  };
-
-  window.confirmEdit = async () => {
-    const pw = document.getElementById('modalPassword').value.trim();
-    const newVal = document.getElementById('modalNewVal').value;
-    document.getElementById('modalErr').textContent = '';
-    if (!pw) { document.getElementById('modalErr').textContent = 'Enter the admin password.'; return; }
-
-    const r = await fetch(API_URL + '/admin/edit', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ adminPassword: pw, table: pendingEdit.table, primaryValue: pendingEdit.pkVal, field: pendingEdit.field, value: newVal })
-    });
-    const d = await r.json();
-    if (!r.ok) { document.getElementById('modalErr').textContent = d.error || 'Failed.'; return; }
-
-    // Update local db cache
-    const pk = TABLE_PKS[pendingEdit.table];
-    const tableKey = pendingEdit.table === 'user_progress' ? 'progress' :
-                     pendingEdit.table === 'daily_goals' ? 'daily_goals' :
-                     pendingEdit.table === 'vocabulary_progress' ? 'vocabulary' :
-                     pendingEdit.table === 'user_settings' ? 'settings' : pendingEdit.table;
-    const arr = db[tableKey] || db[pendingEdit.table];
-    if (arr) {
-      const row = arr.find(r => String(r[pk]) === String(pendingEdit.pkVal));
-      if (row) row[pendingEdit.field] = newVal;
+    if (!dbRes.ok) {
+      document.getElementById('authErr').textContent = 'Failed to load admin data.';
+      return;
     }
-    closeModal();
-    render();
-  };
 
-  window.confirmDelete = async () => {
-    const pw = document.getElementById('deletePassword').value.trim();
-    document.getElementById('deleteErr').textContent = '';
-    if (!pw) { document.getElementById('deleteErr').textContent = 'Enter the admin password.'; return; }
+    const db = await dbRes.json();
+    document.getElementById('authModal').remove();
 
-    const r = await fetch(API_URL + '/admin/delete', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ adminPassword: pw, table: pendingDelete.table, primaryValue: pendingDelete.pkVal })
-    });
-    const d = await r.json();
-    if (!r.ok) { document.getElementById('deleteErr').textContent = d.error || 'Failed.'; return; }
+    // ===== existing admin UI + editing logic (kept, but token-gated) =====
+    let totalUsers = db.users.length;
+    let adminCount = db.users.filter(u => u.is_admin).length;
+    let totalXP = db.users.reduce((s,u) => s + (u.xp||0), 0);
+    let completedLessons = db.progress.filter(p => p.completed).length;
 
-    const pk = TABLE_PKS[pendingDelete.table];
-    const tableKey = pendingDelete.table === 'user_progress' ? 'progress' :
-                     pendingDelete.table === 'daily_goals' ? 'daily_goals' :
-                     pendingDelete.table === 'vocabulary_progress' ? 'vocabulary' :
-                     pendingDelete.table === 'user_settings' ? 'settings' : pendingDelete.table;
-    const arr = db[tableKey] || db[pendingDelete.table];
-    if (arr) {
-      const idx = arr.findIndex(r => String(r[pk]) === String(pendingDelete.pkVal));
-      if (idx > -1) arr.splice(idx, 1);
+    let activeTab = 'users';
+
+    let pendingEdit = null;
+    let pendingDelete = null;
+    let pendingBan = null;
+    let pendingUnban = null;
+
+    const TABLE_PKS = {
+      users:'user_id', user_progress:'progress_id', achievements:'achievement_id',
+      daily_goals:'goal_id', notifications:'notification_id',
+      vocabulary_progress:'vocab_id', user_settings:'setting_id'
+    };
+
+    const EDITABLE = {
+      users: ['username','full_name','email','xp','level','streak_days','is_admin'],
+      user_progress: ['completed','score','course_type','course_level','lesson_id'],
+      achievements: ['achievement_type','achievement_name'],
+      daily_goals: ['target_lessons','completed_lessons','target_xp','earned_xp','completed'],
+      notifications: ['title','message','type','is_read'],
+      vocabulary_progress: ['word','mastery_level','review_count'],
+      user_settings: ['daily_reminder','sound_enabled','notifications_enabled','language_preference','theme'],
+    };
+
+    window.closeBanModal = () => {
+      document.getElementById('banModal').classList.remove('open');
+      document.getElementById('banErr').textContent = '';
+      document.getElementById('banPassword').value = '';
+      document.getElementById('banReason').value = '';
+      pendingBan = null;
+    };
+
+    window.closeCreateUserModal = () => {
+      document.getElementById('createUserModal').classList.remove('open');
+      document.getElementById('createUserErr').textContent = '';
+      document.getElementById('createUsername').value = '';
+      document.getElementById('createFullName').value = '';
+      document.getElementById('createEmail').value = '';
+      document.getElementById('createPassword').value = '';
+      document.getElementById('createIsAdmin').checked = false;
+      document.getElementById('createAdminPassword').value = '';
+    };
+
+    window.openCreateUserModal = () => {
+      document.getElementById('createUserModal').classList.add('open');
+      document.getElementById('createUserErr').textContent = '';
+      setTimeout(() => document.getElementById('createUsername').focus(), 50);
+    };
+
+    window.confirmCreateUser = async () => {
+      const adminPassword = document.getElementById('createAdminPassword').value.trim();
+      const username = document.getElementById('createUsername').value.trim();
+      const fullName = document.getElementById('createFullName').value.trim();
+      const email = document.getElementById('createEmail').value.trim();
+      const password = document.getElementById('createPassword').value;
+      const isAdmin = document.getElementById('createIsAdmin').checked;
+
+      document.getElementById('createUserErr').textContent = '';
+      if (!adminPassword) { document.getElementById('createUserErr').textContent = 'Enter the admin password.'; return; }
+      if (!username || !fullName || !email || !password) { document.getElementById('createUserErr').textContent = 'All fields are required.'; return; }
+
+      const r = await fetch(API_URL + '/admin/create-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+        body: JSON.stringify({
+          adminPassword,
+          email,
+          password,
+          fullName,
+          username,
+          isAdmin,
+        })
+      });
+
+      const d = await r.json();
+      if (!r.ok) {
+        document.getElementById('createUserErr').textContent = d.error || 'Failed to create user.';
+        return;
+      }
+
+      db.users.unshift(d.user);
+      totalUsers = db.users.length;
+      adminCount = db.users.filter(u => u.is_admin).length;
+      totalXP = db.users.reduce((s,u) => s + (u.xp||0), 0);
+
+      closeCreateUserModal();
+      render();
+    };
+
+    window.closeUnbanModal = () => {
+      document.getElementById('unbanModal').classList.remove('open');
+      document.getElementById('unbanErr').textContent = '';
+      document.getElementById('unbanPassword').value = '';
+      pendingUnban = null;
+    };
+
+    window.openBan = (userId) => {
+      pendingBan = { userId };
+      document.getElementById('banErr').textContent = '';
+      document.getElementById('banPassword').value = '';
+      document.getElementById('banReason').value = '';
+      document.getElementById('banModal').classList.add('open');
+      setTimeout(() => document.getElementById('banReason').focus(), 80);
+    };
+
+    window.openUnban = (userId) => {
+      pendingUnban = { userId };
+      document.getElementById('unbanErr').textContent = '';
+      document.getElementById('unbanPassword').value = '';
+      document.getElementById('unbanModal').classList.add('open');
+      setTimeout(() => document.getElementById('unbanPassword').focus(), 80);
+    };
+
+    window.confirmBan = async () => {
+      const pw = document.getElementById('banPassword').value.trim();
+      const reason = document.getElementById('banReason').value.trim();
+      document.getElementById('banErr').textContent = '';
+      if (!pw) { document.getElementById('banErr').textContent = 'Enter the admin password.'; return; }
+
+      const r = await fetch(API_URL + '/admin/ban', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+        body: JSON.stringify({ adminPassword: pw, userId: pendingBan.userId, banned: true, reason })
+      });
+
+      const d = await r.json();
+      if (!r.ok) { document.getElementById('banErr').textContent = d.error || 'Failed.'; return; }
+
+      const u = db.users.find(u => String(u.user_id) === String(pendingBan.userId));
+      if (u) { u.is_banned = true; u.banned_reason = reason; }
+      closeBanModal();
+      render();
+    };
+
+    window.confirmUnban = async () => {
+      const pw = document.getElementById('unbanPassword').value.trim();
+      document.getElementById('unbanErr').textContent = '';
+      if (!pw) { document.getElementById('unbanErr').textContent = 'Enter the admin password.'; return; }
+
+      const r = await fetch(API_URL + '/admin/ban', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+        body: JSON.stringify({ adminPassword: pw, userId: pendingUnban.userId, banned: false })
+      });
+
+      const d = await r.json();
+      if (!r.ok) { document.getElementById('unbanErr').textContent = d.error || 'Failed.'; return; }
+
+      const u = db.users.find(u => String(u.user_id) === String(pendingUnban.userId));
+      if (u) { u.is_banned = false; u.banned_reason = null; }
+      closeUnbanModal();
+      render();
+    };
+
+    window.closeModal = () => {
+      document.getElementById('editModal').classList.remove('open');
+      document.getElementById('modalErr').textContent = '';
+      document.getElementById('modalPassword').value = '';
+      pendingEdit = null;
+    };
+
+    window.closeDeleteModal = () => {
+      document.getElementById('deleteModal').classList.remove('open');
+      document.getElementById('deleteErr').textContent = '';
+      document.getElementById('deletePassword').value = '';
+      pendingDelete = null;
+    };
+
+    window.openEdit = (table, pkVal, field, currentVal) => {
+      pendingEdit = { table, pkVal, field };
+      document.getElementById('modalFieldLabel').textContent = field;
+      document.getElementById('modalNewVal').value = currentVal === '—' ? '' : currentVal;
+      document.getElementById('modalErr').textContent = '';
+      document.getElementById('modalPassword').value = '';
+      document.getElementById('editModal').classList.add('open');
+      setTimeout(() => document.getElementById('modalNewVal').focus(), 80);
+    };
+
+    window.openDelete = (table, pkVal) => {
+      pendingDelete = { table, pkVal };
+      document.getElementById('deleteErr').textContent = '';
+      document.getElementById('deletePassword').value = '';
+      document.getElementById('deleteModal').classList.add('open');
+      setTimeout(() => document.getElementById('deletePassword').focus(), 80);
+    };
+
+    window.confirmEdit = async () => {
+      const pw = document.getElementById('modalPassword').value.trim();
+      const newVal = document.getElementById('modalNewVal').value;
+      document.getElementById('modalErr').textContent = '';
+      if (!pw) { document.getElementById('modalErr').textContent = 'Enter the admin password.'; return; }
+
+      const r = await fetch(API_URL + '/admin/edit', {
+        method:'POST',
+        headers:{'Content-Type':'application/json', 'Authorization': 'Bearer ' + adminToken},
+        body: JSON.stringify({ adminPassword: pw, table: pendingEdit.table, primaryValue: pendingEdit.pkVal, field: pendingEdit.field, value: newVal })
+      });
+
+      const d = await r.json();
+      if (!r.ok) { document.getElementById('modalErr').textContent = d.error || 'Failed.'; return; }
+
+      const pk = TABLE_PKS[pendingEdit.table];
+      const tableKey = pendingEdit.table === 'user_progress' ? 'progress' :
+                       pendingEdit.table === 'daily_goals' ? 'daily_goals' :
+                       pendingEdit.table === 'vocabulary_progress' ? 'vocabulary' :
+                       pendingEdit.table === 'user_settings' ? 'settings' : pendingEdit.table;
+      const arr = db[tableKey] || db[pendingEdit.table];
+      if (arr) {
+        const row = arr.find(r => String(r[pk]) === String(pendingEdit.pkVal));
+        if (row) row[pendingEdit.field] = newVal;
+      }
+
+      closeModal();
+      render();
+    };
+
+    window.confirmDelete = async () => {
+      const pw = document.getElementById('deletePassword').value.trim();
+      document.getElementById('deleteErr').textContent = '';
+      if (!pw) { document.getElementById('deleteErr').textContent = 'Enter the admin password.'; return; }
+
+      const r = await fetch(API_URL + '/admin/delete', {
+        method:'POST',
+        headers:{'Content-Type':'application/json', 'Authorization': 'Bearer ' + adminToken},
+        body: JSON.stringify({ adminPassword: pw, table: pendingDelete.table, primaryValue: pendingDelete.pkVal })
+      });
+
+      const d = await r.json();
+      if (!r.ok) { document.getElementById('deleteErr').textContent = d.error || 'Failed.'; return; }
+
+      const pk = TABLE_PKS[pendingDelete.table];
+      const tableKey = pendingDelete.table === 'user_progress' ? 'progress' :
+                       pendingDelete.table === 'daily_goals' ? 'daily_goals' :
+                       pendingDelete.table === 'vocabulary_progress' ? 'vocabulary' :
+                       pendingDelete.table === 'user_settings' ? 'settings' : pendingDelete.table;
+      const arr = db[tableKey] || db[pendingDelete.table];
+      if (arr) {
+        const idx = arr.findIndex(r => String(r[pk]) === String(pendingDelete.pkVal));
+        if (idx > -1) arr.splice(idx, 1);
+      }
+
+      closeDeleteModal();
+      render();
+    };
+
+    function fmt(val) {
+      if (val === null || val === undefined) return '—';
+      if (typeof val === 'boolean') return val ? 'true' : 'false';
+      if (typeof val === 'string' && val.length > 55) return val.slice(0,53) + '…';
+      return String(val);
     }
-    closeDeleteModal();
-    render();
-  };
 
-  function fmt(val) {
-    if (val === null || val === undefined) return '—';
-    if (typeof val === 'boolean') return val ? 'true' : 'false';
-    if (typeof val === 'string' && val.length > 55) return val.slice(0,53) + '…';
-    return String(val);
-  }
+    function renderTable(rows, tableName, skipCols=[]) {
+      if (!rows.length) return '<p style="color:var(--muted);padding:20px;">No records found.</p>';
+      const pk = TABLE_PKS[tableName];
+      const editable = EDITABLE[tableName] || [];
+      const cols = Object.keys(rows[0]).filter(c => !skipCols.includes(c));
+      return `<div class="table-wrap"><table>
+        <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th>Actions</th></tr></thead>
+        <tbody>${rows.map(row => {
+          const pkVal = row[pk];
+          const cells = cols.map(c => {
+            const v = fmt(row[c]);
+            const bool = typeof row[c] === 'boolean';
+            if (editable.includes(c)) {
+              return `<td><span class="editable" title="Click to edit" onclick="openEdit('${tableName}','${pkVal}','${c}','${String(row[c]).replace(/'/g,'&#39;')}')">${bool ? (row[c]?'<span class=\'pill pill-green\'>Yes</span>':'<span class=\'pill pill-red\'>No</span>') : v}</span></td>`;
+            }
+            return `<td>${bool ? (row[c]?'<span class="pill pill-green">Yes</span>':'<span class="pill pill-red">No</span>') : v}</td>`;
+          }).join('');
+          return `<tr>${cells}<td><button class="del-btn" onclick="openDelete('${tableName}','${pkVal}')">🗑 Delete</button></td></tr>`;
+        }).join('')}</tbody>
+      </table></div>`;
+    }
 
-  function renderTable(rows, tableName, skipCols=[]) {
-    if (!rows.length) return '<p style="color:var(--muted);padding:20px;">No records found.</p>';
-    const pk = TABLE_PKS[tableName];
-    const editable = EDITABLE[tableName] || [];
-    const cols = Object.keys(rows[0]).filter(c => !skipCols.includes(c));
-    return `<div class="table-wrap"><table>
-      <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th>Actions</th></tr></thead>
-      <tbody>${rows.map(row => {
-        const pkVal = row[pk];
-        const cells = cols.map(c => {
-          const v = fmt(row[c]);
-          const bool = typeof row[c] === 'boolean';
-          if (editable.includes(c)) {
-            return `<td><span class="editable" title="Click to edit" onclick="openEdit('${tableName}','${pkVal}','${c}','${String(row[c]).replace(/'/g,'&#39;')}')">${bool ? (row[c]?'<span class=\'pill pill-green\'>Yes</span>':'<span class=\'pill pill-red\'>No</span>') : v}</span></td>`;
-          }
-          return `<td>${bool ? (row[c]?'<span class="pill pill-green">Yes</span>':'<span class="pill pill-red">No</span>') : v}</td>`;
-        }).join('');
-        return `<tr>${cells}<td><button class="del-btn" onclick="openDelete('${tableName}','${pkVal}')">🗑 Delete</button></td></tr>`;
-      }).join('')}</tbody>
-    </table></div>`;
-  }
+    function renderUsers() {
+      const FIELD_LABELS = { username:'Username', full_name:'Full Name', email:'Email', xp:'XP', level:'Level', streak_days:'Streak', is_admin:'Admin' };
+      return `<div class="user-grid">${db.users.map(u => {
+        const pfp = u.profile_picture ? `<img src="${u.profile_picture}" alt="pfp">` : '💼';
+        const isBanned = u.is_banned;
+        return `<div class="user-card" style="${isBanned ? 'border-color:rgba(230,57,70,.35);' : ''}">
+          <div class="user-card-top">
+            <div class="user-pfp">${pfp}</div>
+            <div class="user-info">
+              <h3>${u.full_name || u.username}</h3>
+              <p>@${u.username} · ${u.email}</p>
+            </div>
+          </div>
+          <div class="user-meta">
+            ${u.is_admin ? '<span class="pill pill-red">👑 Admin</span>' : '<span class="pill pill-blue">User</span>'}
+            ${isBanned ? '<span class="banned-badge">🚫 BANNED</span>' : ''}
+            <span class="pill pill-yellow">⭐ ${(u.xp||0).toLocaleString()} XP</span>
+            <span class="pill pill-green">Lv ${u.level||1}</span>
+            <span class="pill" style="background:rgba(255,255,255,.06);color:var(--muted);">🔥 ${u.streak_days||0}d</span>
+          </div>
+          ${isBanned ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(230,57,70,.08);border-radius:10px;font-size:.75rem;color:var(--red);"><strong>Ban reason:</strong> ${u.banned_reason || 'No reason given'}</div>` : ''}
+          <div class="user-actions">
+            ${EDITABLE.users.map(f => `<button class="edit-field-btn" onclick="openEdit('users','${u.user_id}','${f}','${String(u[f]||'').replace(/'/g,'&#39;')}')" title="Edit ${f}">✏️ ${FIELD_LABELS[f]||f}</button>`).join('')}
+            ${isBanned
+              ? `<button class="unban-btn" onclick="openUnban('${u.user_id}')">✅ Unban</button>`
+              : `<button class="ban-btn" onclick="openBan('${u.user_id}')">🚫 Ban</button>`
+            }
+            <button class="del-user-btn" onclick="openDelete('users','${u.user_id}')">🗑 Delete User</button>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+    }
 
-  const FIELD_LABELS = {
-    username:'Username', full_name:'Full Name', email:'Email',
-    xp:'XP', level:'Level', streak_days:'Streak', is_admin:'Admin'
-  };
+    const tabs = [
+      { id:'users',         label:'👥 Users',         get count(){ return db.users.length; } },
+      { id:'progress',      label:'📚 Progress',       get count(){ return db.progress.length; } },
+      { id:'achievements',  label:'🏅 Achievements',   get count(){ return db.achievements.length; } },
+      { id:'goals',         label:'🎯 Daily Goals',    get count(){ return db.daily_goals.length; } },
+      { id:'notifications', label:'🔔 Notifications',  get count(){ return db.notifications.length; } },
+      { id:'vocab',         label:'🧠 Vocabulary',     get count(){ return db.vocabulary.length; } },
+      { id:'settings',      label:'⚙️ Settings',       get count(){ return db.settings.length; } },
+    ];
 
-  function renderUsers() {
-    return `<div class="user-grid">${db.users.map(u => {
-      const pfp = u.profile_picture ? `<img src="${u.profile_picture}" alt="pfp">` : '\uD83D\uDC3C';
-      const isBanned = u.is_banned;
-      return `<div class="user-card" style="${isBanned ? 'border-color:rgba(230,57,70,.35);' : ''}">
-        <div class="user-card-top">
-          <div class="user-pfp">${pfp}</div>
-          <div class="user-info">
-            <h3>${u.full_name || u.username}</h3>
-            <p>@${u.username} \u00b7 ${u.email}</p>
+    function getContent() {
+      switch(activeTab) {
+        case 'users':         return renderUsers();
+        case 'progress':      return renderTable(db.progress,      'user_progress');
+        case 'achievements':  return renderTable(db.achievements,  'achievements');
+        case 'goals':         return renderTable(db.daily_goals,   'daily_goals');
+        case 'notifications': return renderTable(db.notifications, 'notifications');
+        case 'vocab':         return renderTable(db.vocabulary,    'vocabulary_progress');
+        case 'settings':      return renderTable(db.settings,      'user_settings');
+        default: return '';
+      }
+    }
+
+    function render() {
+      const cur = tabs.find(t => t.id === activeTab);
+      document.getElementById('app').innerHTML = `
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="admin-logo">👑</div>
+            <h1>Hanverse <span>Admin</span></h1>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">Light Mode</button>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+            <button class="back-btn" onclick="openCreateUserModal()">➕ Create User</button>
+            <button class="back-btn" onclick="location.href='profile.html'">← Back to Profile</button>
           </div>
         </div>
-        <div class="user-meta">
-          ${u.is_admin ? '<span class="pill pill-red">\uD83D\uDC51 Admin</span>' : '<span class="pill pill-blue">User</span>'}
-          ${isBanned ? '<span class="banned-badge">\uD83D\uDEAB BANNED</span>' : ''}
-          <span class="pill pill-yellow">\u2B50 ${(u.xp||0).toLocaleString()} XP</span>
-          <span class="pill pill-green">Lv ${u.level||1}</span>
-          <span class="pill" style="background:rgba(255,255,255,.06);color:var(--muted);">\uD83D\uDD25 ${u.streak_days||0}d</span>
+        <div class="stats-row">
+          <div class="stat-pill"><div class="label">Total Users</div><div class="val">${totalUsers}</div></div>
+          <div class="stat-pill"><div class="label">Admins</div><div class="val">${adminCount}</div></div>
+          <div class="stat-pill"><div class="label">Total XP</div><div class="val">${totalXP.toLocaleString()}</div></div>
+          <div class="stat-pill"><div class="label">Lessons Done</div><div class="val">${completedLessons}</div></div>
         </div>
-        ${isBanned ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(230,57,70,.08);border-radius:10px;font-size:.75rem;color:var(--red);"><strong>Ban reason:</strong> ${u.banned_reason || 'No reason given'}</div>` : ''}
-        <div class="user-actions">
-          ${EDITABLE.users.map(f => `<button class="edit-field-btn" onclick="openEdit('users','${u.user_id}','${f}','${String(u[f]||'').replace(/'/g,'&#39;')}')" title="Edit ${f}">\u270F\uFE0F ${FIELD_LABELS[f]||f}</button>`).join('')}
-          ${isBanned
-            ? `<button class="unban-btn" onclick="openUnban('${u.user_id}')">\u2705 Unban</button>`
-            : `<button class="ban-btn" onclick="openBan('${u.user_id}')">\uD83D\uDEAB Ban</button>`
-          }
-          <button class="del-user-btn" onclick="openDelete('users','${u.user_id}')">🗑 Delete User</button>
+        <div class="tabs">
+          ${tabs.map(t=>`<button class="tab${activeTab===t.id?' active':''}" onclick="switchTab('${t.id}')">${t.label} <span style="opacity:.6;">(${t.count})</span></button>`).join('')}
         </div>
-      </div>`;
-    }).join('')}</div>`;
-  }
-
-  const tabs = [
-    { id:'users',         label:'👥 Users',         get count(){ return db.users.length; } },
-    { id:'progress',      label:'📚 Progress',       get count(){ return db.progress.length; } },
-    { id:'achievements',  label:'🏅 Achievements',   get count(){ return db.achievements.length; } },
-    { id:'goals',         label:'🎯 Daily Goals',    get count(){ return db.daily_goals.length; } },
-    { id:'notifications', label:'🔔 Notifications',  get count(){ return db.notifications.length; } },
-    { id:'vocab',         label:'🧠 Vocabulary',     get count(){ return db.vocabulary.length; } },
-    { id:'settings',      label:'⚙️ Settings',       get count(){ return db.settings.length; } },
-  ];
-
-  function getContent() {
-    switch(activeTab) {
-      case 'users':         return renderUsers();
-      case 'progress':      return renderTable(db.progress,      'user_progress');
-      case 'achievements':  return renderTable(db.achievements,  'achievements');
-      case 'goals':         return renderTable(db.daily_goals,   'daily_goals');
-      case 'notifications': return renderTable(db.notifications, 'notifications');
-      case 'vocab':         return renderTable(db.vocabulary,    'vocabulary_progress');
-      case 'settings':      return renderTable(db.settings,      'user_settings');
-      default: return '';
+        <div class="section">
+          <div class="section-title">${cur.label} <span class="count-badge">${cur.count} records</span></div>
+          ${getContent()}
+        </div>`;
     }
-  }
 
-  function render() {
-    const cur = tabs.find(t => t.id === activeTab);
-    document.getElementById('app').innerHTML = `
-      <div class="topbar">
-        <div class="topbar-left">
-          <div class="admin-logo">👑</div>
-          <h1>Hanverse <span>Admin</span></h1>
-          <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">Light Mode</button>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-          <button class="back-btn" onclick="openCreateUserModal()">➕ Create User</button>
-          <button class="back-btn" onclick="location.href='profile.html'">← Back to Profile</button>
-        </div>
-      </div>
-      <div class="stats-row">
-        <div class="stat-pill"><div class="label">Total Users</div><div class="val">${totalUsers}</div></div>
-        <div class="stat-pill"><div class="label">Admins</div><div class="val">${adminCount}</div></div>
-        <div class="stat-pill"><div class="label">Total XP</div><div class="val">${totalXP.toLocaleString()}</div></div>
-        <div class="stat-pill"><div class="label">Lessons Done</div><div class="val">${completedLessons}</div></div>
-      </div>
-      <div class="tabs">
-        ${tabs.map(t=>`<button class="tab${activeTab===t.id?' active':''}" onclick="switchTab('${t.id}')">${t.label} <span style="opacity:.6;">(${t.count})</span></button>`).join('')}
-      </div>
-      <div class="section">
-        <div class="section-title">${cur.label} <span class="count-badge">${cur.count} records</span></div>
-        ${getContent()}
-      </div>`;
-  }
-
-
-  function setThemeButton() {
-    const btn = document.getElementById('themeToggleBtn');
-    if (!btn) return;
-    btn.textContent = document.body.classList.contains('light') ? 'Dark Mode' : 'Light Mode';
-  }
-
-  function applyStoredTheme() {
-    const storedTheme = localStorage.getItem('hanverse_theme');
-    if (storedTheme === 'light') {
-      document.body.classList.add('light');
-    } else {
-      document.body.classList.remove('light');
+    function setThemeButton() {
+      const btn = document.getElementById('themeToggleBtn');
+      if (!btn) return;
+      btn.textContent = document.body.classList.contains('light') ? 'Dark Mode' : 'Light Mode';
     }
-  }
 
-  window.toggleTheme = () => {
-    const isLight = document.body.classList.toggle('light');
-    localStorage.setItem('hanverse_theme', isLight ? 'light' : 'dark');
+    function applyStoredTheme() {
+      const storedTheme = localStorage.getItem('hanverse_theme');
+      if (storedTheme === 'light') document.body.classList.add('light');
+      else document.body.classList.remove('light');
+    }
+
+    window.toggleTheme = () => {
+      const isLight = document.body.classList.toggle('light');
+      localStorage.setItem('hanverse_theme', isLight ? 'light' : 'dark');
+      setThemeButton();
+    };
+
+    window.switchTab = id => { activeTab = id; render(); };
+
+    applyStoredTheme();
+    render();
     setThemeButton();
+
+    // Close modals on overlay click
+    document.getElementById('editModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+    document.getElementById('deleteModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDeleteModal(); });
+    document.getElementById('banModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeBanModal(); });
+    document.getElementById('unbanModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeUnbanModal(); });
+    document.getElementById('createUserModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeCreateUserModal(); });
+
+    // Enter key submits
+    document.getElementById('createAdminPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmCreateUser(); });
+    document.getElementById('modalPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmEdit(); });
+    document.getElementById('deletePassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmDelete(); });
+    document.getElementById('banPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmBan(); });
+    document.getElementById('unbanPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmUnban(); });
   };
-
-  window.switchTab = id => { activeTab = id; render(); };
-
-  applyStoredTheme();
-  render();
-  setThemeButton();
-
-  // Close modals on overlay click
-  document.getElementById('editModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
-  document.getElementById('deleteModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDeleteModal(); });
-  document.getElementById('banModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeBanModal(); });
-  document.getElementById('unbanModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeUnbanModal(); });
-  document.getElementById('createUserModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeCreateUserModal(); });
-
-  // Enter key submits
-  document.getElementById('createAdminPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmCreateUser(); });
-  document.getElementById('modalPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmEdit(); });
-
-  document.getElementById('deletePassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmDelete(); });
-  document.getElementById('banPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmBan(); });
-  document.getElementById('unbanPassword').addEventListener('keydown', e => { if(e.key==='Enter') confirmUnban(); });
 })();
 </script>
 </body>
 </html>
+

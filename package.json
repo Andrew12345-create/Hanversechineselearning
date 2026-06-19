@@ -2,13 +2,14 @@
   "name": "hanverse",
   "version": "1.0.0",
   "description": "Chinese learning platform",
-  "main": "server.js",
+ "main": "functions/server.js",
+
   "type": "module",
   "scripts": {
     "prepare": "node ./scripts/setup-git-hooks.js",
     "build": "echo 'No build step for static site' && exit 0",
-    "start": "node server.js",
-    "dev": "node --watch server.js",
+    "start": "netlify dev",
+    "dev": "netlify dev",
     "start:local": "node start-local.js",
     "dev:local": "HOST=localhost PORT=3000 NODE_ENV=development node --watch server.js",
     "setup:db": "node init_local_db.js",
@@ -20,6 +21,7 @@
   "license": "ISC",
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
+    "@google/genai": "^2.8.0",
     "axios": "^1.17.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.6",
@@ -30,5 +32,7 @@
     "pg": "^8.21.0",
     "serverless-http": "^3.2.0",
     "stripe": "^22.2.0"
+    
   }
 }
+

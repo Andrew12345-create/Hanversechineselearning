@@ -19,21 +19,28 @@
     HANVERSE BRAND SYSTEM
   ========================================== */
 
-  :root{
+:root{
+
+  --primary:#2563EB;
+  --secondary:#14B8A6;
+  --accent:#F59E0B;
+
+  --dark:#0F172A;
+  --text:#334155;
+  --muted:#64748B;
+
+  --bg:#F8FAFC;
+  --surface:#FFFFFF;
+  --white:#FFFFFF;
+
+  --shadow:0 20px 50px rgba(15,23,42,.08);
+
+  --border:#E2E8F0;
 
   --yellow:#F4D35E;
   --red:#E63946;
-  --blue:#4EA8DE;
+  --blue:#2563EB;
   --green:#74C69D;
-
-  --bg:#FFFDF7;
-
-  --surface:#FFFFFF;
-
-  --text-primary:#1A1A2E;
-  --text-secondary:#6B7280;
-
-  --border:#E5E7EB;
 
   }
 
@@ -71,7 +78,7 @@
     BACKGROUND BLOBS
   ========================================== */
 
-  body::before{
+body::before{
 
   content:'';
 
@@ -84,14 +91,14 @@
   border-radius:50%;
 
   background:
-  rgba(78,168,222,.08);
+  rgba(37,99,235,.08);
 
   top:-350px;
   left:-350px;
 
   }
 
-  body::after{
+body::after{
 
   content:'';
 
@@ -104,7 +111,7 @@
   border-radius:50%;
 
   background:
-  rgba(244,211,94,.08);
+  rgba(14,165,233,.08);
 
   bottom:-300px;
   right:-300px;
@@ -576,13 +583,47 @@
 
   }
 
-  @media(max-width:600px){
-
-  .right{
-
-  padding:30px;
-
-  }
+@media(max-width:600px){
+.right{
+padding:30px;
+}
+.left{
+padding:30px;
+}
+.left h1{
+font-size:34px;
+}
+.logo{
+font-size:34px;
+}
+}
+.bottom-nav{
+display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;
+background:rgba(255,255,255,.95);backdrop-filter:blur(20px);
+border-top:1px solid var(--border);padding:12px 20px;
+justify-content:space-around;align-items:center;
+box-shadow:0 -8px 32px rgba(0,0,0,.07);
+padding-bottom:calc(12px + env(safe-area-inset-bottom));
+}
+.bottom-nav a{
+flex:1;text-align:center;text-decoration:none;color:var(--text-secondary);
+font-size:.75rem;font-weight:500;transition:.2s;padding:8px 4px;
+}
+.bottom-nav a.active{color:var(--primary);}
+.bottom-nav a.active .nav-icon{background:linear-gradient(135deg,var(--primary),#14B8A6);color:white;}
+.nav-icon{
+width:46px;height:46px;border-radius:14px;margin:0 auto 4px;
+display:flex;align-items:center;justify-content:center;
+font-size:20px;background:rgba(78,168,222,.08);transition:.2s;color:var(--text-secondary);
+}
+.bottom-nav a.active .nav-icon{background:linear-gradient(135deg,var(--blue),var(--red));color:white;}
+}
+@media(max-width:480px){
+.bottom-nav{display:none;}
+}
+@media(max-width:380px){
+.bottom-nav{display:flex;}
+}
 
   .left{
 
@@ -982,7 +1023,14 @@ console.log("Login URL:", `${API_URL}/login`);
             }
         );
 
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch {
+            data = { error: `Server returned non-JSON (${response.status})` };
+        }
+
+        console.log("Response status:", response.status, "data:", data);
 
         /* ACCOUNT BANNED */
 
@@ -1012,9 +1060,9 @@ console.log("Login URL:", `${API_URL}/login`);
             response.status === 403 &&
             data.error === 'not_verified'
         ) {
-
+            console.log('Email not verified for:', email);
             showError(
-                'Please verify your email before logging in.'
+                'Please verify your email before logging in. Check your inbox or click "Verify Email" below.'
             );
 
             return;
@@ -1023,11 +1071,14 @@ console.log("Login URL:", `${API_URL}/login`);
         /* LOGIN FAILED */
 
         if (!response.ok || !data.success) {
+            let errorMsg = data.error || data.message;
+            if (response.status === 401) {
+                errorMsg = errorMsg || 'Invalid email or password.';
+            } else if (!errorMsg) {
+                errorMsg = `Login failed (${response.status})`;
+            }
 
-            showError(
-                data.error ||
-                'Invalid email or password.'
-            );
+            showError(errorMsg);
 
             return;
         }
@@ -1058,9 +1109,10 @@ console.log("Login URL:", `${API_URL}/login`);
             error
         );
 
-        showError(
-            'Unable to connect to server.'
-        );
+        const errMsg = error?.message || 'Unable to connect to server.';
+        console.log('Login error:', errMsg);
+
+        showError(errMsg);
 
     }
     finally {
@@ -1239,14 +1291,29 @@ document.addEventListener(
             );
         }
 
-    }
-);
-
-</script>
-
-
-
-</script>
-
-</body>
-</html>
+}
+ );
+ 
+ </script>
+ 
+ <nav class="bottom-nav">
+ <a href="index.html" class="nav-item">
+ <div class="nav-icon" style="position:relative;">🏠</div>
+ <span>Home</span>
+ </a>
+ <a href="learn.html" class="nav-item">
+ <div class="nav-icon" style="position:relative;">📚</div>
+ <span>Learn</span>
+ </a>
+ <a href="signup.html" class="nav-item">
+ <div class="nav-icon" style="position:relative;">✨</div>
+ <span>Sign Up</span>
+ </a>
+ <a href="login.html" class="nav-item active">
+ <div class="nav-icon" style="position:relative;">🔑</div>
+ <span>Login</span>
+ </a>
+ </nav>
+ 
+ </body>
+ </html>

@@ -1,12 +1,6 @@
 # TODO
 
-## Verification + UX improvements
-- [x] Update `TODO.md` created.
-- [ ] Update `functions/server.js` so verification/reset emails always use `https://hanverse.netlify.app` in production (unless `FRONTEND_URL` is explicitly set).
-- [ ] Update `login.html` to provide interactive “not verified” UX (resend verification inline with loading + success/error).
-- [ ] Update `signup.html` to provide interactive “verify your email” CTA after successful signup.
-- [ ] Ensure `verify.html` redirects to `login.html` on success (no localhost).
-- [ ] Quick local sanity test: signup -> check email link target.
-- [ ] Deploy to Netlify and verify end-to-end.
-
+- [ ] Harmonize CSS theme across ALL HTML pages to match `index.html` (blue theme).
+- [ ] For each HTML file: replace/align its `:root` color variables and key background/card/nav/button styles with the `index.html` values.
+- [ ] Verify key pages visually/quickly by running local server and checking each route.
 

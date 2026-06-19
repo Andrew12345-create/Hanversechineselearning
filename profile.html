@@ -8,207 +8,381 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Hanverse Profile</title>
+<title>HanVerse Profile</title>
 
-<link
-href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+
 :root{
---yellow:#F4D35E;--red:#E63946;--blue:#4EA8DE;--green:#74C69D;
---bg:#FFFDF7;--surface:#FFFFFF;
---text-primary:#1A1A2E;--text-secondary:#6B7280;--border:#E5E7EB;
+
+--primary:#2563EB;
+--secondary:#14B8A6;
+--accent:#F59E0B;
+
+--dark:#0F172A;
+--text:#334155;
+--muted:#64748B;
+
+--bg:#F8FAFC;
+--white:#FFFFFF;
+
+--success:#10B981;
+--danger:#EF4444;
+
+--border:#E2E8F0;
+
 --shadow-sm:0 8px 20px rgba(0,0,0,.05);
---shadow:0 20px 50px rgba(0,0,0,.08);
---shadow-lg:0 30px 70px rgba(0,0,0,.12);
-}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text-primary);padding:24px;overflow-x:hidden;}
-body::before{content:'';position:fixed;width:700px;height:700px;top:-350px;left:-350px;border-radius:50%;background:rgba(78,168,222,.07);z-index:-2;}
-body::after{content:'';position:fixed;width:600px;height:600px;bottom:-300px;right:-300px;border-radius:50%;background:rgba(244,211,94,.07);z-index:-2;}
+--shadow:0 20px 50px rgba(15,23,42,.08);
+--shadow-lg:0 30px 70px rgba(15,23,42,.12);
 
-/* NAV */
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+
+background:var(--bg);
+
+color:var(--dark);
+
+overflow-x:hidden;
+
+}
+
+body::before{
+
+content:'';
+
+position:fixed;
+
+inset:0;
+
+z-index:-1;
+
+background:
+radial-gradient(circle at 15% 20%, rgba(37,99,235,.08), transparent 35%),
+radial-gradient(circle at 80% 70%, rgba(20,184,166,.08), transparent 35%);
+
+}
+
+/* NAVBAR */
+
 nav{
-display:flex;justify-content:space-between;align-items:center;
-padding:16px 28px;
-background:rgba(255,255,255,.85);backdrop-filter:blur(20px);
-border-radius:22px;margin-bottom:26px;
-box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,.04);
+
+position:sticky;
+top:0;
+z-index:1000;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:16px 7%;
+
+background:rgba(255,255,255,.92);
+
+backdrop-filter:blur(20px);
+
+border-bottom:1px solid rgba(0,0,0,.05);
+
 }
-.logo{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;color:var(--yellow);text-decoration:none;}
+
+.logo{
+
+display:flex;
+align-items:center;
+gap:12px;
+
+font-size:26px;
+font-weight:800;
+
+color:var(--primary);
+
+text-decoration:none;
+
+}
+
 .logo-badge{
-width:46px;height:46px;border-radius:50%;
-display:flex;justify-content:center;align-items:center;
-background:linear-gradient(135deg,var(--yellow),#FFD95A);font-size:22px;
+
+width:46px;
+height:46px;
+
+border-radius:50%;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+background:
+linear-gradient(
+135deg,
+var(--primary),
+var(--secondary)
+);
+
+color:white;
+
+font-size:22px;
+
 }
-nav ul{display:flex;gap:22px;list-style:none;}
-nav a{
-text-decoration:none;font-weight:600;font-size:.9rem;
-color:var(--text-secondary);transition:.25s;position:relative;padding-bottom:2px;
+
+.nav-links{
+
+display:flex;
+gap:28px;
+
+list-style:none;
+
 }
-nav a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:var(--red);border-radius:2px;transition:.25s;}
-nav a:hover{color:var(--red);}
-nav a:hover::after,nav a.active::after{width:100%;}
-nav a.active{color:var(--red);}
+
+.nav-links a{
+
+text-decoration:none;
+
+font-weight:600;
+
+color:var(--muted);
+
+}
+
+.nav-links a.active{
+
+color:var(--primary);
+
+}
+
 .logout-btn{
-padding:11px 22px;border:none;border-radius:999px;font-weight:700;font-size:.88rem;
-cursor:pointer;background:linear-gradient(135deg,var(--yellow),#FFD95A);
-transition:.25s;color:var(--text-primary);
-}
-.logout-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(244,211,94,.4);}
 
-/* PROFILE HERO */
+padding:12px 24px;
+
+border:none;
+
+border-radius:999px;
+
+font-weight:700;
+
+cursor:pointer;
+
+background:
+linear-gradient(
+135deg,
+var(--primary),
+var(--secondary)
+);
+
+color:white;
+
+}
+
+/* HERO */
+
 .profile-hero{
-position:relative;overflow:hidden;
-display:flex;align-items:center;gap:28px;
+
+margin:40px 7%;
+
 padding:50px;
-border-radius:36px;margin-bottom:26px;
-background:linear-gradient(135deg,#F4D35E 0%,#FFD95A 35%,#6DBBF1 100%);
-box-shadow:var(--shadow-lg);
-}
-.hero-char{position:absolute;font-size:88px;font-weight:800;opacity:.07;pointer-events:none;}
-.hc1{top:28px;left:28px;}.hc2{top:48px;right:48px;}.hc3{bottom:48px;left:48px;}.hc4{bottom:38px;right:38px;}
-.avatar{
-width:118px;height:118px;border-radius:50%;background:white;
-display:flex;justify-content:center;align-items:center;
-font-size:60px;box-shadow:0 12px 30px rgba(0,0,0,.14);
-cursor:pointer;transition:.25s;flex-shrink:0;position:relative;
-}
-.avatar:hover{transform:scale(1.04);}
-.profile-info h1{font-size:1.9rem;color:white;margin-bottom:7px;}
-.profile-info p{color:rgba(255,255,255,.9);line-height:1.7;}
-.level-badge{
-display:inline-block;margin-top:14px;padding:9px 18px;
-border-radius:999px;background:rgba(255,255,255,.18);
-color:white;font-weight:700;font-size:.88rem;
-}
-.hero-stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-.hero-stat{
-padding:9px 16px;border-radius:999px;
-background:rgba(255,255,255,.18);color:white;font-weight:700;font-size:.86rem;
-}
 
-/* QUICK DASHBOARD */
-.quick-dashboard{
-display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px;
-}
-.quick-card{
-background:white;padding:22px;border-radius:22px;
-text-align:center;box-shadow:var(--shadow-sm);
-border:1px solid rgba(0,0,0,.04);transition:.25s;
-}
-.quick-card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.09);}
-.quick-card h3{font-size:1.9rem;margin-top:8px;font-weight:800;}
-.quick-card p{font-size:.82rem;color:var(--text-secondary);margin-top:4px;}
-.quick-card:nth-child(1) h3{color:var(--red);}
-.quick-card:nth-child(2) h3{color:#D4A800;}
-.quick-card:nth-child(3) h3{color:var(--blue);}
-.quick-card:nth-child(4) h3{color:var(--green);}
+border-radius:40px;
 
-/* STATS GRID */
-.stats-grid{
-display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:26px;
-}
-.stat-card{
-background:white;padding:22px;border-radius:22px;
-text-align:center;box-shadow:var(--shadow-sm);
-border:1px solid rgba(0,0,0,.04);transition:.25s;
-}
-.stat-card:hover{transform:translateY(-4px);}
-.stat-card .icon{font-size:1.9rem;margin-bottom:10px;}
-.stat-card h2{font-size:1.9rem;font-weight:800;margin-bottom:4px;}
-.stat-card p{font-size:.82rem;color:var(--text-secondary);}
-#xp{color:#D4A800;}#streak{color:var(--red);}#lessons{color:var(--blue);}#words{color:var(--green);}
+background:
+linear-gradient(
+135deg,
+var(--primary),
+var(--secondary)
+);
 
-/* CONTENT SECTIONS */
-.content-section{
-background:white;padding:28px;
-border-radius:22px;margin-bottom:24px;
-box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,.04);
-}
-.content-section h2{font-size:1.1rem;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+color:white;
 
-/* PROGRESS BAR */
-.progress-bar-track{height:12px;background:#F0F0F0;border-radius:999px;overflow:hidden;margin:12px 0;}
-.progress-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--yellow),var(--green));transition:width 1.2s cubic-bezier(.4,0,.2,1);}
-
-/* BADGES */
-.badges-grid{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
-gap:14px;
+
+grid-template-columns:
+180px 1fr;
+
+gap:40px;
+
+align-items:center;
+
+box-shadow:var(--shadow-lg);
+
+position:relative;
+
+overflow:hidden;
+
 }
-.badge-card{
-border-radius:20px;
-padding:20px 12px;
-text-align:center;
-border:2px solid transparent;
-transition:.25s;
-cursor:default;
+
+.profile-hero::before{
+
+content:'你';
+
+position:absolute;
+
+font-size:120px;
+
+font-weight:800;
+
+opacity:.08;
+
+top:20px;
+right:50px;
+
 }
-.badge-card.earned{
+
+.avatar{
+
+width:150px;
+height:150px;
+
+border-radius:50%;
+
 background:white;
-border-color:rgba(0,0,0,.06);
-box-shadow:0 8px 22px rgba(0,0,0,.07);
-}
-.badge-card.earned:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.11);}
-.badge-card.locked{
-background:#F3F4F6;
-border-color:#E5E7EB;
-opacity:.65;
-filter:grayscale(1);
-}
-.badge-icon{font-size:2.4rem;margin-bottom:8px;}
-.badge-name{font-size:.78rem;font-weight:700;margin-bottom:4px;}
-.badge-desc{font-size:.7rem;color:var(--text-secondary);line-height:1.4;}
-.badge-card.earned .badge-name{color:var(--text-primary);}
-.badge-card.locked .badge-name{color:#9CA3AF;}
-.badge-earned-label{
-display:inline-block;margin-top:8px;
-padding:3px 10px;border-radius:999px;
-font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
-}
-.badge-card.earned .badge-earned-label{background:rgba(116,198,157,.18);color:#2D7A5A;}
-.badge-card.locked .badge-earned-label{background:#E5E7EB;color:#9CA3AF;}
 
-/* ACTIVITY FEED */
-.activity-item{
-padding:12px 0;border-bottom:1px solid var(--border);
-font-size:.88rem;color:var(--text-secondary);display:flex;align-items:center;gap:10px;
-}
-.activity-item:last-child{border-bottom:none;}
+display:flex;
+justify-content:center;
+align-items:center;
 
-/* AVATAR SPINNER */
-.avatar-spinner{width:38px;height:38px;border:4px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:avatarSpin .8s linear infinite;}
-@keyframes avatarSpin{to{transform:rotate(360deg);}}
+font-size:80px;
 
-/* ADMIN TAG */
-.admin-tag{
-display:none;align-items:center;gap:8px;padding:9px 20px;border-radius:999px;
-font-weight:800;font-size:.8rem;letter-spacing:.07em;text-transform:uppercase;
-color:#fff;background:linear-gradient(135deg,#ff416c,#ff4b2b);
-box-shadow:0 4px 20px rgba(255,65,108,.45);
-animation:adminPulse 2.4s ease-in-out infinite;
-}
-.admin-tag.visible{display:inline-flex;}
-@keyframes adminPulse{
-0%,100%{box-shadow:0 4px 20px rgba(255,65,108,.45);}
-50%{box-shadow:0 4px 38px rgba(255,65,108,.85),0 0 0 6px rgba(255,65,108,.12);}
+overflow:hidden;
+
+box-shadow:0 12px 30px rgba(0,0,0,.15);
+
 }
 
-/* RESPONSIVE */
-@media(max-width:900px){
-.profile-hero{flex-direction:column;text-align:center;padding:36px 24px;}
-.quick-dashboard{grid-template-columns:repeat(2,1fr);}
-.stats-grid{grid-template-columns:repeat(2,1fr);}
+.avatar img{
+
+width:100%;
+height:100%;
+
+object-fit:cover;
+
 }
-@media(max-width:600px){
-.quick-dashboard,.stats-grid{grid-template-columns:1fr 1fr;}
-nav ul{display:none;}
-.profile-hero{padding:28px 18px;}
+
+.profile-info h1{
+
+font-size:3rem;
+
+margin-bottom:10px;
+
 }
+
+.profile-info p{
+
+opacity:.9;
+
+line-height:1.8;
+
+margin-bottom:20px;
+
+}
+
+.profile-badges{
+
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+
+margin-bottom:18px;
+
+}
+
+.badge{
+
+padding:10px 18px;
+
+border-radius:999px;
+
+background:rgba(255,255,255,.18);
+
+font-weight:700;
+
+font-size:.85rem;
+
+}
+
+.hero-stats{
+
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+
+}
+
+.hero-stat{
+
+padding:10px 18px;
+
+border-radius:999px;
+
+background:rgba(255,255,255,.18);
+
+font-weight:700;
+
+}
+
+/* QUICK STATS */
+
+.quick-grid{
+
+margin:0 7% 30px;
+
+display:grid;
+
+grid-template-columns:
+repeat(4,1fr);
+
+gap:20px;
+
+}
+
+.quick-card{
+
+background:white;
+
+padding:25px;
+
+border-radius:24px;
+
+text-align:center;
+
+box-shadow:var(--shadow-sm);
+
+}
+
+.quick-icon{
+
+font-size:2rem;
+
+margin-bottom:10px;
+
+}
+
+.quick-card h3{
+
+font-size:2rem;
+
+color:var(--primary);
+
+margin-bottom:5px;
+
+}
+
+.quick-card p{
+
+font-size:.85rem;
+
+color:var(--muted);
+
+}
+
 </style>
 
 </head>
@@ -217,17 +391,17 @@ nav ul{display:none;}
 
 <nav>
 
-<div class="logo">
+<a href="index.html" class="logo">
 
 <div class="logo-badge">
 🐼
 </div>
 
-Hanverse
+HanVerse
 
-</div>
+</a>
 
-<ul>
+<ul class="nav-links">
 
 <li><a href="index.html">Home</a></li>
 <li><a href="learn.html">Learn</a></li>
@@ -236,52 +410,62 @@ Hanverse
 </ul>
 
 <button class="logout-btn">
-
 Log Out
-
 </button>
 
 </nav>
-<!-- ==========================================
-     PROFILE HERO
-========================================== -->
 
-<section
-class="profile-hero"
-id="profileHero">
+<section class="profile-hero">
 
-<div class="hero-char hc1">你</div>
-<div class="hero-char hc2">好</div>
-<div class="hero-char hc3">学</div>
-<div class="hero-char hc4">汉</div>
+<div class="avatar" id="avatar">
 
-<div class="avatar" id="avatar" style="cursor:pointer;position:relative;" title="Click to change photo" onclick="document.getElementById('pfpInput').click()">
-<div class="avatar-spinner"></div>
+🐼
+
 </div>
-<input type="file" id="pfpInput" accept="image/*" style="display:none;">
 
 <div class="profile-info">
 
-<h1 id="name"></h1>
+<h1 id="profileName">
 
-<p id="tagline">
+Loading...
 
-Continue your Mandarin journey.
+</h1>
+
+<p>
+
+Track your progress, achievements,
+learning streaks and Chinese proficiency.
 
 </p>
 
+<div class="profile-badges">
+
 <div
-class="level-badge"
-id="levelBadge">
-
-🏆 Level
-<span id="levelNum"></span>
-
+id="premiumBadge"
+class="badge"
+style="display:none;">
+⭐ Premium
 </div>
 
-<div id="adminControls" style="display:none;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center;">
-  <div id="adminTag" class="admin-tag" style="margin-top:0;">👑 &nbsp;Administrator</div>
-  <a id="adminBtn" href="admin.html" style="padding:10px 22px;border-radius:999px;font-weight:800;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#1A1A2E,#4EA8DE);box-shadow:0 4px 18px rgba(30,30,60,.35);text-decoration:none;transition:.2s;">⚙️ &nbsp;Admin Panel</a>
+<div
+id="adminBadge"
+class="badge"
+style="display:none;">
+👑 Administrator
+</div>
+
+<div
+id="yctBadge"
+class="badge">
+🏮 YCT 1
+</div>
+
+<div
+id="hskBadge"
+class="badge">
+🐉 HSK 0
+</div>
+
 </div>
 
 <div class="hero-stats">
@@ -289,7 +473,9 @@ id="levelBadge">
 <div class="hero-stat">
 
 🔥
-<span id="heroStreak"></span>
+<span id="heroStreak">
+0
+</span>
 
 Day Streak
 
@@ -298,7 +484,9 @@ Day Streak
 <div class="hero-stat">
 
 ⭐
-<span id="heroXP"></span>
+<span id="heroXP">
+0
+</span>
 
 XP
 
@@ -306,10 +494,12 @@ XP
 
 <div class="hero-stat">
 
-📚
-<span id="heroLessons"></span>
+🏆
+<span id="heroLevel">
+1
+</span>
 
-Lessons
+Level
 
 </div>
 
@@ -319,726 +509,922 @@ Lessons
 
 </section>
 
-<!-- ==========================================
-     QUICK DASHBOARD
-========================================== -->
-
-<div class="quick-dashboard">
+<div class="quick-grid">
 
 <div class="quick-card">
 
+<div class="quick-icon">
 🔥
+</div>
 
-<h3 id="quickStreak"></h3>
+<h3 id="quickStreak">
+0
+</h3>
 
 <p>
-
-Day Streak
-
+Current Streak
 </p>
 
 </div>
 
 <div class="quick-card">
 
+<div class="quick-icon">
 ⭐
+</div>
 
-<h3 id="quickXP"></h3>
+<h3 id="quickXP">
+0
+</h3>
 
 <p>
-
-XP Earned
-
+Total XP
 </p>
 
 </div>
 
 <div class="quick-card">
 
+<div class="quick-icon">
 🏆
+</div>
 
-<h3 id="quickLevel"></h3>
+<h3 id="quickLevel">
+1
+</h3>
 
 <p>
-
 Current Level
-
 </p>
 
 </div>
 
 <div class="quick-card">
 
+<div class="quick-icon">
 📚
+</div>
 
-<h3 id="quickLessons"></h3>
+<h3 id="quickLessons">
+0
+</h3>
 
 <p>
-
 Lessons Completed
-
 </p>
 
 </div>
 
 </div>
 
-<!-- ==========================================
-     MAIN STATS
-========================================== -->
+<script>
+
+const SESSION_KEY =
+'hanverse_user';
+
+const API_URL =
+'/api';
+
+document.addEventListener(
+'DOMContentLoaded',
+loadProfile
+);
+
+async function loadProfile(){
+
+try{
+
+const session =
+JSON.parse(
+localStorage.getItem(
+SESSION_KEY
+)
+);
+
+if(!session){
+
+location.href =
+'login.html';
+
+return;
+
+}
+
+const response =
+await fetch(
+`${API_URL}/user/${session.user_id}`
+);
+
+const data =
+await response.json();
+
+const user =
+data.user;
+
+/* BANNED */
+
+if(user.is_banned){
+
+window.location.href =
+'banned.html';
+
+return;
+
+}
+
+/* NAME */
+
+document.getElementById(
+'profileName'
+).textContent =
+user.username ||
+'Learner';
+
+/* AVATAR */
+
+if(user.profile_picture){
+
+document.getElementById(
+'avatar'
+).innerHTML =
+`<img src="${user.profile_picture}">`;
+
+}
+
+/* PREMIUM */
+
+if(user.premium_until){
+
+document.getElementById(
+'premiumBadge'
+).style.display =
+'inline-block';
+
+}
+
+/* ADMIN */
+
+if(user.is_admin){
+
+document.getElementById(
+'adminBadge'
+).style.display =
+'inline-block';
+
+}
+
+/* LEVELS */
+
+document.getElementById(
+'yctBadge'
+).textContent =
+`🏮 YCT ${user.current_yct || 1}`;
+
+document.getElementById(
+'hskBadge'
+).textContent =
+`🐉 HSK ${user.current_hsk || 0}`;
+
+/* STATS */
+
+document.getElementById(
+'heroXP'
+).textContent =
+user.xp || 0;
+
+document.getElementById(
+'heroStreak'
+).textContent =
+user.streak_days || 0;
+
+document.getElementById(
+'heroLevel'
+).textContent =
+user.level || 1;
+
+document.getElementById(
+'quickXP'
+).textContent =
+user.xp || 0;
+
+document.getElementById(
+'quickStreak'
+).textContent =
+user.streak_days || 0;
+
+document.getElementById(
+'quickLevel'
+).textContent =
+user.level || 1;
+
+document.getElementById(
+'quickLessons'
+).textContent =
+data.completed_lessons || 0;
+
+}
+catch(error){
+
+console.error(error);
+
+location.href =
+'login.html';
+
+}
+
+}
+
+</script>
+<!-- ==========================
+     YCT / HSK PROGRESS
+========================== -->
+
+<section class="progress-section">
+
+<div class="progress-card">
+
+<h2>
+🏮 YCT Progress
+</h2>
+
+<p id="yctProgressText">
+
+Loading...
+
+</p>
+
+<div class="progress-track">
+<div id="yctProgressBar" class="progress-fill"></div>
+</div>
+
+</div>
+
+<div class="progress-card">
+
+<h2>
+🐉 HSK Progress
+</h2>
+
+<p id="hskProgressText">
+
+Loading...
+
+</p>
+
+<div class="progress-track">
+<div id="hskProgressBar" class="progress-fill"></div>
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================
+     LEARNING HEATMAP
+========================== -->
+
+<section class="content-card">
+
+<h2>
+🔥 Learning Heatmap
+</h2>
+
+<div id="heatmapGrid" class="heatmap-grid">
+
+</div>
+
+</section>
+
+<!-- ==========================
+     CERTIFICATES
+========================== -->
+
+<section class="content-card">
+
+<h2>
+📜 Certificates
+</h2>
 
 <div
-class="stats-grid"
-id="statsGrid">
-
-<div class="stat-card">
-
-<div class="icon">
-
-⭐
+id="certificateGrid"
+class="certificate-grid">
 
 </div>
 
-<h2 id="xp"></h2>
-
-<p>
-
-XP Earned
-
-</p>
-
-</div>
-
-<div class="stat-card">
-
-<div class="icon">
-
-🔥
-
-</div>
-
-<h2 id="streak"></h2>
-
-<p>
-
-Day Streak
-
-</p>
-
-</div>
-
-<div class="stat-card">
-
-<div class="icon">
-
-📚
-
-</div>
-
-<h2 id="lessons"></h2>
-
-<p>
-
-Lessons Completed
-
-</p>
-
-</div>
-
-<div class="stat-card">
-
-<div class="icon">
-
-🧠
-
-</div>
-
-<h2 id="words"></h2>
-
-<p>
-
-Words Learned
-
-</p>
-
-</div>
-
-</div>
-
-<!-- ==========================================
-     YCT PROGRESS
-========================================== -->
-
-<section class="content-section">
-<h2>📖 YCT Progress</h2>
-<p style="font-size:.9rem;color:var(--text-secondary);">Current Level: <strong id="yctLevel" style="color:var(--text-primary);">—</strong></p>
-<div class="progress-bar-track"><div id="yctBar" class="progress-bar-fill" style="width:0%;"></div></div>
-<p id="yctPct" style="font-size:.88rem;color:var(--text-secondary);">—</p>
 </section>
 
-<!-- ==========================================
+<!-- ==========================
      ACHIEVEMENTS
-========================================== -->
+========================== -->
 
-<section class="content-section">
-<h2>🏅 Badges</h2>
-<div class="badges-grid" id="badgesGrid"></div>
+<section class="content-card">
+
+<h2>
+🏆 Achievements
+</h2>
+
+<div
+id="achievementGrid"
+class="achievement-grid">
+
+</div>
+
 </section>
 
-<!-- ==========================================
-     ACTIVITY FEED
-========================================== -->
+<!-- ==========================
+     PANDA AI
+========================== -->
 
-<section class="content-section">
-<h2>📈 Recent Activity</h2>
-<div id="activityFeed"></div>
+<section class="content-card">
+
+<h2>
+🤖 Panda AI Usage
+</h2>
+
+<div class="ai-grid">
+
+<div class="ai-card">
+
+<h3 id="aiQuestions">
+0
+</h3>
+
+<p>
+Questions Asked
+</p>
+
+</div>
+
+<div class="ai-card">
+
+<h3 id="aiSessions">
+0
+</h3>
+
+<p>
+Practice Sessions
+</p>
+
+</div>
+
+<div class="ai-card">
+
+<h3 id="aiHours">
+0
+</h3>
+
+<p>
+Hours Learned
+</p>
+
+</div>
+
+</div>
+
 </section>
 
-<!-- ==========================================
-     JAVASCRIPT
-========================================== -->
+<!-- ==========================
+     RECENT ACTIVITY
+========================== -->
 
-<script src="nav-user.js"></script>
-<script src="notifications-client.js"></script>
+<section class="content-card">
+
+<h2>
+📈 Recent Activity
+</h2>
+
+<div id="activityFeed">
+
+Loading...
+
+</div>
+
+</section>
+
+<!-- ==========================
+     PREMIUM STATUS
+========================== -->
+
+<section
+id="premiumSection"
+class="content-card">
+
+<h2>
+⭐ Membership
+</h2>
+
+<div id="membershipCard">
+
+Loading...
+
+</div>
+
+</section>
+
+<!-- ==========================
+     ADMIN PANEL
+========================== -->
+
+<section
+id="adminSection"
+class="content-card"
+style="display:none;">
+
+<h2>
+👑 Administrator
+</h2>
+
+<a
+href="admin.html"
+class="admin-btn">
+
+⚙️ Open Admin Dashboard
+
+</a>
+
+</section>
+
+<style>
+
+.progress-section{
+
+margin:0 7% 25px;
+
+display:grid;
+
+grid-template-columns:
+repeat(2,1fr);
+
+gap:20px;
+
+}
+
+.progress-card,
+.content-card{
+
+background:white;
+
+padding:30px;
+
+border-radius:24px;
+
+box-shadow:var(--shadow-sm);
+
+margin:0 7% 25px;
+
+}
+
+.progress-section .progress-card{
+margin:0;
+}
+
+.progress-track{
+
+height:14px;
+
+background:#E5E7EB;
+
+border-radius:999px;
+
+overflow:hidden;
+
+margin-top:15px;
+
+}
+
+.progress-fill{
+
+height:100%;
+
+width:0%;
+
+background:
+linear-gradient(
+90deg,
+var(--primary),
+var(--secondary)
+);
+
+transition:1s;
+
+}
+
+.heatmap-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(7,40px);
+
+gap:10px;
+
+margin-top:20px;
+
+}
+
+.heat{
+
+width:40px;
+height:40px;
+
+border-radius:10px;
+
+background:#E5E7EB;
+
+}
+
+.heat.active{
+
+background:
+linear-gradient(
+135deg,
+var(--primary),
+var(--secondary)
+);
+
+}
+
+.certificate-grid,
+.achievement-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(200px,1fr));
+
+gap:20px;
+
+margin-top:20px;
+
+}
+
+.certificate-card,
+.achievement-card{
+
+background:#F8FAFC;
+
+padding:20px;
+
+border-radius:20px;
+
+text-align:center;
+
+}
+
+.ai-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(3,1fr);
+
+gap:20px;
+
+margin-top:20px;
+
+}
+
+.ai-card{
+
+background:#F8FAFC;
+
+padding:20px;
+
+border-radius:20px;
+
+text-align:center;
+
+}
+
+.ai-card h3{
+
+font-size:2rem;
+
+color:var(--primary);
+
+margin-bottom:5px;
+
+}
+
+.activity-item{
+
+padding:12px 0;
+
+border-bottom:1px solid var(--border);
+
+}
+
+.membership-premium{
+
+padding:25px;
+
+border-radius:20px;
+
+background:
+linear-gradient(
+135deg,
+var(--primary),
+var(--secondary)
+);
+
+color:white;
+
+}
+
+.membership-free{
+
+padding:25px;
+
+border-radius:20px;
+
+background:#F8FAFC;
+
+}
+
+.admin-btn{
+
+display:inline-block;
+
+padding:14px 24px;
+
+border-radius:999px;
+
+text-decoration:none;
+
+font-weight:700;
+
+background:
+linear-gradient(
+135deg,
+var(--primary),
+var(--secondary)
+);
+
+color:white;
+
+}
+
+@media(max-width:900px){
+
+.progress-section{
+
+grid-template-columns:1fr;
+
+}
+
+.ai-grid{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+</style>
+
 <script>
-/* ==========================================
-   HANVERSE PROFILE
-========================================== */
 
-const API_URL = '/api';
-const SESSION_KEY = 'hanverse_user';
+/* CONTINUE INSIDE loadProfile() */
 
-/* ==========================================
-   NOTIFICATIONS
-========================================== */
+document.addEventListener(
+'DOMContentLoaded',
+()=>{
 
-document.addEventListener('DOMContentLoaded', () => {
-
-    if (
-        window.HanverseNotifications &&
-        window.HanverseNotifications.init
-    ) {
-        window.HanverseNotifications.init();
-    }
-
-    loadProfile();
-
-    const logoutBtn =
-        document.querySelector('.logout-btn');
-
-    if (logoutBtn) {
-
-        logoutBtn.addEventListener('click', () => {
-
-            localStorage.removeItem(
-                SESSION_KEY
-            );
-
-            window.location.href =
-                'login.html';
-
-        });
-
-    }
+generateHeatmap();
 
 });
 
-/* ==========================================
-   PROFILE LOADER
-========================================== */
+/* HEATMAP */
 
-async function loadProfile() {
+function generateHeatmap(){
 
-    try {
+const grid =
+document.getElementById(
+'heatmapGrid'
+);
 
-        const stored =
-            localStorage.getItem(
-                SESSION_KEY
-            );
+if(!grid) return;
 
-        if (!stored) {
+for(let i=0;i<35;i++){
 
-            window.location.href =
-                'login.html';
+const cell =
+document.createElement('div');
 
-            return;
+cell.className =
+Math.random() > .4
+? 'heat active'
+: 'heat';
 
-        }
-
-        const session =
-            JSON.parse(stored);
-
-        const userId =
-            session.user_id;
-
-        if (!userId) {
-
-            window.location.href =
-                'login.html';
-
-            return;
-
-        }
-
-        const response =
-            await fetch(
-                `${API_URL}/user/${userId}`
-            );
-
-        if (!response.ok) {
-
-            console.error(
-                'Failed profile fetch'
-            );
-
-            window.location.href =
-                'login.html';
-
-            return;
-
-        }
-
-        const data =
-            await response.json();
-
-        renderProfile(data);
-
-    }
-    catch (error) {
-
-        console.error(
-            'Profile Error:',
-            error
-        );
-
-        window.location.href =
-            'login.html';
-
-    }
+grid.appendChild(cell);
 
 }
 
-/* ==========================================
-   PROFILE RENDER
-========================================== */
+}
 
-function renderProfile(data) {
+/* ADD THIS INSIDE loadProfile()
+   AFTER USER DATA LOADS */
 
-    const user =
-        data.user || {};
+function renderProfileExtras(
+user,
+data
+){
 
-    const progress =
-        data.progress || [];
+/* ADMIN */
 
-    const vocabulary =
-        data.vocabulary || [];
+if(user.is_admin){
 
-    const completedLessons =
-        progress.filter(
-            p => p.completed
-        ).length;
-
-    const wordsLearned =
-        vocabulary.length;
-
-    /* HERO */
-
-    setText(
-        'name',
-        user.full_name ||
-        user.username ||
-        'Learner'
-    );
-
-    setText(
-        'heroXP',
-        user.xp || 0
-    );
-
-    setText(
-        'heroStreak',
-        user.streak_days || 0
-    );
-
-    setText(
-        'heroLessons',
-        completedLessons
-    );
-
-    /* QUICK CARDS */
-
-    setText(
-        'quickXP',
-        user.xp || 0
-    );
-
-    setText(
-        'quickStreak',
-        user.streak_days || 0
-    );
-
-    setText(
-        'quickLevel',
-        user.level || 1
-    );
-
-    setText(
-        'quickLessons',
-        completedLessons
-    );
-
-    /* MAIN STATS */
-
-    setText(
-        'xp',
-        user.xp || 0
-    );
-
-    setText(
-        'streak',
-        user.streak_days || 0
-    );
-
-    setText(
-        'lessons',
-        completedLessons
-    );
-
-    setText(
-        'words',
-        wordsLearned
-    );
-
-    setText(
-        'levelNum',
-        user.level || 1
-    );
-
-    renderAvatar(user);
-
-    renderAdmin(user);
-
-    renderYCT(progress);
-
-    renderBadges(
-        user,
-        completedLessons,
-        wordsLearned
-    );
-
-    renderActivity(progress);
+document.getElementById(
+'adminSection'
+).style.display =
+'block';
 
 }
 
-/* ==========================================
-   AVATAR
-========================================== */
+/* PREMIUM */
 
-function renderAvatar(user) {
+const membership =
+document.getElementById(
+'membershipCard'
+);
 
-    const avatar =
-        document.getElementById(
-            'avatar'
-        );
+if(user.premium_until){
 
-    if (!avatar) return;
+membership.innerHTML =
 
-    const camera =
-        `<div style="
-        position:absolute;
-        bottom:4px;
-        right:4px;
-        width:28px;
-        height:28px;
-        border-radius:50%;
-        background:white;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:14px;
-        box-shadow:0 2px 8px rgba(0,0,0,.2);
-        ">📷</div>`;
+`<div class="membership-premium">
 
-    if (user.profile_picture) {
+<h3>
+⭐ Premium Active
+</h3>
 
-        avatar.innerHTML = `
-            <img
-                src="${user.profile_picture}"
-                style="
-                width:100%;
-                height:100%;
-                object-fit:cover;
-                border-radius:50%;
-                "
-            >
-            ${camera}
-        `;
+<p>
+Valid until:
+${user.premium_until}
+</p>
 
-    } else {
+</div>`;
 
-        avatar.innerHTML =
-            `🐼${camera}`;
+}else{
 
-    }
+membership.innerHTML =
+
+`<div class="membership-free">
+
+<h3>
+🆓 Free Account
+</h3>
+
+<p>
+Upgrade to unlock premium content.
+</p>
+
+</div>`;
 
 }
 
-/* ==========================================
-   ADMIN
-========================================== */
+/* YCT */
 
-function renderAdmin(user) {
+const yct =
+user.current_yct || 1;
 
-    if (!user.is_admin)
-        return;
+const yctPct =
+(yct / 4) * 100;
 
-    const controls =
-        document.getElementById(
-            'adminControls'
-        );
+document.getElementById(
+'yctProgressText'
+).textContent =
+`YCT ${yct}`;
 
-    if (controls) {
+document.getElementById(
+'yctProgressBar'
+).style.width =
+yctPct + '%';
 
-        controls.style.display =
-            'flex';
+/* HSK */
 
-    }
+const hsk =
+user.current_hsk || 0;
 
-    const tag =
-        document.getElementById(
-            'adminTag'
-        );
+const hskPct =
+(hsk / 6) * 100;
 
-    if (tag) {
+document.getElementById(
+'hskProgressText'
+).textContent =
+`HSK ${hsk}`;
 
-        tag.classList.add(
-            'visible'
-        );
+document.getElementById(
+'hskProgressBar'
+).style.width =
+hskPct + '%';
 
-    }
+/* CERTIFICATES */
 
-}
+document.getElementById(
+'certificateGrid'
+).innerHTML =
 
-/* ==========================================
-   YCT
-========================================== */
+`
+<div class="certificate-card">
+📜<br><br>
+YCT Certificate
+</div>
 
-function renderYCT(progress) {
+<div class="certificate-card">
+🏆<br><br>
+Vocabulary Champion
+</div>
 
-    const yct =
-        progress.filter(
-            p =>
-            p.course_type ===
-            'YCT'
-        );
+<div class="certificate-card">
+⭐<br><br>
+Top Learner
+</div>
+`;
 
-    const level =
-        yct.length
-            ? Math.max(
-                ...yct.map(
-                    p =>
-                    p.course_level
-                )
-              )
-            : 1;
+/* ACHIEVEMENTS */
 
-    const completed =
-        yct.filter(
-            p =>
-            p.course_level ===
-                level &&
-            p.completed
-        ).length;
+document.getElementById(
+'achievementGrid'
+).innerHTML =
 
-    const total =
-        yct.filter(
-            p =>
-            p.course_level ===
-            level
-        ).length || 1;
+`
+<div class="achievement-card">
+🔥 7 Day Streak
+</div>
 
-    const percent =
-        Math.round(
-            (
-                completed /
-                total
-            ) * 100
-        );
+<div class="achievement-card">
+📚 50 Lessons
+</div>
 
-    setText(
-        'yctLevel',
-        `YCT ${level}`
-    );
+<div class="achievement-card">
+🤖 AI Explorer
+</div>
+`;
 
-    document.getElementById(
-        'yctBar'
-    ).style.width =
-        percent + '%';
+/* AI STATS */
 
-    setText(
-        'yctPct',
-        percent +
-        '% Complete'
-    );
+document.getElementById(
+'aiQuestions'
+).textContent =
+data.ai_questions || 0;
 
-}
+document.getElementById(
+'aiSessions'
+).textContent =
+data.ai_sessions || 0;
 
-/* ==========================================
-   BADGES
-========================================== */
+document.getElementById(
+'aiHours'
+).textContent =
+data.ai_hours || 0;
 
-function renderBadges(
-    user,
-    lessons,
-    words
-) {
+/* ACTIVITY */
 
-    const grid =
-        document.getElementById(
-            'badgesGrid'
-        );
+const feed =
+document.getElementById(
+'activityFeed'
+);
 
-    if (!grid) return;
+if(data.activities){
 
-    const badges = [
+feed.innerHTML =
+data.activities.map(a =>
 
-        {
-            icon:'⭐',
-            name:'First Star',
-            earned:user.xp >= 100
-        },
+`<div class="activity-item">
+${a}
+</div>`
 
-        {
-            icon:'🔥',
-            name:'On Fire',
-            earned:user.streak_days >= 3
-        },
-
-        {
-            icon:'📚',
-            name:'Bookworm',
-            earned:lessons >= 10
-        },
-
-        {
-            icon:'🧠',
-            name:'Word Collector',
-            earned:words >= 10
-        },
-
-        {
-            icon:'🏆',
-            name:'Level 5',
-            earned:user.level >= 5
-        },
-
-        {
-            icon:'👑',
-            name:'Administrator',
-            earned:user.is_admin
-        }
-
-    ];
-
-    grid.innerHTML =
-        badges.map(
-            b => `
-            <div class="badge-card ${
-                b.earned
-                ? 'earned'
-                : 'locked'
-            }">
-                <div class="badge-icon">
-                    ${b.icon}
-                </div>
-                <div class="badge-name">
-                    ${b.name}
-                </div>
-                <span class="badge-earned-label">
-                    ${
-                        b.earned
-                        ? '✓ Earned'
-                        : 'Locked'
-                    }
-                </span>
-            </div>
-        `
-        ).join('');
+).join('');
 
 }
 
-/* ==========================================
-   ACTIVITY
-========================================== */
-
-function renderActivity(
-    progress
-) {
-
-    const feed =
-        document.getElementById(
-            'activityFeed'
-        );
-
-    if (!feed) return;
-
-    const recent =
-        progress
-        .filter(
-            p =>
-            p.completed
-        )
-        .slice(-5)
-        .reverse();
-
-    if (!recent.length) {
-
-        feed.innerHTML =
-            `
-            <div class="activity-item">
-                No activity yet.
-            </div>
-            `;
-
-        return;
-
-    }
-
-    feed.innerHTML =
-        recent.map(
-            p => `
-            <div class="activity-item">
-                📚 Completed
-                ${p.course_type}
-                ${p.course_level}
-                Lesson
-                ${p.lesson_id}
-            </div>
-        `
-        ).join('');
-
 }
 
-/* ==========================================
-   HELPERS
-========================================== */
-
-function setText(
-    id,
-    value
-) {
-
-    const el =
-        document.getElementById(
-            id
-        );
-
-    if (el) {
-
-        el.textContent =
-            value;
-
-    }
-
-}
 </script>
+
+<nav class="bottom-nav">
+
+<a href="index.html">
+<div class="nav-icon">🏠</div>
+Home
+</a>
+
+<a href="learn.html">
+<div class="nav-icon">📚</div>
+Learn
+</a>
+
+<a href="profile.html" class="active">
+<div class="nav-icon">👤</div>
+Profile
+</a>
+
+<a href="settings.html">
+<div class="nav-icon">⚙️</div>
+Settings
+</a>
+
+</nav>
+
+</body>
+</html>

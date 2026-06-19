@@ -1,4 +1,3 @@
-
 import express from 'express';
 import pkg from 'pg';
 import cors from 'cors';
@@ -7,747 +6,596 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
+import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
 
-if (!process.env.BREVO_SMTP_KEY) {
-  console.error('Functions: Missing BREVO_SMTP_KEY. Verification + password reset emails will fail.');
-}
-
-// IMPORTANT: set EMAIL_FROM in your environment to a sender address verified in Brevo.
-const EMAIL_FROM = process.env.EMAIL_FROM || '"Hanverse" <andrewmunamwangi@gmail.com>';
-
 const { Pool } = pkg;
+
+/* ==========================================
+   APP
+========================================== */
+
 const app = express();
 
+/* ==========================================
+   MIDDLEWARE
+========================================== */
+
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
 
-const normalizeDatabaseUrl = (rawUrl) => {
-  if (!rawUrl) return rawUrl;
-  let url = rawUrl.trim();
-  url = url.replace(/^psql\s+/i, '');
-  url = url.replace(/^['"]|['"]$/g, '');
-  return url;
-};
+app.use(express.json({
+    limit: '10mb'
+}));
 
-const databaseUrl = normalizeDatabaseUrl(
-  process.env.DATABASE_URL || process.env.NEON_DATABASE_URL
-);
-if (!databaseUrl) throw new Error('Missing DATABASE_URL');
+app.use(express.urlencoded({
+    extended: true
+}));
 
-let pool;
-try {
-  pool = new Pool({
-    connectionString: databaseUrl,
-    ssl: { rejectUnauthorized: false },
-  });
+/* ==========================================
+   HEALTH CHECKS
+========================================== */
 
-  // Test DB connection
-  pool.query('SELECT 1').then(() => {
-    console.log('Functions: Database connected ✓');
-  }).catch(e => {
-    console.error('Functions: Database connection failed:', e.message);
-    console.error('Please check your DATABASE_URL configuration');
-  });
-} catch (error) {
-  console.error('Functions: Error creating database pool:', error.message);
-  pool = null;
-}
+app.get('/api/health', (req, res) => {
 
-// Ensure verification schema exists for serverless functions
-(async () => {
-  try {
-    if (pool) {
-      await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE");
-      await pool.query(`CREATE TABLE IF NOT EXISTS email_verifications (
-        user_id INTEGER PRIMARY KEY,
-        token TEXT,
-        expires_at TIMESTAMPTZ
-      )`);
-      await pool.query(`CREATE TABLE IF NOT EXISTS password_resets (
-        user_id INTEGER PRIMARY KEY,
-        token TEXT,
-        expires_at TIMESTAMPTZ
-      )`);
-      console.log('Functions: email verification schema ready');
-    }
-  } catch (e) {
-    console.error('Functions: failed to ensure verification schema', e.message);
-  }
-})();
+    res.json({
+        ok: true,
+        app: 'HanVerse',
+        status: 'Running'
+    });
 
-
-// Mailer for functions
-const mailer = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: { user: '91f82d001@smtp-brevo.com', pass: process.env.BREVO_SMTP_KEY },
-  tls: { rejectUnauthorized: false },
 });
 
-mailer.verify((err) => {
-  if (err) console.error('Functions SMTP connection failed:', err.message);
-  else console.log('Functions SMTP ready ✓');
+app.get('/api/routes', (req, res) => {
+
+    res.json({
+
+        routes: [
+
+            '/api/health',
+            '/api/login',
+            '/api/signup',
+            '/api/user/:userId',
+            '/api/panda-chat'
+
+        ]
+
+    });
+
 });
 
-async function sendEmail(to, name, type, data = {}) {
-  const first = name ? name.split(' ')[0] : 'Learner';
+/* ==========================================
+   DATABASE
+========================================== */
 
-  const prodFrontendBase = 'https://hanverse.netlify.app';
-  const frontendBase = (process.env.FRONTEND_URL || prodFrontendBase).replace(/\/$/, '');
+function normalizeDatabaseUrl(rawUrl) {
 
-  const templates = {
-    welcome: {
-      subject: '🐼 Welcome to Hanverse!',
-      header: { bg: 'linear-gradient(135deg,#74C69D,#52B788)', emoji: '🐼', title: 'Welcome to Hanverse!', sub: 'Your Mandarin journey starts now.' },
-      body: `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Your account is all set! Here's what's waiting for you:</p><div style="display:grid;gap:12px;margin-bottom:28px;"><div style="background:#F0FDF4;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">📚</span> <strong>Structured YCT curriculum from Level 1</strong></div><div style="background:#EFF6FF;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">⭐</span> <strong>Earn XP and level up as you learn</strong></div><div style="background:#FFFBEB;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">🔥</span> <strong>Build a daily streak and track progress</strong></div><div style="background:#FFF0F0;border-radius:14px;padding:14px 18px;"><span style="font-size:20px;">🤖</span> <strong>AI learning assistant to help you along</strong></div></div>`
-    },
-    verify: {
-      subject: '🔒 Verify your Hanverse email',
-      header: { bg: 'linear-gradient(135deg,#4EA8DE,#7BC7F4)', emoji: '🔒', title: 'Verify your email', sub: 'Confirm your Hanverse account' },
-      body: '',
-    },
-    reset: {
-      subject: '🔑 Reset your Hanverse password',
-      header: { bg: 'linear-gradient(135deg,#F4D35E,#FFD95A)', emoji: '🔑', title: 'Reset your password', sub: 'Securely reset your account password' },
-      body: '',
-    },
-  };
+    if (!rawUrl) return null;
 
-  const template = templates[type];
-  if (!template) throw new Error(`Unsupported email type: ${type}`);
+    let url = rawUrl.trim();
 
-  let bodyHtml = template.body;
-
-  if (type === 'verify') {
-    const token = data.token;
-    const link = data.link || `${frontendBase}/verify.html?token=${token}`;
-    bodyHtml = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to verify your email address for Hanverse. This link expires in 24 hours.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#4EA8DE,#7BC7F4);color:#fff;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Verify my email</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p>`;
-  } else if (type === 'reset') {
-    const token = data.token;
-    const link = data.link || `${frontendBase}/forgot-password.html?token=${token}`;
-    bodyHtml = `<p style="font-size:17px;color:#1A1A2E;margin:0 0 16px;">Hey <strong>${first}</strong> 👋</p><p style="color:#6B7280;line-height:1.8;margin:0 0 24px;">Click the button below to reset your Hanverse password. This link expires in one hour.</p><div style="text-align:center;margin:24px 0;"><a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;">Reset my password</a></div><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">If you didn't request this, you can ignore this email.</p>`;
-  }
-
-  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FFFDF7;border-radius:24px;overflow:hidden;"><div style="background:${template.header.bg};padding:40px 40px 30px;text-align:center;"><div style="font-size:60px;">${template.header.emoji}</div><h1 style="margin:14px 0 0;color:#fff;font-size:26px;font-weight:800;">${template.header.title}</h1><p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:15px;">${template.header.sub}</p></div><div style="padding:36px 40px;">${bodyHtml}${type === 'welcome' ? '<a href="' + frontendBase + '/login.html" style="display:block;text-align:center;background:linear-gradient(135deg,#F4D35E,#FFD95A);color:#1A1A2E;font-weight:800;font-size:16px;padding:16px;border-radius:40px;text-decoration:none;">Go to Hanverse 🚀</a><p style="text-align:center;color:#9CA3AF;font-size:13px;margin-top:28px;">The Hanverse Team 🐼</p>' : ''}</div></div>`;
-
-  const info = await mailer.sendMail({
-    from: EMAIL_FROM,
-    to,
-    subject: template.subject,
-    html,
-  });
-
-  console.log(`[functions:email:${type}] sent to ${to} — ${info.messageId}`);
-  return info;
-}
-
-
-
-// Resend verification email (minimal - checks email and returns JSON)
-app.post('/api/resend-verification', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email is required' });
-    const userRes = await pool.query('SELECT user_id, full_name, email FROM users WHERE email = $1', [email]);
-    if (!userRes.rows.length) return res.status(400).json({ error: 'No account with that email' });
-
-    const user = userRes.rows[0];
-    const token = crypto.randomBytes(24).toString('hex');
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-    await pool.query(
-      `INSERT INTO email_verifications (user_id, token, expires_at)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (user_id) DO UPDATE SET token = $2, expires_at = $3`,
-      [user.user_id, token, expiresAt]
+    url = url.replace(
+        /^psql\s+/i,
+        ''
     );
+
+    url = url.replace(
+        /^['"]|['"]$/g,
+        ''
+    );
+
+    return url;
+
+}
+
+const databaseUrl =
+    normalizeDatabaseUrl(
+        process.env.DATABASE_URL ||
+        process.env.NEON_DATABASE_URL
+    );
+
+let pool = null;
+
+if (databaseUrl) {
 
     try {
-      const frontendBase = (process.env.FRONTEND_URL || 'https://hanverse.netlify.app').replace(/\/$/, '');
-      const verifyLink = `${frontendBase}/verify.html?token=${token}`;
 
+        pool = new Pool({
 
-      await sendEmail(user.email, user.full_name, 'verify', { token, link: verifyLink });
-      console.log('Functions: verification email sent to', email);
-      return res.json({ success: true, message: 'Verification email sent' });
-    } catch (err) {
-      console.error('Functions: failed to send verification email', err.message);
-      return res.status(500).json({ error: 'Failed to send verification email' });
+            connectionString:
+                databaseUrl,
+
+            ssl: {
+                rejectUnauthorized: false
+            }
+
+        });
+
+        pool.query('SELECT 1')
+            .then(() => {
+
+                console.log(
+                    '✅ Database Connected'
+                );
+
+            })
+            .catch(error => {
+
+                console.error(
+                    '❌ Database Connection Failed:',
+                    error.message
+                );
+
+            });
+
     }
-  } catch (e) {
-    console.error(e);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    return res.status(500).json({ error: 'Failed to resend verification' });
-  }
-});
+    catch (error) {
 
-app.post('/api/forgot-password', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
+        console.error(
+            '❌ Failed Creating Pool:',
+            error.message
+        );
+
     }
 
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email is required' });
-    const userRes = await pool.query('SELECT user_id, full_name, email FROM users WHERE email = $1', [email]);
-    if (!userRes.rows.length) return res.status(200).json({ success: true, message: 'If that email exists, a reset link has been sent.' });
+}
+else {
 
-    const user = userRes.rows[0];
-    const token = crypto.randomBytes(24).toString('hex');
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-    await pool.query(
-      `INSERT INTO password_resets (user_id, token, expires_at)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (user_id) DO UPDATE SET token = $2, expires_at = $3`,
-      [user.user_id, token, expiresAt]
+    console.error(
+        '❌ DATABASE_URL Missing'
     );
 
-    const frontendBase = (process.env.FRONTEND_URL || 'https://hanverse.netlify.app').replace(/\/$/, '');
-    const resetLink = `${frontendBase}/forgot-password.html?token=${token}`;
-
-
-    await sendEmail(user.email, user.full_name, 'reset', { token, link: resetLink });
-    console.log('Functions: password reset email sent to', email);
-    return res.json({ success: true, message: 'If that email exists, a reset link has been sent.' });
-  } catch (e) {
-    console.error('Functions: forgot-password error:', e);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    return res.status(500).json({ error: 'Failed to send password reset email' });
-  }
-});
-
-app.post('/api/reset-password', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { token, newPassword } = req.body;
-    if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password are required' });
-
-    const resetRes = await pool.query('SELECT user_id, expires_at FROM password_resets WHERE token = $1', [token]);
-    if (!resetRes.rows.length) return res.status(400).json({ error: 'Invalid or expired token' });
-    const resetRow = resetRes.rows[0];
-    if (new Date(resetRow.expires_at) < new Date()) return res.status(400).json({ error: 'Token expired' });
-
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-    await pool.query('UPDATE users SET password_hash = $1 WHERE user_id = $2', [passwordHash, resetRow.user_id]);
-    await pool.query('DELETE FROM password_resets WHERE user_id = $1', [resetRow.user_id]);
-
-    return res.json({ success: true, message: 'Password reset successfully' });
-  } catch (e) {
-    console.error('Functions: reset-password error:', e);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    return res.status(500).json({ error: 'Failed to reset password' });
-  }
-});
-
-app.get('/api/verify-email', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { token } = req.query;
-    if (!token) return res.status(400).json({ error: 'Token is required' });
-    const vRes = await pool.query('SELECT user_id, expires_at FROM email_verifications WHERE token = $1', [token]);
-    if (!vRes.rows.length) return res.status(400).json({ error: 'Invalid or expired token' });
-    const row = vRes.rows[0];
-    if (new Date(row.expires_at) < new Date()) return res.status(400).json({ error: 'Token expired' });
-    await pool.query('UPDATE users SET is_verified = TRUE WHERE user_id = $1', [row.user_id]);
-    await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [row.user_id]);
-    console.log('Functions: email verified for user:', row.user_id);
-    return res.json({ success: true, message: 'Email verified successfully' });
-  } catch (e) {
-    console.error('Functions verify error:', e);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    return res.status(500).json({ error: 'Verification failed' });
-  }
-});
-
-// Get user
-app.get('/api/user/:userId', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { userId } = req.params;
-    const userResult = await pool.query('SELECT * FROM users WHERE user_id = $1', [userId]);
-    if (!userResult.rows.length) return res.status(404).json({ error: 'User not found' });
-
-    const user = userResult.rows[0];
-    const [progress, achievements, notifications, settings, vocab] = await Promise.all([
-      pool.query('SELECT * FROM user_progress WHERE user_id = $1', [userId]),
-      pool.query('SELECT * FROM achievements WHERE user_id = $1', [userId]),
-      pool.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20', [userId]),
-      pool.query('SELECT * FROM user_settings WHERE user_id = $1', [userId]),
-      pool.query('SELECT * FROM vocabulary_progress WHERE user_id = $1', [userId]),
-    ]);
-
-    res.json({
-      user: {
-        user_id: user.user_id,
-        username: user.username,
-        full_name: user.full_name,
-        xp: user.xp,
-        level: user.level,
-        streak_days: user.streak_days,
-        profile_picture: user.profile_picture,
-        is_admin: user.is_admin || false,
-        is_banned: user.is_banned || false,
-        banned_reason: user.banned_reason || null,
-        created_at: user.created_at,
-      },
-      progress: progress.rows,
-      achievements: achievements.rows,
-      notifications: notifications.rows,
-      settings: settings.rows[0] || null,
-      vocabulary: vocab.rows,
-    });
-  } catch (e) {
-    console.error(e);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Server error fetching user data' });
-  }
-});
-
-// Update profile picture
-app.post('/api/user/:userId/pfp', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { userId } = req.params;
-    const { profile_picture } = req.body;
-    if (!profile_picture) return res.status(400).json({ error: 'No image provided' });
-    await pool.query('UPDATE users SET profile_picture = $1 WHERE user_id = $2', [profile_picture, userId]);
-    res.json({ success: true });
-  } catch (e) {
-    console.error(e);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Failed to update profile picture' });
-  }
-});
-
-// Ban / unban user
-app.post('/api/admin/ban', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { adminPassword, userId, banned, reason } = req.body;
-    if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
-    await pool.query(
-      'UPDATE users SET is_banned = $1, banned_reason = $2 WHERE user_id = $3',
-      [banned, banned ? (reason || null) : null, userId]
-    );
-    res.json({ success: true });
-  } catch (e) { 
-    console.error(e); 
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Ban action failed' }); 
-  }
-});
-
-// Admin edit row
-app.post('/api/admin/edit', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { adminPassword, table, primaryValue, field, value } = req.body;
-    if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
-    const allowed = {
-      users: { pk: 'user_id', editable: ['username','full_name','email','xp','level','streak_days','is_admin','is_banned','banned_reason','profile_picture'] },
-      user_progress:       { pk: 'progress_id',     editable: ['completed','score','course_type','course_level','lesson_id'] },
-      achievements:        { pk: 'achievement_id',  editable: ['achievement_type','achievement_name'] },
-      daily_goals:         { pk: 'goal_id',         editable: ['target_lessons','completed_lessons','target_xp','earned_xp','completed'] },
-      notifications:       { pk: 'notification_id', editable: ['title','message','type','is_read'] },
-      vocabulary_progress: { pk: 'vocab_id',        editable: ['word','mastery_level','review_count'] },
-      user_settings:       { pk: 'setting_id',      editable: ['daily_reminder','sound_enabled','notifications_enabled','language_preference','theme'] },
-    };
-    const cfg = allowed[table];
-    if (!cfg) return res.status(400).json({ error: 'Invalid table' });
-    if (!cfg.editable.includes(field)) return res.status(400).json({ error: 'Field not editable' });
-    await pool.query(`UPDATE ${table} SET ${field} = $1 WHERE ${cfg.pk} = $2`, [value, primaryValue]);
-    res.json({ success: true });
-  } catch (e) { 
-    console.error(e); 
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Edit failed' }); 
-  }
-});
-
-// Admin delete row
-app.post('/api/admin/delete', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { adminPassword, table, primaryValue } = req.body;
-    if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
-    const pks = { users:'user_id', user_progress:'progress_id', achievements:'achievement_id', daily_goals:'goal_id', notifications:'notification_id', vocabulary_progress:'vocab_id', user_settings:'setting_id' };
-    const pk = pks[table];
-    if (!pk) return res.status(400).json({ error: 'Invalid table' });
-    await pool.query(`DELETE FROM ${table} WHERE ${pk} = $1`, [primaryValue]);
-    res.json({ success: true });
-  } catch (e) { 
-    console.error(e); 
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Delete failed' }); 
-  }
-});
-
-// Admin — create user
-app.post('/api/admin/create-user', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { adminPassword, email, password, fullName, username, isAdmin } = req.body;
-    if (adminPassword !== 'admin123') return res.status(401).json({ error: 'Wrong admin password' });
-
-    if (!email || !password || !fullName || !username) {
-      return res.status(400).json({ error: 'email, password, fullName, username are required' });
-    }
-
-    const existing = await pool.query(
-      'SELECT 1 FROM users WHERE email = $1 OR username = $2',
-      [email, username]
-    );
-    if (existing.rows.length) return res.status(400).json({ error: 'Email or username already exists' });
-
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const result = await pool.query(
-      `INSERT INTO users (username, email, password_hash, full_name, last_active, is_admin)
-       VALUES ($1, $2, $3, $4, CURRENT_DATE, $5)
-       RETURNING *`,
-      [username, email, passwordHash, fullName, Boolean(isAdmin)]
-    );
-
-    const user = result.rows[0];
-
-    // Ensure default settings exist
-    await pool.query('INSERT INTO user_settings (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING', [user.user_id]);
-
-    res.json({
-      success: true,
-      user: {
-        user_id: user.user_id,
-        username: user.username,
-        email: user.email,
-        full_name: user.full_name,
-        xp: user.xp || 0,
-        level: user.level || 1,
-        streak_days: 0,
-        is_admin: user.is_admin || false,
-        is_banned: user.is_banned || false,
-        banned_reason: user.banned_reason || null,
-        created_at: user.created_at,
-        profile_picture: user.profile_picture || null,
-      },
-    });
-  } catch (e) {
-    console.error(e);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Create user failed' });
-  }
-});
-
-// Admin overview
-app.get('/api/admin/overview', async (req, res) => {
-  try {
-    // Check if database pool is available
-    if (!pool) {
-      return res.status(500).json({ error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.' });
-    }
-
-    const { userId } = req.query;
-    const check = await pool.query('SELECT is_admin FROM users WHERE user_id = $1', [userId]);
-    if (!check.rows.length || !check.rows[0].is_admin)
-      return res.status(403).json({ error: 'Forbidden' });
-
-    const [users, progress, achievements, goals, notifications, vocab, settings] = await Promise.all([
-      pool.query('SELECT user_id,username,full_name,email,xp,level,streak_days,last_active,profile_picture,is_admin,is_banned,banned_reason,created_at FROM users ORDER BY created_at DESC'),
-      pool.query('SELECT * FROM user_progress ORDER BY completed_at DESC NULLS LAST'),
-      pool.query('SELECT * FROM achievements ORDER BY earned_at DESC'),
-      pool.query('SELECT * FROM daily_goals ORDER BY goal_date DESC'),
-      pool.query('SELECT * FROM notifications ORDER BY created_at DESC LIMIT 100'),
-      pool.query('SELECT * FROM vocabulary_progress'),
-      pool.query('SELECT * FROM user_settings'),
-    ]);
-
-    res.json({
-      users: users.rows,
-      progress: progress.rows,
-      achievements: achievements.rows,
-      daily_goals: goals.rows,
-      notifications: notifications.rows,
-      vocabulary: vocab.rows,
-      settings: settings.rows,
-    });
-  } catch (e) {
-    console.error(e);
-    // Provide more specific error message for database connection issues
-    if (e.code === 'ECONNREFUSED' || e.message.includes('connection') || e.message.includes('database')) {
-      return res.status(500).json({ 
-        error: 'Functions: Database connection error', 
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.' 
-      });
-    }
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-
-// Health
-app.get('/api/health', (req, res) => res.json({ ok: true }));
-app.get('/api/health/db', async (req, res) => {
-  try { 
-    if (!pool) {
-      return res.status(503).json({ ok: false, error: 'Database pool not initialized' });
-    }
-    await pool.query('SELECT 1'); 
-    res.json({ ok: true }); 
-  }
-  catch (e) { 
-    res.status(503).json({ ok: false, error: e.message }); 
-  }
-});
-
-// Test DB on module load
-if (pool) {
-  pool.query('SELECT now()').catch(e => {
-    console.error('Functions: DB connection test failed:', e.message);
-  });
 }
 
-// LOGIN
-app.post('/api/login', async (req, res) => {
-  try {
+/* ==========================================
+   GEMINI AI
+========================================== */
+
+const ai = new GoogleGenAI({
+
+    apiKey:
+        process.env.GEMINI_API_KEY
+
+});
+
+console.log(
+    'Gemini Enabled:',
+    !!process.env.GEMINI_API_KEY
+);
+
+/* ==========================================
+   EMAIL CONFIG
+========================================== */
+
+const EMAIL_FROM =
+    process.env.EMAIL_FROM ||
+    '"HanVerse" <support@hanverse.net>';
+
+const mailer =
+    nodemailer.createTransport({
+
+        host:
+            'smtp-relay.brevo.com',
+
+        port: 587,
+
+        secure: false,
+
+        auth: {
+
+            user:
+                '91f82d001@smtp-brevo.com',
+
+            pass:
+                process.env.BREVO_SMTP_KEY
+
+        },
+
+        tls: {
+            rejectUnauthorized: false
+        }
+
+    });
+
+mailer.verify(error => {
+
+    if (error) {
+
+        console.error(
+            '❌ SMTP Error:',
+            error.message
+        );
+
+    }
+    else {
+
+        console.log(
+            '✅ SMTP Ready'
+        );
+
+    }
+
+});
+/* ==========================================
+   HELPERS
+========================================== */
+
+function dbUnavailable(res) {
+
+    return res.status(500).json({
+
+        success: false,
+
+        error:
+            'Database unavailable'
+
+    });
+
+}
+
+function ensurePool(res) {
+
     if (!pool) {
-      return res.status(500).json({
-        error: 'Functions: Database connection unavailable. Please check your DATABASE_URL configuration.',
-      });
+
+        dbUnavailable(res);
+
+        return false;
+
     }
 
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    return true;
+
+}
+
+/* ==========================================
+   PANDA AI
+========================================== */
+
+app.post('/api/panda-chat', async (req, res) => {
+
+    try {
+
+        const { message } = req.body;
+
+        if (!message) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                error:
+                    'Message required'
+
+            });
+
+        }
+
+        const response =
+            await ai.models.generateContent({
+
+                model:
+                    'gemini-2.5-flash',
+
+                contents: `
+
+You are Panda AI.
+
+You help children aged 5-12 learn Mandarin Chinese.
+
+Rules:
+
+- Use simple English
+- Include Pinyin
+- Use emojis
+- Be encouraging
+- Follow YCT curriculum
+- Keep answers short
+
+Student Question:
+
+${message}
+
+`
+
+            });
+
+        return res.json({
+
+            success: true,
+
+            reply:
+                response.text ||
+                '🐼 No response.'
+
+        });
+
+    }
+    catch (error) {
+
+        console.error(
+            'Panda Error:',
+            error
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            error:
+                error.message
+
+        });
+
     }
 
-    const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (!userResult.rows.length) return res.status(401).json({ error: 'Invalid email or password' });
-
-    const user = userResult.rows[0];
-    const match = await bcrypt.compare(password, user.password_hash);
-    if (!match) return res.status(401).json({ error: 'Invalid email or password' });
-
-    if (user.is_banned) {
-      return res.status(403).json({ error: 'banned', reason: user.banned_reason || 'Your account has been banned.' });
-    }
-
-    if (user.is_verified === false) {
-      return res.status(403).json({ error: 'not_verified' });
-    }
-
-    const [progress, achievements, dailyGoals, notifications, settings, vocab] = await Promise.all([
-      pool.query('SELECT * FROM user_progress WHERE user_id = $1', [user.user_id]),
-      pool.query('SELECT * FROM achievements WHERE user_id = $1', [user.user_id]),
-      pool.query('SELECT * FROM daily_goals WHERE user_id = $1 AND goal_date = CURRENT_DATE', [user.user_id]),
-      pool.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20', [user.user_id]),
-      pool.query('SELECT * FROM user_settings WHERE user_id = $1', [user.user_id]),
-      pool.query('SELECT * FROM vocabulary_progress WHERE user_id = $1', [user.user_id]),
-    ]);
-
-    const today = new Date();
-    const lastActive = new Date(user.last_active);
-    const daysDiff = Math.floor((today - lastActive) / 86400000);
-    let newStreak = user.streak_days;
-
-    if (daysDiff === 1) newStreak += 1;
-    else if (daysDiff > 1) newStreak = 1;
-
-    await pool.query(
-      'UPDATE users SET last_active = CURRENT_DATE, streak_days = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2',
-      [newStreak, user.user_id]
-    );
-
-    return res.json({
-      success: true,
-      user: {
-        user_id: user.user_id,
-        username: user.username,
-        email: user.email,
-        full_name: user.full_name,
-        xp: user.xp,
-        level: user.level,
-        streak_days: newStreak,
-        profile_picture: user.profile_picture,
-        is_admin: user.is_admin || false,
-        is_banned: user.is_banned || false,
-        banned_reason: user.banned_reason || null,
-        created_at: user.created_at,
-      },
-      progress: progress.rows,
-      achievements: achievements.rows,
-      dailyGoals: dailyGoals.rows,
-      notifications: notifications.rows,
-      settings: settings.rows[0] || null,
-      vocabulary: vocab.rows,
-    });
-  } catch (e) {
-    console.error('Functions login error:', e);
-
-    if (e.code === 'ECONNREFUSED' || (e.message && (e.message.includes('connection') || e.message.includes('database')))) {
-      return res.status(500).json({
-        error: 'Functions: Database connection error',
-        message: 'Unable to connect to the database. Please check your DATABASE_URL configuration.',
-      });
-    }
-
-    return res.status(500).json({ error: 'Server error during login', details: e.message });
-  }
 });
 
-// Get courses for a student
-app.get('/api/courses', async (req, res) => {
-  try {
-    const { student_id } = req.query;
-    if (!student_id) return res.status(400).json({ error: 'student_id is required' });
+/* ==========================================
+   LOGIN
+========================================== */
 
-    const progress = await pool.query(
-      'SELECT * FROM user_progress WHERE user_id = $1 AND course_type = $2',
-      [student_id, 'YCT']
-    );
+app.post('/api/login', async (req, res) => {
 
-    // Format as courses
-    const courses = [];
-    const byLevel = {};
-    progress.rows.forEach(row => {
-      const level = row.course_level;
-      if (!byLevel[level]) {
-        byLevel[level] = { yct_level: level, title: `YCT Level ${level}`, description: `Chinese Young Learner Test Level ${level}`, lessons: [] };
-        courses.push(byLevel[level]);
-      }
-      byLevel[level].lessons.push(row.lesson_id);
-    });
+    try {
 
-    res.json(courses);
-  } catch (e) { 
-    console.error(e); 
-    res.status(500).json({ error: 'Failed to get courses' }); 
-  }
-});
+        if (!ensurePool(res)) return;
 
-// Set user's YCT level (free unlock)
-app.post('/api/set-level', async (req, res) => {
-  try {
-    const { user_id, level } = req.body;
-    if (!user_id || !level || level < 1 || level > 4) {
-      return res.status(400).json({ error: 'user_id and valid level (1-4) are required' });
+        const {
+
+            email,
+            password
+
+        } = req.body;
+
+        if (!email || !password) {
+
+            return res.status(400).json({
+
+                success: false,
+                error:
+                    'Email and password required'
+
+            });
+
+        }
+
+        const result =
+            await pool.query(
+
+                `SELECT *
+                 FROM users
+                 WHERE email = $1`,
+
+                [email]
+
+            );
+
+        if (!result.rows.length) {
+
+            return res.status(401).json({
+
+                success: false,
+                error:
+                    'Invalid credentials'
+
+            });
+
+        }
+
+        const user =
+            result.rows[0];
+
+        const valid =
+            await bcrypt.compare(
+
+                password,
+                user.password_hash
+
+            );
+
+        if (!valid) {
+
+            return res.status(401).json({
+
+                success: false,
+                error:
+                    'Invalid credentials'
+
+            });
+
+        }
+
+        if (user.is_banned) {
+
+            return res.status(403).json({
+
+                success: false,
+
+                error:
+                    'banned',
+
+                reason:
+                    user.banned_reason
+
+            });
+
+        }
+
+        return res.json({
+
+            success: true,
+
+            user: {
+
+                user_id:
+                    user.user_id,
+
+                username:
+                    user.username,
+
+                email:
+                    user.email,
+
+                full_name:
+                    user.full_name,
+
+                xp:
+                    user.xp || 0,
+
+                level:
+                    user.level || 1,
+
+                streak_days:
+                    user.streak_days || 0,
+
+                profile_picture:
+                    user.profile_picture,
+
+                is_admin:
+                    user.is_admin || false,
+
+                is_banned:
+                    user.is_banned || false,
+
+                is_verified:
+                    user.is_verified || false,
+
+                premium:
+                    user.is_premium || false
+
+            }
+
+        });
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+            error:
+                'Login failed'
+
+        });
+
     }
 
-    const lessons = 20;
-    const placeholders = [];
-    for (let i = 1; i <= lessons; i++) {
-      placeholders.push(`(${user_id}, 'YCT', ${level}, ${i}, FALSE)`);
-    }
-
-    await pool.query('DELETE FROM user_progress WHERE user_id = $1 AND course_type = $2', [user_id, 'YCT']);
-    await pool.query(
-      `INSERT INTO user_progress (user_id, course_type, course_level, lesson_id, completed) VALUES ${placeholders.join(',')}`
-    );
-
-    res.json({ success: true, message: `YCT Level ${level} unlocked!` });
-  } catch (e) { 
-    console.error(e); 
-    res.status(500).json({ error: 'Failed to set level' }); 
-  }
 });
+
+/* ==========================================
+   USER PROFILE
+========================================== */
+
+app.get('/api/user/:userId', async (req, res) => {
+
+    try {
+
+        if (!ensurePool(res)) return;
+
+        const { userId } =
+            req.params;
+
+        const result =
+            await pool.query(
+
+                `SELECT *
+                 FROM users
+                 WHERE user_id = $1`,
+
+                [userId]
+
+            );
+
+        if (!result.rows.length) {
+
+            return res.status(404).json({
+
+                success: false,
+                error:
+                    'User not found'
+
+            });
+
+        }
+
+        const user =
+            result.rows[0];
+
+        return res.json({
+
+            success: true,
+
+            user: {
+
+                user_id:
+                    user.user_id,
+
+                username:
+                    user.username,
+
+                full_name:
+                    user.full_name,
+
+                email:
+                    user.email,
+
+                xp:
+                    user.xp,
+
+                level:
+                    user.level,
+
+                streak_days:
+                    user.streak_days,
+
+                profile_picture:
+                    user.profile_picture,
+
+                is_admin:
+                    user.is_admin,
+
+                is_banned:
+                    user.is_banned,
+
+                banned_reason:
+                    user.banned_reason,
+
+                is_verified:
+                    user.is_verified,
+
+                premium:
+                    user.is_premium,
+
+                chinese_level:
+                    user.chinese_level ||
+                    'YCT 1'
+
+            }
+
+        });
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+            error:
+                'Profile error'
+
+        });
+        
+
+    }
+    
+
+});
+/* ==========================================
+   NETLIFY HANDLER
+========================================== */
 
 export const handler = serverless(app);
