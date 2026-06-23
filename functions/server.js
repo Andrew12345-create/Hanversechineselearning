@@ -9,14 +9,27 @@ import serverless from 'serverless-http';
 import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
+console.log(
+    "Gemini Key Exists:",
+    !!process.env.GEMINI_API_KEY
+);
 
 const { Pool } = pkg;
 
+
+
+const app = express();
+
+app.use(express.json());
+
+ 
+  
 /* ==========================================
    APP
 ========================================== */
 
-const app = express();
+
+
 
 /* ==========================================
    MIDDLEWARE
@@ -25,7 +38,7 @@ const app = express();
 app.use(cors());
 
 app.use(express.json({
-    limit: '10mb'
+    limit: '10mb' 
 }));
 
 app.use(express.urlencoded({
@@ -161,6 +174,7 @@ const ai = new GoogleGenAI({
 console.log(
     'Gemini Enabled:',
     !!process.env.GEMINI_API_KEY
+  
 );
 
 /* ==========================================
@@ -247,6 +261,7 @@ function ensurePool(res) {
 
 }
 
+
 /* ==========================================
    PANDA AI
 ========================================== */
@@ -290,7 +305,6 @@ Rules:
 - Be encouraging
 - Follow YCT curriculum
 - Keep answers short
-
 Student Question:
 
 ${message}
@@ -481,6 +495,7 @@ app.post('/api/login', async (req, res) => {
         });
 
     }
+    
 
 });
 
@@ -494,8 +509,7 @@ app.get('/api/user/:userId', async (req, res) => {
 
         if (!ensurePool(res)) return;
 
-        const { userId } =
-            req.params;
+        const { userId } = req.params;
 
         const result =
             await pool.query(
@@ -513,15 +527,13 @@ app.get('/api/user/:userId', async (req, res) => {
             return res.status(404).json({
 
                 success: false,
-                error:
-                    'User not found'
+                error: 'User not found'
 
             });
 
         }
 
-        const user =
-            result.rows[0];
+        const user = result.rows[0];
 
         return res.json({
 
@@ -529,48 +541,21 @@ app.get('/api/user/:userId', async (req, res) => {
 
             user: {
 
-                user_id:
-                    user.user_id,
-
-                username:
-                    user.username,
-
-                full_name:
-                    user.full_name,
-
-                email:
-                    user.email,
-
-                xp:
-                    user.xp,
-
-                level:
-                    user.level,
-
-                streak_days:
-                    user.streak_days,
-
-                profile_picture:
-                    user.profile_picture,
-
-                is_admin:
-                    user.is_admin,
-
-                is_banned:
-                    user.is_banned,
-
-                banned_reason:
-                    user.banned_reason,
-
-                is_verified:
-                    user.is_verified,
-
-                premium:
-                    user.is_premium,
-
+                user_id: user.user_id,
+                username: user.username,
+                full_name: user.full_name,
+                email: user.email,
+                xp: user.xp,
+                level: user.level,
+                streak_days: user.streak_days,
+                profile_picture: user.profile_picture,
+                is_admin: user.is_admin,
+                is_banned: user.is_banned,
+                banned_reason: user.banned_reason,
+                is_verified: user.is_verified,
+                premium: user.is_premium,
                 chinese_level:
-                    user.chinese_level ||
-                    'YCT 1'
+                    user.chinese_level || 'YCT 1'
 
             }
 
@@ -584,18 +569,15 @@ app.get('/api/user/:userId', async (req, res) => {
         return res.status(500).json({
 
             success: false,
-            error:
-                'Profile error'
+            error: 'Profile error'
 
         });
-        
 
     }
-    
 
 });
 /* ==========================================
-   NETLIFY HANDLER
+    NETLIFY HANDLER
 ========================================== */
 
 export const handler = serverless(app);

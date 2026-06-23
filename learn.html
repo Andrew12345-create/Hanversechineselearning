@@ -2,6 +2,9 @@
 <html lang="en">
 
 <head>
+    <link
+rel="stylesheet"
+href="panda-chat.css">
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -793,25 +796,7 @@ Choose a lesson and continue your learning journey.
 
 </section>
 
-<!-- ==========================
-     AI TUTOR
-========================== -->
-<div class="ai-card">
 
-<h2>🤖 Panda AI Tutor</h2>
-
-<textarea
-id="aiMessage"
-placeholder="Ask Panda anything...">
-</textarea>
-
-<button onclick="askPanda()">
-Send
-</button>
-
-<div id="aiResponse"></div>
-
-</div>
 
 <!-- ==========================
      WORKSHEETS
@@ -881,6 +866,9 @@ onclick="window.location.href='payment.html'">
 </div>
 
 </div>
+
+</div>
+
 
 </div>
 
@@ -1144,6 +1132,7 @@ grid-template-columns:1fr;
 }
 
 }
+
 
 </style>
 
@@ -1424,139 +1413,22 @@ alert(
 PANDA AI
 ========================================== */
 
-async function askPanda() {
+function togglePanda(){
+
+document
+.getElementById('pandaChat')
+.classList
+.toggle('active');
+
+}   
 
 
-const input =
-    document.getElementById(
-        'aiMessage'
-    );
+function togglePanda(){
 
-const output =
-    document.getElementById(
-        'aiResponse'
-    );
-
-if (
-    !input ||
-    !output
-) {
-    return;
-}
-
-const message =
-    input.value.trim();
-
-if (!message) {
-
-    output.innerHTML =
-        '🐼 Please enter a question.';
-
-    return;
-
-}
-
-output.innerHTML =
-    '🐼 Thinking...';
-
-try {
-
-    const response =
-        await fetch(
-            '/api/panda-chat',
-            {
-                method: 'POST',
-
-                headers: {
-                    'Content-Type':
-                    'application/json'
-                },
-
-                body: JSON.stringify({
-                    message
-                })
-            }
-        );
-
-    const rawResponse =
-        await response.text();
-
-    console.log(
-        'Panda Raw Response:',
-        rawResponse
-    );
-
-    if (
-        rawResponse.includes(
-            '<!DOCTYPE html>'
-        )
-    ) {
-
-        output.innerHTML = `
-            ❌ Panda API returned HTML.
-
-            Check:
-            • Netlify Function
-            • API Route
-            • Server Logs
-        `;
-
-        return;
-
-    }
-
-    let data;
-
-    try {
-
-        data =
-            JSON.parse(
-                rawResponse
-            );
-
-    }
-    catch(parseError) {
-
-        console.error(
-            'JSON Parse Error:',
-            parseError
-        );
-
-        output.innerHTML =
-            '❌ Server returned invalid JSON';
-
-        return;
-
-    }
-
-    if (!response.ok) {
-
-        output.innerHTML =
-            data.error ||
-            data.reply ||
-            '❌ Server Error';
-
-        return;
-
-    }
-
-    output.innerHTML =
-        data.reply ||
-        '🐼 No response received.';
-
-}
-catch(error) {
-
-    console.error(
-        'Panda Error:',
-        error
-    );
-
-    output.innerHTML =
-        '❌ Panda AI unavailable.';
-
-}
-
+document
+.getElementById('pandaChat')
+.classList
+.toggle('active');
 
 }
 
@@ -1586,6 +1458,128 @@ Settings
 </a>
 
 </nav>
+<!-- Panda Floating Button -->
 
+<button
+class="panda-fab"
+onclick="togglePanda()">
+🐼
+</button>
+
+<!-- Panda Window -->
+
+<div
+id="pandaChat"
+class="panda-chat">
+
+<div class="panda-header">
+
+<div class="panda-title">
+🐼 Panda AI Tutor
+</div>
+
+<button
+class="panda-close"
+onclick="togglePanda()">
+✕
+</button>
+
+</div>
+
+<div
+id="pandaBody"
+class="panda-body">
+
+<div class="message-row">
+
+<div class="panda-avatar">
+🐼
+</div>
+
+<div class="message panda-message">
+👋 Hello! Ask me anything about Mandarin Chinese.
+</div>
+
+</div>
+
+</div>
+
+<div class="panda-input">
+
+<textarea
+id="pandaInput"
+placeholder="Ask Panda...">
+</textarea>
+
+<button
+class="panda-send"
+onclick="sendPandaMessage()">
+➤
+</button>
+
+</div>
+
+</div>
+<!-- Panda Floating Button -->
+
+<button
+class="panda-fab"
+onclick="togglePanda()">
+🐼
+</button>
+
+<div
+id="pandaChat"
+class="panda-chat">
+
+<div class="panda-header">
+
+<div class="panda-title">
+🐼 Panda AI Tutor
+</div>
+
+<button
+class="panda-close"
+onclick="togglePanda()">
+✕
+</button>
+
+</div>
+
+<div
+id="pandaBody"
+class="panda-body">
+
+<div class="message-row">
+
+<div class="panda-avatar">
+🐼
+</div>
+
+<div class="message panda-message">
+👋 Hi! Ask me anything about Mandarin.
+</div>
+
+</div>
+
+</div>
+
+<div class="panda-input">
+
+<textarea
+id="pandaInput"
+placeholder="Ask Panda...">
+</textarea>
+
+<button
+class="panda-send"
+onclick="sendPandaMessage()">
+➤
+</button>
+
+</div>
+
+</div>
+<script src="panda-chat.js"></script>
 </body>
 </html>
