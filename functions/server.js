@@ -615,6 +615,4 @@ app.use('/.netlify/functions/server', router);
    NETLIFY HANDLER
 ========================================== */
 
-app.use('/', router);
-
 export const handler = serverless(app);
