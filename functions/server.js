@@ -255,26 +255,47 @@ Student question:
 ${message}
 `;
 
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt }
-              ]
-            }
-          ]
-        })
-      }
-    );
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000); // 15 seconds
 
-    const data = await geminiResponse.json();
+    let geminiResponse;
+
+    try {
+      geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: prompt }
+                ]
+              }
+            ]
+          })
+        }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    const rawText = await geminiResponse.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      console.error('❌ Gemini non-JSON response:', rawText);
+      return res.status(500).json({
+        success: false,
+        error: 'Gemini returned a non-JSON response'
+      });
+    }
 
     if (!geminiResponse.ok) {
       console.error('❌ Gemini API error:', data);
@@ -296,6 +317,13 @@ ${message}
 
   } catch (error) {
     console.error('❌ Panda Error:', error);
+
+    if (error.name === 'AbortError') {
+      return res.status(504).json({
+        success: false,
+        error: 'Panda AI timed out while waiting for Gemini'
+      });
+    }
 
     return res.status(500).json({
       success: false,

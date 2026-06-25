@@ -36,13 +36,28 @@ async function sendPandaMessage() {
   body.scrollTop = body.scrollHeight;
 const API_BASE = '/.netlify/functions/server';
   try {
-    const response = await fetch(`${API_BASE}/panda-chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ message })
-    });
+  const response = await fetch('/.netlify/functions/server/panda-chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ message })
+});
+
+const raw = await response.text();
+
+let data;
+try {
+  data = JSON.parse(raw);
+} catch {
+  throw new Error(`Non-JSON response: ${raw.slice(0, 200)}`);
+}
+
+if (!response.ok) {
+  throw new Error(data.error || 'Panda unavailable');
+}
+
+return data;
 
     const text = await response.text();
 
@@ -52,7 +67,7 @@ const API_BASE = '/.netlify/functions/server';
     } catch {
       throw new Error(`Non-JSON response: ${text.slice(0, 120)}`);
     }
-
+    
     document.getElementById('typingIndicator')?.remove();
 
     body.innerHTML += `
