@@ -192,7 +192,8 @@
       avatarEl.innerHTML = '<div class="nav-pfp-spinner"></div>';
     }
 
-    fetch('/api/user/' + u.user_id)
+    const API_BASE = '/.netlify/functions/server';
+    fetch(`${API_BASE}/user/${u.user_id}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         const user = data && data.user;
