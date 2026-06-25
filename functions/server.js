@@ -8,8 +8,13 @@ import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import OpenAI from 'openai';
 
-
 dotenv.config();
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+
+
 
 const { Pool } = pkg;
 
@@ -19,9 +24,7 @@ const { Pool } = pkg;
 
 const app = express();
 const router = express.Router();
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+
 app.use(cors());
 
 app.use(express.json({
@@ -36,8 +39,8 @@ app.use(express.urlencoded({
    ENV / STARTUP LOGS
 ========================================== */
 
-console.log('Gemini key exists:', !!process.env.GEMINI_API_KEY);
-console.log('Gemini key prefix:', process.env.GEMINI_API_KEY?.slice(0, 12));
+console.log('OpenAI key exists:', !!process.env.OPENAI_API_KEY);
+console.log('OpenAI key prefix:', process.env.OPENAI_API_KEY?.slice(0, 12));
 console.log('Brevo key exists:', !!process.env.BREVO_SMTP_KEY);
 console.log('Database URL exists:', !!(process.env.DATABASE_URL || process.env.NEON_DATABASE_URL));
 
@@ -86,9 +89,7 @@ if (databaseUrl) {
   console.error('❌ DATABASE_URL / NEON_DATABASE_URL missing');
 }
 
-/* ==========================================
-   GEMINI AI
-========================================== */
+
 
 
 /* ==========================================
@@ -219,9 +220,6 @@ router.get('/routes', (req, res) => {
   });
 });
 
-/* ==========================================
-   PANDA AI
-========================================== */
 
 /* ==========================================
    PANDA AI
