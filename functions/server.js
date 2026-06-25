@@ -6,6 +6,7 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
+import OpenAI from 'openai';
 
 
 dotenv.config();
@@ -18,7 +19,9 @@ const { Pool } = pkg;
 
 const app = express();
 const router = express.Router();
-
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 app.use(cors());
 
 app.use(express.json({
@@ -34,8 +37,9 @@ app.use(express.urlencoded({
 ========================================== */
 
 console.log('Gemini key exists:', !!process.env.GEMINI_API_KEY);
-console.log('Database URL exists:', !!(process.env.DATABASE_URL || process.env.NEON_DATABASE_URL));
+console.log('Gemini key prefix:', process.env.GEMINI_API_KEY?.slice(0, 12));
 console.log('Brevo key exists:', !!process.env.BREVO_SMTP_KEY);
+console.log('Database URL exists:', !!(process.env.DATABASE_URL || process.env.NEON_DATABASE_URL));
 
 /* ==========================================
    DATABASE
@@ -219,6 +223,10 @@ router.get('/routes', (req, res) => {
    PANDA AI
 ========================================== */
 
+/* ==========================================
+   PANDA AI
+========================================== */
+
 router.post('/panda-chat', async (req, res) => {
   try {
     const { message } = req.body || {};
@@ -230,84 +238,45 @@ router.post('/panda-chat', async (req, res) => {
       });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.OPENAI_API_KEY) {
       return res.status(500).json({
         success: false,
-        error: 'Gemini API key missing'
+        error: 'OpenAI API key missing'
       });
     }
 
-    const prompt = `
-You are Panda AI.
-
-You help children aged 5-12 learn Mandarin Chinese.
+    const systemPrompt = `
+You are Panda AI, a friendly Mandarin Chinese tutor for children aged 5–12 on HanVerse.
 
 Rules:
 - Use simple English
-- Include pinyin
-- Use emojis
-- Be encouraging
-- Follow YCT curriculum
-- Keep answers short and child-friendly
-- If asked something unsafe or inappropriate for children, gently refuse and redirect to Mandarin learning
-
-Student question:
-${message}
+- Include pinyin where helpful
+- Use emojis sometimes
+- Be warm, encouraging, and child-friendly
+- Keep answers short and clear
+- Help with Mandarin words, phrases, pronunciation, characters, tones, and YCT-style learning
+- If the child asks something unsafe or inappropriate, gently refuse and redirect back to learning Chinese
+- If possible, make learning fun and interactive
 `;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000); // 15 seconds
-
-    let geminiResponse;
-
-    try {
-      geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  { text: prompt }
-                ]
-              }
-            ]
-          })
+          role: 'system',
+          content: systemPrompt
+        },
+        {
+          role: 'user',
+          content: message
         }
-      );
-    } finally {
-      clearTimeout(timeout);
-    }
-
-    const rawText = await geminiResponse.text();
-
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch {
-      console.error('❌ Gemini non-JSON response:', rawText);
-      return res.status(500).json({
-        success: false,
-        error: 'Gemini returned a non-JSON response'
-      });
-    }
-
-    if (!geminiResponse.ok) {
-      console.error('❌ Gemini API error:', data);
-
-      return res.status(500).json({
-        success: false,
-        error: data?.error?.message || 'Gemini request failed'
-      });
-    }
+      ],
+      temperature: 0.7,
+      max_tokens: 300
+    });
 
     const reply =
-      data?.candidates?.[0]?.content?.parts?.map(part => part.text).join(' ').trim() ||
+      completion.choices?.[0]?.message?.content?.trim() ||
       '🐼 Sorry, I could not answer that right now.';
 
     return res.json({
@@ -316,22 +285,17 @@ ${message}
     });
 
   } catch (error) {
-    console.error('❌ Panda Error:', error);
-
-    if (error.name === 'AbortError') {
-      return res.status(504).json({
-        success: false,
-        error: 'Panda AI timed out while waiting for Gemini'
-      });
-    }
+    console.error('❌ Panda OpenAI Error:', error);
 
     return res.status(500).json({
       success: false,
-      error: error?.message || 'Panda AI failed'
+      error:
+        error?.response?.data?.error?.message ||
+        error?.message ||
+        'Panda AI failed'
     });
   }
 });
-
 /* ==========================================
    LOGIN
 ========================================== */
