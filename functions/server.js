@@ -6,7 +6,7 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
-import { GoogleGenAI } from '@google/genai';
+
 
 dotenv.config();
 
@@ -86,9 +86,6 @@ if (databaseUrl) {
    GEMINI AI
 ========================================== */
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY
-});
 
 /* ==========================================
    EMAIL CONFIG
@@ -258,15 +255,39 @@ Student question:
 ${message}
 `;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt
-    });
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt }
+              ]
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await geminiResponse.json();
+
+    if (!geminiResponse.ok) {
+      console.error('❌ Gemini API error:', data);
+
+      return res.status(500).json({
+        success: false,
+        error: data?.error?.message || 'Gemini request failed'
+      });
+    }
 
     const reply =
-      response?.text ||
-      response?.candidates?.[0]?.content?.parts?.map(part => part.text).join(' ') ||
-      '🐼 No response.';
+      data?.candidates?.[0]?.content?.parts?.map(part => part.text).join(' ').trim() ||
+      '🐼 Sorry, I could not answer that right now.';
 
     return res.json({
       success: true,
