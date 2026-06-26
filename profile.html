@@ -2,1497 +2,696 @@
 <html lang="en">
 
 <head>
-     <link
-rel="stylesheet"
-href="panda-chat.css">
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>HanVerse Profile</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<style>
-
-:root{
-
---primary:#2563EB;
---secondary:#14B8A6;
---accent:#F59E0B;
-
---dark:#0F172A;
---text:#334155;
---muted:#64748B;
-
---bg:#F8FAFC;
---white:#FFFFFF;
-
---success:#10B981;
---danger:#EF4444;
-
---border:#E2E8F0;
-
---shadow-sm:0 8px 20px rgba(0,0,0,.05);
---shadow:0 20px 50px rgba(15,23,42,.08);
---shadow-lg:0 30px 70px rgba(15,23,42,.12);
-
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
-
-body{
-
-background:var(--bg);
-
-color:var(--dark);
-
-overflow-x:hidden;
-
-}
-
-body::before{
-
-content:'';
-
-position:fixed;
-
-inset:0;
-
-z-index:-1;
-
-background:
-radial-gradient(circle at 15% 20%, rgba(37,99,235,.08), transparent 35%),
-radial-gradient(circle at 80% 70%, rgba(20,184,166,.08), transparent 35%);
-
-}
-
-/* NAVBAR */
-
-nav{
-
-position:sticky;
-top:0;
-z-index:1000;
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-
-padding:16px 7%;
-
-background:rgba(255,255,255,.92);
-
-backdrop-filter:blur(20px);
-
-border-bottom:1px solid rgba(0,0,0,.05);
-
-}
-
-.logo{
-
-display:flex;
-align-items:center;
-gap:12px;
-
-font-size:26px;
-font-weight:800;
-
-color:var(--primary);
-
-text-decoration:none;
-
-}
-
-.logo-badge{
-
-width:46px;
-height:46px;
-
-border-radius:50%;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-background:
-linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-
-font-size:22px;
-
-}
-
-.nav-links{
-
-display:flex;
-gap:28px;
-
-list-style:none;
-
-}
-
-.nav-links a{
-
-text-decoration:none;
-
-font-weight:600;
-
-color:var(--muted);
-
-}
-
-.nav-links a.active{
-
-color:var(--primary);
-
-}
-
-.logout-btn{
-
-padding:12px 24px;
-
-border:none;
-
-border-radius:999px;
-
-font-weight:700;
-
-cursor:pointer;
-
-background:
-linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-
-}
-
-/* HERO */
-
-.profile-hero{
-
-margin:40px 7%;
-
-padding:50px;
-
-border-radius:40px;
-
-background:
-linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-
-display:grid;
-
-grid-template-columns:
-180px 1fr;
-
-gap:40px;
-
-align-items:center;
-
-box-shadow:var(--shadow-lg);
-
-position:relative;
-
-overflow:hidden;
-
-}
-
-.profile-hero::before{
-
-content:'你';
-
-position:absolute;
-
-font-size:120px;
-
-font-weight:800;
-
-opacity:.08;
-
-top:20px;
-right:50px;
-
-}
-
-.avatar{
-
-width:150px;
-height:150px;
-
-border-radius:50%;
-
-background:white;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-font-size:80px;
-
-overflow:hidden;
-
-box-shadow:0 12px 30px rgba(0,0,0,.15);
-
-}
-
-.avatar img{
-
-width:100%;
-height:100%;
-
-object-fit:cover;
-
-}
-
-.profile-info h1{
-
-font-size:3rem;
-
-margin-bottom:10px;
-
-}
-
-.profile-info p{
-
-opacity:.9;
-
-line-height:1.8;
-
-margin-bottom:20px;
-
-}
-
-.profile-badges{
-
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-
-margin-bottom:18px;
-
-}
-
-.badge{
-
-padding:10px 18px;
-
-border-radius:999px;
-
-background:rgba(255,255,255,.18);
-
-font-weight:700;
-
-font-size:.85rem;
-
-}
-
-.hero-stats{
-
-display:flex;
-gap:12px;
-flex-wrap:wrap;
-
-}
-
-.hero-stat{
-
-padding:10px 18px;
-
-border-radius:999px;
-
-background:rgba(255,255,255,.18);
-
-font-weight:700;
-
-}
-
-/* QUICK STATS */
-
-.quick-grid{
-
-margin:0 7% 30px;
-
-display:grid;
-
-grid-template-columns:
-repeat(4,1fr);
-
-gap:20px;
-
-}
-
-.quick-card{
-
-background:white;
-
-padding:25px;
-
-border-radius:24px;
-
-text-align:center;
-
-box-shadow:var(--shadow-sm);
-
-}
-
-.quick-icon{
-
-font-size:2rem;
-
-margin-bottom:10px;
-
-}
-
-.quick-card h3{
-
-font-size:2rem;
-
-color:var(--primary);
-
-margin-bottom:5px;
-
-}
-
-.quick-card p{
-
-font-size:.85rem;
-
-color:var(--muted);
-
-}
-
-</style>
-
+    <link rel="stylesheet" href="panda-chat.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HanVerse Profile</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --secondary: #14B8A6;
+            --accent: #F59E0B;
+            --dark: #0F172A;
+            --text: #334155;
+            --muted: #64748B;
+            --bg: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --border: #E2E8F0;
+            --shadow-sm: 0 8px 20px rgba(0,0,0,.05);
+            --shadow: 0 20px 50px rgba(15,23,42,.08);
+            --shadow-lg: 0 30px 70px rgba(15,23,42,.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(37,99,235,.08), transparent 35%),
+                radial-gradient(circle at 80% 70%, rgba(20,184,166,.08), transparent 35%);
+        }
+
+        /* NAVBAR */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 7%;
+            background: rgba(255,255,255,.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo-badge {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 22px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .logout-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 999px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        /* HERO */
+        .profile-hero {
+            margin: 40px 7%;
+            padding: 50px;
+            border-radius: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 40px;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-hero::before {
+            content: '你';
+            position: absolute;
+            font-size: 120px;
+            font-weight: 800;
+            opacity: .08;
+            top: 20px;
+            right: 50px;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 80px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0,0,0,.15);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .profile-info p {
+            opacity: .9;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .badge {
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.18);
+            font-weight: 700;
+            font-size: .85rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.18);
+            font-weight: 700;
+        }
+
+        /* QUICK STATS */
+        .quick-grid {
+            margin: 0 7% 30px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .quick-card {
+            background: white;
+            padding: 25px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quick-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .quick-card h3 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .quick-card p {
+            font-size: .85rem;
+            color: var(--muted);
+        }
+
+        .progress-section {
+            margin: 0 7% 25px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .progress-card,
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-sm);
+            margin: 0 7% 25px;
+        }
+
+        .progress-section .progress-card {
+            margin: 0;
+        }
+
+        .progress-track {
+            height: 14px;
+            background: #E5E7EB;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: 1s;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 40px);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .heat {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #E5E7EB;
+        }
+
+        .heat.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .certificate-grid,
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .certificate-card,
+        .achievement-card {
+            background: #F8FAFC;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .ai-card {
+            background: #F8FAFC;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .ai-card h3 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .activity-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .membership-premium {
+            padding: 25px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .membership-free {
+            padding: 25px;
+            border-radius: 20px;
+            background: #F8FAFC;
+        }
+
+        .admin-btn {
+            display: inline-block;
+            padding: 14px 24px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        @media(max-width: 900px) {
+            .progress-section {
+                grid-template-columns: 1fr;
+            }
+            .ai-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<nav>
-
-<a href="index.html" class="logo">
-
-<div class="logo-badge">
-🐼
-</div>
-
-HanVerse
-
-</a>
-
-<ul class="nav-links">
-
-<li><a href="index.html">Home</a></li>
-<li><a href="learn.html">Learn</a></li>
-<li><a href="profile.html" class="active">Profile</a></li>
-
-</ul>
-
-<button class="logout-btn">
-Log Out
-</button>
-
-</nav>
-
-<section class="profile-hero">
-
-<div class="avatar" id="avatar">
-
-🐼
-
-</div>
-
-<div class="profile-info">
-
-<h1 id="profileName">
-
-Loading...
-
-</h1>
-
-<p>
-
-Track your progress, achievements,
-learning streaks and Chinese proficiency.
-
-</p>
-
-<div class="profile-badges">
-
-<div
-id="premiumBadge"
-class="badge"
-style="display:none;">
-⭐ Premium
-</div>
-
-<div
-id="adminBadge"
-class="badge"
-style="display:none;">
-👑 Administrator
-</div>
-
-<div
-id="yctBadge"
-class="badge">
-🏮 YCT 1
-</div>
-
-<div
-id="hskBadge"
-class="badge">
-🐉 HSK 0
-</div>
-
-</div>
-
-<div class="hero-stats">
-
-<div class="hero-stat">
-
-🔥
-<span id="heroStreak">
-0
-</span>
-
-Day Streak
-
-</div>
-
-<div class="hero-stat">
-
-⭐
-<span id="heroXP">
-0
-</span>
-
-XP
-
-</div>
-
-<div class="hero-stat">
-
-🏆
-<span id="heroLevel">
-1
-</span>
-
-Level
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<div class="quick-grid">
-
-<div class="quick-card">
-
-<div class="quick-icon">
-🔥
-</div>
-
-<h3 id="quickStreak">
-0
-</h3>
-
-<p>
-Current Streak
-</p>
-
-</div>
-
-<div class="quick-card">
-
-<div class="quick-icon">
-⭐
-</div>
-
-<h3 id="quickXP">
-0
-</h3>
-
-<p>
-Total XP
-</p>
-
-</div>
-
-<div class="quick-card">
-
-<div class="quick-icon">
-🏆
-</div>
-
-<h3 id="quickLevel">
-1
-</h3>
-
-<p>
-Current Level
-</p>
-
-</div>
-
-<div class="quick-card">
-
-<div class="quick-icon">
-📚
-</div>
-
-<h3 id="quickLessons">
-0
-</h3>
-
-<p>
-Lessons Completed
-</p>
-
-</div>
-
-</div>
-
-<script>
-
-const SESSION_KEY =
-'hanverse_user';
-
-const API_URL =
-    window.location.hostname === "localhost"
-        ? "/.netlify/functions/server"
-        : "/api";
-
-document.addEventListener(
-'DOMContentLoaded',
-loadProfile
-);
-
-async function loadProfile(){
-
-try{
-
-const session =
-JSON.parse(
-localStorage.getItem(
-SESSION_KEY
-)
-);
-
-if(!session){
-
-location.href =
-'login.html';
-
-return;
-
-}
-
-const response =
-await fetch(
-`${API_URL}/user/${session.user_id}`
-);
-
-const data =
-await response.json();
-
-const user =
-data.user;
-
-/* BANNED */
-
-if(user.is_banned){
-
-window.location.href =
-'banned.html';
-
-return;
-
-}
-
-/* NAME */
-renderProfileExtras(user, data);
-document.getElementById(
-'profileName'
-).textContent =
-user.username ||
-'Learner';
-
-/* AVATAR */
-
-if(user.profile_picture){
-
-document.getElementById(
-'avatar'
-).innerHTML =
-`<img src="${user.profile_picture}">`;
-
-}
-
-/* PREMIUM */
-
-if(user.premium_until){
-
-document.getElementById(
-'premiumBadge'
-).style.display =
-'inline-block';
-
-}
-
-/* ADMIN */
-
-if(user.is_admin){
-
-document.getElementById(
-'adminBadge'
-).style.display =
-'inline-block';
-
-}
-
-/* LEVELS */
-
-document.getElementById(
-'yctBadge'
-).textContent =
-`🏮 YCT ${user.current_yct || 1}`;
-
-document.getElementById(
-'hskBadge'
-).textContent =
-`🐉 HSK ${user.current_hsk || 0}`;
-
-/* STATS */
-
-document.getElementById(
-'heroXP'
-).textContent =
-user.xp || 0;
-
-document.getElementById(
-'heroStreak'
-).textContent =
-user.streak_days || 0;
-
-document.getElementById(
-'heroLevel'
-).textContent =
-user.level || 1;
-
-document.getElementById(
-'quickXP'
-).textContent =
-user.xp || 0;
-
-document.getElementById(
-'quickStreak'
-).textContent =
-user.streak_days || 0;
-
-document.getElementById(
-'quickLevel'
-).textContent =
-user.level || 1;
-
-document.getElementById(
-'quickLessons'
-).textContent =
-data.completed_lessons || 0;
-
-}
-catch (error) {
-
-    console.error("Profile error:", error);
-
-    alert("Profile failed to load. Check the browser console.");
-
-    // Don't redirect while debugging
-    // location.href = "login.html";
-
-}
-
-}
-
-</script>
-<!-- ==========================
-     YCT / HSK PROGRESS
-========================== -->
-
-<section class="progress-section">
-
-<div class="progress-card">
-
-<h2>
-🏮 YCT Progress
-</h2>
-
-<p id="yctProgressText">
-
-Loading...
-
-</p>
-
-<div class="progress-track">
-<div id="yctProgressBar" class="progress-fill"></div>
-</div>
-
-</div>
-
-<div class="progress-card">
-
-<h2>
-🐉 HSK Progress
-</h2>
-
-<p id="hskProgressText">
-
-Loading...
-
-</p>
-
-<div class="progress-track">
-<div id="hskProgressBar" class="progress-fill"></div>
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================
-     LEARNING HEATMAP
-========================== -->
-
-<section class="content-card">
-
-<h2>
-🔥 Learning Heatmap
-</h2>
-
-<div id="heatmapGrid" class="heatmap-grid">
-
-</div>
-
-</section>
-
-<!-- ==========================
-     CERTIFICATES
-========================== -->
-
-<section class="content-card">
-
-<h2>
-📜 Certificates
-</h2>
-
-<div
-id="certificateGrid"
-class="certificate-grid">
-
-</div>
-
-</section>
-
-<!-- ==========================
-     ACHIEVEMENTS
-========================== -->
-
-<section class="content-card">
-
-<h2>
-🏆 Achievements
-</h2>
-
-<div
-id="achievementGrid"
-class="achievement-grid">
-
-</div>
-
-</section>
-
-<!-- ==========================
-     PANDA AI
-========================== -->
-
-<section class="content-card">
-
-<h2>
-🤖 Panda AI Usage
-</h2>
-
-<div class="ai-grid">
-
-<div class="ai-card">
-
-<h3 id="aiQuestions">
-0
-</h3>
-
-<p>
-Questions Asked
-</p>
-
-</div>
-
-<div class="ai-card">
-
-<h3 id="aiSessions">
-0
-</h3>
-
-<p>
-Practice Sessions
-</p>
-
-</div>
-
-<div class="ai-card">
-
-<h3 id="aiHours">
-0
-</h3>
-
-<p>
-Hours Learned
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================
-     RECENT ACTIVITY
-========================== -->
-
-<section class="content-card">
-
-<h2>
-📈 Recent Activity
-</h2>
-
-<div id="activityFeed">
-
-Loading...
-
-</div>
-
-</section>
-
-<!-- ==========================
-     PREMIUM STATUS
-========================== -->
-
-<section
-id="premiumSection"
-class="content-card">
-
-<h2>
-⭐ Membership
-</h2>
-
-<div id="membershipCard">
-
-Loading...
-
-</div>
-
-</section>
-
-<!-- ==========================
-     ADMIN PANEL
-========================== -->
-
-<section
-id="adminSection"
-class="content-card"
-style="display:none;">
-
-<h2>
-👑 Administrator
-</h2>
-
-<a
-href="admin.html"
-class="admin-btn">
-
-⚙️ Open Admin Dashboard
-
-</a>
-
-</section>
-
-<style>
-
-.progress-section{
-
-margin:0 7% 25px;
-
-display:grid;
-
-grid-template-columns:
-repeat(2,1fr);
-
-gap:20px;
-
-}
-
-.progress-card,
-.content-card{
-
-background:white;
-
-padding:30px;
-
-border-radius:24px;
-
-box-shadow:var(--shadow-sm);
-
-margin:0 7% 25px;
-
-}
-
-.progress-section .progress-card{
-margin:0;
-}
-
-.progress-track{
-
-height:14px;
-
-background:#E5E7EB;
-
-border-radius:999px;
-
-overflow:hidden;
-
-margin-top:15px;
-
-}
-
-.progress-fill{
-
-height:100%;
-
-width:0%;
-
-background:
-linear-gradient(
-90deg,
-var(--primary),
-var(--secondary)
-);
-
-transition:1s;
-
-}
-
-.heatmap-grid{
-
-display:grid;
-
-grid-template-columns:
-repeat(7,40px);
-
-gap:10px;
-
-margin-top:20px;
-
-}
-
-.heat{
-
-width:40px;
-height:40px;
-
-border-radius:10px;
-
-background:#E5E7EB;
-
-}
-
-.heat.active{
-
-background:
-linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-}
-
-.certificate-grid,
-.achievement-grid{
-
-display:grid;
-
-grid-template-columns:
-repeat(auto-fit,minmax(200px,1fr));
-
-gap:20px;
-
-margin-top:20px;
-
-}
-
-.certificate-card,
-.achievement-card{
-
-background:#F8FAFC;
-
-padding:20px;
-
-border-radius:20px;
-
-text-align:center;
-
-}
-
-.ai-grid{
-
-display:grid;
-
-grid-template-columns:
-repeat(3,1fr);
-
-gap:20px;
-
-margin-top:20px;
-
-}
-
-.ai-card{
-
-background:#F8FAFC;
-
-padding:20px;
-
-border-radius:20px;
-
-text-align:center;
-
-}
-
-.ai-card h3{
-
-font-size:2rem;
-
-color:var(--primary);
-
-margin-bottom:5px;
-
-}
-
-.activity-item{
-
-padding:12px 0;
-
-border-bottom:1px solid var(--border);
-
-}
-
-.membership-premium{
-
-padding:25px;
-
-border-radius:20px;
-
-background:
-linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-
-}
-
-.membership-free{
-
-padding:25px;
-
-border-radius:20px;
-
-background:#F8FAFC;
-
-}
-
-.admin-btn{
-
-display:inline-block;
-
-padding:14px 24px;
-
-border-radius:999px;
-
-text-decoration:none;
-
-font-weight:700;
-
-background:
-linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-
-}
-
-@media(max-width:900px){
-
-.progress-section{
-
-grid-template-columns:1fr;
-
-}
-
-.ai-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
-</style>
-
-<script>
-
-/* CONTINUE INSIDE loadProfile() */
-
-document.addEventListener(
-'DOMContentLoaded',
-()=>{
-
-generateHeatmap();
-
-});
-
-/* HEATMAP */
-
-function generateHeatmap(){
-
-const grid =
-document.getElementById(
-'heatmapGrid'
-);
-
-if(!grid) return;
-
-for(let i=0;i<35;i++){
-
-const cell =
-document.createElement('div');
-
-cell.className =
-Math.random() > .4
-? 'heat active'
-: 'heat';
-
-grid.appendChild(cell);
-
-}
-
-}
-
-/* ADD THIS INSIDE loadProfile()
-   AFTER USER DATA LOADS */
-
-function renderProfileExtras(
-user,
-data
-){
-
-/* ADMIN */
-
-if(user.is_admin){
-
-document.getElementById(
-'adminSection'
-).style.display =
-'block';
-
-}
-
-/* PREMIUM */
-
-const membership =
-document.getElementById(
-'membershipCard'
-);
-
-if(user.premium_until){
-
-membership.innerHTML =
-
-`<div class="membership-premium">
-
-<h3>
-⭐ Premium Active
-</h3>
-
-<p>
-Valid until:
-${user.premium_until}
-</p>
-
-</div>`;
-
-}else{
-
-membership.innerHTML =
-
-`<div class="membership-free">
-
-<h3>
-🆓 Free Account
-</h3>
-
-<p>
-Upgrade to unlock premium content.
-</p>
-
-</div>`;
-
-}
-
-/* YCT */
-
-const yct =
-user.current_yct || 1;
-
-const yctPct =
-(yct / 4) * 100;
-
-document.getElementById(
-'yctProgressText'
-).textContent =
-`YCT ${yct}`;
-
-document.getElementById(
-'yctProgressBar'
-).style.width =
-yctPct + '%';
-
-/* HSK */
-
-const hsk =
-user.current_hsk || 0;
-
-const hskPct =
-(hsk / 6) * 100;
-
-document.getElementById(
-'hskProgressText'
-).textContent =
-`HSK ${hsk}`;
-
-document.getElementById(
-'hskProgressBar'
-).style.width =
-hskPct + '%';
-
-/* CERTIFICATES */
-
-document.getElementById(
-'certificateGrid'
-).innerHTML =
-
-`
-<div class="certificate-card">
-📜<br><br>
-YCT Certificate
-</div>
-
-<div class="certificate-card">
-🏆<br><br>
-Vocabulary Champion
-</div>
-
-<div class="certificate-card">
-⭐<br><br>
-Top Learner
-</div>
-`;
-
-/* ACHIEVEMENTS */
-
-document.getElementById(
-'achievementGrid'
-).innerHTML =
-
-`
-<div class="achievement-card">
-🔥 7 Day Streak
-</div>
-
-<div class="achievement-card">
-📚 50 Lessons
-</div>
-
-<div class="achievement-card">
-🤖 AI Explorer
-</div>
-`;
-
-/* AI STATS */
-
-document.getElementById(
-'aiQuestions'
-).textContent =
-data.ai_questions || 0;
-
-document.getElementById(
-'aiSessions'
-).textContent =
-data.ai_sessions || 0;
-
-document.getElementById(
-'aiHours'
-).textContent =
-data.ai_hours || 0;
-
-/* ACTIVITY */
-
-const feed =
-document.getElementById(
-'activityFeed'
-);
-
-if(data.activities){
-
-feed.innerHTML =
-data.activities.map(a =>
-
-`<div class="activity-item">
-${a}
-</div>`
-
-).join('');
-
-}
-
-}
-
-</script>
-
-<nav class="bottom-nav">
-
-<a href="index.html">
-<div class="nav-icon">🏠</div>
-Home
-</a>
-
-<a href="learn.html">
-<div class="nav-icon">📚</div>
-Learn
-</a>
-
-<a href="profile.html" class="active">
-<div class="nav-icon">👤</div>
-Profile
-</a>
-
-<a href="settings.html">
-<div class="nav-icon">⚙️</div>
-Settings
-</a>
-
-</nav>
-<!-- Panda Floating Button -->
-
-<button
-class="panda-fab"
-onclick="togglePanda()">
-🐼
-</button>
-
-<div
-id="pandaChat"
-class="panda-chat">
-
-<div class="panda-header">
-
-<div class="panda-title">
-🐼 Panda AI Tutor
-</div>
-
-<button
-class="panda-close"
-onclick="togglePanda()">
-✕
-</button>
-
-</div>
-
-<div
-id="pandaBody"
-class="panda-body">
-
-<div class="message-row">
-
-<div class="panda-avatar">
-🐼
-</div>
-
-<div class="message panda-message">
-👋 Hi! Ask me anything about Mandarin.
-</div>
-
-</div>
-
-</div>
-
-<div class="panda-input">
-
-<textarea
-id="pandaInput"
-placeholder="Ask Panda...">
-</textarea>
-
-<button
-class="panda-send"
-onclick="sendPandaMessage()">
-➤
-</button>
-
-</div>
-
-</div>
-<script src="panda-chat.js"></script>
-
+    <nav>
+        <a href="index.html" class="logo">
+            <div class="logo-badge">🐼</div>
+            HanVerse
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="learn.html">Learn</a></li>
+            <li><a href="profile.html" class="active">Profile</a></li>
+        </ul>
+        <button class="logout-btn" id="logoutBtn">Log Out</button>
+    </nav>
+
+    <section class="profile-hero">
+        <div class="avatar" id="avatar">🐼</div>
+        <div class="profile-info">
+            <h1 id="profileName">Loading...</h1>
+            <p>Track your progress, achievements, learning streaks and Chinese proficiency.</p>
+            
+            <div class="profile-badges">
+                <div id="premiumBadge" class="badge" style="display:none;">⭐ Premium</div>
+                <div id="adminBadge" class="badge" style="display:none;">(ADMIN)</div>
+                <div id="yctBadge" class="badge">🏮 YCT 1</div>
+                <div id="hskBadge" class="badge">🐉 HSK 0</div>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">🔥 <span id="heroStreak">0</span> Day Streak</div>
+                <div class="hero-stat">⭐ <span id="heroXP">0</span> XP</div>
+                <div class="hero-stat">🏆 <span id="heroLevel">1</span> Level</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="quick-grid">
+        <div class="quick-card">
+            <div class="quick-icon">🔥</div>
+            <h3 id="quickStreak">0</h3>
+            <p>Current Streak</p>
+        </div>
+        <div class="quick-card">
+            <div class="quick-icon">⭐</div>
+            <h3 id="quickXP">0</h3>
+            <p>Total XP</p>
+        </div>
+        <div class="quick-card">
+            <div class="quick-icon">🏆</div>
+            <h3 id="quickLevel">1</h3>
+            <p>Current Level</p>
+        </div>
+        <div class="quick-card">
+            <div class="quick-icon">📚</div>
+            <h3 id="quickLessons">0</h3>
+            <p>Lessons Completed</p>
+        </div>
+    </div>
+
+    <!-- YCT / HSK PROGRESS -->
+    <section class="progress-section">
+        <div class="progress-card">
+            <h2>🏮 YCT Progress</h2>
+            <p id="yctProgressText">Loading...</p>
+            <div class="progress-track">
+                <div id="yctProgressBar" class="progress-fill"></div>
+            </div>
+        </div>
+        <div class="progress-card">
+            <h2>🐉 HSK Progress</h2>
+            <p id="hskProgressText">Loading...</p>
+            <div class="progress-track">
+                <div id="hskProgressBar" class="progress-fill"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LEARNING HEATMAP -->
+    <section class="content-card">
+        <h2>🔥 Learning Heatmap</h2>
+        <div id="heatmapGrid" class="heatmap-grid"></div>
+    </section>
+
+    <!-- CERTIFICATES -->
+    <section class="content-card">
+        <h2>📜 Certificates</h2>
+        <div id="certificateGrid" class="certificate-grid"></div>
+    </section>
+
+    <!-- ACHIEVEMENTS -->
+    <section class="content-card">
+        <h2>🏆 Achievements</h2>
+        <div id="achievementGrid" class="achievement-grid"></div>
+    </section>
+
+    <!-- PANDA AI -->
+    <section class="content-card">
+        <h2>🤖 Panda AI Usage</h2>
+        <div class="ai-grid">
+            <div class="ai-card">
+                <h3 id="aiQuestions">0</h3>
+                <p>Questions Asked</p>
+            </div>
+            <div class="ai-card">
+                <h3 id="aiSessions">0</h3>
+                <p>Practice Sessions</p>
+            </div>
+            <div class="ai-card">
+                <h3 id="aiHours">0</h3>
+                <p>Hours Learned</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECENT ACTIVITY -->
+    <section class="content-card">
+        <h2>📈 Recent Activity</h2>
+        <div id="activityFeed">Loading...</div>
+    </section>
+
+    <!-- PREMIUM STATUS -->
+    <section id="premiumSection" class="content-card">
+        <h2>⭐ Membership</h2>
+        <div id="membershipCard">Loading...</div>
+    </section>
+
+    <!-- ADMIN PANEL CONTAINER -->
+    <section id="adminSection" class="content-card" style="display:none;">
+        <h2>👑 Administrator Panel</h2>
+        <a href="admin.html" class="admin-btn">⚙️ Open Admin Dashboard</a>
+    </section>
+
+    <!-- BOTTOM MOBILE NAVIGATION -->
+    <nav class="bottom-nav">
+        <a href="index.html"><div class="nav-icon">🏠</div>Home</a>
+        <a href="learn.html"><div class="nav-icon">📚</div>Learn</a>
+        <a href="profile.html" class="active"><div class="nav-icon">👤</div>Profile</a>
+        <a href="settings.html"><div class="nav-icon">⚙️</div>Settings</a>
+    </nav>
+
+    <!-- PANDA FLOATING ACTION BUTTON -->
+    <button class="panda-fab" onclick="togglePanda()">🐼</button>
+
+    <div id="pandaChat" class="panda-chat">
+        <div class="panda-header">
+            <div class="panda-title">🐼 Panda AI Tutor</div>
+            <button class="panda-close" onclick="togglePanda()">✕</button>
+        </div>
+        <div id="pandaBody" class="panda-body">
+            <div class="message-row">
+                <div class="panda-avatar">🐼</div>
+                <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
+            </div>
+        </div>
+        <div class="panda-input">
+            <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
+            <button class="panda-send" onclick="sendPandaMessage()">➤</button>
+        </div>
+    </div>
+
+    <!-- CORE SCRIPT PIPELINE -->
+    <script>
+        const SESSION_KEY = 'hanverse_user';
+        
+        // DYNAMIC BASE ROUTE GENERATOR (Resolves typical port or relative directory paths)
+        const getBaseURL = () => {
+            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+                // If you run Netlify locally via 'netlify dev', it spins up on 8888. Adjust port here if needed.
+                return "http://localhost:8888/.netlify/functions/server"; 
+            }
+            return "/api"; 
+        };
+
+        const API_URL = getBaseURL();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            generateHeatmap();
+            
+            document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                localStorage.removeItem(SESSION_KEY);
+                window.location.href = 'login.html';
+            });
+        });
+
+        async function loadProfile() {
+            try {
+                const sessionData = localStorage.getItem(SESSION_KEY);
+                if (!sessionData) {
+                    console.warn("No authentication session token found in local storage.");
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const session = JSON.parse(sessionData);
+                if (!session || !session.user_id) {
+                    console.error("Session profile layout missing required key properties.");
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                console.log(`Pinging DB stream for records: ${API_URL}/user/${session.user_id}`);
+                
+                const response = await fetch(`${API_URL}/user/${session.user_id}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned error code status: ${response.status} (${response.statusText})`);
+                }
+
+                const data = await response.json();
+                
+                if (!data || !data.user) {
+                    throw new Error("Invalid or empty user payload data wrapper received from DB response.");
+                }
+
+                const user = data.user;
+
+                if (user.is_banned) {
+                    window.location.href = 'banned.html';
+                    return;
+                }
+
+                /* --- DATABASE COMPLIANT RULE LOGIC --- */
+                // Validates boolean true, integer 1, or string "true" fields safely
+                const isAdminUser = user.is_admin === true || user.is_admin === 1 || user.is_admin === "true" || user.isAdmin === true;
+
+                if (isAdminUser) {
+                    document.getElementById('adminBadge').style.display = 'inline-block';
+                    document.getElementById('adminSection').style.display = 'block';
+                    document.getElementById('profileName').textContent = user.username || 'Admin User';
+                } else {
+                    document.getElementById('adminBadge').style.display = 'none';
+                    document.getElementById('adminSection').style.display = 'none';
+                    document.getElementById('profileName').textContent = user.username || 'Learner';
+                }
+
+                /* --- METRICS & BADGES RENDERING --- */
+                if (user.profile_picture) {
+                    document.getElementById('avatar').innerHTML = `<img src="${user.profile_picture}" alt="Avatar">`;
+                }
+
+                if (user.premium_until) {
+                    document.getElementById('premiumBadge').style.display = 'inline-block';
+                }
+
+                document.getElementById('yctBadge').textContent = `🏮 YCT ${user.current_yct || 1}`;
+                document.getElementById('hskBadge').textContent = `🐉 HSK ${user.current_hsk || 0}`;
+
+                document.getElementById('heroXP').textContent = user.xp || 0;
+                document.getElementById('heroStreak').textContent = user.streak_days || 0;
+                document.getElementById('heroLevel').textContent = user.level || 1;
+
+                document.getElementById('quickXP').textContent = user.xp || 0;
+                document.getElementById('quickStreak').textContent = user.streak_days || 0;
+                document.getElementById('quickLevel').textContent = user.level || 1;
+                document.getElementById('quickLessons').textContent = data.completed_lessons || 0;
+
+                // Fire helper data visualizers
+                renderProfileExtras(user, data);
+
+            } catch (error) {
+                console.error("--- WORKLOAD RETRIEVAL PIPELINE FAULT ---");
+                console.error("Error trace details:", error.message);
+                console.error("Context stack:", error);
+                
+                alert("Profile failed to sync with the database repository. Verify that your backend server is running and check the browser console for details.");
+            }
+        }
+
+        function renderProfileExtras(user, data) {
+            /* RE-VERIFY UPGRADE CARD STATUS */
+            const membership = document.getElementById('membershipCard');
+            if (user.premium_until) {
+                membership.innerHTML = `
+                    <div class="membership-premium">
+                        <h3>⭐ Premium Active</h3>
+                        <p>Valid until: ${new Date(user.premium_until).toLocaleDateString()}</p>
+                    </div>`;
+            } else {
+                membership.innerHTML = `
+                    <div class="membership-free">
+                        <h3>🆓 Free Account</h3>
+                        <p>Upgrade to unlock premium content.</p>
+                    </div>`;
+            }
+
+            /* UPDATE METRIC BAR SLIDERS */
+            const yct = parseInt(user.current_yct) || 1;
+            const yctPct = Math.min((yct / 4) * 100, 100);
+            document.getElementById('yctProgressText').textContent = `YCT ${yct}`;
+            document.getElementById('yctProgressBar').style.width = yctPct + '%';
+
+            const hsk = parseInt(user.current_hsk) || 0;
+            const hskPct = Math.min((hsk / 6) * 100, 100);
+            document.getElementById('hskProgressText').textContent = `HSK ${hsk}`;
+            document.getElementById('hskProgressBar').style.width = hskPct + '%';
+
+            /* POPULATE HISTORICAL PLACEHOLDERS */
+            document.getElementById('certificateGrid').innerHTML = `
+                <div class="certificate-card">📜<br><br>YCT Certificate</div>
+                <div class="certificate-card">🏆<br><br>Vocabulary Champion</div>
+                <div class="certificate-card">⭐<br><br>Top Learner</div>`;
+
+            document.getElementById('achievementGrid').innerHTML = `
+                <div class="achievement-card">🔥 7 Day Streak</div>
+                <div class="achievement-card">📚 50 Lessons</div>
+                <div class="achievement-card">🤖 AI Explorer</div>`;
+
+            /* INJECT ARTIFICIAL INTELLIGENCE LOG METRICS */
+            document.getElementById('aiQuestions').textContent = data.ai_questions || 0;
+            document.getElementById('aiSessions').textContent = data.ai_sessions || 0;
+            document.getElementById('aiHours').textContent = data.ai_hours || 0;
+
+            /* INJECT STREAM LOGGER LOGS */
+            const feed = document.getElementById('activityFeed');
+            if (data.activities && data.activities.length > 0) {
+                feed.innerHTML = data.activities.map(act => `<div class="activity-item">${act}</div>`).join('');
+            } else {
+                feed.innerHTML = `<div class="activity-item" style="color: var(--muted)">No recent activity entries recorded in DB.</div>`;
+            }
+        }
+
+        function generateHeatmap() {
+            const grid = document.getElementById('heatmapGrid');
+            if (!grid) return;
+            grid.innerHTML = ''; 
+
+            for (let i = 0; i < 35; i++) {
+                const cell = document.createElement('div');
+                cell.className = Math.random() > .4 ? 'heat active' : 'heat';
+                grid.appendChild(cell);
+            }
+        }
+    </script>
+    <script src="panda-chat.js"></script>
 </body>
 </html>
