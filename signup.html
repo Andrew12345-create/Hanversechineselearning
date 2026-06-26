@@ -575,10 +575,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // ==========================================
 
 // API URL - dynamically determine based on environment
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000/api'
-    : '/api';
-
+const API_URL =
+    window.location.hostname === "localhost"
+        ? "/.netlify/functions/server"
+        : "/api";
 // Form Elements
 const signupForm =
     document.getElementById("signupForm");
@@ -682,8 +682,8 @@ function validateForm() {
     const username =
         usernameInput.value.trim();
 
-    const fullName =
-        fullNameInput.value.trim();
+    const full_name =
+    fullNameInput.value.trim();
 
     const email =
         emailInput.value.trim();
@@ -755,7 +755,7 @@ async function signupUser() {
     const username =
         usernameInput.value.trim();
 
-    const fullName =
+    const full_name =
         fullNameInput.value.trim();
 
     const email =
@@ -767,22 +767,18 @@ async function signupUser() {
     try {
 
         // API request starts here...
-                const response = await fetch(
-            `${API_URL}/signup`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-                body: JSON.stringify({
-                    username,
-                    full_name: fullName,
-                    email,
-                    password
-                })
-            }
-        );
+               const response = await fetch(`${API_URL}/signup`, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        username,
+        full_name,
+        email,
+        password
+    })
+});
 
         const data =
             await response.json();
@@ -822,7 +818,7 @@ showSuccess(
 Notify.confetti({ particleCount: 80, duration: 2000 });
 
 setTimeout(() => {
-    window.location.href = 'verify.html?just_signedup=1';
+    window.location.href = 'login.html';
 }, 1000);
 
 return;

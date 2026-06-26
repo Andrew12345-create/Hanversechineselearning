@@ -150,15 +150,22 @@ function safeUser(user) {
     level: user.level || 1,
     streak_days: user.streak_days || 0,
     profile_picture: user.profile_picture || null,
+
     is_admin: user.is_admin || false,
     is_banned: user.is_banned || false,
     banned_reason: user.banned_reason || null,
+
     is_verified: user.is_verified || false,
+
     premium: user.is_premium || false,
-    chinese_level: user.chinese_level || 'YCT 1'
+    premium_until: user.premium_until || null,
+
+    current_yct: user.current_yct || 1,
+    current_hsk: user.current_hsk || 0,
+
+    chinese_level: user.chinese_level || "YCT 1"
   };
 }
-
 function generateToken(length = 32) {
   return crypto.randomBytes(length).toString('hex');
 }
@@ -297,6 +304,7 @@ Rules:
 /* ==========================================
    LOGIN
 ========================================== */
+console.log("🔥 LOGIN ROUTE HIT");
 
 router.post('/login', async (req, res) => {
   try {
@@ -403,6 +411,7 @@ router.get('/user/:userId', async (req, res) => {
 /* ==========================================
    SIGNUP
 ========================================== */
+console.log("🔥 SIGNUP ROUTE HIT");
 
 router.post('/signup', async (req, res) => {
   try {
@@ -474,7 +483,7 @@ router.post('/signup', async (req, res) => {
         is_admin,
         is_banned,
         is_verified,
-        is_premium
+        premium
       )
       VALUES ($1, $2, $3, $4, 0, 1, 0, false, false, false, false)
       RETURNING *`,
@@ -489,16 +498,21 @@ router.post('/signup', async (req, res) => {
     const newUser = insertResult.rows[0];
 
     /* Save verification token if table exists */
-    try {
-      await pool.query(
-        `INSERT INTO email_verifications (
-          user_id,
-          token,
-          created_at
-        )
-        VALUES ($1, $2, NOW())`,
-        [newUser.user_id, verificationToken]
-      );
+   await pool.query(
+  `INSERT INTO email_verifications (
+      user_id,
+      token,
+      created_at,
+      expires_at
+   )
+   VALUES (
+      $1,
+      $2,
+      NOW(),
+      NOW() + INTERVAL '24 hours'
+   )`,
+  [newUser.user_id, verificationToken]
+);
     } catch (verificationInsertError) {
       console.warn(
         '⚠️ Could not insert into email_verifications table:',
@@ -508,28 +522,24 @@ router.post('/signup', async (req, res) => {
 
     /* Try to send verification email, but don't fail signup if mail fails */
     try {
-      await sendVerificationEmail({
-        to: cleanEmail,
-        username: cleanUsername,
-        token: verificationToken
-      });
-    } catch (mailError) {
-      console.error('❌ Verification email failed:', mailError.message);
-    }
+
+    // ... all your signup code ...
 
     return res.status(201).json({
-      success: true,
-      message: 'Signup successful',
-      user: safeUser(newUser)
+        success: true,
+        message: 'Signup successful',
+        user: safeUser(newUser)
     });
 
-  } catch (error) {
+} catch (error) {
+
     console.error('❌ Signup error:', error);
 
     return res.status(500).json({
-      success: false,
-      error: 'Signup failed'
+        success: false,
+        error: 'Signup failed'
     });
+
   }
 });
 
@@ -625,5 +635,23 @@ app.use('/.netlify/functions/server', router);
 /* ==========================================
    NETLIFY HANDLER
 ========================================== */
+console.log("=== Registered Routes ===");
 
+app._router.stack.forEach((layer) => {
+  if (layer.route) {
+    console.log(
+      Object.keys(layer.route.methods).join(",").toUpperCase(),
+      layer.route.path
+    );
+  } else if (layer.name === "router") {
+    layer.handle.stack.forEach((handler) => {
+      if (handler.route) {
+        console.log(
+          Object.keys(handler.route.methods).join(",").toUpperCase(),
+          handler.route.path
+        );
+      }
+    });
+  }
+});
 export const handler = serverless(app);

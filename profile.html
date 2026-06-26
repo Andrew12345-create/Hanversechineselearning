@@ -586,7 +586,9 @@ const SESSION_KEY =
 'hanverse_user';
 
 const API_URL =
-'/api';
+    window.location.hostname === "localhost"
+        ? "/.netlify/functions/server"
+        : "/api";
 
 document.addEventListener(
 'DOMContentLoaded',
@@ -636,7 +638,7 @@ return;
 }
 
 /* NAME */
-
+renderProfileExtras(user, data);
 document.getElementById(
 'profileName'
 ).textContent =
@@ -726,12 +728,14 @@ document.getElementById(
 data.completed_lessons || 0;
 
 }
-catch(error){
+catch (error) {
 
-console.error(error);
+    console.error("Profile error:", error);
 
-location.href =
-'login.html';
+    alert("Profile failed to load. Check the browser console.");
+
+    // Don't redirect while debugging
+    // location.href = "login.html";
 
 }
 

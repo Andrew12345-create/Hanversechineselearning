@@ -39,7 +39,11 @@
     if (!userId) return [];
 
     // uses /api/user/:userId since it already joins notifications
-    const resp = await fetch(`/api/user/${userId}`);
+    const API_URL =
+    window.location.hostname === "localhost"
+        ? "/.netlify/functions/server"
+        : "/api";
+        fetch(`${API_URL}/user/${userId}`)
     const data = await resp.json();
     if (!resp.ok || !data || !Array.isArray(data.notifications)) return [];
 
