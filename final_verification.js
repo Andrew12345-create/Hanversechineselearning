@@ -35,8 +35,12 @@ async function verifyServer() {
   console.log('🌐 Verifying Server Availability...');
   try {
     // Test if server is running on port 3000
-    await axios.get('http://localhost:3000', { timeout: 5000 });
-    console.log('   ✅ Server is accessible at http://localhost:3000\n');
+  const API_URL =
+  location.hostname === 'localhost'
+    ? '/.netlify/functions/server'
+    : '/api';
+    await axios.get(`${API_URL}/health`, { timeout: 5000 });
+    console.log(`   ✅ Server is accessible at ${API_URL}\n`);
   } catch (error) {
     // Server might be running on a different port or not accessible via HTTP
     console.log('   ⚠️  Server not directly accessible via HTTP (this is normal if running in background)\n');

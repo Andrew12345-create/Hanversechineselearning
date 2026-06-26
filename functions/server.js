@@ -9,36 +9,26 @@ import serverless from 'serverless-http';
 import OpenAI from 'openai';
 
 dotenv.config();
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
-
-
-
 
 const { Pool } = pkg;
 
 /* ==========================================
    APP / ROUTER
 ========================================== */
-
 const app = express();
 const router = express.Router();
 
 app.use(cors());
-
-app.use(express.json({
-  limit: '10mb'
-}));
-
-app.use(express.urlencoded({
-  extended: true
-}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 /* ==========================================
    ENV / STARTUP LOGS
 ========================================== */
-
 console.log('OpenAI key exists:', !!process.env.OPENAI_API_KEY);
 console.log('OpenAI key prefix:', process.env.OPENAI_API_KEY?.slice(0, 12));
 console.log('Brevo key exists:', !!process.env.BREVO_SMTP_KEY);
@@ -47,15 +37,11 @@ console.log('Database URL exists:', !!(process.env.DATABASE_URL || process.env.N
 /* ==========================================
    DATABASE
 ========================================== */
-
 function normalizeDatabaseUrl(rawUrl) {
   if (!rawUrl) return null;
-
   let url = rawUrl.trim();
-
   url = url.replace(/^psql\s+/i, '');
   url = url.replace(/^['"]|['"]$/g, '');
-
   return url;
 }
 
@@ -89,16 +75,10 @@ if (databaseUrl) {
   console.error('❌ DATABASE_URL / NEON_DATABASE_URL missing');
 }
 
-
-
-
 /* ==========================================
    EMAIL CONFIG
 ========================================== */
-
-const EMAIL_FROM =
-  process.env.EMAIL_FROM ||
-  '"HanVerse" <support@hanverse.net>';
+const EMAIL_FROM = process.env.EMAIL_FROM || '"HanVerse" <andrewmunamwangi@gmail.com>';
 
 const mailer = nodemailer.createTransport({
   host: 'smtp-relay.brevo.com',
@@ -124,7 +104,6 @@ mailer.verify((error) => {
 /* ==========================================
    HELPERS
 ========================================== */
-
 function dbUnavailable(res) {
   return res.status(500).json({
     success: false,
@@ -150,32 +129,24 @@ function safeUser(user) {
     level: user.level || 1,
     streak_days: user.streak_days || 0,
     profile_picture: user.profile_picture || null,
-
     is_admin: user.is_admin || false,
     is_banned: user.is_banned || false,
     banned_reason: user.banned_reason || null,
-
     is_verified: user.is_verified || false,
-
-    premium: user.is_premium || false,
+    premium: user.premium || false,
     premium_until: user.premium_until || null,
-
     current_yct: user.current_yct || 1,
     current_hsk: user.current_hsk || 0,
-
     chinese_level: user.chinese_level || "YCT 1"
   };
 }
+
 function generateToken(length = 32) {
   return crypto.randomBytes(length).toString('hex');
 }
 
 async function sendVerificationEmail({ to, username, token }) {
-  const baseUrl =
-    process.env.PUBLIC_SITE_URL ||
-    process.env.URL ||
-    'http://localhost:8888';
-
+  const baseUrl = process.env.PUBLIC_SITE_URL || process.env.URL || 'http://localhost:8888';
   const verifyLink = `${baseUrl}/verify.html?token=${token}`;
 
   const html = `
@@ -204,7 +175,6 @@ async function sendVerificationEmail({ to, username, token }) {
 /* ==========================================
    HEALTH / DEBUG ROUTES
 ========================================== */
-
 router.get('/health', (req, res) => {
   return res.json({
     ok: true,
@@ -216,6 +186,7 @@ router.get('/health', (req, res) => {
 router.get('/routes', (req, res) => {
   return res.json({
     routes: [
+      '/',
       '/health',
       '/routes',
       '/signup',
@@ -227,11 +198,9 @@ router.get('/routes', (req, res) => {
   });
 });
 
-
 /* ==========================================
    PANDA AI
 ========================================== */
-
 router.post('/panda-chat', async (req, res) => {
   try {
     const { message } = req.body || {};
@@ -267,22 +236,14 @@ Rules:
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
-        {
-          role: 'system',
-          content: systemPrompt
-        },
-        {
-          role: 'user',
-          content: message
-        }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message }
       ],
       temperature: 0.7,
       max_tokens: 300
     });
 
-    const reply =
-      completion.choices?.[0]?.message?.content?.trim() ||
-      '🐼 Sorry, I could not answer that right now.';
+    const reply = completion.choices?.[0]?.message?.content?.trim() || '🐼 Sorry, I could not answer that right now.';
 
     return res.json({
       success: true,
@@ -291,21 +252,16 @@ Rules:
 
   } catch (error) {
     console.error('❌ Panda OpenAI Error:', error);
-
     return res.status(500).json({
       success: false,
-      error:
-        error?.response?.data?.error?.message ||
-        error?.message ||
-        'Panda AI failed'
+      error: error?.response?.data?.error?.message || error?.message || 'Panda AI failed'
     });
   }
 });
+
 /* ==========================================
    LOGIN
 ========================================== */
-console.log("🔥 LOGIN ROUTE HIT");
-
 router.post('/login', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -320,9 +276,7 @@ router.post('/login', async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT *
-       FROM users
-       WHERE email = $1`,
+      `SELECT * FROM users WHERE email = $1`,
       [email.trim().toLowerCase()]
     );
 
@@ -335,11 +289,7 @@ router.post('/login', async (req, res) => {
 
     const user = result.rows[0];
 
-    const valid = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
-
+    const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       return res.status(401).json({
         success: false,
@@ -355,6 +305,14 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    if (!user.is_verified) {
+      return res.status(403).json({
+        success: false,
+        error: "not_verified",
+        message: "Please verify your email before logging in."
+      });
+    }
+
     return res.json({
       success: true,
       user: safeUser(user)
@@ -362,7 +320,6 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Login error:', error);
-
     return res.status(500).json({
       success: false,
       error: 'Login failed'
@@ -373,7 +330,6 @@ router.post('/login', async (req, res) => {
 /* ==========================================
    USER PROFILE
 ========================================== */
-
 router.get('/user/:userId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -381,9 +337,7 @@ router.get('/user/:userId', async (req, res) => {
     const { userId } = req.params;
 
     const result = await pool.query(
-      `SELECT *
-       FROM users
-       WHERE user_id = $1`,
+      `SELECT * FROM users WHERE user_id = $1`,
       [userId]
     );
 
@@ -401,28 +355,21 @@ router.get('/user/:userId', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Profile error:', error);
-
     return res.status(500).json({
       success: false,
       error: 'Profile error'
     });
   }
 });
+
 /* ==========================================
    SIGNUP
 ========================================== */
-console.log("🔥 SIGNUP ROUTE HIT");
-
 router.post('/signup', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const {
-      username,
-      full_name,
-      email,
-      password
-    } = req.body || {};
+    const { username, full_name, email, password } = req.body || {};
 
     if (!username || !full_name || !email || !password) {
       return res.status(400).json({
@@ -444,22 +391,18 @@ router.post('/signup', async (req, res) => {
     }
 
     const existing = await pool.query(
-      `SELECT user_id, email, username
-       FROM users
-       WHERE email = $1 OR username = $2`,
+      `SELECT user_id, email, username FROM users WHERE email = $1 OR username = $2`,
       [cleanEmail, cleanUsername]
     );
 
     if (existing.rows.length) {
       const conflict = existing.rows[0];
-
       if (conflict.email === cleanEmail) {
         return res.status(409).json({
           success: false,
           error: 'An account with that email already exists'
         });
       }
-
       if (conflict.username === cleanUsername) {
         return res.status(409).json({
           success: false,
@@ -473,80 +416,53 @@ router.post('/signup', async (req, res) => {
 
     const insertResult = await pool.query(
       `INSERT INTO users (
-        username,
-        full_name,
-        email,
-        password_hash,
-        xp,
-        level,
-        streak_days,
-        is_admin,
-        is_banned,
-        is_verified,
-        premium
+        username, full_name, email, password_hash, xp, level, streak_days, is_admin, is_banned, is_verified, premium
       )
       VALUES ($1, $2, $3, $4, 0, 1, 0, false, false, false, false)
       RETURNING *`,
-      [
-        cleanUsername,
-        cleanFullName,
-        cleanEmail,
-        password_hash
-      ]
+      [cleanUsername, cleanFullName, cleanEmail, password_hash]
     );
 
     const newUser = insertResult.rows[0];
 
-    /* Save verification token if table exists */
-   await pool.query(
-  `INSERT INTO email_verifications (
-      user_id,
-      token,
-      created_at,
-      expires_at
-   )
-   VALUES (
-      $1,
-      $2,
-      NOW(),
-      NOW() + INTERVAL '24 hours'
-   )`,
-  [newUser.user_id, verificationToken]
-);
-    } catch (verificationInsertError) {
-      console.warn(
-        '⚠️ Could not insert into email_verifications table:',
-        verificationInsertError.message
+    try {
+      await pool.query(
+        `INSERT INTO email_verifications (user_id, token, created_at, expires_at)
+         VALUES ($1, $2, NOW(), NOW() + INTERVAL '24 hours')`,
+        [newUser.user_id, verificationToken]
       );
+    } catch (verificationInsertError) {
+      console.warn("⚠️ Could not insert into email_verifications table:", verificationInsertError.message);
     }
 
-    /* Try to send verification email, but don't fail signup if mail fails */
     try {
-
-    // ... all your signup code ...
+      await sendVerificationEmail({
+        to: cleanEmail,
+        username: cleanUsername,
+        token: verificationToken
+      });
+    } catch (mailError) {
+      console.warn("⚠️ Verification email could not be sent:", mailError.message);
+    }
 
     return res.status(201).json({
-        success: true,
-        message: 'Signup successful',
-        user: safeUser(newUser)
+      success: true,
+      message: "Signup successful",
+      user: safeUser(newUser)
     });
 
-} catch (error) {
-
-    console.error('❌ Signup error:', error);
-
+  } catch (error) {
+    console.error("❌ Signup error:", error);
     return res.status(500).json({
-        success: false,
-        error: 'Signup failed'
+      success: false,
+      error: "Signup failed"
     });
-
   }
 });
 
 /* ==========================================
    VERIFY EMAIL
 ========================================== */
-
 router.post('/verify-email', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -560,11 +476,8 @@ router.post('/verify-email', async (req, res) => {
       });
     }
 
-    /* Find verification token */
     const tokenResult = await pool.query(
-      `SELECT user_id, token
-       FROM email_verifications
-       WHERE token = $1`,
+      `SELECT user_id, token FROM email_verifications WHERE token = $1`,
       [token]
     );
 
@@ -578,15 +491,12 @@ router.post('/verify-email', async (req, res) => {
     const { user_id } = tokenResult.rows[0];
 
     await pool.query(
-      `UPDATE users
-       SET is_verified = true
-       WHERE user_id = $1`,
+      `UPDATE users SET is_verified = true WHERE user_id = $1`,
       [user_id]
     );
 
     await pool.query(
-      `DELETE FROM email_verifications
-       WHERE token = $1`,
+      `DELETE FROM email_verifications WHERE token = $1`,
       [token]
     );
 
@@ -597,24 +507,98 @@ router.post('/verify-email', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Verify email error:', error);
-
     return res.status(500).json({
       success: false,
       error: 'Email verification failed'
     });
   }
 });
+/* ==========================================
+   RESEND VERIFICATION
+========================================== */
+router.post('/resend-verification', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { email } = req.body || {};
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email address is required.'
+      });
+    }
+
+    const cleanEmail = String(email).trim().toLowerCase();
+
+    // 1. Look up user to check if they exist and need verification
+    const userResult = await pool.query(
+      `SELECT user_id, username, is_verified FROM users WHERE email = $1`,
+      [cleanEmail]
+    );
+
+    if (!userResult.rows.length) {
+      return res.status(444).json({
+        success: false,
+        error: 'No account found with that email address.'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    if (user.is_verified) {
+      return res.status(400).json({
+        success: false,
+        error: 'This account has already been verified. Please log in.'
+      });
+    }
+
+    // 2. Clear out any older verification tokens for this user
+    await pool.query(
+      `DELETE FROM email_verifications WHERE user_id = $1`,
+      [user.user_id]
+    );
+
+    // 3. Generate a clean new verification token
+    const verificationToken = generateToken(24);
+
+    // 4. Save token record to the database
+    await pool.query(
+      `INSERT INTO email_verifications (user_id, token, created_at, expires_at)
+       VALUES ($1, $2, NOW(), NOW() + INTERVAL '24 hours')`,
+      [user.user_id, verificationToken]
+    );
+
+    // 5. Fire off the email payload using your helper function
+    await sendVerificationEmail({
+      to: cleanEmail,
+      username: user.username,
+      token: verificationToken
+    });
+
+    return res.json({
+      success: true,
+      message: 'Verification email sent successfully.'
+    });
+
+  } catch (error) {
+    console.error('❌ Resend verification token error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to process request. Please check server logs.'
+    });
+  }
+});
 
 /* ==========================================
-   OPTIONAL ROOT DEBUG
-   Useful if you ever hit the function directly
+   ROOT DEBUG ROUTE
 ========================================== */
-
 router.get('/', (req, res) => {
   return res.json({
     ok: true,
     message: 'HanVerse API root',
     routes: [
+      '/',
       '/health',
       '/routes',
       '/signup',
@@ -629,29 +613,20 @@ router.get('/', (req, res) => {
 /* ==========================================
    NETLIFY MOUNT
 ========================================== */
-
 app.use('/.netlify/functions/server', router);
 
 /* ==========================================
-   NETLIFY HANDLER
+   NETLIFY HANDLER EXPORT
 ========================================== */
-console.log("=== Registered Routes ===");
+/* ==========================================
+   NETLIFY MOUNT
+========================================== */
+// Mount to both paths so it works perfectly locally, via direct call, or via proxy redirect
+app.use('/.netlify/functions/server', router);
+app.use('/api', router);
 
-app._router.stack.forEach((layer) => {
-  if (layer.route) {
-    console.log(
-      Object.keys(layer.route.methods).join(",").toUpperCase(),
-      layer.route.path
-    );
-  } else if (layer.name === "router") {
-    layer.handle.stack.forEach((handler) => {
-      if (handler.route) {
-        console.log(
-          Object.keys(handler.route.methods).join(",").toUpperCase(),
-          handler.route.path
-        );
-      }
-    });
-  }
-});
-export const handler = serverless(app);
+/* ==========================================
+   NETLIFY HANDLER EXPORT
+========================================== */
+const handler = serverless(app);
+export { handler };

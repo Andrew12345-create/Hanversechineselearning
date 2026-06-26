@@ -1,1385 +1,636 @@
-  <!DOCTYPE html>
-  <html lang="en">
-
-  <head>
-    <link
-rel="stylesheet"
-href="panda-chat.css">
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
-
-  <meta name="viewport"
-  content="width=device-width,initial-scale=1">
-
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Hanverse Login</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-  rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-
-  /* ==========================================
-    HANVERSE BRAND SYSTEM
-  ========================================== */
-
-:root{
-
-  --primary:#2563EB;
-  --secondary:#14B8A6;
-  --accent:#F59E0B;
-
-  --dark:#0F172A;
-  --text:#334155;
-  --muted:#64748B;
-
-  --bg:#F8FAFC;
-  --surface:#FFFFFF;
-  --white:#FFFFFF;
-
-  --shadow:0 20px 50px rgba(15,23,42,.08);
-
-  --border:#E2E8F0;
-
-  --yellow:#F4D35E;
-  --red:#E63946;
-  --blue:#2563EB;
-  --green:#74C69D;
-
-  }
-
-  /* ==========================================
-    RESET
-  ========================================== */
-
-  *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
-  }
-
-  html{
-  scroll-behavior:smooth;
-  }
-
-  body{
-
-  background:var(--bg);
-
-  min-height:100vh;
-
-  display:flex;
-
-  justify-content:center;
-  align-items:center;
-
-  padding:30px;
-
-  }
-
-  /* ==========================================
-    BACKGROUND BLOBS
-  ========================================== */
-
-body::before{
-
-  content:'';
-
-  position:fixed;
-  z-index:0;
-
-  width:700px;
-  height:700px;
-
-  border-radius:50%;
-
-  background:
-  rgba(37,99,235,.08);
-
-  top:-350px;
-  left:-350px;
-
-  }
-
-body::after{
-
-  content:'';
-
-  position:fixed;
-  z-index:0;
-
-  width:600px;
-  height:600px;
-
-  border-radius:50%;
-
-  background:
-  rgba(14,165,233,.08);
-
-  bottom:-300px;
-  right:-300px;
-
-  }
-
-  /* ==========================================
-    LOGIN CONTAINER
-  ========================================== */
-
-  .container{
-
-  position:relative;
-
-  z-index:2;
-
-  display:flex;
-
-  width:100%;
-  max-width:1150px;
-
-  background:white;
-
-  border-radius:40px;
-
-  overflow:hidden;
-
-  box-shadow:
-  0 25px 60px rgba(0,0,0,.08);
-
-  animation:fade .8s ease;
-
-  }
-
-  @keyframes fade{
-
-  from{
-
-  opacity:0;
-
-  transform:
-  translateY(30px);
-
-  }
-
-  to{
-
-  opacity:1;
-
-  transform:
-  translateY(0);
-
-  }
-
-  }
-
-  /* ==========================================
-    LEFT PANEL
-  ========================================== */
-
-  .left{
-
-  flex:1;
-
-  background:
-  linear-gradient(
-  135deg,
-  var(--blue),
-  #7BC7F4
-  );
-
-  padding:60px;
-
-  color:white;
-
-  position:relative;
-
-  display:flex;
-
-  flex-direction:column;
-
-  justify-content:center;
-
-  }
-
-  /* FLOATING CHINESE CHARACTERS */
-
-  .char{
-
-  position:absolute;
-
-  font-size:80px;
-
-  font-weight:800;
-
-  opacity:.08;
-
-  pointer-events:none;
-
-  }
-
-  .c1{
-  top:40px;
-  left:40px;
-  }
-
-  .c2{
-  top:120px;
-  right:60px;
-  }
-
-  .c3{
-  bottom:120px;
-  left:60px;
-  }
-
-  .c4{
-  bottom:50px;
-  right:50px;
-  }
-
-  .star{
-
-  position:absolute;
-
-  top:40px;
-  right:40px;
-
-  font-size:40px;
-
-  color:var(--yellow);
-
-  }
-
-  /* BRAND TEXT */
-
-  .welcome-label{
-
-  font-size:18px;
-
-  opacity:.95;
-
-  }
-
-  .left h1{
-
-  font-size:58px;
-
-  line-height:1.05;
-
-  margin:15px 0;
-
-  }
-
-  .left p{
-
-  line-height:1.9;
-
-  font-size:17px;
-
-  max-width:480px;
-
-  }
-
-  /* TRUST BADGES */
-
-  .trust-list{
-
-  margin-top:35px;
-
-  display:flex;
-
-  flex-direction:column;
-
-  gap:14px;
-
-  }
-
-  .trust-item{
-
-  display:flex;
-
-  align-items:center;
-
-  gap:12px;
-
-  font-weight:600;
-
-  font-size:15px;
-
-  }
-
-  /* PANDA */
-
-  .panda{
-
-  font-size:120px;
-
-  margin-top:35px;
-
-  animation:float 4s infinite ease-in-out;
-
-  cursor:pointer;
-
-  }
-
-  @keyframes float{
-
-  50%{
-
-  transform:
-  translateY(-15px);
-
-  }
-
-  }
-
-  /* ==========================================
-    RIGHT PANEL
-  ========================================== */
-
-  .right{
-
-  flex:1;
-
-  padding:60px;
-
-  display:flex;
-
-  justify-content:center;
-
-  flex-direction:column;
-
-  }
-
-  .logo{
-
-  font-size:40px;
-
-  font-weight:800;
-
-  color:var(--yellow);
-
-  margin-bottom:10px;
-
-  }
-
-  .subtitle{
-
-  color:var(--text-secondary);
-
-  margin-bottom:30px;
-
-  line-height:1.7;
-
-  }
-
-  .login-header{
-
-  margin-bottom:25px;
-
-  }
-
-  .login-header h2{
-
-  font-size:30px;
-
-  margin-bottom:8px;
-
-  color:var(--text-primary);
-
-  }
-
-  .login-header p{
-
-  color:var(--text-secondary);
-
-  }
-
-  /* ==========================================
-    INPUTS
-  ========================================== */
-
-  .input-group{
-
-  margin-bottom:20px;
-
-  position:relative;
-
-  }
-
-  .input-label{
-
-  display:block;
-
-  margin-bottom:8px;
-
-  font-weight:600;
-
-  color:var(--text-primary);
-
-  }
-
-  input{
-  width:100%;
-  padding:15px 18px;
-  font-size:15px;
-  border-radius:16px;
-  border:1.5px solid transparent;
-  background:#F8FAFC;
-  transition:.25s;
-  }
-  input:focus{
-  outline:none;
-  border-color:var(--blue);
-  background:white;
-  box-shadow:0 0 0 4px rgba(78,168,222,.1);
-  }
-
-  .eye{
-
-  position:absolute;
-
-  right:18px;
-  top:50px;
-
-  cursor:pointer;
-
-  font-size:18px;
-
-  }
-
-  /* ==========================================
-    LOGIN OPTIONS
-  ========================================== */
-
-  .options{
-
-  display:flex;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  margin-bottom:25px;
-
-  font-size:14px;
-
-  }
-
-  .options a{
-
-  color:var(--red);
-
-  text-decoration:none;
-
-  font-weight:700;
-
-  }
-
-  .remember{
-
-  display:flex;
-  align-items:center;
-  gap:8px;
-
-  }
-
-  .remember input{
-
-  width:auto;
-
-  }
-
-  /* ==========================================
-    BUTTONS
-  ========================================== */
-
-  .btn{
-  width:100%;
-  padding:15px;
-  border:none;
-  border-radius:40px;
-  font-weight:700;
-  font-size:.95rem;
-  cursor:pointer;
-  transition:.25s;
-  }
-
-  /* HANVERSE PRIMARY BUTTON */
-
-  .login{
-  background:linear-gradient(135deg,var(--yellow),#FFD95A);
-  color:#1A1A2E;
-  box-shadow:0 10px 26px rgba(244,211,94,.38);
-  }
-  .login:hover{
-  transform:translateY(-2px);
-  box-shadow:0 16px 36px rgba(244,211,94,.48);
-  }
-
-  .google{
-  background:white;
-  border:1.5px solid #E5E7EB;
-  margin-top:12px;
-  color:var(--text-primary);
-  }
-  .google:hover{
-  transform:translateY(-2px);
-  border-color:var(--blue);
-  box-shadow:0 8px 20px rgba(0,0,0,.07);
-  }
-
-  .bottom{
-
-  margin-top:30px;
-
-  text-align:center;
-
-  }
-
-  .bottom a{
-
-  color:var(--red);
-
-  font-weight:700;
-
-  text-decoration:none;
-
-  }
-
-  /* ==========================================
-    MOBILE
-  ========================================== */
-
-  @media(max-width:900px){
-
-  .container{
-
-  flex-direction:column;
-
-  }
-
-  .left{
-
-  padding:40px;
-
-  text-align:center;
-
-  }
-
-  .right{
-
-  padding:40px;
-
-  }
-
-  .left h1{
-
-  font-size:42px;
-
-  }
-
-  .panda{
-
-  font-size:90px;
-
-  }
-
-  }
-
-@media(max-width:600px){
-.right{
-padding:30px;
-}
-.left{
-padding:30px;
-}
-.left h1{
-font-size:34px;
-}
-.logo{
-font-size:34px;
-}
-}
-.bottom-nav{
-display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;
-background:rgba(255,255,255,.95);backdrop-filter:blur(20px);
-border-top:1px solid var(--border);padding:12px 20px;
-justify-content:space-around;align-items:center;
-box-shadow:0 -8px 32px rgba(0,0,0,.07);
-padding-bottom:calc(12px + env(safe-area-inset-bottom));
-}
-.bottom-nav a{
-flex:1;text-align:center;text-decoration:none;color:var(--text-secondary);
-font-size:.75rem;font-weight:500;transition:.2s;padding:8px 4px;
-}
-.bottom-nav a.active{color:var(--primary);}
-.bottom-nav a.active .nav-icon{background:linear-gradient(135deg,var(--primary),#14B8A6);color:white;}
-.nav-icon{
-width:46px;height:46px;border-radius:14px;margin:0 auto 4px;
-display:flex;align-items:center;justify-content:center;
-font-size:20px;background:rgba(78,168,222,.08);transition:.2s;color:var(--text-secondary);
-}
-.bottom-nav a.active .nav-icon{background:linear-gradient(135deg,var(--blue),var(--red));color:white;}
-
-@media(max-width:480px){
-.bottom-nav{display:none;}
-}
-@media(max-width:380px){
-.bottom-nav{display:flex;}
-}
-
-  .left{
-
-  padding:30px;
-
-  }
-
-  .left h1{
-
-  font-size:34px;
-
-  }
-
-  .logo{
-
-  font-size:34px;
-
-  }
-.container{
-  border:1px solid rgba(255,255,255,.4);
-  backdrop-filter:blur(20px);
-}
-
-.right{
-  background:
-  linear-gradient(
-    180deg,
-    #ffffff,
-    #fffdf8
-  );
-}
-
-.logo{
-  background:
-  linear-gradient(
-    135deg,
-    #F4D35E,
-    #E63946
-  );
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-
-.login-header h2{
-  background:
-  linear-gradient(
-    135deg,
-    #4EA8DE,
-    #E63946
-  );
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-
-input{
-  border:2px solid transparent;
-}
-
-input:hover{
-  border-color:#4EA8DE;
-}
-
-.login{
-  position:relative;
-  overflow:hidden;
-}
-
-.login::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:
-  linear-gradient(
-    120deg,
-    transparent,
-    rgba(255,255,255,.4),
-    transparent
-  );
-  transform:translateX(-100%);
-  transition:.7s;
-}
-
-.login:hover::before{
-  transform:translateX(100%);
-}
-
-.trust-item{
-  background:rgba(255,255,255,.12);
-  border-radius:14px;
-  padding:12px 16px;
-  backdrop-filter:blur(8px);
-}
-  }
-
+    :root {
+      --primary: #2563EB;
+      --secondary: #14B8A6;
+      --accent: #F59E0B;
+      --dark: #0F172A;
+      --text: #334155;
+      --muted: #64748B;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --white: #FFFFFF;
+      --shadow: 0 20px 50px rgba(15,23,42,.08);
+      --border: #E2E8F0;
+      --yellow: #F4D35E;
+      --red: #E63946;
+      --blue: #2563EB;
+      --green: #74C69D;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      z-index: 0;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: rgba(37,99,235,.08);
+      top: -350px;
+      left: -350px;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      z-index: 0;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: rgba(14,165,233,.08);
+      bottom: -300px;
+      right: -300px;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      width: 100%;
+      max-width: 1150px;
+      background: white;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,.08);
+      animation: fade .8s ease;
+      border: 1px solid rgba(255,255,255,.4);
+      backdrop-filter: blur(20px);
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .left {
+      flex: 1;
+      background: linear-gradient(135deg, var(--blue), #7BC7F4);
+      padding: 30px;
+      color: white;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .char {
+      position: absolute;
+      font-size: 80px;
+      font-weight: 800;
+      opacity: .08;
+      pointer-events: none;
+    }
+
+    .c1 { top: 40px; left: 40px; }
+    .c2 { top: 120px; right: 60px; }
+    .c3 { bottom: 120px; left: 60px; }
+    .c4 { bottom: 50px; right: 50px; }
+
+    .star {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      font-size: 40px;
+      color: var(--yellow);
+    }
+
+    .welcome-label { font-size: 18px; opacity: .95; }
+    .left h1 { font-size: 34px; line-height: 1.05; margin: 15px 0; }
+    .left p { line-height: 1.9; font-size: 17px; max-width: 480px; }
+
+    .trust-list {
+      margin-top: 35px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      background: rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 12px 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .panda {
+      font-size: 120px;
+      margin-top: 35px;
+      animation: float 4s infinite ease-in-out;
+      cursor: pointer;
+      width: max-content;
+      align-self: center;
+    }
+
+    @keyframes float { 50% { transform: translateY(-15px); } }
+
+    .right {
+      flex: 1;
+      padding: 60px;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      background: linear-gradient(180deg, #ffffff, #fffdf8);
+    }
+
+    .logo {
+      font-size: 34px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #F4D35E, #E63946);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle { color: var(--muted); margin-bottom: 30px; line-height: 1.7; }
+    .login-header { margin-bottom: 25px; }
+    .login-header h2 {
+      font-size: 30px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #4EA8DE, #E63946);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .login-header p { color: var(--muted); }
+
+    .input-group { margin-bottom: 20px; position: relative; }
+    .input-label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); }
+    
+    input {
+      width: 100%;
+      padding: 15px 18px;
+      font-size: 15px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      background: #F8FAFC;
+      transition: .25s;
+    }
+    input:hover { border-color: #4EA8DE; }
+    input:focus {
+      outline: none;
+      border-color: var(--blue);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(78,168,222,.1);
+    }
+
+    .eye { position: absolute; right: 18px; top: 50px; cursor: pointer; font-size: 18px; user-select: none; }
+    .options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-size: 14px; gap: 10px; }
+    .options a { color: var(--red); text-decoration: none; font-weight: 700; transition: color 0.2s; }
+    .options a:hover { color: #c12e3a; }
+    .remember { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text); }
+    .remember input { width: auto; cursor: pointer; }
+
+    .btn { width: 100%; padding: 15px; border: none; border-radius: 40px; font-weight: 700; font-size: .95rem; cursor: pointer; transition: .25s; text-align: center; }
+    .login { background: linear-gradient(135deg, var(--yellow), #FFD95A); color: #1A1A2E; box-shadow: 0 10px 26px rgba(244,211,94,.38); position: relative; overflow: hidden; }
+    .login::before { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(255,255,255,.4), transparent); transform: translateX(-100%); transition: .7s; }
+    .login:hover::before { transform: translateX(100%); }
+    .login:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(244,211,94,.48); }
+    .login:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    
+    .google { background: white; border: 1.5px solid #E5E7EB; margin-top: 12px; color: var(--dark); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .google:hover { transform: translateY(-2px); border-color: var(--blue); box-shadow: 0 8px 20px rgba(0,0,0,.07); }
+
+    .bottom { margin-top: 30px; text-align: center; color: var(--text); }
+    .bottom a { color: var(--red); font-weight: 700; text-decoration: none; }
+    .bottom a:hover { text-decoration: underline; }
+
+    /* Bottom Nav Styles */
+    .bottom-nav {
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border); padding: 12px 20px;
+      justify-content: space-around; align-items: center;
+      box-shadow: 0 -8px 32px rgba(0,0,0,.07);
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+
+    .bottom-nav a { flex: 1; text-align: center; text-decoration: none; color: var(--muted); font-size: .75rem; font-weight: 500; transition: .2s; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; }
+    .bottom-nav a.active { color: var(--primary); }
+    .nav-icon { width: 46px; height: 46px; border-radius: 14px; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(78,168,222,.08); transition: .2s; color: var(--muted); }
+    .bottom-nav a.active .nav-icon { background: linear-gradient(135deg, var(--blue), var(--red)); color: white; }
+
+    /* Panda Chat Widget Styling Elements */
+    .panda-fab { position: fixed; bottom: 90px; right: 24px; width: 60px; height: 60px; border-radius: 50%; background: white; border: 1px solid var(--border); font-size: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 999; transition: transform 0.2s; }
+    .panda-fab:hover { transform: scale(1.05); }
+    
+    .panda-chat { position: fixed; bottom: 165px; right: 24px; width: 360px; height: 460px; background: white; border-radius: 24px; box-shadow: 0 12px 40px rgba(0,0,0,.15); border: 1px solid var(--border); display: none; flex-direction: column; z-index: 999; overflow: hidden; animation: fade 0.3s ease; }
+    .panda-header { background: linear-gradient(135deg, var(--blue), #7BC7F4); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .panda-title { font-weight: 600; font-size: 16px; }
+    .panda-close { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+    .panda-body { flex: 1; padding: 20px; overflow-y: auto; background: #FAF9F5; display: flex; flex-direction: column; gap: 12px; }
+    .message-row { display: flex; gap: 10px; align-items: flex-start; }
+    .panda-avatar { font-size: 24px; }
+    .message { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; max-width: 80%; }
+    .panda-message { background: white; color: var(--dark); border-top-left-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.03); }
+    .user-message { background: var(--blue); color: white; border-top-right-radius: 4px; align-self: flex-end; }
+    .panda-input { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: white; align-items: center; }
+    .panda-input textarea { flex: 1; height: 40px; border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; resize: none; font-size: 14px; outline: none; }
+    .panda-input textarea:focus { border-color: var(--blue); }
+    .panda-send { background: var(--blue); border: none; color: white; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+    @media(max-width: 900px) {
+      .container { flex-direction: column; margin-bottom: 60px; }
+      .left { padding: 40px; text-align: center; }
+      .right { padding: 40px; }
+      .left h1 { font-size: 42px; }
+      .panda { font-size: 90px; }
+      .panda-fab { bottom: 100px; }
+      .panda-chat { bottom: 175px; max-width: calc(100vw - 48px); }
+    }
+
+    @media(max-width: 600px) {
+      body { padding: 15px; }
+      .right { padding: 30px; }
+      .left { padding: 30px; }
+      .left h1 { font-size: 34px; }
+      .logo { font-size: 34px; }
+      .options { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
   </style>
-
-  </head>
-
-  <body>
+</head>
+<body>
 
 <div class="container">
-
-    <!-- LEFT PANEL -->
-
+    <!-- Left Decorative Panel -->
     <div class="left">
-
         <div class="char c1">你</div>
         <div class="char c2">好</div>
         <div class="char c3">学</div>
         <div class="char c4">汉</div>
-
         <div class="star">⭐</div>
-
-        <p class="welcome-label">
-            Welcome to
-        </p>
-
+        <p class="welcome-label">Welcome to</p>
         <h1>Hanverse</h1>
-
-        <p>
-            Continue your Mandarin learning journey through stories,
-            games, achievements and structured YCT lessons.
-        </p>
-
+        <p>Continue your Mandarin learning journey through stories, games, achievements and structured YCT lessons.</p>
         <div class="trust-list">
-
-            <div class="trust-item">
-                ⭐ Structured YCT Curriculum
-            </div>
-
-            <div class="trust-item">
-                🏆 XP & Achievements
-            </div>
-
-            <div class="trust-item">
-                📈 Progress Tracking
-            </div>
-
-            <div class="trust-item">
-                🤖 AI Learning Assistant
-            </div>
-
+            <div class="trust-item">⭐ Structured YCT Curriculum</div>
+            <div class="trust-item">🏆 XP & Achievements</div>
+            <div class="trust-item">📈 Progress Tracking</div>
+            <div class="trust-item">🤖 AI Learning Assistant</div>
         </div>
-
-        <div class="panda">
-            🐼
-        </div>
-
+        <div class="panda" onclick="togglePanda()">🐼</div>
     </div>
 
-    <!-- RIGHT PANEL -->
-
+    <!-- Right Interaction Panel -->
     <div class="right">
-
-        <div class="logo">
-            Hanverse
-        </div>
-
-        <p class="subtitle">
-            Learn Mandarin Through Stories,
-            Games & AI
-        </p>
-
+        <div class="logo">Hanverse</div>
+        <p class="subtitle">Learn Mandarin Through Stories, Games & AI</p>
+        
         <div class="login-header">
-
-            <h2>
-                Welcome Back 👋
-            </h2>
-
-            <p>
-                Log in to continue where you left off.
-            </p>
-
+            <h2 id="loginWelcomeHeader">Welcome Back 👋</h2>
+            <p id="loginWelcomeSubtext">Log in to continue where you left off.</p>
         </div>
-
-        <!-- EMAIL -->
 
         <div class="input-group">
-
-            <label class="input-label">
-                Email Address
-            </label>
-
-            <input
-                type="email"
-                id="email"
-                placeholder="Enter your email">
-
+            <label class="input-label" for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
         </div>
-
-        <!-- PASSWORD -->
 
         <div class="input-group">
-
-            <label class="input-label">
-                Password
-            </label>
-
-            <input
-                type="password"
-                id="password"
-                placeholder="Enter your password">
-
-            <span
-                class="eye"
-                onclick="togglePassword()">
-                👁️
-            </span>
-
+            <label class="input-label" for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required>
+            <span class="eye" id="togglePasswordBtn">👁️</span>
         </div>
-
-        <!-- OPTIONS -->
 
         <div class="options">
-
             <label class="remember">
-
-                <input
-                    type="checkbox"
-                    id="rememberMe">
-
-                Remember Me
-
+                <input type="checkbox" id="rememberMe"> Remember Me
             </label>
-
-            <div
-                style="
-                display:flex;
-                gap:12px;
-                align-items:center;
-                ">
-
-                <a
-                    href="#"
-                    id="resendVerification">
-
-                    Verify Email
-
-                </a>
-
-                <a
-                    href="forgot-password.html">
-
-                    Forgot Password?
-
-                </a>
-
+            <div style="display:flex; gap:16px; align-items:center;">
+                <a href="#" id="resendVerification">Verify Email</a>
+                <a href="forgot-password.html">Forgot Password?</a>
             </div>
-
         </div>
 
-        <!-- BUTTONS -->
-
-        <button
-            class="btn login"
-            id="loginBtn">
-
-            Log In
-
-        </button>
-
-        <button
-            class="btn google"
-            id="googleBtn">
-
-            🌐 Continue with Google
-
-        </button>
+        <button class="btn login" id="loginBtn">Log In</button>
+        <button class="btn google" id="googleBtn"><span>🌐</span> Continue with Google</button>
 
         <div class="bottom">
-
-            Don't have an account?
-
-            <a href="signup.html">
-                Sign Up
-            </a>
-
+            Don't have an account? <a href="signup.html">Sign Up</a>
         </div>
-
     </div>
-
 </div>
 
-<script src="notifications.js"></script>
-<script src="notifications-client.js"></script>
+<!-- Bottom Main Navigation Bar -->
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item">
+    <div class="nav-icon">🏠</div><span>Home</span>
+  </a>
+  <a href="learn.html" class="nav-item">
+    <div class="nav-icon">📚</div><span>Learn</span>
+  </a>
+  <a href="signup.html" class="nav-item">
+    <div class="nav-icon">✨</div><span>Sign Up</span>
+  </a>
+  <a href="login.html" class="nav-item active">
+    <div class="nav-icon">🔑</div><span>Login</span>
+  </a>
+</nav>
+
+<!-- Chat Widget Elements Component -->
+<button class="panda-fab" id="pandaFabBtn">🐼</button>
+
+<div id="pandaChat" class="panda-chat">
+  <div class="panda-header">
+    <div class="panda-title">🐼 Panda AI Tutor</div>
+    <button class="panda-close" id="pandaCloseBtn">✕</button>
+  </div>
+  <div id="pandaBody" class="panda-body">
+    <div class="message-row">
+      <div class="panda-avatar">🐼</div>
+      <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
+    </div>
+  </div>
+  <div class="panda-input">
+    <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
+    <button class="panda-send" id="pandaSendBtn">➤</button>
+  </div>
+</div>
+
+<!-- Scripts (Wrapped with fallback execution handling hooks) -->
+<script src="notifications.js" onerror="console.warn('notifications.js failed to load. Falling back to native system alerts.')"></script>
+<script src="notifications-client.js" onerror="console.warn('notifications-client.js failed to load.')"></script>
+<script src="panda-chat.js" onerror="console.warn('panda-chat.js failed to load. Using layout-embedded fallback engine.')"></script>
+
 <script>
 /* ==========================================
-   HANVERSE LOGIN SYSTEM
+   ROUTING CONFIGURATION
 ========================================== */
-
-const API_URL =
-  location.hostname === 'localhost'
+const API_URL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
     ? '/.netlify/functions/server'
     : '/api';
 
 const SESSION_KEY = 'hanverse_user';
 
 /* ==========================================
-   ELEMENTS
+   DOM ELEMENTS SELECTOR UTILITIES
 ========================================== */
-
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const loginBtn = document.getElementById('loginBtn');
 const googleBtn = document.getElementById('googleBtn');
 const resendBtn = document.getElementById('resendVerification');
+const togglePasswordBtn = document.getElementById('togglePasswordBtn');
 
 /* ==========================================
-   UTILITIES
+   ALERTS & TOAST NOTIFICATION WRAPPERS
 ========================================== */
-
 function showError(message) {
-    if (window.Notify) {
-        Notify.toast(message, 'error');
+    if (window.Notify && typeof window.Notify.toast === 'function') {
+        window.Notify.toast(message, 'error');
     } else {
-        alert(message);
+        alert('❌ Error: ' + message);
     }
 }
 
 function showSuccess(message) {
-    if (window.Notify) {
-        Notify.toast(message, 'success');
+    if (window.Notify && typeof window.Notify.toast === 'function') {
+        window.Notify.toast(message, 'success');
     } else {
-        alert(message);
+        alert('🎉 Success: ' + message);
     }
-}
-
-function setLoading(loading) {
-
-    if (!loginBtn) return;
-
-    loginBtn.disabled = loading;
-
-    loginBtn.textContent =
-        loading ? 'Logging In...' : 'Log In';
-}
-
-function saveUserSession(user) {
-
-    localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify({
-            user_id: user.user_id,
-            username: user.username,
-            fullName: user.full_name,
-            email: user.email,
-            xp: user.xp || 0,
-            level: user.level || 1,
-            streak: user.streak_days || 0,
-            profile_picture: user.profile_picture || ''
-        })
-    );
-
-}
-
-function redirectToProfile() {
-
-    setTimeout(() => {
-        window.location.href = 'profile.html';
-    }, 1000);
-
 }
 
 /* ==========================================
-   LOGIN
+   INTERFACE UTILITIES
 ========================================== */
+function togglePassword() {
+    if (!passwordInput) return;
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+}
 
+function togglePanda() {
+    if (typeof window.togglePandaChat === 'function') {
+        window.togglePandaChat();
+    } else {
+        const chat = document.getElementById('pandaChat');
+        if (chat) chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+    }
+}
+
+function sendPandaMessage() {
+    if (typeof window.executePandaSend === 'function') {
+        window.executePandaSend();
+        return;
+    }
+    
+    // Fail-safe simple client execution if panda-chat.js scripts are missing
+    const input = document.getElementById('pandaInput');
+    const body = document.getElementById('pandaBody');
+    if (!input || !body || !input.value.trim()) return;
+
+    const userText = input.value.trim();
+    
+    // Render user message row
+    const userRow = document.createElement('div');
+    userRow.className = 'message user-message';
+    userRow.style.alignSelf = 'flex-end';
+    userRow.textContent = userText;
+    body.appendChild(userRow);
+    
+    input.value = '';
+    body.scrollTop = body.scrollHeight;
+
+    // Fast mock response wrapper
+    setTimeout(() => {
+        const pandaRow = document.createElement('div');
+        pandaRow.className = 'message-row';
+        pandaRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">I am listening! Let's build your backend logic routes next.</div>`;
+        body.appendChild(pandaRow);
+        body.scrollTop = body.scrollHeight;
+    }, 1000);
+}
+
+function setLoading(loading) {
+    if (!loginBtn) return;
+    loginBtn.disabled = loading;
+    loginBtn.textContent = loading ? 'Logging In...' : 'Log In';
+}
+
+function saveUserSession(user) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+        user_id: user.user_id,
+        username: user.username,
+        fullName: user.full_name,
+        email: user.email,
+        xp: user.xp || 0,
+        level: user.level || 1,
+        streak: user.streak_days || 0,
+        profile_picture: user.profile_picture || ''
+    }));
+}
+
+function redirectToProfile() {
+    setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
+}
+
+/* ==========================================
+   AUTHENTICATION CORE OPERATIONS (POSTS)
+========================================== */
 async function loginUser() {
-
     const email = emailInput.value.trim();
     const password = passwordInput.value;
 
-    if (!email) {
-        showError('Please enter your email.');
-        return;
-    }
-
-    if (!password) {
-        showError('Please enter your password.');
-        return;
-    }
+    if (!email) { showError('Please enter your email.'); return; }
+    if (!password) { showError('Please enter your password.'); return; }
 
     try {
-
         setLoading(true);
-        console.log("API_URL:", API_URL);
-console.log("Login URL:", `${API_URL}/login`);
-
-        const response = await fetch(
-            `${API_URL}/login`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email,
-                    password
-                })
-            }
-        );
+        const response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
 
         let data;
         try {
             data = await response.json();
         } catch {
-            data = { error: `Server returned non-JSON (${response.status})` };
+            data = { error: `Server payload generation error (${response.status})` };
         }
 
-        console.log("Response status:", response.status, "data:", data);
-
-        /* ACCOUNT BANNED */
-
-        if (
-            response.status === 403 &&
-            data.error === 'banned'
-        ) {
-
+        if (response.status === 403 && data.error === 'banned') {
             document.querySelector('.right').innerHTML = `
                 <div style="text-align:center;padding:40px;">
                     <div style="font-size:70px;">🚫</div>
-                    <h2 style="margin-top:15px;color:#E63946;">
-                        Account Banned
-                    </h2>
-                    <p style="margin-top:10px;">
-                        ${data.reason || 'Violation of community guidelines.'}
-                    </p>
-                </div>
-            `;
-
+                    <h2 style="margin-top:15px;color:#E63946;">Account Banned</h2>
+                    <p style="margin-top:10px;">${data.reason || 'Violation of community guidelines.'}</p>
+                </div>`;
             return;
         }
 
-        /* EMAIL NOT VERIFIED */
-
-        if (
-            response.status === 403 &&
-            data.error === 'not_verified'
-        ) {
-            console.log('Email not verified for:', email);
-            showError(
-                'Please verify your email before logging in. Check your inbox or click "Verify Email" below.'
-            );
-
+        if (response.status === 403 && data.error === 'not_verified') {
+            showError('Please verify your email before logging in. Check your inbox!');
             return;
         }
-
-        /* LOGIN FAILED */
 
         if (!response.ok || !data.success) {
-            let errorMsg = data.error || data.message;
-            if (response.status === 401) {
-                errorMsg = errorMsg || 'Invalid email or password.';
-            } else if (!errorMsg) {
-                errorMsg = `Login failed (${response.status})`;
-            }
-
-            showError(errorMsg);
-
+            showError(data.error || 'Invalid email or password.');
             return;
         }
 
-        /* SUCCESS */
-
         saveUserSession(data.user);
-
         showSuccess('Login successful!');
 
-        if (
-            window.Notify &&
-            typeof Notify.confetti === 'function'
-        ) {
-            Notify.confetti({
-                particleCount: 60,
-                duration: 1500
-            });
+        if (window.Notify && typeof window.Notify.confetti === 'function') {
+            window.Notify.confetti({ particleCount: 60, duration: 1500 });
         }
-
         redirectToProfile();
 
-    }
-    catch (error) {
-
-        console.error(
-            'Login Error:',
-            error
-        );
-
-        const errMsg = error?.message || 'Unable to connect to server.';
-        console.log('Login error:', errMsg);
-
-        showError(errMsg);
-
-    }
-    finally {
-
+    } catch (error) {
+        console.error('Login Error:', error);
+        showError('Unable to connect to server backend.');
+    } finally {
         setLoading(false);
-
     }
-
 }
-
-/* ==========================================
-   RESEND VERIFICATION
-========================================== */
 
 async function resendVerification() {
-
     const email = emailInput.value.trim();
-
-    if (!email) {
-
-        showError(
-            'Enter your email first.'
-        );
-
-        return;
-    }
+    if (!email) { showError('Enter your email into the form field first.'); return; }
 
     try {
+        const response = await fetch(`${API_URL}/resend-verification`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        
+        let data;
+        try {
+            data = await response.json();
+        } catch {
+            showError('Server returned invalid data format instead of JSON.');
+            return;
+        }
 
-        const response = await fetch(
-            `${API_URL}/resend-verification`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (
-            response.ok &&
-            data.success
-        ) {
-
-            showSuccess(
-                'Verification email sent.'
-            );
-
+        if (response.ok && data.success) {
+            showSuccess('Verification email sent successfully.');
         } else {
-
-            showError(
-                data.error ||
-                'Unable to send verification email.'
-            );
-
+            showError(data.error || 'Unable to process verification request.');
         }
-
-    }
-    catch (error) {
-
+    } catch (error) {
         console.error(error);
-
-        showError(
-            'Network error.'
-        );
-
+        showError('Network connectivity failure.');
     }
+}
 
+function googleLogin() {
+    window.location.href = `${API_URL}/auth/google`;
 }
 
 /* ==========================================
-   GOOGLE LOGIN
+   EVENT CAPTURES & LIFECYCLE
 ========================================== */
-
-async function googleLogin() {
-
-    try {
-
-        window.location.href =
-            `${API_URL}/auth/google`;
-
-    }
-    catch (error) {
-
-        console.error(error);
-
-        showError(
-            'Google login unavailable.'
-        );
-
+document.addEventListener('DOMContentLoaded', function () {
+    // Process verified parameters from verify.html redirects
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === '1') {
+        showSuccess('Account verified successfully! You can now log in.');
+        const mainHeader = document.getElementById('loginWelcomeHeader');
+        const subHeader = document.getElementById('loginWelcomeSubtext');
+        if (mainHeader) mainHeader.textContent = "Email Verified! 🎉";
+        if (subHeader) subHeader.textContent = "Please sign into your new activated profile.";
     }
 
-}
+    // Initialize notification architectures if present
+    if (window.HanverseNotifications && typeof window.HanverseNotifications.init === 'function') {
+        window.HanverseNotifications.init();
+    }
 
-/* ==========================================
-   PASSWORD TOGGLE
-========================================== */
+    // Attach Click Event listeners safely
+    if (loginBtn) loginBtn.addEventListener('click', loginUser);
+    if (googleBtn) googleBtn.addEventListener('click', googleLogin);
+    if (togglePasswordBtn) togglePasswordBtn.addEventListener('click', togglePassword);
+    
+    if (resendBtn) {
+        resendBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            resendVerification();
+        });
+    }
 
-function togglePassword() {
+    // Attach Chat window nodes manually to layout controllers
+    document.getElementById('pandaFabBtn').addEventListener('click', togglePanda);
+    document.getElementById('pandaCloseBtn').addEventListener('click', togglePanda);
+    document.getElementById('pandaSendBtn').addEventListener('click', sendPandaMessage);
 
-    const input =
-        document.getElementById('password');
-
-    if (!input) return;
-
-    input.type =
-        input.type === 'password'
-            ? 'text'
-            : 'password';
-
-}
-
-/* ==========================================
-   EVENT LISTENERS
-========================================== */
-
-document.addEventListener(
-    'DOMContentLoaded',
-    function () {
-
-        if (
-            window.HanverseNotifications &&
-            window.HanverseNotifications.init
-        ) {
-            window.HanverseNotifications.init();
+    // Capture Enter execution triggers
+    [emailInput, passwordInput].forEach(input => {
+        if (input) {
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') loginUser();
+            });
         }
-
-        if (loginBtn) {
-            loginBtn.addEventListener(
-                'click',
-                loginUser
-            );
-        }
-
-        if (googleBtn) {
-            googleBtn.addEventListener(
-                'click',
-                googleLogin
-            );
-        }
-
-        if (resendBtn) {
-            resendBtn.addEventListener(
-                'click',
-                function (e) {
-                    e.preventDefault();
-                    resendVerification();
-                }
-            );
-        }
-
-        if (emailInput) {
-            emailInput.addEventListener(
-                'keydown',
-                function (e) {
-                    if (e.key === 'Enter') {
-                        loginUser();
-                    }
-                }
-            );
-        }
-
-        if (passwordInput) {
-            passwordInput.addEventListener(
-                'keydown',
-                function (e) {
-                    if (e.key === 'Enter') {
-                        loginUser();
-                    }
-                }
-            );
-        }
-
-}
- );
- 
- </script>
- 
- <nav class="bottom-nav">
- <a href="index.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">🏠</div>
- <span>Home</span>
- </a>
- <a href="learn.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">📚</div>
- <span>Learn</span>
- </a>
- <a href="signup.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">✨</div>
- <span>Sign Up</span>
- </a>
- <a href="login.html" class="nav-item active">
- <div class="nav-icon" style="position:relative;">🔑</div>
- <span>Login</span>
- </a>
- </nav>
- <!-- Panda Floating Button -->
-
-<button
-class="panda-fab"
-onclick="togglePanda()">
-🐼
-</button>
-
-<div
-id="pandaChat"
-class="panda-chat">
-
-<div class="panda-header">
-
-<div class="panda-title">
-🐼 Panda AI Tutor
-</div>
-
-<button
-class="panda-close"
-onclick="togglePanda()">
-✕
-</button>
-
-</div>
-
-<div
-id="pandaBody"
-class="panda-body">
-
-<div class="message-row">
-
-<div class="panda-avatar">
-🐼
-</div>
-
-<div class="message panda-message">
-👋 Hi! Ask me anything about Mandarin.
-</div>
-
-</div>
-
-</div>
-
-<div class="panda-input">
-
-<textarea
-id="pandaInput"
-placeholder="Ask Panda...">
-</textarea>
-
-<button
-class="panda-send"
-onclick="sendPandaMessage()">
-➤
-</button>
-
-</div>
-
-</div>
-<script src="panda-chat.js"></script>
- </body>
- </html>
+    });
+});
+</script>
+</body>
+</html>

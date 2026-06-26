@@ -1,497 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1">
-
-<title>Verify Account | Hanverse</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
-
-<style>
-
-:root{
---yellow:#F4D35E;
---red:#E63946;
---blue:#4EA8DE;
---green:#74C69D;
---bg:#FFFDF7;
---text:#1A1A2E;
---secondary:#6B7280;
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
-
-body{
-
-background:var(--bg);
-
-min-height:100vh;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-padding:20px;
-
-position:relative;
-
-overflow:hidden;
-
-}
-
-body::before{
-
-content:'';
-
-position:fixed;
-
-width:700px;
-height:700px;
-
-border-radius:50%;
-
-background:
-rgba(116,198,157,.08);
-
-top:-350px;
-left:-350px;
-
-}
-
-body::after{
-
-content:'';
-
-position:fixed;
-
-width:600px;
-height:600px;
-
-border-radius:50%;
-
-background:
-rgba(244,211,94,.08);
-
-bottom:-300px;
-right:-300px;
-
-}
-
-.card{
-
-position:relative;
-
-z-index:2;
-
-background:white;
-
-width:100%;
-max-width:580px;
-
-padding:55px;
-
-border-radius:35px;
-
-text-align:center;
-
-box-shadow:
-0 25px 60px rgba(0,0,0,.08);
-
-animation:fade .8s ease;
-
-}
-
-@keyframes fade{
-
-from{
-opacity:0;
-transform:translateY(30px);
-}
-
-to{
-opacity:1;
-transform:translateY(0);
-}
-
-}
-
-.logo{
-
-font-size:44px;
-font-weight:800;
-
-color:var(--yellow);
-
-margin-bottom:20px;
-
-}
-
-.icon{
-
-font-size:90px;
-
-margin-bottom:20px;
-
-}
-
-h1{
-
-font-size:34px;
-
-color:var(--text);
-
-margin-bottom:15px;
-
-}
-
-p{
-
-color:var(--secondary);
-
-line-height:1.8;
-
-margin-bottom:25px;
-
-}
-
-.success{
-color:var(--green);
-}
-
-.error{
-color:var(--red);
-}
-
-.btn{
-
-display:none;
-
-border:none;
-
-padding:15px 32px;
-
-border-radius:40px;
-
-font-size:15px;
-
-font-weight:700;
-
-cursor:pointer;
-
-background:
-linear-gradient(
-135deg,
-var(--green),
-#52B788
-);
-
-color:white;
-
-box-shadow:
-0 10px 26px rgba(116,198,157,.35);
-
-transition:.25s;
-
-}
-
-.btn:hover{
-
-transform:
-translateY(-2px);
-
-}
-
-.panda{
-
-font-size:55px;
-
-margin-top:20px;
-
-}
-
-@media(max-width:600px){
-.card{
-padding:35px;
-}
-.logo{
-font-size:36px;
-}
-h1{
-font-size:28px;
-}
-.icon{
-font-size:70px;
-}
-}
-</style>
-.bottom-nav{
-display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;
-background:rgba(255,255,255,.95);backdrop-filter:blur(20px);
-border-top:1px solid var(--border);padding:12px 20px;
-justify-content:space-around;align-items:center;
-box-shadow:0 -8px 32px rgba(0,0,0,.07);
-padding-bottom:calc(12px + env(safe-area-inset-bottom));
-}
-.bottom-nav a{
-flex:1;text-align:center;text-decoration:none;color:var(--text-secondary);
-font-size:.75rem;font-weight:500;transition:.2s;padding:8px 4px;
-}
-.bottom-nav a.active{color:var(--green);}
-.bottom-nav a.active .nav-icon{background:linear-gradient(135deg,var(--green),#52B788);color:white;}
-.nav-icon{
-width:46px;height:46px;border-radius:14px;margin:0 auto 4px;
-display:flex;align-items:center;justify-content:center;
-font-size:20px;background:rgba(116,198,157,.08);transition:.2s;color:var(--text-secondary);
-}
-.bottom-nav a.active .nav-icon{background:linear-gradient(135deg,var(--green),#52B788);color:white;}
-}
-
-.logo{
-
-font-size:36px;
-
-}
-
-h1{
-
-font-size:28px;
-
-}
-
-.icon{
-
-font-size:70px;
-
-}
-
-}
-
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify Account | Hanverse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --yellow: #F4D35E;
+      --red: #E63946;
+      --blue: #4EA8DE;
+      --green: #74C69D;
+      --bg: #FFFDF7;
+      --text: #1A1A2E;
+      --secondary: #6B7280;
+      --border: #E2E8F0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: rgba(116,198,157,.08);
+      top: -350px;
+      left: -350px;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: rgba(244,211,94,.08);
+      bottom: -300px;
+      right: -300px;
+    }
+
+    .card {
+      position: relative;
+      z-index: 2;
+      background: white;
+      width: 100%;
+      max-width: 580px;
+      padding: 55px;
+      border-radius: 35px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0,0,0,.08);
+      animation: fade .8s ease;
+      margin-top: 20px;
+      margin-bottom: 80px; /* Kept space clear for the bottom nav bar overlay layout */
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--yellow);
+      margin-bottom: 20px;
+    }
+
+    .icon {
+      font-size: 90px;
+      margin-bottom: 20px;
+      line-height: 1;
+    }
+
+    h1 {
+      font-size: 34px;
+      color: var(--text);
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: var(--secondary);
+      line-height: 1.8;
+      margin-bottom: 25px;
+    }
+
+    .success { color: var(--green); }
+    .error { color: var(--red); }
+
+    .btn {
+      display: none; /* Controlled dynamically by runtime status hooks inside scripts below */
+      border: none;
+      padding: 15px 32px;
+      border-radius: 40px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--green), #52B788);
+      color: white;
+      box-shadow: 0 10px 26px rgba(116,198,157,.35);
+      transition: .25s;
+      text-decoration: none;
+      outline: none;
+      margin: 10px auto;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(116,198,157,.45);
+    }
+
+    .panda {
+      font-size: 55px;
+      margin-top: 25px;
+      line-height: 1;
+    }
+
+    /* Clean Bottom Navigation Elements Fix */
+    .bottom-nav {
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border); padding: 12px 20px;
+      justify-content: space-around; align-items: center;
+      box-shadow: 0 -8px 32px rgba(0,0,0,.07);
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+    
+    .bottom-nav a {
+      flex: 1; text-align: center; text-decoration: none; color: var(--secondary);
+      font-size: .75rem; font-weight: 500; transition: .2s; padding: 8px 4px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    
+    .nav-icon {
+      width: 46px; height: 46px; border-radius: 14px; margin: 0 auto 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; background: rgba(116,198,157,.08); transition: .2s; color: var(--secondary);
+    }
+    
+    .bottom-nav a.active { color: var(--green); }
+    .bottom-nav a.active .nav-icon { 
+      background: linear-gradient(135deg, var(--green), #52B788); color: white; 
+    }
+
+    @media(max-width: 600px) {
+      .card { padding: 35px 25px; margin-bottom: 90px; }
+      .logo { font-size: 36px; }
+      h1 { font-size: 26px; }
+      .icon { font-size: 70px; }
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="card">
-
-<div class="logo">
-Hanverse
+  <div class="logo">Hanverse</div>
+  <div class="icon" id="icon">⏳</div>
+  <h1 id="title">Verifying Your Account...</h1>
+  <p id="message">Please wait while we verify your email address.</p>
+  <button id="loginBtn" class="btn">Go To Login</button>
+  <div class="panda">🐼</div>
 </div>
 
-<div
-class="icon"
-id="icon">
+<nav class="bottom-nav">
+  <a href="/index.html" class="nav-item">
+    <div class="nav-icon">🏠</div><span>Home</span>
+  </a>
+  <a href="/learn.html" class="nav-item">
+    <div class="nav-icon">📚</div><span>Learn</span>
+  </a>
+  <a href="/signup.html" class="nav-item">
+    <div class="nav-icon">✨</div><span>Sign Up</span>
+  </a>
+  <a href="/login.html" class="nav-item">
+    <div class="nav-icon">🔑</div><span>Login</span>
+  </a>
+</nav>
 
-⏳
+<script src="/notifications.js" onerror="console.warn('Notification script failed to initialize.')"></script>
+<script>
+  /* ==========================================
+     ROUTE PROXIES CONFIGURATION
+  ========================================== */
+  const API_URL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+      ? '/.netlify/functions/server'
+      : '/api'; // Maps to netlify.toml proxy setup flawlessly on production
 
-</div>
-
-<h1 id="title">
-
-Verifying Your Account...
-
-</h1>
-
-<p id="message">
-
-Please wait while we verify your email address.
-
-</p>
-
-<button
-id="loginBtn"
-class="btn">
-
-Go To Login
-
-</button>
-
-<div class="panda">
-🐼
-</div>
-
-</div>
-<script src="notifications.js"></script>
- <script>
-
- /* ==========================================
-    CONFIG
- ========================================== */
-
- const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : '/api';
-
- const FRONTEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-   ? 'http://localhost:3000' 
-   : 'https://hanverse.netlify.app';
-
-/* ==========================================
-   ELEMENTS
-========================================== */
-
-const params =
-  new URLSearchParams(
-    window.location.search
-  );
-
-const token =
-  params.get('token');
-
-const icon =
-  document.getElementById('icon');
-
-const title =
-  document.getElementById('title');
-
-const message =
-  document.getElementById('message');
-
-const loginBtn =
-  document.getElementById('loginBtn');
-
-/* ==========================================
-   VERIFY EMAIL
-========================================== */
-
-async function verifyEmail(){
-
-  if(!token){
-
-    icon.innerHTML = '❌';
-
-    title.innerHTML =
-      'Invalid Verification Link';
-
-    title.classList.add(
-      'error'
-    );
-
-    message.innerHTML =
-      'No verification token was provided.';
-
-    return;
+  /* ==========================================
+     DYNAMIC URL PATH PARAMETER CAPTURE FIX
+  ========================================== */
+  // Checks path layouts for tokens structured directly via: /verify.html/token-string
+  function getPathToken() {
+      const pathParts = window.location.pathname.split('/');
+      const verifyPageIndex = pathParts.findIndex(part => part.toLowerCase().includes('verify.html'));
+      
+      if (verifyPageIndex !== -1 && pathParts[verifyPageIndex + 1]) {
+          return pathParts[verifyPageIndex + 1];
+      }
+      
+      // Fallback strategies check: look for classic query variables (?token=...)
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('token');
   }
 
-  try{
+  const token = getPathToken();
+  const icon = document.getElementById('icon');
+  const title = document.getElementById('title');
+  const message = document.getElementById('message');
+  const loginBtn = document.getElementById('loginBtn');
 
-    const response =
-      await fetch(
-        API_URL +
-        '/verify-email?token=' +
-        encodeURIComponent(token)
-      );
-
-    const data =
-      await response.json();
-
-    if(!response.ok){
-
+  /* ==========================================
+     VERIFY OPERATION
+  ========================================== */
+  async function verifyEmail() {
+    if (!token) {
       icon.innerHTML = '❌';
-
-      title.innerHTML =
-        'Verification Failed';
-
-      title.classList.add(
-        'error'
-      );
-
-      message.innerHTML =
-        data.error ||
-        'The verification link is invalid or has expired.';
-
+      title.innerHTML = 'Missing Code Link';
+      title.className = 'error';
+      message.innerHTML = 'No functional access activation token identifier was structured inside the browser parameters.';
       return;
     }
 
-    icon.innerHTML = '🎉';
+    try {
+      // Sent cleanly as a JSON payload to the verification route handler block
+      const response = await fetch(`${API_URL}/verify-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token })
+      });
+      
+      let data;
+      try {
+          data = await response.json();
+      } catch {
+          data = { error: 'The application environment returned a layout error script configuration payload.' };
+      }
 
-    title.innerHTML =
-      'Email Verified!';
+      if (!response.ok) {
+        icon.innerHTML = '❌';
+        title.innerHTML = 'Verification Failed';
+        title.className = 'error';
+        message.innerHTML = data.error || 'The authentication verification code parameters are completely empty or have expired.';
+        return;
+      }
 
-    title.classList.add(
-      'success'
-    );
+      // Success Display Rendering States
+      icon.innerHTML = '🎉';
+      title.innerHTML = 'Email Verified!';
+      title.className = 'success';
+      message.innerHTML = 'Your official Hanverse profile identity access has been safely deployed and confirmed. Proceeding to login views.';
+      
+      if (loginBtn) {
+          loginBtn.style.display = 'block';
+      }
 
-    message.innerHTML =
-      'Your Hanverse account has been activated successfully. You can now log in and start learning Mandarin.';
+      // Auto redirect to profile screen parameters after confirmation completes
+      setTimeout(() => {
+        window.location.href = `/login.html?verified=1`;
+      }, 2500);
 
-    loginBtn.style.display =
-      'inline-block';
-
-// Auto-redirect to login after 2 seconds
-     setTimeout(() => {
-       window.location.href = FRONTEND_URL + '/login.html?verified=1';
-     }, 2000);
-
+    } catch (error) {
+      console.error('Core Verification Runtime Failure:', error);
+      icon.innerHTML = '❌';
+      title.innerHTML = 'Connection Error';
+      title.className = 'error';
+      message.innerHTML = 'Unable to connect to the Hanverse server securely. Check network connection and try again.';
+    }
   }
-  catch(error){
 
-    console.error(error);
-
-    icon.innerHTML = '❌';
-
-    title.innerHTML =
-      'Connection Error';
-
-    title.classList.add(
-      'error'
-    );
-
-    message.innerHTML =
-      'Unable to connect to the Hanverse server. Please try again later.';
+  /* ==========================================
+     INTERACTIVE TRIGGER LISTENERS
+  ========================================== */
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      window.location.href = `/login.html`;
+    });
   }
 
-}
-
-/* ==========================================
-   LOGIN BUTTON
-========================================== */
-
-loginBtn.addEventListener(
-   'click',
-   ()=>{
-     window.location.href = FRONTEND_URL + '/login.html';
-   }
- );
-
-/* ==========================================
-   PAGE LOAD
-========================================== */
-
-window.addEventListener(
-  'load',
-  verifyEmail
-);
-
+  window.addEventListener('load', verifyEmail);
 </script>
- 
- <nav class="bottom-nav">
- <a href="index.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">🏠</div>
- <span>Home</span>
- </a>
- <a href="learn.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">📚</div>
- <span>Learn</span>
- </a>
- <a href="signup.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">✨</div>
- <span>Sign Up</span>
- </a>
- <a href="login.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">🔑</div>
- <span>Login</span>
- </a>
- </nav>
- 
- </body>
- </html>
+</body>
+</html>

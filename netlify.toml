@@ -4,15 +4,21 @@
   functions = "functions"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "24.12.0"
+
+[functions]
+  directory = "functions"
+
+[functions.esbuild]
+  format = "esm"
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/server/:splat"
   status = 200
   force = true
+  to = "/.netlify/functions/server/:splat"
 
 [[redirects]]
-  from = "/"
-  to = "/index.html"
+  from = "/verify.html/*"
   status = 200
+  to = "/verify.html"
