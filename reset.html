@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HanVerse - Reset Password 🔒</title>
+    <style>
+        :root {
+            --primary: #14b8a6;
+            --primary-hover: #0d9488;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 1.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.error {
+            display: block;
+            background-color: #fee2e2;
+            color: var(--error);
+            border: 1px solid #fca5a5;
+        }
+
+        .message.success {
+            display: block;
+            background-color: #d1fae5;
+            color: var(--success);
+            border: 1px solid #6ee7b7;
+        }
+
+        .login-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo">🐼</div>
+        <h2>Reset Your Password</h2>
+        <p class="subtitle">Please enter your secure new password below.</p>
+
+        <form id="resetForm">
+            <div class="form-group">
+                <label for="password">New Password</label>
+                <input type="password" id="password" required minlength="8" placeholder="At least 8 characters">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" id="confirmPassword" required minlength="8" placeholder="Repeat your new password">
+            </div>
+
+            <button type="submit" id="submitBtn">Update Password</button>
+        </form>
+
+        <div id="msgContainer" class="message"></div>
+
+        <a href="/" class="login-link" id="homeLink">Back to Home Screen</a>
+    </div>
+
+    <script>
+        document.getElementById('resetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const msgContainer = document.getElementById('msgContainer');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Reset message state
+            msgContainer.className = 'message';
+            msgContainer.style.display = 'none';
+
+            // Frontend Validation check
+            if (password !== confirmPassword) {
+                msgContainer.innerText = "❌ Passwords do not match.";
+                msgContainer.classList.add('error');
+                return;
+            }
+
+            // Extract the token parameter directly from the current address bar URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (!token) {
+                msgContainer.innerText = "❌ Missing or invalid security token path.";
+                msgContainer.classList.add('error');
+                return;
+            }
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Updating...";
+
+                // Dynamically fallback to local routing context if deployed on custom port mappings
+                const apiBase = window.location.origin.includes('localhost') 
+                    ? '/api' 
+                    : '/.netlify/functions/server';
+
+                const response = await fetch(`${apiBase}/reset-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token, newPassword: password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    msgContainer.innerText = "✅ Password successfully changed! You can close this window or return home to log in.";
+                    msgContainer.classList.add('success');
+                    document.getElementById('resetForm').reset();
+                    // Keep button disabled to prevent duplicate postings
+                    submitBtn.innerText = "Password Updated";
+                } else {
+                    throw new Error(data.error || "Failed to update password.");
+                }
+
+            } catch (error) {
+                msgContainer.innerText = `❌ ${error.message}`;
+                msgContainer.classList.add('error');
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Update Password";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,933 +1,928 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link
-rel="stylesheet"
-href="panda-chat.css">
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>HanVerse Admin</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet">
+    <link rel="stylesheet" href="panda-chat.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HanVerse Admin Panel 👑</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+:root {
+    --red: #E63946;
+    --yellow: #F4D35E;
+    --blue: #4EA8DE;
+    --green: #74C69D;
 
-:root{
-    --red:#E63946;
-    --yellow:#F4D35E;
-    --blue:#4EA8DE;
-    --green:#74C69D;
+    --bg: #0D0D1A;
+    --surface: #151529;
+    --card: #1C1C35;
 
-    --bg:#0D0D1A;
-    --surface:#151529;
-    --card:#1C1C35;
+    --text: #E8E8F0;
+    --muted: #8E8EA8;
 
-    --text:#E8E8F0;
-    --muted:#8E8EA8;
-
-    --border:rgba(255,255,255,.08);
+    --border: rgba(255,255,255,.08);
 }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
 }
 
-body{
-    background:var(--bg);
-    color:var(--text);
-    min-height:100vh;
+body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
 }
 
-.topbar{
-    height:72px;
-    background:var(--surface);
-    border-bottom:1px solid var(--border);
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
-    padding:0 30px;
+.topbar {
+    height: 72px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
 }
 
-.logo{
-    display:flex;
-    align-items:center;
-    gap:12px;
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.logo-icon{
-    width:42px;
-    height:42px;
-
-    border-radius:12px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:22px;
-
-    background:linear-gradient(
-        135deg,
-        #ff416c,
-        #ff4b2b
-    );
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
 }
 
-.logo h1{
-    font-size:1.1rem;
-    font-weight:800;
+.logo h1 {
+    font-size: 1.1rem;
+    font-weight: 800;
 }
 
-.logo span{
-    color:#ff6b6b;
+.logo span {
+    color: #ff6b6b;
 }
 
-.top-actions{
-    display:flex;
-    gap:10px;
+.top-actions {
+    display: flex;
+    gap: 10px;
 }
 
-.btn{
-    border:none;
-    cursor:pointer;
-
-    border-radius:12px;
-
-    padding:10px 18px;
-
-    font-weight:600;
+.btn {
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: transform 0.2s, opacity 0.2s;
 }
 
-.btn-primary{
-    background:linear-gradient(
-        135deg,
-        #ff416c,
-        #ff4b2b
-    );
-
-    color:white;
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.btn-secondary{
-    background:rgba(255,255,255,.06);
-    color:white;
+.btn:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
-.stats{
-    padding:24px;
-
-    display:grid;
-
-    grid-template-columns:
-    repeat(4,1fr);
-
-    gap:16px;
+.btn-primary {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: white;
 }
 
-.stat-card{
-    background:var(--card);
-
-    border:1px solid var(--border);
-
-    border-radius:18px;
-
-    padding:20px;
+.btn-secondary {
+    background: rgba(255,255,255,.06);
+    color: white;
 }
 
-.stat-title{
-    color:var(--muted);
-    font-size:.75rem;
-    text-transform:uppercase;
+.btn-secondary:hover:not(:disabled) {
+    background: rgba(255,255,255,.1);
 }
 
-.stat-value{
-    font-size:2rem;
-    font-weight:800;
-
-    margin-top:8px;
+.stats {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
 }
 
-.tabs{
-    display:flex;
-    gap:8px;
-
-    padding:0 24px;
-    margin-bottom:24px;
+@media(max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 480px) {
+    .stats { grid-template-columns: 1fr; }
 }
 
-.tab{
-    border:none;
-    cursor:pointer;
-
-    border-radius:999px;
-
-    padding:10px 18px;
-
-    background:rgba(255,255,255,.06);
-
-    color:var(--muted);
-
-    font-weight:600;
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
 }
 
-.tab.active{
-    background:linear-gradient(
-        135deg,
-        #ff416c,
-        #ff4b2b
-    );
-
-    color:white;
+.stat-title {
+    color: var(--muted);
+    font-size: .75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
-.section{
-    padding:0 24px 30px;
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-top: 8px;
 }
 
-.modal-overlay{
-    position:fixed;
-    inset:0;
-
-    display:none;
-
-    justify-content:center;
-    align-items:center;
-
-    background:rgba(0,0,0,.7);
-
-    z-index:999;
+.tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px;
+    margin-bottom: 24px;
 }
 
-.modal-overlay.open{
-    display:flex;
+.tab {
+    border: none;
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,.06);
+    color: var(--muted);
+    font-weight: 600;
 }
 
-.modal{
-    width:100%;
-    max-width:420px;
-
-    background:var(--card);
-
-    border-radius:24px;
-
-    border:1px solid var(--border);
-
-    padding:28px;
+.tab.active {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: white;
 }
 
-.modal h2{
-    margin-bottom:12px;
+.section {
+    padding: 0 24px 30px;
 }
 
-.modal p{
-    color:var(--muted);
-    margin-bottom:20px;
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
 }
 
-.modal input{
-    width:100%;
-
-    padding:12px;
-
-    border-radius:12px;
-
-    border:1px solid var(--border);
-
-    background:#0D0D1A;
-
-    color:white;
-
-    margin-bottom:12px;
+.user-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s;
 }
 
-.error{
-    color:#ff6b6b;
-    min-height:20px;
-    font-size:.85rem;
+.user-card:hover {
+    transform: translateY(-2px);
 }
 
-.loading{
-    height:70vh;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-
-    gap:15px;
+.user-card-top {
+    display: flex;
+    gap: 14px;
+    align-items: center;
 }
 
-.spinner{
-    width:50px;
-    height:50px;
-
-    border-radius:50%;
-
-    border:4px solid rgba(255,255,255,.15);
-
-    border-top-color:#ff416c;
-
-    animation:spin .8s linear infinite;
+.user-pfp {
+    font-size: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 14px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-@keyframes spin{
-    to{
-        transform:rotate(360deg);
+.user-info {
+    overflow: hidden;
+}
+
+.user-info h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.user-info p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.pill-container {
+    margin: 14px 0 20px; 
+    display: flex; 
+    gap: 6px; 
+    flex-wrap: wrap;
+}
+
+.pill {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.pill-yellow { background: rgba(244, 211, 94, 0.15); color: var(--yellow); }
+.pill-green { background: rgba(116, 198, 157, 0.15); color: var(--green); }
+.pill-red { background: rgba(230, 57, 70, 0.15); color: var(--red); }
+.pill-blue { background: rgba(78, 168, 222, 0.15); color: var(--blue); }
+
+.user-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.action-btn:hover { background: rgba(255, 255, 255, 0.1); }
+.action-btn.del:hover { background: rgba(230, 57, 70, 0.2); color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
+
+/* ==========================================
+   LANDSCAPE MODAL ENGINE STYLES 🌟
+========================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    z-index: 999;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal {
+    width: 100%;
+    max-width: 800px; /* Force optimal wide landscape look on desktop screens */
+    background: var(--card);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    padding: 36px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+    position: relative;
+    margin: auto; /* Fallback for safe layout distribution inside overlays */
+}
+
+/* Modal Absolute Header Close Typography Structure */
+.modal-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(230, 57, 70, 0.2);
+    color: var(--red);
+    border-color: rgba(230, 57, 70, 0.3);
+}
+
+/* Split Landscape Content Columns Layout Row */
+.modal-landscape-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 10px;
+}
+
+@media(max-width: 767px) {
+    .modal-landscape-grid {
+        grid-template-columns: 1fr; /* Responsively fallback cleanly on micro mobile touchscreens */
+        gap: 12px;
     }
 }
 
+.modal h2 { margin-bottom: 6px; font-weight: 700; padding-right: 40px; }
+.modal p { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; }
+.modal label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; color: var(--muted); letter-spacing: 0.5px; }
+.modal input, .modal select, .modal textarea {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: #0D0D1A;
+    color: white;
+    margin-bottom: 16px;
+    outline: none;
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+.modal input:focus, .modal select:focus, .modal textarea:focus {
+    border-color: #ff416c;
+}
+
+.error {
+    color: #ff6b6b;
+    min-height: 24px;
+    font-size: .85rem;
+    font-weight: 500;
+}
+
+.loading {
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,.15);
+    border-top-color: #ff416c;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
-
 <body>
 
 <div id="app">
-
-<div class="loading">
-    <div class="spinner"></div>
-    <p>Loading Admin Panel...</p>
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading Admin Panel Assets...</p>
+    </div>
 </div>
 
+<div class="modal-overlay open" id="authModal">
+    <div class="modal" style="max-width: 420px;">
+        <h2>🔐 Admin Access</h2>
+        <p>Please enter your administrative dashboard key to proceed.</p>
+        <input type="password" id="authPassword" placeholder="Admin Password" onkeydown="if(event.key === 'Enter') confirmAdminAuth()">
+        <div class="error" id="authErr"></div>
+        <button class="btn btn-primary" style="width:100%; padding:14px;" id="unlockBtn" onclick="confirmAdminAuth()">Unlock Panel</button>
+    </div>
 </div>
 
-<div
-class="modal-overlay open"
-id="authModal">
-
-<div class="modal">
-
-<h2>🔐 Admin Access</h2>
-
-<p>
-Enter admin password to continue.
-</p>
-
-<input
-type="password"
-id="authPassword"
-placeholder="Admin Password">
-
-<div
-class="error"
-id="authErr">
+<div class="modal-overlay" id="emailAllModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('emailAllModal')">✕</button>
+        <h2>📧 Broadcast Announcement</h2>
+        <p>This message will be dispatched directly to all verified, active HanVerse users.</p>
+        
+        <div class="modal-landscape-grid">
+            <div>
+                <label>SUBJECT LINE</label>
+                <input type="text" id="bulkSubject" placeholder="e.g., Exciting New Panda AI Updates!">
+                
+                <div class="error" id="bulkEmailErr" style="margin-top: 16px;"></div>
+            </div>
+            <div>
+                <label>EMAIL MESSAGE BODY</label>
+                <textarea id="bulkMessage" placeholder="Write your announcement content details here..." style="height: 160px; resize: none;"></textarea>
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:20px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <button class="btn btn-secondary" style="width: 140px;" onclick="closeModal('emailAllModal')">Cancel</button>
+            <button class="btn btn-primary" style="width: 220px;" id="sendBulkBtn" onclick="submitEmailAllBroadcast()">Send Broadcast 🚀</button>
+        </div>
+    </div>
 </div>
 
-<button
-class="btn btn-primary"
-style="width:100%;"
-onclick="confirmAdminAuth()">
+<div class="modal-overlay" id="userFormModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('userFormModal')">✕</button>
+        <h2 id="userModalTitle">👤 Create New User</h2>
+        <p id="userModalSubtitle">Register or update a user entity within database clusters.</p>
+        <input type="hidden" id="formUserId">
+        
+        <div class="modal-landscape-grid">
+            <div>
+                <label>FULL NAME</label>
+                <input type="text" id="formFullName" placeholder="John Doe">
+                
+                <label>USERNAME</label>
+                <input type="text" id="formUsername" placeholder="johndoe">
+                
+                <label>EMAIL ADDRESS</label>
+                <input type="email" id="formEmail" placeholder="john@example.com">
+                
+                <label id="passLabel">PASSWORD</label>
+                <input type="password" id="formPassword" placeholder="Minimum 6 characters">
+            </div>
+            
+            <div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label>LEVEL</label>
+                        <input type="number" id="formLevel" value="1" min="1">
+                    </div>
+                    <div>
+                        <label>XP</label>
+                        <input type="number" id="formXp" value="0" min="0">
+                    </div>
+                </div>
 
-Unlock
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label>ROLE TYPE</label>
+                        <select id="formIsAdmin">
+                            <option value="false">Standard Learner</option>
+                            <option value="true">👑 System Admin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>ACCOUNT STATUS</label>
+                        <select id="formIsBanned">
+                            <option value="false">Active / Clear</option>
+                            <option value="true">🚫 Banned</option>
+                        </select>
+                    </div>
+                </div>
 
-</button>
-
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label>PREMIUM STATUS</label>
+                        <select id="formPremium">
+                            <option value="false">Free Tier</option>
+                            <option value="true">✨ Premium Member</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>VERIFICATION</label>
+                        <select id="formIsVerified">
+                            <option value="false">Unverified</option>
+                            <option value="true">✅ Verified</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="error" id="userFormErr" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:20px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <button class="btn btn-secondary" style="width: 140px;" onclick="closeModal('userFormModal')">Cancel</button>
+            <button class="btn btn-primary" style="width: 220px;" id="saveUserBtn" onclick="submitUserForm()">Save User Entity</button>
+        </div>
+    </div>
 </div>
+
+<div class="modal-overlay" id="singleEmailModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('singleEmailModal')">✕</button>
+        <h2>📧 Direct Email Dispatcher</h2>
+        <p>Send a secure mail transport directly to user: <span id="targetEmailUser" style="color: #ff416c; font-weight:600;"></span></p>
+        <input type="hidden" id="targetEmailId">
+
+        <div class="modal-landscape-grid">
+            <div>
+                <label>SUBJECT</label>
+                <input type="text" id="singleSubject" placeholder="Account notice, rewards milestone...">
+                
+                <div class="error" id="singleEmailErr" style="margin-top: 16px;"></div>
+            </div>
+            <div>
+                <label>MESSAGE BODY</label>
+                <textarea id="singleMessage" placeholder="Write your context logs..." style="height: 160px; resize: none;"></textarea>
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:20px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <button class="btn btn-secondary" style="width: 140px;" onclick="closeModal('singleEmailModal')">Cancel</button>
+            <button class="btn btn-primary" style="width: 220px;" id="sendSingleBtn" onclick="submitSingleEmail()">Deliver Message</button>
+        </div>
+    </div>
 </div>
 
 <script>
-
 const API_URL = '/api';
 
 let adminToken = null;
-async function confirmAdminAuth(){
+let db = { users: [] };
 
-    const password =
-        document
-        .getElementById(
-            'authPassword'
-        )
-        .value
-        .trim();
+const storedUser = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+const USER_ID = storedUser.user_id;
 
-
-let db = {
-    users:[],
-    progress:[],
-    achievements:[],
-    daily_goals:[],
-    notifications:[],
-    vocabulary:[],
-    settings:[]
-};
-
-let activeTab = 'users';
-
-const storedUser =
-    JSON.parse(
-        localStorage.getItem(
-            'hanverse_user'
-        ) || '{}'
-    );
-
-const USER_ID =
-    storedUser.user_id;
-
-if(!USER_ID){
-
-    location.href =
-        'login.html';
-
+if (!USER_ID) {
+    location.href = 'login.html';
 }
 
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-    const err =
-        document
-        .getElementById(
-            'authErr'
-        );
-
+async function confirmAdminAuth() {
+    const passwordInput = document.getElementById('authPassword');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const err = document.getElementById('authErr');
+    const password = passwordInput.value.trim();
     err.textContent = '';
 
-    if(!password){
-
-        err.textContent =
-            'Enter admin password';
-
+    if (!password) {
+        err.textContent = 'Enter admin password';
         return;
     }
 
-    try{
+    try {
+        unlockBtn.disabled = true;
+        unlockBtn.innerText = "Verifying...";
 
-        const response =
-            await fetch(
-                API_URL +
-                '/admin/verify-password',
-                {
-                    method:'POST',
-                    headers:{
-                        'Content-Type':
-                        'application/json'
-                    },
-                    body:JSON.stringify({
-                        userId:USER_ID,
-                        adminPassword:
-                        password
-                    })
-                }
-            );
+        const response = await fetch(API_URL + '/admin/verify-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: USER_ID, adminPassword: password })
+        });
 
-        const text = await response.text();
+        const data = await response.json();
 
-console.log('VERIFY RESPONSE:');
-console.log(text);
-
-return;
-
-        if(!response.ok){
-
-            err.textContent =
-                data.error ||
-                'Access denied';
-
+        if (!response.ok || !data.success) {
+            err.textContent = data.error || 'Access denied';
+            unlockBtn.disabled = false;
+            unlockBtn.innerText = "Unlock Panel";
             return;
         }
 
-        adminToken =
-            data.adminToken;
-
+        adminToken = data.adminToken;
         loadAdminData();
 
-    }
-    catch(ex){
-
+    } catch (ex) {
         console.error(ex);
-
-        err.textContent =
-            'Server unavailable';
-
+        err.textContent = 'Server unavailable';
+        unlockBtn.disabled = false;
+        unlockBtn.innerText = "Unlock Panel";
     }
 }
 
+async function loadAdminData() {
+    try {
+        const response = await fetch(API_URL + '/admin/overview', {
+            headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
 
-
-
-async function loadAdminData(){
-
-    try{
-
-        const response =
-            await fetch(
-                API_URL +
-                '/admin/overview',
-                {
-                    headers:{
-                        Authorization:
-                        'Bearer ' +
-                        adminToken
-                    }
-                }
-            );
-
-        const text =
-    await response.text();
-
-console.log(text);
-
-let data;
-
-try{
-
-    data =
-        JSON.parse(text);
-
-}
-catch(err){
-
-    console.error(
-        'Server returned:',
-        text
-    );
-
-    document
-        .getElementById(
-            'authErr'
-        )
-        .textContent =
-        'Backend error. Check console.';
-
-    return;
-
-}
-
-        if(!response.ok){
-
-            throw new Error(
-                data.error ||
-                'Failed loading admin data'
-            );
-
-        }
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed loading metrics.');
 
         db = data;
-
-        document
-            .getElementById(
-                'authModal'
-            )
-            .remove();
+        const modal = document.getElementById('authModal');
+        if(modal) modal.remove();
 
         render();
 
-    }
-    catch(ex){
-
+    } catch (ex) {
         console.error(ex);
-
-        document
-            .getElementById(
-                'authErr'
-            )
-            .textContent =
-            ex.message;
-
+        document.getElementById('authErr').textContent = ex.message;
     }
-
 }
 
-function switchTab(tab){
-
-    activeTab = tab;
-
-    render();
-
-}
-
-function renderUsers(){
-
-    if(
-        !db.users ||
-        db.users.length === 0
-    ){
-
-        return `
-        <div
-        style="
-        padding:40px;
-        text-align:center;
-        ">
-            No users found.
-        </div>
-        `;
-
+function renderUsers() {
+    if (!db.users || db.users.length === 0) {
+        return `<div style="padding:60px; text-align:center; color: var(--muted);">No users found in database clusters.</div>`;
     }
 
-    let html =
-        '<div class="user-grid">';
-
+    let html = '<div class="user-grid">';
     db.users.forEach(user => {
-
         html += `
-
-        <div class="user-card">
-
+        <div class="user-card" id="user-row-${user.user_id}">
             <div class="user-card-top">
-
-                <div class="user-pfp">
-                    👤
-                </div>
-
+                <div class="user-pfp">👤</div>
                 <div class="user-info">
-
-                    <h3>
-                        ${
-                            user.full_name ||
-                            'Unknown User'
-                        }
-                    </h3>
-
-                    <p>
-                        @${user.username || ''}
-                    </p>
-
-                    <p>
-                        ${user.email || ''}
-                    </p>
-
+                    <h3>${user.full_name || 'Unknown User'}</h3>
+                    <p>@${user.username || ''}</p>
+                    <p>${user.email || ''}</p>
                 </div>
-
             </div>
-
-            <div
-            style="
-            margin-top:10px;
-            display:flex;
-            gap:6px;
-            flex-wrap:wrap;
-            ">
-
-                <span class="pill pill-yellow">
-                    ⭐ ${user.xp || 0}
-                </span>
-
-                <span class="pill pill-green">
-                    Lv ${user.level || 1}
-                </span>
-
-                ${
-                    user.is_admin
-                    ?
-                    '<span class="pill pill-red">👑 Admin</span>'
-                    :
-                    ''
-                }
-
-                ${
-                    user.is_banned
-                    ?
-                    '<span class="pill pill-red">🚫 Banned</span>'
-                    :
-                    ''
-                }
-
+            <div class="pill-container">
+                <span class="pill pill-yellow">⭐ ${user.xp || 0} XP</span>
+                <span class="pill pill-green">Lv ${user.level || 1}</span>
+                ${user.premium ? '<span class="pill pill-yellow" style="background:rgba(244,211,94,0.2); color:#F4D35E;">✨ Premium</span>' : ''}
+                ${user.is_verified ? '<span class="pill pill-blue">✅ Verified</span>' : ''}
+                ${user.is_admin ? '<span class="pill pill-red">👑 Admin</span>' : ''}
+                ${user.is_banned ? '<span class="pill pill-red">🚫 Banned</span>' : ''}
             </div>
-
-            <div
-            class="user-actions"
-            style="margin-top:15px;">
-
-                <button
-                class="edit-field-btn"
-                onclick="editUser('${user.user_id}')">
-
-                    ✏️ Edit
-
-                </button>
-
-                <button
-                class="edit-field-btn"
-                onclick="emailUser('${user.user_id}')">
-
-                    📧 Email
-
-                </button>
-
-                <button
-                class="edit-field-btn"
-                onclick="banUser('${user.user_id}')">
-
-                    🚫 Ban
-
-                </button>
-
-                <button
-                class="del-user-btn"
-                onclick="deleteUser('${user.user_id}')">
-
-                    🗑 Delete
-
-                </button>
-
+            <div class="user-actions">
+                <button class="action-btn" onclick="editUser('${user.user_id}')">✏️ Edit</button>
+                <button class="action-btn" onclick="emailUser('${user.user_id}', '${user.username}')">📧 Email</button>
+                <button class="action-btn" onclick="banUser('${user.user_id}', ${user.is_banned})">${user.is_banned ? '🟢 Unban' : '🚫 Ban'}</button>
+                <button class="action-btn del" onclick="deleteUser('${user.user_id}')">🗑️ Delete</button>
             </div>
-
-        </div>
-
-        `;
-
+        </div>`;
     });
-
     html += '</div>';
-
     return html;
-
 }
 
-function render(){
+function render() {
+    const totalUsers = db.users ? db.users.length : 0;
+    const adminCount = db.users ? db.users.filter(u => u.is_admin).length : 0;
+    const totalXP = db.users ? db.users.reduce((total, user) => total + (user.xp || 0), 0) : 0;
+    const bannedUsers = db.users ? db.users.filter(u => u.is_banned).length : 0;
 
-    const totalUsers =
-        db.users.length;
-
-    const adminCount =
-        db.users.filter(
-            u => u.is_admin
-        ).length;
-
-    const totalXP =
-        db.users.reduce(
-            (
-                total,
-                user
-            ) =>
-            total +
-            (user.xp || 0),
-            0
-        );
-
-    const bannedUsers =
-        db.users.filter(
-            u => u.is_banned
-        ).length;
-
-    document
-        .getElementById(
-            'app'
-        )
-        .innerHTML = `
-
-<div class="topbar">
-
-    <div class="logo">
-
-        <div class="logo-icon">
-            👑
+    document.getElementById('app').innerHTML = `
+    <div class="topbar">
+        <div class="logo">
+            <div class="logo-icon">👑</div>
+            <h1>HanVerse <span>Admin</span></h1>
         </div>
-
-        <h1>
-            HanVerse
-            <span>Admin</span>
-        </h1>
-
-    </div>
-
-    <div class="top-actions">
-
-        <button
-        class="btn btn-primary"
-        onclick="openCreateUser()">
-
-            ➕ Create User
-
-        </button>
-
-        <button
-        class="btn btn-secondary"
-        onclick="openEmailAll()">
-
-            📧 Email All
-
-        </button>
-
-        <button
-        class="btn btn-secondary"
-        onclick="location.href='profile.html'">
-
-            ← Profile
-
-        </button>
-
-    </div>
-
-</div>
-
-<div class="stats">
-
-    <div class="stat-card">
-        <div class="stat-title">
-            Total Users
-        </div>
-        <div class="stat-value">
-            ${totalUsers}
+        <div class="top-actions">
+            <button class="btn btn-primary" onclick="openCreateUser()">➕ Create User</button>
+            <button class="btn btn-secondary" onclick="openEmailAll()">📧 Email All</button>
+            <button class="btn btn-secondary" onclick="location.href='profile.html'">← Profile</button>
         </div>
     </div>
-
-    <div class="stat-card">
-        <div class="stat-title">
-            Admins
-        </div>
-        <div class="stat-value">
-            ${adminCount}
-        </div>
+    <div class="stats">
+        <div class="stat-card"><div class="stat-title">Total Users</div><div class="stat-value">${totalUsers}</div></div>
+        <div class="stat-card"><div class="stat-title">Admins</div><div class="stat-value">${adminCount}</div></div>
+        <div class="stat-card"><div class="stat-title">Total XP</div><div class="stat-value">${totalXP.toLocaleString()}</div></div>
+        <div class="stat-card"><div class="stat-title">Banned</div><div class="stat-value">${bannedUsers}</div></div>
     </div>
-
-    <div class="stat-card">
-        <div class="stat-title">
-            Total XP
-        </div>
-        <div class="stat-value">
-            ${totalXP.toLocaleString()}
-        </div>
+    <div class="tabs">
+        <button class="tab active">👥 Users (${totalUsers})</button>
     </div>
-
-    <div class="stat-card">
-        <div class="stat-title">
-            Banned
-        </div>
-        <div class="stat-value">
-            ${bannedUsers}
-        </div>
-    </div>
-
-</div>
-
-<div class="tabs">
-
-    <button
-    class="tab active">
-
-        👥 Users
-
-    </button>
-
-</div>
-
-<div class="section">
-
-    ${renderUsers()}
-
-</div>
-
-`;
-
+    <div class="section">${renderUsers()}</div>`;
 }
 
-function openCreateUser(){
-
-    alert(
-        'Create User modal will be added in Section 3'
-    );
-
+// --- EMAIL ALL FUNCTIONS ---
+function openEmailAll() {
+    openModal('emailAllModal');
+    document.getElementById('bulkSubject').value = '';
+    document.getElementById('bulkMessage').value = '';
+    document.getElementById('bulkEmailErr').textContent = '';
 }
 
-function openEmailAll(){
+async function submitEmailAllBroadcast() {
+    const subject = document.getElementById('bulkSubject').value.trim();
+    const message = document.getElementById('bulkMessage').value.trim();
+    const err = document.getElementById('bulkEmailErr');
+    const sendBtn = document.getElementById('sendBulkBtn');
 
-    alert(
-        'Email All modal will be added in Section 3'
-    );
+    if (!subject || !message) {
+        err.textContent = 'Both fields are required.';
+        return;
+    }
 
+    try {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "Dispatching...";
+
+        const response = await fetch(API_URL + '/admin/email-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+            body: JSON.stringify({ subject, message })
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) throw new Error(data.error || 'Failed sending broadcast.');
+
+        err.style.color = '#74C69D';
+        err.textContent = `✅ ${data.message}`;
+        setTimeout(() => { closeModal('emailAllModal'); loadAdminData(); }, 1500);
+    } catch(ex) {
+        err.textContent = ex.message;
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerText = "Send Broadcast 🚀";
+    }
 }
 
-function editUser(userId){
-
-    alert(
-        'Edit User: ' +
-        userId
-    );
-
+// --- CREATE & EDIT USER OPERATIONS ---
+function openCreateUser() {
+    document.getElementById('userModalTitle').innerText = "👤 Create New User";
+    document.getElementById('formUserId').value = '';
+    document.getElementById('formFullName').value = '';
+    document.getElementById('formUsername').value = '';
+    document.getElementById('formEmail').value = '';
+    document.getElementById('formPassword').value = '';
+    document.getElementById('formLevel').value = '1';
+    document.getElementById('formXp').value = '0';
+    document.getElementById('formIsAdmin').value = 'false';
+    document.getElementById('formIsBanned').value = 'false';
+    document.getElementById('formPremium').value = 'false';
+    document.getElementById('formIsVerified').value = 'false';
+    document.getElementById('passLabel').innerText = "PASSWORD";
+    document.getElementById('userFormErr').textContent = '';
+    openModal('userFormModal');
 }
 
-function emailUser(userId){
+function editUser(userId) {
+    const user = db.users.find(u => String(u.user_id) === String(userId));
+    if (!user) {
+        alert("Could not locate data parameters for user ID: " + userId);
+        return;
+    }
 
-    alert(
-        'Email User: ' +
-        userId
-    );
-
+    document.getElementById('userModalTitle').innerText = "✏️ Edit User Entity";
+    document.getElementById('formUserId').value = user.user_id;
+    document.getElementById('formFullName').value = user.full_name || '';
+    document.getElementById('formUsername').value = user.username || '';
+    document.getElementById('formEmail').value = user.email || '';
+    document.getElementById('formPassword').value = '';
+    document.getElementById('formLevel').value = user.level || 1;
+    document.getElementById('formXp').value = user.xp || 0;
+    
+    document.getElementById('formIsAdmin').value = user.is_admin ? "true" : "false";
+    document.getElementById('formIsBanned').value = user.is_banned ? "true" : "false";
+    document.getElementById('formPremium').value = user.premium ? "true" : "false";
+    document.getElementById('formIsVerified').value = user.is_verified ? "true" : "false";
+    
+    document.getElementById('passLabel').innerText = "CHANGE PASSWORD (LEAVE BLANK TO KEEP)";
+    document.getElementById('userFormErr').textContent = '';
+    openModal('userFormModal');
 }
 
-function banUser(userId){
+async function submitUserForm() {
+    const id = document.getElementById('formUserId').value;
+    const err = document.getElementById('userFormErr');
+    const saveBtn = document.getElementById('saveUserBtn');
 
-    alert(
-        'Ban User: ' +
-        userId
-    );
+    const payload = {
+        full_name: document.getElementById('formFullName').value.trim(),
+        username: document.getElementById('formUsername').value.trim(),
+        email: document.getElementById('formEmail').value.trim(),
+        level: parseInt(document.getElementById('formLevel').value) || 1,
+        xp: parseInt(document.getElementById('formXp').value) || 0,
+        is_admin: document.getElementById('formIsAdmin').value === 'true',
+        is_banned: document.getElementById('formIsBanned').value === 'true',
+        premium: document.getElementById('formPremium').value === 'true',
+        is_verified: document.getElementById('formIsVerified').value === 'true'
+    };
 
+    const pass = document.getElementById('formPassword').value;
+    if (pass) payload.password = pass;
+
+    if (!payload.username || !payload.email) {
+        err.textContent = "Username and Email fields are required.";
+        return;
+    }
+
+    try {
+        saveBtn.disabled = true;
+        const endpoint = id ? `/admin/users/update/${id}` : '/admin/users/create';
+        
+        const response = await fetch(API_URL + endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) throw new Error(data.error || 'Failed saving entity metrics.');
+
+        closeModal('userFormModal');
+        loadAdminData();
+    } catch (ex) {
+        err.textContent = ex.message;
+    } finally {
+        saveBtn.disabled = false;
+    }
 }
 
-function deleteUser(userId){
+// --- SINGLE DIRECT EMAIL ---
+function emailUser(userId, username) {
+    document.getElementById('targetEmailId').value = userId;
+    document.getElementById('targetEmailUser').innerText = `@${username}`;
+    document.getElementById('singleSubject').value = '';
+    document.getElementById('singleMessage').value = '';
+    document.getElementById('singleEmailErr').textContent = '';
+    openModal('singleEmailModal');
+}
 
-    alert(
-        'Delete User: ' +
-        userId
-    );
+async function submitSingleEmail() {
+    const id = document.getElementById('targetEmailId').value;
+    const subject = document.getElementById('singleSubject').value.trim();
+    const message = document.getElementById('singleMessage').value.trim();
+    const err = document.getElementById('singleEmailErr');
+    const sendBtn = document.getElementById('sendSingleBtn');
 
+    if (!subject || !message) {
+        err.textContent = "All fields required.";
+        return;
+    }
+
+    try {
+        sendBtn.disabled = true;
+        const response = await fetch(API_URL + `/admin/users/email/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+            body: JSON.stringify({ subject, message })
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) throw new Error(data.error || 'Failed delivering email.');
+
+        err.style.color = '#74C69D';
+        err.textContent = "✅ Email delivered successfully.";
+        setTimeout(() => closeModal('singleEmailModal'), 1200);
+    } catch(ex) {
+        err.textContent = ex.message;
+    } finally {
+        sendBtn.disabled = false;
+    }
+}
+
+// --- BAN & UNBAN ACTIONS ---
+async function banUser(userId, currentBanStatus) {
+    const actionPhrase = currentBanStatus ? 'UNBAN' : 'BAN';
+    if (!confirm(`Are you absolutely sure you want to ${actionPhrase} this user profile?`)) return;
+
+    try {
+        const response = await fetch(API_URL + `/admin/users/ban/${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+            body: JSON.stringify({ is_banned: !currentBanStatus })
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) throw new Error(data.error || 'Failed status mutation.');
+        loadAdminData();
+    } catch(ex) {
+        alert(ex.message);
+    }
+}
+
+// --- SYSTEM REMOVAL / DELETION ---
+async function deleteUser(userId) {
+    if (!confirm("🚨 WARNING: Deleting a user removes all their learning records permanently. Continue?")) return;
+
+    try {
+        const response = await fetch(API_URL + `/admin/users/delete/${userId}`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) throw new Error(data.error || 'Failed deletion pipeline.');
+        loadAdminData();
+    } catch(ex) {
+        alert(ex.message);
+    }
 }
 </script>
-<!-- Panda Floating Button -->
 
-<button
-class="panda-fab"
-onclick="togglePanda()">
-🐼
-</button>
-
-<div
-id="pandaChat"
-class="panda-chat">
-
-<div class="panda-header">
-
-<div class="panda-title">
-🐼 Panda AI Tutor
-</div>
-
-<button
-class="panda-close"
-onclick="togglePanda()">
-✕
-</button>
-
-</div>
-
-<div
-id="pandaBody"
-class="panda-body">
-
-<div class="message-row">
-
-<div class="panda-avatar">
-🐼
-</div>
-
-<div class="message panda-message">
-👋 Hi! Ask me anything about Mandarin.
-</div>
-
-</div>
-
-</div>
-
-<div class="panda-input">
-
-<textarea
-id="pandaInput"
-placeholder="Ask Panda...">
-</textarea>
-
-<button
-class="panda-send"
-onclick="sendPandaMessage()">
-➤
-</button>
-
-</div>
-
+<button class="panda-fab" onclick="togglePanda()">🐼</button>
+<div id="pandaChat" class="panda-chat">
+    <div class="panda-header">
+        <div class="panda-title">🐼 Panda AI Tutor</div>
+        <button class="panda-close" onclick="togglePanda()">✕</button>
+    </div>
+    <div id="pandaBody" class="panda-body">
+        <div class="message-row">
+            <div class="panda-avatar">🐼</div>
+            <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
+        </div>
+    </div>
+    <div class="panda-input">
+        <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
+        <button class="panda-send" onclick="sendPandaMessage()">➤</button>
+    </div>
 </div>
 <script src="panda-chat.js"></script>
 </body>

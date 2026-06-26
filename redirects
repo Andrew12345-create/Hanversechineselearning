@@ -1,0 +1,10 @@
+# Ensure static layout overrides are checked first
+/reset.html    /reset.html    200!
+/verify.html   /verify.html   200!
+/admin.html    /admin.html    200!
+
+# Route all cleaner API endpoints explicitly to the Netlify serverless function entrypoint
+/api/* /.netlify/functions/server/:splat  200
+
+# Single Page Application fallback matching
+/* /index.html    200

@@ -1,301 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Verify Account | Hanverse</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --yellow: #F4D35E;
-      --red: #E63946;
-      --blue: #4EA8DE;
-      --green: #74C69D;
-      --bg: #FFFDF7;
-      --text: #1A1A2E;
-      --secondary: #6B7280;
-      --border: #E2E8F0;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      background: var(--bg);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      width: 700px;
-      height: 700px;
-      border-radius: 50%;
-      background: rgba(116,198,157,.08);
-      top: -350px;
-      left: -350px;
-    }
-
-    body::after {
-      content: '';
-      position: fixed;
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      background: rgba(244,211,94,.08);
-      bottom: -300px;
-      right: -300px;
-    }
-
-    .card {
-      position: relative;
-      z-index: 2;
-      background: white;
-      width: 100%;
-      max-width: 580px;
-      padding: 55px;
-      border-radius: 35px;
-      text-align: center;
-      box-shadow: 0 25px 60px rgba(0,0,0,.08);
-      animation: fade .8s ease;
-      margin-top: 20px;
-      margin-bottom: 80px; /* Kept space clear for the bottom nav bar overlay layout */
-    }
-
-    @keyframes fade {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .logo {
-      font-size: 44px;
-      font-weight: 800;
-      color: var(--yellow);
-      margin-bottom: 20px;
-    }
-
-    .icon {
-      font-size: 90px;
-      margin-bottom: 20px;
-      line-height: 1;
-    }
-
-    h1 {
-      font-size: 34px;
-      color: var(--text);
-      margin-bottom: 15px;
-    }
-
-    p {
-      color: var(--secondary);
-      line-height: 1.8;
-      margin-bottom: 25px;
-    }
-
-    .success { color: var(--green); }
-    .error { color: var(--red); }
-
-    .btn {
-      display: none; /* Controlled dynamically by runtime status hooks inside scripts below */
-      border: none;
-      padding: 15px 32px;
-      border-radius: 40px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--green), #52B788);
-      color: white;
-      box-shadow: 0 10px 26px rgba(116,198,157,.35);
-      transition: .25s;
-      text-decoration: none;
-      outline: none;
-      margin: 10px auto;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(116,198,157,.45);
-    }
-
-    .panda {
-      font-size: 55px;
-      margin-top: 25px;
-      line-height: 1;
-    }
-
-    /* Clean Bottom Navigation Elements Fix */
-    .bottom-nav {
-      display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
-      background: rgba(255,255,255,.95); backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border); padding: 12px 20px;
-      justify-content: space-around; align-items: center;
-      box-shadow: 0 -8px 32px rgba(0,0,0,.07);
-      padding-bottom: calc(12px + env(safe-area-inset-bottom));
-    }
-    
-    .bottom-nav a {
-      flex: 1; text-align: center; text-decoration: none; color: var(--secondary);
-      font-size: .75rem; font-weight: 500; transition: .2s; padding: 8px 4px;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    
-    .nav-icon {
-      width: 46px; height: 46px; border-radius: 14px; margin: 0 auto 4px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; background: rgba(116,198,157,.08); transition: .2s; color: var(--secondary);
-    }
-    
-    .bottom-nav a.active { color: var(--green); }
-    .bottom-nav a.active .nav-icon { 
-      background: linear-gradient(135deg, var(--green), #52B788); color: white; 
-    }
-
-    @media(max-width: 600px) {
-      .card { padding: 35px 25px; margin-bottom: 90px; }
-      .logo { font-size: 36px; }
-      h1 { font-size: 26px; }
-      .icon { font-size: 70px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password | HanVerse 🐼</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Quicksand:wght@500;700&display=swap');
+        body {
+            font-family: 'Quicksand', sans-serif;
+        }
+        .brand-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-amber-50 min-h-screen flex items-center justify-center p-4">
 
-<div class="card">
-  <div class="logo">Hanverse</div>
-  <div class="icon" id="icon">⏳</div>
-  <h1 id="title">Verifying Your Account...</h1>
-  <p id="message">Please wait while we verify your email address.</p>
-  <button id="loginBtn" class="btn">Go To Login</button>
-  <div class="panda">🐼</div>
-</div>
+    <div class="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full border-4 border-teal-500/20 text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-2 bg-teal-500"></div>
 
-<nav class="bottom-nav">
-  <a href="/index.html" class="nav-item">
-    <div class="nav-icon">🏠</div><span>Home</span>
-  </a>
-  <a href="/learn.html" class="nav-item">
-    <div class="nav-icon">📚</div><span>Learn</span>
-  </a>
-  <a href="/signup.html" class="nav-item">
-    <div class="nav-icon">✨</div><span>Sign Up</span>
-  </a>
-  <a href="/login.html" class="nav-item">
-    <div class="nav-icon">🔑</div><span>Login</span>
-  </a>
-</nav>
+        <div class="text-6xl mb-2">🐼</div>
+        <h1 class="brand-font text-3xl font-bold text-slate-800 mb-2">HanVerse</h1>
+        <p class="text-slate-500 font-medium mb-6">Let's secure your account with a new password!</p>
 
-<script src="/notifications.js" onerror="console.warn('Notification script failed to initialize.')"></script>
-<script>
-  /* ==========================================
-     ROUTE PROXIES CONFIGURATION
-  ========================================== */
-  const API_URL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-      ? '/.netlify/functions/server'
-      : '/api'; // Maps to netlify.toml proxy setup flawlessly on production
+        <div id="loadingState" class="py-6 text-slate-600 font-medium">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full mb-2"></div>
+            <p>Checking your recovery request...</p>
+        </div>
 
-  /* ==========================================
-     DYNAMIC URL PATH PARAMETER CAPTURE FIX
-  ========================================== */
-  // Checks path layouts for tokens structured directly via: /verify.html/token-string
-  function getPathToken() {
-      const pathParts = window.location.pathname.split('/');
-      const verifyPageIndex = pathParts.findIndex(part => part.toLowerCase().includes('verify.html'));
-      
-      if (verifyPageIndex !== -1 && pathParts[verifyPageIndex + 1]) {
-          return pathParts[verifyPageIndex + 1];
-      }
-      
-      // Fallback strategies check: look for classic query variables (?token=...)
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('token');
-  }
+        <div id="errorState" class="hidden py-4">
+            <div class="text-red-500 text-5xl mb-2">⚠️</div>
+            <p id="errorMessage" class="text-red-600 font-semibold mb-4">Invalid or expired reset token.</p>
+            <a href="/" class="inline-block bg-slate-200 text-slate-700 px-6 py-2 rounded-full font-bold hover:bg-slate-300 transition">Go to Home</a>
+        </div>
 
-  const token = getPathToken();
-  const icon = document.getElementById('icon');
-  const title = document.getElementById('title');
-  const message = document.getElementById('message');
-  const loginBtn = document.getElementById('loginBtn');
+        <form id="resetForm" class="hidden text-left space-y-4">
+            <div>
+                <label for="password" class="block text-sm font-bold text-slate-700 mb-1">New Password</label>
+                <input type="password" id="password" required minlength="8" placeholder="At least 8 characters"
+                    class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 transition font-medium text-slate-700">
+            </div>
 
-  /* ==========================================
-     VERIFY OPERATION
-  ========================================== */
-  async function verifyEmail() {
-    if (!token) {
-      icon.innerHTML = '❌';
-      title.innerHTML = 'Missing Code Link';
-      title.className = 'error';
-      message.innerHTML = 'No functional access activation token identifier was structured inside the browser parameters.';
-      return;
-    }
+            <div>
+                <label for="confirmPassword" class="block text-sm font-bold text-slate-700 mb-1">Confirm New Password</label>
+                <input type="password" id="confirmPassword" required minlength="8" placeholder="Repeat your password"
+                    class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 transition font-medium text-slate-700">
+            </div>
 
-    try {
-      // Sent cleanly as a JSON payload to the verification route handler block
-      const response = await fetch(`${API_URL}/verify-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: token })
-      });
-      
-      let data;
-      try {
-          data = await response.json();
-      } catch {
-          data = { error: 'The application environment returned a layout error script configuration payload.' };
-      }
+            <div id="formFeedback" class="hidden p-3 bg-red-50 text-red-600 text-sm font-semibold rounded-xl"></div>
 
-      if (!response.ok) {
-        icon.innerHTML = '❌';
-        title.innerHTML = 'Verification Failed';
-        title.className = 'error';
-        message.innerHTML = data.error || 'The authentication verification code parameters are completely empty or have expired.';
-        return;
-      }
+            <button type="submit" id="submitBtn"
+                class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition transform active:scale-95 brand-font text-lg tracking-wide">
+                Update Password 🔒
+            </button>
+        </form>
 
-      // Success Display Rendering States
-      icon.innerHTML = '🎉';
-      title.innerHTML = 'Email Verified!';
-      title.className = 'success';
-      message.innerHTML = 'Your official Hanverse profile identity access has been safely deployed and confirmed. Proceeding to login views.';
-      
-      if (loginBtn) {
-          loginBtn.style.display = 'block';
-      }
+        <div id="successState" class="hidden py-6">
+            <div class="text-emerald-500 text-6xl mb-3">🎉</div>
+            <h2 class="brand-font text-2xl font-bold text-slate-800 mb-2">Success!</h2>
+            <p class="text-slate-600 font-medium mb-6">Your password has been securely updated.</p>
+            <a href="/" class="inline-block bg-teal-500 hover:bg-teal-600 text-white font-bold px-8 py-3 rounded-xl shadow-md transition brand-font">
+                Log In Now
+            </a>
+        </div>
+    </div>
 
-      // Auto redirect to profile screen parameters after confirmation completes
-      setTimeout(() => {
-        window.location.href = `/login.html?verified=1`;
-      }, 2500);
+    <script>
+        // 1. Detect environment and automatically point to the correct Netlify path
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const API_URL = isLocal ? '/.netlify/functions/server' : '/api';
 
-    } catch (error) {
-      console.error('Core Verification Runtime Failure:', error);
-      icon.innerHTML = '❌';
-      title.innerHTML = 'Connection Error';
-      title.className = 'error';
-      message.innerHTML = 'Unable to connect to the Hanverse server securely. Check network connection and try again.';
-    }
-  }
+        // 2. Extract token out of the URL string parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
 
-  /* ==========================================
-     INTERACTIVE TRIGGER LISTENERS
-  ========================================== */
-  if (loginBtn) {
-    loginBtn.addEventListener('click', () => {
-      window.location.href = `/login.html`;
-    });
-  }
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const errorMessage = document.getElementById('errorMessage');
+        const resetForm = document.getElementById('resetForm');
+        const formFeedback = document.getElementById('formFeedback');
+        const successState = document.getElementById('successState');
 
-  window.addEventListener('load', verifyEmail);
-</script>
+        // Initial validation block
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!token) {
+                loadingState.classList.add('hidden');
+                errorMessage.textContent = "Oops! You're missing a valid password reset token link.";
+                errorState.classList.remove('hidden');
+            } else {
+                // Token exists, safe to reveal the update form input options
+                loadingState.classList.add('hidden');
+                resetForm.classList.remove('hidden');
+            }
+        });
+
+        // 3. Form Submission Interception
+        resetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            formFeedback.classList.add('hidden');
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Client-side structural sanity check
+            if (password !== confirmPassword) {
+                formFeedback.textContent = "Your passwords don't match!";
+                formFeedback.classList.remove('hidden');
+                return;
+            }
+
+            if (password.length < 8) {
+                formFeedback.textContent = "Password must be at least 8 characters long.";
+                formFeedback.classList.remove('hidden');
+                return;
+            }
+
+            // Lock submit button to prevent double clicks
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Updating...";
+
+            try {
+                const response = await fetch(`${API_URL}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, newPassword: password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Failed to apply new security password changes.');
+                }
+
+                // Success pipeline jump
+                resetForm.classList.add('hidden');
+                successState.classList.remove('hidden');
+
+            } catch (err) {
+                formFeedback.textContent = err.message;
+                formFeedback.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Update Password 🔒";
+            }
+        });
+    </script>
 </body>
 </html>
