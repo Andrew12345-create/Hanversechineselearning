@@ -29,10 +29,9 @@ app.use(express.urlencoded({ extended: true }));
 /* ==========================================
    ENV / STARTUP DIAGNOSTICS LOGS 🔍
 ========================================== */
-console.log('OpenAI key exists:', !!process.env.OPENAI_API_KEY);
-console.log('OpenAI key prefix:', process.env.OPENAI_API_KEY?.slice(0, 12));
-console.log('Brevo key exists:', !!process.env.BREVO_SMTP_KEY);
-console.log('Database URL exists:', !!(process.env.DATABASE_URL || process.env.NEON_DATABASE_URL));
+console.log('✅ OpenAI key exists:', !!process.env.OPENAI_API_KEY);
+console.log('✅ Brevo key exists:', !!process.env.BREVO_SMTP_KEY);
+console.log('✅ Database URL exists:', !!(process.env.DATABASE_URL || process.env.NEON_DATABASE_URL));
 
 /* ==========================================
    DATABASE SERVICES CONFIGURATION 🗄️
@@ -80,26 +79,32 @@ if (databaseUrl) {
 ========================================== */
 const EMAIL_FROM = process.env.EMAIL_FROM || '"HanVerse" <andrewmunamwangi@gmail.com>';
 
-const mailer = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: '91f82d001@smtp-brevo.com',
-    pass: process.env.BREVO_SMTP_KEY
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
+let mailer = null;
 
-mailer.verify((error) => {
-  if (error) {
-    console.error('❌ SMTP Error:', error.message);
-  } else {
-    console.log('✅ SMTP Ready');
-  }
-});
+try {
+  mailer = nodemailer.createTransport({
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: '91f82d001@smtp-brevo.com',
+      pass: process.env.BREVO_SMTP_KEY
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+
+  mailer.verify((error) => {
+    if (error) {
+      console.error('❌ SMTP Error:', error.message);
+    } else {
+      console.log('✅ SMTP Ready');
+    }
+  });
+} catch (error) {
+  console.error('❌ Failed to create mailer:', error.message);
+}
 
 /* ==========================================
    UTILITY HELPERS 🔧
@@ -137,7 +142,8 @@ function safeUser(user) {
     premium_until: user.premium_until || null,
     current_yct: user.current_yct || 1,
     current_hsk: user.current_hsk || 0,
-    chinese_level: user.chinese_level || "YCT 1"
+    chinese_level: user.chinese_level || "YCT 1",
+    role: user.role || 'student'
   };
 }
 
@@ -165,17 +171,21 @@ async function sendVerificationEmail({ to, username, token }) {
           Verify Email
         </a>
       </p>
-      <p>If the button doesn’t work, copy and paste this link into your browser:</p>
+      <p>If the button doesn't work, copy and paste this link into your browser:</p>
       <p>${verifyLink}</p>
     </div>
   `;
 
-  await mailer.sendMail({
-    from: EMAIL_FROM,
-    to,
-    subject: 'Verify your HanVerse account',
-    html
-  });
+  if (mailer) {
+    await mailer.sendMail({
+      from: EMAIL_FROM,
+      to,
+      subject: 'Verify your HanVerse account',
+      html
+    });
+  } else {
+    console.warn('⚠️ Mailer not available, skipping email send');
+  }
 }
 
 async function sendPasswordResetEmail({ to, username, token }) {
@@ -196,12 +206,39 @@ async function sendPasswordResetEmail({ to, username, token }) {
     </div>
   `;
 
-  await mailer.sendMail({
-    from: EMAIL_FROM,
-    to,
-    subject: 'Reset your HanVerse password',
-    html
-  });
+  if (mailer) {
+    await mailer.sendMail({
+      from: EMAIL_FROM,
+      to,
+      subject: 'Reset your HanVerse password',
+      html
+    });
+  } else {
+    console.warn('⚠️ Mailer not available, skipping email send');
+  }
+}
+
+// ==========================================
+// MIDDLEWARE: Admin Auth Check
+// ==========================================
+async function verifyAdminToken(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, error: 'Missing or invalid security token.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'Invalid token format.' });
+    }
+
+    req.adminToken = token;
+    next();
+  } catch (error) {
+    console.error('❌ Admin auth error:', error);
+    return res.status(500).json({ success: false, error: 'Authentication check failed.' });
+  }
 }
 
 /* ==========================================
@@ -211,37 +248,1102 @@ router.get('/health', (req, res) => {
   return res.json({
     ok: true,
     app: 'HanVerse',
-    status: 'Running'
+    status: 'Running',
+    database: pool ? 'connected' : 'disconnected',
+    email: mailer ? 'configured' : 'not configured'
   });
 });
 
 router.get('/routes', (req, res) => {
   return res.json({
     routes: [
-      '/',
-      '/health',
-      '/routes',
-      '/signup',
-      '/login',
-      '/user/:userId',
-      '/panda-chat',
-      '/verify-email',
-      '/forgot-password',
-      '/reset-password',
-      '/admin/verify-password',
-      '/admin/overview',
-      '/admin/email-all',
-      '/admin/users/email/:id',
-      '/admin/users/update/:id',
-      '/admin/users/ban/:id',
-      '/admin/users/delete/:id'
+      { method: 'GET', path: '/' },
+      { method: 'GET', path: '/health' },
+      { method: 'GET', path: '/routes' },
+      { method: 'POST', path: '/signup' },
+      { method: 'POST', path: '/login' },
+      { method: 'GET', path: '/user/:userId' },
+      { method: 'POST', path: '/panda-chat' },
+      { method: 'POST', path: '/verify-email' },
+      { method: 'POST', path: '/resend-verification' },
+      { method: 'POST', path: '/forgot-password' },
+      { method: 'POST', path: '/reset-password' },
+      { method: 'POST', path: '/admin/verify-password' },
+      { method: 'GET', path: '/admin/overview' },
+      { method: 'GET', path: '/admin/pending-parents' },
+      { method: 'POST', path: '/admin/verify-parent/:id' },
+      { method: 'POST', path: '/admin/email-all' },
+      { method: 'POST', path: '/admin/users/email/:id' },
+      { method: 'POST', path: '/admin/users/update/:id' },
+      { method: 'POST', path: '/admin/users/ban/:id' },
+      { method: 'DELETE', path: '/admin/users/delete/:id' },
+      { method: 'GET', path: '/admin/parents' },
+      { method: 'GET', path: '/admin/parents/pending' },
+      { method: 'POST', path: '/admin/parents/verify/:parentId' },
+      { method: 'POST', path: '/admin/parents/deny/:parentId' },
+      { method: 'GET', path: '/parents/dashboard/:parentId' },
+      { method: 'POST', path: '/parents/create' },
+      { method: 'PUT', path: '/parents/:parentId' },
+      { method: 'DELETE', path: '/parents/:parentId' }
     ]
   });
 });
+// ==========================================
+// CHILDREN ENDPOINTS 👶
+// ==========================================
 
-/* ==========================================
-   ADMIN ENDPOINTS 🔐
-========================================== */
+// GET: Fetch all children for a parent
+router.get('/parents/children/:parentId', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+        console.log('📥 Fetching children for parent:', parentId);
+
+        // Verify parent exists
+        const parentResult = await pool.query(
+            `SELECT p.parent_id, u.is_verified, u.is_banned 
+             FROM parents p
+             JOIN users u ON p.user_id = u.user_id
+             WHERE p.parent_id = $1 OR p.user_id = $1`,
+            [parentId]
+        );
+
+        if (!parentResult.rows.length) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Parent not found.' 
+            });
+        }
+
+        const parent = parentResult.rows[0];
+        const parentRecordId = parent.parent_id;
+
+        // Fetch children from the children table
+        const childrenResult = await pool.query(`
+            SELECT 
+                child_id as id,
+                user_id,
+                full_name,
+                age,
+                level,
+                xp,
+                streak_days,
+                lessons_completed,
+                achievements_count,
+                progress_percentage,
+                is_active,
+                is_banned,
+                created_at,
+                last_active,
+                last_lesson_at,
+                username,
+                email
+            FROM children
+            WHERE parent_id = $1
+            AND is_active = true
+            ORDER BY full_name
+        `, [parentRecordId]);
+
+        // Map children data
+        const children = childrenResult.rows.map(child => ({
+            user_id: child.user_id,
+            child_id: child.id,
+            full_name: child.full_name || 'Child',
+            age: child.age || null,
+            level: child.level || 'YCT 1',
+            xp: child.xp || 0,
+            streak: child.streak_days || 0,
+            lessons_completed: child.lessons_completed || 0,
+            achievements: child.achievements_count || 0,
+            progress: child.progress_percentage || 0,
+            is_verified: true, // Children are auto-verified
+            is_banned: child.is_banned || false,
+            is_active: child.is_active || true,
+            username: child.username || '',
+            email: child.email || '',
+            created_at: child.created_at,
+            last_active: child.last_active,
+            last_lesson_at: child.last_lesson_at
+        }));
+
+        console.log(`✅ Found ${children.length} children for parent ${parentId}`);
+
+        return res.json({
+            success: true,
+            children: children
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching children:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch children data.',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// POST: Add a new child
+// POST: Add a new child (with username, email, password)
+router.post('/parents/children', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId, full_name, age, level, username, email, password } = req.body || {};
+
+        console.log('📤 Adding child request:', { parentId, full_name, age, level, username, email });
+
+        // --- VALIDATION ---
+        if (!parentId) {
+            return res.status(400).json({
+                success: false,
+                error: 'Parent ID is required.'
+            });
+        }
+
+        if (!full_name || full_name.trim().length < 2) {
+            return res.status(400).json({
+                success: false,
+                error: 'Child name must be at least 2 characters.'
+            });
+        }
+
+        if (!age || age < 4 || age > 18) {
+            return res.status(400).json({
+                success: false,
+                error: 'Age must be between 4 and 18.'
+            });
+        }
+
+        if (!username || username.trim().length < 3) {
+            return res.status(400).json({
+                success: false,
+                error: 'Username must be at least 3 characters.'
+            });
+        }
+
+        // Username validation
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Username can only contain letters, numbers, and underscores.'
+            });
+        }
+
+        if (!password || password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                error: 'Password must be at least 6 characters.'
+            });
+        }
+
+        const cleanUsername = username.trim().toLowerCase();
+        const cleanEmail = email ? email.trim().toLowerCase() : null;
+
+        // --- CHECK IF USERNAME OR EMAIL EXISTS ---
+        const existingCheck = await pool.query(`
+            SELECT username, email FROM users 
+            WHERE username = $1 OR (email = $2 AND $2 IS NOT NULL)
+        `, [cleanUsername, cleanEmail]);
+
+        if (existingCheck.rows.length > 0) {
+            const conflict = existingCheck.rows[0];
+            if (conflict.username === cleanUsername) {
+                return res.status(409).json({
+                    success: false,
+                    error: 'Username is already taken. Please choose a different one.'
+                });
+            }
+            if (conflict.email === cleanEmail) {
+                return res.status(409).json({
+                    success: false,
+                    error: 'Email is already registered. Please use a different email.'
+                });
+            }
+        }
+
+        // --- FIND THE PARENT ---
+        let parentRecord = null;
+        
+        const parentQuery = await pool.query(`
+            SELECT p.*, u.is_verified, u.is_banned, u.email as user_email
+            FROM parents p
+            JOIN users u ON p.user_id = u.user_id
+            WHERE p.user_id = $1 OR p.parent_id = $1
+        `, [parentId]);
+
+        if (parentQuery.rows.length > 0) {
+            parentRecord = parentQuery.rows[0];
+            console.log('✅ Found parent:', parentRecord);
+        } else {
+            const userCheck = await pool.query(`
+                SELECT * FROM users WHERE user_id = $1 AND role = 'parent'
+            `, [parentId]);
+
+            if (userCheck.rows.length > 0) {
+                const user = userCheck.rows[0];
+                const insertParent = await pool.query(`
+                    INSERT INTO parents (user_id, full_name, email, is_verified, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4, NOW(), NOW())
+                    RETURNING *
+                `, [user.user_id, user.full_name, user.email, user.is_verified]);
+
+                parentRecord = insertParent.rows[0];
+                console.log('✅ Created parent record:', parentRecord);
+            } else {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Parent not found. Please make sure you are verified as a parent.'
+                });
+            }
+        }
+
+        // --- CHECK IF PARENT IS VERIFIED ---
+        if (!parentRecord.is_verified) {
+            return res.status(403).json({
+                success: false,
+                error: 'Parent account not verified. Please wait for admin verification.'
+            });
+        }
+
+        if (parentRecord.is_banned) {
+            return res.status(403).json({
+                success: false,
+                error: 'Parent account is banned.'
+            });
+        }
+
+        // --- CREATE USER ACCOUNT FOR CHILD ---
+        const cleanName = full_name.trim();
+        const password_hash = await bcrypt.hash(password, 10);
+        
+        // Generate email if not provided
+        const finalEmail = cleanEmail || `${cleanUsername}@hanverse.child`;
+
+        const userResult = await pool.query(`
+            INSERT INTO users (
+                username,
+                full_name,
+                email,
+                password_hash,
+                role,
+                is_verified,
+                is_banned,
+                premium,
+                xp,
+                level,
+                streak_days,
+                created_at,
+                updated_at
+            ) VALUES ($1, $2, $3, $4, 'student', true, false, false, 0, 1, 0, NOW(), NOW())
+            RETURNING user_id
+        `, [cleanUsername, cleanName, finalEmail, password_hash]);
+
+        const childUserId = userResult.rows[0].user_id;
+        console.log('✅ Child user created:', childUserId);
+
+        // --- INSERT INTO CHILDREN TABLE ---
+        const childResult = await pool.query(`
+            INSERT INTO children (
+                parent_id,
+                user_id,
+                full_name,
+                age,
+                level,
+                username,
+                email,
+                password_hash,
+                created_at,
+                updated_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+            RETURNING child_id, user_id, full_name, age, level, username, email
+        `, [
+            parentRecord.parent_id,
+            childUserId,
+            cleanName,
+            age,
+            level || 'YCT 1',
+            cleanUsername,
+            finalEmail,
+            password_hash
+        ]);
+
+        const newChild = childResult.rows[0];
+        console.log('✅ Child record created:', newChild);
+
+        // --- UPDATE PARENT'S CHILDREN COUNT ---
+        try {
+            await pool.query(`
+                UPDATE parents 
+                SET children_count = children_count + 1,
+                    updated_at = NOW()
+                WHERE parent_id = $1
+            `, [parentRecord.parent_id]);
+        } catch (countError) {
+            console.warn('⚠️ Could not update children count:', countError.message);
+        }
+
+        // --- LOG ACTIVITY ---
+        try {
+            await pool.query(`
+                INSERT INTO child_activities (child_id, type, message, created_at)
+                VALUES ($1, 'child_added', $2, NOW())
+            `, [newChild.child_id, `Child ${cleanName} (${age} years old) was added to the account`]);
+            console.log('✅ Activity logged');
+        } catch (logError) {
+            console.warn('⚠️ Could not log activity:', logError.message);
+        }
+
+        // --- SEND EMAIL TO PARENT ---
+        try {
+            if (mailer) {
+                const parentEmail = parentRecord.user_email || parentRecord.email;
+                
+                if (parentEmail) {
+                    const html = `
+                        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
+                            <div style="text-align:center;margin-bottom:20px;">
+                                <span style="font-size:3rem;">👶</span>
+                                <h2 style="color:#ff416c;margin:10px 0 0 0;">Child Account Created!</h2>
+                            </div>
+                            <p>Hi Parent,</p>
+                            <p><strong>${cleanName}</strong> has been successfully added to your HanVerse account!</p>
+                            <div style="background-color:#f9fafb;padding:15px;border-radius:8px;margin:20px 0;">
+                                <p style="margin:4px 0;"><strong>Name:</strong> ${cleanName}</p>
+                                <p style="margin:4px 0;"><strong>Age:</strong> ${age}</p>
+                                <p style="margin:4px 0;"><strong>Level:</strong> ${level || 'YCT 1'}</p>
+                                <p style="margin:4px 0;"><strong>Username:</strong> ${cleanUsername}</p>
+                            </div>
+                            <p>Your child can now log in and start learning Mandarin with Panda AI! 🐼</p>
+                            <p style="font-size:0.85rem;color:#6b7280;text-align:center;margin-top:30px;">
+                                🐼 Happy Learning!
+                            </p>
+                        </div>
+                    `;
+
+                    await mailer.sendMail({
+                        from: EMAIL_FROM,
+                        to: parentEmail,
+                        subject: `👶 ${cleanName} Added to HanVerse!`,
+                        html
+                    });
+                    console.log('✅ Confirmation email sent to parent');
+                }
+            }
+        } catch (mailErr) {
+            console.warn('⚠️ Child addition email failed:', mailErr.message);
+        }
+
+        // --- RETURN SUCCESS ---
+        return res.status(201).json({
+            success: true,
+            message: `Child ${cleanName} added successfully!`,
+            child: {
+                child_id: newChild.child_id,
+                user_id: newChild.user_id,
+                full_name: newChild.full_name,
+                age: newChild.age,
+                level: newChild.level,
+                username: newChild.username || '',
+                email: newChild.email || ''
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error adding child:', error);
+        console.error('❌ Stack trace:', error.stack);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to add child. Please try again.',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+// GET: Fetch child activity feed
+router.get('/parents/activity/:parentId', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+
+        // Verify parent exists
+        const parentResult = await pool.query(
+            `SELECT parent_id FROM parents WHERE parent_id = $1 OR user_id = $1`,
+            [parentId]
+        );
+
+        if (!parentResult.rows.length) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Parent not found.' 
+            });
+        }
+
+        const parentRecordId = parentResult.rows[0].parent_id;
+
+        // Fetch activities from child_activities table
+        const activitiesResult = await pool.query(`
+            SELECT 
+                ca.activity_id,
+                ca.type,
+                ca.message,
+                ca.created_at,
+                c.full_name as child_name,
+                c.child_id
+            FROM child_activities ca
+            JOIN children c ON c.child_id = ca.child_id
+            WHERE c.parent_id = $1
+            ORDER BY ca.created_at DESC
+            LIMIT 20
+        `, [parentRecordId]);
+
+        const activities = activitiesResult.rows.map(activity => ({
+            activity_id: activity.activity_id,
+            type: activity.type || 'info',
+            message: activity.message || 'Activity occurred',
+            created_at: activity.created_at,
+            child_name: activity.child_name || 'Child',
+            child_id: activity.child_id
+        }));
+
+        return res.json({
+            success: true,
+            activities: activities
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching activity feed:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch activity feed.'
+        });
+    }
+});
+
+// GET: Fetch single child profile
+router.get('/parents/child/:childId', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { childId } = req.params;
+
+        const result = await pool.query(`
+            SELECT 
+                c.child_id,
+                c.user_id,
+                c.parent_id,
+                c.full_name,
+                c.age,
+                c.date_of_birth,
+                c.grade_level,
+                c.level,
+                c.xp,
+                c.streak_days,
+                c.lessons_completed,
+                c.achievements_count,
+                c.progress_percentage,
+                c.is_active,
+                c.is_banned,
+                c.created_at,
+                c.last_active,
+                c.last_lesson_at,
+                c.notes,
+                c.learning_preferences,
+                u.username,
+                u.email,
+                p.full_name as parent_name,
+                p.email as parent_email
+            FROM children c
+            LEFT JOIN users u ON c.user_id = u.user_id
+            LEFT JOIN parents p ON c.parent_id = p.parent_id
+            WHERE c.child_id = $1
+        `, [childId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Child not found.' 
+            });
+        }
+
+        return res.json({
+            success: true,
+            child: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching child profile:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch child profile.'
+        });
+    }
+});
+
+// PUT: Update child progress
+router.put('/parents/child/:childId/progress', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { childId } = req.params;
+        const { lessons_completed, achievements, progress, xp, level, last_lesson_at } = req.body;
+
+        const result = await pool.query(`
+            UPDATE children 
+            SET 
+                lessons_completed = COALESCE($1, lessons_completed),
+                achievements_count = COALESCE($2, achievements_count),
+                progress_percentage = COALESCE($3, progress_percentage),
+                xp = COALESCE($4, xp),
+                level = COALESCE($5, level),
+                last_lesson_at = COALESCE($6, last_lesson_at),
+                updated_at = NOW()
+            WHERE child_id = $7
+            RETURNING child_id, full_name, lessons_completed, achievements_count, progress_percentage, xp, level
+        `, [lessons_completed, achievements, progress, xp, level, last_lesson_at, childId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Child not found.' 
+            });
+        }
+
+        // Also update the user's xp and level if user_id exists
+        const childResult = await pool.query(
+            `SELECT user_id FROM children WHERE child_id = $1`,
+            [childId]
+        );
+
+        if (childResult.rows.length && childResult.rows[0].user_id) {
+            await pool.query(`
+                UPDATE users 
+                SET xp = $1, level = $2, updated_at = NOW()
+                WHERE user_id = $3
+            `, [xp || 0, level || 1, childResult.rows[0].user_id]);
+        }
+
+        // Log activity
+        await pool.query(`
+            INSERT INTO child_activities (child_id, type, message, created_at)
+            VALUES ($1, 'progress_updated', $2, NOW())
+        `, [childId, `Progress updated: Level ${level || 'N/A'}, XP ${xp || 0}`]);
+
+        return res.json({
+            success: true,
+            message: 'Progress updated successfully',
+            child: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Error updating child progress:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to update progress.'
+        });
+    }
+});
+
+// GET: Child activities
+router.get('/parents/child/:childId/activities', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { childId } = req.params;
+        const { limit = 10 } = req.query;
+
+        const result = await pool.query(`
+            SELECT 
+                activity_id,
+                type,
+                message,
+                metadata,
+                created_at
+            FROM child_activities
+            WHERE child_id = $1
+            ORDER BY created_at DESC
+            LIMIT $2
+        `, [childId, limit]);
+
+        return res.json({
+            success: true,
+            activities: result.rows
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching child activities:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch activities.'
+        });
+    }
+});
+// ==========================================
+// PARENT ENDPOINTS 👪
+// ==========================================
+
+// GET: All parents (for admin)
+router.get('/admin/parents', verifyAdminToken, async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const result = await pool.query(`
+            SELECT 
+                p.parent_id,
+                p.user_id,
+                p.full_name,
+                p.email,
+                p.phone,
+                p.is_verified,
+                p.verified_at,
+                p.is_active,
+                p.is_banned,
+                p.max_children,
+                p.children_count,
+                p.created_at,
+                p.last_login,
+                u.username,
+                u.profile_picture,
+                u.is_admin,
+                (
+                    SELECT COUNT(*) 
+                    FROM users c 
+                    WHERE c.parent_id = p.parent_id 
+                    AND c.role = 'student'
+                ) as actual_children_count
+            FROM parents p
+            LEFT JOIN users u ON p.user_id = u.user_id
+            ORDER BY p.created_at DESC
+        `);
+
+        return res.json({
+            success: true,
+            parents: result.rows
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching parents:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch parents'
+        });
+    }
+});
+
+// GET: Pending parents (unverified)
+router.get('/admin/parents/pending', verifyAdminToken, async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const result = await pool.query(`
+            SELECT 
+                p.parent_id,
+                p.user_id,
+                p.full_name,
+                p.email,
+                p.phone,
+                p.created_at,
+                u.username
+            FROM parents p
+            LEFT JOIN users u ON p.user_id = u.user_id
+            WHERE p.is_verified = false 
+            AND p.is_active = true
+            ORDER BY p.created_at DESC
+        `);
+
+        return res.json({
+            success: true,
+            pendingParents: result.rows
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching pending parents:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch pending parents'
+        });
+    }
+});
+
+// POST: Verify a parent
+router.post('/admin/parents/verify/:parentId', verifyAdminToken, async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+        const adminUserId = req.body.adminUserId || null;
+
+        const parentResult = await pool.query(`
+            SELECT p.*, u.email, u.username 
+            FROM parents p
+            JOIN users u ON p.user_id = u.user_id
+            WHERE p.parent_id = $1
+        `, [parentId]);
+
+        if (!parentResult.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'Parent not found'
+            });
+        }
+
+        const parent = parentResult.rows[0];
+
+        await pool.query(`
+            UPDATE parents 
+            SET is_verified = true,
+                verified_at = NOW(),
+                verified_by = $1,
+                updated_at = NOW()
+            WHERE parent_id = $2
+        `, [adminUserId, parentId]);
+
+        await pool.query(`
+            UPDATE users 
+            SET is_verified = true 
+            WHERE user_id = $1
+        `, [parent.user_id]);
+
+        await pool.query(`
+            INSERT INTO parent_logs (parent_id, action, details, performed_by)
+            VALUES ($1, 'verify', 'Parent account verified by admin', $2)
+        `, [parentId, adminUserId]);
+
+        try {
+            if (mailer) {
+                const html = `
+                    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
+                        <div style="text-align:center;margin-bottom:20px;">
+                            <span style="font-size:3rem;">🐼</span>
+                            <h2 style="color:#ff416c;margin:10px 0 0 0;">Parent Account Verified!</h2>
+                        </div>
+                        <p>Hi ${parent.full_name || parent.username || 'Parent'},</p>
+                        <p>Great news! Your HanVerse parent account has been <strong>verified</strong> by an administrator.</p>
+                        <p>You can now:</p>
+                        <ul style="padding-left:20px;margin:16px 0;">
+                            <li>✅ Add your children to HanVerse</li>
+                            <li>✅ Monitor their learning progress</li>
+                            <li>✅ View their achievements</li>
+                            <li>✅ Track their daily activity</li>
+                        </ul>
+                        <p><a href="${getFrontendBaseUrl()}/parent-dashboard.html" style="display:inline-block;padding:12px 24px;background:#ff416c;color:white;text-decoration:none;border-radius:8px;">Go to Dashboard</a></p>
+                        <p style="font-size:0.85rem;color:#6b7280;text-align:center;margin-top:30px;">🐼 Happy Learning!</p>
+                    </div>
+                `;
+
+                await mailer.sendMail({
+                    from: EMAIL_FROM,
+                    to: parent.email,
+                    subject: '🎉 Your HanVerse Parent Account is Verified!',
+                    html
+                });
+            }
+        } catch (mailErr) {
+            console.warn('⚠️ Verification email failed:', mailErr.message);
+        }
+
+        return res.json({
+            success: true,
+            message: 'Parent verified successfully',
+            parent: {
+                parent_id: parent.parent_id,
+                full_name: parent.full_name,
+                email: parent.email,
+                is_verified: true,
+                verified_at: new Date().toISOString()
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error verifying parent:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to verify parent'
+        });
+    }
+});
+
+// POST: Deny a parent
+router.post('/admin/parents/deny/:parentId', verifyAdminToken, async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+        const { reason } = req.body || {};
+        const adminUserId = req.body.adminUserId || null;
+
+        const parentResult = await pool.query(`
+            SELECT p.*, u.email, u.username 
+            FROM parents p
+            JOIN users u ON p.user_id = u.user_id
+            WHERE p.parent_id = $1
+        `, [parentId]);
+
+        if (!parentResult.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'Parent not found'
+            });
+        }
+
+        const parent = parentResult.rows[0];
+
+        await pool.query(`
+            UPDATE parents 
+            SET is_active = false,
+                is_verified = false,
+                updated_at = NOW()
+            WHERE parent_id = $1
+        `, [parentId]);
+
+        await pool.query(`
+            UPDATE users 
+            SET role = 'student',
+                is_verified = false
+            WHERE user_id = $1
+        `, [parent.user_id]);
+
+        await pool.query(`
+            INSERT INTO parent_logs (parent_id, action, details, performed_by)
+            VALUES ($1, 'deny', $2, $3)
+        `, [parentId, `Parent access denied. Reason: ${reason || 'Not specified'}`, adminUserId]);
+
+        try {
+            if (mailer) {
+                const html = `
+                    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
+                        <div style="text-align:center;margin-bottom:20px;">
+                            <span style="font-size:3rem;">📋</span>
+                            <h2 style="color:#E63946;margin:10px 0 0 0;">Parent Account Status Update</h2>
+                        </div>
+                        <p>Hi ${parent.full_name || parent.username || 'Parent'},</p>
+                        <p>Your HanVerse parent account application has been reviewed.</p>
+                        <p>Unfortunately, we are unable to verify your account at this time.</p>
+                        ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+                        <p>If you believe this is a mistake, please contact our support team.</p>
+                        <p style="font-size:0.85rem;color:#6b7280;text-align:center;margin-top:30px;">🐼 HanVerse Team</p>
+                    </div>
+                `;
+
+                await mailer.sendMail({
+                    from: EMAIL_FROM,
+                    to: parent.email,
+                    subject: '📋 HanVerse Parent Account Status Update',
+                    html
+                });
+            }
+        } catch (mailErr) {
+            console.warn('⚠️ Denial email failed:', mailErr.message);
+        }
+
+        return res.json({
+            success: true,
+            message: 'Parent access denied',
+            parent: {
+                parent_id: parent.parent_id,
+                full_name: parent.full_name,
+                email: parent.email,
+                is_verified: false,
+                is_active: false
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error denying parent:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to deny parent'
+        });
+    }
+});
+
+// GET: Parent dashboard data
+router.get('/parents/dashboard/:parentId', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+
+        const result = await pool.query(`
+            SELECT * FROM parent_dashboard_view 
+            WHERE parent_id = $1
+        `, [parentId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'Parent not found'
+            });
+        }
+
+        return res.json({
+            success: true,
+            dashboard: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching parent dashboard:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch dashboard'
+        });
+    }
+});
+
+// POST: Create parent from user
+router.post('/parents/create', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { userId } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                error: 'User ID is required'
+            });
+        }
+
+        const userResult = await pool.query(`
+            SELECT * FROM users WHERE user_id = $1
+        `, [userId]);
+
+        if (!userResult.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        const user = userResult.rows[0];
+
+        const existingParent = await pool.query(`
+            SELECT * FROM parents WHERE user_id = $1
+        `, [userId]);
+
+        if (existingParent.rows.length) {
+            return res.json({
+                success: true,
+                message: 'Parent already exists',
+                parent: existingParent.rows[0]
+            });
+        }
+
+        const result = await pool.query(`
+            INSERT INTO parents (
+                user_id,
+                full_name,
+                email,
+                is_verified,
+                created_at,
+                updated_at
+            ) VALUES ($1, $2, $3, $4, NOW(), NOW())
+            RETURNING *
+        `, [userId, user.full_name, user.email, user.is_verified]);
+
+        await pool.query(`
+            UPDATE users SET role = 'parent' WHERE user_id = $1
+        `, [userId]);
+
+        return res.status(201).json({
+            success: true,
+            message: 'Parent created successfully',
+            parent: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Error creating parent:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to create parent'
+        });
+    }
+});
+
+// PUT: Update parent
+router.put('/parents/:parentId', verifyAdminToken, async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+        const { full_name, email, phone, notification_preferences, language_preference } = req.body;
+
+        const result = await pool.query(`
+            UPDATE parents 
+            SET 
+                full_name = COALESCE($1, full_name),
+                email = COALESCE($2, email),
+                phone = COALESCE($3, phone),
+                notification_preferences = COALESCE($4, notification_preferences),
+                language_preference = COALESCE($5, language_preference),
+                updated_at = NOW()
+            WHERE parent_id = $6
+            RETURNING *
+        `, [full_name, email, phone, notification_preferences, language_preference, parentId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'Parent not found'
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Parent updated successfully',
+            parent: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Error updating parent:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to update parent'
+        });
+    }
+});
+
+// DELETE: Remove parent (soft delete)
+router.delete('/parents/:parentId', verifyAdminToken, async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+
+        const result = await pool.query(`
+            UPDATE parents 
+            SET is_active = false,
+                updated_at = NOW()
+            WHERE parent_id = $1
+            RETURNING *
+        `, [parentId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'Parent not found'
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Parent deactivated successfully',
+            parent: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Error deleting parent:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to delete parent'
+        });
+    }
+});
+
+// ==========================================
+// ADMIN ENDPOINTS 🔐
+// ==========================================
 
 // Verify Admin Password
 router.post('/admin/verify-password', async (req, res) => {
@@ -277,7 +1379,7 @@ router.post('/admin/verify-password', async (req, res) => {
 
     const valid = await bcrypt.compare(adminPassword, user.password_hash);
     if (!valid) {
-      return res.status(401).json({ success: false, error: 'Invalid admin password password.' });
+      return res.status(401).json({ success: false, error: 'Invalid admin password.' });
     }
 
     const adminToken = generateToken(32);
@@ -294,16 +1396,13 @@ router.post('/admin/verify-password', async (req, res) => {
 });
 
 // Fetch Dashboard Overview Metrics
-router.get('/admin/overview', async (req, res) => {
+router.get('/admin/overview', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, error: 'Missing security token context.' });
-    }
-
-    const usersQuery = await pool.query(`SELECT * FROM users ORDER BY created_at DESC`);
+    const usersQuery = await pool.query(
+      `SELECT * FROM users ORDER BY created_at DESC`
+    );
 
     return res.json({
       success: true,
@@ -322,15 +1421,87 @@ router.get('/admin/overview', async (req, res) => {
   }
 });
 
-// Send Bulk Email to All Verified Users
-router.post('/admin/email-all', async (req, res) => {
+// Fetch all pending (unverified) accounts
+router.get('/admin/pending-parents', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, error: 'Missing security token context.' });
+    const result = await pool.query(
+      `SELECT user_id, username, full_name, email, created_at 
+       FROM users 
+       WHERE is_verified = false 
+       ORDER BY created_at DESC`
+    );
+    
+    return res.json({ success: true, pendingUsers: result.rows });
+  } catch (error) {
+    console.error('❌ Error fetching pending parents:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch pending accounts' });
+  }
+});
+
+// Approve a specific pending parent account
+router.post('/admin/verify-parent/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { id } = req.params;
+    
+    const userResult = await pool.query(
+      `SELECT email, username FROM users WHERE user_id = $1`,
+      [id]
+    );
+    
+    if (!userResult.rows.length) {
+      return res.status(404).json({ success: false, error: 'User not found.' });
     }
+    
+    const user = userResult.rows[0];
+    
+    await pool.query(
+      `UPDATE users SET is_verified = true WHERE user_id = $1`,
+      [id]
+    );
+
+    try {
+      const html = `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
+          <div style="text-align:center;margin-bottom:20px;">
+            <span style="font-size:3rem;">🐼</span>
+            <h2 style="color:#ff416c;margin:10px 0 0 0;">Account Verified!</h2>
+          </div>
+          <p>Hi ${user.username || 'Learner'},</p>
+          <p>Great news! Your HanVerse account has been <strong>verified</strong> by an administrator. You now have full access to all features.</p>
+          <p>Start your Mandarin learning journey today!</p>
+          <p style="font-size:0.85rem;color:#6b7280;text-align:center;margin-top:30px;">🐼 Happy Learning!</p>
+        </div>
+      `;
+      
+      if (mailer) {
+        await mailer.sendMail({
+          from: EMAIL_FROM,
+          to: user.email,
+          subject: '🎉 Your HanVerse Account is Verified!',
+          html
+        });
+      }
+    } catch (mailErr) {
+      console.warn('⚠️ Verification email failed:', mailErr.message);
+    }
+    
+    console.log(`✅ Parent account ${id} verified by admin`);
+    
+    return res.json({ success: true, message: 'Account verified successfully' });
+  } catch (error) {
+    console.error('❌ Error verifying parent:', error);
+    return res.status(500).json({ success: false, error: 'Verification failed' });
+  }
+});
+
+// Send Bulk Email to All Verified Users
+router.post('/admin/email-all', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
     const { subject, message } = req.body || {};
     if (!subject || !message) {
@@ -338,12 +1509,12 @@ router.post('/admin/email-all', async (req, res) => {
     }
 
     const usersResult = await pool.query(
-      `SELECT email, username FROM users WHERE is_verified = true AND is_banned = false`
+      `SELECT email, username FROM users WHERE is_verified = true AND is_banned = false AND email IS NOT NULL AND email != ''`
     );
 
     const users = usersResult.rows;
     if (users.length === 0) {
-      return res.json({ success: true, message: 'No verified, active users found to email.' });
+      return res.json({ success: true, message: 'No verified, active users found to email.', sent: 0 });
     }
 
     let sendCount = 0;
@@ -366,13 +1537,15 @@ router.post('/admin/email-all', async (req, res) => {
           </div>
         `;
 
-        await mailer.sendMail({
-          from: EMAIL_FROM,
-          to: user.email,
-          subject: subject,
-          html: html
-        });
-        sendCount++;
+        if (mailer) {
+          await mailer.sendMail({
+            from: EMAIL_FROM,
+            to: user.email,
+            subject: subject,
+            html: html
+          });
+          sendCount++;
+        }
       } catch (mailErr) {
         console.warn(`⚠️ Failed sending bulk announcement to ${user.email}:`, mailErr.message);
       }
@@ -380,7 +1553,8 @@ router.post('/admin/email-all', async (req, res) => {
 
     return res.json({
       success: true,
-      message: `Successfully dispatched announcements to ${sendCount} active users.`
+      message: `Successfully dispatched announcements to ${sendCount} active users.`,
+      sent: sendCount
     });
 
   } catch (error) {
@@ -390,14 +1564,9 @@ router.post('/admin/email-all', async (req, res) => {
 });
 
 // Send Individual Direct Email
-router.post('/admin/users/email/:id', async (req, res) => {
+router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, error: 'Missing security token context.' });
-    }
 
     const targetUserId = req.params.id;
     const { subject, message } = req.body || {};
@@ -435,12 +1604,16 @@ router.post('/admin/users/email/:id', async (req, res) => {
       </div>
     `;
 
-    await mailer.sendMail({
-      from: EMAIL_FROM,
-      to: targetUser.email,
-      subject: subject,
-      html: html
-    });
+    if (mailer) {
+      await mailer.sendMail({
+        from: EMAIL_FROM,
+        to: targetUser.email,
+        subject: subject,
+        html: html
+      });
+    } else {
+      return res.status(500).json({ success: false, error: 'Email service not available.' });
+    }
 
     return res.json({
       success: true,
@@ -453,93 +1626,130 @@ router.post('/admin/users/email/:id', async (req, res) => {
   }
 });
 
-/* ==========================================================================
-   ADMIN ACTIONS: EDIT, BAN, DELETE & UPGRADE (WITH PREMIUM PARAMS) ⚙️
-========================================================================== */
-
-// UPDATE USER DETAILS (With exact, transparent audit logs sent to user email)
-router.post('/admin/users/update/:id', async (req, res) => {
+// UPDATE USER DETAILS
+router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, error: 'Missing security token context.' });
+    const targetUserId = req.params.id;
+    const { full_name, username, email, level, xp, is_admin, is_banned, premium, is_verified, password, role } = req.body || {};
+
+    if (!full_name || !username || !email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Full name, username, and email are required.' 
+      });
     }
 
-    const targetUserId = req.params.id;
-    const { full_name, username, email, level, xp, is_admin, is_banned, premium, is_verified, password } = req.body || {};
-
     const oldUserRes = await pool.query(
-      `SELECT email, username, is_admin, premium, xp, level FROM users WHERE user_id = $1`, 
+      `SELECT email, username, is_admin, premium, xp, level, is_banned, is_verified, role FROM users WHERE user_id = $1`, 
       [targetUserId]
     );
-    if (oldUserRes.rows.length === 0) return res.status(404).json({ success: false, error: 'User not found.' });
+    
+    if (oldUserRes.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'User not found.' });
+    }
+    
     const oldUser = oldUserRes.rows[0];
 
-    // Execute structural database state mutation
-    let query = `UPDATE users SET full_name=$1, username=$2, email=$3, level=$4, xp=$5, is_admin=$6, is_banned=$7, premium=$8, is_verified=$9`;
-    let params = [full_name, username, email, level, xp, is_admin, is_banned, premium, is_verified, targetUserId];
+    let query = `UPDATE users SET 
+      full_name = $1, 
+      username = $2, 
+      email = $3, 
+      level = $4, 
+      xp = $5, 
+      is_admin = $6, 
+      is_banned = $7, 
+      premium = $8, 
+      is_verified = $9`;
+    
+    let params = [full_name, username, email, level, xp, is_admin, is_banned, premium, is_verified];
+
+    // Add role if provided
+    let paramIndex = 10;
+    if (role) {
+      query += `, role = $${paramIndex}`;
+      params.push(role);
+      paramIndex++;
+    }
 
     if (password && password.trim().length >= 6) {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(password, salt);
-      query += `, password_hash=$11 WHERE user_id=$10`;
+      query += `, password_hash = $${paramIndex}`;
       params.push(hash);
-    } else {
-      query += ` WHERE user_id=$10`;
+      paramIndex++;
     }
+
+    query += ` WHERE user_id = $${paramIndex}`;
+    params.push(targetUserId);
 
     await pool.query(query, params);
 
-    // Dynamic field difference audit tracing
     let changeLogs = [];
+    const fieldMappings = {
+      premium: { label: 'Premium Membership Status', old: oldUser.premium ? 'Enabled ✨' : 'Disabled', new: premium ? 'Enabled ✨' : 'Disabled' },
+      xp: { label: 'Experience Points (XP)', old: `${oldUser.xp} XP`, new: `${xp} XP` },
+      level: { label: 'Account Learning Level', old: `Level ${oldUser.level}`, new: `Level ${level}` },
+      is_admin: { label: 'Administrative Privileges', old: oldUser.is_admin ? 'Admin' : 'Standard Learner', new: is_admin ? '👑 System Administrator' : 'Standard Learner' },
+      is_banned: { label: 'Account Status', old: oldUser.is_banned ? 'Banned' : 'Active', new: is_banned ? '🚫 Banned' : '✅ Active' },
+      is_verified: { label: 'Verification Status', old: oldUser.is_verified ? 'Verified' : 'Unverified', new: is_verified ? '✅ Verified' : '⏳ Pending' }
+    };
 
-    if (oldUser.premium !== premium) {
-      changeLogs.push(`<li><strong>Premium Membership Status:</strong> Modified from <em>${oldUser.premium ? 'Enabled ✨' : 'Disabled'}</em> to <strong>${premium ? 'Enabled ✨ (Welcome to HanVerse Premium!)' : 'Disabled (No longer Premium)'}</strong></li>`);
-    }
-    if (Number(oldUser.xp) !== Number(xp)) {
-      changeLogs.push(`<li><strong>Experience Points (XP):</strong> Recalibrated from <em>${oldUser.xp} XP</em> to <strong>${xp} XP</strong></li>`);
-    }
-    if (Number(oldUser.level) !== Number(level)) {
-      changeLogs.push(`<li><strong>Account Learning Level:</strong> Changed from <em>Level ${oldUser.level}</em> to <strong>Level ${level}</strong></li>`);
-    }
-    if (oldUser.is_admin !== is_admin) {
-      changeLogs.push(`<li><strong>Administrative Privileges:</strong> Changed from <em>${oldUser.is_admin ? 'Admin' : 'Standard Learner'}</em> to <strong>${is_admin ? '👑 System Administrator' : 'Standard Learner'}</strong></li>`);
+    if (role) {
+      fieldMappings.role = { label: 'Role', old: oldUser.role || 'student', new: role };
     }
 
-    // Deliver explicit notification if tracking details altered
+    for (const [key, mapping] of Object.entries(fieldMappings)) {
+      const oldValue = String(oldUser[key] || '');
+      const newValue = String(req.body[key] || '');
+      if (oldValue !== newValue) {
+        changeLogs.push(`<li><strong>${mapping.label}:</strong> Changed from <em>${mapping.old}</em> to <strong>${mapping.new}</strong></li>`);
+      }
+    }
+
     if (changeLogs.length > 0) {
-      const emailHtml = `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 16px; background-color: #ffffff;">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <span style="font-size: 3rem;">🐼</span>
-            <h2 style="color: #ff416c; margin: 10px 0 0 0;">HanVerse Account Modification Notice</h2>
+      try {
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 16px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <span style="font-size: 3rem;">🐼</span>
+              <h2 style="color: #ff416c; margin: 10px 0 0 0;">HanVerse Account Modification Notice</h2>
+            </div>
+            <p>Hi ${username || 'Learner'},</p>
+            <p>This message is to officially notify you that <strong>a system administrator has updated your account parameters</strong> on HanVerse. Please review the detailed profile changes below:</p>
+            
+            <ul style="background-color: #f9fafb; padding: 20px 20px 20px 35px; border-radius: 12px; border-left: 4px solid #ff416c; margin: 20px 0; line-height: 1.8;">
+              ${changeLogs.join('')}
+            </ul>
+            
+            <p>If you believe these values were updated in error, please reach out to the support team immediately.</p>
+            <p style="font-size: 0.85rem; color: #6b7280; text-align: center; margin-top: 40px; border-top: 1px solid #f3f4f6; padding-top: 20px;">
+              Thank you for learning Mandarin with HanVerse!<br>
+              🐼 Team HanVerse Support Ops
+            </p>
           </div>
-          <p>Hi ${username || 'Learner'},</p>
-          <p>This message is to officially notify you that <strong>a system administrator has explicitly updated your account parameters</strong> on HanVerse. Please review the detailed profile changes below:</p>
-          
-          <ul style="background-color: #f9fafb; padding: 20px 20px 20px 35px; border-radius: 12px; border-left: 4px solid #ff416c; margin: 20px 0; line-height: 1.8;">
-            ${changeLogs.join('')}
-          </ul>
-          
-          <p>If you believe these tracking or status values were updated in error, please reach out to the support team immediately.</p>
-          <p style="font-size: 0.85rem; color: #6b7280; text-align: center; margin-top: 40px; border-top: 1px solid #f3f4f6; padding-top: 20px;">
-            Thank you for learning Mandarin with HanVerse!<br>
-            🐼 Team HanVerse Support Ops
-          </p>
-        </div>
-      `;
+        `;
 
-      await mailer.sendMail({
-        from: EMAIL_FROM,
-        to: email,
-        subject: '⚙️ HanVerse Profile Updated by Administrator',
-        html: emailHtml
-      });
+        if (mailer) {
+          await mailer.sendMail({
+            from: EMAIL_FROM,
+            to: email,
+            subject: '⚙️ HanVerse Profile Updated by Administrator',
+            html: emailHtml
+          });
+        }
+      } catch (mailErr) {
+        console.warn('⚠️ Failed to send update notification email:', mailErr.message);
+      }
     }
 
-    return res.json({ success: true, message: 'User parameters updated and highly specific audit notification dispatched.' });
+    return res.json({ 
+      success: true, 
+      message: 'User parameters updated successfully.',
+      changes: changeLogs.length
+    });
+
   } catch (error) {
     console.error('❌ Update failure:', error);
     return res.status(500).json({ success: false, error: 'Failed to update user profile.' });
@@ -547,91 +1757,726 @@ router.post('/admin/users/update/:id', async (req, res) => {
 });
 
 // BAN / UNBAN USER
-router.post('/admin/users/ban/:id', async (req, res) => {
+router.post('/admin/users/ban/:id', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, error: 'Missing security token context.' });
+    const targetUserId = req.params.id;
+    const { is_banned, banned_reason } = req.body;
+
+    if (typeof is_banned !== 'boolean') {
+      return res.status(400).json({ success: false, error: 'is_banned must be a boolean value.' });
     }
 
-    const targetUserId = req.params.id;
-    const { is_banned } = req.body;
-
-    const userRes = await pool.query(`UPDATE users SET is_banned = $1 WHERE user_id = $2 RETURNING email, username`, [is_banned, targetUserId]);
-    if (userRes.rows.length === 0) return res.status(404).json({ success: false, error: 'User missing.' });
+    const userRes = await pool.query(
+      `UPDATE users SET is_banned = $1, banned_reason = $2 WHERE user_id = $3 RETURNING email, username`, 
+      [is_banned, banned_reason || null, targetUserId]
+    );
+    
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'User not found.' });
+    }
+    
     const user = userRes.rows[0];
 
-    const subject = is_banned ? '🚨 Account Suspension Notice' : '🟢 Account Restored Notice';
-    const messageHtml = is_banned 
-      ? 'Your account has been explicitly suspended by an administrator due to policy or Terms of Service violations.' 
-      : 'Good news! Your HanVerse account restrictions have been cleared by an administrator, and full structural access has been restored.';
+    try {
+      const subject = is_banned ? '🚨 Account Suspension Notice' : '🟢 Account Restored Notice';
+      const messageHtml = is_banned 
+        ? `Your account has been suspended by an administrator.${banned_reason ? ` Reason: ${banned_reason}` : ''}` 
+        : 'Good news! Your HanVerse account restrictions have been cleared by an administrator, and full access has been restored.';
 
-    await mailer.sendMail({
-      from: EMAIL_FROM,
-      to: user.email,
-      subject: subject,
-      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
-              <div style="text-align:center;"><span style="font-size:3rem;">🐼</span><h2 style="color:#ff416c;">HanVerse Security Engine</h2></div>
-              <p>Hi ${user.username},</p>
-              <p>${messageHtml}</p>
-              <p style="font-size:0.85rem;color:#6b7280;margin-top:30px;text-align:center;">HanVerse Moderation Desk</p>
-            </div>`
+      const emailHtml = `
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
+          <div style="text-align:center;">
+            <span style="font-size:3rem;">🐼</span>
+            <h2 style="color:#ff416c;">HanVerse Security Engine</h2>
+          </div>
+          <p>Hi ${user.username},</p>
+          <p>${messageHtml}</p>
+          ${is_banned && banned_reason ? `<p><strong>Reason:</strong> ${banned_reason}</p>` : ''}
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:30px;text-align:center;">HanVerse Moderation Desk</p>
+        </div>
+      `;
+
+      if (mailer) {
+        await mailer.sendMail({
+          from: EMAIL_FROM,
+          to: user.email,
+          subject: subject,
+          html: emailHtml
+        });
+      }
+    } catch (mailErr) {
+      console.warn('⚠️ Ban notification email failed:', mailErr.message);
+    }
+
+    return res.json({ 
+      success: true, 
+      message: `User account successfully ${is_banned ? 'banned' : 'unbanned'}.` 
     });
 
-    return res.json({ success: true, message: `User account successfully ${is_banned ? 'banned' : 'unbanned'}.` });
   } catch (error) {
     console.error('❌ Ban adjustment failure:', error);
-    return res.status(500).json({ success: false, error: 'Account modification broken.' });
+    return res.status(500).json({ success: false, error: 'Account modification failed.' });
   }
 });
 
 // HARD DELETE USER
-router.post('/admin/users/delete/:id', async (req, res) => {
+router.delete('/admin/users/delete/:id', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, error: 'Missing security token context.' });
-    }
-
     const targetUserId = req.params.id;
 
-    const targetUserRes = await pool.query(`SELECT email, username FROM users WHERE user_id = $1`, [targetUserId]);
-    if (targetUserRes.rows.length === 0) return res.status(404).json({ success: false, error: 'User database row not found.' });
+    const targetUserRes = await pool.query(
+      `SELECT email, username FROM users WHERE user_id = $1`, 
+      [targetUserId]
+    );
+    
+    if (targetUserRes.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'User not found.' });
+    }
+    
     const user = targetUserRes.rows[0];
 
     try {
-      await mailer.sendMail({
-        from: EMAIL_FROM,
-        to: user.email,
-        subject: '❌ HanVerse Account Completely Removed',
-        html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
-                <p>Hi ${user.username},</p>
-                <p>This message confirms that an administrator has permanently deleted your HanVerse account profile and all its associated learning analytics metrics from our system files.</p>
-                <p>We are sad to see you go! If you ever wish to resume learning Mandarin, you are welcome to sign up as a fresh user anytime.</p>
-              </div>`
-    });
+      if (mailer) {
+        await mailer.sendMail({
+          from: EMAIL_FROM,
+          to: user.email,
+          subject: '❌ HanVerse Account Removed',
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
+              <p>Hi ${user.username},</p>
+              <p>This message confirms that an administrator has permanently deleted your HanVerse account profile and all associated learning analytics.</p>
+              <p>We are sad to see you go! If you ever wish to resume learning Mandarin, you are welcome to sign up again anytime.</p>
+              <p style="text-align:center;margin-top:30px;">🐼 HanVerse Team</p>
+            </div>
+          `
+        });
+      }
     } catch(mailErr) {
-      console.warn("⚠️ Departure warning email skipped:", mailErr.message);
+      console.warn("⚠️ Deletion confirmation email skipped:", mailErr.message);
     }
 
     await pool.query(`DELETE FROM user_progress WHERE user_id = $1`, [targetUserId]);
     await pool.query(`DELETE FROM user_achievements WHERE user_id = $1`, [targetUserId]);
+    await pool.query(`DELETE FROM email_verifications WHERE user_id = $1`, [targetUserId]);
+    await pool.query(`DELETE FROM password_resets WHERE user_id = $1`, [targetUserId]);
     await pool.query(`DELETE FROM users WHERE user_id = $1`, [targetUserId]);
 
-    return res.json({ success: true, message: 'Entity wiped completely from systems rows.' });
+    return res.json({ 
+      success: true, 
+      message: 'User permanently deleted from the system.' 
+    });
+
   } catch (error) {
-    console.error('❌ Pipeline elimination failure:', error);
-    return res.status(500).json({ success: false, error: 'Failed executing structural cascading deletion.' });
+    console.error('❌ Deletion failure:', error);
+    return res.status(500).json({ success: false, error: 'Failed to delete user.' });
   }
 });
+// ==========================================
+// PARENT-CHILD MANAGEMENT ENDPOINTS 👪
+// ==========================================
 
-/* ==========================================
-   PANDA AI INTERACTIVE TUTOR 🐼
-========================================== */
+// GET: Fetch all children for a parent
+// GET: Fetch all children for a parent
+router.get('/parents/children/:parentId', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+        console.log('📥 Fetching children for parent:', parentId);
+
+        // First verify this is a parent account
+        const parentResult = await pool.query(
+            `SELECT user_id, role, is_verified, is_banned FROM users WHERE user_id = $1`,
+            [parentId]
+        );
+
+        if (!parentResult.rows.length) {
+            return res.status(404).json({ success: false, error: 'Parent not found.' });
+        }
+
+        const parent = parentResult.rows[0];
+
+        if (parent.role !== 'parent') {
+            return res.status(403).json({ success: false, error: 'User is not a parent.' });
+        }
+
+        if (!parent.is_verified) {
+            return res.status(403).json({ success: false, error: 'Parent account not verified.' });
+        }
+
+        if (parent.is_banned) {
+            return res.status(403).json({ success: false, error: 'Parent account is banned.' });
+        }
+
+        // Fetch children - check if they're linked via parent_id column or parents table
+        let children = [];
+
+        // Try using the parent_id column in users table first
+        try {
+            const columnCheck = await pool.query(`
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'users' 
+                AND column_name = 'parent_id'
+            `);
+
+            if (columnCheck.rows.length > 0) {
+                // First get the parent's parent_id from parents table
+                const parentRecord = await pool.query(
+                    `SELECT parent_id FROM parents WHERE user_id = $1`,
+                    [parentId]
+                );
+
+                if (parentRecord.rows.length > 0) {
+                    const parentRecordId = parentRecord.rows[0].parent_id;
+                    
+                    const childrenResult = await pool.query(`
+                        SELECT 
+                            user_id,
+                            username,
+                            full_name,
+                            email,
+                            age,
+                            level,
+                            xp,
+                            streak_days,
+                            is_verified,
+                            is_banned,
+                            lessons_completed,
+                            achievements_count,
+                            progress_percentage,
+                            created_at
+                        FROM users 
+                        WHERE parent_id = $1
+                        AND role = 'student'
+                        ORDER BY full_name
+                    `, [parentRecordId]);
+
+                    children = childrenResult.rows;
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ Could not fetch children via parent_id:', e.message);
+        }
+
+        // If no children found, try alternative method
+        if (children.length === 0) {
+            try {
+                // Try joining with parents table directly
+                const childrenResult = await pool.query(`
+                    SELECT 
+                        u.user_id,
+                        u.username,
+                        u.full_name,
+                        u.email,
+                        u.age,
+                        u.level,
+                        u.xp,
+                        u.streak_days,
+                        u.is_verified,
+                        u.is_banned,
+                        u.lessons_completed,
+                        u.achievements_count,
+                        u.progress_percentage,
+                        u.created_at
+                    FROM users u
+                    JOIN parents p ON p.parent_id = u.parent_id
+                    WHERE p.user_id = $1
+                    AND u.role = 'student'
+                    ORDER BY u.full_name
+                `, [parentId]);
+
+                children = childrenResult.rows;
+            } catch (e) {
+                console.warn('⚠️ Could not fetch children via join:', e.message);
+            }
+        }
+
+        // Map children data with defaults
+        const mappedChildren = children.map(child => ({
+            user_id: child.user_id,
+            username: child.username || '',
+            full_name: child.full_name || 'Child',
+            email: child.email || '',
+            age: child.age || null,
+            level: child.level || 'YCT 1',
+            xp: child.xp || 0,
+            streak: child.streak_days || 0,
+            lessons_completed: child.lessons_completed || 0,
+            achievements: child.achievements_count || 0,
+            progress: child.progress_percentage || 0,
+            is_verified: child.is_verified || false,
+            is_banned: child.is_banned || false,
+            created_at: child.created_at
+        }));
+
+        console.log(`✅ Found ${mappedChildren.length} children for parent ${parentId}`);
+
+        return res.json({
+            success: true,
+            children: mappedChildren
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching children:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch children data.',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+// POST: Add a new child for a parent
+// POST: Add a new child (FIXED - No gen_salt)
+router.post('/parents/children', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId, full_name, age, level } = req.body || {};
+
+        console.log('📤 Adding child:', { parentId, full_name, age, level });
+
+        // Validate
+        if (!parentId || !full_name || !age) {
+            return res.status(400).json({
+                success: false,
+                error: 'Parent ID, child name, and age are required.'
+            });
+        }
+
+        if (age < 4 || age > 18) {
+            return res.status(400).json({
+                success: false,
+                error: 'Age must be between 4 and 18.'
+            });
+        }
+
+        // Verify parent exists and is verified
+        const parentResult = await pool.query(`
+            SELECT p.parent_id, u.user_id, u.is_verified, u.is_banned, u.email 
+            FROM parents p
+            JOIN users u ON p.user_id = u.user_id
+            WHERE p.parent_id = $1 OR p.user_id = $1
+        `, [parentId]);
+
+        if (!parentResult.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'Parent not found.'
+            });
+        }
+
+        const parent = parentResult.rows[0];
+        const parentRecordId = parent.parent_id;
+
+        if (!parent.is_verified) {
+            return res.status(403).json({
+                success: false,
+                error: 'Parent account not verified.'
+            });
+        }
+
+        if (parent.is_banned) {
+            return res.status(403).json({
+                success: false,
+                error: 'Parent account is banned.'
+            });
+        }
+
+        // Check if children table exists
+        const tableCheck = await pool.query(`
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_name = 'children'
+        `);
+
+        if (tableCheck.rows.length === 0) {
+            return res.status(500).json({
+                success: false,
+                error: 'Children table not found. Please run database migrations.'
+            });
+        }
+
+        // Generate username and email for the child
+        const baseUsername = full_name.toLowerCase().replace(/\s/g, '');
+        const timestamp = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+        let username = `${baseUsername}_${timestamp}`;
+        
+        // Make username unique
+        let counter = 0;
+        let unique = false;
+        while (!unique) {
+            const check = await pool.query(`SELECT 1 FROM users WHERE username = $1`, [username]);
+            if (check.rows.length === 0) {
+                unique = true;
+            } else {
+                counter++;
+                username = `${baseUsername}_${timestamp}_${counter}`;
+            }
+        }
+        
+        const email = `${username}@hanverse.child`;
+        
+        // Generate temporary password (8 characters)
+        const tempPassword = Math.random().toString(36).substring(2, 10);
+        const password_hash = await bcrypt.hash(tempPassword, 10);
+
+        // Create user account for the child
+        const userResult = await pool.query(`
+            INSERT INTO users (
+                username,
+                full_name,
+                email,
+                password_hash,
+                role,
+                is_verified,
+                is_banned,
+                premium,
+                xp,
+                level,
+                streak_days,
+                created_at,
+                updated_at
+            ) VALUES ($1, $2, $3, $4, 'student', true, false, false, 0, 1, 0, NOW(), NOW())
+            RETURNING user_id
+        `, [username, full_name, email, password_hash]);
+
+        const childUserId = userResult.rows[0].user_id;
+
+        // Insert child into children table
+        const insertResult = await pool.query(`
+            INSERT INTO children (
+                parent_id,
+                user_id,
+                full_name,
+                age,
+                level,
+                username,
+                email,
+                password_hash,
+                created_at,
+                updated_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+            RETURNING child_id, user_id, full_name, age, level, username, email
+        `, [parentRecordId, childUserId, full_name, age, level || 'YCT 1', username, email, password_hash]);
+
+        const newChild = insertResult.rows[0];
+
+        console.log('✅ Child created:', newChild);
+
+        // Log activity
+        try {
+            await pool.query(`
+                INSERT INTO child_activities (child_id, type, message, created_at)
+                VALUES ($1, 'child_added', $2, NOW())
+            `, [newChild.child_id, `Child ${full_name} was added by parent`]);
+        } catch (logError) {
+            console.warn('⚠️ Could not log activity:', logError.message);
+        }
+
+        // Send confirmation email to parent
+        try {
+            if (mailer) {
+                const html = `
+                    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
+                        <div style="text-align:center;margin-bottom:20px;">
+                            <span style="font-size:3rem;">👶</span>
+                            <h2 style="color:#ff416c;margin:10px 0 0 0;">Child Added to HanVerse!</h2>
+                        </div>
+                        <p>Hi Parent,</p>
+                        <p><strong>${full_name}</strong> has been successfully added to your HanVerse account!</p>
+                        <div style="background-color:#f9fafb;padding:15px;border-radius:8px;margin:20px 0;">
+                            <p style="margin:4px 0;"><strong>Name:</strong> ${full_name}</p>
+                            <p style="margin:4px 0;"><strong>Age:</strong> ${age}</p>
+                            <p style="margin:4px 0;"><strong>Level:</strong> ${level || 'YCT 1'}</p>
+                            <p style="margin:4px 0;"><strong>Username:</strong> ${username}</p>
+                            <p style="margin:4px 0;"><strong>Temporary Password:</strong> ${tempPassword}</p>
+                        </div>
+                        <p>Your child can now start learning Mandarin with Panda AI! 🐼</p>
+                        <p style="font-size:0.85rem;color:#6b7280;text-align:center;margin-top:30px;">
+                            🐼 Happy Learning!
+                        </p>
+                    </div>
+                `;
+
+                await mailer.sendMail({
+                    from: EMAIL_FROM,
+                    to: parent.email,
+                    subject: `👶 ${full_name} Added to HanVerse!`,
+                    html
+                });
+                console.log('✅ Confirmation email sent to parent');
+            }
+        } catch (mailErr) {
+            console.warn('⚠️ Child addition email failed:', mailErr.message);
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: `Child ${full_name} added successfully!`,
+            child: {
+                child_id: newChild.child_id,
+                user_id: newChild.user_id,
+                full_name: newChild.full_name,
+                age: newChild.age,
+                level: newChild.level,
+                username: newChild.username || '',
+                email: newChild.email || '',
+                tempPassword: tempPassword // Only for initial creation
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error adding child:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to add child. Please try again.',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// GET: Fetch activity feed for a parent's children
+router.get('/parents/activity/:parentId', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { parentId } = req.params;
+
+        // Verify parent exists
+        const parentResult = await pool.query(
+            `SELECT user_id FROM users WHERE user_id = $1 AND role = 'parent'`,
+            [parentId]
+        );
+
+        if (!parentResult.rows.length) {
+            return res.status(404).json({ success: false, error: 'Parent not found.' });
+        }
+
+        // Try to fetch from activities table
+        try {
+            const tableCheck = await pool.query(`
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name = 'activities'
+            `);
+
+            if (tableCheck.rows.length > 0) {
+                const activitiesResult = await pool.query(`
+                    SELECT 
+                        a.activity_id,
+                        a.type,
+                        a.message,
+                        a.created_at,
+                        u.full_name as child_name
+                    FROM activities a
+                    LEFT JOIN users u ON a.child_id = u.user_id
+                    WHERE a.user_id = $1
+                    ORDER BY a.created_at DESC
+                    LIMIT 20
+                `, [parentId]);
+
+                if (activitiesResult.rows.length > 0) {
+                    return res.json({
+                        success: true,
+                        activities: activitiesResult.rows
+                    });
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ Could not fetch activities:', e.message);
+        }
+
+        // Return empty array if no activities found
+        return res.json({
+            success: true,
+            activities: []
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching activity feed:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch activity feed.'
+        });
+    }
+});
+
+// GET: Fetch a single child's profile
+router.get('/parents/child/:childId', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { childId } = req.params;
+
+        const result = await pool.query(`
+            SELECT 
+                user_id,
+                full_name,
+                age,
+                level,
+                xp,
+                streak_days,
+                is_verified,
+                is_banned,
+                premium,
+                lessons_completed,
+                achievements_count,
+                progress_percentage,
+                created_at
+            FROM users
+            WHERE user_id = $1 AND role = 'student'
+        `, [childId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({ success: false, error: 'Child not found.' });
+        }
+
+        return res.json({
+            success: true,
+            child: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching child profile:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch child profile.'
+        });
+    }
+});
+
+// PUT: Update child progress
+router.put('/parents/child/:childId/progress', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { childId } = req.params;
+        const { lessons_completed, achievements, progress, xp, level } = req.body;
+
+        const result = await pool.query(`
+            UPDATE users 
+            SET 
+                lessons_completed = COALESCE($1, lessons_completed),
+                achievements_count = COALESCE($2, achievements_count),
+                progress_percentage = COALESCE($3, progress_percentage),
+                xp = COALESCE($4, xp),
+                level = COALESCE($5, level),
+                updated_at = NOW()
+            WHERE user_id = $6 AND role = 'student'
+            RETURNING user_id, full_name, lessons_completed, achievements_count, progress_percentage, xp, level
+        `, [lessons_completed, achievements, progress, xp, level, childId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({ success: false, error: 'Child not found.' });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Progress updated successfully',
+            child: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Error updating child progress:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to update progress.'
+        });
+    }
+});
+// ==========================================
+// PARENT VERIFICATION FUNCTIONS - FIXED
+// ==========================================
+
+// Verify a parent
+async function verifyParent(parentId, parentName) {
+    if (!parentId) {
+        showToast('❌ Error: Parent ID is missing.', 'error');
+        return;
+    }
+
+    if (!confirm(`✅ Verify parent "${parentName || 'Unknown'}"? They will get full access to the Parent Hub.`)) return;
+
+    try {
+        const adminUserId = getAdminUserId();
+        
+        const res = await fetch(`${CONFIG.API_URL}/admin/parents/verify/${parentId}`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ adminUserId: adminUserId })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Verification failed');
+        }
+
+        showToast(`✅ ${parentName || 'Parent'} has been verified!`, 'success');
+        await loadAdminData();
+
+    } catch (err) {
+        console.error('❌ Verify error:', err);
+        showToast(`❌ Error: ${err.message}`, 'error');
+    }
+}
+
+// Deny a parent (with reason prompt)
+async function denyParent(parentId, parentName) {
+    if (!parentId) {
+        showToast('❌ Error: Parent ID is missing.', 'error');
+        return;
+    }
+
+    const reason = prompt(`Why are you denying "${parentName || 'Parent'}"? (Optional)`, '');
+    if (reason === null) return; // User cancelled
+
+    if (!confirm(`❌ Deny parent "${parentName || 'Unknown'}"? This will remove their parent access.`)) return;
+
+    try {
+        const adminUserId = getAdminUserId();
+        
+        const res = await fetch(`${CONFIG.API_URL}/admin/parents/deny/${parentId}`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ 
+                reason: reason || 'Not specified',
+                adminUserId: adminUserId 
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Denial failed');
+        }
+
+        showToast(`❌ ${parentName || 'Parent'} has been denied parent access.`, 'error');
+        await loadAdminData();
+
+    } catch (err) {
+        console.error('❌ Deny error:', err);
+        showToast(`❌ Error: ${err.message}`, 'error');
+    }
+}
+
+// Get admin user ID from localStorage
+function getAdminUserId() {
+    try {
+        const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+        return user.user_id || null;
+    } catch {
+        return null;
+    }
+}
+// ==========================================
+// PANDA AI INTERACTIVE TUTOR 🐼
+// ==========================================
 router.post('/panda-chat', async (req, res) => {
   try {
     const { message } = req.body || {};
@@ -639,14 +2484,14 @@ router.post('/panda-chat', async (req, res) => {
     if (!message || !String(message).trim()) {
       return res.status(400).json({
         success: false,
-        error: 'Message required'
+        error: 'Message is required.'
       });
     }
 
     if (!process.env.OPENAI_API_KEY) {
       return res.status(500).json({
         success: false,
-        error: 'OpenAI API key missing'
+        error: 'OpenAI API key is not configured.'
       });
     }
 
@@ -656,12 +2501,13 @@ You are Panda AI, a friendly Mandarin Chinese tutor for children aged 5–12 on 
 Rules:
 - Use simple English
 - Include pinyin where helpful
-- Use emojis sometimes
+- Use emojis sometimes (🐼, 🌟, 🎉)
 - Be warm, encouraging, and child-friendly
 - Keep answers short and clear
 - Help with Mandarin words, phrases, pronunciation, characters, tones, and YCT-style learning
 - If the child asks something unsafe or inappropriate, gently refuse and redirect back to learning Chinese
-- If possible, make learning fun and interactive
+- Make learning fun and interactive
+- Use examples kids can relate to
 `;
 
     const completion = await openai.chat.completions.create({
@@ -674,7 +2520,8 @@ Rules:
       max_tokens: 300
     });
 
-    const reply = completion.choices?.[0]?.message?.content?.trim() || '🐼 Sorry, I could not answer that right now.';
+    const reply = completion.choices?.[0]?.message?.content?.trim() || 
+      '🐼 Hmm, I had a little trouble with that. Could you try asking me something else about Mandarin?';
 
     return res.json({
       success: true,
@@ -685,14 +2532,14 @@ Rules:
     console.error('❌ Panda OpenAI Error:', error);
     return res.status(500).json({
       success: false,
-      error: error?.response?.data?.error?.message || error?.message || 'Panda AI failed'
+      error: error?.response?.data?.error?.message || error?.message || 'Panda AI is currently unavailable.'
     });
   }
 });
 
-/* ==========================================
-   CORE USER AUTHORIZATION: LOGIN 🔑
-========================================== */
+// ==========================================
+// CORE USER AUTHORIZATION: LOGIN 🔑
+// ==========================================
 router.post('/login', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -702,7 +2549,7 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Email and password required'
+        error: 'Email and password are required.'
       });
     }
 
@@ -714,7 +2561,7 @@ router.post('/login', async (req, res) => {
     if (!result.rows.length) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid credentials'
+        error: 'Invalid email or password.'
       });
     }
 
@@ -724,7 +2571,7 @@ router.post('/login', async (req, res) => {
     if (!valid) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid credentials'
+        error: 'Invalid email or password.'
       });
     }
 
@@ -732,15 +2579,15 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({
         success: false,
         error: 'banned',
-        reason: user.banned_reason || 'Account banned'
+        reason: user.banned_reason || 'Account has been suspended.'
       });
     }
 
     if (!user.is_verified) {
       return res.status(403).json({
         success: false,
-        error: "not_verified",
-        message: "Please verify your email before logging in."
+        error: 'not_verified',
+        message: 'Please verify your email before logging in.'
       });
     }
 
@@ -753,14 +2600,14 @@ router.post('/login', async (req, res) => {
     console.error('❌ Login error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Login failed'
+      error: 'Login failed. Please try again.'
     });
   }
 });
 
-/* ==========================================
-   USER PROFILE ACCESS 👤
-========================================== */
+// ==========================================
+// USER PROFILE ACCESS 👤
+// ==========================================
 router.get('/user/:userId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -775,7 +2622,7 @@ router.get('/user/:userId', async (req, res) => {
     if (!result.rows.length) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: 'User not found.'
       });
     }
 
@@ -788,24 +2635,28 @@ router.get('/user/:userId', async (req, res) => {
     console.error('❌ Profile error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Profile error'
+      error: 'Failed to fetch user profile.'
     });
   }
 });
 
-/* ==========================================
-   USER REGISTRATION: SIGNUP 🚀
-========================================== */
+// ==========================================
+// USER REGISTRATION: SIGNUP 🚀 
+// ==========================================
 router.post('/signup', async (req, res) => {
   try {
+    console.log('📥 Signup request received:', req.body);
+    
     if (!ensurePool(res)) return;
 
-    const { username, full_name, email, password } = req.body || {};
+    const { username, full_name, email, password, role } = req.body || {};
 
+    // --- VALIDATION ---
     if (!username || !full_name || !email || !password) {
+      console.log('❌ Missing fields');
       return res.status(400).json({
         success: false,
-        error: 'Username, full name, email and password are required'
+        error: 'Username, full name, email, and password are required.'
       });
     }
 
@@ -813,14 +2664,35 @@ router.post('/signup', async (req, res) => {
     const cleanFullName = String(full_name).trim();
     const cleanEmail = String(email).trim().toLowerCase();
     const cleanPassword = String(password);
+    const userRole = role === 'parent' ? 'parent' : 'student';
 
+    // Validate password length
     if (cleanPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        error: 'Password must be at least 6 characters'
+        error: 'Password must be at least 6 characters.'
       });
     }
 
+    // Validate username length
+    if (cleanUsername.length < 3) {
+      return res.status(400).json({
+        success: false,
+        error: 'Username must be at least 3 characters.'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please enter a valid email address.'
+      });
+    }
+
+    // --- CHECK EXISTING USER ---
+    console.log('🔍 Checking for existing user...');
     const existing = await pool.query(
       `SELECT user_id, email, username FROM users WHERE email = $1 OR username = $2`,
       [cleanEmail, cleanUsername]
@@ -828,72 +2700,144 @@ router.post('/signup', async (req, res) => {
 
     if (existing.rows.length) {
       const conflict = existing.rows[0];
+      console.log('⚠️ Existing user found:', conflict);
+      
       if (conflict.email === cleanEmail) {
         return res.status(409).json({
           success: false,
-          error: 'An account with that email already exists'
+          error: 'An account with that email already exists.',
+          field: 'email'
         });
       }
       if (conflict.username === cleanUsername) {
         return res.status(409).json({
           success: false,
-          error: 'That username is already taken'
+          error: 'That username is already taken.',
+          field: 'username'
         });
       }
     }
 
+    // --- CREATE USER ---
+    console.log('✅ Creating new user...');
     const password_hash = await bcrypt.hash(cleanPassword, 10);
     const verificationToken = generateToken(24);
 
-    const insertResult = await pool.query(
-      `INSERT INTO users (
-        username, full_name, email, password_hash, xp, level, streak_days, is_admin, is_banned, is_verified, premium
-      )
-      VALUES ($1, $2, $3, $4, 0, 1, 0, false, false, false, false)
-      RETURNING *`,
-      [cleanUsername, cleanFullName, cleanEmail, password_hash]
-    );
+    // Check if role column exists
+    let hasRoleColumn = false;
+    try {
+      const columnCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        AND column_name = 'role'
+      `);
+      hasRoleColumn = columnCheck.rows.length > 0;
+      console.log('📋 Role column exists:', hasRoleColumn);
+    } catch (e) {
+      console.warn('⚠️ Could not check for role column:', e.message);
+    }
+
+    let insertResult;
+    if (hasRoleColumn) {
+      insertResult = await pool.query(
+        `INSERT INTO users (
+          username, full_name, email, password_hash, xp, level, streak_days, 
+          is_admin, is_banned, is_verified, premium, role, created_at
+        ) VALUES ($1, $2, $3, $4, 0, 1, 0, false, false, false, false, $5, NOW())
+        RETURNING *`,
+        [cleanUsername, cleanFullName, cleanEmail, password_hash, userRole]
+      );
+    } else {
+      insertResult = await pool.query(
+        `INSERT INTO users (
+          username, full_name, email, password_hash, xp, level, streak_days, 
+          is_admin, is_banned, is_verified, premium, created_at
+        ) VALUES ($1, $2, $3, $4, 0, 1, 0, false, false, false, false, NOW())
+        RETURNING *`,
+        [cleanUsername, cleanFullName, cleanEmail, password_hash]
+      );
+    }
 
     const newUser = insertResult.rows[0];
+    console.log('✅ User created with ID:', newUser.user_id);
 
+    // --- CREATE PARENT RECORD (if role is parent) ---
+    // --- CREATE PARENT RECORD (if role is parent) ---
+if (userRole === 'parent') {
+    try {
+        const tableCheck = await pool.query(`
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_name = 'parents'
+        `);
+        
+        if (tableCheck.rows.length > 0) {
+            // Check if parent already exists
+            const existingParent = await pool.query(`
+                SELECT * FROM parents WHERE user_id = $1
+            `, [newUser.user_id]);
+            
+            if (existingParent.rows.length === 0) {
+                await pool.query(`
+                    INSERT INTO parents (user_id, full_name, email, is_verified, created_at, updated_at)
+                    VALUES ($1, $2, $3, false, NOW(), NOW())
+                `, [newUser.user_id, cleanFullName, cleanEmail]);
+                console.log('✅ Parent record created for user:', newUser.user_id);
+            } else {
+                console.log('ℹ️ Parent record already exists for user:', newUser.user_id);
+            }
+        }
+    } catch (parentError) {
+        console.warn('⚠️ Could not create parent record:', parentError.message);
+        // Don't fail the signup if parent creation fails
+    }
+}
+    // --- STORE VERIFICATION TOKEN ---
     try {
       await pool.query(
         `INSERT INTO email_verifications (user_id, token, created_at, expires_at)
          VALUES ($1, $2, NOW(), NOW() + INTERVAL '24 hours')`,
-         [newUser.user_id, verificationToken]
+        [newUser.user_id, verificationToken]
       );
+      console.log('✅ Verification token stored');
     } catch (verificationInsertError) {
       console.warn("⚠️ Could not insert into email_verifications table:", verificationInsertError.message);
     }
 
+    // --- SEND VERIFICATION EMAIL ---
     try {
       await sendVerificationEmail({
         to: cleanEmail,
         username: cleanUsername,
         token: verificationToken
       });
+      console.log('✅ Verification email sent');
     } catch (mailError) {
       console.warn("⚠️ Verification email could not be sent:", mailError.message);
     }
 
+    // --- RETURN SUCCESS ---
     return res.status(201).json({
       success: true,
-      message: "Signup successful",
+      message: "Signup successful. Please check your email for verification.",
       user: safeUser(newUser)
     });
 
   } catch (error) {
-    console.error("❌ Signup error:", error);
+    console.error('❌ Signup error DETAILS:', error);
+    console.error('❌ Stack trace:', error.stack);
     return res.status(500).json({
       success: false,
-      error: "Signup failed"
+      error: 'Signup failed. Please try again.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
 
-/* ==========================================
-   TOKEN AUDITING: VERIFY EMAIL 🧪
-========================================== */
+// ==========================================
+// TOKEN AUDITING: VERIFY EMAIL 🧪
+// ==========================================
 router.post('/verify-email', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -903,19 +2847,20 @@ router.post('/verify-email', async (req, res) => {
     if (!token) {
       return res.status(400).json({
         success: false,
-        error: 'Verification token required'
+        error: 'Verification token is required.'
       });
     }
 
     const tokenResult = await pool.query(
-      `SELECT user_id, token FROM email_verifications WHERE token = $1`,
+      `SELECT user_id, token FROM email_verifications 
+       WHERE token = $1 AND expires_at > NOW()`,
       [token]
     );
 
     if (!tokenResult.rows.length) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid or expired verification token'
+        error: 'Invalid or expired verification token.'
       });
     }
 
@@ -933,21 +2878,21 @@ router.post('/verify-email', async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Email verified successfully'
+      message: 'Email verified successfully.'
     });
 
   } catch (error) {
     console.error('❌ Verify email error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Email verification failed'
+      error: 'Email verification failed.'
     });
   }
 });
 
-/* ==========================================
-   RESEND VERIFICATION PIPELINE 🔄
-========================================== */
+// ==========================================
+// RESEND VERIFICATION PIPELINE 🔄
+// ==========================================
 router.post('/resend-verification', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -969,7 +2914,7 @@ router.post('/resend-verification', async (req, res) => {
     );
 
     if (!userResult.rows.length) {
-      return res.status(444).json({
+      return res.status(404).json({
         success: false,
         error: 'No account found with that email address.'
       });
@@ -1009,17 +2954,17 @@ router.post('/resend-verification', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Resend verification token error:', error);
+    console.error('❌ Resend verification error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Failed to process request. Please check server logs.'
+      error: 'Failed to send verification email.'
     });
   }
 });
 
-/* ==========================================
-   RECOVERY ENGINE: FORGOT PASSWORD 🔓
-========================================== */
+// ==========================================
+// RECOVERY ENGINE: FORGOT PASSWORD 🔓
+// ==========================================
 router.post('/forgot-password', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -1037,7 +2982,10 @@ router.post('/forgot-password', async (req, res) => {
     );
 
     if (!userResult.rows.length) {
-      return res.status(404).json({ success: false, error: 'No account found with that email address.' });
+      return res.status(404).json({ 
+        success: false, 
+        error: 'No account found with that email address.' 
+      });
     }
 
     const user = userResult.rows[0];
@@ -1045,7 +2993,9 @@ router.post('/forgot-password', async (req, res) => {
 
     try {
       await pool.query(`DELETE FROM password_resets WHERE user_id = $1`, [user.user_id]);
-    } catch(e) {}
+    } catch(e) {
+      // Table might not exist, that's fine
+    }
 
     await pool.query(
       `INSERT INTO password_resets (user_id, token, created_at, expires_at)
@@ -1061,29 +3011,38 @@ router.post('/forgot-password', async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Password reset link has been dispatched to your email address.'
+      message: 'Password reset link has been sent to your email address.'
     });
 
   } catch (error) {
-    console.error('❌ Forgot password action failure:', error);
-    return res.status(500).json({ success: false, error: error.message || 'Failed to process recovery lookup' });
+    console.error('❌ Forgot password error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Failed to process password reset request.' 
+    });
   }
 });
 
-/* ==========================================
-   RECOVERY INTEGRATION: RESET PASSWORD 📑
-========================================== */
+// ==========================================
+// RECOVERY INTEGRATION: RESET PASSWORD 📑
+// ==========================================
 router.post('/reset-password', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
     const { token, newPassword } = req.body || {};
     if (!token || !newPassword) {
-      return res.status(400).json({ success: false, error: 'Token and new password are required.' });
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Token and new password are required.' 
+      });
     }
 
     if (String(newPassword).length < 8) {
-      return res.status(400).json({ success: false, error: 'The new password must contain at least 8 characters.' });
+      return res.status(400).json({ 
+        success: false, 
+        error: 'The new password must contain at least 8 characters.' 
+      });
     }
 
     const tokenResult = await pool.query(
@@ -1092,7 +3051,10 @@ router.post('/reset-password', async (req, res) => {
     );
 
     if (!tokenResult.rows.length) {
-      return res.status(400).json({ success: false, error: 'Invalid or expired password reset token.' });
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid or expired password reset token.' 
+      });
     }
 
     const { user_id } = tokenResult.rows[0];
@@ -1111,36 +3073,37 @@ router.post('/reset-password', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Reset password endpoint handling exception:', error);
-    return res.status(500).json({ success: false, error: 'Password update operation failed.' });
+    console.error('❌ Reset password error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Password update failed.' 
+    });
   }
 });
 
-/* ==========================================
-   ROOT DESK INDEX ROUTE 🏡
-========================================== */
+// ==========================================
+// ROOT DESK INDEX ROUTE 🏡
+// ==========================================
 router.get('/', (req, res) => {
   return res.json({
     ok: true,
-    message: 'HanVerse API root',
-    routes: [
-      '/',
-      '/health',
-      '/routes',
-      '/signup',
-      '/login',
-      '/user/:userId',
-      '/panda-chat',
-      '/verify-email',
-      '/forgot-password',
-      '/reset-password'
+    message: 'HanVerse API',
+    version: '1.0.0',
+    endpoints: [
+      { method: 'GET', path: '/' },
+      { method: 'GET', path: '/health' },
+      { method: 'GET', path: '/routes' },
+      { method: 'POST', path: '/signup' },
+      { method: 'POST', path: '/login' },
+      { method: 'GET', path: '/user/:userId' },
+      { method: 'POST', path: '/panda-chat' }
     ]
   });
 });
 
-/* ==========================================
-   NETLIFY MOUNT & EXPORT ENGINE 🚀
-========================================== */
+// ==========================================
+// NETLIFY MOUNT & EXPORT ENGINE 🚀
+// ==========================================
 app.use('/.netlify/functions/server', router);
 app.use('/api', router);
 

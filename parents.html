@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HanVerse Parent Hub 👪</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0D0D1A;
+            --surface: #151529;
+            --card: #1C1C35;
+            --blue: #4EA8DE;
+            --yellow: #F4D35E;
+            --green: #74C69D;
+            --red: #E63946;
+            --text: #E8E8F0;
+            --muted: #8E8EA8;
+            --border: rgba(255,255,255,.08);
+            --gradient-primary: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            height: 72px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .logo span { color: #ff6b6b; }
+
+        .main-container {
+            flex: 1;
+            max-width: 600px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .status-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 24px;
+            background: rgba(244, 211, 94, 0.1);
+            color: var(--yellow);
+            transition: all 0.3s ease;
+        }
+
+        .status-icon.loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-icon.verified {
+            background: rgba(116, 198, 157, 0.15);
+            color: var(--green);
+        }
+
+        .status-icon.error {
+            background: rgba(230, 57, 70, 0.15);
+            color: var(--red);
+        }
+
+        h2 { 
+            font-size: 1.5rem; 
+            margin-bottom: 12px; 
+            font-weight: 700; 
+        }
+
+        p { 
+            color: var(--muted); 
+            font-size: 0.95rem; 
+            line-height: 1.6; 
+            margin-bottom: 24px; 
+        }
+
+        .info-badge {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+        }
+        .info-row:last-child { margin-bottom: 0; }
+        .info-label { color: var(--muted); font-weight: 500; }
+        .info-value { color: var(--text); font-weight: 600; }
+
+        .btn {
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--gradient-primary);
+            color: white;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .btn:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.06);
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255,255,255,0.12);
+        }
+
+        .error-message {
+            color: var(--red);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(230, 57, 70, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(230, 57, 70, 0.2);
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(230, 57, 70, 0.15);
+            border-color: rgba(230, 57, 70, 0.3);
+            color: var(--red);
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0 16px;
+                height: 64px;
+            }
+            .logo { font-size: 0.95rem; }
+            .status-card { padding: 24px; }
+            .info-row { flex-direction: column; gap: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">👪 HanVerse <span>Parents Hub</span></div>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sign Out
+        </button>
+    </nav>
+
+    <div class="main-container">
+        <div class="status-card">
+            <!-- Status Icon -->
+            <div id="statusIcon" class="status-icon loading">
+                <i class="fa-solid fa-hourglass-half fa-spin"></i>
+            </div>
+            
+            <h2 id="statusTitle">Checking Profile Status...</h2>
+            <p id="statusDesc">Synchronizing your credential verification details securely with the administration system.</p>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message">
+                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                <span id="errorText">An error occurred while checking your status.</span>
+            </div>
+
+            <!-- User Info -->
+            <div class="info-badge">
+                <div class="info-row">
+                    <span class="info-label">Parent Account:</span>
+                    <span class="info-value" id="parentEmail">Loading...</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Account Status:</span>
+                    <span class="info-value" id="accountStatus">Pending</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Verification Status:</span>
+                    <span class="info-value" id="verifyStatus">Awaiting Approval</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Role:</span>
+                    <span class="info-value" id="userRole">Parent</span>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <button id="actionBtn" class="btn" onclick="checkVerificationStatus()">
+                <i class="fas fa-sync" aria-hidden="true"></i> Check Status
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION
+        // ==========================================
+        const API_URL = '/api';
+        const POLL_INTERVAL = 30000; // 30 seconds
+
+        // ==========================================
+        // STATE
+        // ==========================================
+        let isPolling = false;
+        let pollTimer = null;
+        let currentStatus = {
+            isVerified: false,
+            isBanned: false,
+            role: 'parent'
+        };
+
+        // ==========================================
+        // DOM REFERENCES
+        // ==========================================
+        const DOM = {
+            statusIcon: document.getElementById('statusIcon'),
+            statusTitle: document.getElementById('statusTitle'),
+            statusDesc: document.getElementById('statusDesc'),
+            parentEmail: document.getElementById('parentEmail'),
+            accountStatus: document.getElementById('accountStatus'),
+            verifyStatus: document.getElementById('verifyStatus'),
+            userRole: document.getElementById('userRole'),
+            actionBtn: document.getElementById('actionBtn'),
+            errorMessage: document.getElementById('errorMessage'),
+            errorText: document.getElementById('errorText'),
+        };
+
+        // ==========================================
+        // UTILITY FUNCTIONS
+        // ==========================================
+        function getParentUser() {
+            try {
+                const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+                return user;
+            } catch {
+                return {};
+            }
+        }
+
+        function showError(message) {
+            DOM.errorMessage.classList.add('show');
+            DOM.errorText.textContent = message || 'An unexpected error occurred.';
+        }
+
+        function hideError() {
+            DOM.errorMessage.classList.remove('show');
+        }
+
+        function updateUI(status) {
+            const { isVerified, isBanned, role, username, email } = status;
+
+            // Update user info
+            DOM.parentEmail.textContent = email || 'N/A';
+            DOM.userRole.textContent = role === 'admin' ? 'Administrator' : 
+                                       role === 'parent' ? 'Parent' : 'Student';
+
+            // Update account status
+            if (isBanned) {
+                DOM.accountStatus.innerHTML = `<span style="color: var(--red);">🚫 Banned</span>`;
+            } else if (isVerified) {
+                DOM.accountStatus.innerHTML = `<span style="color: var(--green);">✅ Active</span>`;
+            } else {
+                DOM.accountStatus.innerHTML = `<span style="color: var(--yellow);">⏳ Pending</span>`;
+            }
+
+            // Update verification status and UI
+            if (isBanned) {
+                DOM.statusIcon.className = "status-icon error";
+                DOM.statusIcon.innerHTML = `<i class="fa-solid fa-ban"></i>`;
+                DOM.statusTitle.textContent = "Account Suspended";
+                DOM.statusDesc.textContent = "Your account has been suspended. Please contact support for assistance.";
+                DOM.verifyStatus.innerHTML = `<span style="color: var(--red);">🚫 Suspended</span>`;
+                DOM.actionBtn.innerHTML = `<i class="fas fa-envelope" aria-hidden="true"></i> Contact Support`;
+                DOM.actionBtn.onclick = () => window.location.href = 'mailto:support@hanverse.com';
+                return;
+            }
+
+            if (isVerified) {
+                DOM.statusIcon.className = "status-icon verified";
+                DOM.statusIcon.innerHTML = `<i class="fa-solid fa-shield-heart"></i>`;
+                DOM.statusTitle.textContent = "✅ Welcome to HanVerse Parent Access!";
+                DOM.statusDesc.textContent = "Your account is fully authenticated. Your children are ready for monitoring.";
+                DOM.verifyStatus.innerHTML = `<span style="color: var(--green);">✅ Active & Verified</span>`;
+                DOM.actionBtn.innerHTML = `<i class="fas fa-arrow-right" aria-hidden="true"></i> Go to Dashboard`;
+                DOM.actionBtn.onclick = () => window.location.href = 'parent-dashboard.html';
+                
+                // Auto-redirect after 3 seconds if verified
+                setTimeout(() => {
+                    window.location.href = 'parent-dashboard.html';
+                }, 3000);
+            } else {
+                DOM.statusIcon.className = "status-icon loading";
+                DOM.statusIcon.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i>`;
+                DOM.statusTitle.textContent = "⏳ Awaiting Administrative Review";
+                DOM.statusDesc.textContent = "Your registration details have been submitted for verification. Please check back later.";
+                DOM.verifyStatus.innerHTML = `<span style="color: var(--yellow);">⏳ Review In Progress</span>`;
+                DOM.actionBtn.innerHTML = `<i class="fas fa-sync" aria-hidden="true"></i> Check Status`;
+                DOM.actionBtn.onclick = checkVerificationStatus;
+            }
+
+            // Update button state
+            DOM.actionBtn.disabled = false;
+        }
+
+        // ==========================================
+        // MAIN VERIFICATION LOGIC
+        // ==========================================
+        async function checkVerificationStatus() {
+            const parentUser = getParentUser();
+            
+            // Validate user session
+            if (!parentUser.user_id) {
+                showError('No active session found. Please login again.');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
+            // Show loading state
+            DOM.actionBtn.disabled = true;
+            DOM.actionBtn.innerHTML = `<span class="spinner"></span> Checking...`;
+            hideError();
+
+            try {
+                // First, fetch the user's current status from the server
+                const response = await fetch(`${API_URL}/user/${parentUser.user_id}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to fetch user status');
+                }
+
+                const user = data.user;
+                
+                // Update local storage with latest data
+                const updatedUser = { ...parentUser, ...user };
+                localStorage.setItem('hanverse_user', JSON.stringify(updatedUser));
+
+                // Update current status
+                currentStatus = {
+                    isVerified: user.is_verified || false,
+                    isBanned: user.is_banned || false,
+                    role: user.role || 'parent',
+                    username: user.username,
+                    email: user.email
+                };
+
+                // Update UI
+                updateUI(currentStatus);
+
+                // If user is still pending, start polling
+                if (!currentStatus.isVerified && !currentStatus.isBanned) {
+                    startPolling();
+                } else {
+                    stopPolling();
+                }
+
+            } catch (error) {
+                console.error('❌ Verification check failed:', error);
+                showError(error.message || 'Failed to check verification status. Please try again.');
+                
+                // Restore button
+                DOM.actionBtn.disabled = false;
+                DOM.actionBtn.innerHTML = `<i class="fas fa-sync" aria-hidden="true"></i> Retry`;
+            }
+        }
+
+        // ==========================================
+        // POLLING FOR STATUS UPDATES
+        // ==========================================
+        function startPolling() {
+            if (isPolling) return;
+            isPolling = true;
+            
+            if (pollTimer) {
+                clearInterval(pollTimer);
+            }
+
+            pollTimer = setInterval(async () => {
+                console.log('🔄 Polling for verification status...');
+                const parentUser = getParentUser();
+                
+                try {
+                    const response = await fetch(`${API_URL}/user/${parentUser.user_id}`, {
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (!response.ok) return;
+
+                    const data = await response.json();
+                    
+                    if (data.success && data.user) {
+                        const user = data.user;
+                        
+                        // If status changed
+                        if (user.is_verified !== currentStatus.isVerified || 
+                            user.is_banned !== currentStatus.isBanned) {
+                            
+                            console.log('🔄 Status changed, updating UI...');
+                            currentStatus.isVerified = user.is_verified || false;
+                            currentStatus.isBanned = user.is_banned || false;
+                            
+                            // Update local storage
+                            const updatedUser = { ...getParentUser(), ...user };
+                            localStorage.setItem('hanverse_user', JSON.stringify(updatedUser));
+                            
+                            updateUI(currentStatus);
+                            
+                            // Stop polling if verified or banned
+                            if (currentStatus.isVerified || currentStatus.isBanned) {
+                                stopPolling();
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Polling error:', error.message);
+                }
+            }, POLL_INTERVAL);
+        }
+
+        function stopPolling() {
+            if (pollTimer) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+            isPolling = false;
+            console.log('🛑 Polling stopped');
+        }
+
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+        function logout() {
+            stopPolling();
+            localStorage.removeItem('hanverse_user');
+            window.location.href = 'login.html';
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            const parentUser = getParentUser();
+            
+            // Validate user session
+            if (!parentUser.user_id) {
+                showError('No active session found. Redirecting to login...');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
+            // Set email
+            DOM.parentEmail.textContent = parentUser.email || 'N/A';
+            
+            // Start verification check
+            await checkVerificationStatus();
+        });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            stopPolling();
+        });
+
+        console.log('🐼 HanVerse Parent Hub initialized');
+    </script>
+</body>
+</html>

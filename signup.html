@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <link
-rel="stylesheet"
-href="panda-chat.css">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Hanverse Sign Up</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<style>
-
+    <link rel="stylesheet" href="panda-chat.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HanVerse Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
 :root{
 --primary:#2563EB;
 --secondary:#14B8A6;
@@ -439,564 +432,473 @@ font-size:34px;
 .logo{
 font-size:34px;
 }
-
-}
-
-</style>
+        .role-selector {
+            display: flex;
+            gap: 12px;
+            margin: 12px 0 16px;
+        }
+        .role-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg);
+        }
+        .role-option.selected {
+            border-color: var(--green);
+            background: rgba(116, 198, 157, 0.1);
+        }
+        .role-option:hover {
+            border-color: var(--green);
+        }
+        .role-option .role-icon {
+            font-size: 24px;
+            display: block;
+        }
+        .role-option .role-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .role-option .role-desc {
+            font-size: 10px;
+            color: var(--muted);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 12px 0 16px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--green);
+        }
+        .checkbox-group label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .checkbox-group a {
+            color: var(--green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <!-- LEFT SIDE - Keep your existing left side -->
+    <div class="left">
+        <div class="char c1">汉</div>
+        <div class="char c2">字</div>
+        <div class="char c3">学</div>
+        <div class="char c4">习</div>
+        <div class="star">🌱</div>
+        <p class="welcome-label">Join</p>
+        <h1>HanVerse</h1>
+        <p>Start your Mandarin learning adventure. Build vocabulary, earn XP and track your progress from day one.</p>
+        <div class="trust-list">
+            <div class="trust-item">🌱 Free to Get Started</div>
+            <div class="trust-item">⭐ Earn XP from Lesson 1</div>
+            <div class="trust-item">📈 Personalised Progress</div>
+            <div class="trust-item">🤖 AI Learning Assistant</div>
+        </div>
+        <div class="panda">🐼</div>
+    </div>
 
-<div class="left">
+    <!-- RIGHT SIDE - Updated with role selection -->
+    <div class="right">
+        <div class="logo">HanVerse</div>
+        <p class="subtitle">Learn Mandarin Through Stories,<br>Games & AI</p>
 
-<div class="char c1">汉</div>
-<div class="char c2">字</div>
-<div class="char c3">学</div>
-<div class="char c4">习</div>
+        <div class="signup-header">
+            <h2>Create Account ✨</h2>
+            <p>Fill in your details to get started.</p>
+        </div>
 
-<div class="star">🌱</div>
+        <!-- ROLE SELECTION - NEW -->
+        <div class="role-selector">
+            <div class="role-option selected" data-role="parent" onclick="selectRole('parent')">
+                <span class="role-icon">👪</span>
+                <div class="role-label">Parent</div>
+                <div class="role-desc">Monitor children's learning</div>
+            </div>
+            <div class="role-option" data-role="student" onclick="selectRole('student')">
+                <span class="role-icon">👨‍🎓</span>
+                <div class="role-label">Student</div>
+                <div class="role-desc">Learn Mandarin yourself</div>
+            </div>
+        </div>
 
-<p class="welcome-label">Join</p>
+        <div class="row-2">
+            <div class="input-group">
+                <label class="input-label">Full Name</label>
+                <input type="text" id="fullName" placeholder="Your full name" required>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Username</label>
+                <input type="text" id="username" placeholder="hanverse_user" required>
+                <div class="field-error" id="usernameError">❌ Username already taken</div>
+            </div>
+        </div>
 
-<h1>Hanverse</h1>
+        <div class="input-group">
+            <label class="input-label">Email Address</label>
+            <input type="email" id="email" placeholder="your@email.com" required>
+        </div>
 
-<p>
-Start your Mandarin learning adventure.
-Build vocabulary, earn XP and track your progress from day one.
-</p>
+        <div class="input-group">
+            <label class="input-label">Password</label>
+            <input type="password" id="password" placeholder="At least 6 characters" oninput="updateStrength(this.value)" required>
+            <span class="eye" onclick="togglePw('password')">👁️</span>
+            <div class="strength-bar">
+                <div class="strength-fill" id="strengthFill"></div>
+            </div>
+        </div>
 
-<div class="trust-list">
-<div class="trust-item">🌱 Free to Get Started</div>
-<div class="trust-item">⭐ Earn XP from Lesson 1</div>
-<div class="trust-item">📈 Personalised Progress</div>
-<div class="trust-item">🤖 AI Learning Assistant</div>
+        <div class="input-group">
+            <label class="input-label">Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Repeat password" required>
+            <span class="eye" onclick="togglePw('confirmPassword')">👁️</span>
+        </div>
+
+        <!-- TERMS CHECKBOX -->
+        <div class="checkbox-group">
+            <input type="checkbox" id="termsCheckbox">
+            <label for="termsCheckbox">
+                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </label>
+        </div>
+
+        <button class="btn signup-btn" id="signupBtn">Create Account</button>
+        <button class="btn google" id="googleBtn">🌐 Continue with Google</button>
+
+        <div class="bottom">
+            Already have an account? <a href="login.html">Log In</a>
+        </div>
+    </div>
 </div>
 
-<div class="panda">🐼</div>
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+        <div class="nav-icon">🏠</div>
+        <span>Home</span>
+    </a>
+    <a href="learn.html" class="nav-item">
+        <div class="nav-icon">📚</div>
+        <span>Learn</span>
+    </a>
+    <a href="signup.html" class="nav-item active">
+        <div class="nav-icon">✨</div>
+        <span>Sign Up</span>
+    </a>
+    <a href="login.html" class="nav-item">
+        <div class="nav-icon">🔑</div>
+        <span>Login</span>
+    </a>
+</nav>
 
+<!-- Panda Chat -->
+<button class="panda-fab" onclick="togglePanda()">🐼</button>
+<div id="pandaChat" class="panda-chat">
+    <div class="panda-header">
+        <div class="panda-title">🐼 Panda AI Tutor</div>
+        <button class="panda-close" onclick="togglePanda()">✕</button>
+    </div>
+    <div id="pandaBody" class="panda-body">
+        <div class="message-row">
+            <div class="panda-avatar">🐼</div>
+            <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
+        </div>
+    </div>
+    <div class="panda-input">
+        <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
+        <button class="panda-send" onclick="sendPandaMessage()">➤</button>
+    </div>
 </div>
 
-<div class="right">
-
-<div class="logo">Hanverse</div>
-
-<p class="subtitle">
-Learn Mandarin Through Stories,<br>
-Games & AI
-</p>
-
-<div class="signup-header">
- <h2>Create Account ✨</h2>
- <p>Fill in your details to get started.</p>
-</div>
-
-<div class="row-2">
-
-<div class="input-group">
-<label class="input-label">Full Name</label>
-<input type="text" id="fullName" placeholder="Your full name">
-</div>
-
-<div class="input-group">
-<label class="input-label">Username</label>
-<input type="text" id="username" placeholder="hanverse_user">
-<div class="field-error" id="usernameError">
-❌ Username already taken
-</div>
-</div>
-
-</div>
-
-<div class="input-group">
-<label class="input-label">Email Address</label>
-<input type="email" id="email" placeholder="your@email.com">
-</div>
-
-<div class="input-group">
-<label class="input-label">Password</label>
-<input
-type="password"
-id="password"
-placeholder="At least 6 characters"
-oninput="updateStrength(this.value)"
->
-<span class="eye" onclick="togglePw('password')">👁️</span>
-
-<div class="strength-bar">
-<div class="strength-fill" id="strengthFill"></div>
-</div>
-</div>
-
-<div class="input-group">
-<label class="input-label">Confirm Password</label>
-
-<input
-type="password"
-id="confirmPassword"
-placeholder="Repeat password"
->
-
-<span class="eye" onclick="togglePw('confirmPassword')">👁️</span>
-</div>
-
-<button class="btn signup-btn" id="signupBtn">
-Create Account
-</button>
-
-<button class="btn google" id="googleBtn">
-🌐 Continue with Google
-</button>
-
-<div class="bottom">
-Already have an account?
-<a href="login.html">Log In</a>
-</div>
-
-</div>
-
-</div>
-
-<script src="notifications.js"></script>
-<script src="notifications-client.js"></script>
 <script>
-// Initialize notifications when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.HanverseNotifications && window.HanverseNotifications.init) {
-        window.HanverseNotifications.init();
+    // ==========================================
+    // ROLE SELECTION
+    // ==========================================
+    let selectedRole = 'parent';
+
+    function selectRole(role) {
+        selectedRole = role;
+        document.querySelectorAll('.role-option').forEach(el => {
+            el.classList.toggle('selected', el.dataset.role === role);
+        });
     }
-});
-</script>
-<script>
-// ==========================================
-// HANVERSE SIGNUP SYSTEM
-// Section 1 - Initialization
-// ==========================================
 
-// API URL - dynamically determine based on environment
-const API_URL =
-    window.location.hostname === "localhost"
-        ? "/.netlify/functions/server"
+    // ==========================================
+    // API URL
+    // ==========================================
+    const API_URL = window.location.hostname === "localhost" 
+        ? "/.netlify/functions/server" 
         : "/api";
-// Form Elements
-const signupForm =
-    document.getElementById("signupForm");
 
-const usernameInput =
-    document.getElementById("username");
+    // ==========================================
+    // DOM ELEMENTS
+    // ==========================================
+    const signupBtn = document.getElementById('signupBtn');
+    const usernameInput = document.getElementById('username');
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const termsCheckbox = document.getElementById('termsCheckbox');
+    const usernameError = document.getElementById('usernameError');
 
-const fullNameInput =
-    document.getElementById("fullName");
-
-const emailInput =
-    document.getElementById("email");
-
-const passwordInput =
-    document.getElementById("password");
-
-const confirmPasswordInput =
-    document.getElementById("confirmPassword");
-
-const signupButton =
-    document.getElementById("signupBtn");
-
-
-// ==========================================
-// Notifications
-// ==========================================
-
-function saveNotification(
-    title,
-    message,
-    icon = "🔔"
-) {
-
-    const notifications =
-        JSON.parse(
-            localStorage.getItem(
-                "hanverse_notifications"
-            ) || "[]"
-        );
-
-    notifications.unshift({
-        id: Date.now(),
-        title,
-        message,
-        icon,
-        unread: true,
-        created_at:
-            new Date().toISOString()
-    });
-
-    localStorage.setItem(
-        "hanverse_notifications",
-        JSON.stringify(notifications)
-    );
-}
-
-
-// ==========================================
-// Message Functions
-// ==========================================
-
-function showError(message) {
-    Notify.toast(message, 'error');
-}
-
-function showSuccess(message) {
-    Notify.toast(message, 'success');
-}
-
-function clearMessages() {
-}
-
-
-// ==========================================
-// Button States
-// ==========================================
-
-function setLoadingState() {
-
-    signupButton.disabled = true;
-
-    signupButton.innerHTML =
-        "Creating Account...";
-}
-
-function resetButtonState() {
-
-    signupButton.disabled = false;
-
-    signupButton.innerHTML =
-        "Create Account";
-}
-
-
-// ==========================================
-// Validation
-// ==========================================
-
-function validateForm() {
-
-    const username =
-        usernameInput.value.trim();
-
-    const full_name =
-    fullNameInput.value.trim();
-
-    const email =
-        emailInput.value.trim();
-
-    const password =
-        passwordInput.value;
-
-    const confirmPassword =
-        confirmPasswordInput.value;
-
-    if (
-        !username ||
-        !fullName ||
-        !email ||
-        !password ||
-        !confirmPassword
-    ) {
-
-        showError(
-            "Please fill in all fields."
-        );
-
-        return false;
+    // ==========================================
+    // TOGGLE PASSWORD VISIBILITY
+    // ==========================================
+    function togglePw(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
     }
 
-    if (
-        password.length < 6
-    ) {
+    // ==========================================
+    // PASSWORD STRENGTH
+    // ==========================================
+    function updateStrength(password) {
+        const fill = document.getElementById('strengthFill');
+        if (!fill) return;
 
-        showError(
-            "Password must be at least 6 characters."
-        );
+        let score = 0;
+        if (password.length >= 6) score += 25;
+        if (password.length >= 10) score += 25;
+        if (/[A-Z]/.test(password) && /[0-9]/.test(password)) score += 25;
+        if (/[^A-Za-z0-9]/.test(password)) score += 25;
 
-        return false;
+        fill.style.width = Math.min(score, 100) + '%';
+        
+        if (score < 50) fill.style.background = '#E63946';
+        else if (score < 75) fill.style.background = '#F4D35E';
+        else fill.style.background = '#74C69D';
     }
 
-    if (
-        password !==
-        confirmPassword
-    ) {
+    // ==========================================
+    // TOAST NOTIFICATIONS
+    // ==========================================
+    function showToast(message, type = 'success') {
+        // Remove existing toast
+        const oldToast = document.querySelector('.toast-notification');
+        if (oldToast) oldToast.remove();
 
-        showError(
-            "Passwords do not match."
-        );
+        const toast = document.createElement('div');
+        toast.className = `toast-notification ${type}`;
+        toast.innerHTML = `
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()">✕</button>
+        `;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: ${type === 'success' ? '#74C69D' : '#E63946'};
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 90%;
+            animation: slideUp 0.3s ease;
+        `;
+        document.body.appendChild(toast);
 
-        return false;
+        setTimeout(() => {
+            if (toast.parentElement) toast.remove();
+        }, 4000);
     }
 
-    return true;
-}
+    // Add animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        .toast-notification button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+    `;
+    document.head.appendChild(style);
 
+    // ==========================================
+    // SIGNUP FUNCTION
+    // ==========================================
+    async function signupUser() {
+        // Get values
+        const username = usernameInput.value.trim();
+        const full_name = fullNameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
 
-// ==========================================
-// Signup Function
-// ==========================================
-
-async function signupUser() {
-
-    clearMessages();
-
-    if (!validateForm()) {
-
-        return;
-
-    }
-
-    setLoadingState();
-
-    const username =
-        usernameInput.value.trim();
-
-    const full_name =
-        fullNameInput.value.trim();
-
-    const email =
-        emailInput.value.trim();
-
-    const password =
-        passwordInput.value;
-
-    try {
-
-        // API request starts here...
-               const response = await fetch(`${API_URL}/signup`, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        username,
-        full_name,
-        email,
-        password
-    })
-});
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-
-            showError(
-                data.details || data.error ||
-                data.message ||
-                "Signup failed."
-            );
-
-            resetButtonState();
-
+        // Validate
+        if (!username || !full_name || !email || !password || !confirmPassword) {
+            showToast('Please fill in all fields.', 'error');
             return;
         }
-        
 
-        // ==========================================
-        // Notifications
-        // ==========================================
+        if (password.length < 6) {
+            showToast('Password must be at least 6 characters.', 'error');
+            return;
+        }
 
-        saveNotification(
-            "Welcome to Hanverse! 🎉",
-            "Your account has been created successfully.",
-            "🎉"
-        );
+        if (password !== confirmPassword) {
+            showToast('Passwords do not match.', 'error');
+            return;
+        }
 
-        saveNotification(
-            "Verify Your Email 📧",
-            "Please verify your email address to unlock all features.",
-            "📧"
-        );
+        if (!termsCheckbox.checked) {
+            showToast('Please agree to the Terms of Service.', 'error');
+            return;
+        }
 
-showSuccess(
-    "Account created successfully!"
-);
-Notify.confetti({ particleCount: 80, duration: 2000 });
+        // Check username availability
+        try {
+            const checkRes = await fetch(`${API_URL}/check-username/${username}`);
+            if (checkRes.ok) {
+                const checkData = await checkRes.json();
+                if (!checkData.available) {
+                    usernameError.classList.add('visible');
+                    usernameInput.classList.add('input--error');
+                    showToast('Username is already taken.', 'error');
+                    return;
+                }
+            }
+        } catch (e) {
+            // Skip check if endpoint doesn't exist
+        }
 
-setTimeout(() => {
-    window.location.href = 'login.html';
-}, 1000);
+        // Disable button
+        signupBtn.disabled = true;
+        signupBtn.textContent = 'Creating Account...';
 
-return;
+        try {
+            const response = await fetch(`${API_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username,
+                    full_name,
+                    email,
+                    password,
+                    role: selectedRole // Send selected role
+                })
+            });
 
-} catch (error) {
+            const data = await response.json();
 
-console.error("Signup Error:", error);
+            if (!response.ok) {
+                throw new Error(data.error || data.message || 'Signup failed.');
+            }
 
-showError(
-    "Unable to connect to server."
-);
+            // Save user data
+            if (data.user) {
+                localStorage.setItem('hanverse_user', JSON.stringify(data.user));
+            }
 
-resetButtonState();
+            showToast('🎉 Account created successfully!', 'success');
 
-}
+            // Redirect based on role
+            setTimeout(() => {
+                if (selectedRole === 'parent') {
+                    window.location.href = 'parent-hub.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            }, 1500);
 
-}
-
-
-// ==========================================
-// Utility Functions
-// ==========================================
-
-function togglePw(fieldId) {
-
-const field = document.getElementById(fieldId);
-
-if (field && field.type === 'password') {
-
-field.type = 'text';
-
-} else if (field) {
-
-field.type = 'password';
-
-}
-
-}
-
-function updateStrength(password) {
-
-const fill = document.getElementById('strengthFill');
-
-if (!fill) return;
-
-let score = 0;
-
-if (password.length >= 6) score += 25;
-
-if (password.length >= 10) score += 25;
-
-if (/[A-Z]/.test(password) && /[0-9]/.test(password)) score += 25;
-
-if (/[^A-Za-z0-9]/.test(password)) score += 25;
-
-fill.style.width = score + '%';
-
-if (score < 50) {
-
-fill.style.background = '#E63946';
-
-} else if (score < 75) {
-
-fill.style.background = '#F4D35E';
-
-} else {
-
-fill.style.background = '#74C69D';
-
-}
-
-}
-
-
-// ==========================================
-// Signup Button Handler
-// ==========================================
-
-if (signupButton) {
-
-signupButton.addEventListener(
-    'click',
-    async function(event) {
-
-        event.preventDefault();
-
-        await signupUser();
-
+        } catch (error) {
+            console.error('Signup Error:', error);
+            showToast(error.message || 'Unable to connect to server.', 'error');
+            signupBtn.disabled = false;
+            signupBtn.textContent = 'Create Account';
+        }
     }
-);
 
-}
+    // ==========================================
+    // EVENT LISTENERS
+    // ==========================================
+    signupBtn.addEventListener('click', signupUser);
 
+    // Enter key support
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') signupUser();
+        });
+    });
 
+    // Clear username error on input
+    usernameInput.addEventListener('input', () => {
+        usernameError.classList.remove('visible');
+        usernameInput.classList.remove('input--error');
+    });
+
+    // ==========================================
+    // PANDA CHAT FUNCTIONS
+    // ==========================================
+    function togglePanda() {
+        const chat = document.getElementById('pandaChat');
+        chat.classList.toggle('open');
+    }
+
+    function sendPandaMessage() {
+        const input = document.getElementById('pandaInput');
+        const body = document.getElementById('pandaBody');
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Add user message
+        const userRow = document.createElement('div');
+        userRow.className = 'message-row user';
+        userRow.innerHTML = `
+            <div class="panda-avatar">👤</div>
+            <div class="message user-message">${text}</div>
+        `;
+        body.appendChild(userRow);
+        input.value = '';
+        body.scrollTop = body.scrollHeight;
+
+        // Simulate response
+        setTimeout(() => {
+            const pandaRow = document.createElement('div');
+            pandaRow.className = 'message-row';
+            pandaRow.innerHTML = `
+                <div class="panda-avatar">🐼</div>
+                <div class="message panda-message">🤔 I'm still learning! Ask me about Mandarin phrases, grammar, or culture.</div>
+            `;
+            body.appendChild(pandaRow);
+            body.scrollTop = body.scrollHeight;
+        }, 800);
+    }
+
+    console.log('🐼 HanVerse Signup Page Loaded');
 </script>
- 
- <nav class="bottom-nav">
- <a href="index.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">🏠</div>
- <span>Home</span>
- </a>
- <a href="learn.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">📚</div>
- <span>Learn</span>
- </a>
- <a href="signup.html" class="nav-item active">
- <div class="nav-icon" style="position:relative;">✨</div>
- <span>Sign Up</span>
- </a>
- <a href="login.html" class="nav-item">
- <div class="nav-icon" style="position:relative;">🔑</div>
- <span>Login</span>
- </a>
- </nav>
- <!-- Panda Floating Button -->
 
-<button
-class="panda-fab"
-onclick="togglePanda()">
-🐼
-</button>
-
-<div
-id="pandaChat"
-class="panda-chat">
-
-<div class="panda-header">
-
-<div class="panda-title">
-🐼 Panda AI Tutor
-</div>
-
-<button
-class="panda-close"
-onclick="togglePanda()">
-✕
-</button>
-
-</div>
-
-<div
-id="pandaBody"
-class="panda-body">
-
-<div class="message-row">
-
-<div class="panda-avatar">
-🐼
-</div>
-
-<div class="message panda-message">
-👋 Hi! Ask me anything about Mandarin.
-</div>
-
-</div>
-
-</div>
-
-<div class="panda-input">
-
-<textarea
-id="pandaInput"
-placeholder="Ask Panda...">
-</textarea>
-
-<button
-class="panda-send"
-onclick="sendPandaMessage()">
-➤
-</button>
-
-</div>
-
-</div>
 <script src="panda-chat.js"></script>
- </body>
- </html>
-
-
-
+</body>
+</html>

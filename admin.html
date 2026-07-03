@@ -1,929 +1,1597 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="panda-chat.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HanVerse Admin Panel 👑</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <style>
+        /* ============================================
+           ROOT VARIABLES
+           ============================================ */
+        :root {
+            --red: #E63946;
+            --yellow: #F4D35E;
+            --blue: #4EA8DE;
+            --green: #74C69D;
+            --bg: #0D0D1A;
+            --surface: #151529;
+            --card: #1C1C35;
+            --text: #E8E8F0;
+            --muted: #8E8EA8;
+            --border: rgba(255, 255, 255, 0.08);
+            --gradient-primary: linear-gradient(135deg, #ff416c, #ff4b2b);
+            --radius: 12px;
+            --radius-lg: 18px;
+            --shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+            --transition: 0.2s ease;
+        }
 
-<style>
-:root {
-    --red: #E63946;
-    --yellow: #F4D35E;
-    --blue: #4EA8DE;
-    --green: #74C69D;
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    --bg: #0D0D1A;
-    --surface: #151529;
-    --card: #1C1C35;
+        html { scroll-behavior: smooth; }
 
-    --text: #E8E8F0;
-    --muted: #8E8EA8;
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-    --border: rgba(255,255,255,.08);
-}
+        /* ============================================
+           SCROLLBAR
+           ============================================ */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--surface); }
+        ::-webkit-scrollbar-thumb { background: var(--card); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2a4a; }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
+        /* ============================================
+           BUTTONS
+           ============================================ */
+        .btn {
+            border: none;
+            cursor: pointer;
+            border-radius: var(--radius);
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: transform var(--transition), opacity var(--transition), background var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .btn:active:not(:disabled) { transform: scale(0.97); }
+        .btn-primary { background: var(--gradient-primary); color: white; }
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.06); color: white; }
+        .btn-secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
+        .btn-danger { background: rgba(230, 57, 70, 0.15); color: var(--red); }
+        .btn-danger:hover:not(:disabled) { background: rgba(230, 57, 70, 0.25); }
+        .btn-success { background: rgba(116, 198, 157, 0.15); color: var(--green); }
+        .btn-success:hover:not(:disabled) { background: rgba(116, 198, 157, 0.25); }
+        .btn-full { width: 100%; justify-content: center; }
 
-body {
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-}
+        /* ============================================
+           TOPBAR
+           ============================================ */
+        .topbar {
+            height: 72px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: var(--gradient-primary);
+            flex-shrink: 0;
+        }
+        .logo h1 { font-size: 1.1rem; font-weight: 800; }
+        .logo h1 span { color: #ff6b6b; }
+        .top-actions { display: flex; gap: 10px; align-items: center; }
+        .top-actions .btn { padding: 8px 16px; font-size: 0.85rem; }
 
-.topbar {
-    height: 72px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 30px;
-}
+        /* ============================================
+           STATS
+           ============================================ */
+        .stats {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+        }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            transition: transform var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-title { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .stat-value { font-size: 2rem; font-weight: 800; margin-top: 4px; line-height: 1.2; }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+        /* ============================================
+           TABS
+           ============================================ */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0 24px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            border: none;
+            cursor: pointer;
+            border-radius: 999px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: inherit;
+            transition: all var(--transition);
+        }
+        .tab:hover { background: rgba(255, 255, 255, 0.1); color: var(--text); }
+        .tab.active { background: var(--gradient-primary); color: white; }
+        .tab .badge {
+            background: var(--red);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            margin-left: 4px;
+        }
 
-.logo-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    background: linear-gradient(135deg, #ff416c, #ff4b2b);
-}
+        /* ============================================
+           USER GRID
+           ============================================ */
+        .section { padding: 0 24px 30px; }
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .user-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: transform var(--transition), border-color var(--transition);
+        }
+        .user-card:hover { transform: translateY(-3px); border-color: rgba(255, 255, 255, 0.15); }
+        .user-card.pending-verification {
+            border-color: rgba(244, 211, 94, 0.3);
+            background: rgba(244, 211, 94, 0.05);
+        }
+        .user-card-top {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+        .user-pfp {
+            font-size: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 14px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .user-info { overflow: hidden; flex: 1; }
+        .user-info h3 { font-size: 1.05rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-info .user-email { font-size: 0.8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .pill-container {
+            margin: 14px 0 20px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .pill {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .pill-yellow { background: rgba(244, 211, 94, 0.15); color: var(--yellow); }
+        .pill-green { background: rgba(116, 198, 157, 0.15); color: var(--green); }
+        .pill-red { background: rgba(230, 57, 70, 0.15); color: var(--red); }
+        .pill-blue { background: rgba(78, 168, 222, 0.15); color: var(--blue); }
+        .pill-purple { background: rgba(155, 89, 182, 0.15); color: #9B59B6; }
+        .pill-pending { background: rgba(244, 211, 94, 0.2); color: var(--yellow); border: 1px dashed var(--yellow); }
 
-.logo h1 {
-    font-size: 1.1rem;
-    font-weight: 800;
-}
+        .user-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px;
+        }
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .action-btn:hover { background: rgba(255, 255, 255, 0.1); }
+        .action-btn.verify:hover { background: rgba(116, 198, 157, 0.15); color: var(--green); border-color: rgba(116, 198, 157, 0.3); }
+        .action-btn.edit:hover { background: rgba(78, 168, 222, 0.15); color: var(--blue); border-color: rgba(78, 168, 222, 0.3); }
+        .action-btn.email:hover { background: rgba(244, 211, 94, 0.15); color: var(--yellow); border-color: rgba(244, 211, 94, 0.3); }
+        .action-btn.delete:hover { background: rgba(230, 57, 70, 0.15); color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
+        .action-btn.deny:hover { background: rgba(230, 57, 70, 0.15); color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
 
-.logo span {
-    color: #ff6b6b;
-}
+        /* Notification Banner */
+        .notification-banner {
+            background: rgba(244, 211, 94, 0.1);
+            border: 1px solid var(--yellow);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .notification-banner .icon { font-size: 1.5rem; }
+        .notification-banner .text { flex: 1; color: var(--yellow); font-weight: 500; }
+        .notification-banner .text strong { color: white; }
+        .notification-banner .btn { padding: 6px 16px; font-size: 0.8rem; }
 
-.top-actions {
-    display: flex;
-    gap: 10px;
-}
+        /* ============================================
+           MODALS
+           ============================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 999;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 36px;
+            box-shadow: var(--shadow);
+            position: relative;
+            margin: auto;
+            animation: modalFadeIn 0.25s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-auth { max-width: 420px; }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+        }
+        .modal-close:hover { background: rgba(230, 57, 70, 0.2); color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
+        .modal h2 { margin-bottom: 6px; font-weight: 700; padding-right: 40px; }
+        .modal p { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; }
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
 
-.btn {
-    border: none;
-    cursor: pointer;
-    border-radius: 12px;
-    padding: 10px 18px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: transform 0.2s, opacity 0.2s;
-}
+        /* ============================================
+           FORMS
+           ============================================ */
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: #0D0D1A;
+            color: white;
+            outline: none;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color var(--transition);
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #ff416c; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-hint { color: var(--muted); font-size: 0.7rem; margin-top: 4px; }
+        .error { color: #ff6b6b; font-size: 0.85rem; font-weight: 500; min-height: 24px; margin-top: 8px; }
+        .highlight { color: #ff416c; font-weight: 600; }
 
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+        /* ============================================
+           LOADING
+           ============================================ */
+        .loading { min-height: 50vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #ff416c;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .empty-state { padding: 60px; text-align: center; color: var(--muted); }
 
-.btn:active:not(:disabled) {
-    transform: scale(0.98);
-}
+        /* ============================================
+           PANDA CHAT
+           ============================================ */
+        .panda-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gradient-primary);
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(255, 65, 108, 0.4);
+            transition: transform var(--transition), box-shadow var(--transition);
+            z-index: 50;
+        }
+        .panda-fab:hover { transform: scale(1.05); box-shadow: 0 12px 32px rgba(255, 65, 108, 0.5); }
+        .panda-chat {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            max-width: calc(100vw - 60px);
+            max-height: 500px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            display: none;
+            flex-direction: column;
+            z-index: 60;
+            overflow: hidden;
+        }
+        .panda-chat.open { display: flex; }
+        .panda-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+        .panda-title { font-weight: 700; font-size: 0.95rem; }
+        .panda-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all var(--transition);
+        }
+        .panda-close:hover { background: rgba(230, 57, 70, 0.2); color: var(--red); }
+        .panda-body {
+            flex: 1;
+            padding: 16px 20px;
+            overflow-y: auto;
+            max-height: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message-row { display: flex; gap: 10px; align-items: flex-start; }
+        .message-row.user { flex-direction: row-reverse; }
+        .panda-avatar { font-size: 1.5rem; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+        .message { padding: 10px 14px; border-radius: var(--radius); max-width: 85%; font-size: 0.9rem; word-wrap: break-word; }
+        .panda-message { background: rgba(255, 255, 255, 0.06); border-bottom-left-radius: 4px; }
+        .user-message { background: var(--gradient-primary); color: white; border-bottom-right-radius: 4px; }
+        .panda-input { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); }
+        .panda-input textarea {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
+            min-height: 40px;
+            max-height: 100px;
+        }
+        .panda-input textarea:focus { border-color: #ff416c; }
+        .panda-send {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity var(--transition);
+            flex-shrink: 0;
+        }
+        .panda-send:hover { opacity: 0.9; }
 
-.btn-primary {
-    background: linear-gradient(135deg, #ff416c, #ff4b2b);
-    color: white;
-}
-
-.btn-secondary {
-    background: rgba(255,255,255,.06);
-    color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background: rgba(255,255,255,.1);
-}
-
-.stats {
-    padding: 24px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-}
-
-@media(max-width: 768px) {
-    .stats { grid-template-columns: repeat(2, 1fr); }
-}
-@media(max-width: 480px) {
-    .stats { grid-template-columns: 1fr; }
-}
-
-.stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 20px;
-}
-
-.stat-title {
-    color: var(--muted);
-    font-size: .75rem;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
-
-.stat-value {
-    font-size: 2rem;
-    font-weight: 800;
-    margin-top: 8px;
-}
-
-.tabs {
-    display: flex;
-    gap: 8px;
-    padding: 0 24px;
-    margin-bottom: 24px;
-}
-
-.tab {
-    border: none;
-    cursor: pointer;
-    border-radius: 999px;
-    padding: 10px 18px;
-    background: rgba(255,255,255,.06);
-    color: var(--muted);
-    font-weight: 600;
-}
-
-.tab.active {
-    background: linear-gradient(135deg, #ff416c, #ff4b2b);
-    color: white;
-}
-
-.section {
-    padding: 0 24px 30px;
-}
-
-.user-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-}
-
-.user-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.2s;
-}
-
-.user-card:hover {
-    transform: translateY(-2px);
-}
-
-.user-card-top {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-}
-
-.user-pfp {
-    font-size: 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 12px;
-    border-radius: 14px;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.user-info {
-    overflow: hidden;
-}
-
-.user-info h3 {
-    font-size: 1.05rem;
-    font-weight: 600;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.user-info p {
-    font-size: 0.8rem;
-    color: var(--muted);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.pill-container {
-    margin: 14px 0 20px; 
-    display: flex; 
-    gap: 6px; 
-    flex-wrap: wrap;
-}
-
-.pill {
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-.pill-yellow { background: rgba(244, 211, 94, 0.15); color: var(--yellow); }
-.pill-green { background: rgba(116, 198, 157, 0.15); color: var(--green); }
-.pill-red { background: rgba(230, 57, 70, 0.15); color: var(--red); }
-.pill-blue { background: rgba(78, 168, 222, 0.15); color: var(--blue); }
-
-.user-actions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-}
-
-.action-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: background-color 0.2s, color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-.action-btn:hover { background: rgba(255, 255, 255, 0.1); }
-.action-btn.del:hover { background: rgba(230, 57, 70, 0.2); color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
-
-/* ==========================================
-   LANDSCAPE MODAL ENGINE STYLES 🌟
-========================================== */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(6px);
-    z-index: 999;
-    padding: 20px;
-    overflow-y: auto;
-}
-
-.modal-overlay.open {
-    display: flex;
-}
-
-.modal {
-    width: 100%;
-    max-width: 800px; /* Force optimal wide landscape look on desktop screens */
-    background: var(--card);
-    border-radius: 24px;
-    border: 1px solid var(--border);
-    padding: 36px;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.5);
-    position: relative;
-    margin: auto; /* Fallback for safe layout distribution inside overlays */
-}
-
-/* Modal Absolute Header Close Typography Structure */
-.modal-close {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, color 0.2s;
-}
-
-.modal-close:hover {
-    background: rgba(230, 57, 70, 0.2);
-    color: var(--red);
-    border-color: rgba(230, 57, 70, 0.3);
-}
-
-/* Split Landscape Content Columns Layout Row */
-.modal-landscape-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-top: 10px;
-}
-
-@media(max-width: 767px) {
-    .modal-landscape-grid {
-        grid-template-columns: 1fr; /* Responsively fallback cleanly on micro mobile touchscreens */
-        gap: 12px;
-    }
-}
-
-.modal h2 { margin-bottom: 6px; font-weight: 700; padding-right: 40px; }
-.modal p { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; }
-.modal label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; color: var(--muted); letter-spacing: 0.5px; }
-.modal input, .modal select, .modal textarea {
-    width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: #0D0D1A;
-    color: white;
-    margin-bottom: 16px;
-    outline: none;
-    font-size: 0.95rem;
-    font-family: inherit;
-}
-.modal input:focus, .modal select:focus, .modal textarea:focus {
-    border-color: #ff416c;
-}
-
-.error {
-    color: #ff6b6b;
-    min-height: 24px;
-    font-size: .85rem;
-    font-weight: 500;
-}
-
-.loading {
-    height: 70vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 4px solid rgba(255,255,255,.15);
-    border-top-color: #ff416c;
-    animation: spin .8s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-</style>
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 992px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) {
+            .topbar { padding: 0 16px; height: 64px; }
+            .top-actions .btn span { display: none; }
+            .modal { padding: 24px 20px; }
+            .modal-grid { grid-template-columns: 1fr; gap: 12px; }
+            .user-grid { grid-template-columns: 1fr; }
+            .panda-chat { right: 10px; bottom: 80px; width: calc(100vw - 20px); max-height: 60vh; }
+        }
+        @media (max-width: 560px) {
+            .stats { grid-template-columns: repeat(2, 1fr); padding: 12px; gap: 10px; }
+            .stat-card { padding: 14px; }
+            .stat-value { font-size: 1.5rem; }
+            .tabs { padding: 0 12px; gap: 6px; }
+            .tab { padding: 8px 14px; font-size: 0.75rem; }
+            .section { padding: 0 12px 20px; }
+            .user-actions { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
 </head>
 <body>
-
-<div id="app">
-    <div class="loading">
-        <div class="spinner"></div>
-        <p>Loading Admin Panel Assets...</p>
-    </div>
-</div>
-
-<div class="modal-overlay open" id="authModal">
-    <div class="modal" style="max-width: 420px;">
-        <h2>🔐 Admin Access</h2>
-        <p>Please enter your administrative dashboard key to proceed.</p>
-        <input type="password" id="authPassword" placeholder="Admin Password" onkeydown="if(event.key === 'Enter') confirmAdminAuth()">
-        <div class="error" id="authErr"></div>
-        <button class="btn btn-primary" style="width:100%; padding:14px;" id="unlockBtn" onclick="confirmAdminAuth()">Unlock Panel</button>
-    </div>
-</div>
-
-<div class="modal-overlay" id="emailAllModal">
-    <div class="modal">
-        <button class="modal-close" onclick="closeModal('emailAllModal')">✕</button>
-        <h2>📧 Broadcast Announcement</h2>
-        <p>This message will be dispatched directly to all verified, active HanVerse users.</p>
-        
-        <div class="modal-landscape-grid">
-            <div>
-                <label>SUBJECT LINE</label>
-                <input type="text" id="bulkSubject" placeholder="e.g., Exciting New Panda AI Updates!">
-                
-                <div class="error" id="bulkEmailErr" style="margin-top: 16px;"></div>
-            </div>
-            <div>
-                <label>EMAIL MESSAGE BODY</label>
-                <textarea id="bulkMessage" placeholder="Write your announcement content details here..." style="height: 160px; resize: none;"></textarea>
-            </div>
-        </div>
-        
-        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:20px; border-top: 1px solid var(--border); padding-top: 20px;">
-            <button class="btn btn-secondary" style="width: 140px;" onclick="closeModal('emailAllModal')">Cancel</button>
-            <button class="btn btn-primary" style="width: 220px;" id="sendBulkBtn" onclick="submitEmailAllBroadcast()">Send Broadcast 🚀</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="userFormModal">
-    <div class="modal">
-        <button class="modal-close" onclick="closeModal('userFormModal')">✕</button>
-        <h2 id="userModalTitle">👤 Create New User</h2>
-        <p id="userModalSubtitle">Register or update a user entity within database clusters.</p>
-        <input type="hidden" id="formUserId">
-        
-        <div class="modal-landscape-grid">
-            <div>
-                <label>FULL NAME</label>
-                <input type="text" id="formFullName" placeholder="John Doe">
-                
-                <label>USERNAME</label>
-                <input type="text" id="formUsername" placeholder="johndoe">
-                
-                <label>EMAIL ADDRESS</label>
-                <input type="email" id="formEmail" placeholder="john@example.com">
-                
-                <label id="passLabel">PASSWORD</label>
-                <input type="password" id="formPassword" placeholder="Minimum 6 characters">
-            </div>
-            
-            <div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div>
-                        <label>LEVEL</label>
-                        <input type="number" id="formLevel" value="1" min="1">
-                    </div>
-                    <div>
-                        <label>XP</label>
-                        <input type="number" id="formXp" value="0" min="0">
-                    </div>
+    <!-- ========================================== -->
+    <!-- AUTHENTICATION MODAL                       -->
+    <!-- ========================================== -->
+    <div class="modal-overlay open" id="authModal" role="dialog" aria-labelledby="authTitle">
+        <div class="modal modal-auth">
+            <h2 id="authTitle">🔐 Admin Access</h2>
+            <p>Enter your administrative dashboard key to proceed.</p>
+            <form id="authForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="authPassword">Admin Password</label>
+                    <input type="password" id="authPassword" placeholder="Enter admin password" required />
                 </div>
+                <div class="error" id="authErr" role="alert"></div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-unlock" aria-hidden="true"></i> Unlock Panel
+                </button>
+            </form>
+        </div>
+    </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div>
-                        <label>ROLE TYPE</label>
-                        <select id="formIsAdmin">
-                            <option value="false">Standard Learner</option>
-                            <option value="true">👑 System Admin</option>
+    <!-- ========================================== -->
+    <!-- MAIN APPLICATION                           -->
+    <!-- ========================================== -->
+    <div id="app" style="display:none;">
+        <!-- Header -->
+        <header class="topbar" role="banner">
+            <div class="logo">
+                <div class="logo-icon" aria-hidden="true">👑</div>
+                <h1>HanVerse <span>Admin</span></h1>
+            </div>
+            <nav class="top-actions" aria-label="Admin actions">
+                <button class="btn btn-secondary" id="broadcastBtn">
+                    <i class="fas fa-bullhorn" aria-hidden="true"></i> <span>Broadcast</span>
+                </button>
+                <button class="btn btn-primary" id="createUserBtn">
+                    <i class="fas fa-plus" aria-hidden="true"></i> <span>Create User</span>
+                </button>
+                <button class="btn btn-secondary" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> <span>Logout</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Statistics -->
+        <section class="stats" aria-label="Dashboard statistics">
+            <div class="stat-card">
+                <div class="stat-title">Total Users</div>
+                <div class="stat-value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Pending Verification</div>
+                <div class="stat-value" id="pendingUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Parents</div>
+                <div class="stat-value" id="parentUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Premium Members</div>
+                <div class="stat-value" id="premiumUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Banned Users</div>
+                <div class="stat-value" id="bannedUsers">0</div>
+            </div>
+        </section>
+
+        <!-- Tabs -->
+        <nav class="tabs" role="tablist" aria-label="User filters">
+            <button class="tab active" data-tab="all" role="tab">👥 All</button>
+            <button class="tab" data-tab="pending" role="tab">⏳ Pending <span class="badge" id="pendingBadge">0</span></button>
+            <button class="tab" data-tab="parents" role="tab">👪 Parents <span class="badge" id="parentsBadge">0</span></button>
+            <button class="tab" data-tab="premium" role="tab">✨ Premium</button>
+            <button class="tab" data-tab="banned" role="tab">🚫 Banned</button>
+        </nav>
+
+        <!-- User Grid -->
+        <section class="section" id="userSection" aria-label="User list">
+            <div class="loading" id="loadingState">
+                <div class="spinner"></div>
+                <p>Loading users...</p>
+            </div>
+            <div id="userGrid" class="user-grid"></div>
+        </section>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODALS                                     -->
+    <!-- ========================================== -->
+
+    <!-- User Form Modal -->
+    <div class="modal-overlay" id="userFormModal" role="dialog" aria-labelledby="userModalTitle">
+        <div class="modal">
+            <button class="modal-close" data-modal="userFormModal" aria-label="Close modal">✕</button>
+            <h2 id="userModalTitle">👤 Create New User</h2>
+            <p id="userModalSubtitle">Register or update a user entity within database clusters.</p>
+            <form id="userForm" autocomplete="off">
+                <input type="hidden" id="formUserId" />
+                <div class="modal-grid">
+                    <div class="form-group">
+                        <label for="formFullName">Full Name</label>
+                        <input type="text" id="formFullName" placeholder="John Doe" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="formUsername">Username</label>
+                        <input type="text" id="formUsername" placeholder="johndoe" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="formEmail">Email Address</label>
+                        <input type="email" id="formEmail" placeholder="john@example.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="formPassword">Password</label>
+                        <input type="password" id="formPassword" placeholder="Minimum 6 characters" />
+                        <small class="form-hint">Leave blank to keep current password</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="formLevel">Level</label>
+                        <input type="number" id="formLevel" value="1" min="1" />
+                    </div>
+                    <div class="form-group">
+                        <label for="formXp">XP</label>
+                        <input type="number" id="formXp" value="0" min="0" />
+                    </div>
+                    <div class="form-group">
+                        <label for="formRole">Role Type</label>
+                        <select id="formRole">
+                            <option value="student">Standard Learner</option>
+                            <option value="parent">Parent Hub Account</option>
+                            <option value="admin">👑 System Admin</option>
                         </select>
                     </div>
-                    <div>
-                        <label>ACCOUNT STATUS</label>
+                    <div class="form-group">
+                        <label for="formIsBanned">Account Status</label>
                         <select id="formIsBanned">
                             <option value="false">Active / Clear</option>
                             <option value="true">🚫 Banned</option>
                         </select>
                     </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div>
-                        <label>PREMIUM STATUS</label>
+                    <div class="form-group">
+                        <label for="formPremium">Premium Status</label>
                         <select id="formPremium">
                             <option value="false">Free Tier</option>
                             <option value="true">✨ Premium Member</option>
                         </select>
                     </div>
-                    <div>
-                        <label>VERIFICATION</label>
+                    <div class="form-group">
+                        <label for="formIsVerified">Verification</label>
                         <select id="formIsVerified">
-                            <option value="false">Unverified</option>
+                            <option value="false">Unverified / Pending</option>
                             <option value="true">✅ Verified</option>
                         </select>
                     </div>
                 </div>
-                
-                <div class="error" id="userFormErr" style="margin-top: 10px;"></div>
-            </div>
-        </div>
-        
-        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:20px; border-top: 1px solid var(--border); padding-top: 20px;">
-            <button class="btn btn-secondary" style="width: 140px;" onclick="closeModal('userFormModal')">Cancel</button>
-            <button class="btn btn-primary" style="width: 220px;" id="saveUserBtn" onclick="submitUserForm()">Save User Entity</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="singleEmailModal">
-    <div class="modal">
-        <button class="modal-close" onclick="closeModal('singleEmailModal')">✕</button>
-        <h2>📧 Direct Email Dispatcher</h2>
-        <p>Send a secure mail transport directly to user: <span id="targetEmailUser" style="color: #ff416c; font-weight:600;"></span></p>
-        <input type="hidden" id="targetEmailId">
-
-        <div class="modal-landscape-grid">
-            <div>
-                <label>SUBJECT</label>
-                <input type="text" id="singleSubject" placeholder="Account notice, rewards milestone...">
-                
-                <div class="error" id="singleEmailErr" style="margin-top: 16px;"></div>
-            </div>
-            <div>
-                <label>MESSAGE BODY</label>
-                <textarea id="singleMessage" placeholder="Write your context logs..." style="height: 160px; resize: none;"></textarea>
-            </div>
-        </div>
-        
-        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:20px; border-top: 1px solid var(--border); padding-top: 20px;">
-            <button class="btn btn-secondary" style="width: 140px;" onclick="closeModal('singleEmailModal')">Cancel</button>
-            <button class="btn btn-primary" style="width: 220px;" id="sendSingleBtn" onclick="submitSingleEmail()">Deliver Message</button>
+                <div class="error" id="userFormErr" role="alert"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-modal="userFormModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save" aria-hidden="true"></i> Save User
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
 
-<script>
-const API_URL = '/api';
+    <!-- Broadcast Email Modal -->
+    <div class="modal-overlay" id="broadcastModal" role="dialog" aria-labelledby="broadcastTitle">
+        <div class="modal">
+            <button class="modal-close" data-modal="broadcastModal" aria-label="Close modal">✕</button>
+            <h2 id="broadcastTitle">📧 Broadcast Announcement</h2>
+            <p>This message will be dispatched directly to all verified, active HanVerse users.</p>
+            <form id="broadcastForm">
+                <div class="modal-grid">
+                    <div class="form-group">
+                        <label for="bulkSubject">Subject Line</label>
+                        <input type="text" id="bulkSubject" placeholder="e.g., Exciting New Panda AI Updates!" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="bulkMessage">Email Message Body</label>
+                        <textarea id="bulkMessage" placeholder="Write your announcement content details here..." required></textarea>
+                    </div>
+                </div>
+                <div class="error" id="bulkEmailErr" role="alert"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-modal="broadcastModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i> Send Broadcast
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-let adminToken = null;
-let db = { users: [] };
+    <!-- Single Email Modal -->
+    <div class="modal-overlay" id="singleEmailModal" role="dialog" aria-labelledby="singleEmailTitle">
+        <div class="modal">
+            <button class="modal-close" data-modal="singleEmailModal" aria-label="Close modal">✕</button>
+            <h2 id="singleEmailTitle">📧 Direct Email Dispatcher</h2>
+            <p>Send a secure mail transport directly to user: <span id="targetEmailUser" class="highlight"></span></p>
+            <form id="singleEmailForm">
+                <input type="hidden" id="targetEmailId" />
+                <div class="modal-grid">
+                    <div class="form-group">
+                        <label for="singleSubject">Subject</label>
+                        <input type="text" id="singleSubject" placeholder="Account notice, rewards milestone..." required />
+                    </div>
+                    <div class="form-group">
+                        <label for="singleMessage">Message Body</label>
+                        <textarea id="singleMessage" placeholder="Write your context logs..." required></textarea>
+                    </div>
+                </div>
+                <div class="error" id="singleEmailErr" role="alert"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-modal="singleEmailModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-envelope" aria-hidden="true"></i> Deliver Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-const storedUser = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
-const USER_ID = storedUser.user_id;
+    <!-- ========================================== -->
+    <!-- PANDA CHAT                                 -->
+    <!-- ========================================== -->
+    <button class="panda-fab" id="pandaToggle" aria-label="Toggle Panda AI chat">🐼</button>
+    <div id="pandaChat" class="panda-chat" role="dialog" aria-label="Panda AI Tutor chat">
+        <div class="panda-header">
+            <div class="panda-title">🐼 Panda AI Tutor</div>
+            <button class="panda-close" id="pandaClose" aria-label="Close chat">✕</button>
+        </div>
+        <div id="pandaBody" class="panda-body">
+            <div class="message-row">
+                <div class="panda-avatar" aria-hidden="true">🐼</div>
+                <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
+            </div>
+        </div>
+        <div class="panda-input">
+            <textarea id="pandaInput" placeholder="Ask Panda..." rows="1"></textarea>
+            <button class="panda-send" id="pandaSend" aria-label="Send message">
+                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
 
-if (!USER_ID) {
-    location.href = 'login.html';
-}
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT                                 -->
+    <!-- ========================================== -->
+    <script>
+    /**
+     * ============================================
+     * HANVERSE ADMIN PANEL - Complete Application
+     * ============================================
+     */
+    (function() {
+        'use strict';
 
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        // ==========================================
+        // CONFIGURATION
+        // ==========================================
+        const CONFIG = {
+            API_URL: '/api',
+            STORAGE_KEY: 'hanverse_admin',
+        };
 
-async function confirmAdminAuth() {
-    const passwordInput = document.getElementById('authPassword');
-    const unlockBtn = document.getElementById('unlockBtn');
-    const err = document.getElementById('authErr');
-    const password = passwordInput.value.trim();
-    err.textContent = '';
+        // ==========================================
+        // STATE
+        // ==========================================
+        const state = {
+            users: [],
+            currentTab: 'all',
+            adminToken: null,
+            isLoading: false,
+        };
 
-    if (!password) {
-        err.textContent = 'Enter admin password';
-        return;
-    }
+        // ==========================================
+        // DOM REFERENCES
+        // ==========================================
+        const DOM = {
+            app: document.getElementById('app'),
+            authModal: document.getElementById('authModal'),
+            authForm: document.getElementById('authForm'),
+            authPassword: document.getElementById('authPassword'),
+            authErr: document.getElementById('authErr'),
+            userGrid: document.getElementById('userGrid'),
+            loadingState: document.getElementById('loadingState'),
+            totalUsers: document.getElementById('totalUsers'),
+            pendingUsers: document.getElementById('pendingUsers'),
+            parentUsers: document.getElementById('parentUsers'),
+            premiumUsers: document.getElementById('premiumUsers'),
+            bannedUsers: document.getElementById('bannedUsers'),
+            pendingBadge: document.getElementById('pendingBadge'),
+            parentsBadge: document.getElementById('parentsBadge'),
+            tabs: document.querySelectorAll('.tab'),
+            createUserBtn: document.getElementById('createUserBtn'),
+            broadcastBtn: document.getElementById('broadcastBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            // User Form
+            userFormModal: document.getElementById('userFormModal'),
+            userForm: document.getElementById('userForm'),
+            userFormErr: document.getElementById('userFormErr'),
+            userModalTitle: document.getElementById('userModalTitle'),
+            userModalSubtitle: document.getElementById('userModalSubtitle'),
+            formUserId: document.getElementById('formUserId'),
+            formFullName: document.getElementById('formFullName'),
+            formUsername: document.getElementById('formUsername'),
+            formEmail: document.getElementById('formEmail'),
+            formPassword: document.getElementById('formPassword'),
+            formLevel: document.getElementById('formLevel'),
+            formXp: document.getElementById('formXp'),
+            formRole: document.getElementById('formRole'),
+            formIsBanned: document.getElementById('formIsBanned'),
+            formPremium: document.getElementById('formPremium'),
+            formIsVerified: document.getElementById('formIsVerified'),
+            // Broadcast
+            broadcastModal: document.getElementById('broadcastModal'),
+            broadcastForm: document.getElementById('broadcastForm'),
+            bulkSubject: document.getElementById('bulkSubject'),
+            bulkMessage: document.getElementById('bulkMessage'),
+            bulkEmailErr: document.getElementById('bulkEmailErr'),
+            // Single Email
+            singleEmailModal: document.getElementById('singleEmailModal'),
+            singleEmailForm: document.getElementById('singleEmailForm'),
+            targetEmailId: document.getElementById('targetEmailId'),
+            targetEmailUser: document.getElementById('targetEmailUser'),
+            singleSubject: document.getElementById('singleSubject'),
+            singleMessage: document.getElementById('singleMessage'),
+            singleEmailErr: document.getElementById('singleEmailErr'),
+            // Panda Chat
+            pandaToggle: document.getElementById('pandaToggle'),
+            pandaChat: document.getElementById('pandaChat'),
+            pandaClose: document.getElementById('pandaClose'),
+            pandaBody: document.getElementById('pandaBody'),
+            pandaInput: document.getElementById('pandaInput'),
+            pandaSend: document.getElementById('pandaSend'),
+        };
 
-    try {
-        unlockBtn.disabled = true;
-        unlockBtn.innerText = "Verifying...";
-
-        const response = await fetch(API_URL + '/admin/verify-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: USER_ID, adminPassword: password })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            err.textContent = data.error || 'Access denied';
-            unlockBtn.disabled = false;
-            unlockBtn.innerText = "Unlock Panel";
-            return;
+        // ==========================================
+        // UTILITY FUNCTIONS
+        // ==========================================
+        function getAuthHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${state.adminToken}`,
+            };
         }
 
-        adminToken = data.adminToken;
-        loadAdminData();
+        function showError(element, message) {
+            if (element) element.textContent = message || '';
+        }
 
-    } catch (ex) {
-        console.error(ex);
-        err.textContent = 'Server unavailable';
-        unlockBtn.disabled = false;
-        unlockBtn.innerText = "Unlock Panel";
-    }
-}
+        function clearError(element) {
+            if (element) element.textContent = '';
+        }
 
-async function loadAdminData() {
-    try {
-        const response = await fetch(API_URL + '/admin/overview', {
-            headers: { 'Authorization': 'Bearer ' + adminToken }
-        });
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('open');
+        }
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed loading metrics.');
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('open');
+        }
 
-        db = data;
-        const modal = document.getElementById('authModal');
-        if(modal) modal.remove();
+        function getPfpEmoji(role) {
+            if (role === 'parent') return '👪';
+            if (role === 'admin') return '👑';
+            return '👤';
+        }
 
-        render();
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast-notification');
+            if (existing) existing.remove();
 
-    } catch (ex) {
-        console.error(ex);
-        document.getElementById('authErr').textContent = ex.message;
-    }
-}
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: ${type === 'success' ? '#74C69D' : type === 'error' ? '#E63946' : '#4EA8DE'};
+                color: white;
+                padding: 14px 24px;
+                border-radius: 12px;
+                font-weight: 600;
+                z-index: 9999;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                max-width: 400px;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:white;font-size:18px;cursor:pointer;">✕</button>
+            `;
+            document.body.appendChild(toast);
 
-function renderUsers() {
-    if (!db.users || db.users.length === 0) {
-        return `<div style="padding:60px; text-align:center; color: var(--muted);">No users found in database clusters.</div>`;
-    }
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 4000);
+        }
 
-    let html = '<div class="user-grid">';
-    db.users.forEach(user => {
-        html += `
-        <div class="user-card" id="user-row-${user.user_id}">
-            <div class="user-card-top">
-                <div class="user-pfp">👤</div>
-                <div class="user-info">
-                    <h3>${user.full_name || 'Unknown User'}</h3>
-                    <p>@${user.username || ''}</p>
-                    <p>${user.email || ''}</p>
-                </div>
-            </div>
-            <div class="pill-container">
-                <span class="pill pill-yellow">⭐ ${user.xp || 0} XP</span>
-                <span class="pill pill-green">Lv ${user.level || 1}</span>
-                ${user.premium ? '<span class="pill pill-yellow" style="background:rgba(244,211,94,0.2); color:#F4D35E;">✨ Premium</span>' : ''}
-                ${user.is_verified ? '<span class="pill pill-blue">✅ Verified</span>' : ''}
-                ${user.is_admin ? '<span class="pill pill-red">👑 Admin</span>' : ''}
-                ${user.is_banned ? '<span class="pill pill-red">🚫 Banned</span>' : ''}
-            </div>
-            <div class="user-actions">
-                <button class="action-btn" onclick="editUser('${user.user_id}')">✏️ Edit</button>
-                <button class="action-btn" onclick="emailUser('${user.user_id}', '${user.username}')">📧 Email</button>
-                <button class="action-btn" onclick="banUser('${user.user_id}', ${user.is_banned})">${user.is_banned ? '🟢 Unban' : '🚫 Ban'}</button>
-                <button class="action-btn del" onclick="deleteUser('${user.user_id}')">🗑️ Delete</button>
-            </div>
-        </div>`;
-    });
-    html += '</div>';
-    return html;
-}
+        function getAdminUserId() {
+            try {
+                const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+                return user.user_id || null;
+            } catch {
+                return null;
+            }
+        }
 
-function render() {
-    const totalUsers = db.users ? db.users.length : 0;
-    const adminCount = db.users ? db.users.filter(u => u.is_admin).length : 0;
-    const totalXP = db.users ? db.users.reduce((total, user) => total + (user.xp || 0), 0) : 0;
-    const bannedUsers = db.users ? db.users.filter(u => u.is_banned).length : 0;
+        // ==========================================
+        // AUTHENTICATION
+        // ==========================================
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const password = DOM.authPassword.value.trim();
+            const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
 
-    document.getElementById('app').innerHTML = `
-    <div class="topbar">
-        <div class="logo">
-            <div class="logo-icon">👑</div>
-            <h1>HanVerse <span>Admin</span></h1>
-        </div>
-        <div class="top-actions">
-            <button class="btn btn-primary" onclick="openCreateUser()">➕ Create User</button>
-            <button class="btn btn-secondary" onclick="openEmailAll()">📧 Email All</button>
-            <button class="btn btn-secondary" onclick="location.href='profile.html'">← Profile</button>
-        </div>
-    </div>
-    <div class="stats">
-        <div class="stat-card"><div class="stat-title">Total Users</div><div class="stat-value">${totalUsers}</div></div>
-        <div class="stat-card"><div class="stat-title">Admins</div><div class="stat-value">${adminCount}</div></div>
-        <div class="stat-card"><div class="stat-title">Total XP</div><div class="stat-value">${totalXP.toLocaleString()}</div></div>
-        <div class="stat-card"><div class="stat-title">Banned</div><div class="stat-value">${bannedUsers}</div></div>
-    </div>
-    <div class="tabs">
-        <button class="tab active">👥 Users (${totalUsers})</button>
-    </div>
-    <div class="section">${renderUsers()}</div>`;
-}
+            if (!password) {
+                showError(DOM.authErr, 'Please enter your admin password.');
+                return;
+            }
 
-// --- EMAIL ALL FUNCTIONS ---
-function openEmailAll() {
-    openModal('emailAllModal');
-    document.getElementById('bulkSubject').value = '';
-    document.getElementById('bulkMessage').value = '';
-    document.getElementById('bulkEmailErr').textContent = '';
-}
+            try {
+                const btn = DOM.authForm.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                showError(DOM.authErr, '');
 
-async function submitEmailAllBroadcast() {
-    const subject = document.getElementById('bulkSubject').value.trim();
-    const message = document.getElementById('bulkMessage').value.trim();
-    const err = document.getElementById('bulkEmailErr');
-    const sendBtn = document.getElementById('sendBulkBtn');
+                const res = await fetch(`${CONFIG.API_URL}/admin/verify-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.user_id, adminPassword: password }),
+                });
 
-    if (!subject || !message) {
-        err.textContent = 'Both fields are required.';
-        return;
-    }
+                const data = await res.json();
 
-    try {
-        sendBtn.disabled = true;
-        sendBtn.innerText = "Dispatching...";
+                if (!data.success) {
+                    throw new Error(data.error || 'Access Denied');
+                }
 
-        const response = await fetch(API_URL + '/admin/email-all', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
-            body: JSON.stringify({ subject, message })
-        });
-        const data = await response.json();
+                state.adminToken = data.adminToken;
+                localStorage.setItem(CONFIG.STORAGE_KEY, state.adminToken);
+                closeModal('authModal');
+                await loadAdminData();
+                DOM.app.style.display = 'block';
 
-        if (!response.ok || !data.success) throw new Error(data.error || 'Failed sending broadcast.');
+            } catch (err) {
+                showError(DOM.authErr, err.message);
+                const btn = DOM.authForm.querySelector('button[type="submit"]');
+                btn.disabled = false;
+            }
+        }
 
-        err.style.color = '#74C69D';
-        err.textContent = `✅ ${data.message}`;
-        setTimeout(() => { closeModal('emailAllModal'); loadAdminData(); }, 1500);
-    } catch(ex) {
-        err.textContent = ex.message;
-    } finally {
-        sendBtn.disabled = false;
-        sendBtn.innerText = "Send Broadcast 🚀";
-    }
-}
+        function handleLogout() {
+            if (!confirm('Are you sure you want to logout?')) return;
+            state.adminToken = null;
+            localStorage.removeItem(CONFIG.STORAGE_KEY);
+            DOM.app.style.display = 'none';
+            openModal('authModal');
+            DOM.authPassword.value = '';
+            showError(DOM.authErr, '');
+        }
 
-// --- CREATE & EDIT USER OPERATIONS ---
-function openCreateUser() {
-    document.getElementById('userModalTitle').innerText = "👤 Create New User";
-    document.getElementById('formUserId').value = '';
-    document.getElementById('formFullName').value = '';
-    document.getElementById('formUsername').value = '';
-    document.getElementById('formEmail').value = '';
-    document.getElementById('formPassword').value = '';
-    document.getElementById('formLevel').value = '1';
-    document.getElementById('formXp').value = '0';
-    document.getElementById('formIsAdmin').value = 'false';
-    document.getElementById('formIsBanned').value = 'false';
-    document.getElementById('formPremium').value = 'false';
-    document.getElementById('formIsVerified').value = 'false';
-    document.getElementById('passLabel').innerText = "PASSWORD";
-    document.getElementById('userFormErr').textContent = '';
-    openModal('userFormModal');
-}
+        // ==========================================
+        // API - USER MANAGEMENT
+        // ==========================================
+        async function loadAdminData() {
+            if (!state.adminToken) return;
 
-function editUser(userId) {
-    const user = db.users.find(u => String(u.user_id) === String(userId));
-    if (!user) {
-        alert("Could not locate data parameters for user ID: " + userId);
-        return;
-    }
+            try {
+                state.isLoading = true;
+                DOM.loadingState.style.display = 'flex';
+                DOM.userGrid.innerHTML = '';
 
-    document.getElementById('userModalTitle').innerText = "✏️ Edit User Entity";
-    document.getElementById('formUserId').value = user.user_id;
-    document.getElementById('formFullName').value = user.full_name || '';
-    document.getElementById('formUsername').value = user.username || '';
-    document.getElementById('formEmail').value = user.email || '';
-    document.getElementById('formPassword').value = '';
-    document.getElementById('formLevel').value = user.level || 1;
-    document.getElementById('formXp').value = user.xp || 0;
-    
-    document.getElementById('formIsAdmin').value = user.is_admin ? "true" : "false";
-    document.getElementById('formIsBanned').value = user.is_banned ? "true" : "false";
-    document.getElementById('formPremium').value = user.premium ? "true" : "false";
-    document.getElementById('formIsVerified').value = user.is_verified ? "true" : "false";
-    
-    document.getElementById('passLabel').innerText = "CHANGE PASSWORD (LEAVE BLANK TO KEEP)";
-    document.getElementById('userFormErr').textContent = '';
-    openModal('userFormModal');
-}
+                const res = await fetch(`${CONFIG.API_URL}/admin/overview`, {
+                    headers: getAuthHeaders(),
+                });
 
-async function submitUserForm() {
-    const id = document.getElementById('formUserId').value;
-    const err = document.getElementById('userFormErr');
-    const saveBtn = document.getElementById('saveUserBtn');
+                const data = await res.json();
 
-    const payload = {
-        full_name: document.getElementById('formFullName').value.trim(),
-        username: document.getElementById('formUsername').value.trim(),
-        email: document.getElementById('formEmail').value.trim(),
-        level: parseInt(document.getElementById('formLevel').value) || 1,
-        xp: parseInt(document.getElementById('formXp').value) || 0,
-        is_admin: document.getElementById('formIsAdmin').value === 'true',
-        is_banned: document.getElementById('formIsBanned').value === 'true',
-        premium: document.getElementById('formPremium').value === 'true',
-        is_verified: document.getElementById('formIsVerified').value === 'true'
-    };
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to load users');
+                }
 
-    const pass = document.getElementById('formPassword').value;
-    if (pass) payload.password = pass;
+                state.users = data.users || [];
+                renderAll();
 
-    if (!payload.username || !payload.email) {
-        err.textContent = "Username and Email fields are required.";
-        return;
-    }
+            } catch (err) {
+                console.error('Load Error:', err);
+                DOM.userGrid.innerHTML = `<div class="empty-state">❌ ${err.message}</div>`;
+            } finally {
+                state.isLoading = false;
+                DOM.loadingState.style.display = 'none';
+            }
+        }
 
-    try {
-        saveBtn.disabled = true;
-        const endpoint = id ? `/admin/users/update/${id}` : '/admin/users/create';
+        // ==========================================
+        // PARENT VERIFICATION FUNCTIONS
+        // ==========================================
         
-        const response = await fetch(API_URL + endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
-            body: JSON.stringify(payload)
-        });
-        const data = await response.json();
+        // Verify a parent
+        async function verifyParent(parentId, parentName) {
+            if (!parentId) {
+                showToast('❌ Error: Parent ID is missing.', 'error');
+                return;
+            }
 
-        if (!response.ok || !data.success) throw new Error(data.error || 'Failed saving entity metrics.');
+            if (!confirm(`✅ Verify parent "${parentName || 'Unknown'}"? They will get full access to the Parent Hub.`)) return;
 
-        closeModal('userFormModal');
-        loadAdminData();
-    } catch (ex) {
-        err.textContent = ex.message;
-    } finally {
-        saveBtn.disabled = false;
-    }
-}
+            try {
+                const adminUserId = getAdminUserId();
+                
+                const res = await fetch(`${CONFIG.API_URL}/admin/parents/verify/${parentId}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ adminUserId: adminUserId })
+                });
 
-// --- SINGLE DIRECT EMAIL ---
-function emailUser(userId, username) {
-    document.getElementById('targetEmailId').value = userId;
-    document.getElementById('targetEmailUser').innerText = `@${username}`;
-    document.getElementById('singleSubject').value = '';
-    document.getElementById('singleMessage').value = '';
-    document.getElementById('singleEmailErr').textContent = '';
-    openModal('singleEmailModal');
-}
+                const data = await res.json();
 
-async function submitSingleEmail() {
-    const id = document.getElementById('targetEmailId').value;
-    const subject = document.getElementById('singleSubject').value.trim();
-    const message = document.getElementById('singleMessage').value.trim();
-    const err = document.getElementById('singleEmailErr');
-    const sendBtn = document.getElementById('sendSingleBtn');
+                if (!res.ok) {
+                    throw new Error(data.error || 'Verification failed');
+                }
 
-    if (!subject || !message) {
-        err.textContent = "All fields required.";
-        return;
-    }
+                showToast(`✅ ${parentName || 'Parent'} has been verified!`, 'success');
+                await loadAdminData();
 
-    try {
-        sendBtn.disabled = true;
-        const response = await fetch(API_URL + `/admin/users/email/${id}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
-            body: JSON.stringify({ subject, message })
-        });
-        const data = await response.json();
+            } catch (err) {
+                console.error('❌ Verify error:', err);
+                showToast(`❌ Error: ${err.message}`, 'error');
+            }
+        }
 
-        if (!response.ok || !data.success) throw new Error(data.error || 'Failed delivering email.');
+        // Deny a parent
+        async function denyParent(parentId, parentName) {
+            if (!parentId) {
+                showToast('❌ Error: Parent ID is missing.', 'error');
+                return;
+            }
 
-        err.style.color = '#74C69D';
-        err.textContent = "✅ Email delivered successfully.";
-        setTimeout(() => closeModal('singleEmailModal'), 1200);
-    } catch(ex) {
-        err.textContent = ex.message;
-    } finally {
-        sendBtn.disabled = false;
-    }
-}
+            const reason = prompt(`Why are you denying "${parentName || 'Parent'}"? (Optional)`, '');
+            if (reason === null) return; // User cancelled
 
-// --- BAN & UNBAN ACTIONS ---
-async function banUser(userId, currentBanStatus) {
-    const actionPhrase = currentBanStatus ? 'UNBAN' : 'BAN';
-    if (!confirm(`Are you absolutely sure you want to ${actionPhrase} this user profile?`)) return;
+            if (!confirm(`❌ Deny parent "${parentName || 'Unknown'}"? This will remove their parent access.`)) return;
 
-    try {
-        const response = await fetch(API_URL + `/admin/users/ban/${userId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
-            body: JSON.stringify({ is_banned: !currentBanStatus })
-        });
-        const data = await response.json();
+            try {
+                const adminUserId = getAdminUserId();
+                
+                const res = await fetch(`${CONFIG.API_URL}/admin/parents/deny/${parentId}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ 
+                        reason: reason || 'Not specified',
+                        adminUserId: adminUserId 
+                    })
+                });
 
-        if (!response.ok || !data.success) throw new Error(data.error || 'Failed status mutation.');
-        loadAdminData();
-    } catch(ex) {
-        alert(ex.message);
-    }
-}
+                const data = await res.json();
 
-// --- SYSTEM REMOVAL / DELETION ---
-async function deleteUser(userId) {
-    if (!confirm("🚨 WARNING: Deleting a user removes all their learning records permanently. Continue?")) return;
+                if (!res.ok) {
+                    throw new Error(data.error || 'Denial failed');
+                }
 
-    try {
-        const response = await fetch(API_URL + `/admin/users/delete/${userId}`, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + adminToken }
-        });
-        const data = await response.json();
+                showToast(`❌ ${parentName || 'Parent'} has been denied parent access.`, 'error');
+                await loadAdminData();
 
-        if (!response.ok || !data.success) throw new Error(data.error || 'Failed deletion pipeline.');
-        loadAdminData();
-    } catch(ex) {
-        alert(ex.message);
-    }
-}
+            } catch (err) {
+                console.error('❌ Deny error:', err);
+                showToast(`❌ Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`⚠️ Delete user "${userName}"? This action cannot be undone.`)) return;
+
+            try {
+                const res = await fetch(`${CONFIG.API_URL}/admin/users/delete/${userId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders(),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Deletion failed');
+                }
+
+                showToast(`🗑️ ${userName} has been deleted.`, 'error');
+                await loadAdminData();
+
+            } catch (err) {
+                showToast(`❌ Error: ${err.message}`, 'error');
+            }
+        }
+
+        // ==========================================
+        // USER FORM (Create/Edit)
+        // ==========================================
+        function openCreateUser() {
+            DOM.userModalTitle.textContent = '👤 Create New User';
+            DOM.userModalSubtitle.textContent = 'Register a new user entity within database clusters.';
+            DOM.formUserId.value = '';
+            DOM.userForm.reset();
+            DOM.formLevel.value = '1';
+            DOM.formXp.value = '0';
+            DOM.formRole.value = 'student';
+            DOM.formIsBanned.value = 'false';
+            DOM.formPremium.value = 'false';
+            DOM.formIsVerified.value = 'false';
+            DOM.formPassword.required = true;
+            showError(DOM.userFormErr, '');
+            openModal('userFormModal');
+        }
+
+        function editUser(userId) {
+            const user = state.users.find(u => u.user_id === userId);
+            if (!user) return;
+
+            DOM.userModalTitle.textContent = '✏️ Edit User';
+            DOM.userModalSubtitle.textContent = 'Update user entity within database clusters.';
+            DOM.formUserId.value = user.user_id;
+            DOM.formFullName.value = user.full_name || '';
+            DOM.formUsername.value = user.username || '';
+            DOM.formEmail.value = user.email || '';
+            DOM.formPassword.value = '';
+            DOM.formPassword.required = false;
+            DOM.formLevel.value = user.level || 1;
+            DOM.formXp.value = user.xp || 0;
+            DOM.formRole.value = user.role || 'student';
+            DOM.formIsBanned.value = String(user.is_banned || false);
+            DOM.formPremium.value = String(user.is_premium || false);
+            DOM.formIsVerified.value = String(user.is_verified || false);
+            showError(DOM.userFormErr, '');
+            openModal('userFormModal');
+        }
+
+        async function handleUserFormSubmit(e) {
+            e.preventDefault();
+            const userId = DOM.formUserId.value;
+            const isEdit = Boolean(userId);
+
+            const payload = {
+                full_name: DOM.formFullName.value.trim(),
+                username: DOM.formUsername.value.trim(),
+                email: DOM.formEmail.value.trim(),
+                level: parseInt(DOM.formLevel.value) || 1,
+                xp: parseInt(DOM.formXp.value) || 0,
+                role: DOM.formRole.value,
+                is_banned: DOM.formIsBanned.value === 'true',
+                is_premium: DOM.formPremium.value === 'true',
+                is_verified: DOM.formIsVerified.value === 'true',
+            };
+
+            const password = DOM.formPassword.value.trim();
+            if (password) payload.password = password;
+
+            try {
+                const btn = DOM.userForm.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                showError(DOM.userFormErr, '');
+
+                const url = isEdit ?
+                    `${CONFIG.API_URL}/admin/users/update/${userId}` :
+                    `${CONFIG.API_URL}/admin/users`;
+                const method = isEdit ? 'POST' : 'POST';
+
+                const res = await fetch(url, {
+                    method,
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to save user');
+                }
+
+                closeModal('userFormModal');
+                showToast(isEdit ? '✅ User updated!' : '✅ User created!', 'success');
+                await loadAdminData();
+
+            } catch (err) {
+                showError(DOM.userFormErr, err.message);
+                const btn = DOM.userForm.querySelector('button[type="submit"]');
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // EMAIL FUNCTIONS
+        // ==========================================
+        function openBroadcast() {
+            DOM.broadcastForm.reset();
+            showError(DOM.bulkEmailErr, '');
+            openModal('broadcastModal');
+        }
+
+        async function handleBroadcastSubmit(e) {
+            e.preventDefault();
+            const subject = DOM.bulkSubject.value.trim();
+            const message = DOM.bulkMessage.value.trim();
+
+            if (!subject || !message) {
+                showError(DOM.bulkEmailErr, 'Please fill in all fields.');
+                return;
+            }
+
+            try {
+                const btn = DOM.broadcastForm.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                showError(DOM.bulkEmailErr, '');
+
+                const res = await fetch(`${CONFIG.API_URL}/admin/email-all`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ subject, message }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Broadcast failed');
+                }
+
+                closeModal('broadcastModal');
+                showToast(`📧 Broadcast sent to ${data.sent || 0} users!`, 'success');
+
+            } catch (err) {
+                showError(DOM.bulkEmailErr, err.message);
+                const btn = DOM.broadcastForm.querySelector('button[type="submit"]');
+                btn.disabled = false;
+            }
+        }
+
+        function openSingleEmail(userId) {
+            const user = state.users.find(u => u.user_id === userId);
+            if (!user) return;
+
+            DOM.targetEmailId.value = userId;
+            DOM.targetEmailUser.textContent = user.full_name || user.email || 'Unknown User';
+            DOM.singleEmailForm.reset();
+            showError(DOM.singleEmailErr, '');
+            openModal('singleEmailModal');
+        }
+
+        async function handleSingleEmailSubmit(e) {
+            e.preventDefault();
+            const userId = DOM.targetEmailId.value;
+            const subject = DOM.singleSubject.value.trim();
+            const message = DOM.singleMessage.value.trim();
+
+            if (!subject || !message) {
+                showError(DOM.singleEmailErr, 'Please fill in all fields.');
+                return;
+            }
+
+            try {
+                const btn = DOM.singleEmailForm.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                showError(DOM.singleEmailErr, '');
+
+                const res = await fetch(`${CONFIG.API_URL}/admin/users/email/${userId}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ subject, message }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Email delivery failed');
+                }
+
+                closeModal('singleEmailModal');
+                showToast('📧 Email delivered successfully!', 'success');
+
+            } catch (err) {
+                showError(DOM.singleEmailErr, err.message);
+                const btn = DOM.singleEmailForm.querySelector('button[type="submit"]');
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // RENDER FUNCTIONS
+        // ==========================================
+        function renderStats() {
+            const users = state.users;
+            const pendingCount = users.filter(u => !u.is_verified).length;
+            const parentCount = users.filter(u => u.role === 'parent').length;
+            const unverifiedParents = users.filter(u => u.role === 'parent' && !u.is_verified).length;
+
+            DOM.totalUsers.textContent = users.length;
+            DOM.pendingUsers.textContent = pendingCount;
+            DOM.parentUsers.textContent = parentCount;
+            DOM.premiumUsers.textContent = users.filter(u => u.is_premium).length;
+            DOM.bannedUsers.textContent = users.filter(u => u.is_banned).length;
+
+            if (DOM.pendingBadge) DOM.pendingBadge.textContent = pendingCount;
+            if (DOM.parentsBadge) DOM.parentsBadge.textContent = unverifiedParents > 0 ? `${unverifiedParents} ⚡` : '0';
+        }
+
+        function renderUsers() {
+            let filtered = state.users;
+            const isParentsTab = state.currentTab === 'parents';
+
+            switch (state.currentTab) {
+                case 'pending':
+                    filtered = state.users.filter(u => !u.is_verified);
+                    break;
+                case 'parents':
+                    filtered = state.users.filter(u => u.role === 'parent');
+                    break;
+                case 'premium':
+                    filtered = state.users.filter(u => u.is_premium);
+                    break;
+                case 'banned':
+                    filtered = state.users.filter(u => u.is_banned);
+                    break;
+                default:
+                    break;
+            }
+
+            if (filtered.length === 0) {
+                DOM.userGrid.innerHTML = `<div class="empty-state">📭 No users found in this segment.</div>`;
+                return;
+            }
+
+            let notificationHtml = '';
+            if (isParentsTab) {
+                const unverifiedParents = state.users.filter(u => u.role === 'parent' && !u.is_verified);
+                if (unverifiedParents.length > 0) {
+                    notificationHtml = `
+                        <div class="notification-banner">
+                            <span class="icon">🔔</span>
+                            <span class="text">
+                                <strong>${unverifiedParents.length}</strong> parent${unverifiedParents.length > 1 ? 's' : ''} 
+                                waiting for verification. Review and verify them below.
+                            </span>
+                            <button class="btn btn-primary" onclick="window.adminApp.viewPendingParents()">
+                                View All Pending
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+
+            let usersHtml = filtered.map(user => {
+                const isPendingParent = user.role === 'parent' && !user.is_verified;
+                const cardClass = isPendingParent ? 'user-card pending-verification' : 'user-card';
+
+                const parentId = user.parent_id || user.user_id;
+                const userName = user.full_name || 'User';
+
+                let actionsHtml = '';
+
+                if (isPendingParent) {
+                    actionsHtml = `
+                        <button class="action-btn verify" onclick="window.adminApp.verifyParent('${parentId}', '${userName}')">
+                            ✅ Verify
+                        </button>
+                        <button class="action-btn deny" onclick="window.adminApp.denyParent('${parentId}', '${userName}')">
+                            ❌ Deny
+                        </button>
+                        <button class="action-btn edit" onclick="window.adminApp.editUser('${user.user_id}')">✏️ Edit</button>
+                        <button class="action-btn delete" onclick="window.adminApp.deleteUser('${user.user_id}', '${userName}')">🗑️ Delete</button>
+                    `;
+                } else {
+                    actionsHtml = `
+                        ${!user.is_verified ? `<button class="action-btn verify" onclick="window.adminApp.verifyUser('${user.user_id}', '${userName}')">⚡ Verify</button>` : ''}
+                        <button class="action-btn edit" onclick="window.adminApp.editUser('${user.user_id}')">✏️ Edit</button>
+                        <button class="action-btn email" onclick="window.adminApp.openSingleEmail('${user.user_id}')">📧 Email</button>
+                        <button class="action-btn delete" onclick="window.adminApp.deleteUser('${user.user_id}', '${userName}')">🗑️ Delete</button>
+                    `;
+                }
+
+                let roleLabel = user.role === 'parent' ? '👪 Parent' : 
+                               user.role === 'admin' ? '👑 Admin' : '🎓 Student';
+
+                let statusPills = `
+                    <span class="pill ${user.is_verified ? 'pill-green' : 'pill-red'}">
+                        ${user.is_verified ? '✅ Verified' : '⏳ Pending'}
+                    </span>
+                    <span class="pill ${user.role === 'parent' ? 'pill-blue' : 'pill-yellow'}">
+                        ${roleLabel}
+                    </span>
+                `;
+
+                if (user.is_premium) statusPills += `<span class="pill pill-purple">✨ Premium</span>`;
+                if (user.is_banned) statusPills += `<span class="pill pill-red">🚫 Banned</span>`;
+
+                if (isPendingParent) {
+                    statusPills += `<span class="pill pill-pending">⏳ Awaiting Verification</span>`;
+                }
+
+                return `
+                    <div class="${cardClass}" data-user-id="${user.user_id}">
+                        <div class="user-card-top">
+                            <div class="user-pfp">${getPfpEmoji(user.role)}</div>
+                            <div class="user-info">
+                                <h3>${userName} ${isPendingParent ? '🔔' : ''}</h3>
+                                <div class="user-email">${user.email || ''}</div>
+                            </div>
+                        </div>
+                        <div class="pill-container">${statusPills}</div>
+                        <div class="user-actions">${actionsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+
+            DOM.userGrid.innerHTML = notificationHtml + usersHtml;
+        }
+
+        function renderTabs() {
+            DOM.tabs.forEach(tab => {
+                const tabName = tab.dataset.tab;
+                tab.classList.toggle('active', tabName === state.currentTab);
+            });
+        }
+
+        function renderAll() {
+            renderStats();
+            renderTabs();
+            renderUsers();
+        }
+
+        // ==========================================
+        // VIEW PENDING PARENTS
+        // ==========================================
+        function viewPendingParents() {
+            state.currentTab = 'pending';
+            renderAll();
+            document.getElementById('userSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // PANDA CHAT
+        // ==========================================
+        function togglePanda() {
+            DOM.pandaChat.classList.toggle('open');
+            if (DOM.pandaChat.classList.contains('open')) {
+                DOM.pandaInput.focus();
+            }
+        }
+
+        function sendPandaMessage() {
+            const text = DOM.pandaInput.value.trim();
+            if (!text) return;
+
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = `
+                <div class="panda-avatar" aria-hidden="true">👤</div>
+                <div class="message user-message">${escapeHtml(text)}</div>
+            `;
+            DOM.pandaBody.appendChild(userRow);
+            DOM.pandaInput.value = '';
+            DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
+
+            setTimeout(() => {
+                const pandaRow = document.createElement('div');
+                pandaRow.className = 'message-row';
+                pandaRow.innerHTML = `
+                    <div class="panda-avatar" aria-hidden="true">🐼</div>
+                    <div class="message panda-message">🤔 Let me think about that... <br><br> I'm still learning! Try asking me about Mandarin phrases, grammar, or culture.</div>
+                `;
+                DOM.pandaBody.appendChild(pandaRow);
+                DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
+            }, 800);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==========================================
+        // EVENT HANDLERS
+        // ==========================================
+        function handleTabClick(e) {
+            const tab = e.currentTarget;
+            const tabName = tab.dataset.tab;
+            state.currentTab = tabName;
+            renderAll();
+        }
+
+        function handleModalClose(e) {
+            const target = e.currentTarget;
+            const modalId = target.dataset.modal;
+            if (modalId) {
+                closeModal(modalId);
+            }
+        }
+
+        function handleModalOverlayClick(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                const modalId = e.target.id;
+                closeModal(modalId);
+            }
+        }
+
+        function handlePandaInputKeydown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendPandaMessage();
+            }
+        }
+
+        function handlePandaInput() {
+            DOM.pandaInput.style.height = 'auto';
+            DOM.pandaInput.style.height = Math.min(DOM.pandaInput.scrollHeight, 100) + 'px';
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        function init() {
+            window.adminApp = {
+                verifyParent,
+                denyParent,
+                verifyUser: verifyParent,
+                editUser,
+                deleteUser,
+                openSingleEmail,
+                openCreateUser,
+                viewPendingParents,
+            };
+
+            const savedToken = localStorage.getItem(CONFIG.STORAGE_KEY);
+            if (savedToken) {
+                state.adminToken = savedToken;
+                closeModal('authModal');
+                DOM.app.style.display = 'block';
+                loadAdminData();
+            }
+
+            DOM.authForm.addEventListener('submit', handleAuthSubmit);
+            DOM.logoutBtn.addEventListener('click', handleLogout);
+            DOM.createUserBtn.addEventListener('click', openCreateUser);
+            DOM.broadcastBtn.addEventListener('click', openBroadcast);
+            DOM.userForm.addEventListener('submit', handleUserFormSubmit);
+            DOM.broadcastForm.addEventListener('submit', handleBroadcastSubmit);
+            DOM.singleEmailForm.addEventListener('submit', handleSingleEmailSubmit);
+
+            DOM.tabs.forEach(tab => {
+                tab.addEventListener('click', handleTabClick);
+            });
+
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', handleModalClose);
+            });
+
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', handleModalOverlayClick);
+            });
+
+            DOM.pandaToggle.addEventListener('click', togglePanda);
+            DOM.pandaClose.addEventListener('click', togglePanda);
+            DOM.pandaSend.addEventListener('click', sendPandaMessage);
+            DOM.pandaInput.addEventListener('keydown', handlePandaInputKeydown);
+            DOM.pandaInput.addEventListener('input', handlePandaInput);
+
+            console.log('🐼 HanVerse Admin Panel initialized');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+    })();
 </script>
-
-<button class="panda-fab" onclick="togglePanda()">🐼</button>
-<div id="pandaChat" class="panda-chat">
-    <div class="panda-header">
-        <div class="panda-title">🐼 Panda AI Tutor</div>
-        <button class="panda-close" onclick="togglePanda()">✕</button>
-    </div>
-    <div id="pandaBody" class="panda-body">
-        <div class="message-row">
-            <div class="panda-avatar">🐼</div>
-            <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
-        </div>
-    </div>
-    <div class="panda-input">
-        <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
-        <button class="panda-send" onclick="sendPandaMessage()">➤</button>
-    </div>
-</div>
-<script src="panda-chat.js"></script>
 </body>
 </html>
