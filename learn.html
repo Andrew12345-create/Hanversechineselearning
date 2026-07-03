@@ -2,1584 +2,1002 @@
 <html lang="en">
 
 <head>
-    <link
-rel="stylesheet"
-href="panda-chat.css">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Hanverse Learn</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<style>
-
-:root{
-
---primary:#2563EB;
---secondary:#14B8A6;
---accent:#F59E0B;
-
---dark:#0F172A;
---text:#334155;
---muted:#64748B;
-
---bg:#F8FAFC;
---white:#FFFFFF;
-
---success:#10B981;
---red:#EF4444;
-
---border:#E2E8F0;
-
---shadow-sm:0 8px 20px rgba(0,0,0,.05);
---shadow:0 20px 50px rgba(15,23,42,.08);
---shadow-lg:0 30px 70px rgba(15,23,42,.12);
-
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
-
-html{
-scroll-behavior:smooth;
-}
-
-body{
-background:var(--bg);
-color:var(--dark);
-overflow-x:hidden;
-min-height:100vh;
-}
-
-body::before{
-content:'';
-position:fixed;
-inset:0;
-z-index:-1;
-
-background:
-radial-gradient(circle at 15% 20%, rgba(37,99,235,.08), transparent 35%),
-radial-gradient(circle at 80% 70%, rgba(20,184,166,.08), transparent 35%);
-}
-
-/* ==========================
-   NAVIGATION
-========================== */
-
-nav{
-position:sticky;
-top:0;
-z-index:1000;
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-
-padding:16px 7%;
-
-background:rgba(255,255,255,.92);
-backdrop-filter:blur(20px);
-
-border-bottom:1px solid rgba(0,0,0,.05);
-}
-
-.logo{
-display:flex;
-align-items:center;
-gap:12px;
-
-font-size:26px;
-font-weight:800;
-
-text-decoration:none;
-color:var(--primary);
-}
-
-.logo-badge{
-width:46px;
-height:46px;
-
-border-radius:50%;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-background:
-linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-font-size:22px;
-}
-
-.nav-links{
-display:flex;
-gap:28px;
-list-style:none;
-}
-
-.nav-links a{
-text-decoration:none;
-font-weight:600;
-color:var(--muted);
-transition:.25s;
-}
-
-.nav-links a.active,
-.nav-links a:hover{
-color:var(--primary);
-}
-
-.user-chip{
-
-display:flex;
-align-items:center;
-gap:12px;
-
-background:white;
-
-padding:8px 16px;
-
-border-radius:999px;
-
-box-shadow:var(--shadow-sm);
-
-}
-
-.user-avatar{
-
-width:44px;
-height:44px;
-
-border-radius:50%;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-background:#DBEAFE;
-
-font-size:22px;
-
-overflow:hidden;
-
-}
-
-.user-avatar img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-.user-name{
-font-weight:700;
-font-size:.9rem;
-}
-
-.user-status{
-font-size:.75rem;
-color:var(--muted);
-}
-
-/* ==========================
-   HERO
-========================== */
-
-.hero{
-
-padding:80px 7%;
-
-display:grid;
-grid-template-columns:1.2fr .8fr;
-gap:40px;
-
-align-items:center;
-
-}
-
-.hero-content h1{
-
-font-size:clamp(42px,5vw,72px);
-
-line-height:1.05;
-
-margin-bottom:20px;
-
-}
-
-.gradient{
-
-background:
-linear-gradient(
-90deg,
-var(--primary),
-var(--secondary)
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-}
-
-.hero p{
-
-font-size:1.05rem;
-
-line-height:1.9;
-
-color:var(--muted);
-
-margin-bottom:30px;
-
-}
-
-.hero-buttons{
-
-display:flex;
-gap:14px;
-flex-wrap:wrap;
-
-}
-
-.btn{
-
-padding:14px 26px;
-
-border:none;
-border-radius:999px;
-
-font-weight:700;
-
-cursor:pointer;
-
-transition:.25s;
-
-}
-
-.btn:hover{
-transform:translateY(-2px);
-}
-
-.btn-primary{
-
-background:
-linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-
-}
-
-.btn-secondary{
-
-background:white;
-
-border:1px solid #DBEAFE;
-
-color:var(--dark);
-
-}
-
-.hero-card{
-
-background:white;
-
-padding:35px;
-
-border-radius:30px;
-
-box-shadow:var(--shadow);
-
-}
-
-.hero-card h3{
-margin-bottom:20px;
-}
-
-.path-step{
-
-display:flex;
-align-items:center;
-gap:14px;
-
-padding:16px;
-
-background:#F8FAFC;
-
-border-radius:18px;
-
-margin-bottom:12px;
-
-transition:.25s;
-
-}
-
-.path-step:hover{
-transform:translateX(5px);
-}
-
-.step-icon{
-font-size:24px;
-}
-
-.step-title{
-font-weight:700;
-}
-
-.step-desc{
-font-size:.8rem;
-color:var(--muted);
-}
-
-/* ==========================
-   DASHBOARD
-========================== */
-
-.dashboard{
-padding:0 7% 80px;
-}
-
-.dashboard-grid{
-
-display:grid;
-grid-template-columns:repeat(4,1fr);
-
-gap:20px;
-
-}
-
-.dashboard-card{
-
-background:white;
-
-padding:28px;
-
-border-radius:24px;
-
-text-align:center;
-
-box-shadow:var(--shadow-sm);
-
-transition:.25s;
-
-}
-
-.dashboard-card:hover{
-transform:translateY(-5px);
-}
-
-.dashboard-icon{
-
-font-size:2rem;
-
-margin-bottom:10px;
-
-}
-
-.dashboard-card h3{
-
-font-size:2rem;
-
-color:var(--primary);
-
-margin-bottom:5px;
-
-}
-
-/* ==========================
-   PLACEMENT SECTION
-========================== */
-
-.placement-section{
-padding:0 7% 80px;
-}
-
-.placement-card{
-
-max-width:900px;
-
-margin:auto;
-
-background:white;
-
-padding:40px;
-
-border-radius:30px;
-
-box-shadow:var(--shadow);
-
-}
-
-.placement-card h2{
-margin-bottom:10px;
-}
-
-.placement-card p{
-color:var(--muted);
-margin-bottom:20px;
-}
-
-.placement-card select{
-
-width:100%;
-
-padding:18px;
-
-border-radius:18px;
-
-border:2px solid var(--border);
-
-margin-bottom:20px;
-
-}
-
-.placement-actions{
-
-display:flex;
-gap:12px;
-flex-wrap:wrap;
-
-}
-
-.recommendation-box{
-
-display:none;
-
-margin-top:20px;
-
-padding:20px;
-
-border-radius:18px;
-
-background:#EFF6FF;
-
-border:1px solid #BFDBFE;
-
-}
-
-</style>
-
+    <link rel="stylesheet" href="panda-chat.css">
+    <meta charset="UTF-8">
+    <!-- Immersive App Viewport Rules -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <title>Hanverse Learn</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --secondary: #14B8A6;
+            --accent: #F59E0B;
+            --dark: #0F172A;
+            --text: #334155;
+            --muted: #64748B;
+            --bg: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --red: #EF4444;
+            --border: #E2E8F0;
+            --shadow-sm: 0 8px 20px rgba(0, 0, 0, .04);
+            --shadow: 0 20px 50px rgba(15, 23, 42, .06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--dark);
+            overflow-x: hidden;
+            min-height: 100vh;
+            /* Extra room at the bottom to never cover content behind the tab bar & FAB */
+            padding-bottom: calc(100px + env(safe-area-inset-bottom));
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(37, 99, 235, .05), transparent 35%),
+                radial-gradient(circle at 80% 70%, rgba(20, 184, 166, .05), transparent 35%);
+        }
+
+        /* ==========================
+           NAVIGATION & HEADER
+        ========================== */
+        nav.top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5%;
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, .05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--primary);
+        }
+
+        .logo-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--muted);
+            transition: .25s;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 6px 14px;
+            border-radius: 999px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #DBEAFE;
+            font-size: 16px;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: .8rem;
+        }
+
+        .user-status {
+            font-size: .65rem;
+            color: var(--muted);
+        }
+
+        /* ==========================
+           HERO / TRACK OVERVIEW
+        ========================== */
+        .hero {
+            padding: 40px 7%;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(30px, 4.5vw, 56px);
+            line-height: 1.1;
+            margin-bottom: 16px;
+            font-weight: 800;
+        }
+
+        .gradient {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: .25s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, .15);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #DBEAFE;
+            color: var(--dark);
+        }
+
+        .hero-card {
+            background: white;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-card h3 {
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+
+        .path-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #F8FAFC;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            transition: .25s;
+            border: 1px solid transparent;
+        }
+
+        .path-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .path-step:hover {
+            transform: translateX(4px);
+            border-color: #DBEAFE;
+        }
+
+        .step-icon {
+            font-size: 20px;
+        }
+
+        .step-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .step-desc {
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        /* ==========================
+           DASHBOARD / STATS
+        ========================== */
+        .dashboard {
+            padding: 20px 7% 40px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: .25s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .dashboard-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 2px;
+            font-weight: 700;
+        }
+
+        .dashboard-card p {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* ==========================
+           PLACEMENT SELECTION
+        ========================== */
+        .placement-section {
+            padding: 20px 7% 40px;
+        }
+
+        .placement-card {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 32px 24px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .placement-card h2 {
+            margin-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .placement-card p {
+            color: var(--muted);
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+
+        .placement-card select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            margin-bottom: 16px;
+            font-family: inherit;
+            font-weight: 500;
+            background-color: var(--bg);
+            outline: none;
+        }
+
+        .placement-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .placement-actions .btn {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .recommendation-box {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 14px;
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            font-size: 0.9rem;
+        }
+
+        /* ==========================
+           UTILITY SECTIONS DEFINITIONS
+        ========================== */
+        .section-title {
+            text-align: center;
+            font-size: clamp(24px, 4vw, 36px);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 32px;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .roadmap-section,
+        .lessons-section,
+        .worksheet-section {
+            padding: 30px 7% 40px;
+        }
+
+        .roadmap-grid,
+        .lesson-grid,
+        .worksheet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .roadmap-card,
+        .lesson-card,
+        .worksheet-card {
+            background: white;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: .25s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .roadmap-card:hover,
+        .lesson-card:hover,
+        .worksheet-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .roadmap-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .roadmap-card h3, .lesson-card h3, .worksheet-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+
+        .roadmap-card p, .lesson-card p, .worksheet-card p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .roadmap-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #DBEAFE;
+            color: var(--primary);
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+        .lesson-btn {
+            width: 100%;
+            margin-top: auto;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 999px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .premium {
+            border: 2px solid var(--accent);
+        }
+
+        .premium-btn {
+            background: var(--accent);
+        }
+
+        .worksheet-card {
+            font-size: 40px;
+            gap: 8px;
+        }
+
+        .worksheet-card .btn {
+            width: 100%;
+            font-size: 0.85rem;
+            padding: 10px 16px;
+        }
+
+        /* ==========================
+           PREMIUM SYSTEM POPUP
+        ========================== */
+        .premium-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+        }
+
+        .premium-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, .75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .premium-content {
+            position: relative;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .premium-image {
+            width: 100%;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .close-popup {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==========================
+           MOBILE UI APP OVERRIDES
+        ========================= */
+        .bottom-nav {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            nav.top-nav .nav-links,
+            nav.top-nav .user-chip {
+                display: none; /* Strip standard links for flat layout */
+            }
+
+            nav.top-nav {
+                justify-content: center; /* Centered brand app design */
+                padding: 10px 5%;
+            }
+
+            .bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: rgba(255, 255, 255, .96);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-top: 1px solid var(--border);
+                justify-content: space-around;
+                padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, .05);
+            }
+
+            .bottom-nav a {
+                text-decoration: none;
+                text-align: center;
+                color: var(--muted);
+                font-size: .7rem;
+                font-weight: 500;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+            }
+
+            .bottom-nav a.active {
+                color: var(--primary);
+                font-weight: 600;
+            }
+
+            .nav-icon {
+                font-size: 20px;
+            }
+
+            /* Main structural transformations to scrolling rows */
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 24px 5% 30px;
+                gap: 24px;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-buttons .btn {
+                flex: 1;
+                min-width: 140px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                padding: 0;
+            }
+
+            .dashboard-card {
+                padding: 16px;
+            }
+
+            .dashboard-card h3 {
+                font-size: 1.5rem;
+            }
+
+            .roadmap-section, .lessons-section, .worksheet-section, .placement-section {
+                padding: 20px 5% 30px;
+            }
+
+            .roadmap-grid, .lesson-grid, .worksheet-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .roadmap-card, .lesson-card, .worksheet-card {
+                padding: 20px;
+                border-radius: 18px;
+            }
+
+            /* Adjust FAB right offset for safe operation */
+            .panda-fab {
+                bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+                right: 16px !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<script src="nav-user.js"></script>
-
-<nav>
-
-<a href="index.html" class="logo">
-
-<div class="logo-badge">🐼</div>
-
-Hanverse
-
-</a>
-
-<ul class="nav-links">
-
-<li><a href="index.html">Home</a></li>
-
-<li><a href="learn.html" class="active">Learn</a></li>
-
-<li><a href="worksheets.html">Worksheets</a></li>
-
-<li><a href="profile.html">Profile</a></li>
-
-</ul>
-
-<div class="user-chip">
-
-<div id="navUserAvatar" class="user-avatar">
-🐼
-</div>
-
-<div>
-
-<div id="navUsername" class="user-name">
-Learner
-</div>
-
-<div class="user-status">
-Mandarin Explorer
-</div>
-
-</div>
-
-</div>
-
-</nav>
-
-<section class="hero">
-
-<div class="hero-content">
-
-<h1>
-
-Master Mandarin
-<span class="gradient">
-One Lesson At A Time
-</span>
-
-</h1>
-
-<p>
-
-Follow Hanverse's structured learning path,
-earn XP, unlock achievements, complete lessons,
-and prepare for official YCT examinations.
-
-</p>
-
-<div class="hero-buttons">
-
-<button class="btn btn-primary">
-
-🚀 Continue Learning
-
-</button>
-
-<button class="btn btn-secondary">
-
-🎯 Placement Test
-
-</button>
-
-</div>
-
-</div>
-
-<div class="hero-card">
-
-<h3>
-🎯 Your Learning Journey
-</h3>
-
-<div class="path-step">
-<div class="step-icon">🌱</div>
-<div>
-<div class="step-title">YCT 1</div>
-<div class="step-desc">Foundations & Basics</div>
-</div>
-</div>
-
-<div class="path-step">
-<div class="step-icon">📖</div>
-<div>
-<div class="step-title">YCT 2</div>
-<div class="step-desc">Everyday Communication</div>
-</div>
-</div>
-
-<div class="path-step">
-<div class="step-icon">🚀</div>
-<div>
-<div class="step-title">YCT 3</div>
-<div class="step-desc">Stories & Conversations</div>
-</div>
-</div>
-
-<div class="path-step">
-<div class="step-icon">🏆</div>
-<div>
-<div class="step-title">YCT 4</div>
-<div class="step-desc">Exam Readiness</div>
-</div>
-</div>
-
-</div>
-
-</section>
-
-<section class="dashboard">
-
-<div class="dashboard-grid">
-
-<div class="dashboard-card">
-<div class="dashboard-icon">⭐</div>
-<h3 id="xpValue">0</h3>
-<p>XP Earned</p>
-</div>
-
-<div class="dashboard-card">
-<div class="dashboard-icon">🔥</div>
-<h3 id="streakValue">0</h3>
-<p>Day Streak</p>
-</div>
-
-<div class="dashboard-card">
-<div class="dashboard-icon">📚</div>
-<h3 id="lessonValue">0</h3>
-<p>Lessons Completed</p>
-</div>
-
-<div class="dashboard-card">
-<div class="dashboard-icon">🏆</div>
-<h3 id="levelValue">1</h3>
-<p>Current Level</p>
-</div>
-
-</div>
-
-</section>
-
-<section class="placement-section">
-
-<div class="placement-card">
-
-<h2>
-🎯 Find Your Starting Point
-</h2>
-
-<p>
-Choose your current YCT level.
-</p>
-
-<select id="levelSelect">
-
-<option value="">
-Select Level
-</option>
-
-<option value="1">YCT 1</option>
-<option value="2">YCT 2</option>
-<option value="3">YCT 3</option>
-<option value="4">YCT 4</option>
-
-</select>
-
-<div class="placement-actions">
-
-<button
-class="btn btn-primary"
-onclick="recommendLevel()">
-
-Continue
-
-</button>
-
-<button
-class="btn btn-secondary"
-onclick="takeAssessment()">
-
-Quick Assessment
-
-</button>
-
-</div>
-
-<div
-id="recommendationBox"
-class="recommendation-box">
-</div>
-
-</div>
-
-</section>
-<!-- ==========================
-     HANVERSE ROADMAP
-========================== -->
-
-<section class="roadmap-section">
-
-<h2 class="section-title">
-🗺️ Official Hanverse Roadmap
-</h2>
-
-<p class="section-subtitle">
-Progress through the complete YCT curriculum and
-unlock new skills as you advance.
-</p>
-
-<div class="roadmap-grid">
-
-<div class="roadmap-card">
-<div class="roadmap-icon">🌱</div>
-<h3>YCT 1</h3>
-<p>Greetings, family, numbers, colors and basic vocabulary.</p>
-<span class="roadmap-badge">Beginner</span>
-</div>
-
-<div class="roadmap-card">
-<div class="roadmap-icon">📖</div>
-<h3>YCT 2</h3>
-<p>Build confidence with everyday conversations.</p>
-<span class="roadmap-badge">Elementary</span>
-</div>
-
-<div class="roadmap-card">
-<div class="roadmap-icon">🚀</div>
-<h3>YCT 3</h3>
-<p>Read stories and engage in longer conversations.</p>
-<span class="roadmap-badge">Intermediate</span>
-</div>
-
-<div class="roadmap-card">
-<div class="roadmap-icon">🏆</div>
-<h3>YCT 4</h3>
-<p>Master exam preparation and advanced topics.</p>
-<span class="roadmap-badge">Advanced</span>
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================
-     LESSONS
-========================== -->
-
-<section class="lessons-section">
-
-<h2 class="section-title">
-📚 Lessons
-</h2>
-
-<p class="section-subtitle">
-Choose a lesson and continue your learning journey.
-</p>
-
-<div class="lesson-grid">
-
-<div class="lesson-card free">
-<h3>🆓 Lesson 1</h3>
-<p>Greetings & Introductions</p>
-<button class="lesson-btn">Start Lesson</button>
-</div>
-
-<div class="lesson-card free">
-<h3>🆓 Lesson 2</h3>
-<p>Numbers 1–10</p>
-<button class="lesson-btn">Start Lesson</button>
-</div>
-
-<div class="lesson-card free">
-<h3>🆓 Lesson 3</h3>
-<p>Colours & Objects</p>
-<button class="lesson-btn">Start Lesson</button>
-</div>
-
-<div class="lesson-card premium" onclick="showPremiumPopup()">
-<h3>🔒 Family Members</h3>
-<p>Premium Lesson</p>
-<button class="lesson-btn premium-btn">Upgrade</button>
-</div>
-
-<div class="lesson-card premium" onclick="showPremiumPopup()">
-<h3>🔒 Daily Activities</h3>
-<p>Premium Lesson</p>
-<button class="lesson-btn premium-btn">Upgrade</button>
-</div>
-
-<div class="lesson-card premium" onclick="showPremiumPopup()">
-<h3>🔒 Listening Practice</h3>
-<p>Premium Lesson</p>
-<button class="lesson-btn premium-btn">Upgrade</button>
-</div>
-
-</div>
-
-</section>
-
-
-
-<!-- ==========================
-     WORKSHEETS
-========================== -->
-
-<section class="worksheet-section">
-
-<h2 class="section-title">
-📝 Worksheets
-</h2>
-
-<p class="section-subtitle">
-Download printable worksheets and revision materials.
-</p>
-
-<div class="worksheet-grid">
-
-<div class="worksheet-card">
-📄
-<h3>YCT 1 Worksheet Pack</h3>
-<button class="btn btn-primary">
-Download
-</button>
-</div>
-
-<div class="worksheet-card">
-📄
-<h3>YCT 2 Worksheet Pack</h3>
-<button class="btn btn-primary">
-Download
-</button>
-</div>
-
-<div class="worksheet-card">
-📄
-<h3>YCT Practice Papers</h3>
-<button class="btn btn-primary">
-Download
-</button>
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================
-     PREMIUM POPUP
-========================== -->
-
-<div id="premiumPopup" class="premium-popup">
-
-<div class="premium-overlay">
-
-<div class="premium-content">
-
-<button
-class="close-popup"
-onclick="closePremiumPopup()">
-✕
-</button>
-
-<img
-src="pay-hanverse-subscription-card.png"
-class="premium-image"
-onclick="window.location.href='payment.html'">
-
-</div>
-
-</div>
-
-</div>
-
-
-</div>
-
-<style>
-
-.section-title{
-text-align:center;
-font-size:clamp(32px,4vw,48px);
-margin-bottom:15px;
-}
-
-.section-subtitle{
-text-align:center;
-max-width:700px;
-margin:0 auto 50px;
-color:var(--muted);
-line-height:1.8;
-}
-
-.roadmap-section,
-.lessons-section,
-.ai-section,
-.worksheet-section{
-padding:0 7% 90px;
-}
-
-.roadmap-grid,
-.lesson-grid,
-.worksheet-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:24px;
-}
-
-.roadmap-card,
-.lesson-card,
-.worksheet-card{
-
-background:white;
-
-padding:30px;
-
-border-radius:28px;
-
-box-shadow:var(--shadow-sm);
-
-transition:.25s;
-
-text-align:center;
-
-}
-
-.roadmap-card:hover,
-.lesson-card:hover,
-.worksheet-card:hover{
-transform:translateY(-6px);
-}
-
-.roadmap-icon{
-font-size:50px;
-margin-bottom:15px;
-}
-
-.roadmap-badge{
-
-display:inline-block;
-
-margin-top:15px;
-
-padding:8px 16px;
-
-background:#DBEAFE;
-
-color:var(--primary);
-
-border-radius:999px;
-
-font-size:.8rem;
-font-weight:700;
-
-}
-
-.lesson-btn{
-
-margin-top:15px;
-
-padding:10px 20px;
-
-border:none;
-
-border-radius:999px;
-
-background:var(--primary);
-
-color:white;
-
-font-weight:700;
-
-cursor:pointer;
-
-}
-
-.premium{
-border:2px solid var(--accent);
-cursor:pointer;
-}
-
-.premium-btn{
-background:var(--accent);
-}
-
-.ai-card{
-
-background:linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-
-padding:60px;
-
-border-radius:35px;
-
-text-align:center;
-
-box-shadow:var(--shadow);
-
-}
-
-.ai-avatar{
-font-size:90px;
-margin-bottom:20px;
-}
-
-.ai-card p{
-max-width:700px;
-margin:20px auto 30px;
-line-height:1.9;
-}
-
-.worksheet-card{
-display:flex;
-flex-direction:column;
-gap:15px;
-align-items:center;
-font-size:50px;
-}
-
-.premium-popup{
-display:none;
-position:fixed;
-inset:0;
-z-index:99999;
-}
-
-.premium-overlay{
-position:absolute;
-inset:0;
-background:rgba(0,0,0,.8);
-display:flex;
-justify-content:center;
-align-items:center;
-padding:20px;
-}
-
-.premium-content{
-position:relative;
-max-width:900px;
-width:100%;
-}
-
-.premium-image{
-width:100%;
-border-radius:24px;
-cursor:pointer;
-}
-
-.close-popup{
-position:absolute;
-top:-10px;
-right:-10px;
-width:42px;
-height:42px;
-border:none;
-border-radius:50%;
-background:white;
-font-size:18px;
-cursor:pointer;
-}
-
-/* MOBILE NAV */
-
-.bottom-nav{
-display:none;
-}
-
-@media(max-width:900px){
-
-.dashboard-grid{
-grid-template-columns:repeat(2,1fr);
-}
-
-.bottom-nav{
-display:flex;
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-z-index:1000;
-
-background:rgba(255,255,255,.95);
-
-backdrop-filter:blur(20px);
-
-border-top:1px solid var(--border);
-
-justify-content:space-around;
-
-padding:12px;
-
-box-shadow:0 -8px 24px rgba(0,0,0,.08);
-}
-
-.bottom-nav a{
-text-decoration:none;
-text-align:center;
-color:var(--muted);
-font-size:.75rem;
-}
-
-.bottom-nav a.active{
-color:var(--primary);
-}
-
-.nav-icon{
-font-size:22px;
-margin-bottom:4px;
-}
-
-body{
-padding-bottom:90px;
-}
-
-}
-
-@media(max-width:768px){
-
-.hero{
-grid-template-columns:1fr;
-text-align:center;
-}
-
-.hero-buttons{
-justify-content:center;
-}
-
-.dashboard-grid{
-grid-template-columns:1fr;
-}
-
-}
-
-
-</style>
-
-<script>
-
-const SESSION_KEY = 'hanverse_user';
-
-/* ==========================================
-PAGE INITIALIZATION
-========================================== */
-
-document.addEventListener(
-'DOMContentLoaded',
-initializePage
-);
-
-function initializePage() {
-
-
-loadUser();
-
-setupPremiumPopup();
-
-console.log(
-    '✅ Learn Page Loaded'
-);
-
-
-}
-
-/* ==========================================
-USER LOADER
-========================================== */
-
-function loadUser() {
-
-
-try {
-
-    const currentUser =
-        JSON.parse(
-            localStorage.getItem(
-                SESSION_KEY
-            ) || 'null'
-        );
-
-    if (!currentUser) {
-
-        console.log(
-            'No user session found'
-        );
-
-        return;
-
-    }
-
-    const username =
-        document.getElementById(
-            'navUsername'
-        );
-
-    if (username) {
-
-        username.textContent =
-            currentUser.username ||
-            'Learner';
-
-    }
-
-    const avatar =
-        document.getElementById(
-            'navUserAvatar'
-        );
-
-    if (
-        avatar &&
-        currentUser.profile_picture
-    ) {
-
-        avatar.innerHTML = '';
-
-        const img =
-            document.createElement(
-                'img'
-            );
-
-        img.src =
-            currentUser.profile_picture;
-
-        img.alt =
-            'Profile';
-
-        avatar.appendChild(img);
-
-    }
-
-    setValue(
-        'xpValue',
-        currentUser.xp || 0
-    );
-
-    setValue(
-        'streakValue',
-        currentUser.streak_days || 0
-    );
-
-    setValue(
-        'lessonValue',
-        currentUser.lessons_completed || 0
-    );
-
-    setValue(
-        'levelValue',
-        currentUser.level || 1
-    );
-
-}
-catch (error) {
-
-    console.error(
-        'Load User Error:',
-        error
-    );
-
-}
-
-
-}
-
-function setValue(
-elementId,
-value
-) {
-
-
-const element =
-    document.getElementById(
-        elementId
-    );
-
-if (element) {
-
-    element.textContent =
-        value;
-
-}
-
-
-}
-
-/* ==========================================
-PREMIUM POPUP
-========================================== */
-
-function setupPremiumPopup() {
-
-
-const popup =
-    document.getElementById(
-        'premiumPopup'
-    );
-
-if (!popup) return;
-
-popup.addEventListener(
-    'click',
-    function(event) {
-
-        if (
-            event.target === popup
-        ) {
-
-            closePremiumPopup();
-
+    <!-- Native Standard Top Nav Header -->
+    <nav class="top-nav">
+        <a href="index.html" class="logo">
+            <div class="logo-badge">🐼</div>
+            Hanverse
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="learn.html" class="active">Learn</a></li>
+            <li><a href="worksheets.html">Worksheets</a></li>
+            <li><a href="profile.html">Profile</a></li>
+        </ul>
+        <div class="user-chip">
+            <div id="navUserAvatar" class="user-avatar">🐼</div>
+            <div>
+                <div id="navUsername" class="user-name">Learner</div>
+                <div class="user-status">Mandarin Explorer</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Module Landing -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Master Mandarin <span class="gradient">One Lesson At A Time</span></h1>
+            <p>Follow Hanverse's structured learning path, earn XP, unlock achievements, complete lessons, and prepare for official YCT examinations.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary">🚀 Continue Learning</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('placement-section').scrollIntoView();">🎯 Placement Test</button>
+            </div>
+        </div>
+
+        <div class="hero-card">
+            <h3>🎯 Your Learning Journey</h3>
+            <div class="path-step">
+                <div class="step-icon">🌱</div>
+                <div>
+                    <div class="step-title">YCT 1</div>
+                    <div class="step-desc">Foundations & Basics</div>
+                </div>
+            </div>
+            <div class="path-step">
+                <div class="step-icon">📖</div>
+                <div>
+                    <div class="step-title">YCT 2</div>
+                    <div class="step-desc">Everyday Communication</div>
+                </div>
+            </div>
+            <div class="path-step">
+                <div class="step-icon">🚀</div>
+                <div>
+                    <div class="step-title">YCT 3</div>
+                    <div class="step-desc">Stories & Conversations</div>
+                </div>
+            </div>
+            <div class="path-step">
+                <div class="step-icon">🏆</div>
+                <div>
+                    <div class="step-title">YCT 4</div>
+                    <div class="step-desc">Exam Readiness</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Dashboard Area -->
+    <section class="dashboard">
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="dashboard-icon">⭐</div>
+                <h3 id="xpValue">0</h3>
+                <p>XP Earned</p>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-icon">🔥</div>
+                <h3 id="streakValue">0</h3>
+                <p>Day Streak</p>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-icon">📚</div>
+                <h3 id="lessonValue">0</h3>
+                <p>Completed</p>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-icon">🏆</div>
+                <h3 id="levelValue">1</h3>
+                <p>Current Level</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Placement Assessment Selector -->
+    <section id="placement-section" class="placement-section">
+        <div class="placement-card">
+            <h2>🎯 Find Your Starting Point</h2>
+            <p>Choose your current YCT level to adapt metrics.</p>
+            <select id="levelSelect">
+                <option value="">Select Level</option>
+                <option value="1">YCT 1</option>
+                <option value="2">YCT 2</option>
+                <option value="3">YCT 3</option>
+                <option value="4">YCT 4</option>
+            </select>
+            <div class="placement-actions">
+                <button class="btn btn-primary" onclick="recommendLevel()">Continue</button>
+                <button class="btn btn-secondary" onclick="takeAssessment()">Quick Assessment</button>
+            </div>
+            <div id="recommendationBox" class="recommendation-box"></div>
+        </div>
+    </section>
+
+    <!-- Roadmap Blocks Area -->
+    <section class="roadmap-section">
+        <h2 class="section-title">🗺️ Official Hanverse Roadmap</h2>
+        <p class="section-subtitle">Progress through the complete YCT curriculum and unlock new skills as you advance.</p>
+        <div class="roadmap-grid">
+            <div class="roadmap-card">
+                <div class="roadmap-icon">🌱</div>
+                <h3>YCT 1</h3>
+                <p>Greetings, family, numbers, colors and basic vocabulary.</p>
+                <span class="roadmap-badge">Beginner</span>
+            </div>
+            <div class="roadmap-card">
+                <div class="roadmap-icon">📖</div>
+                <h3>YCT 2</h3>
+                <p>Build confidence with everyday conversations.</p>
+                <span class="roadmap-badge">Elementary</span>
+            </div>
+            <div class="roadmap-card">
+                <div class="roadmap-icon">🚀</div>
+                <h3>YCT 3</h3>
+                <p>Read stories and engage in longer conversations.</p>
+                <span class="roadmap-badge">Intermediate</span>
+            </div>
+            <div class="roadmap-card">
+                <div class="roadmap-icon">🏆</div>
+                <h3>YCT 4</h3>
+                <p>Master exam preparation and advanced topics.</p>
+                <span class="roadmap-badge">Advanced</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Interactive Lessons Selector -->
+    <section class="lessons-section">
+        <h2 class="section-title">📚 Lessons</h2>
+        <p class="section-subtitle">Choose a lesson and continue your learning journey.</p>
+        <div class="lesson-grid">
+            <div class="lesson-card">
+                <h3>🆓 Lesson 1</h3>
+                <p>Greetings & Introductions</p>
+                <button class="lesson-btn">Start Lesson</button>
+            </div>
+            <div class="lesson-card">
+                <h3>🆓 Lesson 2</h3>
+                <p>Numbers 1–10</p>
+                <button class="lesson-btn">Start Lesson</button>
+            </div>
+            <div class="lesson-card">
+                <h3>🆓 Lesson 3</h3>
+                <p>Colours & Objects</p>
+                <button class="lesson-btn">Start Lesson</button>
+            </div>
+            <div class="lesson-card premium" onclick="showPremiumPopup()">
+                <h3>🔒 Family Members</h3>
+                <p>Premium Lesson</p>
+                <button class="lesson-btn premium-btn">Upgrade</button>
+            </div>
+            <div class="lesson-card premium" onclick="showPremiumPopup()">
+                <h3>🔒 Daily Activities</h3>
+                <p>Premium Lesson</p>
+                <button class="lesson-btn premium-btn">Upgrade</button>
+            </div>
+            <div class="lesson-card premium" onclick="showPremiumPopup()">
+                <h3>🔒 Listening Practice</h3>
+                <p>Premium Lesson</p>
+                <button class="lesson-btn premium-btn">Upgrade</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Downloads Segment -->
+    <section class="worksheet-section">
+        <h2 class="section-title">📝 Worksheets</h2>
+        <p class="section-subtitle">Download printable worksheets and revision materials.</p>
+        <div class="worksheet-grid">
+            <div class="worksheet-card">
+                <div>📄</div>
+                <h3>YCT 1 Pack</h3>
+                <button class="btn btn-primary">Download</button>
+            </div>
+            <div class="worksheet-card">
+                <div>📄</div>
+                <h3>YCT 2 Pack</h3>
+                <button class="btn btn-primary">Download</button>
+            </div>
+            <div class="worksheet-card">
+                <div>📄</div>
+                <h3>Practice Papers</h3>
+                <button class="btn btn-primary">Download</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fixed Core Modals Frame Setup -->
+    <div id="premiumPopup" class="premium-popup">
+        <div class="premium-overlay">
+            <div class="premium-content">
+                <button class="close-popup" onclick="closePremiumPopup()">✕</button>
+                <img src="pay-hanverse-subscription-card.png" class="premium-image" onclick="window.location.href='payment.html'" alt="Premium Upgrade">
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Tab Bar Layout -->
+    <nav class="bottom-nav">
+        <a href="index.html">
+            <div class="nav-icon">🏠</div>
+            Home
+        </a>
+        <a href="learn.html" class="active">
+            <div class="nav-icon">📚</div>
+            Learn
+        </a>
+        <a href="profile.html">
+            <div class="nav-icon">👤</div>
+            Profile
+        </a>
+        <a href="settings.html">
+            <div class="nav-icon">⚙️</div>
+            Settings
+        </a>
+    </nav>
+
+    <!-- Floating Panda Interactive AI Bot Component -->
+    <button class="panda-fab" onclick="togglePanda()" style="position: fixed; bottom: calc(85px + env(safe-area-inset-bottom)); right: 20px; z-index: 998; background: var(--white); border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 26px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; display: flex; align-items: center; justify-content: center;">🐼</button>
+
+    <div id="pandaChat" class="panda-chat">
+        <div class="panda-header">
+            <div class="panda-title">🐼 Panda AI Tutor</div>
+            <button class="panda-close" onclick="togglePanda()">✕</button>
+        </div>
+        <div id="pandaBody" class="panda-body">
+            <div class="message-row">
+                <div class="panda-avatar">🐼</div>
+                <div class="message panda-message">
+                    👋 Hi! Ask me anything about Mandarin.
+                </div>
+            </div>
+        </div>
+        <div class="panda-input">
+            <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
+            <button class="panda-send" onclick="sendPandaMessage()">➤</button>
+        </div>
+    </div>
+
+    <!-- Active Scripts Architecture Processing -->
+    <script src="nav-user.js"></script>
+    <script src="panda-chat.js"></script>
+    <script>
+        const SESSION_KEY = 'hanverse_user';
+
+        document.addEventListener('DOMContentLoaded', initializePage);
+
+        function initializePage() {
+            loadUser();
+            setupPremiumPopup();
+            console.log('✅ Learn Page Loaded');
         }
 
-    }
-);
-
-
-}
-
-function showPremiumPopup() {
-
-
-const popup =
-    document.getElementById(
-        'premiumPopup'
-    );
-
-if (popup) {
-
-    popup.style.display =
-        'block';
-
-}
-
-
-}
-
-function closePremiumPopup() {
-
-
-const popup =
-    document.getElementById(
-        'premiumPopup'
-    );
-
-if (popup) {
-
-    popup.style.display =
-        'none';
-
-}
-
-
-}
-
-/* ==========================================
-PLACEMENT TEST
-========================================== */
-
-function recommendLevel() {
-
-
-const level =
-    document.getElementById(
-        'levelSelect'
-    ).value;
-
-if (!level) {
-
-    alert(
-        'Please select a level.'
-    );
-
-    return;
-
-}
-
-const box =
-    document.getElementById(
-        'recommendationBox'
-    );
-
-if (!box) return;
-
-box.style.display =
-    'block';
-
-box.innerHTML = `
-    <h3>
-        🎯 Recommended Path:
-        YCT ${level}
-    </h3>
-
-    <p>
-        HanVerse recommends
-        beginning with
-        YCT ${level}.
-    </p>
-`;
-
-
-}
-
-function takeAssessment() {
-
-
-alert(
-    '🚀 Assessment coming soon!'
-);
-
-
-}
-
-/* ==========================================
-PANDA AI
-========================================== */
-
-function togglePanda(){
-
-document
-.getElementById('pandaChat')
-.classList
-.toggle('active');
-
-}   
-
-
-function togglePanda(){
-
-document
-.getElementById('pandaChat')
-.classList
-.toggle('active');
-
-}
-
-
-</script>
-
-<nav class="bottom-nav">
-
-<a href="index.html">
-<div class="nav-icon">🏠</div>
-Home
-</a>
-
-<a href="learn.html" class="active">
-<div class="nav-icon">📚</div>
-Learn
-</a>
-
-<a href="profile.html">
-<div class="nav-icon">👤</div>
-Profile
-</a>
-
-<a href="settings.html">
-<div class="nav-icon">⚙️</div>
-Settings
-</a>
-
-</nav>
-<!-- Panda Floating Button -->
-
-<button
-class="panda-fab"
-onclick="togglePanda()">
-🐼
-</button>
-
-<!-- Panda Window -->
-
-<div
-id="pandaChat"
-class="panda-chat">
-
-<div class="panda-header">
-
-<div class="panda-title">
-🐼 Panda AI Tutor
-</div>
-
-<button
-class="panda-close"
-onclick="togglePanda()">
-✕
-</button>
-
-</div>
-
-<div
-id="pandaBody"
-class="panda-body">
-
-<div class="message-row">
-
-<div class="panda-avatar">
-🐼
-</div>
-
-<div class="message panda-message">
-👋 Hello! Ask me anything about Mandarin Chinese.
-</div>
-
-</div>
-
-</div>
-
-<div class="panda-input">
-
-<textarea
-id="pandaInput"
-placeholder="Ask Panda...">
-</textarea>
-
-<button
-class="panda-send"
-onclick="sendPandaMessage()">
-➤
-</button>
-
-</div>
-
-</div>
-<!-- Panda Floating Button -->
-
-<button
-class="panda-fab"
-onclick="togglePanda()">
-🐼
-</button>
-
-<div
-id="pandaChat"
-class="panda-chat">
-
-<div class="panda-header">
-
-<div class="panda-title">
-🐼 Panda AI Tutor
-</div>
-
-<button
-class="panda-close"
-onclick="togglePanda()">
-✕
-</button>
-
-</div>
-
-<div
-id="pandaBody"
-class="panda-body">
-
-<div class="message-row">
-
-<div class="panda-avatar">
-🐼
-</div>
-
-<div class="message panda-message">
-👋 Hi! Ask me anything about Mandarin.
-</div>
-
-</div>
-
-</div>
-
-<div class="panda-input">
-
-<textarea
-id="pandaInput"
-placeholder="Ask Panda...">
-</textarea>
-
-<button
-class="panda-send"
-onclick="sendPandaMessage()">
-➤
-</button>
-
-</div>
-
-</div>
-<script src="panda-chat.js"></script>
+        function loadUser() {
+            try {
+                const currentUser = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+                if (!currentUser) return;
+
+                const username = document.getElementById('navUsername');
+                if (username) {
+                    username.textContent = currentUser.username || 'Learner';
+                }
+
+                const avatar = document.getElementById('navUserAvatar');
+                if (avatar && currentUser.profile_picture) {
+                    avatar.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = currentUser.profile_picture;
+                    img.alt = 'Profile';
+                    avatar.appendChild(img);
+                }
+
+                setValue('xpValue', currentUser.xp || 0);
+                setValue('streakValue', currentUser.streak_days || 0);
+                setValue('lessonValue', currentUser.lessons_completed || 0);
+                setValue('levelValue', currentUser.level || 1);
+            } catch (error) {
+                console.error('Load User Error:', error);
+            }
+        }
+
+        function setValue(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (element) element.textContent = value;
+        }
+
+        function setupPremiumPopup() {
+            const popup = document.getElementById('premiumPopup');
+            if (!popup) return;
+            popup.addEventListener('click', function(event) {
+                if (event.target === popup || event.target.classList.contains('premium-overlay')) {
+                    closePremiumPopup();
+                }
+            });
+        }
+
+        function showPremiumPopup() {
+            const popup = document.getElementById('premiumPopup');
+            if (popup) popup.style.display = 'block';
+        }
+
+        function closePremiumPopup() {
+            const popup = document.getElementById('premiumPopup');
+            if (popup) popup.style.display = 'none';
+        }
+
+        function recommendLevel() {
+            const level = document.getElementById('levelSelect').value;
+            if (!level) {
+                alert('Please select a level.');
+                return;
+            }
+            const box = document.getElementById('recommendationBox');
+            if (!box) return;
+            box.style.display = 'block';
+            box.innerHTML = `<h3>🎯 Recommended Path: YCT ${level}</h3><p>HanVerse recommends beginning with YCT ${level}.</p>`;
+        }
+
+        function takeAssessment() {
+            alert('🚀 Assessment coming soon!');
+        }
+
+        function togglePanda() {
+            document.getElementById('pandaChat').classList.toggle('active');
+        }
+    </script>
 </body>
 </html>

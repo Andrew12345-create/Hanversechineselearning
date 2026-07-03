@@ -2,1166 +2,759 @@
 <html lang="en">
 
 <head>
-     <link
-rel="stylesheet"
-href="panda-chat.css">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Hanverse | Learn Mandarin Through Stories, Games & AI</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<style>
-
-:root{
---primary:#2563EB;
---secondary:#14B8A6;
---accent:#F59E0B;
-
---dark:#0F172A;
---text:#334155;
---muted:#64748B;
-
---bg:#F8FAFC;
---white:#FFFFFF;
-
---success:#10B981;
---red:#EF4444;
-
---shadow:0 20px 50px rgba(15,23,42,.08);
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
-
-html{
-scroll-behavior:smooth;
-}
-
-body{
-background:var(--bg);
-color:var(--dark);
-overflow-x:hidden;
-}
-
-body::before{
-content:'';
-position:fixed;
-inset:0;
-z-index:-1;
-
-background:
-radial-gradient(circle at 10% 20%, rgba(37,99,235,.08), transparent 35%),
-radial-gradient(circle at 80% 70%, rgba(20,184,166,.08), transparent 35%);
-}
-
-/* ======================
-   NAVBAR
-====================== */
-
-nav{
-position:sticky;
-top:0;
-z-index:1000;
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-
-padding:16px 7%;
-
-background:rgba(255,255,255,.92);
-backdrop-filter:blur(20px);
-
-border-bottom:1px solid rgba(0,0,0,.05);
-transition:.3s;
-}
-
-nav.scrolled{
-box-shadow:0 4px 20px rgba(0,0,0,.08);
-}
-
-.logo{
-display:flex;
-align-items:center;
-gap:12px;
-
-font-size:26px;
-font-weight:800;
-color:var(--primary);
-}
-
-.logo-badge{
-width:46px;
-height:46px;
-
-border-radius:50%;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-background:linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-font-size:22px;
-}
-
-nav ul{
-display:flex;
-gap:28px;
-list-style:none;
-}
-
-nav ul a{
-text-decoration:none;
-font-weight:600;
-color:var(--muted);
-transition:.3s;
-position:relative;
-}
-
-nav ul a:hover,
-nav ul a.active{
-color:var(--primary);
-}
-
-.nav-buttons{
-display:flex;
-gap:12px;
-}
-
-.btn{
-padding:12px 24px;
-border:none;
-border-radius:999px;
-cursor:pointer;
-font-weight:700;
-transition:.3s;
-}
-
-.btn:hover{
-transform:translateY(-2px);
-}
-
-.btn-login{
-background:white;
-border:1px solid #DBEAFE;
-}
-
-.btn-signup{
-background:linear-gradient(
-135deg,
-var(--primary),
-var(--secondary)
-);
-
-color:white;
-
-box-shadow:0 8px 25px rgba(37,99,235,.25);
-}
-
-/* ======================
-   HERO
-====================== */
-
-.hero{
-min-height:90vh;
-
-display:grid;
-grid-template-columns:1.2fr 1fr;
-gap:60px;
-
-align-items:center;
-
-padding:80px 7%;
-}
-
-.tag{
-display:inline-flex;
-align-items:center;
-gap:8px;
-
-background:#DBEAFE;
-color:var(--primary);
-
-padding:10px 18px;
-border-radius:999px;
-
-font-weight:700;
-font-size:.85rem;
-
-margin-bottom:20px;
-}
-
-.hero h1{
-font-size:clamp(48px,6vw,80px);
-line-height:1.05;
-margin-bottom:22px;
-}
-
-.gradient{
-background:linear-gradient(
-90deg,
-var(--primary),
-var(--secondary)
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.hero p{
-font-size:18px;
-line-height:1.9;
-color:var(--muted);
-margin-bottom:30px;
-max-width:600px;
-}
-
-.hero-buttons{
-display:flex;
-gap:14px;
-flex-wrap:wrap;
-}
-
-.hero-card{
-background:white;
-
-height:500px;
-border-radius:40px;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-position:relative;
-overflow:hidden;
-
-box-shadow:var(--shadow);
-}
-
-.panda{
-font-size:150px;
-}
-
-.float-char{
-position:absolute;
-font-size:72px;
-font-weight:800;
-opacity:.08;
-}
-
-.c1{top:30px;left:30px;}
-.c2{top:50px;right:40px;}
-.c3{bottom:40px;left:40px;}
-.c4{bottom:30px;right:30px;}
-
-/* ======================
-   STATS
-====================== */
-
-.stats{
-padding:0 7% 100px;
-
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:24px;
-}
-
-.stat-card{
-background:white;
-
-padding:35px;
-
-border-radius:28px;
-
-text-align:center;
-
-box-shadow:0 12px 30px rgba(0,0,0,.06);
-
-transition:.3s;
-}
-
-.stat-card:hover{
-transform:translateY(-6px);
-}
-
-.stat-card h2{
-font-size:44px;
-color:var(--primary);
-margin-bottom:10px;
-}
-
-.stat-card p{
-color:var(--muted);
-}
-
-/* ======================
-   FEATURES
-====================== */
-
-.features{
-padding:100px 7%;
-}
-
-.section-title{
-text-align:center;
-font-size:clamp(34px,4vw,50px);
-margin-bottom:15px;
-}
-
-.section-subtitle{
-text-align:center;
-max-width:700px;
-margin:0 auto 60px;
-
-color:var(--muted);
-line-height:1.8;
-}
-
-.feature-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:24px;
-}
-
-.feature-card{
-background:white;
-
-padding:35px;
-
-border-radius:28px;
-
-box-shadow:0 12px 30px rgba(0,0,0,.06);
-
-transition:.3s;
-}
-
-.feature-card:hover{
-transform:translateY(-6px);
-}
-
-.feature-icon{
-font-size:48px;
-margin-bottom:20px;
-}
-
-.feature-card h3{
-margin-bottom:10px;
-}
-
-.feature-card p{
-color:var(--muted);
-line-height:1.8;
-}
-
-</style>
-
+    <link rel="stylesheet" href="panda-chat.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <title>Hanverse | Learn Mandarin Through Stories, Games & AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --secondary: #14B8A6;
+            --accent: #F59E0B;
+            --dark: #0F172A;
+            --text: #334155;
+            --muted: #64748B;
+            --bg: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --red: #EF4444;
+            --shadow: 0 12px 30px rgba(15, 23, 42, .06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Seamless webkit taps */
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--dark);
+            overflow-x: hidden;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* Prevents bottom navigation overlap */
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(37, 99, 235, .05), transparent 35%),
+                radial-gradient(circle at 80% 70%, rgba(20, 184, 166, .05), transparent 35%);
+        }
+
+        /* ======================
+           NAVBAR (App Header Style)
+        ====================== */
+        nav.top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 5%;
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, .05);
+            transition: .3s;
+        }
+
+        nav.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .logo-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 18px;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        nav ul a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--muted);
+            transition: .3s;
+        }
+
+        nav ul a:hover,
+        nav ul a.active {
+            color: var(--primary);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: .3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-login {
+            background: white;
+            border: 1px solid #DBEAFE;
+            color: var(--primary);
+        }
+
+        .btn-signup {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, .2);
+        }
+
+        /* ======================
+           HERO
+        ====================== */
+        .hero {
+            min-height: 80vh;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 40px;
+            align-items: center;
+            padding: 60px 7%;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #DBEAFE;
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: .8rem;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 64px);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .gradient {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--muted);
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-card {
+            background: white;
+            height: 380px;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .panda {
+            font-size: 110px;
+            z-index: 2;
+        }
+
+        .float-char {
+            position: absolute;
+            font-size: 54px;
+            font-weight: 800;
+            opacity: .08;
+        }
+
+        .c1 { top: 30px; left: 30px; }
+        .c2 { top: 50px; right: 40px; }
+        .c3 { bottom: 40px; left: 40px; }
+        .c4 { bottom: 30px; right: 30px; }
+
+        /* ======================
+           STATS
+        ====================== */
+        .stats {
+            padding: 40px 7%;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: .3s;
+        }
+
+        .stat-card h2 {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .stat-card p {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        /* ======================
+           FEATURES & SECTIONS
+        ====================== */
+        .features {
+            padding: 60px 7%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(26px, 4vw, 40px);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            transition: .3s;
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 8px;
+            font-size: 1.15rem;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        /* ======================
+           TEAM SECTION
+        ====================== */
+        .avatar-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            background: #DBEAFE;
+            margin-bottom: 16px;
+        }
+
+        /* ======================
+           CTA SECTION
+        ====================== */
+        .cta-container {
+            padding: 40px 7%;
+        }
+
+        .cta-card {
+            background: linear-gradient(135deg, #2563EB, #14B8A6);
+            padding: 40px 24px;
+            border-radius: 32px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 15px 40px rgba(37, 99, 235, .2);
+        }
+
+        .cta-card h2 {
+            font-size: clamp(24px, 4vw, 42px);
+            margin-bottom: 16px;
+        }
+
+        .cta-card p {
+            max-width: 600px;
+            margin: auto;
+            margin-bottom: 24px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
+        /* ======================
+           FOOTER
+        ====================== */
+        footer {
+            background: #0F172A;
+            color: white;
+            padding: 60px 7% 40px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        footer h2 { margin-bottom: 12px; font-size: 1.5rem; }
+        footer h3 { font-size: 1.05rem; margin-bottom: 12px; color: #f8fafc; }
+        footer p { color: #94A3B8; line-height: 1.6; font-size: 0.9rem; }
+        footer a { color: #94A3B8; text-decoration: none; font-size: 0.9rem; transition: 0.2s; display: inline-block; margin-bottom: 8px; }
+        footer a:hover { color: white; }
+
+        /* ======================
+           MOBILE NATIVE APP VIEW OVERRIDES
+        ====================== */
+        .bottom-nav {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            nav.top-nav ul, 
+            nav.top-nav .nav-buttons {
+                display: none; /* Strip structural desktop actions */
+            }
+
+            nav.top-nav {
+                justify-content: center; /* App style alignment center logo */
+                padding: 12px 5%;
+            }
+
+            .bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                justify-content: space-around;
+                padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, .05);
+                z-index: 999;
+                border-top: 1px solid rgba(0, 0, 0, .05);
+            }
+
+            .bottom-nav a {
+                text-decoration: none;
+                color: #64748B;
+                font-size: .7rem;
+                font-weight: 500;
+                text-align: center;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .bottom-nav a.active {
+                color: #2563EB;
+                font-weight: 600;
+            }
+
+            .nav-icon {
+                font-size: 20px;
+            }
+
+            /* Responsive Framework Fixes */
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 40px 5%;
+                gap: 30px;
+            }
+
+            .hero h1 { font-size: 34px; }
+            .hero p { margin: 0 auto 24px; }
+            .hero-buttons { justify-content: center; width: 100%; }
+            .hero-buttons .btn { flex: 1; min-width: 140px; }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 20px 5%;
+                gap: 12px;
+            }
+            .stat-card { padding: 16px; border-radius: 16px; }
+            .stat-card h2 { font-size: 26px; }
+
+            .features { padding: 40px 5%; }
+            .feature-grid { grid-template-columns: 1fr; gap: 16px; }
+            .feature-card { padding: 24px; border-radius: 20px; }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            footer { padding: 40px 5% 40px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr); /* Clean 2x2 grid instead of ugly full width stretch */
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<nav>
-
-<div class="logo">
-<div class="logo-badge">🐼</div>
-Hanverse
-</div>
-
-<ul>
-<li><a href="index.html" class="active">Home</a></li>
-<li><a href="learn.html">Learn</a></li>
-<li><a href="worksheets.html">Worksheets</a></li>
-<li><a href="parents.html">Parents</a></li>
-</ul>
-
-<div class="nav-buttons">
-<button class="btn btn-login"
-onclick="location.href='login.html'">
-Log In
-</button>
-
-<button class="btn btn-signup"
-onclick="location.href='signup.html'">
-Sign Up
-</button>
-</div>
-
-</nav>
-
-<section class="hero">
-
-<div>
-
-<div class="tag">
-✨ Structured YCT Learning
-</div>
-
-<h1>
-Learn Mandarin Through
-<span class="gradient">
-Stories, Games & AI
-</span>
-</h1>
-
-<p>
-Hanverse helps children learn Mandarin through
-interactive stories, games, videos, AI tutors,
-worksheets and structured YCT pathways.
-</p>
-
-<div class="hero-buttons">
-
-<button class="btn btn-signup">
-Start Learning Free
-</button>
-
-<button class="btn btn-login">
-Watch Demo
-</button>
-
-</div>
-
-</div>
-
-<div class="hero-card">
-
-<div class="float-char c1">你</div>
-<div class="float-char c2">好</div>
-<div class="float-char c3">学</div>
-<div class="float-char c4">汉</div>
-
-<div class="panda">🐼</div>
-
-</div>
-
-</section>
-
-<section class="stats">
-
-<div class="stat-card">
-<h2 id="students">0</h2>
-<p>Students Learning</p>
-</div>
-
-<div class="stat-card">
-<h2 id="lessons">0</h2>
-<p>Interactive Lessons</p>
-</div>
-
-<div class="stat-card">
-<h2 id="games">0</h2>
-<p>Learning Games</p>
-</div>
-
-<div class="stat-card">
-<h2 id="satisfaction">0</h2>
-<p>Parent Satisfaction</p>
-</div>
-
-</section>
-
-<section class="features">
-
-<h2 class="section-title">
-Why Children Love Hanverse
-</h2>
-
-<p class="section-subtitle">
-Fun, engaging and structured Mandarin learning
-designed specifically for young learners.
-</p>
-
-<div class="feature-grid">
-
-<div class="feature-card">
-<div class="feature-icon">🎮</div>
-<h3>Interactive Games</h3>
-<p>Learn Mandarin through exciting educational games.</p>
-</div>
-
-<div class="feature-card">
-<div class="feature-icon">📖</div>
-<h3>Stories & Reading</h3>
-<p>Build vocabulary through engaging stories.</p>
-</div>
-
-<div class="feature-card">
-<div class="feature-icon">🤖</div>
-<h3>AI Tutor</h3>
-<p>Practice speaking and learning with AI support.</p>
-</div>
-
-</div>
-
-</section>
-<!-- =========================
-     PARENTS SECTION
-========================= -->
-
-<section class="features" style="background:white;">
-
-<h2 class="section-title">
-Why Parents Love Hanverse
-</h2>
-
-<p class="section-subtitle">
-Designed to help children learn Mandarin safely,
-consistently and effectively.
-</p>
-
-<div class="feature-grid">
-
-<div class="feature-card">
-<div class="feature-icon">🛡️</div>
-
-<h3>Safe Learning</h3>
-
-<p>
-Every lesson is designed for children with
-safe content and age-appropriate learning.
-</p>
-
-</div>
-
-<div class="feature-card">
-<div class="feature-icon">📊</div>
-
-<h3>Track Progress</h3>
-
-<p>
-Monitor completed lessons, earned badges,
-XP points and learning streaks.
-</p>
-
-</div>
-
-<div class="feature-card">
-<div class="feature-icon">🎯</div>
-
-<h3>Structured YCT Path</h3>
-
-<p>
-Students follow a clear pathway from YCT 1
-to advanced Mandarin proficiency.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- =========================
-     TESTIMONIALS
-========================= -->
-
-<section class="features">
-
-<h2 class="section-title">
-What Learners Say
-</h2>
-
-<p class="section-subtitle">
-Children and parents love learning Mandarin
-with Hanverse.
-</p>
-
-<div class="feature-grid">
-
-<div class="feature-card">
-
-<div class="feature-icon">⭐</div>
-
-<p>
-"Learning Mandarin has never been this fun.
-I love the games and stories."
-</p>
-
-<br>
-
-<h3>Student</h3>
-
-</div>
-
-<div class="feature-card">
-
-<div class="feature-icon">❤️</div>
-
-<p>
-"The structured lessons help my child stay
-motivated every week."
-</p>
-
-<br>
-
-<h3>Parent</h3>
-
-</div>
-
-<div class="feature-card">
-
-<div class="feature-icon">🤖</div>
-
-<p>
-"The AI tutor helps me practice every day
-without feeling nervous."
-</p>
-
-<br>
-
-<h3>Learner</h3>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- =========================
-     TEAM SECTION
-========================= -->
-
-<section class="features" style="background:white;">
-
-<h2 class="section-title">
-Meet The Team
-</h2>
-
-<p class="section-subtitle">
-Passionate about making Mandarin accessible
-for African children.
-</p>
-
-<div class="feature-grid">
-
-<div class="feature-card" style="text-align:center;">
-
-<div style="
-width:120px;
-height:120px;
-border-radius:50%;
-margin:auto;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:60px;
-background:#DBEAFE;
-margin-bottom:20px;
-">
-
-👩🏽
-
-</div>
-
-<h3>Kimberly</h3>
-
-<p style="color:#2563EB;font-weight:700;">
-Co-Founder & CEO
-</p>
-
-<p>
-Business Strategy, Vision & Growth
-</p>
-
-</div>
-
-<div class="feature-card" style="text-align:center;">
-
-<div style="
-width:120px;
-height:120px;
-border-radius:50%;
-margin:auto;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:60px;
-background:#DBEAFE;
-margin-bottom:20px;
-">
-
-👨🏽
-
-</div>
-
-<h3>Andrew</h3>
-
-<p style="color:#2563EB;font-weight:700;">
-Co-Founder & Language Expert
-</p>
-
-<p>
-Mandarin Curriculum &
-Learning Content
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- =========================
-     CTA SECTION
-========================= -->
-
-<section style="padding:100px 7%;">
-
-<div style="
-background:linear-gradient(
-135deg,
-#2563EB,
-#14B8A6
-);
-
-padding:70px;
-border-radius:40px;
-text-align:center;
-color:white;
-
-box-shadow:0 20px 50px rgba(37,99,235,.25);
-">
-
-<h2 style="
-font-size:clamp(30px,4vw,50px);
-margin-bottom:20px;
-">
-
-Start Your Mandarin Adventure Today 🌟
-
-</h2>
-
-<p style="
-max-width:700px;
-margin:auto;
-margin-bottom:30px;
-line-height:1.8;
-">
-
-Join thousands of learners discovering Mandarin
-through stories, games, videos and AI.
-
-</p>
-
-<div class="hero-buttons"
-style="justify-content:center;">
-
-<button
-class="btn btn-signup"
-onclick="location.href='signup.html'">
-
-Create Free Account
-
-</button>
-
-<button
-class="btn btn-login"
-onclick="location.href='login.html'">
-
-Log In
-
-</button>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- =========================
-     FOOTER
-========================= -->
-
-<footer style="
-background:#0F172A;
-color:white;
-padding:80px 7% 40px;
-">
-
-<div style="
-display:grid;
-grid-template-columns:2fr 1fr 1fr 1fr;
-gap:40px;
-">
-
-<div>
-
-<h2 style="margin-bottom:15px;">
-🐼 Hanverse
-</h2>
-
-<p style="
-color:#94A3B8;
-line-height:1.8;
-">
-
-Learn Mandarin through stories,
-games, AI tutors and structured YCT learning.
-
-</p>
-
-</div>
-
-<div>
-
-<h3>Platform</h3>
-
-<br>
-
-<a href="index.html">Home</a><br><br>
-<a href="learn.html">Learn</a><br><br>
-<a href="login.html">Login</a><br><br>
-<a href="signup.html">Signup</a>
-
-</div>
-
-<div>
-
-<h3>Resources</h3>
-
-<br>
-
-<a href="worksheets.html">Worksheets</a><br><br>
-<a href="parents.html">Parents</a><br><br>
-<a href="#">Blog</a><br><br>
-<a href="#">Support</a>
-
-</div>
-
-<div>
-
-<h3>Follow Us</h3>
-
-<br>
-
-<a href="#">Instagram</a><br><br>
-<a href="#">TikTok</a><br><br>
-<a href="#">LinkedIn</a><br><br>
-<a href="#">YouTube</a>
-
-</div>
-
-</div>
-
-<hr style="
-margin:40px 0;
-border:none;
-height:1px;
-background:rgba(255,255,255,.1);
-">
-
-<p style="
-text-align:center;
-color:#94A3B8;
-">
-
-© 2026 Hanverse. All Rights Reserved.
-
-</p>
-
-</footer>
-
-<!-- =========================
-     MOBILE NAVIGATION
-========================= -->
-
-<nav class="bottom-nav">
-
-<a href="index.html" class="active">
-
-<div class="nav-icon">
-🏠
-</div>
-
-Home
-
-</a>
-
-<a href="learn.html">
-
-<div class="nav-icon">
-📚
-</div>
-
-Learn
-
-</a>
-
-<a href="profile.html">
-
-<div class="nav-icon">
-👤
-</div>
-
-Profile
-
-</a>
-
-<a href="login.html">
-
-<div class="nav-icon">
-🔑
-</div>
-
-Login
-
-</a>
-
-</nav>
-
-<!-- =========================
-     JAVASCRIPT
-========================= -->
-
-<script src="nav-user.js"></script>
-
-<script>
-
-/* Navbar Shadow */
-
-window.addEventListener("scroll",()=>{
-
-document
-.querySelector("nav")
-.classList.toggle(
-"scrolled",
-window.scrollY > 20
-);
-
-});
-
-/* Animated Counters */
-
-function animateCounter(id,target,suffix=''){
-
-const el=document.getElementById(id);
-
-if(!el) return;
-
-let count=0;
-
-const increment=Math.ceil(target/60);
-
-const timer=setInterval(()=>{
-
-count+=increment;
-
-if(count>=target){
-
-count=target;
-
-clearInterval(timer);
-
-}
-
-el.innerText=count+suffix;
-
-},25);
-
-}
-
-window.addEventListener("load",()=>{
-
-animateCounter("students",500,"+");
-animateCounter("lessons",240,"+");
-animateCounter("games",30,"+");
-animateCounter("satisfaction",95,"%");
-
-});
-
-/* Scroll Reveal */
-
-const cards=document.querySelectorAll(
-".feature-card,.stat-card"
-);
-
-const observer=new IntersectionObserver(entries=>{
-
-entries.forEach(entry=>{
-
-if(entry.isIntersecting){
-
-entry.target.style.opacity="1";
-entry.target.style.transform="translateY(0)";
-
-}
-
-});
-
-},{
-threshold:.15
-});
-
-cards.forEach(card=>{
-
-card.style.opacity="0";
-card.style.transform="translateY(25px)";
-card.style.transition=".6s";
-
-observer.observe(card);
-
-});
-
-</script>
-
-<style>
-
-/* Mobile Nav */
-
-.bottom-nav{
-
-display:none;
-
-}
-
-@media(max-width:900px){
-
-.bottom-nav{
-
-display:flex;
-
-position:fixed;
-
-bottom:0;
-left:0;
-right:0;
-
-background:white;
-
-justify-content:space-around;
-
-padding:12px;
-
-box-shadow:0 -5px 20px rgba(0,0,0,.08);
-
-z-index:999;
-
-}
-
-.bottom-nav a{
-
-text-decoration:none;
-
-color:#64748B;
-
-font-size:.75rem;
-
-text-align:center;
-
-}
-
-.bottom-nav a.active{
-
-color:#2563EB;
-
-}
-
-.nav-icon{
-
-font-size:22px;
-
-margin-bottom:4px;
-
-}
-
-body{
-
-padding-bottom:90px;
-
-}
-
-}
-
-@media(max-width:768px){
-
-.hero{
-
-grid-template-columns:1fr;
-
-text-align:center;
-
-}
-
-.hero-buttons{
-
-justify-content:center;
-
-}
-
-.stats{
-
-grid-template-columns:1fr 1fr;
-
-}
-
-.feature-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
-@media(max-width:480px){
-
-.stats{
-
-grid-template-columns:1fr;
-
-}
-
-nav ul{
-
-display:none;
-
-}
-
-}
-
-</style>
-<!-- Panda Floating Button -->
-
-<!-- Panda Floating Button -->
-<button class="panda-fab" onclick="togglePanda()">🐼</button>
-
-<div id="pandaChat" class="panda-chat">
-  <div class="panda-header">
-    <div class="panda-title">🐼 Panda AI Tutor</div>
-    <button class="panda-close" onclick="togglePanda()">✕</button>
-  </div>
-
-  <div id="pandaBody" class="panda-body">
-    <div class="message-row">
-      <div class="panda-avatar">🐼</div>
-      <div class="message panda-message">
-        👋 Hi! Ask me anything about Mandarin.
-      </div>
+    <nav class="top-nav">
+        <div class="logo">
+            <div class="logo-badge">🐼</div>
+            Hanverse
+        </div>
+        <ul>
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="learn.html">Learn</a></li>
+            <li><a href="worksheets.html">Worksheets</a></li>
+            <li><a href="parents.html">Parents</a></li>
+        </ul>
+        <div class="nav-buttons">
+            <button class="btn btn-login" onclick="location.href='login.html'">Log In</button>
+            <button class="btn btn-signup" onclick="location.href='signup.html'">Sign Up</button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div>
+            <div class="tag">✨ Structured YCT Learning</div>
+            <h1>Learn Mandarin Through <span class="gradient">Stories, Games & AI</span></h1>
+            <p>Hanverse helps children learn Mandarin through interactive stories, games, videos, AI tutors, worksheets and structured YCT pathways.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-signup" onclick="location.href='signup.html'">Start Learning Free</button>
+                <button class="btn btn-login" onclick="location.href='login.html'">Watch Demo</button>
+            </div>
+        </div>
+        <div class="hero-card">
+            <div class="float-char c1">你</div>
+            <div class="float-char c2">好</div>
+            <div class="float-char c3">学</div>
+            <div class="float-char c4">汉</div>
+            <div class="panda">🐼</div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stat-card">
+            <h2 id="students">0</h2>
+            <p>Students Learning</p>
+        </div>
+        <div class="stat-card">
+            <h2 id="lessons">0</h2>
+            <p>Interactive Lessons</p>
+        </div>
+        <div class="stat-card">
+            <h2 id="games">0</h2>
+            <p>Learning Games</p>
+        </div>
+        <div class="stat-card">
+            <h2 id="satisfaction">0</h2>
+            <p>Parent Satisfaction</p>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2 class="section-title">Why Children Love Hanverse</h2>
+        <p class="section-subtitle">Fun, engaging and structured Mandarin learning designed specifically for young learners.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎮</div>
+                <h3>Interactive Games</h3>
+                <p>Learn Mandarin through exciting educational games.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📖</div>
+                <h3>Stories & Reading</h3>
+                <p>Build vocabulary through engaging stories.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Tutor</h3>
+                <p>Practice speaking and learning with AI support.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" style="background: white;">
+        <h2 class="section-title">Why Parents Love Hanverse</h2>
+        <p class="section-subtitle">Designed to help children learn Mandarin safely, consistently and effectively.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Safe Learning</h3>
+                <p>Every lesson is designed for children with safe content and age-appropriate learning.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Track Progress</h3>
+                <p>Monitor completed lessons, earned badges, XP points and learning streaks.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Structured YCT Path</h3>
+                <p>Students follow a clear pathway from YCT 1 to advanced Mandarin proficiency.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2 class="section-title">What Learners Say</h2>
+        <p class="section-subtitle">Children and parents love learning Mandarin with Hanverse.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <p>"Learning Mandarin has never been this fun. I love the games and stories."</p>
+                <br>
+                <h3>Student</h3>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">❤️</div>
+                <p>"The structured lessons help my child stay motivated every week."</p>
+                <br>
+                <h3>Parent</h3>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <p>"The AI tutor helps me practice every day without feeling nervous."</p>
+                <br>
+                <h3>Learner</h3>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" style="background: white;">
+        <h2 class="section-title">Meet The Team</h2>
+        <p class="section-subtitle">Passionate about making Mandarin accessible for African children.</p>
+        <div class="feature-grid">
+            <div class="feature-card" style="text-align: center;">
+                <div class="avatar-box">👩🏽</div>
+                <h3>Kimberly</h3>
+                <p style="color: var(--primary); font-weight: 700; margin-bottom: 4px;">Co-Founder & CEO</p>
+                <p>Business Strategy, Vision & Growth</p>
+            </div>
+            <div class="feature-card" style="text-align: center;">
+                <div class="avatar-box">👨🏽</div>
+                <h3>Andrew</h3>
+                <p style="color: var(--primary); font-weight: 700; margin-bottom: 4px;">Co-Founder & Language Expert</p>
+                <p>Mandarin Curriculum & Learning Content</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-container">
+        <div class="cta-card">
+            <h2>Start Your Mandarin Adventure Today 🌟</h2>
+            <p>Join thousands of learners discovering Mandarin through stories, games, videos and AI.</p>
+            <div class="hero-buttons" style="justify-content: center;">
+                <button class="btn btn-signup" onclick="location.href='signup.html'">Create Free Account</button>
+                <button class="btn btn-login" onclick="location.href='login.html'" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;">Log In</button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <h2>🐼 Hanverse</h2>
+                <p>Learn Mandarin through stories, games, AI tutors and structured YCT learning.</p>
+            </div>
+            <div>
+                <h3>Platform</h3>
+                <a href="index.html">Home</a><br>
+                <a href="learn.html">Learn</a><br>
+                <a href="login.html">Login</a><br>
+                <a href="signup.html">Signup</a>
+            </div>
+            <div>
+                <h3>Resources</h3>
+                <a href="worksheets.html">Worksheets</a><br>
+                <a href="parents.html">Parents</a><br>
+                <a href="#">Blog</a><br>
+                <a href="#">Support</a>
+            </div>
+            <div>
+                <h3>Follow Us</h3>
+                <a href="#">Instagram</a><br>
+                <a href="#">TikTok</a><br>
+                <a href="#">LinkedIn</a><br>
+                <a href="#">YouTube</a>
+            </div>
+        </div>
+        <hr style="margin: 30px 0; border: none; height: 1px; background: rgba(255,255,255,.1);">
+        <p style="text-align: center;">© 2026 Hanverse. All Rights Reserved.</p>
+    </footer>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="active">
+            <div class="nav-icon">🏠</div>
+            Home
+        </a>
+        <a href="learn.html">
+            <div class="nav-icon">📚</div>
+            Learn
+        </a>
+        <a href="profile.html">
+            <div class="nav-icon">👤</div>
+            Profile
+        </a>
+        <a href="login.html">
+            <div class="nav-icon">🔑</div>
+            Login
+        </a>
+    </nav>
+
+    <button class="panda-fab" onclick="togglePanda()" style="position: fixed; bottom: calc(90px + env(safe-area-inset-bottom)); right: 20px; z-index: 998; background: var(--white); border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center;">🐼</button>
+
+    <div id="pandaChat" class="panda-chat">
+        <div class="panda-header">
+            <div class="panda-title">🐼 Panda AI Tutor</div>
+            <button class="panda-close" onclick="togglePanda()">✕</button>
+        </div>
+        <div id="pandaBody" class="panda-body">
+            <div class="message-row">
+                <div class="panda-avatar">🐼</div>
+                <div class="message panda-message">
+                    👋 Hi! Ask me anything about Mandarin.
+                </div>
+            </div>
+        </div>
+        <div class="panda-input">
+            <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
+            <button class="panda-send" onclick="sendPandaMessage()">➤</button>
+        </div>
     </div>
-  </div>
 
-  <div class="panda-input">
-    <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
-    <button class="panda-send" onclick="sendPandaMessage()">➤</button>
-  </div>
-</div>
+    <script src="nav-user.js"></script>
+    <script src="panda-chat.js"></script>
+    <script>
+        /* Top Navigation Scroll Accent Interaction */
+        window.addEventListener("scroll", () => {
+            document.querySelector("nav.top-nav").classList.toggle("scrolled", window.scrollY > 20);
+        });
 
-<script src="panda-chat.js"></script>
-<script src="panda-chat.js"></script>
+        /* Native Smooth Fast Animated Counters */
+        function animateCounter(id, target, suffix = '') {
+            const el = document.getElementById(id);
+            if (!el) return;
+            let count = 0;
+            const increment = Math.ceil(target / 40);
+            const timer = setInterval(() => {
+                count += increment;
+                if (count >= target) {
+                    count = target;
+                    clearInterval(timer);
+                }
+                el.innerText = count + suffix;
+            }, 25);
+        }
+
+        window.addEventListener("load", () => {
+            animateCounter("students", 500, "+");
+            animateCounter("lessons", 240, "+");
+            animateCounter("games", 30, "+");
+            animateCounter("satisfaction", 95, "%");
+        });
+
+        /* Interactivity Animation Intersection Observer */
+        const cards = document.querySelectorAll(".feature-card, .stat-card");
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = "1";
+                    entry.target.style.transform = "translateY(0)";
+                }
+            });
+        }, { threshold: .05 });
+
+        cards.forEach(card => {
+            card.style.opacity = "0";
+            card.style.transform = "translateY(20px)";
+            card.style.transition = "transform .5s ease, opacity .5s ease";
+            observer.observe(card);
+        });
+    </script>
 </body>
-
 </html>
