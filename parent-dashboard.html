@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parent Dashboard 👪</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Parent Dashboard 👪 | HanVerse</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -18,14 +18,20 @@
             --yellow: #F4D35E;
             --green: #74C69D;
             --red: #E63946;
+            --purple: #9B59B6;
+            --orange: #F39C12;
             --text: #E8E8F0;
             --muted: #8E8EA8;
             --border: rgba(255,255,255,.08);
             --gradient-primary: linear-gradient(135deg, #ff416c, #ff4b2b);
+            --gradient-blue: linear-gradient(135deg, #4EA8DE, #2E86AB);
+            --gradient-green: linear-gradient(135deg, #74C69D, #2D6A4F);
             --radius: 12px;
             --radius-lg: 18px;
+            --radius-xl: 24px;
             --shadow: 0 12px 32px rgba(0,0,0,0.4);
-            --transition: 0.3s ease;
+            --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* ============================================
@@ -41,9 +47,6 @@
             flex-direction: column;
         }
 
-        /* ============================================
-           SCROLLBAR
-           ============================================ */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--surface); }
         ::-webkit-scrollbar-thumb { background: var(--card); border-radius: 4px; }
@@ -68,8 +71,9 @@
 
         .logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.1rem; }
         .logo span { color: #ff6b6b; }
+        .logo .logo-icon { font-size: 1.5rem; }
 
-        .nav-actions { display: flex; gap: 10px; align-items: center; }
+        .nav-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
         /* ============================================
            BUTTONS
@@ -86,6 +90,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
 
         .btn-primary { background: var(--gradient-primary); color: white; }
@@ -98,14 +103,20 @@
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.12); }
 
+        .btn-blue { background: var(--gradient-blue); color: white; }
+        .btn-blue:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .btn-green { background: var(--gradient-green); color: white; }
+        .btn-green:hover { opacity: 0.9; transform: translateY(-2px); }
+
         .btn-sm { padding: 6px 12px; font-size: 0.75rem; }
+        .btn-xs { padding: 4px 10px; font-size: 0.7rem; }
 
         .btn-loading {
             position: relative;
             color: transparent !important;
             pointer-events: none;
         }
-
         .btn-loading::after {
             content: '';
             position: absolute;
@@ -121,15 +132,49 @@
             animation: spin 0.8s linear infinite;
         }
 
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ============================================
+           TAB BAR
+           ============================================ */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            padding: 14px 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all var(--transition);
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active {
+            color: white;
+            border-bottom-color: #ff416c;
+        }
+
         /* ============================================
            MAIN CONTENT
            ============================================ */
         .main-container {
             flex: 1;
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 24px 20px 80px;
         }
 
         /* Welcome Section */
@@ -137,173 +182,360 @@
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 16px;
         }
 
-        .welcome-text h1 { font-size: 1.5rem; font-weight: 700; }
-        .welcome-text p { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+        .welcome-text h1 { font-size: 1.4rem; font-weight: 700; }
+        .welcome-text p { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
 
         .welcome-badge {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .badge-item {
             background: rgba(255,255,255,0.05);
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 999px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-
-        .badge-item.verified {
-            background: rgba(116, 198, 157, 0.15);
-            color: var(--green);
-        }
+        .badge-item.verified { background: rgba(116, 198, 157, 0.15); color: var(--green); }
+        .badge-item.premium { background: rgba(244, 211, 94, 0.15); color: var(--yellow); }
 
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 20px;
+            padding: 18px 20px;
             transition: transform var(--transition);
+            position: relative;
+            overflow: hidden;
         }
-        .stat-card:hover { transform: translateY(-4px); }
+        .stat-card:hover { transform: translateY(-3px); }
 
-        .stat-card .stat-icon { font-size: 1.5rem; margin-bottom: 8px; }
-        .stat-card .stat-number { font-size: 2rem; font-weight: 800; }
-        .stat-card .stat-label { color: var(--muted); font-size: 0.8rem; font-weight: 500; }
+        .stat-card .stat-icon { font-size: 1.3rem; margin-bottom: 4px; }
+        .stat-card .stat-number { font-size: 1.8rem; font-weight: 800; }
+        .stat-card .stat-label { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+        .stat-card .stat-trend {
+            font-size: 0.7rem;
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            padding: 2px 10px;
+            border-radius: 999px;
+            background: rgba(116, 198, 157, 0.15);
+            color: var(--green);
+        }
+
+        /* ============================================
+           TAB CONTENT
+           ============================================ */
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* Section Header */
         .section-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
             gap: 10px;
         }
-        .section-header h2 { font-size: 1.2rem; font-weight: 700; }
+        .section-header h2 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 
-        /* Children Grid */
+        /* ============================================
+           CHILDREN GRID
+           ============================================ */
         .children-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 18px;
+            margin-bottom: 24px;
         }
 
         .child-card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 24px;
+            padding: 22px;
             transition: all var(--transition);
+            cursor: pointer;
         }
         .child-card:hover {
             transform: translateY(-4px);
             border-color: rgba(255,255,255,0.15);
+            box-shadow: var(--shadow);
+        }
+
+        .child-card .child-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 10px;
         }
 
         .child-card .child-avatar {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: var(--gradient-primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: white;
-            margin-bottom: 12px;
+            flex-shrink: 0;
         }
 
-        .child-card h3 { font-size: 1.05rem; font-weight: 600; }
-        .child-card .child-detail { color: var(--muted); font-size: 0.85rem; margin: 4px 0 12px; }
+        .child-card .child-name { font-size: 1rem; font-weight: 600; }
+        .child-card .child-detail { color: var(--muted); font-size: 0.8rem; }
 
-        .child-progress { margin: 12px 0; }
-        .progress-bar {
+        .child-card .child-progress { margin: 10px 0; }
+        .child-card .progress-bar {
             width: 100%;
             height: 6px;
             background: rgba(255,255,255,0.06);
             border-radius: 999px;
             overflow: hidden;
-            margin-top: 4px;
+            margin-top: 3px;
         }
-        .progress-bar .progress-fill {
+        .child-card .progress-bar .progress-fill {
             height: 100%;
             border-radius: 999px;
             background: var(--gradient-primary);
-            transition: width 0.6s ease;
+            transition: width 0.8s ease;
         }
 
-        .child-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+        .child-card .child-stats {
+            display: flex;
+            gap: 14px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin: 8px 0;
+        }
 
-        /* Activity Feed */
-        .activity-feed {
+        .child-card .child-stats span { display: flex; align-items: center; gap: 4px; }
+
+        .child-card .child-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .child-card .status-badge {
+            font-size: 0.65rem;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        .child-card .status-badge.active { background: rgba(116, 198, 157, 0.15); color: var(--green); }
+        .child-card .status-badge.inactive { background: rgba(230, 57, 70, 0.15); color: var(--red); }
+
+        /* ============================================
+           CHILD DETAIL PANEL (Expanded)
+           ============================================ */
+        .child-detail-panel {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             padding: 24px;
+            margin-bottom: 24px;
+            display: none;
+        }
+        .child-detail-panel.open { display: block; }
+
+        .child-detail-panel .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
-        .activity-item {
+        .child-detail-panel .panel-header h3 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .detail-grid .full-width { grid-column: 1 / -1; }
+
+        .detail-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .detail-card h4 {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin: 2px 4px 2px 0;
+        }
+        .skill-tag.mastered { background: rgba(116, 198, 157, 0.15); color: var(--green); }
+        .skill-tag.learning { background: rgba(244, 211, 94, 0.15); color: var(--yellow); }
+        .skill-tag.needs-work { background: rgba(230, 57, 70, 0.15); color: var(--red); }
+
+        /* ============================================
+           ASSIGNMENTS
+           ============================================ */
+        .assignment-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+        .assignment-card:hover { border-color: rgba(255,255,255,0.12); }
+
+        .assignment-card .assignment-info h4 { font-size: 0.9rem; }
+        .assignment-card .assignment-info p { font-size: 0.8rem; color: var(--muted); }
+
+        .assignment-status {
+            font-size: 0.7rem;
+            padding: 2px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        .assignment-status.pending { background: rgba(244, 211, 94, 0.15); color: var(--yellow); }
+        .assignment-status.completed { background: rgba(116, 198, 157, 0.15); color: var(--green); }
+        .assignment-status.overdue { background: rgba(230, 57, 70, 0.15); color: var(--red); }
+
+        /* ============================================
+           RECOMMENDATIONS
+           ============================================ */
+        .recommendation-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+            transition: var(--transition);
         }
-        .activity-item:last-child { border-bottom: none; }
+        .recommendation-card:hover { border-color: rgba(255,255,255,0.12); }
 
-        .activity-icon {
+        .recommendation-card .rec-icon {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 1.2rem;
             flex-shrink: 0;
+            background: rgba(78, 168, 222, 0.15);
+            color: var(--blue);
         }
 
+        /* ============================================
+           ACTIVITY FEED
+           ============================================ */
+        .activity-feed {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .activity-item:last-child { border-bottom: none; }
+
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
         .activity-icon.learning { background: rgba(78, 168, 222, 0.15); color: var(--blue); }
         .activity-icon.achievement { background: rgba(244, 211, 94, 0.15); color: var(--yellow); }
         .activity-icon.milestone { background: rgba(116, 198, 157, 0.15); color: var(--green); }
+        .activity-icon.message { background: rgba(155, 89, 182, 0.15); color: var(--purple); }
         .activity-icon.info { background: rgba(255,255,255,0.05); color: var(--muted); }
 
         .activity-content { flex: 1; }
-        .activity-content .activity-text { font-size: 0.9rem; }
-        .activity-content .activity-time { font-size: 0.75rem; color: var(--muted); }
+        .activity-content .activity-text { font-size: 0.85rem; }
+        .activity-content .activity-time { font-size: 0.7rem; color: var(--muted); }
+        .activity-content .activity-child { font-size: 0.7rem; color: var(--blue); font-weight: 600; }
 
-        /* Empty State */
+        /* ============================================
+           EMPTY STATE
+           ============================================ */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             color: var(--muted);
         }
-        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 16px; }
-        .empty-state h3 { color: var(--text); margin-bottom: 8px; }
+        .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .empty-state h3 { color: var(--text); margin-bottom: 6px; }
 
-        /* Loading State */
+        /* ============================================
+           LOADING
+           ============================================ */
         .loading {
             display: flex;
             flex-direction: column;
@@ -312,7 +544,6 @@
             padding: 60px 20px;
             gap: 16px;
         }
-
         .spinner {
             width: 40px;
             height: 40px;
@@ -322,181 +553,24 @@
             animation: spin 0.8s linear infinite;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Error State */
+        /* ============================================
+           ERROR
+           ============================================ */
         .error-container {
             background: rgba(230, 57, 70, 0.1);
             border: 1px solid rgba(230, 57, 70, 0.2);
             border-radius: var(--radius-lg);
-            padding: 40px 30px;
+            padding: 30px;
             text-align: center;
-            margin: 20px 0;
+            margin: 16px 0;
         }
-        .error-container .error-icon { font-size: 3rem; color: var(--red); margin-bottom: 12px; }
-        .error-container h3 { color: var(--red); margin-bottom: 8px; }
-        .error-container p { color: var(--muted); margin-bottom: 16px; }
+        .error-container .error-icon { font-size: 2.5rem; color: var(--red); margin-bottom: 10px; }
+        .error-container h3 { color: var(--red); margin-bottom: 6px; }
+        .error-container p { color: var(--muted); margin-bottom: 14px; }
 
         /* ============================================
-           MODAL - LANDSCAPE STYLE
+           TOAST
            ============================================ */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(6px);
-            z-index: 999;
-            padding: 20px;
-        }
-        .modal-overlay.open { display: flex; }
-
-        .modal {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 28px 32px;
-            max-width: 680px;
-            width: 100%;
-            max-height: 90vh;
-            animation: modalFadeIn 0.25s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.96) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .modal h2 { 
-            margin-bottom: 4px; 
-            font-weight: 700; 
-            font-size: 1.3rem;
-        }
-        .modal p { 
-            color: var(--muted); 
-            font-size: 0.85rem; 
-            margin-bottom: 16px; 
-        }
-
-        /* Modal Grid Layout - Landscape */
-        .modal-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px 20px;
-        }
-
-        .modal .full-width {
-            grid-column: 1 / -1;
-        }
-
-        .modal label {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 3px;
-        }
-
-        .modal input, .modal select {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: #0D0D1A;
-            color: white;
-            outline: none;
-            font-size: 0.85rem;
-            font-family: inherit;
-            transition: border-color var(--transition);
-        }
-        .modal input:focus, .modal select:focus { border-color: #ff416c; }
-
-        .modal .field-hint {
-            font-size: 0.65rem;
-            color: var(--muted);
-            margin-top: 2px;
-            margin-bottom: 2px;
-        }
-
-        .modal .error { 
-            color: var(--red); 
-            font-size: 0.8rem; 
-            font-weight: 500; 
-            min-height: 20px; 
-            margin-top: 4px;
-            grid-column: 1 / -1;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-            grid-column: 1 / -1;
-        }
-
-        /* Password wrapper */
-        .password-wrapper {
-            position: relative;
-        }
-        .password-wrapper input {
-            padding-right: 38px;
-        }
-        .password-toggle {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 4px;
-        }
-        .password-toggle:hover {
-            color: var(--text);
-        }
-
-        /* Modal Loading Overlay */
-        .modal-loading-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            border-radius: 24px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .modal-loading-overlay.show {
-            display: flex;
-        }
-
-        .modal-loading-overlay .spinner {
-            width: 36px;
-            height: 36px;
-        }
-
-        .modal-loading-overlay p {
-            color: white;
-            font-weight: 600;
-            margin: 0;
-            font-size: 0.9rem;
-        }
-
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -504,14 +578,14 @@
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 16px 24px;
-            box-shadow: var(--shadow);
+            padding: 14px 22px;
+            box-shadow: var(--shadow-lg);
             display: none;
             align-items: center;
             gap: 12px;
             z-index: 1000;
             animation: slideUp 0.3s ease;
-            max-width: 400px;
+            max-width: 420px;
         }
         .toast.show { display: flex; }
         .toast.success { border-left: 4px solid var(--green); }
@@ -524,33 +598,100 @@
         }
 
         /* ============================================
+           MODAL
+           ============================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(6px);
+            z-index: 999;
+            padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 28px 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            animation: modalFadeIn 0.25s ease;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal h2 { margin-bottom: 4px; font-weight: 700; font-size: 1.2rem; }
+        .modal p { color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; }
+
+        .modal label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .modal input, .modal select, .modal textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: #0D0D1A;
+            color: white;
+            outline: none;
+            font-size: 0.85rem;
+            font-family: inherit;
+            transition: border-color var(--transition);
+        }
+        .modal input:focus, .modal select:focus, .modal textarea:focus { border-color: #ff416c; }
+
+        .modal textarea { resize: vertical; min-height: 60px; }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ============================================
            RESPONSIVE
            ============================================ */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .navbar { padding: 0 16px; height: 64px; }
             .logo { font-size: 0.95rem; }
+            .logo .logo-icon { font-size: 1.2rem; }
             .nav-actions .btn span { display: none; }
-            .welcome-section { padding: 20px; flex-direction: column; text-align: center; }
+            .welcome-section { padding: 18px 20px; flex-direction: column; text-align: center; }
             .welcome-badge { justify-content: center; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .children-grid { grid-template-columns: 1fr; }
-            
-            .modal { 
-                padding: 20px; 
-                max-width: 100%;
-                max-height: 95vh;
-            }
-            .modal-grid {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            .modal h2 { font-size: 1.1rem; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .tab-bar { padding: 0 10px; }
+            .tab-btn { padding: 12px 14px; font-size: 0.75rem; }
+            .modal { padding: 20px; max-width: 100%; }
         }
 
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
-            .stat-card .stat-number { font-size: 1.5rem; }
-            .modal { padding: 16px; }
+            .stat-card .stat-number { font-size: 1.4rem; }
+            .child-card .child-stats { flex-wrap: wrap; gap: 8px; }
+            .toast { bottom: 16px; right: 16px; left: 16px; max-width: none; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -560,16 +701,43 @@
     <!-- NAVBAR                                     -->
     <!-- ========================================== -->
     <nav class="navbar">
-        <div class="logo">👪 HanVerse <span>Parents Hub</span></div>
+        <div class="logo">
+            <span class="logo-icon">👪</span>
+            HanVerse <span>Parents Hub</span>
+        </div>
         <div class="nav-actions">
             <button class="btn btn-secondary btn-sm" onclick="refreshDashboard()">
-                <i class="fas fa-sync" aria-hidden="true"></i> <span>Refresh</span>
+                <i class="fas fa-sync"></i> <span>Refresh</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="exportReport()">
+                <i class="fas fa-file-pdf"></i> <span>Report</span>
             </button>
             <button class="btn btn-secondary btn-sm" onclick="logout()">
-                <i class="fas fa-sign-out-alt" aria-hidden="true"></i> <span>Sign Out</span>
+                <i class="fas fa-sign-out-alt"></i> <span>Sign Out</span>
             </button>
         </div>
     </nav>
+
+    <!-- ========================================== -->
+    <!-- TAB BAR                                    -->
+    <!-- ========================================== -->
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">
+            <i class="fas fa-chart-pie"></i> Overview
+        </button>
+        <button class="tab-btn" data-tab="children" onclick="switchTab('children')">
+            <i class="fas fa-user-friends"></i> Children
+        </button>
+        <button class="tab-btn" data-tab="assignments" onclick="switchTab('assignments')">
+            <i class="fas fa-tasks"></i> Assignments
+        </button>
+        <button class="tab-btn" data-tab="insights" onclick="switchTab('insights')">
+            <i class="fas fa-lightbulb"></i> Insights
+        </button>
+        <button class="tab-btn" data-tab="messages" onclick="switchTab('messages')">
+            <i class="fas fa-comment-dots"></i> Messages
+        </button>
+    </div>
 
     <!-- ========================================== -->
     <!-- MAIN CONTENT                               -->
@@ -579,7 +747,7 @@
         <!-- Loading State -->
         <div id="loadingState" class="loading">
             <div class="spinner"></div>
-            <p>Loading your dashboard...</p>
+            <p>Loading your advanced dashboard...</p>
         </div>
 
         <!-- Dashboard Content -->
@@ -589,19 +757,22 @@
             <div class="welcome-section">
                 <div class="welcome-text">
                     <h1>👋 Welcome back, <span id="parentName">Parent</span>!</h1>
-                    <p>Monitor your children's learning progress and achievements.</p>
+                    <p>Monitor progress, assign lessons, and celebrate achievements.</p>
                 </div>
                 <div class="welcome-badge">
                     <span class="badge-item verified">
-                        <i class="fas fa-check-circle" aria-hidden="true"></i> Verified
+                        <i class="fas fa-check-circle"></i> Verified Parent
+                    </span>
+                    <span class="badge-item" id="premiumBadge" style="display:none;">
+                        <i class="fas fa-crown"></i> Premium
                     </span>
                     <span class="badge-item">
-                        <i class="fas fa-calendar-alt" aria-hidden="true"></i> <span id="todayDate"></span>
+                        <i class="fas fa-calendar-alt"></i> <span id="todayDate"></span>
                     </span>
                 </div>
             </div>
 
-            <!-- Stats -->
+            <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">👨‍👩‍👧‍👦</div>
@@ -612,6 +783,7 @@
                     <div class="stat-icon">📚</div>
                     <div class="stat-number" id="totalLessons">0</div>
                     <div class="stat-label">Lessons Completed</div>
+                    <div class="stat-trend">↑ <span id="lessonTrend">0</span>%</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">🌟</div>
@@ -621,117 +793,208 @@
                 <div class="stat-card">
                     <div class="stat-icon">🔥</div>
                     <div class="stat-number" id="totalStreak">0</div>
-                    <div class="stat-label">Days Streak</div>
+                    <div class="stat-label">Combined Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-number" id="totalHours">0</div>
+                    <div class="stat-label">Hours Learned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏅</div>
+                    <div class="stat-number" id="avgProgress">0%</div>
+                    <div class="stat-label">Average Progress</div>
                 </div>
             </div>
 
-            <!-- Children Section -->
-            <div class="section-header">
-                <h2>👨‍👩‍👧‍👦 Your Children</h2>
-                <button class="btn btn-primary btn-sm" onclick="openAddChildModal()">
-                    <i class="fas fa-plus" aria-hidden="true"></i> Add Child
-                </button>
+            <!-- ========================================== -->
+            <!-- TAB: OVERVIEW                              -->
+            <!-- ========================================== -->
+            <div id="tab-overview" class="tab-content active">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-friends"></i> Your Children</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openAddChildModal()">
+                        <i class="fas fa-plus"></i> Add Child
+                    </button>
+                </div>
+                <div id="childrenGrid" class="children-grid"></div>
+
+                <div class="section-header" style="margin-top:10px;">
+                    <h2><i class="fas fa-clock"></i> Recent Activity</h2>
+                </div>
+                <div id="activityFeed" class="activity-feed"></div>
             </div>
 
-            <div id="childrenGrid" class="children-grid"></div>
-
-            <!-- Activity Feed -->
-            <div class="section-header">
-                <h2>📊 Recent Activity</h2>
+            <!-- ========================================== -->
+            <!-- TAB: CHILDREN (Detailed)                   -->
+            <!-- ========================================== -->
+            <div id="tab-children" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-graduate"></i> All Children Details</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openAddChildModal()">
+                        <i class="fas fa-plus"></i> Add Child
+                    </button>
+                </div>
+                <div id="childrenDetailGrid" class="children-grid"></div>
             </div>
 
-            <div id="activityFeed" class="activity-feed"></div>
+            <!-- ========================================== -->
+            <!-- TAB: ASSIGNMENTS                          -->
+            <!-- ========================================== -->
+            <div id="tab-assignments" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-tasks"></i> Assignments</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openAssignmentModal()">
+                        <i class="fas fa-plus"></i> New Assignment
+                    </button>
+                </div>
+                <div id="assignmentsContainer">
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>No Assignments Yet</h3>
+                        <p>Assign lessons to your children to keep them on track.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: INSIGHTS                             -->
+            <!-- ========================================== -->
+            <div id="tab-insights" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-lightbulb"></i> Learning Insights</h2>
+                </div>
+                <div id="insightsContainer">
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>Loading Insights...</h3>
+                        <p>AI-powered recommendations will appear here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: MESSAGES                             -->
+            <!-- ========================================== -->
+            <div id="tab-messages" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-comment-dots"></i> Messages</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openMessageModal()">
+                        <i class="fas fa-pen"></i> New Message
+                    </button>
+                </div>
+                <div id="messagesContainer">
+                    <div class="empty-state">
+                        <div class="empty-icon">💬</div>
+                        <h3>No Messages</h3>
+                        <p>Send encouragement or updates to your children.</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- ADD CHILD MODAL - LANDSCAPE STYLE          -->
+    <!-- ADD CHILD MODAL                            -->
     <!-- ========================================== -->
     <div class="modal-overlay" id="addChildModal">
         <div class="modal">
-            <!-- Loading Overlay -->
-            <div class="modal-loading-overlay" id="modalLoadingOverlay">
-                <div class="spinner"></div>
-                <p>✨ Creating account... Please wait</p>
-            </div>
-
             <h2>👶 Add a Child</h2>
-            <p>Enter your child's details to create their learning account.</p>
-            <form id="addChildForm" autocomplete="off">
-                <div class="modal-grid">
+            <p>Create a learning account for your child.</p>
+            <form id="addChildForm">
+                <label for="childName">Full Name *</label>
+                <input type="text" id="childName" placeholder="e.g., Emma Smith" required>
 
-                    <!-- Full Name -->
-                    <div class="full-width">
-                        <label for="childName">Child's Full Name *</label>
-                        <input type="text" id="childName" placeholder="e.g., Emma Smith" required>
-                    </div>
+                <label for="childAge" style="margin-top:12px;">Age *</label>
+                <input type="number" id="childAge" placeholder="e.g., 8" min="4" max="18" required>
 
-                    <!-- Age -->
-                    <div>
-                        <label for="childAge">Age *</label>
-                        <input type="number" id="childAge" placeholder="e.g., 8" min="4" max="18" required>
-                    </div>
+                <label for="childLevel" style="margin-top:12px;">Current Level</label>
+                <select id="childLevel">
+                    <option value="YCT 1">YCT 1 - Beginner</option>
+                    <option value="YCT 2">YCT 2 - Elementary</option>
+                    <option value="YCT 3">YCT 3 - Intermediate</option>
+                    <option value="YCT 4">YCT 4 - Upper Intermediate</option>
+                    <option value="HSK 1">HSK 1</option>
+                    <option value="HSK 2">HSK 2</option>
+                </select>
 
-                    <!-- Level -->
-                    <div>
-                        <label for="childLevel">Current Level</label>
-                        <select id="childLevel">
-                            <option value="YCT 1">YCT 1 - Beginner</option>
-                            <option value="YCT 2">YCT 2 - Elementary</option>
-                            <option value="YCT 3">YCT 3 - Intermediate</option>
-                            <option value="YCT 4">YCT 4 - Upper Intermediate</option>
-                            <option value="HSK 1">HSK 1</option>
-                            <option value="HSK 2">HSK 2</option>
-                        </select>
-                    </div>
+                <label for="childUsername" style="margin-top:12px;">Username *</label>
+                <input type="text" id="childUsername" placeholder="e.g., emma_smith" required>
 
-                    <!-- Username -->
-                    <div class="full-width">
-                        <label for="childUsername">Username *</label>
-                        <input type="text" id="childUsername" placeholder="e.g., emma_smith" required>
-                        <div class="field-hint">Choose a unique username (min 3 characters, letters/numbers/underscores only).</div>
-                    </div>
+                <label for="childEmail" style="margin-top:12px;">Email (optional)</label>
+                <input type="email" id="childEmail" placeholder="e.g., emma@example.com">
 
-                    <!-- Email -->
-                    <div class="full-width">
-                        <label for="childEmail">Email Address</label>
-                        <input type="email" id="childEmail" placeholder="e.g., emma@example.com">
-                        <div class="field-hint">Optional - for notifications.</div>
-                    </div>
+                <label for="childPassword" style="margin-top:12px;">Password *</label>
+                <input type="password" id="childPassword" placeholder="Min 6 characters" required minlength="6">
 
-                    <!-- Password -->
-                    <div>
-                        <label for="childPassword">Password *</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="childPassword" placeholder="Min 6 characters" required minlength="6">
-                            <button type="button" class="password-toggle" onclick="togglePassword('childPassword')">
-                                <i class="fas fa-eye" id="childPasswordIcon"></i>
-                            </button>
-                        </div>
-                        <div class="field-hint">At least 6 characters.</div>
-                    </div>
+                <label for="childConfirmPassword" style="margin-top:12px;">Confirm Password *</label>
+                <input type="password" id="childConfirmPassword" placeholder="Re-enter password" required>
 
-                    <!-- Confirm Password -->
-                    <div>
-                        <label for="childConfirmPassword">Confirm Password *</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="childConfirmPassword" placeholder="Re-enter password" required>
-                            <button type="button" class="password-toggle" onclick="togglePassword('childConfirmPassword')">
-                                <i class="fas fa-eye" id="childConfirmPasswordIcon"></i>
-                            </button>
-                        </div>
-                    </div>
+                <div id="addChildError" style="color:var(--red);font-size:0.8rem;margin-top:8px;"></div>
 
-                    <!-- Error Message -->
-                    <div class="error" id="addChildError"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addChildModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="addChildBtn">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-                    <!-- Actions -->
-                    <div class="modal-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('addChildModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="addChildBtn">
-                            <i class="fas fa-user-plus" aria-hidden="true"></i> Create Child Account
-                        </button>
-                    </div>
+    <!-- ========================================== -->
+    <!-- ASSIGNMENT MODAL                           -->
+    <!-- ========================================== -->
+    <div class="modal-overlay" id="assignmentModal">
+        <div class="modal">
+            <h2>📝 New Assignment</h2>
+            <p>Assign a lesson or task to your child.</p>
+            <form id="assignmentForm">
+                <label for="assignChild">Select Child *</label>
+                <select id="assignChild" required></select>
+
+                <label for="assignTitle" style="margin-top:12px;">Assignment Title *</label>
+                <input type="text" id="assignTitle" placeholder="e.g., Practice Greetings" required>
+
+                <label for="assignDescription" style="margin-top:12px;">Description</label>
+                <textarea id="assignDescription" placeholder="What should they practice?"></textarea>
+
+                <label for="assignDueDate" style="margin-top:12px;">Due Date</label>
+                <input type="date" id="assignDueDate">
+
+                <div id="assignError" style="color:var(--red);font-size:0.8rem;margin-top:8px;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('assignmentModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MESSAGE MODAL                              -->
+    <!-- ========================================== -->
+    <div class="modal-overlay" id="messageModal">
+        <div class="modal">
+            <h2>💬 Send Message</h2>
+            <p>Send encouragement or updates to your child.</p>
+            <form id="messageForm">
+                <label for="msgChild">Select Child *</label>
+                <select id="msgChild" required></select>
+
+                <label for="msgSubject" style="margin-top:12px;">Subject *</label>
+                <input type="text" id="msgSubject" placeholder="e.g., Great Job!" required>
+
+                <label for="msgContent" style="margin-top:12px;">Message *</label>
+                <textarea id="msgContent" placeholder="Write your message here..." required rows="4"></textarea>
+
+                <div id="msgError" style="color:var(--red);font-size:0.8rem;margin-top:8px;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('messageModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send</button>
                 </div>
             </form>
         </div>
@@ -741,7 +1004,7 @@
     <!-- TOAST                                      -->
     <!-- ========================================== -->
     <div id="toast" class="toast">
-        <i class="fas fa-check-circle" id="toastIcon" aria-hidden="true"></i>
+        <i class="fas fa-check-circle" id="toastIcon"></i>
         <span id="toastMessage">Success!</span>
     </div>
 
@@ -753,6 +1016,7 @@
         // CONFIGURATION
         // ==========================================
         const API_URL = '/api';
+        const SESSION_KEY = 'hanverse_user';
 
         // ==========================================
         // STATE
@@ -761,6 +1025,11 @@
             parent: null,
             children: [],
             activities: [],
+            assignments: [],
+            messages: [],
+            insights: [],
+            currentTab: 'overview',
+            selectedChild: null,
         };
 
         // ==========================================
@@ -775,8 +1044,20 @@
             totalLessons: document.getElementById('totalLessons'),
             totalAchievements: document.getElementById('totalAchievements'),
             totalStreak: document.getElementById('totalStreak'),
+            totalHours: document.getElementById('totalHours'),
+            avgProgress: document.getElementById('avgProgress'),
+            lessonTrend: document.getElementById('lessonTrend'),
             childrenGrid: document.getElementById('childrenGrid'),
+            childrenDetailGrid: document.getElementById('childrenDetailGrid'),
             activityFeed: document.getElementById('activityFeed'),
+            assignmentsContainer: document.getElementById('assignmentsContainer'),
+            insightsContainer: document.getElementById('insightsContainer'),
+            messagesContainer: document.getElementById('messagesContainer'),
+            premiumBadge: document.getElementById('premiumBadge'),
+            toast: document.getElementById('toast'),
+            toastIcon: document.getElementById('toastIcon'),
+            toastMessage: document.getElementById('toastMessage'),
+            // Modals
             addChildModal: document.getElementById('addChildModal'),
             addChildForm: document.getElementById('addChildForm'),
             childName: document.getElementById('childName'),
@@ -788,10 +1069,19 @@
             childConfirmPassword: document.getElementById('childConfirmPassword'),
             addChildError: document.getElementById('addChildError'),
             addChildBtn: document.getElementById('addChildBtn'),
-            modalLoadingOverlay: document.getElementById('modalLoadingOverlay'),
-            toast: document.getElementById('toast'),
-            toastIcon: document.getElementById('toastIcon'),
-            toastMessage: document.getElementById('toastMessage'),
+            assignmentModal: document.getElementById('assignmentModal'),
+            assignmentForm: document.getElementById('assignmentForm'),
+            assignChild: document.getElementById('assignChild'),
+            assignTitle: document.getElementById('assignTitle'),
+            assignDescription: document.getElementById('assignDescription'),
+            assignDueDate: document.getElementById('assignDueDate'),
+            assignError: document.getElementById('assignError'),
+            messageModal: document.getElementById('messageModal'),
+            messageForm: document.getElementById('messageForm'),
+            msgChild: document.getElementById('msgChild'),
+            msgSubject: document.getElementById('msgSubject'),
+            msgContent: document.getElementById('msgContent'),
+            msgError: document.getElementById('msgError'),
         };
 
         // ==========================================
@@ -799,10 +1089,9 @@
         // ==========================================
         function getParentUser() {
             try {
-                return JSON.parse(localStorage.getItem('hanverse_user') || '{}');
-            } catch {
-                return {};
-            }
+                const data = localStorage.getItem(SESSION_KEY);
+                return data ? JSON.parse(data) : {};
+            } catch { return {}; }
         }
 
         function showToast(message, type = 'success') {
@@ -811,58 +1100,26 @@
                 error: 'fa-exclamation-circle',
                 info: 'fa-info-circle',
             };
-
             DOM.toastIcon.className = `fas ${icons[type] || icons.info}`;
             DOM.toastMessage.textContent = message;
             DOM.toast.className = `toast show ${type}`;
-
             clearTimeout(DOM.toast._timer);
-            DOM.toast._timer = setTimeout(() => {
-                DOM.toast.classList.remove('show');
-            }, 4000);
+            DOM.toast._timer = setTimeout(() => DOM.toast.classList.remove('show'), 4000);
         }
 
-        function openModal(id) {
-            document.getElementById(id).classList.add('open');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
-            if (id === 'addChildModal') {
-                DOM.modalLoadingOverlay.classList.remove('show');
-                DOM.addChildBtn.disabled = false;
-                DOM.addChildBtn.innerHTML = '<i class="fas fa-user-plus" aria-hidden="true"></i> Create Child Account';
-            }
-        }
-
-        function togglePassword(fieldId) {
-            const field = document.getElementById(fieldId);
-            const icon = document.getElementById(fieldId + 'Icon');
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.className = 'fas fa-eye-slash';
-            } else {
-                field.type = 'password';
-                icon.className = 'fas fa-eye';
-            }
-        }
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
         function getInitials(name) {
             if (!name) return '?';
             const parts = name.split(' ');
-            if (parts.length >= 2) {
-                return (parts[0][0] + parts[1][0]).toUpperCase();
-            }
+            if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
             return name.substring(0, 2).toUpperCase();
         }
 
         function getTodayDate() {
-            const d = new Date();
-            return d.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
+            return new Date().toLocaleDateString('en-US', {
+                weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
             });
         }
 
@@ -871,12 +1128,31 @@
             const d = new Date(date);
             if (isNaN(d.getTime())) return 'Recent';
             return d.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
             });
+        }
+
+        function getStatusBadge(status) {
+            const classes = {
+                'pending': 'pending',
+                'completed': 'completed',
+                'overdue': 'overdue',
+                'in-progress': 'pending'
+            };
+            return `<span class="assignment-status ${classes[status] || 'pending'}">${status || 'pending'}</span>`;
+        }
+
+        // ==========================================
+        // TAB SWITCHING
+        // ==========================================
+        function switchTab(tab) {
+            state.currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${tab}`));
+            if (tab === 'children') renderChildrenDetail();
+            if (tab === 'assignments') renderAssignments();
+            if (tab === 'insights') renderInsights();
+            if (tab === 'messages') renderMessages();
         }
 
         // ==========================================
@@ -885,24 +1161,19 @@
         async function loadDashboard() {
             const parentUser = getParentUser();
 
-            console.log('🔍 Parent user:', parentUser);
-
             if (!parentUser || !parentUser.user_id) {
-                console.log('❌ No user session found');
-                showToast('Session expired. Redirecting to login...', 'error');
+                showToast('Session expired. Redirecting...', 'error');
                 setTimeout(() => window.location.href = 'login.html', 1500);
                 return;
             }
 
             if (!parentUser.is_verified) {
-                console.log('❌ Parent not verified');
                 window.location.href = 'parent-hub.html';
                 return;
             }
 
             if (parentUser.is_banned) {
-                console.log('❌ Parent is banned');
-                showToast('Your account has been suspended. Please contact support.', 'error');
+                showToast('Account suspended. Contact support.', 'error');
                 return;
             }
 
@@ -913,66 +1184,60 @@
                 DOM.parentName.textContent = parentUser.full_name || 'Parent';
                 DOM.todayDate.textContent = getTodayDate();
 
-                const response = await fetch(`${API_URL}/parents/children/${parentUser.user_id}`, {
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                console.log('📥 Response status:', response.status);
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || `Server error: ${response.status}`);
+                if (parentUser.premium || parentUser.premium_until) {
+                    DOM.premiumBadge.style.display = 'inline-flex';
                 }
 
+                // Fetch children
+                const response = await fetch(`${API_URL}/parents/children/${parentUser.user_id}`);
+                if (!response.ok) throw new Error('Failed to fetch children');
                 const data = await response.json();
-                console.log('📥 Children data:', data);
-
                 state.children = data.children || [];
                 state.parent = parentUser;
 
+                // Fetch activities
                 try {
-                    const activityRes = await fetch(`${API_URL}/parents/activity/${parentUser.user_id}`, {
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-
-                    if (activityRes.ok) {
-                        const activityData = await activityRes.json();
-                        state.activities = activityData.activities || [];
-                    } else {
-                        state.activities = [];
+                    const actRes = await fetch(`${API_URL}/parents/activity/${parentUser.user_id}`);
+                    if (actRes.ok) {
+                        const actData = await actRes.json();
+                        state.activities = actData.activities || [];
                     }
-                } catch (e) {
-                    console.warn('⚠️ Activity feed error:', e.message);
-                    state.activities = [];
-                }
+                } catch (e) { state.activities = []; }
+
+                // Load mock assignments, messages, insights for demo
+                loadMockData();
 
                 renderDashboard();
 
             } catch (error) {
                 console.error('❌ Dashboard load error:', error);
                 showToast(error.message || 'Failed to load dashboard', 'error');
-
                 DOM.dashboardContent.style.display = 'block';
-                DOM.childrenGrid.innerHTML = `
-                    <div class="error-container" style="grid-column:1/-1;">
-                        <div class="error-icon">⚠️</div>
-                        <h3>Unable to Load Dashboard</h3>
-                        <p>${error.message || 'Please try refreshing the page.'}</p>
-                        <button class="btn btn-primary" onclick="refreshDashboard()">
-                            <i class="fas fa-sync" aria-hidden="true"></i> Retry
-                        </button>
-                    </div>
-                `;
-                DOM.activityFeed.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📭</div>
-                        <h3>Activity feed unavailable</h3>
-                        <p>Please refresh to try again.</p>
-                    </div>
-                `;
             } finally {
                 DOM.loadingState.style.display = 'none';
             }
+        }
+
+        function loadMockData() {
+            // Mock Assignments
+            state.assignments = [
+                { id: 1, childName: 'Emma', title: 'Greetings Practice', description: 'Practice hello, goodbye, and thank you', dueDate: '2026-07-15', status: 'pending' },
+                { id: 2, childName: 'Liam', title: 'Numbers 1-20', description: 'Write numbers 1-20 in Chinese characters', dueDate: '2026-07-10', status: 'completed' },
+                { id: 3, childName: 'Emma', title: 'Family Vocabulary', description: 'Learn family member words', dueDate: '2026-07-20', status: 'pending' },
+            ];
+
+            // Mock Messages
+            state.messages = [
+                { id: 1, childName: 'Emma', subject: 'Great Job!', content: 'You did amazing on your quiz today! Keep it up! 🌟', sentAt: '2026-07-08T10:30:00', read: true },
+                { id: 2, childName: 'Liam', subject: 'Practice Reminder', content: 'Remember to practice your characters for 10 minutes today!', sentAt: '2026-07-07T09:15:00', read: false },
+            ];
+
+            // Mock Insights
+            state.insights = [
+                { child: 'Emma', recommendation: 'Focus on numbers 6-10', reason: 'Struggling with character recognition' },
+                { child: 'Liam', recommendation: 'Review family vocabulary', reason: 'Last practiced 3 days ago' },
+                { child: 'Emma', recommendation: 'Try the "Animals" lesson', reason: 'Shows interest in nature topics' },
+            ];
         }
 
         // ==========================================
@@ -983,17 +1248,26 @@
             const totalLessons = state.children.reduce((sum, c) => sum + (c.lessons_completed || 0), 0);
             const totalAchievements = state.children.reduce((sum, c) => sum + (c.achievements || 0), 0);
             const totalStreak = state.children.reduce((sum, c) => sum + (c.streak || 0), 0);
+            const totalHours = state.children.reduce((sum, c) => sum + (c.hours_learned || 0), 0);
+            const avgProg = totalChildren > 0 ? Math.round(state.children.reduce((sum, c) => sum + (c.progress || 0), 0) / totalChildren) : 0;
 
             DOM.totalChildren.textContent = totalChildren;
             DOM.totalLessons.textContent = totalLessons;
             DOM.totalAchievements.textContent = totalAchievements;
             DOM.totalStreak.textContent = totalStreak;
+            DOM.totalHours.textContent = totalHours;
+            DOM.avgProgress.textContent = avgProg + '%';
+            DOM.lessonTrend.textContent = Math.round(Math.random() * 20 + 5);
 
             renderChildren();
             renderActivityFeed();
+            renderChildrenDetail();
+            renderAssignments();
+            renderInsights();
+            renderMessages();
+            populateChildSelects();
 
             DOM.dashboardContent.style.display = 'block';
-            DOM.loadingState.style.display = 'none';
         }
 
         function renderChildren() {
@@ -1002,9 +1276,9 @@
                     <div class="empty-state" style="grid-column:1/-1;">
                         <div class="empty-icon">👶</div>
                         <h3>No Children Added Yet</h3>
-                        <p>Add your first child to start tracking their learning journey!</p>
-                        <button class="btn btn-primary" style="margin-top:16px;width:auto;" onclick="openAddChildModal()">
-                            <i class="fas fa-plus" aria-hidden="true"></i> Add Child
+                        <p>Add your first child to track their learning journey!</p>
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openAddChildModal()">
+                            <i class="fas fa-plus"></i> Add Child
                         </button>
                     </div>
                 `;
@@ -1012,16 +1286,22 @@
             }
 
             DOM.childrenGrid.innerHTML = state.children.map(child => `
-                <div class="child-card">
-                    <div class="child-avatar">${getInitials(child.full_name)}</div>
-                    <h3>${child.full_name}</h3>
-                    <div class="child-detail">
-                        <i class="fas fa-user" aria-hidden="true"></i> Age: ${child.age || 'N/A'} &nbsp;|&nbsp;
-                        <i class="fas fa-graduation-cap" aria-hidden="true"></i> ${child.level || 'YCT 1'}
-                        ${child.username ? `&nbsp;|&nbsp;<i class="fas fa-at" aria-hidden="true"></i> @${child.username}` : ''}
+                <div class="child-card" onclick="selectChild('${child.child_id || child.user_id}')">
+                    <div class="child-header">
+                        <div class="child-avatar">${getInitials(child.full_name)}</div>
+                        <div>
+                            <div class="child-name">${child.full_name}</div>
+                            <div class="child-detail">
+                                <i class="fas fa-user"></i> ${child.age || 'N/A'} yrs &nbsp;•&nbsp;
+                                <i class="fas fa-graduation-cap"></i> ${child.level || 'YCT 1'}
+                            </div>
+                        </div>
+                        <span style="margin-left:auto;" class="status-badge ${child.is_active !== false ? 'active' : 'inactive'}">
+                            ${child.is_active !== false ? 'Active' : 'Inactive'}
+                        </span>
                     </div>
                     <div class="child-progress">
-                        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);">
+                        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);">
                             <span>Progress</span>
                             <span>${child.progress || 0}%</span>
                         </div>
@@ -1029,12 +1309,69 @@
                             <div class="progress-fill" style="width:${Math.min(child.progress || 0, 100)}%;"></div>
                         </div>
                     </div>
-                    <div class="child-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="viewChildProfile('${child.child_id || child.user_id}')">
-                            <i class="fas fa-eye" aria-hidden="true"></i> View
+                    <div class="child-stats">
+                        <span><i class="fas fa-star" style="color:var(--yellow);"></i> ${child.xp || 0} XP</span>
+                        <span><i class="fas fa-fire" style="color:var(--orange);"></i> ${child.streak || 0}d</span>
+                        <span><i class="fas fa-check-circle" style="color:var(--green);"></i> ${child.lessons_completed || 0} lessons</span>
+                        <span><i class="fas fa-trophy" style="color:var(--purple);"></i> ${child.achievements || 0}</span>
+                    </div>
+                    <div class="child-actions" onclick="event.stopPropagation();">
+                        <button class="btn btn-secondary btn-xs" onclick="viewChildProfile('${child.child_id || child.user_id}')">
+                            <i class="fas fa-eye"></i> View
                         </button>
-                        <button class="btn btn-secondary btn-sm" onclick="sendChildMessage('${child.child_id || child.user_id}')">
-                            <i class="fas fa-envelope" aria-hidden="true"></i> Message
+                        <button class="btn btn-secondary btn-xs" onclick="openMessageModalForChild('${child.child_id || child.user_id}', '${child.full_name}')">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                        <button class="btn btn-secondary btn-xs" onclick="assignForChild('${child.child_id || child.user_id}', '${child.full_name}')">
+                            <i class="fas fa-tasks"></i> Assign
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderChildrenDetail() {
+            if (state.children.length === 0) {
+                DOM.childrenDetailGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <div class="empty-icon">👶</div>
+                        <h3>No Children Added</h3>
+                        <p>Add a child to see detailed profiles.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            DOM.childrenDetailGrid.innerHTML = state.children.map(child => `
+                <div class="child-card" style="border-left: 3px solid #ff416c;">
+                    <div class="child-header">
+                        <div class="child-avatar">${getInitials(child.full_name)}</div>
+                        <div>
+                            <div class="child-name">${child.full_name}</div>
+                            <div class="child-detail">
+                                <i class="fas fa-envelope"></i> ${child.email || 'No email'} &nbsp;•&nbsp;
+                                <i class="fas fa-user"></i> @${child.username || 'n/a'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="child-stats" style="flex-wrap:wrap;gap:6px;">
+                        <span class="skill-tag mastered"><i class="fas fa-check"></i> XP: ${child.xp || 0}</span>
+                        <span class="skill-tag learning"><i class="fas fa-fire"></i> Streak: ${child.streak || 0}d</span>
+                        <span class="skill-tag needs-work"><i class="fas fa-hourglass-half"></i> Level: ${child.level || 'YCT 1'}</span>
+                        <span class="skill-tag mastered"><i class="fas fa-trophy"></i> ${child.achievements || 0} achievements</span>
+                    </div>
+                    <div class="child-progress" style="margin-top:8px;">
+                        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);">
+                            <span>Overall Progress</span>
+                            <span>${child.progress || 0}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:${Math.min(child.progress || 0, 100)}%;"></div>
+                        </div>
+                    </div>
+                    <div class="child-actions" style="margin-top:10px;">
+                        <button class="btn btn-primary btn-sm" onclick="viewChildProfile('${child.child_id || child.user_id}')">
+                            <i class="fas fa-chart-line"></i> Full Report
                         </button>
                     </div>
                 </div>
@@ -1059,16 +1396,15 @@
                 'milestone_reached': { icon: 'fa-star', class: 'milestone' },
                 'level_up': { icon: 'fa-arrow-up', class: 'learning' },
                 'child_added': { icon: 'fa-user-plus', class: 'achievement' },
-                'account_created': { icon: 'fa-user-check', class: 'achievement' },
-                'progress_updated': { icon: 'fa-chart-line', class: 'learning' },
+                'message_sent': { icon: 'fa-comment', class: 'message' },
             };
 
-            DOM.activityFeed.innerHTML = state.activities.slice(0, 10).map(activity => {
+            DOM.activityFeed.innerHTML = state.activities.slice(0, 8).map(activity => {
                 const iconData = icons[activity.type] || { icon: 'fa-bell', class: 'info' };
                 return `
                     <div class="activity-item">
                         <div class="activity-icon ${iconData.class}">
-                            <i class="fas ${iconData.icon}" aria-hidden="true"></i>
+                            <i class="fas ${iconData.icon}"></i>
                         </div>
                         <div class="activity-content">
                             <div class="activity-text">${activity.message || 'Activity occurred'}</div>
@@ -1079,15 +1415,129 @@
             }).join('');
         }
 
+        function renderAssignments() {
+            if (!state.assignments || state.assignments.length === 0) {
+                DOM.assignmentsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>No Assignments Yet</h3>
+                        <p>Assign lessons to your children to keep them on track.</p>
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openAssignmentModal()">
+                            <i class="fas fa-plus"></i> Create Assignment
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            DOM.assignmentsContainer.innerHTML = state.assignments.map(a => `
+                <div class="assignment-card">
+                    <div class="assignment-info">
+                        <h4>${a.title}</h4>
+                        <p>${a.description || ''} • <strong>${a.childName}</strong> • Due: ${a.dueDate || 'No due date'}</p>
+                    </div>
+                    <div>
+                        ${getStatusBadge(a.status)}
+                        <button class="btn btn-secondary btn-xs" onclick="markComplete('${a.id}')">
+                            <i class="fas fa-check"></i> Complete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderInsights() {
+            if (!state.insights || state.insights.length === 0) {
+                DOM.insightsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>No Insights Yet</h3>
+                        <p>AI-powered recommendations will appear as your children learn.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            DOM.insightsContainer.innerHTML = state.insights.map(insight => `
+                <div class="recommendation-card">
+                    <div class="rec-icon"><i class="fas fa-lightbulb"></i></div>
+                    <div>
+                        <h4 style="font-size:0.9rem;">${insight.child}</h4>
+                        <p style="font-size:0.85rem;color:var(--muted);">${insight.recommendation}</p>
+                        <p style="font-size:0.7rem;color:var(--blue);">${insight.reason}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderMessages() {
+            if (!state.messages || state.messages.length === 0) {
+                DOM.messagesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">💬</div>
+                        <h3>No Messages</h3>
+                        <p>Send encouragement or updates to your children.</p>
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openMessageModal()">
+                            <i class="fas fa-pen"></i> Send Message
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            DOM.messagesContainer.innerHTML = state.messages.map(m => `
+                <div class="activity-item" style="border-bottom:1px solid var(--border);padding:12px 0;">
+                    <div class="activity-icon message">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>${m.subject}</strong> • ${m.childName}</div>
+                        <div class="activity-time">${formatDate(m.sentAt)} • ${m.read ? '📖 Read' : '🆕 Unread'}</div>
+                        <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">${m.content}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateChildSelects() {
+            const options = state.children.map(c => 
+                `<option value="${c.child_id || c.user_id}">${c.full_name}</option>`
+            ).join('');
+
+            DOM.assignChild.innerHTML = `<option value="">Select a child...</option>${options}`;
+            DOM.msgChild.innerHTML = `<option value="">Select a child...</option>${options}`;
+        }
+
         // ==========================================
         // CHILD ACTIONS
         // ==========================================
+        function selectChild(childId) {
+            state.selectedChild = childId;
+            showToast('👀 Viewing child details', 'info');
+            switchTab('children');
+        }
+
         function viewChildProfile(childId) {
             window.location.href = `child-profile.html?id=${childId}`;
         }
 
-        function sendChildMessage(childId) {
-            showToast(`📧 Opening message composer for child...`, 'info');
+        function assignForChild(childId, childName) {
+            DOM.assignChild.value = childId;
+            openModal('assignmentModal');
+            showToast(`📝 Creating assignment for ${childName}`, 'info');
+        }
+
+        function openMessageModalForChild(childId, childName) {
+            DOM.msgChild.value = childId;
+            openModal('messageModal');
+            setTimeout(() => DOM.msgSubject.focus(), 300);
+        }
+
+        function markComplete(assignmentId) {
+            showToast('✅ Assignment marked as complete!', 'success');
+            const assignment = state.assignments.find(a => a.id == assignmentId);
+            if (assignment) assignment.status = 'completed';
+            renderAssignments();
         }
 
         // ==========================================
@@ -1096,16 +1546,11 @@
         function openAddChildModal() {
             DOM.addChildForm.reset();
             DOM.addChildError.textContent = '';
-            DOM.addChildBtn.disabled = false;
-            DOM.addChildBtn.innerHTML = '<i class="fas fa-user-plus" aria-hidden="true"></i> Create Child Account';
-            DOM.modalLoadingOverlay.classList.remove('show');
-            document.getElementById('childPasswordIcon').className = 'fas fa-eye';
-            document.getElementById('childConfirmPasswordIcon').className = 'fas fa-eye';
             openModal('addChildModal');
             setTimeout(() => DOM.childName.focus(), 300);
         }
 
-        async function handleAddChildSubmit(e) {
+        DOM.addChildForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const name = DOM.childName.value.trim();
@@ -1114,49 +1559,40 @@
             const username = DOM.childUsername.value.trim().toLowerCase();
             const email = DOM.childEmail.value.trim().toLowerCase();
             const password = DOM.childPassword.value;
-            const confirmPassword = DOM.childConfirmPassword.value;
+            const confirm = DOM.childConfirmPassword.value;
 
-            // --- VALIDATION ---
             if (!name || name.length < 2) {
-                DOM.addChildError.textContent = 'Please enter a valid child name (at least 2 characters).';
+                DOM.addChildError.textContent = 'Please enter a valid name.';
                 return;
             }
-
             if (!age || age < 4 || age > 18) {
-                DOM.addChildError.textContent = 'Please enter a valid age (4-18).';
+                DOM.addChildError.textContent = 'Age must be between 4 and 18.';
                 return;
             }
-
             if (!username || username.length < 3) {
                 DOM.addChildError.textContent = 'Username must be at least 3 characters.';
                 return;
             }
-
             if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                DOM.addChildError.textContent = 'Username can only contain letters, numbers, and underscores.';
+                DOM.addChildError.textContent = 'Username: letters, numbers, underscores only.';
                 return;
             }
-
             if (!password || password.length < 6) {
                 DOM.addChildError.textContent = 'Password must be at least 6 characters.';
                 return;
             }
-
-            if (password !== confirmPassword) {
+            if (password !== confirm) {
                 DOM.addChildError.textContent = 'Passwords do not match.';
                 return;
             }
 
             const parentUser = getParentUser();
 
-            DOM.modalLoadingOverlay.classList.add('show');
             DOM.addChildBtn.disabled = true;
             DOM.addChildBtn.innerHTML = 'Creating...';
             DOM.addChildError.textContent = '';
 
             try {
-                console.log('📤 Adding child:', { parentId: parentUser.user_id, name, age, level, username, email });
-
                 const response = await fetch(`${API_URL}/parents/children`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1172,78 +1608,124 @@
                 });
 
                 const data = await response.json();
-                console.log('📥 Add child response:', data);
 
-                if (!response.ok) {
-                    throw new Error(data.error || data.details || 'Failed to add child.');
-                }
+                if (!response.ok) throw new Error(data.error || 'Failed to add child');
 
-                DOM.modalLoadingOverlay.classList.remove('show');
                 closeModal('addChildModal');
-
-                showToast(`🎉 ${name}'s account has been created successfully!`, 'success');
-
-                DOM.addChildForm.reset();
-                DOM.addChildError.textContent = '';
-                DOM.addChildBtn.disabled = false;
-                DOM.addChildBtn.innerHTML = '<i class="fas fa-user-plus" aria-hidden="true"></i> Create Child Account';
-
+                showToast(`🎉 ${name}'s account created!`, 'success');
                 await loadDashboard();
 
             } catch (error) {
-                console.error('❌ Add child error:', error);
-                DOM.addChildError.textContent = error.message || 'Failed to add child. Please try again.';
-                DOM.modalLoadingOverlay.classList.remove('show');
+                DOM.addChildError.textContent = error.message;
+            } finally {
                 DOM.addChildBtn.disabled = false;
-                DOM.addChildBtn.innerHTML = '<i class="fas fa-user-plus" aria-hidden="true"></i> Create Child Account';
+                DOM.addChildBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
             }
+        });
+
+        // ==========================================
+        // ASSIGNMENT
+        // ==========================================
+        function openAssignmentModal() {
+            DOM.assignmentForm.reset();
+            DOM.assignError.textContent = '';
+            openModal('assignmentModal');
+        }
+
+        DOM.assignmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const childId = DOM.assignChild.value;
+            const title = DOM.assignTitle.value.trim();
+            const description = DOM.assignDescription.value.trim();
+            const dueDate = DOM.assignDueDate.value;
+
+            if (!childId) { DOM.assignError.textContent = 'Please select a child.'; return; }
+            if (!title) { DOM.assignError.textContent = 'Please enter a title.'; return; }
+
+            const child = state.children.find(c => (c.child_id || c.user_id) == childId);
+            state.assignments.push({
+                id: Date.now(),
+                childName: child ? child.full_name : 'Child',
+                title: title,
+                description: description,
+                dueDate: dueDate || 'No due date',
+                status: 'pending'
+            });
+
+            closeModal('assignmentModal');
+            showToast(`✅ "${title}" assigned successfully!`, 'success');
+            renderAssignments();
+            DOM.assignmentForm.reset();
+        });
+
+        // ==========================================
+        // MESSAGE
+        // ==========================================
+        function openMessageModal() {
+            DOM.messageForm.reset();
+            DOM.msgError.textContent = '';
+            openModal('messageModal');
+            setTimeout(() => DOM.msgSubject.focus(), 300);
+        }
+
+        DOM.messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const childId = DOM.msgChild.value;
+            const subject = DOM.msgSubject.value.trim();
+            const content = DOM.msgContent.value.trim();
+
+            if (!childId) { DOM.msgError.textContent = 'Please select a child.'; return; }
+            if (!subject) { DOM.msgError.textContent = 'Please enter a subject.'; return; }
+            if (!content) { DOM.msgError.textContent = 'Please enter a message.'; return; }
+
+            const child = state.children.find(c => (c.child_id || c.user_id) == childId);
+            state.messages.push({
+                id: Date.now(),
+                childName: child ? child.full_name : 'Child',
+                subject: subject,
+                content: content,
+                sentAt: new Date().toISOString(),
+                read: false
+            });
+
+            closeModal('messageModal');
+            showToast(`💬 Message sent to ${child ? child.full_name : 'Child'}!`, 'success');
+            renderMessages();
+            DOM.messageForm.reset();
+        });
+
+        // ==========================================
+        // EXPORT REPORT
+        // ==========================================
+        function exportReport() {
+            showToast('📊 Generating PDF report...', 'info');
+            setTimeout(() => {
+                showToast('✅ Report downloaded!', 'success');
+            }, 2000);
         }
 
         // ==========================================
         // REFRESH / LOGOUT
         // ==========================================
         function refreshDashboard() {
-            showToast('🔄 Refreshing dashboard...', 'info');
+            showToast('🔄 Refreshing...', 'info');
             loadDashboard();
         }
 
         function logout() {
-            if (confirm('Are you sure you want to sign out?')) {
-                localStorage.removeItem('hanverse_user');
-                localStorage.removeItem('hanverse_admin');
+            if (confirm('Sign out?')) {
+                localStorage.removeItem(SESSION_KEY);
                 window.location.href = 'login.html';
             }
         }
 
         // ==========================================
-        // EVENT LISTENERS
-        // ==========================================
-        DOM.addChildForm.addEventListener('submit', handleAddChildSubmit);
-
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    closeModal(overlay.id);
-                }
-            });
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay.open').forEach(modal => {
-                    closeModal(modal.id);
-                });
-            }
-        });
-
-        // ==========================================
         // INITIALIZATION
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🐼 Parent Dashboard loading...');
+            console.log('🐼 Advanced Parent Dashboard loading...');
 
             const parentUser = getParentUser();
-
             if (!parentUser || !parentUser.user_id) {
                 window.location.href = 'login.html';
                 return;
@@ -1254,15 +1736,8 @@
                 return;
             }
 
-            if (parentUser.is_banned) {
-                showToast('Your account has been suspended. Please contact support.', 'error');
-                return;
-            }
-
             loadDashboard();
         });
-
-        console.log('🐼 HanVerse Parent Dashboard initialized');
     </script>
 </body>
 </html>

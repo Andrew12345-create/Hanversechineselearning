@@ -60,159 +60,18 @@
         /* ===== OFFLINE BANNER ===== */
         #offline-banner {
             display: none;
-            background: linear-gradient(135deg, #FF5722, #E64A19);
+            background: #FF5722;
             color: white;
             text-align: center;
-            padding: 10px 16px;
+            padding: 8px 16px;
             font-size: 14px;
             font-weight: 600;
             position: sticky;
             top: 0;
             z-index: 1001;
-            box-shadow: 0 4px 20px rgba(255, 87, 34, 0.3);
-            animation: slideDown 0.5s ease;
         }
         #offline-banner.show {
             display: block;
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        #offline-banner .banner-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        #offline-banner .banner-icon {
-            font-size: 20px;
-        }
-
-        #offline-banner .sync-btn {
-            background: white;
-            color: #E64A19;
-            border: none;
-            padding: 6px 20px;
-            border-radius: 999px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: .3s;
-        }
-
-        #offline-banner .sync-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        #offline-banner .sync-btn.syncing {
-            background: #FFD54F;
-            color: #333;
-            cursor: wait;
-        }
-
-        /* ===== CONNECTION STATUS IN NAV ===== */
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.online {
-            background: #4CAF50;
-        }
-        .status-dot.offline {
-            background: #FF5722;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.4;
-            }
-        }
-
-        .user-status-text {
-            font-size: .65rem;
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .user-status-text.online {
-            color: #4CAF50;
-        }
-        .user-status-text.offline {
-            color: #FF5722;
-        }
-
-        /* ===== MOBILE STATUS BAR (always visible) ===== */
-        #mobile-status {
-            display: none;
-            text-align: center;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #F8FAFC;
-            border-bottom: 1px solid var(--border);
-            transition: .3s;
-        }
-
-        #mobile-status.online {
-            color: #4CAF50;
-            background: #E8F5E9;
-        }
-
-        #mobile-status.offline {
-            color: #FF5722;
-            background: #FFEBEE;
-            animation: pulseBg 2s infinite;
-        }
-
-        @keyframes pulseBg {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.7;
-            }
-        }
-
-        #mobile-status .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-            vertical-align: middle;
-        }
-
-        #mobile-status .status-dot.online {
-            background: #4CAF50;
-        }
-        #mobile-status .status-dot.offline {
-            background: #FF5722;
-            animation: pulse 1s infinite;
         }
 
         /* ===== NAV ===== */
@@ -223,11 +82,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 5%;
+            padding: 14px 5%;
             background: rgba(255, 255, 255, .92);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0, 0, 0, .05);
+            transition: .3s;
+        }
+
+        nav.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
         }
 
         .logo {
@@ -270,15 +134,23 @@
             color: var(--primary);
         }
 
+        /* ===== USER CHIP IN NAVBAR (shows logged-in user) ===== */
         .user-chip {
             display: flex;
             align-items: center;
             gap: 10px;
             background: white;
-            padding: 6px 14px;
+            padding: 6px 14px 6px 10px;
             border-radius: 999px;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .user-chip:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, .1);
         }
 
         .user-avatar {
@@ -291,6 +163,7 @@
             background: #DBEAFE;
             font-size: 16px;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .user-avatar img {
@@ -299,9 +172,37 @@
             object-fit: cover;
         }
 
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
         .user-name {
             font-weight: 700;
-            font-size: .8rem;
+            font-size: .85rem;
+            color: var(--dark);
+        }
+
+        .user-status {
+            font-size: .65rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .user-status .premium-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #F59E0B;
+        }
+
+        .user-status .premium-text {
+            color: var(--accent);
+            font-weight: 600;
         }
 
         /* ===== HERO ===== */
@@ -885,41 +786,6 @@
             display: none;
         }
 
-        /* ===== TOAST NOTIFICATION ===== */
-        .toast {
-            position: fixed;
-            bottom: calc(120px + env(safe-area-inset-bottom));
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--dark);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 999px;
-            font-weight: 600;
-            font-size: 14px;
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            pointer-events: none;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            pointer-events: auto;
-        }
-
-        .toast.success {
-            background: var(--success);
-        }
-        .toast.error {
-            background: var(--red);
-        }
-        .toast.info {
-            background: var(--primary);
-        }
-
         /* ===== RESPONSIVE ===== */
         @media (max-width: 900px) {
             nav.top-nav .nav-links,
@@ -929,45 +795,41 @@
 
             nav.top-nav {
                 justify-content: center;
-                padding: 10px 5%;
+                padding: 12px 5%;
             }
 
-            /* Show mobile status bar */
-            #mobile-status {
-                display: block;
-            }
-
+            /* Show user info in bottom nav instead */
             .bottom-nav {
                 display: flex;
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                z-index: 1000;
-                background: rgba(255, 255, 255, .96);
+                background: rgba(255, 255, 255, 0.96);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
-                border-top: 1px solid var(--border);
                 justify-content: space-around;
                 padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
                 box-shadow: 0 -4px 20px rgba(0, 0, 0, .05);
+                z-index: 999;
+                border-top: 1px solid rgba(0, 0, 0, .05);
             }
 
             .bottom-nav a {
                 text-decoration: none;
-                text-align: center;
-                color: var(--muted);
+                color: #64748B;
                 font-size: .7rem;
                 font-weight: 500;
+                text-align: center;
                 flex: 1;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 2px;
+                gap: 4px;
             }
 
             .bottom-nav a.active {
-                color: var(--primary);
+                color: #2563EB;
                 font-weight: 600;
             }
 
@@ -975,17 +837,42 @@
                 font-size: 20px;
             }
 
+            /* Mobile user avatar in bottom nav */
+            .bottom-nav .mobile-user {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+            }
+
+            .bottom-nav .mobile-user .mini-avatar {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: #DBEAFE;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+
             .hero {
                 grid-template-columns: 1fr;
                 text-align: center;
-                padding: 24px 5% 30px;
-                gap: 24px;
+                padding: 40px 5%;
+                gap: 30px;
             }
 
+            .hero h1 {
+                font-size: 34px;
+            }
+            .hero p {
+                margin: 0 auto 24px;
+            }
             .hero-buttons {
                 justify-content: center;
+                width: 100%;
             }
-
             .hero-buttons .btn {
                 flex: 1;
                 min-width: 140px;
@@ -1037,12 +924,6 @@
                 right: 20px;
                 height: 400px;
             }
-
-            .toast {
-                bottom: calc(120px + env(safe-area-inset-bottom));
-                width: 90%;
-                text-align: center;
-            }
         }
 
         @media (max-width: 480px) {
@@ -1057,22 +938,10 @@
 <body>
 
     <!-- ===== OFFLINE BANNER ===== -->
-    <div id="offline-banner">
-        <div class="banner-content">
-            <span class="banner-icon">📡</span>
-            <span>You're offline. Progress is saved locally.</span>
-            <button class="sync-btn" onclick="forceSync()">🔄 Sync Now</button>
-        </div>
-    </div>
-
-    <!-- ===== MOBILE STATUS BAR (always visible on mobile) ===== -->
-    <div id="mobile-status">
-        <span class="status-dot online" id="mobileStatusDot"></span>
-        <span id="mobileStatusLabel">Online</span>
-    </div>
+    <div id="offline-banner">🔴 You're offline. Progress will sync when back online.</div>
 
     <!-- ===== NAV ===== -->
-    <nav class="top-nav">
+    <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
             <div class="logo-badge">🐼</div>
             Hanverse
@@ -1083,13 +952,15 @@
             <li><a href="worksheets.html">Worksheets</a></li>
             <li><a href="profile.html">Profile</a></li>
         </ul>
-        <div class="user-chip">
-            <div id="navUserAvatar" class="user-avatar">🐼</div>
-            <div>
-                <div id="navUsername" class="user-name">Learner</div>
-                <div id="connectionStatus" class="user-status-text">
-                    <span class="status-dot online" id="statusDot"></span>
-                    <span id="statusLabel">Online</span>
+        
+        <!-- ===== USER CHIP - SHOWS LOGGED IN USER ===== -->
+        <div class="user-chip" id="userChip" onclick="goToProfile()">
+            <div class="user-avatar" id="navUserAvatar">🐼</div>
+            <div class="user-info">
+                <div class="user-name" id="navUsername">Loading...</div>
+                <div class="user-status" id="navUserStatus">
+                    <span class="premium-dot"></span>
+                    <span>Loading...</span>
                 </div>
             </div>
         </div>
@@ -1302,9 +1173,9 @@
             <div class="nav-icon">👤</div>
             Profile
         </a>
-        <a href="settings.html">
-            <div class="nav-icon">⚙️</div>
-            Settings
+        <a href="#" onclick="logout()">
+            <div class="nav-icon">🚪</div>
+            Logout
         </a>
     </nav>
 
@@ -1329,333 +1200,52 @@
         </div>
     </div>
 
-    <!-- ===== TOAST ===== -->
-    <div id="toast" class="toast"></div>
-
     <!-- ============================================================ -->
     <!-- ===== JAVASCRIPT ===== -->
     <!-- ============================================================ -->
     <script>
         // ============================================================
-        // CONFIGURATION
+        // SESSION KEY (same as profile.html)
         // ============================================================
         const SESSION_KEY = 'hanverse_user';
-        const OFFLINE_QUEUE_KEY = 'hanverse_offline_queue';
-        const OFFLINE_PROGRESS_KEY = 'hanverse_offline_progress';
+        
+        // ============================================================
+        // API URL
+        // ============================================================
+        const getBaseURL = () => {
+            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+                return "http://localhost:8888/.netlify/functions/server"; 
+            }
+            return "/api"; 
+        };
+        const API_URL = getBaseURL();
 
         // ============================================================
-        // DOM REFS
+        // OFFLINE DETECTION
         // ============================================================
         const offlineBanner = document.getElementById('offline-banner');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const statusDot = document.getElementById('statusDot');
-        const statusLabel = document.getElementById('statusLabel');
-        const continueBtn = document.getElementById('continueBtn');
-        const toast = document.getElementById('toast');
 
-        // Mobile status elements
-        const mobileStatus = document.getElementById('mobile-status');
-        const mobileStatusDot = document.getElementById('mobileStatusDot');
-        const mobileStatusLabel = document.getElementById('mobileStatusLabel');
-
-        // ============================================================
-        // 1. OFFLINE DETECTION & UI
-        // ============================================================
-        function updateConnectionStatus() {
-            const isOnline = navigator.onLine;
-
-            // ---- Desktop / Tablet Status ----
-            if (isOnline) {
-                offlineBanner.classList.remove('show');
-                statusDot.className = 'status-dot online';
-                statusLabel.textContent = 'Online';
-                connectionStatus.className = 'user-status-text online';
-                continueBtn.className = 'btn btn-primary';
-                continueBtn.disabled = false;
-                continueBtn.textContent = '🚀 Continue Learning';
-            } else {
-                offlineBanner.classList.add('show');
-                statusDot.className = 'status-dot offline';
-                statusLabel.textContent = 'Offline';
-                connectionStatus.className = 'user-status-text offline';
-                continueBtn.className = 'btn btn-offline';
-                continueBtn.disabled = true;
-                continueBtn.textContent = '📡 Offline - Waiting for Connection';
-            }
-
-            // ---- Mobile Status Bar ----
-            if (isOnline) {
-                mobileStatus.className = 'online';
-                mobileStatusDot.className = 'status-dot online';
-                mobileStatusLabel.textContent = '🟢 Online';
-            } else {
-                mobileStatus.className = 'offline';
-                mobileStatusDot.className = 'status-dot offline';
-                mobileStatusLabel.textContent = '🔴 Offline - Data saved locally';
-            }
-        }
-
-        // Listen for online/offline events
-        window.addEventListener('online', () => {
-            updateConnectionStatus();
-            showToast('🟢 Back online! Syncing data...', 'success');
-            setTimeout(forceSync, 1000);
-        });
-
-        window.addEventListener('offline', () => {
-            updateConnectionStatus();
-            showToast('🔴 You are offline. Progress is saved locally.', 'error');
-        });
-
-        // ============================================================
-        // 2. TOAST NOTIFICATIONS
-        // ============================================================
-        let toastTimeout;
-
-        function showToast(message, type = 'info') {
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            void toast.offsetWidth;
-            toast.classList.add('show');
-
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // ============================================================
-        // 3. OFFLINE STORAGE FUNCTIONS
-        // ============================================================
-
-        function saveProgressLocally(lessonId, score, xpEarned) {
-            const user = getCurrentUser();
-            if (!user) return;
-
-            try {
-                let progress = JSON.parse(localStorage.getItem(OFFLINE_PROGRESS_KEY) || '{}');
-
-                progress[`${user.id}_${lessonId}`] = {
-                    lessonId,
-                    completed: true,
-                    score: score || 100,
-                    xpEarned: xpEarned || 10,
-                    timestamp: new Date().toISOString()
-                };
-
-                localStorage.setItem(OFFLINE_PROGRESS_KEY, JSON.stringify(progress));
-
-                queueForSync('progress', {
-                    userId: user.id,
-                    lessonId,
-                    score: score || 100,
-                    xpEarned: xpEarned || 10,
-                    timestamp: new Date().toISOString()
-                });
-
-                updateLocalDashboard(user.id);
-                showToast('✅ Progress saved locally!', 'success');
-
-            } catch (error) {
-                console.error('Error saving progress:', error);
-                showToast('⚠️ Could not save progress', 'error');
-            }
-        }
-
-        function queueForSync(type, data) {
-            try {
-                let queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
-                queue.push({
-                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    type: type,
-                    data: data,
-                    timestamp: new Date().toISOString()
-                });
-                localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-                updateQueueBadge(queue.length);
-            } catch (error) {
-                console.error('Error queueing for sync:', error);
-            }
-        }
-
-        function updateQueueBadge(count) {
-            // Update mobile status to show queue count
-            if (count > 0 && !navigator.onLine) {
-                mobileStatusLabel.textContent = `📡 ${count} items queued`;
-            } else if (navigator.onLine) {
-                mobileStatusLabel.textContent = '🟢 Online';
-            } else {
-                mobileStatusLabel.textContent = '🔴 Offline';
-            }
-        }
-
-        // ============================================================
-        // 4. SYNC TO DB
-        // ============================================================
-        async function forceSync() {
+        function updateOfflineStatus() {
             if (!navigator.onLine) {
-                showToast('❌ Cannot sync: You are offline', 'error');
-                return;
+                offlineBanner.classList.add('show');
+            } else {
+                offlineBanner.classList.remove('show');
             }
-
-            const syncBtn = document.querySelector('.sync-btn');
-            if (syncBtn) {
-                syncBtn.textContent = '⏳ Syncing...';
-                syncBtn.classList.add('syncing');
-                syncBtn.disabled = true;
-            }
-
-            try {
-                const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
-                if (queue.length === 0) {
-                    showToast('✅ No data to sync', 'success');
-                    if (syncBtn) {
-                        syncBtn.textContent = '🔄 Sync Now';
-                        syncBtn.classList.remove('syncing');
-                        syncBtn.disabled = false;
-                    }
-                    return;
-                }
-
-                showToast(`🔄 Syncing ${queue.length} items...`, 'info');
-
-                const results = [];
-                for (const item of queue) {
-                    try {
-                        const result = await syncItem(item);
-                        results.push({ ...item, success: true, result });
-                    } catch (error) {
-                        console.error('Sync failed for item:', item, error);
-                        results.push({ ...item, success: false, error: error.message });
-                    }
-                }
-
-                const failed = results.filter(r => !r.success);
-                if (failed.length === 0) {
-                    localStorage.removeItem(OFFLINE_QUEUE_KEY);
-                    showToast(`✅ All ${queue.length} items synced!`, 'success');
-                } else {
-                    const failedData = failed.map(f => ({
-                        id: f.id,
-                        type: f.type,
-                        data: f.data,
-                        timestamp: f.timestamp
-                    }));
-                    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(failedData));
-                    showToast(`⚠️ ${failed.length}/${queue.length} items synced.`, 'error');
-                }
-
-                const user = getCurrentUser();
-                if (user) {
-                    await fetchUserData(user.id);
-                }
-
-            } catch (error) {
-                console.error('Sync error:', error);
-                showToast('❌ Sync failed: ' + error.message, 'error');
-            }
-
-            if (syncBtn) {
-                syncBtn.textContent = '🔄 Sync Now';
-                syncBtn.classList.remove('syncing');
-                syncBtn.disabled = false;
-            }
-
-            const remaining = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
-            updateQueueBadge(remaining.length);
         }
 
-        async function syncItem(item) {
-            // REPLACE THIS with your actual API call
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    console.log(`✅ Synced ${item.type}:`, item.data);
-                    resolve({ synced: true, itemId: item.id });
-                }, 500);
-            });
-        }
+        window.addEventListener('online', updateOfflineStatus);
+        window.addEventListener('offline', updateOfflineStatus);
+        updateOfflineStatus();
 
         // ============================================================
-        // 5. USER DATA MANAGEMENT
+        // NAVBAR SCROLL
         // ============================================================
-        function getCurrentUser() {
-            try {
-                return JSON.parse(localStorage.getItem(SESSION_KEY));
-            } catch {
-                return null;
-            }
-        }
-
-        function updateLocalDashboard(userId) {
-            try {
-                const progress = JSON.parse(localStorage.getItem(OFFLINE_PROGRESS_KEY) || '{}');
-                const userProgress = Object.values(progress).filter(p => p.userId === userId || p.userId === undefined);
-
-                const completed = userProgress.filter(p => p.completed).length;
-                const totalXP = userProgress.reduce((sum, p) => sum + (p.xpEarned || 0), 0);
-
-                document.getElementById('lessonValue').textContent = completed;
-                document.getElementById('xpValue').textContent = totalXP;
-
-                const streak = JSON.parse(localStorage.getItem('hanverse_streak') || '{"count":0}');
-                document.getElementById('streakValue').textContent = streak.count || 0;
-
-            } catch (error) {
-                console.error('Error updating dashboard:', error);
-            }
-        }
-
-        async function fetchUserData(userId) {
-            if (navigator.onLine) {
-                try {
-                    const response = await fetch(`/api/user/${userId}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        document.getElementById('xpValue').textContent = data.xp || 0;
-                        document.getElementById('lessonValue').textContent = data.lessons_completed || 0;
-                        document.getElementById('streakValue').textContent = data.streak_days || 0;
-                        document.getElementById('levelValue').textContent = data.level || 1;
-                        return;
-                    }
-                } catch (error) {
-                    console.warn('Could not fetch user data from server, using local');
-                }
-            }
-            updateLocalDashboard(userId);
-        }
+        window.addEventListener("scroll", () => {
+            document.querySelector("nav.top-nav").classList.toggle("scrolled", window.scrollY > 20);
+        });
 
         // ============================================================
-        // 6. COMPLETE LESSON
-        // ============================================================
-        function completeLesson() {
-            const user = getCurrentUser();
-            if (!user) {
-                showToast('⚠️ Please login first', 'error');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const lessonId = 'lesson_' + Math.floor(Math.random() * 10) + 1;
-            const score = Math.floor(Math.random() * 30) + 70;
-            const xpEarned = Math.floor(Math.random() * 15) + 5;
-
-            saveProgressLocally(lessonId, score, xpEarned);
-
-            if (navigator.onLine) {
-                setTimeout(forceSync, 1000);
-            }
-
-            const btn = continueBtn;
-            btn.textContent = '✅ Completed! +' + xpEarned + ' XP';
-            btn.style.background = '#10B981';
-            setTimeout(() => {
-                btn.textContent = '🚀 Continue Learning';
-                btn.style.background = '';
-            }, 3000);
-        }
-
-        // ============================================================
-        // 7. PANDA CHAT
+        // PANDA CHAT
         // ============================================================
         function togglePanda() {
             const chat = document.getElementById('pandaChat');
@@ -1715,11 +1305,242 @@
                         sendPandaMessage();
                     }
                 });
+                input.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+                });
             }
         });
 
         // ============================================================
-        // 8. PLACEMENT FUNCTIONS
+        // LOAD USER FROM SESSION (same as profile.html)
+        // ============================================================
+const sessionData = localStorage.getItem(SESSION_KEY);
+
+if (!sessionData) {
+    console.warn("No user session found.");
+    window.location.href = "login.html";
+    return;
+}
+
+const user = JSON.parse(sessionData);
+
+                const session = JSON.parse(sessionData);
+                
+                if (!session || !session.user_id) {
+                    console.error("Session missing user_id. Redirecting to login.");
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                console.log('👤 User loaded from session:', session.username || session.full_name);
+                return session;
+                
+            } catch (error) {
+                console.error("Session load error:", error);
+                window.location.href = 'login.html';
+                return null;
+            }
+        }
+
+        // ============================================================
+        // FETCH USER DATA FROM API
+        // ============================================================
+        async function fetchUserData(userId) {
+            try {
+                console.log(`📡 Fetching user data: ${API_URL}/user/${userId}`);
+                
+                const response = await fetch(`${API_URL}/user/${userId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} (${response.statusText})`);
+                }
+
+                const data = await response.json();
+                
+                if (!data || !data.user) {
+                    throw new Error("Invalid user data received from server.");
+                }
+
+                return data.user;
+                
+            } catch (error) {
+                console.error("Fetch error:", error);
+                return null;
+            }
+        }
+
+        // ============================================================
+        // UPDATE NAVBAR WITH USER INFO
+        // ============================================================
+        function updateNavbar(user) {
+            if (!user) return;
+
+            const avatarEl = document.getElementById('navUserAvatar');
+            const nameEl = document.getElementById('navUsername');
+            const statusEl = document.getElementById('navUserStatus');
+
+            // Set name
+            const displayName = user.full_name || user.username || 'Learner';
+            nameEl.textContent = displayName;
+
+            // Set avatar
+            if (user.profile_picture) {
+                avatarEl.innerHTML = `<img src="${user.profile_picture}" alt="Avatar">`;
+            } else {
+                avatarEl.textContent = '🐼';
+            }
+
+            // Set status (premium or free)
+const isPremium =
+    user.premium ||
+    user.premium_until;
+             else {
+                statusEl.innerHTML = `
+                    <span class="premium-dot" style="background: #94A3B8;"></span>
+                    <span>Free Member</span>
+                `;
+            }
+
+            console.log('✅ Navbar updated for:', displayName);
+        }
+
+        // ============================================================
+        // UPDATE DASHBOARD
+        // ============================================================
+        function updateDashboard(user) {
+            if (!user) return;
+
+            document.getElementById('xpValue').textContent = user.xp || 0;
+            document.getElementById('streakValue').textContent = user.streak_days || 0;
+            document.getElementById('levelValue').textContent = user.level || 1;
+            
+            // Get lessons from localStorage or fallback
+            try {
+                const progress = JSON.parse(localStorage.getItem('hanverse_offline_progress') || '{}');
+                const userProgress = Object.values(progress).filter(p => p.userId === user.user_id || p.userId === undefined);
+                const completed = userProgress.filter(p => p.completed).length;
+                document.getElementById('lessonValue').textContent = completed || user.lessons_completed || 0;
+            } catch (e) {
+                document.getElementById('lessonValue').textContent = user.lessons_completed || 0;
+            }
+        }
+
+        // ============================================================
+        // COMPLETE LESSON
+        // ============================================================
+        const OFFLINE_QUEUE_KEY = 'hanverse_offline_queue';
+        const OFFLINE_PROGRESS_KEY = 'hanverse_offline_progress';
+
+        function saveProgressLocally(lessonId, score, xpEarned) {
+            const session = loadUserFromSession();
+            if (!session) return;
+
+            try {
+                let progress = JSON.parse(localStorage.getItem(OFFLINE_PROGRESS_KEY) || '{}');
+
+                progress[`${session.user_id}_${lessonId}`] = {
+                    lessonId,
+                    completed: true,
+                    score: score || 100,
+                    xpEarned: xpEarned || 10,
+                    timestamp: new Date().toISOString(),
+                    userId: session.user_id
+                };
+
+                localStorage.setItem(OFFLINE_PROGRESS_KEY, JSON.stringify(progress));
+
+                let queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+                queue.push({
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    type: 'progress',
+                    data: {
+                        userId: session.user_id,
+                        lessonId,
+                        score: score || 100,
+                        xpEarned: xpEarned || 10,
+                        timestamp: new Date().toISOString()
+                    },
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+
+                updateDashboard(session);
+                showToast('✅ Progress saved locally!');
+
+            } catch (error) {
+                console.error('Error saving progress:', error);
+            }
+        }
+
+        async function forceSync() {
+            if (!navigator.onLine) {
+                showToast('❌ Cannot sync: You are offline');
+                return;
+            }
+
+            try {
+                const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+                if (queue.length === 0) {
+                    showToast('✅ No data to sync');
+                    return;
+                }
+
+                showToast(`🔄 Syncing ${queue.length} items...`);
+
+                for (const item of queue) {
+                    console.log(`Syncing ${item.type}:`, item.data);
+                }
+
+                localStorage.removeItem(OFFLINE_QUEUE_KEY);
+                showToast(`✅ All ${queue.length} items synced!`);
+
+                const session = loadUserFromSession();
+                if (session) {
+                    updateDashboard(session);
+                }
+
+            } catch (error) {
+                console.error('Sync error:', error);
+                showToast('❌ Sync failed: ' + error.message);
+            }
+        }
+
+        function completeLesson() {
+            const session = loadUserFromSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const lessonId = 'lesson_' + Math.floor(Math.random() * 10) + 1;
+            const score = Math.floor(Math.random() * 30) + 70;
+            const xpEarned = Math.floor(Math.random() * 15) + 5;
+
+            saveProgressLocally(lessonId, score, xpEarned);
+
+            if (navigator.onLine) {
+                setTimeout(forceSync, 1000);
+            }
+
+            const btn = document.getElementById('continueBtn');
+            btn.textContent = '✅ Completed! +' + xpEarned + ' XP';
+            btn.style.background = '#10B981';
+            setTimeout(() => {
+                btn.textContent = '🚀 Continue Learning';
+                btn.style.background = '';
+            }, 3000);
+        }
+
+        // ============================================================
+        // TOAST
+        // ============================================================
+        function showToast(message) {
+            console.log(message);
+        }
+
+        // ============================================================
+        // PLACEMENT FUNCTIONS
         // ============================================================
         function recommendLevel() {
             const level = document.getElementById('levelSelect').value;
@@ -1734,11 +1555,11 @@
         }
 
         function takeAssessment() {
-            showToast('🚀 Assessment coming soon!', 'info');
+            alert('🚀 Assessment coming soon!');
         }
 
         // ============================================================
-        // 9. PREMIUM POPUP
+        // PREMIUM POPUP
         // ============================================================
         function showPremiumPopup() {
             document.getElementById('premiumPopup').style.display = 'block';
@@ -1760,26 +1581,45 @@
         });
 
         // ============================================================
-        // 10. INITIALIZATION
+        // GO TO PROFILE
         // ============================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            updateConnectionStatus();
+        function goToProfile() {
+            window.location.href = 'profile.html';
+        }
 
-            const user = getCurrentUser();
-            if (user) {
-                document.getElementById('navUsername').textContent = user.username || 'Learner';
-                fetchUserData(user.id);
+        // ============================================================
+        // LOGOUT
+        // ============================================================
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem(SESSION_KEY);
+                window.location.href = 'login.html';
             }
+        }
 
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Load session
+            const session = loadUserFromSession();
+            if (!session) return;
+
+            // 2. Fetch fresh user data from API
+            const user = await fetchUserData(session.user_id);
+            
+            // 3. Update UI with user data (use fetched or session fallback)
+            const userData = user || session;
+            updateNavbar(userData);
+            updateDashboard(userData);
+
+            // 4. Check for pending sync
             const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
             if (queue.length > 0 && navigator.onLine) {
-                showToast(`🔄 ${queue.length} items pending sync...`, 'info');
                 setTimeout(forceSync, 2000);
-            } else if (queue.length > 0 && !navigator.onLine) {
-                showToast(`📡 ${queue.length} items queued for sync`, 'info');
-                mobileStatusLabel.textContent = `📡 ${queue.length} queued`;
             }
 
+            // 5. Auto-sync every 5 minutes
             setInterval(() => {
                 if (navigator.onLine) {
                     const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
@@ -1790,12 +1630,14 @@
             }, 300000);
 
             console.log('🐼 HanVerse Learn Page Loaded');
-            console.log(`📊 Queue size: ${queue.length}`);
+            console.log(`👤 User: ${userData.username || userData.full_name}`);
             console.log(`📡 Status: ${navigator.onLine ? 'Online' : 'Offline'}`);
+            console.log(`⭐ Premium: ${userData.premium || userData.premium_until ? 'Yes' : 'No'}`);
         });
 
-        // Expose functions globally
-        window.forceSync = forceSync;
+        // ============================================================
+        // EXPOSE FUNCTIONS GLOBALLY
+        // ============================================================
         window.completeLesson = completeLesson;
         window.togglePanda = togglePanda;
         window.sendPandaMessage = sendPandaMessage;
@@ -1803,6 +1645,9 @@
         window.closePremiumPopup = closePremiumPopup;
         window.recommendLevel = recommendLevel;
         window.takeAssessment = takeAssessment;
+        window.forceSync = forceSync;
+        window.goToProfile = goToProfile;
+        window.logout = logout;
     </script>
 
 </body>

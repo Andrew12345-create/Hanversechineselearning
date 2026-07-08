@@ -288,6 +288,645 @@ router.get('/routes', (req, res) => {
     ]
   });
 });
+
+// ==========================================
+// ⭐ USER PROFILE ROUTE (ONLY ONE - FIXED) ⭐
+// ==========================================
+router.get('/user/:userId', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { userId } = req.params;
+
+    const result = await pool.query(
+      `SELECT user_id, username, full_name, email, xp, level, streak_days, 
+              profile_picture, is_admin, is_banned, banned_reason, is_verified, 
+              premium, premium_until, current_yct, current_hsk, chinese_level, role
+       FROM users WHERE user_id = $1`,
+      [userId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    const user = result.rows[0];
+    
+    // Return with BOTH id and user_id for compatibility
+    return res.json({
+      success: true,
+      user: {
+        user_id: user.user_id,
+        id: user.user_id,  // <-- IMPORTANT: Add this for frontend compatibility
+        username: user.username,
+        full_name: user.full_name,
+        fullName: user.full_name,  // <-- Add this too
+        email: user.email,
+        xp: user.xp || 0,
+        level: user.level || 1,
+        streak_days: user.streak_days || 0,
+        profile_picture: user.profile_picture || null,
+        is_admin: user.is_admin || false,
+        is_banned: user.is_banned || false,
+        banned_reason: user.banned_reason || null,
+        is_verified: user.is_verified || false,
+        premium: user.premium || false,
+        is_premium: user.premium || false,  // <-- Add this
+        premium_until: user.premium_until || null,
+        current_yct: user.current_yct || 1,
+        current_hsk: user.current_hsk || 0,
+        chinese_level: user.chinese_level || "YCT 1",
+        role: user.role || 'student'
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Profile error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch user profile.'
+    });
+  }
+});
+// ==========================================
+// PARENT PASSWORD VERIFICATION 🔐
+// ==========================================
+
+router.post('/verify-parent-password', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { parentId, password } = req.body || {};
+
+    if (!parentId || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Parent ID and password are required.'
+      });
+    }
+
+    // Get the parent user from database
+    const result = await pool.query(
+      `SELECT user_id, password_hash, is_verified, is_banned 
+       FROM users 
+       WHERE user_id = $1 AND role = 'parent'`,
+      [parentId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Parent account not found.'
+      });
+    }
+
+    const parent = result.rows[0];
+
+    // Check if parent is verified
+    if (!parent.is_verified) {
+      return res.status(403).json({
+        success: false,
+        error: 'Parent account is not verified.'
+      });
+    }
+
+    // Check if parent is banned
+    if (parent.is_banned) {
+      return res.status(403).json({
+        success: false,
+        error: 'Parent account is banned.'
+      });
+    }
+
+    // Verify password
+    const isValid = await bcrypt.compare(password, parent.password_hash);
+    if (!isValid) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid password. Please try again.'
+      });
+    }
+
+    // Password is correct
+    return res.json({
+      success: true,
+      message: 'Password verified successfully.',
+      parent: {
+        user_id: parent.user_id,
+        is_verified: parent.is_verified,
+        is_banned: parent.is_banned
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Parent password verification error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Verification failed. Please try again.'
+    });
+  }
+});
+
+// ==========================================
+// GET SINGLE CHILD BY ID (for child profile)
+// ==========================================
+
+router.get('/parents/child/:childId', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { childId } = req.params;
+    const parentId = req.query.parentId || req.headers['x-parent-id'];
+
+    console.log('🔍=== FETCHING CHILD PROFILE ===');
+    console.log('📥 Child ID:', childId);
+    console.log('📥 Parent ID (from query):', parentId);
+
+    if (!parentId) {
+      console.log('❌ No parent ID provided');
+      return res.status(400).json({
+        success: false,
+        error: 'Parent ID is required.'
+      });
+    }
+
+    // 1. First, get the child data
+    console.log('📊 Querying for child...');
+    const childResult = await pool.query(`
+      SELECT 
+        c.child_id,
+        c.user_id,
+        c.parent_id,
+        c.full_name,
+        c.age,
+        c.level,
+        c.xp,
+        c.streak_days as streak,
+        c.lessons_completed,
+        c.achievements_count as achievements,
+        c.progress_percentage as progress,
+        c.is_active,
+        c.is_banned,
+        c.created_at,
+        c.last_active,
+        c.last_lesson_at,
+        c.username,
+        c.email,
+        c.current_yct,
+        c.current_hsk,
+        c.days_active
+      FROM children c
+      WHERE c.child_id = $1
+    `, [childId]);
+
+    console.log('📊 Child query result:', childResult.rows.length > 0 ? 'FOUND' : 'NOT FOUND');
+
+    if (!childResult.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Child not found.'
+      });
+    }
+
+    const child = childResult.rows[0];
+    console.log('📊 Child data:', {
+      child_id: child.child_id,
+      full_name: child.full_name,
+      parent_id: child.parent_id,
+      user_id: child.user_id
+    });
+
+    // 2. Verify parent exists (parent is a USER with role='parent')
+    console.log('🔍 Verifying parent user...');
+    const parentCheck = await pool.query(
+      `SELECT user_id, is_verified, is_banned, role FROM users WHERE user_id = $1`,
+      [parentId]
+    );
+
+    console.log('📊 Parent check:', parentCheck.rows.length > 0 ? 'FOUND' : 'NOT FOUND');
+    if (parentCheck.rows.length > 0) {
+      console.log('📊 Parent role:', parentCheck.rows[0].role);
+    }
+
+    if (!parentCheck.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Parent user not found.'
+      });
+    }
+
+    const parentUser = parentCheck.rows[0];
+
+    if (parentUser.role !== 'parent') {
+      console.log('❌ User is not a parent. Role:', parentUser.role);
+      return res.status(403).json({
+        success: false,
+        error: 'User is not a parent.'
+      });
+    }
+
+    if (!parentUser.is_verified) {
+      return res.status(403).json({
+        success: false,
+        error: 'Parent account is not verified.'
+      });
+    }
+
+    if (parentUser.is_banned) {
+      return res.status(403).json({
+        success: false,
+        error: 'Parent account is banned.'
+      });
+    }
+
+    // 3. Verify ownership - child's parent_id must match parent's parent_id
+    console.log('🔍 Verifying ownership...');
+    console.log('  - Child parent_id:', child.parent_id);
+    console.log('  - Parent user_id:', parentId);
+
+    // First, get the parent's parent_id from the parents table
+    const parentRecordCheck = await pool.query(
+      `SELECT parent_id FROM parents WHERE user_id = $1`,
+      [parentId]
+    );
+
+    console.log('📊 Parent record check:', parentRecordCheck.rows.length > 0 ? 'FOUND' : 'NOT FOUND');
+    
+    if (parentRecordCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Parent record not found. Please contact support.'
+      });
+    }
+
+    const parentRecordId = parentRecordCheck.rows[0].parent_id;
+    console.log('  - Parent record ID:', parentRecordId);
+    console.log('  - Child parent_id:', child.parent_id);
+
+    // Check if they match
+    if (child.parent_id !== parentRecordId) {
+      console.log('❌ Ownership mismatch!');
+      console.log('  - Child belongs to parent_id:', child.parent_id);
+      console.log('  - Parent user owns parent_id:', parentRecordId);
+      
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. This child does not belong to you.',
+        debug: {
+          childParentId: child.parent_id,
+          parentRecordId: parentRecordId,
+          parentUserId: parentId
+        }
+      });
+    }
+
+    console.log('✅ Ownership verified!');
+
+    // 4. Return the child data
+    return res.json({
+      success: true,
+      child: {
+        child_id: child.child_id,
+        user_id: child.user_id,
+        parent_id: child.parent_id,
+        full_name: child.full_name,
+        age: child.age,
+        level: child.level || 'YCT 1',
+        xp: child.xp || 0,
+        streak: child.streak || 0,
+        lessons_completed: child.lessons_completed || 0,
+        achievements: child.achievements || 0,
+        progress: child.progress || 0,
+        is_active: child.is_active !== false,
+        is_banned: child.is_banned || false,
+        created_at: child.created_at,
+        last_active: child.last_active,
+        last_lesson_at: child.last_lesson_at,
+        username: child.username || '',
+        email: child.email || '',
+        current_yct: child.current_yct || 1,
+        current_hsk: child.current_hsk || 0,
+        days_active: child.days_active || 0
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ ERROR in /parents/child/:childId:', error);
+    console.error('❌ Error stack:', error.stack);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch child profile.',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+// ==========================================
+// UPDATE CHILD (for editable fields)
+// ==========================================
+
+router.put('/parents/child/:childId', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { childId } = req.params;
+    const { name, age, level, email, parentId } = req.body || {};
+
+    if (!parentId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Parent ID is required.'
+      });
+    }
+
+    // Verify parent exists and is verified
+    const parentCheck = await pool.query(
+      `SELECT user_id, is_verified FROM users WHERE user_id = $1 AND role = 'parent'`,
+      [parentId]
+    );
+
+    if (!parentCheck.rows.length || !parentCheck.rows[0].is_verified) {
+      return res.status(403).json({
+        success: false,
+        error: 'Parent not verified.'
+      });
+    }
+
+    // Verify child belongs to parent
+    const childCheck = await pool.query(
+      `SELECT child_id FROM children WHERE child_id = $1 AND parent_id = $2`,
+      [childId, parentId]
+    );
+
+    if (!childCheck.rows.length) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. This child does not belong to you.'
+      });
+    }
+
+    // Build update query dynamically
+    let updates = [];
+    let values = [];
+    let paramIndex = 1;
+
+    if (name !== undefined && name !== null) {
+      updates.push(`full_name = $${paramIndex}`);
+      values.push(name.trim());
+      paramIndex++;
+    }
+
+    if (age !== undefined && age !== null) {
+      updates.push(`age = $${paramIndex}`);
+      values.push(parseInt(age));
+      paramIndex++;
+    }
+
+    if (level !== undefined && level !== null) {
+      updates.push(`level = $${paramIndex}`);
+      values.push(level);
+      paramIndex++;
+    }
+
+    if (email !== undefined && email !== null) {
+      updates.push(`email = $${paramIndex}`);
+      values.push(email.trim().toLowerCase());
+      paramIndex++;
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No fields to update.'
+      });
+    }
+
+    updates.push(`updated_at = NOW()`);
+    values.push(childId);
+
+    const query = `
+      UPDATE children 
+      SET ${updates.join(', ')} 
+      WHERE child_id = $${paramIndex}
+      RETURNING child_id, full_name, age, level, email
+    `;
+
+    const result = await pool.query(query, values);
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Child not found.'
+      });
+    }
+
+    // Also update the user table if email changed
+    if (email !== undefined && email !== null) {
+      await pool.query(
+        `UPDATE users SET email = $1 WHERE user_id = (SELECT user_id FROM children WHERE child_id = $2)`,
+        [email.trim().toLowerCase(), childId]
+      );
+    }
+
+    return res.json({
+      success: true,
+      message: 'Child updated successfully.',
+      child: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Error updating child:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update child.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// ==========================================
+// GET CHILD ACTIVITY
+// ==========================================
+
+router.get('/parents/child/:childId/activity', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { childId } = req.params;
+    const parentId = req.query.parentId || req.headers['x-parent-id'];
+
+    if (!parentId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Parent ID is required.'
+      });
+    }
+
+    // Verify child belongs to parent
+    const childCheck = await pool.query(
+      `SELECT child_id FROM children WHERE child_id = $1 AND parent_id = $2`,
+      [childId, parentId]
+    );
+
+    if (!childCheck.rows.length) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied.'
+      });
+    }
+
+    // Fetch activities from child_activities table
+    const activitiesResult = await pool.query(`
+      SELECT 
+        activity_id,
+        type,
+        message,
+        created_at
+      FROM child_activities
+      WHERE child_id = $1
+      ORDER BY created_at DESC
+      LIMIT 20
+    `, [childId]);
+
+    return res.json({
+      success: true,
+      activities: activitiesResult.rows || []
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching child activities:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch activities.'
+    });
+  }
+});
+
+
+// ==========================================
+// UPDATE CHILD (for editable fields)
+// ==========================================
+
+router.put('/parents/child/:childId', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { childId } = req.params;
+    const { name, age, level, email, parentId } = req.body || {};
+
+    if (!parentId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Parent ID is required.'
+      });
+    }
+
+    // Verify parent exists and is verified
+    const parentCheck = await pool.query(
+      `SELECT user_id, is_verified FROM users WHERE user_id = $1 AND role = 'parent'`,
+      [parentId]
+    );
+
+    if (!parentCheck.rows.length || !parentCheck.rows[0].is_verified) {
+      return res.status(403).json({
+        success: false,
+        error: 'Parent not verified.'
+      });
+    }
+
+    // Verify child belongs to parent
+    const childCheck = await pool.query(
+      `SELECT child_id FROM children WHERE child_id = $1 AND parent_id = $2`,
+      [childId, parentId]
+    );
+
+    if (!childCheck.rows.length) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. This child does not belong to you.'
+      });
+    }
+
+    // Build update query dynamically
+    let updates = [];
+    let values = [];
+    let paramIndex = 1;
+
+    if (name !== undefined) {
+      updates.push(`full_name = $${paramIndex}`);
+      values.push(name);
+      paramIndex++;
+    }
+
+    if (age !== undefined) {
+      updates.push(`age = $${paramIndex}`);
+      values.push(age);
+      paramIndex++;
+    }
+
+    if (level !== undefined) {
+      updates.push(`level = $${paramIndex}`);
+      values.push(level);
+      paramIndex++;
+    }
+
+    if (email !== undefined) {
+      updates.push(`email = $${paramIndex}`);
+      values.push(email);
+      paramIndex++;
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No fields to update.'
+      });
+    }
+
+    updates.push(`updated_at = NOW()`);
+    values.push(childId);
+
+    const query = `
+      UPDATE children 
+      SET ${updates.join(', ')} 
+      WHERE child_id = $${paramIndex}
+      RETURNING child_id, full_name, age, level, email
+    `;
+
+    const result = await pool.query(query, values);
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Child not found.'
+      });
+    }
+
+    // Also update the user table if needed (for email, etc.)
+    if (email !== undefined) {
+      await pool.query(
+        `UPDATE users SET email = $1 WHERE user_id = (SELECT user_id FROM children WHERE child_id = $2)`,
+        [email, childId]
+      );
+    }
+
+    return res.json({
+      success: true,
+      message: 'Child updated successfully.',
+      child: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Error updating child:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update child.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
 // ==========================================
 // CHILDREN ENDPOINTS 👶
 // ==========================================
@@ -384,7 +1023,6 @@ router.get('/parents/children/:parentId', async (req, res) => {
     }
 });
 
-// POST: Add a new child
 // POST: Add a new child (with username, email, password)
 router.post('/parents/children', async (req, res) => {
     try {
@@ -660,6 +1298,7 @@ router.post('/parents/children', async (req, res) => {
         });
     }
 });
+
 // GET: Fetch child activity feed
 router.get('/parents/activity/:parentId', async (req, res) => {
     try {
@@ -721,65 +1360,7 @@ router.get('/parents/activity/:parentId', async (req, res) => {
     }
 });
 
-// GET: Fetch single child profile
-router.get('/parents/child/:childId', async (req, res) => {
-    try {
-        if (!ensurePool(res)) return;
 
-        const { childId } = req.params;
-
-        const result = await pool.query(`
-            SELECT 
-                c.child_id,
-                c.user_id,
-                c.parent_id,
-                c.full_name,
-                c.age,
-                c.date_of_birth,
-                c.grade_level,
-                c.level,
-                c.xp,
-                c.streak_days,
-                c.lessons_completed,
-                c.achievements_count,
-                c.progress_percentage,
-                c.is_active,
-                c.is_banned,
-                c.created_at,
-                c.last_active,
-                c.last_lesson_at,
-                c.notes,
-                c.learning_preferences,
-                u.username,
-                u.email,
-                p.full_name as parent_name,
-                p.email as parent_email
-            FROM children c
-            LEFT JOIN users u ON c.user_id = u.user_id
-            LEFT JOIN parents p ON c.parent_id = p.parent_id
-            WHERE c.child_id = $1
-        `, [childId]);
-
-        if (!result.rows.length) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Child not found.' 
-            });
-        }
-
-        return res.json({
-            success: true,
-            child: result.rows[0]
-        });
-
-    } catch (error) {
-        console.error('❌ Error fetching child profile:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Failed to fetch child profile.'
-        });
-    }
-});
 
 // PUT: Update child progress
 router.put('/parents/child/:childId/progress', async (req, res) => {
@@ -879,6 +1460,7 @@ router.get('/parents/child/:childId/activities', async (req, res) => {
         });
     }
 });
+
 // ==========================================
 // PARENT ENDPOINTS 👪
 // ==========================================
@@ -1875,605 +2457,7 @@ router.delete('/admin/users/delete/:id', verifyAdminToken, async (req, res) => {
     return res.status(500).json({ success: false, error: 'Failed to delete user.' });
   }
 });
-// ==========================================
-// PARENT-CHILD MANAGEMENT ENDPOINTS 👪
-// ==========================================
 
-// GET: Fetch all children for a parent
-// GET: Fetch all children for a parent
-router.get('/parents/children/:parentId', async (req, res) => {
-    try {
-        if (!ensurePool(res)) return;
-
-        const { parentId } = req.params;
-        console.log('📥 Fetching children for parent:', parentId);
-
-        // First verify this is a parent account
-        const parentResult = await pool.query(
-            `SELECT user_id, role, is_verified, is_banned FROM users WHERE user_id = $1`,
-            [parentId]
-        );
-
-        if (!parentResult.rows.length) {
-            return res.status(404).json({ success: false, error: 'Parent not found.' });
-        }
-
-        const parent = parentResult.rows[0];
-
-        if (parent.role !== 'parent') {
-            return res.status(403).json({ success: false, error: 'User is not a parent.' });
-        }
-
-        if (!parent.is_verified) {
-            return res.status(403).json({ success: false, error: 'Parent account not verified.' });
-        }
-
-        if (parent.is_banned) {
-            return res.status(403).json({ success: false, error: 'Parent account is banned.' });
-        }
-
-        // Fetch children - check if they're linked via parent_id column or parents table
-        let children = [];
-
-        // Try using the parent_id column in users table first
-        try {
-            const columnCheck = await pool.query(`
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = 'users' 
-                AND column_name = 'parent_id'
-            `);
-
-            if (columnCheck.rows.length > 0) {
-                // First get the parent's parent_id from parents table
-                const parentRecord = await pool.query(
-                    `SELECT parent_id FROM parents WHERE user_id = $1`,
-                    [parentId]
-                );
-
-                if (parentRecord.rows.length > 0) {
-                    const parentRecordId = parentRecord.rows[0].parent_id;
-                    
-                    const childrenResult = await pool.query(`
-                        SELECT 
-                            user_id,
-                            username,
-                            full_name,
-                            email,
-                            age,
-                            level,
-                            xp,
-                            streak_days,
-                            is_verified,
-                            is_banned,
-                            lessons_completed,
-                            achievements_count,
-                            progress_percentage,
-                            created_at
-                        FROM users 
-                        WHERE parent_id = $1
-                        AND role = 'student'
-                        ORDER BY full_name
-                    `, [parentRecordId]);
-
-                    children = childrenResult.rows;
-                }
-            }
-        } catch (e) {
-            console.warn('⚠️ Could not fetch children via parent_id:', e.message);
-        }
-
-        // If no children found, try alternative method
-        if (children.length === 0) {
-            try {
-                // Try joining with parents table directly
-                const childrenResult = await pool.query(`
-                    SELECT 
-                        u.user_id,
-                        u.username,
-                        u.full_name,
-                        u.email,
-                        u.age,
-                        u.level,
-                        u.xp,
-                        u.streak_days,
-                        u.is_verified,
-                        u.is_banned,
-                        u.lessons_completed,
-                        u.achievements_count,
-                        u.progress_percentage,
-                        u.created_at
-                    FROM users u
-                    JOIN parents p ON p.parent_id = u.parent_id
-                    WHERE p.user_id = $1
-                    AND u.role = 'student'
-                    ORDER BY u.full_name
-                `, [parentId]);
-
-                children = childrenResult.rows;
-            } catch (e) {
-                console.warn('⚠️ Could not fetch children via join:', e.message);
-            }
-        }
-
-        // Map children data with defaults
-        const mappedChildren = children.map(child => ({
-            user_id: child.user_id,
-            username: child.username || '',
-            full_name: child.full_name || 'Child',
-            email: child.email || '',
-            age: child.age || null,
-            level: child.level || 'YCT 1',
-            xp: child.xp || 0,
-            streak: child.streak_days || 0,
-            lessons_completed: child.lessons_completed || 0,
-            achievements: child.achievements_count || 0,
-            progress: child.progress_percentage || 0,
-            is_verified: child.is_verified || false,
-            is_banned: child.is_banned || false,
-            created_at: child.created_at
-        }));
-
-        console.log(`✅ Found ${mappedChildren.length} children for parent ${parentId}`);
-
-        return res.json({
-            success: true,
-            children: mappedChildren
-        });
-
-    } catch (error) {
-        console.error('❌ Error fetching children:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Failed to fetch children data.',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-    }
-});
-// POST: Add a new child for a parent
-// POST: Add a new child (FIXED - No gen_salt)
-router.post('/parents/children', async (req, res) => {
-    try {
-        if (!ensurePool(res)) return;
-
-        const { parentId, full_name, age, level } = req.body || {};
-
-        console.log('📤 Adding child:', { parentId, full_name, age, level });
-
-        // Validate
-        if (!parentId || !full_name || !age) {
-            return res.status(400).json({
-                success: false,
-                error: 'Parent ID, child name, and age are required.'
-            });
-        }
-
-        if (age < 4 || age > 18) {
-            return res.status(400).json({
-                success: false,
-                error: 'Age must be between 4 and 18.'
-            });
-        }
-
-        // Verify parent exists and is verified
-        const parentResult = await pool.query(`
-            SELECT p.parent_id, u.user_id, u.is_verified, u.is_banned, u.email 
-            FROM parents p
-            JOIN users u ON p.user_id = u.user_id
-            WHERE p.parent_id = $1 OR p.user_id = $1
-        `, [parentId]);
-
-        if (!parentResult.rows.length) {
-            return res.status(404).json({
-                success: false,
-                error: 'Parent not found.'
-            });
-        }
-
-        const parent = parentResult.rows[0];
-        const parentRecordId = parent.parent_id;
-
-        if (!parent.is_verified) {
-            return res.status(403).json({
-                success: false,
-                error: 'Parent account not verified.'
-            });
-        }
-
-        if (parent.is_banned) {
-            return res.status(403).json({
-                success: false,
-                error: 'Parent account is banned.'
-            });
-        }
-
-        // Check if children table exists
-        const tableCheck = await pool.query(`
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_name = 'children'
-        `);
-
-        if (tableCheck.rows.length === 0) {
-            return res.status(500).json({
-                success: false,
-                error: 'Children table not found. Please run database migrations.'
-            });
-        }
-
-        // Generate username and email for the child
-        const baseUsername = full_name.toLowerCase().replace(/\s/g, '');
-        const timestamp = new Date().toISOString().slice(2, 10).replace(/-/g, '');
-        let username = `${baseUsername}_${timestamp}`;
-        
-        // Make username unique
-        let counter = 0;
-        let unique = false;
-        while (!unique) {
-            const check = await pool.query(`SELECT 1 FROM users WHERE username = $1`, [username]);
-            if (check.rows.length === 0) {
-                unique = true;
-            } else {
-                counter++;
-                username = `${baseUsername}_${timestamp}_${counter}`;
-            }
-        }
-        
-        const email = `${username}@hanverse.child`;
-        
-        // Generate temporary password (8 characters)
-        const tempPassword = Math.random().toString(36).substring(2, 10);
-        const password_hash = await bcrypt.hash(tempPassword, 10);
-
-        // Create user account for the child
-        const userResult = await pool.query(`
-            INSERT INTO users (
-                username,
-                full_name,
-                email,
-                password_hash,
-                role,
-                is_verified,
-                is_banned,
-                premium,
-                xp,
-                level,
-                streak_days,
-                created_at,
-                updated_at
-            ) VALUES ($1, $2, $3, $4, 'student', true, false, false, 0, 1, 0, NOW(), NOW())
-            RETURNING user_id
-        `, [username, full_name, email, password_hash]);
-
-        const childUserId = userResult.rows[0].user_id;
-
-        // Insert child into children table
-        const insertResult = await pool.query(`
-            INSERT INTO children (
-                parent_id,
-                user_id,
-                full_name,
-                age,
-                level,
-                username,
-                email,
-                password_hash,
-                created_at,
-                updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
-            RETURNING child_id, user_id, full_name, age, level, username, email
-        `, [parentRecordId, childUserId, full_name, age, level || 'YCT 1', username, email, password_hash]);
-
-        const newChild = insertResult.rows[0];
-
-        console.log('✅ Child created:', newChild);
-
-        // Log activity
-        try {
-            await pool.query(`
-                INSERT INTO child_activities (child_id, type, message, created_at)
-                VALUES ($1, 'child_added', $2, NOW())
-            `, [newChild.child_id, `Child ${full_name} was added by parent`]);
-        } catch (logError) {
-            console.warn('⚠️ Could not log activity:', logError.message);
-        }
-
-        // Send confirmation email to parent
-        try {
-            if (mailer) {
-                const html = `
-                    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:12px;">
-                        <div style="text-align:center;margin-bottom:20px;">
-                            <span style="font-size:3rem;">👶</span>
-                            <h2 style="color:#ff416c;margin:10px 0 0 0;">Child Added to HanVerse!</h2>
-                        </div>
-                        <p>Hi Parent,</p>
-                        <p><strong>${full_name}</strong> has been successfully added to your HanVerse account!</p>
-                        <div style="background-color:#f9fafb;padding:15px;border-radius:8px;margin:20px 0;">
-                            <p style="margin:4px 0;"><strong>Name:</strong> ${full_name}</p>
-                            <p style="margin:4px 0;"><strong>Age:</strong> ${age}</p>
-                            <p style="margin:4px 0;"><strong>Level:</strong> ${level || 'YCT 1'}</p>
-                            <p style="margin:4px 0;"><strong>Username:</strong> ${username}</p>
-                            <p style="margin:4px 0;"><strong>Temporary Password:</strong> ${tempPassword}</p>
-                        </div>
-                        <p>Your child can now start learning Mandarin with Panda AI! 🐼</p>
-                        <p style="font-size:0.85rem;color:#6b7280;text-align:center;margin-top:30px;">
-                            🐼 Happy Learning!
-                        </p>
-                    </div>
-                `;
-
-                await mailer.sendMail({
-                    from: EMAIL_FROM,
-                    to: parent.email,
-                    subject: `👶 ${full_name} Added to HanVerse!`,
-                    html
-                });
-                console.log('✅ Confirmation email sent to parent');
-            }
-        } catch (mailErr) {
-            console.warn('⚠️ Child addition email failed:', mailErr.message);
-        }
-
-        return res.status(201).json({
-            success: true,
-            message: `Child ${full_name} added successfully!`,
-            child: {
-                child_id: newChild.child_id,
-                user_id: newChild.user_id,
-                full_name: newChild.full_name,
-                age: newChild.age,
-                level: newChild.level,
-                username: newChild.username || '',
-                email: newChild.email || '',
-                tempPassword: tempPassword // Only for initial creation
-            }
-        });
-
-    } catch (error) {
-        console.error('❌ Error adding child:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Failed to add child. Please try again.',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-    }
-});
-
-// GET: Fetch activity feed for a parent's children
-router.get('/parents/activity/:parentId', async (req, res) => {
-    try {
-        if (!ensurePool(res)) return;
-
-        const { parentId } = req.params;
-
-        // Verify parent exists
-        const parentResult = await pool.query(
-            `SELECT user_id FROM users WHERE user_id = $1 AND role = 'parent'`,
-            [parentId]
-        );
-
-        if (!parentResult.rows.length) {
-            return res.status(404).json({ success: false, error: 'Parent not found.' });
-        }
-
-        // Try to fetch from activities table
-        try {
-            const tableCheck = await pool.query(`
-                SELECT table_name 
-                FROM information_schema.tables 
-                WHERE table_name = 'activities'
-            `);
-
-            if (tableCheck.rows.length > 0) {
-                const activitiesResult = await pool.query(`
-                    SELECT 
-                        a.activity_id,
-                        a.type,
-                        a.message,
-                        a.created_at,
-                        u.full_name as child_name
-                    FROM activities a
-                    LEFT JOIN users u ON a.child_id = u.user_id
-                    WHERE a.user_id = $1
-                    ORDER BY a.created_at DESC
-                    LIMIT 20
-                `, [parentId]);
-
-                if (activitiesResult.rows.length > 0) {
-                    return res.json({
-                        success: true,
-                        activities: activitiesResult.rows
-                    });
-                }
-            }
-        } catch (e) {
-            console.warn('⚠️ Could not fetch activities:', e.message);
-        }
-
-        // Return empty array if no activities found
-        return res.json({
-            success: true,
-            activities: []
-        });
-
-    } catch (error) {
-        console.error('❌ Error fetching activity feed:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Failed to fetch activity feed.'
-        });
-    }
-});
-
-// GET: Fetch a single child's profile
-router.get('/parents/child/:childId', async (req, res) => {
-    try {
-        if (!ensurePool(res)) return;
-
-        const { childId } = req.params;
-
-        const result = await pool.query(`
-            SELECT 
-                user_id,
-                full_name,
-                age,
-                level,
-                xp,
-                streak_days,
-                is_verified,
-                is_banned,
-                premium,
-                lessons_completed,
-                achievements_count,
-                progress_percentage,
-                created_at
-            FROM users
-            WHERE user_id = $1 AND role = 'student'
-        `, [childId]);
-
-        if (!result.rows.length) {
-            return res.status(404).json({ success: false, error: 'Child not found.' });
-        }
-
-        return res.json({
-            success: true,
-            child: result.rows[0]
-        });
-
-    } catch (error) {
-        console.error('❌ Error fetching child profile:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Failed to fetch child profile.'
-        });
-    }
-});
-
-// PUT: Update child progress
-router.put('/parents/child/:childId/progress', async (req, res) => {
-    try {
-        if (!ensurePool(res)) return;
-
-        const { childId } = req.params;
-        const { lessons_completed, achievements, progress, xp, level } = req.body;
-
-        const result = await pool.query(`
-            UPDATE users 
-            SET 
-                lessons_completed = COALESCE($1, lessons_completed),
-                achievements_count = COALESCE($2, achievements_count),
-                progress_percentage = COALESCE($3, progress_percentage),
-                xp = COALESCE($4, xp),
-                level = COALESCE($5, level),
-                updated_at = NOW()
-            WHERE user_id = $6 AND role = 'student'
-            RETURNING user_id, full_name, lessons_completed, achievements_count, progress_percentage, xp, level
-        `, [lessons_completed, achievements, progress, xp, level, childId]);
-
-        if (!result.rows.length) {
-            return res.status(404).json({ success: false, error: 'Child not found.' });
-        }
-
-        return res.json({
-            success: true,
-            message: 'Progress updated successfully',
-            child: result.rows[0]
-        });
-
-    } catch (error) {
-        console.error('❌ Error updating child progress:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Failed to update progress.'
-        });
-    }
-});
-// ==========================================
-// PARENT VERIFICATION FUNCTIONS - FIXED
-// ==========================================
-
-// Verify a parent
-async function verifyParent(parentId, parentName) {
-    if (!parentId) {
-        showToast('❌ Error: Parent ID is missing.', 'error');
-        return;
-    }
-
-    if (!confirm(`✅ Verify parent "${parentName || 'Unknown'}"? They will get full access to the Parent Hub.`)) return;
-
-    try {
-        const adminUserId = getAdminUserId();
-        
-        const res = await fetch(`${CONFIG.API_URL}/admin/parents/verify/${parentId}`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ adminUserId: adminUserId })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            throw new Error(data.error || 'Verification failed');
-        }
-
-        showToast(`✅ ${parentName || 'Parent'} has been verified!`, 'success');
-        await loadAdminData();
-
-    } catch (err) {
-        console.error('❌ Verify error:', err);
-        showToast(`❌ Error: ${err.message}`, 'error');
-    }
-}
-
-// Deny a parent (with reason prompt)
-async function denyParent(parentId, parentName) {
-    if (!parentId) {
-        showToast('❌ Error: Parent ID is missing.', 'error');
-        return;
-    }
-
-    const reason = prompt(`Why are you denying "${parentName || 'Parent'}"? (Optional)`, '');
-    if (reason === null) return; // User cancelled
-
-    if (!confirm(`❌ Deny parent "${parentName || 'Unknown'}"? This will remove their parent access.`)) return;
-
-    try {
-        const adminUserId = getAdminUserId();
-        
-        const res = await fetch(`${CONFIG.API_URL}/admin/parents/deny/${parentId}`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ 
-                reason: reason || 'Not specified',
-                adminUserId: adminUserId 
-            })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            throw new Error(data.error || 'Denial failed');
-        }
-
-        showToast(`❌ ${parentName || 'Parent'} has been denied parent access.`, 'error');
-        await loadAdminData();
-
-    } catch (err) {
-        console.error('❌ Deny error:', err);
-        showToast(`❌ Error: ${err.message}`, 'error');
-    }
-}
-
-// Get admin user ID from localStorage
-function getAdminUserId() {
-    try {
-        const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
-        return user.user_id || null;
-    } catch {
-        return null;
-    }
-}
 // ==========================================
 // PANDA AI INTERACTIVE TUTOR 🐼
 // ==========================================
@@ -2606,41 +2590,6 @@ router.post('/login', async (req, res) => {
 });
 
 // ==========================================
-// USER PROFILE ACCESS 👤
-// ==========================================
-router.get('/user/:userId', async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const { userId } = req.params;
-
-    const result = await pool.query(
-      `SELECT * FROM users WHERE user_id = $1`,
-      [userId]
-    );
-
-    if (!result.rows.length) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found.'
-      });
-    }
-
-    return res.json({
-      success: true,
-      user: safeUser(result.rows[0])
-    });
-
-  } catch (error) {
-    console.error('❌ Profile error:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to fetch user profile.'
-    });
-  }
-});
-
-// ==========================================
 // USER REGISTRATION: SIGNUP 🚀 
 // ==========================================
 router.post('/signup', async (req, res) => {
@@ -2763,9 +2712,8 @@ router.post('/signup', async (req, res) => {
     console.log('✅ User created with ID:', newUser.user_id);
 
     // --- CREATE PARENT RECORD (if role is parent) ---
-    // --- CREATE PARENT RECORD (if role is parent) ---
-if (userRole === 'parent') {
-    try {
+    if (userRole === 'parent') {
+      try {
         const tableCheck = await pool.query(`
             SELECT table_name 
             FROM information_schema.tables 
@@ -2773,26 +2721,27 @@ if (userRole === 'parent') {
         `);
         
         if (tableCheck.rows.length > 0) {
-            // Check if parent already exists
-            const existingParent = await pool.query(`
-                SELECT * FROM parents WHERE user_id = $1
-            `, [newUser.user_id]);
-            
-            if (existingParent.rows.length === 0) {
-                await pool.query(`
-                    INSERT INTO parents (user_id, full_name, email, is_verified, created_at, updated_at)
-                    VALUES ($1, $2, $3, false, NOW(), NOW())
-                `, [newUser.user_id, cleanFullName, cleanEmail]);
-                console.log('✅ Parent record created for user:', newUser.user_id);
-            } else {
-                console.log('ℹ️ Parent record already exists for user:', newUser.user_id);
-            }
+          // Check if parent already exists
+          const existingParent = await pool.query(`
+              SELECT * FROM parents WHERE user_id = $1
+          `, [newUser.user_id]);
+          
+          if (existingParent.rows.length === 0) {
+            await pool.query(`
+                INSERT INTO parents (user_id, full_name, email, is_verified, created_at, updated_at)
+                VALUES ($1, $2, $3, false, NOW(), NOW())
+            `, [newUser.user_id, cleanFullName, cleanEmail]);
+            console.log('✅ Parent record created for user:', newUser.user_id);
+          } else {
+            console.log('ℹ️ Parent record already exists for user:', newUser.user_id);
+          }
         }
-    } catch (parentError) {
+      } catch (parentError) {
         console.warn('⚠️ Could not create parent record:', parentError.message);
         // Don't fail the signup if parent creation fails
+      }
     }
-}
+    
     // --- STORE VERIFICATION TOKEN ---
     try {
       await pool.query(
@@ -3080,32 +3029,40 @@ router.post('/reset-password', async (req, res) => {
     });
   }
 });
-// server.js - Sync endpoints
+
+// ==========================================
+// SYNC ENDPOINTS - FIXED (use pool directly)
+// ==========================================
 
 // Sync quiz results
 app.post('/api/sync/quizzes', async (req, res) => {
   try {
+    if (!ensurePool(res)) return;
+    
     const { userId, quizzes } = req.body;
     
-    // Validate user
-    const user = await db.users.findById(userId);
-    if (!user) {
+    // Validate user exists
+    const userResult = await pool.query(
+      `SELECT user_id FROM users WHERE user_id = $1`,
+      [userId]
+    );
+    
+    if (!userResult.rows.length) {
       return res.status(404).json({ error: 'User not found' });
     }
     
-    // Process each quiz
+    // Process each quiz - use pool directly
     for (const quiz of quizzes) {
-      await db.quizResults.create({
-        userId,
-        quizId: quiz.quizId,
-        answers: quiz.answers,
-        score: quiz.score,
-        timestamp: quiz.timestamp
-      });
+      await pool.query(`
+        INSERT INTO quiz_results (user_id, quiz_id, answers, score, timestamp)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [userId, quiz.quizId, quiz.answers, quiz.score, quiz.timestamp]);
       
       // Update user XP if quiz was completed successfully
       if (quiz.score >= 70) {
-        await db.users.addXP(userId, 10); // Example: 10 XP per passed quiz
+        await pool.query(`
+          UPDATE users SET xp = xp + $1 WHERE user_id = $2
+        `, [10, userId]);
       }
     }
     
@@ -3119,17 +3076,29 @@ app.post('/api/sync/quizzes', async (req, res) => {
 // Sync progress
 app.post('/api/sync/progress', async (req, res) => {
   try {
+    if (!ensurePool(res)) return;
+    
     const { userId, progress } = req.body;
     
     for (const item of progress) {
-      await db.progress.upsert({
-        userId,
-        lessonId: item.lessonId,
-        completed: item.completed,
-        score: item.score,
-        xpEarned: item.xpEarned,
-        timestamp: item.timestamp
-      });
+      // Check if progress exists
+      const existing = await pool.query(`
+        SELECT 1 FROM user_progress 
+        WHERE user_id = $1 AND lesson_id = $2
+      `, [userId, item.lessonId]);
+      
+      if (existing.rows.length > 0) {
+        await pool.query(`
+          UPDATE user_progress 
+          SET completed = $1, score = $2, xp_earned = $3, timestamp = $4, updated_at = NOW()
+          WHERE user_id = $5 AND lesson_id = $6
+        `, [item.completed, item.score, item.xpEarned, item.timestamp, userId, item.lessonId]);
+      } else {
+        await pool.query(`
+          INSERT INTO user_progress (user_id, lesson_id, completed, score, xp_earned, timestamp, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+        `, [userId, item.lessonId, item.completed, item.score, item.xpEarned, item.timestamp]);
+      }
     }
     
     res.json({ success: true, processed: progress.length });
@@ -3142,19 +3111,21 @@ app.post('/api/sync/progress', async (req, res) => {
 // Sync XP
 app.post('/api/sync/xp', async (req, res) => {
   try {
+    if (!ensurePool(res)) return;
+    
     const { userId, xp, entries } = req.body;
     
-    // Add total XP
-    await db.users.addXP(userId, xp);
+    // Add total XP to user
+    await pool.query(`
+      UPDATE users SET xp = xp + $1 WHERE user_id = $2
+    `, [xp, userId]);
     
     // Log individual XP entries
     for (const entry of entries) {
-      await db.xpLogs.create({
-        userId,
-        amount: entry.xp,
-        source: entry.source,
-        timestamp: entry.timestamp
-      });
+      await pool.query(`
+        INSERT INTO xp_logs (user_id, amount, source, timestamp, created_at)
+        VALUES ($1, $2, $3, $4, NOW())
+      `, [userId, entry.xp, entry.source, entry.timestamp]);
     }
     
     res.json({ success: true });
@@ -3167,14 +3138,29 @@ app.post('/api/sync/xp', async (req, res) => {
 // Sync achievements
 app.post('/api/sync/achievements', async (req, res) => {
   try {
+    if (!ensurePool(res)) return;
+    
     const { userId, achievements } = req.body;
     
     for (const achievement of achievements) {
-      await db.achievements.unlock({
-        userId,
-        achievementId: achievement.achievementId,
-        timestamp: achievement.timestamp
-      });
+      // Check if already unlocked
+      const existing = await pool.query(`
+        SELECT 1 FROM user_achievements 
+        WHERE user_id = $1 AND achievement_id = $2
+      `, [userId, achievement.achievementId]);
+      
+      if (existing.rows.length === 0) {
+        await pool.query(`
+          INSERT INTO user_achievements (user_id, achievement_id, unlocked_at, created_at)
+          VALUES ($1, $2, $3, NOW())
+        `, [userId, achievement.achievementId, achievement.timestamp]);
+        
+        // Update achievements count
+        await pool.query(`
+          UPDATE users SET achievements_count = achievements_count + 1
+          WHERE user_id = $1
+        `, [userId]);
+      }
     }
     
     res.json({ success: true, processed: achievements.length });
@@ -3187,12 +3173,15 @@ app.post('/api/sync/achievements', async (req, res) => {
 // Sync streak
 app.post('/api/sync/streak', async (req, res) => {
   try {
+    if (!ensurePool(res)) return;
+    
     const { userId, count, lastDate } = req.body;
     
-    await db.users.updateStreak(userId, {
-      count,
-      lastDate
-    });
+    await pool.query(`
+      UPDATE users 
+      SET streak_days = $1, last_active = $2, updated_at = NOW()
+      WHERE user_id = $3
+    `, [count, lastDate, userId]);
     
     res.json({ success: true });
   } catch (error) {
@@ -3200,6 +3189,7 @@ app.post('/api/sync/streak', async (req, res) => {
     res.status(500).json({ error: 'Sync failed' });
   }
 });
+
 // ==========================================
 // ROOT DESK INDEX ROUTE 🏡
 // ==========================================

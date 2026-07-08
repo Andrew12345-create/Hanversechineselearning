@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* ===== ROOT VARIABLES ===== */
         :root {
             --primary: #2563EB;
             --secondary: #14B8A6;
@@ -100,6 +99,7 @@
             font-size: 22px;
             font-weight: 800;
             color: var(--primary);
+            text-decoration: none;
         }
 
         .logo-badge {
@@ -135,6 +135,79 @@
         .nav-buttons {
             display: flex;
             gap: 10px;
+            align-items: center;
+        }
+
+        /* ===== USER CHIP IN NAVBAR ===== */
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 6px 14px 6px 10px;
+            border-radius: 999px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .06);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .user-chip:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, .1);
+            transform: translateY(-1px);
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #DBEAFE;
+            font-size: 16px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: .85rem;
+            color: var(--dark);
+        }
+
+        .user-status {
+            font-size: .65rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .user-status .premium-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #F59E0B;
+        }
+
+        .user-status .premium-text {
+            color: var(--accent);
+            font-weight: 600;
         }
 
         /* ===== BUTTONS ===== */
@@ -166,6 +239,18 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             box-shadow: 0 6px 20px rgba(37, 99, 235, .2);
+        }
+
+        .btn-logout {
+            background: #F1F5F9;
+            color: var(--muted);
+            padding: 6px 14px;
+            font-size: 0.8rem;
+        }
+
+        .btn-logout:hover {
+            background: #E2E8F0;
+            color: var(--dark);
         }
 
         /* ===== HERO ===== */
@@ -242,22 +327,10 @@
             opacity: .08;
         }
 
-        .c1 {
-            top: 30px;
-            left: 30px;
-        }
-        .c2 {
-            top: 50px;
-            right: 40px;
-        }
-        .c3 {
-            bottom: 40px;
-            left: 40px;
-        }
-        .c4 {
-            bottom: 30px;
-            right: 30px;
-        }
+        .c1 { top: 30px; left: 30px; }
+        .c2 { top: 50px; right: 40px; }
+        .c3 { bottom: 40px; left: 40px; }
+        .c4 { bottom: 30px; right: 30px; }
 
         /* ===== STATS ===== */
         .stats {
@@ -393,31 +466,11 @@
             gap: 32px;
         }
 
-        footer h2 {
-            margin-bottom: 12px;
-            font-size: 1.5rem;
-        }
-        footer h3 {
-            font-size: 1.05rem;
-            margin-bottom: 12px;
-            color: #f8fafc;
-        }
-        footer p {
-            color: #94A3B8;
-            line-height: 1.6;
-            font-size: 0.9rem;
-        }
-        footer a {
-            color: #94A3B8;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: 0.2s;
-            display: inline-block;
-            margin-bottom: 8px;
-        }
-        footer a:hover {
-            color: white;
-        }
+        footer h2 { margin-bottom: 12px; font-size: 1.5rem; }
+        footer h3 { font-size: 1.05rem; margin-bottom: 12px; color: #f8fafc; }
+        footer p { color: #94A3B8; line-height: 1.6; font-size: 0.9rem; }
+        footer a { color: #94A3B8; text-decoration: none; font-size: 0.9rem; transition: 0.2s; display: inline-block; margin-bottom: 8px; }
+        footer a:hover { color: white; }
 
         /* ===== PANDA CHAT ===== */
         .panda-fab {
@@ -730,19 +783,18 @@
 
     <!-- ===== NAVBAR ===== -->
     <nav class="top-nav" id="topNav">
-        <div class="logo">
+        <a href="index.html" class="logo">
             <div class="logo-badge">🐼</div>
             Hanverse
-        </div>
+        </a>
         <ul>
             <li><a href="index.html" class="active">Home</a></li>
             <li><a href="learn.html">Learn</a></li>
             <li><a href="worksheets.html">Worksheets</a></li>
             <li><a href="parents.html">Parents</a></li>
         </ul>
-        <div class="nav-buttons">
-            <button class="btn btn-login" onclick="location.href='login.html'">Log In</button>
-            <button class="btn btn-signup" onclick="location.href='signup.html'">Sign Up</button>
+        <div class="nav-buttons" id="navButtons">
+            <!-- Will be dynamically populated by JavaScript -->
         </div>
     </nav>
 
@@ -937,9 +989,9 @@
             <div class="nav-icon">👤</div>
             Profile
         </a>
-        <a href="login.html">
-            <div class="nav-icon">🔑</div>
-            Login
+        <a href="#" id="mobileLogoutBtn">
+            <div class="nav-icon">🚪</div>
+            Logout
         </a>
     </nav>
 
@@ -964,9 +1016,21 @@
         </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
     <script>
         // ============================================================
-        // 1. OFFLINE DETECTION
+        // SESSION KEY (same as profile.html)
+        // ============================================================
+        const SESSION_KEY = 'hanverse_user';
+        if (!user) {
+    console.log("No logged in user found.");
+    return;
+}
+
+        // ============================================================
+        // OFFLINE DETECTION
         // ============================================================
         const offlineBanner = document.getElementById('offline-banner');
 
@@ -983,14 +1047,14 @@
         updateOfflineStatus();
 
         // ============================================================
-        // 2. NAVBAR SCROLL
+        // NAVBAR SCROLL
         // ============================================================
         window.addEventListener("scroll", () => {
             document.querySelector("nav.top-nav").classList.toggle("scrolled", window.scrollY > 20);
         });
 
         // ============================================================
-        // 3. ANIMATED COUNTERS
+        // ANIMATED COUNTERS
         // ============================================================
         function animateCounter(id, target, suffix = '') {
             const el = document.getElementById(id);
@@ -1015,7 +1079,7 @@
         });
 
         // ============================================================
-        // 4. INTERSECTION OBSERVER (Cards)
+        // INTERSECTION OBSERVER (Cards)
         // ============================================================
         const cards = document.querySelectorAll(".feature-card, .stat-card");
         const observer = new IntersectionObserver(entries => {
@@ -1035,7 +1099,7 @@
         });
 
         // ============================================================
-        // 5. PANDA CHAT
+        // PANDA CHAT
         // ============================================================
         const pandaFab = document.getElementById('pandaFab');
         const pandaChat = document.getElementById('pandaChat');
@@ -1058,7 +1122,6 @@
             const text = pandaInput.value.trim();
             if (!text) return;
 
-            // Add user message
             const userRow = document.createElement('div');
             userRow.className = 'message-row user';
             userRow.innerHTML = `
@@ -1069,7 +1132,6 @@
             pandaInput.value = '';
             pandaBody.scrollTop = pandaBody.scrollHeight;
 
-            // Simulate AI response
             setTimeout(() => {
                 const responses = [
                     "That's a great question! Let me help you with that. 🐼",
@@ -1105,57 +1167,28 @@
             }
         });
 
-        // Auto-resize textarea
         pandaInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 80) + 'px';
         });
 
         // ============================================================
-        // 6. SERVICE WORKER (Offline Support)
+        // SERVICE WORKER (Offline Support)
         // ============================================================
-      // Register Service Worker with Netlify path handling
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Use root path for Netlify
-    navigator.serviceWorker.register('/sw.js', { scope: '/' })
-      .then(registration => {
-        console.log('✅ Service Worker registered:', registration);
-        
-        // Check for updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('🔄 New version available! Reload to update.');
-              // Show update notification
-              showUpdateNotification();
-            }
-          });
-        });
-      })
-      .catch(error => {
-        console.log('❌ Service Worker registration failed:', error);
-      });
-  });
-}
-
-function showUpdateNotification() {
-  // Simple notification for new version
-  const banner = document.createElement('div');
-  banner.style.cssText = `
-    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-    background: #2563EB; color: white; padding: 12px 24px;
-    border-radius: 999px; font-weight: 600; z-index: 9999;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2); cursor: pointer;
-  `;
-  banner.textContent = '🔄 New update available! Click to reload.';
-  banner.onclick = () => window.location.reload();
-  document.body.appendChild(banner);
-}
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
 
         // ============================================================
-        // 7. LOCAL STORAGE QUOTA HANDLING
+        // LOCAL STORAGE QUOTA HANDLING
         // ============================================================
         function checkStorageQuota() {
             try {
@@ -1168,7 +1201,6 @@ function showUpdateNotification() {
                 const usageKB = (total / 1024).toFixed(2);
                 console.log(`📊 LocalStorage usage: ${usageKB} KB`);
 
-                // If > 4MB, clean old data
                 if (parseFloat(usageKB) > 4000) {
                     console.warn('⚠️ Storage nearly full, cleaning old data...');
                     const keys = Object.keys(localStorage);
@@ -1179,27 +1211,107 @@ function showUpdateNotification() {
                     });
                 }
             } catch (e) {
-                // QuotaExceededError or other storage errors
                 console.warn('Storage check failed:', e);
             }
         }
 
-        // Run storage check periodically
         setInterval(checkStorageQuota, 60000);
         checkStorageQuota();
 
         // ============================================================
-        // 8. SMOOTH SCROLL POLYFILL FALLBACK
+        // DYNAMIC NAVBAR - SHOW USER CHIP OR LOGIN/SIGNUP BUTTONS
+        // ============================================================
+        function updateNavbar() {
+            const navButtons = document.getElementById('navButtons');
+            
+            try {
+                const sessionData = localStorage.getItem(SESSION_KEY);
+                if (sessionData) {
+                    const user = JSON.parse(sessionData);
+                    
+                    if (user && user.user_id) {
+                        // User is logged in - show user chip
+                        const displayName =
+    user.full_name ||
+    user.username ||
+    "Learner";
+const isPremium =
+    user.premium ||
+    user.premium_until;
+                        
+                        navButtons.innerHTML = `
+                            <div class="user-chip" onclick="window.location.href='profile.html'">
+                                <div class="user-avatar">
+                                    ${user.profile_picture ? `<img src="${user.profile_picture}" alt="Avatar">` : '🐼'}
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-name">${displayName}</div>
+                                    <div class="user-status">
+                                        <span class="premium-dot" style="${isPremium ? '' : 'background: #94A3B8;'}"></span>
+                                        <span ${isPremium ? 'class="premium-text"' : ''}>
+                                            ${isPremium ? '⭐ Premium' : 'Free Member'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-logout" onclick="logout()">Log Out</button>
+                        `;
+                        
+                        console.log('👤 Navbar updated: Logged in as', displayName);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Navbar update error:', error);
+            }
+
+            // No user logged in - show login/signup buttons
+            navButtons.innerHTML = `
+                <button class="btn btn-login" onclick="location.href='login.html'">Log In</button>
+                <button class="btn btn-signup" onclick="location.href='signup.html'">Sign Up</button>
+            `;
+            console.log('👤 Navbar: Guest user');
+        }
+
+        // ============================================================
+        // LOGOUT FUNCTION
+        // ============================================================
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem(SESSION_KEY);
+                updateNavbar();
+                window.location.reload();
+            }
+        }
+
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update navbar based on session
+            updateNavbar();
+
+            // Mobile logout button
+            const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logout();
+                });
+            }
+
+            console.log('🐼 Hanverse loaded successfully!');
+        });
+
+        // ============================================================
+        // SMOOTH SCROLL POLYFILL FALLBACK
         // ============================================================
         if (!('scrollBehavior' in document.documentElement.style)) {
             import('https://cdn.jsdelivr.net/npm/smoothscroll-polyfill@0.4.4/dist/smoothscroll.min.js')
                 .then(() => console.log('✅ Smooth scroll polyfill loaded'))
                 .catch(() => console.log('⚠️ Smooth scroll polyfill failed'));
         }
-
-        console.log('🐼 Hanverse loaded successfully!');
     </script>
 
 </body>
-
 </html>

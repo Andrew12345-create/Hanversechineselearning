@@ -474,16 +474,19 @@ function setLoading(loading) {
     loginBtn.textContent = loading ? 'Logging In...' : 'Log In';
 }
 
+// ✅ FIXED: Removed the "f" from flocalStorage
 function saveUserSession(user) {
     localStorage.setItem(SESSION_KEY, JSON.stringify({
         user_id: user.user_id,
         username: user.username,
-        fullName: user.full_name,
+        full_name: user.full_name,
         email: user.email,
         xp: user.xp || 0,
         level: user.level || 1,
-        streak: user.streak_days || 0,
-        profile_picture: user.profile_picture || ''
+        streak_days: user.streak_days || 0,
+        profile_picture: user.profile_picture || "",
+        premium: user.premium || false,
+        premium_until: user.premium_until || null
     }));
 }
 
