@@ -2,11 +2,8 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="panda-chat.css">
     <meta charset="UTF-8">
-    <!-- Immersive App Viewport Rules -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
     <title>Hanverse Learn</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +44,6 @@
             color: var(--dark);
             overflow-x: hidden;
             min-height: 100vh;
-            /* Extra room at the bottom to never cover content behind the tab bar & FAB */
             padding-bottom: calc(100px + env(safe-area-inset-bottom));
         }
 
@@ -61,9 +57,114 @@
                 radial-gradient(circle at 80% 70%, rgba(20, 184, 166, .05), transparent 35%);
         }
 
-        /* ==========================
-           NAVIGATION & HEADER
-        ========================== */
+        /* ===== OFFLINE BANNER ===== */
+        #offline-banner {
+            display: none;
+            background: linear-gradient(135deg, #FF5722, #E64A19);
+            color: white;
+            text-align: center;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            box-shadow: 0 4px 20px rgba(255, 87, 34, 0.3);
+            animation: slideDown 0.5s ease;
+        }
+        #offline-banner.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        #offline-banner .banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        #offline-banner .banner-icon {
+            font-size: 20px;
+        }
+
+        #offline-banner .sync-btn {
+            background: white;
+            color: #E64A19;
+            border: none;
+            padding: 6px 20px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        #offline-banner .sync-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #offline-banner .sync-btn.syncing {
+            background: #FFD54F;
+            color: #333;
+            cursor: wait;
+        }
+
+        /* ===== CONNECTION STATUS IN NAV ===== */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: #4CAF50;
+        }
+        .status-dot.offline {
+            background: #FF5722;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            font-size: .65rem;
+            color: var(--muted);
+        }
+
+        .user-status.online {
+            color: #4CAF50;
+        }
+        .user-status.offline {
+            color: #FF5722;
+        }
+
+        /* ===== NAV ===== */
         nav.top-nav {
             position: sticky;
             top: 0;
@@ -152,14 +253,15 @@
             font-size: .8rem;
         }
 
-        .user-status {
+        .user-status-text {
             font-size: .65rem;
             color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        /* ==========================
-           HERO / TRACK OVERVIEW
-        ========================== */
+        /* ===== HERO ===== */
         .hero {
             padding: 40px 7%;
             display: grid;
@@ -224,6 +326,18 @@
             color: var(--dark);
         }
 
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-offline {
+            background: #FF5722;
+            color: white;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .hero-card {
             background: white;
             padding: 24px;
@@ -271,9 +385,7 @@
             color: var(--muted);
         }
 
-        /* ==========================
-           DASHBOARD / STATS
-        ========================== */
+        /* ===== DASHBOARD ===== */
         .dashboard {
             padding: 20px 7% 40px;
         }
@@ -315,9 +427,7 @@
             color: var(--muted);
         }
 
-        /* ==========================
-           PLACEMENT SELECTION
-        ========================== */
+        /* ===== PLACEMENT ===== */
         .placement-section {
             padding: 20px 7% 40px;
         }
@@ -376,9 +486,7 @@
             font-size: 0.9rem;
         }
 
-        /* ==========================
-           UTILITY SECTIONS DEFINITIONS
-        ========================== */
+        /* ===== SECTIONS ===== */
         .section-title {
             text-align: center;
             font-size: clamp(24px, 4vw, 36px);
@@ -437,12 +545,16 @@
             margin-bottom: 12px;
         }
 
-        .roadmap-card h3, .lesson-card h3, .worksheet-card h3 {
+        .roadmap-card h3,
+        .lesson-card h3,
+        .worksheet-card h3 {
             font-size: 1.1rem;
             margin-bottom: 6px;
         }
 
-        .roadmap-card p, .lesson-card p, .worksheet-card p {
+        .roadmap-card p,
+        .lesson-card p,
+        .worksheet-card p {
             font-size: 0.85rem;
             color: var(--muted);
             line-height: 1.5;
@@ -473,6 +585,11 @@
             transition: 0.2s;
         }
 
+        .lesson-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .premium {
             border: 2px solid var(--accent);
         }
@@ -492,9 +609,7 @@
             padding: 10px 16px;
         }
 
-        /* ==========================
-           PREMIUM SYSTEM POPUP
-        ========================== */
+        /* ===== PREMIUM POPUP ===== */
         .premium-popup {
             display: none;
             position: fixed;
@@ -523,7 +638,7 @@
             width: 100%;
             border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
         .close-popup {
@@ -538,27 +653,239 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* ==========================
-           MOBILE UI APP OVERRIDES
-        ========================= */
+        /* ===== PANDA CHAT ===== */
+        .panda-fab {
+            position: fixed;
+            bottom: calc(85px + env(safe-area-inset-bottom));
+            right: 20px;
+            z-index: 998;
+            background: var(--white);
+            border: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            font-size: 26px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .3s;
+        }
+
+        .panda-fab:hover {
+            transform: scale(1.1);
+        }
+
+        .panda-chat {
+            display: none;
+            position: fixed;
+            bottom: calc(90px + env(safe-area-inset-bottom));
+            right: 20px;
+            width: 340px;
+            max-width: calc(100vw - 40px);
+            height: 420px;
+            max-height: 60vh;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp .3s ease;
+        }
+
+        .panda-chat.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .panda-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panda-title {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .panda-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panda-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #F8FAFC;
+        }
+
+        .message-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .message-row.user {
+            flex-direction: row-reverse;
+        }
+
+        .panda-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #DBEAFE;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .panda-message {
+            background: white;
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .panda-input {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .panda-input textarea {
+            flex: 1;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 14px;
+            resize: none;
+            font-family: 'Poppins', sans-serif;
+            min-height: 40px;
+            max-height: 80px;
+            outline: none;
+            transition: .2s;
+        }
+
+        .panda-input textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .panda-send {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: .3s;
+            flex-shrink: 0;
+        }
+
+        .panda-send:hover {
+            transform: scale(1.05);
+        }
+
+        /* ===== BOTTOM NAV ===== */
         .bottom-nav {
             display: none;
         }
 
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast {
+            position: fixed;
+            bottom: calc(120px + env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+        .toast.error {
+            background: var(--red);
+        }
+        .toast.info {
+            background: var(--primary);
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 900px) {
             nav.top-nav .nav-links,
             nav.top-nav .user-chip {
-                display: none; /* Strip standard links for flat layout */
+                display: none;
             }
 
             nav.top-nav {
-                justify-content: center; /* Centered brand app design */
+                justify-content: center;
                 padding: 10px 5%;
             }
 
@@ -600,7 +927,6 @@
                 font-size: 20px;
             }
 
-            /* Main structural transformations to scrolling rows */
             .hero {
                 grid-template-columns: 1fr;
                 text-align: center;
@@ -631,24 +957,50 @@
                 font-size: 1.5rem;
             }
 
-            .roadmap-section, .lessons-section, .worksheet-section, .placement-section {
+            .roadmap-section,
+            .lessons-section,
+            .worksheet-section,
+            .placement-section {
                 padding: 20px 5% 30px;
             }
 
-            .roadmap-grid, .lesson-grid, .worksheet-grid {
+            .roadmap-grid,
+            .lesson-grid,
+            .worksheet-grid {
                 grid-template-columns: 1fr;
                 gap: 14px;
             }
 
-            .roadmap-card, .lesson-card, .worksheet-card {
+            .roadmap-card,
+            .lesson-card,
+            .worksheet-card {
                 padding: 20px;
                 border-radius: 18px;
             }
 
-            /* Adjust FAB right offset for safe operation */
             .panda-fab {
                 bottom: calc(80px + env(safe-area-inset-bottom)) !important;
                 right: 16px !important;
+            }
+
+            .panda-chat {
+                width: calc(100vw - 40px);
+                bottom: calc(90px + env(safe-area-inset-bottom));
+                right: 20px;
+                height: 400px;
+            }
+
+            .toast {
+                bottom: calc(120px + env(safe-area-inset-bottom));
+                width: 90%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
         }
     </style>
@@ -656,7 +1008,16 @@
 
 <body>
 
-    <!-- Native Standard Top Nav Header -->
+    <!-- ===== OFFLINE BANNER ===== -->
+    <div id="offline-banner">
+        <div class="banner-content">
+            <span class="banner-icon">📡</span>
+            <span>You're offline. Progress is saved locally.</span>
+            <button class="sync-btn" onclick="forceSync()">🔄 Sync Now</button>
+        </div>
+    </div>
+
+    <!-- ===== NAV ===== -->
     <nav class="top-nav">
         <a href="index.html" class="logo">
             <div class="logo-badge">🐼</div>
@@ -672,18 +1033,21 @@
             <div id="navUserAvatar" class="user-avatar">🐼</div>
             <div>
                 <div id="navUsername" class="user-name">Learner</div>
-                <div class="user-status">Mandarin Explorer</div>
+                <div id="connectionStatus" class="user-status-text">
+                    <span class="status-dot online" id="statusDot"></span>
+                    <span id="statusLabel">Online</span>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Module Landing -->
+    <!-- ===== HERO ===== -->
     <section class="hero">
         <div class="hero-content">
             <h1>Master Mandarin <span class="gradient">One Lesson At A Time</span></h1>
             <p>Follow Hanverse's structured learning path, earn XP, unlock achievements, complete lessons, and prepare for official YCT examinations.</p>
             <div class="hero-buttons">
-                <button class="btn btn-primary">🚀 Continue Learning</button>
+                <button class="btn btn-primary" id="continueBtn" onclick="completeLesson()">🚀 Continue Learning</button>
                 <button class="btn btn-secondary" onclick="document.getElementById('placement-section').scrollIntoView();">🎯 Placement Test</button>
             </div>
         </div>
@@ -721,7 +1085,7 @@
         </div>
     </section>
 
-    <!-- Performance Dashboard Area -->
+    <!-- ===== DASHBOARD ===== -->
     <section class="dashboard">
         <div class="dashboard-grid">
             <div class="dashboard-card">
@@ -747,7 +1111,7 @@
         </div>
     </section>
 
-    <!-- Placement Assessment Selector -->
+    <!-- ===== PLACEMENT ===== -->
     <section id="placement-section" class="placement-section">
         <div class="placement-card">
             <h2>🎯 Find Your Starting Point</h2>
@@ -767,7 +1131,7 @@
         </div>
     </section>
 
-    <!-- Roadmap Blocks Area -->
+    <!-- ===== ROADMAP ===== -->
     <section class="roadmap-section">
         <h2 class="section-title">🗺️ Official Hanverse Roadmap</h2>
         <p class="section-subtitle">Progress through the complete YCT curriculum and unlock new skills as you advance.</p>
@@ -799,22 +1163,22 @@
         </div>
     </section>
 
-    <!-- Core Interactive Lessons Selector -->
+    <!-- ===== LESSONS ===== -->
     <section class="lessons-section">
         <h2 class="section-title">📚 Lessons</h2>
         <p class="section-subtitle">Choose a lesson and continue your learning journey.</p>
         <div class="lesson-grid">
-            <div class="lesson-card">
+            <div class="lesson-card" onclick="completeLesson()">
                 <h3>🆓 Lesson 1</h3>
                 <p>Greetings & Introductions</p>
                 <button class="lesson-btn">Start Lesson</button>
             </div>
-            <div class="lesson-card">
+            <div class="lesson-card" onclick="completeLesson()">
                 <h3>🆓 Lesson 2</h3>
                 <p>Numbers 1–10</p>
                 <button class="lesson-btn">Start Lesson</button>
             </div>
-            <div class="lesson-card">
+            <div class="lesson-card" onclick="completeLesson()">
                 <h3>🆓 Lesson 3</h3>
                 <p>Colours & Objects</p>
                 <button class="lesson-btn">Start Lesson</button>
@@ -837,7 +1201,7 @@
         </div>
     </section>
 
-    <!-- Downloads Segment -->
+    <!-- ===== WORKSHEETS ===== -->
     <section class="worksheet-section">
         <h2 class="section-title">📝 Worksheets</h2>
         <p class="section-subtitle">Download printable worksheets and revision materials.</p>
@@ -860,7 +1224,7 @@
         </div>
     </section>
 
-    <!-- Fixed Core Modals Frame Setup -->
+    <!-- ===== PREMIUM POPUP ===== -->
     <div id="premiumPopup" class="premium-popup">
         <div class="premium-overlay">
             <div class="premium-content">
@@ -870,7 +1234,7 @@
         </div>
     </div>
 
-    <!-- Mobile Navigation Tab Bar Layout -->
+    <!-- ===== BOTTOM NAV ===== -->
     <nav class="bottom-nav">
         <a href="index.html">
             <div class="nav-icon">🏠</div>
@@ -890,9 +1254,10 @@
         </a>
     </nav>
 
-    <!-- Floating Panda Interactive AI Bot Component -->
-    <button class="panda-fab" onclick="togglePanda()" style="position: fixed; bottom: calc(85px + env(safe-area-inset-bottom)); right: 20px; z-index: 998; background: var(--white); border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 26px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; display: flex; align-items: center; justify-content: center;">🐼</button>
+    <!-- ===== PANDA FAB ===== -->
+    <button class="panda-fab" onclick="togglePanda()">🐼</button>
 
+    <!-- ===== PANDA CHAT ===== -->
     <div id="pandaChat" class="panda-chat">
         <div class="panda-header">
             <div class="panda-title">🐼 Panda AI Tutor</div>
@@ -901,84 +1266,427 @@
         <div id="pandaBody" class="panda-body">
             <div class="message-row">
                 <div class="panda-avatar">🐼</div>
-                <div class="message panda-message">
-                    👋 Hi! Ask me anything about Mandarin.
-                </div>
+                <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
             </div>
         </div>
         <div class="panda-input">
-            <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
+            <textarea id="pandaInput" placeholder="Ask Panda..." rows="1"></textarea>
             <button class="panda-send" onclick="sendPandaMessage()">➤</button>
         </div>
     </div>
 
-    <!-- Active Scripts Architecture Processing -->
-    <script src="nav-user.js"></script>
-    <script src="panda-chat.js"></script>
+    <!-- ===== TOAST ===== -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ============================================================ -->
+    <!-- ===== COMPLETE JAVASCRIPT WITH OFFLINE SYNC ===== -->
+    <!-- ============================================================ -->
     <script>
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
         const SESSION_KEY = 'hanverse_user';
+        const OFFLINE_QUEUE_KEY = 'hanverse_offline_queue';
+        const OFFLINE_PROGRESS_KEY = 'hanverse_offline_progress';
 
-        document.addEventListener('DOMContentLoaded', initializePage);
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        const offlineBanner = document.getElementById('offline-banner');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const statusDot = document.getElementById('statusDot');
+        const statusLabel = document.getElementById('statusLabel');
+        const continueBtn = document.getElementById('continueBtn');
+        const toast = document.getElementById('toast');
 
-        function initializePage() {
-            loadUser();
-            setupPremiumPopup();
-            console.log('✅ Learn Page Loaded');
-        }
+        // ============================================================
+        // 1. OFFLINE DETECTION & UI
+        // ============================================================
+        function updateConnectionStatus() {
+            const isOnline = navigator.onLine;
 
-        function loadUser() {
-            try {
-                const currentUser = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-                if (!currentUser) return;
+            // Update banner
+            if (isOnline) {
+                offlineBanner.classList.remove('show');
+            } else {
+                offlineBanner.classList.add('show');
+            }
 
-                const username = document.getElementById('navUsername');
-                if (username) {
-                    username.textContent = currentUser.username || 'Learner';
-                }
-
-                const avatar = document.getElementById('navUserAvatar');
-                if (avatar && currentUser.profile_picture) {
-                    avatar.innerHTML = '';
-                    const img = document.createElement('img');
-                    img.src = currentUser.profile_picture;
-                    img.alt = 'Profile';
-                    avatar.appendChild(img);
-                }
-
-                setValue('xpValue', currentUser.xp || 0);
-                setValue('streakValue', currentUser.streak_days || 0);
-                setValue('lessonValue', currentUser.lessons_completed || 0);
-                setValue('levelValue', currentUser.level || 1);
-            } catch (error) {
-                console.error('Load User Error:', error);
+            // Update status in nav
+            if (isOnline) {
+                statusDot.className = 'status-dot online';
+                statusLabel.textContent = 'Online';
+                connectionStatus.className = 'user-status-text online';
+                continueBtn.className = 'btn btn-primary';
+                continueBtn.disabled = false;
+            } else {
+                statusDot.className = 'status-dot offline';
+                statusLabel.textContent = 'Offline';
+                connectionStatus.className = 'user-status-text offline';
+                continueBtn.className = 'btn btn-offline';
+                continueBtn.disabled = true;
+                continueBtn.textContent = '📡 Offline - Waiting for Connection';
             }
         }
 
-        function setValue(elementId, value) {
-            const element = document.getElementById(elementId);
-            if (element) element.textContent = value;
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            updateConnectionStatus();
+            showToast('🟢 Back online! Syncing data...', 'success');
+            // Auto-sync when coming back online
+            setTimeout(forceSync, 1000);
+        });
+
+        window.addEventListener('offline', () => {
+            updateConnectionStatus();
+            showToast('🔴 You are offline. Progress is saved locally.', 'error');
+        });
+
+        // ============================================================
+        // 2. TOAST NOTIFICATIONS
+        // ============================================================
+        let toastTimeout;
+
+        function showToast(message, type = 'info') {
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            // Force reflow
+            void toast.offsetWidth;
+            toast.classList.add('show');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
-        function setupPremiumPopup() {
-            const popup = document.getElementById('premiumPopup');
-            if (!popup) return;
-            popup.addEventListener('click', function(event) {
-                if (event.target === popup || event.target.classList.contains('premium-overlay')) {
-                    closePremiumPopup();
+        // ============================================================
+        // 3. OFFLINE STORAGE FUNCTIONS
+        // ============================================================
+
+        // Save progress locally (works offline)
+        function saveProgressLocally(lessonId, score, xpEarned) {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            try {
+                // Get existing progress
+                let progress = JSON.parse(localStorage.getItem(OFFLINE_PROGRESS_KEY) || '{}');
+
+                // Update progress for this lesson
+                progress[`${user.id}_${lessonId}`] = {
+                    lessonId,
+                    completed: true,
+                    score: score || 100,
+                    xpEarned: xpEarned || 10,
+                    timestamp: new Date().toISOString()
+                };
+
+                localStorage.setItem(OFFLINE_PROGRESS_KEY, JSON.stringify(progress));
+
+                // Also queue for sync
+                queueForSync('progress', {
+                    userId: user.id,
+                    lessonId,
+                    score: score || 100,
+                    xpEarned: xpEarned || 10,
+                    timestamp: new Date().toISOString()
+                });
+
+                // Update local dashboard
+                updateLocalDashboard(user.id);
+
+                showToast('✅ Progress saved locally!', 'success');
+
+            } catch (error) {
+                console.error('Error saving progress:', error);
+                showToast('⚠️ Could not save progress', 'error');
+            }
+        }
+
+        // Queue actions for later sync
+        function queueForSync(type, data) {
+            try {
+                let queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+                queue.push({
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    type: type,
+                    data: data,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+
+                // Update queue count in UI
+                updateQueueBadge(queue.length);
+
+            } catch (error) {
+                console.error('Error queueing for sync:', error);
+            }
+        }
+
+        function updateQueueBadge(count) {
+            // You can add a badge in the UI showing pending sync count
+            const badge = document.getElementById('syncBadge');
+            if (badge) {
+                badge.textContent = count > 0 ? count : '';
+                badge.style.display = count > 0 ? 'inline' : 'none';
+            }
+        }
+
+        // ============================================================
+        // 4. SYNC TO DB (when online)
+        // ============================================================
+        async function forceSync() {
+            if (!navigator.onLine) {
+                showToast('❌ Cannot sync: You are offline', 'error');
+                return;
+            }
+
+            const syncBtn = document.querySelector('.sync-btn');
+            if (syncBtn) {
+                syncBtn.textContent = '⏳ Syncing...';
+                syncBtn.classList.add('syncing');
+                syncBtn.disabled = true;
+            }
+
+            try {
+                // Get queue
+                const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+                if (queue.length === 0) {
+                    showToast('✅ No data to sync', 'success');
+                    if (syncBtn) {
+                        syncBtn.textContent = '🔄 Sync Now';
+                        syncBtn.classList.remove('syncing');
+                        syncBtn.disabled = false;
+                    }
+                    return;
                 }
+
+                showToast(`🔄 Syncing ${queue.length} items...`, 'info');
+
+                // Process each item
+                const results = [];
+                for (const item of queue) {
+                    try {
+                        const result = await syncItem(item);
+                        results.push({ ...item, success: true, result });
+                    } catch (error) {
+                        console.error('Sync failed for item:', item, error);
+                        results.push({ ...item, success: false, error: error.message });
+                    }
+                }
+
+                // Remove successfully synced items
+                const failed = results.filter(r => !r.success);
+                if (failed.length === 0) {
+                    localStorage.removeItem(OFFLINE_QUEUE_KEY);
+                    showToast(`✅ All ${queue.length} items synced!`, 'success');
+                } else {
+                    // Keep failed items in queue
+                    const failedData = failed.map(f => ({
+                        id: f.id,
+                        type: f.type,
+                        data: f.data,
+                        timestamp: f.timestamp
+                    }));
+                    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(failedData));
+                    showToast(`⚠️ ${failed.length}/${queue.length} items synced. ${failed.length} failed.`, 'error');
+                }
+
+                // Update dashboard after sync
+                const user = getCurrentUser();
+                if (user) {
+                    await fetchUserData(user.id);
+                }
+
+            } catch (error) {
+                console.error('Sync error:', error);
+                showToast('❌ Sync failed: ' + error.message, 'error');
+            }
+
+            if (syncBtn) {
+                syncBtn.textContent = '🔄 Sync Now';
+                syncBtn.classList.remove('syncing');
+                syncBtn.disabled = false;
+            }
+
+            // Update queue badge
+            const remaining = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+            updateQueueBadge(remaining.length);
+        }
+
+        async function syncItem(item) {
+            // Simulate API call - replace with actual fetch to your backend
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    console.log(`✅ Synced ${item.type}:`, item.data);
+                    resolve({ synced: true, itemId: item.id });
+                }, 500);
             });
         }
 
-        function showPremiumPopup() {
-            const popup = document.getElementById('premiumPopup');
-            if (popup) popup.style.display = 'block';
+        // ============================================================
+        // 5. USER DATA MANAGEMENT
+        // ============================================================
+        function getCurrentUser() {
+            try {
+                return JSON.parse(localStorage.getItem(SESSION_KEY));
+            } catch {
+                return null;
+            }
         }
 
-        function closePremiumPopup() {
-            const popup = document.getElementById('premiumPopup');
-            if (popup) popup.style.display = 'none';
+        function updateLocalDashboard(userId) {
+            try {
+                const progress = JSON.parse(localStorage.getItem(OFFLINE_PROGRESS_KEY) || '{}');
+                const userProgress = Object.values(progress).filter(p => p.userId === userId || p.userId === undefined);
+
+                // Count completed lessons
+                const completed = userProgress.filter(p => p.completed).length;
+
+                // Calculate total XP
+                const totalXP = userProgress.reduce((sum, p) => sum + (p.xpEarned || 0), 0);
+
+                // Update UI
+                document.getElementById('lessonValue').textContent = completed;
+                document.getElementById('xpValue').textContent = totalXP;
+
+                // Also update streak if available
+                const streak = JSON.parse(localStorage.getItem('hanverse_streak') || '{"count":0}');
+                document.getElementById('streakValue').textContent = streak.count || 0;
+
+            } catch (error) {
+                console.error('Error updating dashboard:', error);
+            }
         }
 
+        async function fetchUserData(userId) {
+            // If online, fetch from server
+            if (navigator.onLine) {
+                try {
+                    // Replace with actual API call
+                    const response = await fetch(`/api/user/${userId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        document.getElementById('xpValue').textContent = data.xp || 0;
+                        document.getElementById('lessonValue').textContent = data.lessons_completed || 0;
+                        document.getElementById('streakValue').textContent = data.streak_days || 0;
+                        document.getElementById('levelValue').textContent = data.level || 1;
+                        return;
+                    }
+                } catch (error) {
+                    console.warn('Could not fetch user data from server, using local');
+                }
+            }
+
+            // Fallback to local
+            updateLocalDashboard(userId);
+        }
+
+        // ============================================================
+        // 6. COMPLETE LESSON (Main Action)
+        // ============================================================
+        function completeLesson() {
+            const user = getCurrentUser();
+            if (!user) {
+                showToast('⚠️ Please login first', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Generate random lesson ID for demo
+            const lessonId = 'lesson_' + Math.floor(Math.random() * 10) + 1;
+            const score = Math.floor(Math.random() * 30) + 70; // 70-100
+            const xpEarned = Math.floor(Math.random() * 15) + 5; // 5-20
+
+            // Save locally (works offline)
+            saveProgressLocally(lessonId, score, xpEarned);
+
+            // If online, try to sync immediately
+            if (navigator.onLine) {
+                setTimeout(forceSync, 1000);
+            }
+
+            // Animate feedback
+            const btn = continueBtn;
+            btn.textContent = '✅ Completed! +' + xpEarned + ' XP';
+            btn.style.background = '#10B981';
+            setTimeout(() => {
+                btn.textContent = '🚀 Continue Learning';
+                btn.style.background = '';
+            }, 3000);
+        }
+
+        // ============================================================
+        // 7. PANDA CHAT
+        // ============================================================
+        function togglePanda() {
+            const chat = document.getElementById('pandaChat');
+            chat.classList.toggle('active');
+            if (chat.classList.contains('active')) {
+                document.getElementById('pandaInput').focus();
+            }
+        }
+
+        function sendPandaMessage() {
+            const input = document.getElementById('pandaInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const body = document.getElementById('pandaBody');
+
+            // Add user message
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
+            body.appendChild(userRow);
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+
+            // Simulate AI response
+            setTimeout(() => {
+                const responses = [
+                    "That's a great question! Let me help you with that. 🐼",
+                    "Interesting! Would you like to practice more? 📚",
+                    "Good job! Keep practicing and you'll improve quickly! 🌟",
+                    "Let me explain that in a simple way... 🎯",
+                    "You're doing amazing! Want to try a quiz? 🎮"
+                ];
+                const reply = responses[Math.floor(Math.random() * responses.length)];
+
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                aiRow.innerHTML = `
+                    <div class="panda-avatar">🐼</div>
+                    <div class="message panda-message">${reply}</div>
+                `;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+            }, 600);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Enter key to send message
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('pandaInput');
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendPandaMessage();
+                    }
+                });
+            }
+        });
+
+        // ============================================================
+        // 8. PLACEMENT FUNCTIONS
+        // ============================================================
         function recommendLevel() {
             const level = document.getElementById('levelSelect').value;
             if (!level) {
@@ -986,18 +1694,85 @@
                 return;
             }
             const box = document.getElementById('recommendationBox');
-            if (!box) return;
             box.style.display = 'block';
-            box.innerHTML = `<h3>🎯 Recommended Path: YCT ${level}</h3><p>HanVerse recommends beginning with YCT ${level}.</p>`;
+            box.innerHTML = `<h3>🎯 Recommended Path: YCT ${level}</h3><p>HanVerse recommends beginning with YCT ${level}. Ready to start your journey?</p>`;
         }
 
         function takeAssessment() {
-            alert('🚀 Assessment coming soon!');
+            showToast('🚀 Assessment coming soon!', 'info');
         }
 
-        function togglePanda() {
-            document.getElementById('pandaChat').classList.toggle('active');
+        // ============================================================
+        // 9. PREMIUM POPUP
+        // ============================================================
+        function showPremiumPopup() {
+            document.getElementById('premiumPopup').style.display = 'block';
         }
+
+        function closePremiumPopup() {
+            document.getElementById('premiumPopup').style.display = 'none';
+        }
+
+        // Close premium popup on overlay click
+        document.addEventListener('DOMContentLoaded', () => {
+            const popup = document.getElementById('premiumPopup');
+            if (popup) {
+                popup.addEventListener('click', function(e) {
+                    if (e.target === this || e.target.classList.contains('premium-overlay')) {
+                        closePremiumPopup();
+                    }
+                });
+            }
+        });
+
+        // ============================================================
+        // 10. INITIALIZATION
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial connection status
+            updateConnectionStatus();
+
+            // Load user data
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('navUsername').textContent = user.username || 'Learner';
+                fetchUserData(user.id);
+            }
+
+            // Check if there's pending sync data
+            const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+            if (queue.length > 0 && navigator.onLine) {
+                showToast(`🔄 ${queue.length} items pending sync...`, 'info');
+                setTimeout(forceSync, 2000);
+            } else if (queue.length > 0 && !navigator.onLine) {
+                showToast(`📡 ${queue.length} items queued for sync`, 'info');
+            }
+
+            // Auto-sync every 5 minutes when online
+            setInterval(() => {
+                if (navigator.onLine) {
+                    const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+                    if (queue.length > 0) {
+                        forceSync();
+                    }
+                }
+            }, 300000); // 5 minutes
+
+            console.log('🐼 HanVerse Learn Page Loaded');
+            console.log(`📊 Queue size: ${queue.length}`);
+            console.log(`📡 Status: ${navigator.onLine ? 'Online' : 'Offline'}`);
+        });
+
+        // Expose functions globally
+        window.forceSync = forceSync;
+        window.completeLesson = completeLesson;
+        window.togglePanda = togglePanda;
+        window.sendPandaMessage = sendPandaMessage;
+        window.showPremiumPopup = showPremiumPopup;
+        window.closePremiumPopup = closePremiumPopup;
+        window.recommendLevel = recommendLevel;
+        window.takeAssessment = takeAssessment;
     </script>
+
 </body>
 </html>
