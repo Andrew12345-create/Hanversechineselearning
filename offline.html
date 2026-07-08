@@ -1,0 +1,77 @@
+<!-- offline.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HanVerse - Offline</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2563EB, #14B8A6);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            padding: 40px 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .panda { font-size: 80px; margin-bottom: 20px; }
+        h1 { font-size: 28px; margin-bottom: 12px; }
+        p { font-size: 16px; opacity: 0.9; line-height: 1.6; margin-bottom: 8px; }
+        .btn {
+            margin-top: 24px;
+            padding: 14px 32px;
+            background: white;
+            color: #2563EB;
+            border: none;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: .3s;
+        }
+        .btn:hover { transform: scale(1.05); }
+        .features {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .feature {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panda">🐼</div>
+        <h1>You're Offline! 📡</h1>
+        <p>But don't worry — HanVerse works offline too!</p>
+        <p style="font-size: 14px; opacity: 0.8;">Your progress is saved locally and will sync when you're back online.</p>
+        
+        <div class="features">
+            <div class="feature">📚 Saved Lessons</div>
+            <div class="feature">🎮 Games Available</div>
+            <div class="feature">📊 Progress Saved</div>
+            <div class="feature">🤖 AI Chat Works</div>
+        </div>
+        
+        <button class="btn" onclick="location.reload()">🔄 Try Again</button>
+        <p style="font-size: 12px; margin-top: 16px; opacity: 0.6;">HanVerse v1.0 • Made with ❤️</p>
+    </div>
+</body>
+</html>

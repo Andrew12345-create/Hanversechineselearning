@@ -2,10 +2,8 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="panda-chat.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
     <title>Hanverse | Learn Mandarin Through Stories, Games & AI</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* ===== ROOT VARIABLES ===== */
         :root {
             --primary: #2563EB;
             --secondary: #14B8A6;
@@ -32,7 +31,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Seamless webkit taps */
+            -webkit-tap-highlight-color: transparent;
         }
 
         html {
@@ -43,7 +42,7 @@
             background: var(--bg);
             color: var(--dark);
             overflow-x: hidden;
-            padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* Prevents bottom navigation overlap */
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
         }
 
         body::before {
@@ -56,9 +55,25 @@
                 radial-gradient(circle at 80% 70%, rgba(20, 184, 166, .05), transparent 35%);
         }
 
-        /* ======================
-           NAVBAR (App Header Style)
-        ====================== */
+        /* ===== OFFLINE BANNER ===== */
+        #offline-banner {
+            display: none;
+            background: #FF5722;
+            color: white;
+            text-align: center;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+        }
+
+        #offline-banner.show {
+            display: block;
+        }
+
+        /* ===== NAVBAR ===== */
         nav.top-nav {
             position: sticky;
             top: 0;
@@ -122,6 +137,7 @@
             gap: 10px;
         }
 
+        /* ===== BUTTONS ===== */
         .btn {
             padding: 10px 20px;
             border: none;
@@ -152,9 +168,7 @@
             box-shadow: 0 6px 20px rgba(37, 99, 235, .2);
         }
 
-        /* ======================
-           HERO
-        ====================== */
+        /* ===== HERO ===== */
         .hero {
             min-height: 80vh;
             display: grid;
@@ -228,14 +242,24 @@
             opacity: .08;
         }
 
-        .c1 { top: 30px; left: 30px; }
-        .c2 { top: 50px; right: 40px; }
-        .c3 { bottom: 40px; left: 40px; }
-        .c4 { bottom: 30px; right: 30px; }
+        .c1 {
+            top: 30px;
+            left: 30px;
+        }
+        .c2 {
+            top: 50px;
+            right: 40px;
+        }
+        .c3 {
+            bottom: 40px;
+            left: 40px;
+        }
+        .c4 {
+            bottom: 30px;
+            right: 30px;
+        }
 
-        /* ======================
-           STATS
-        ====================== */
+        /* ===== STATS ===== */
         .stats {
             padding: 40px 7%;
             display: grid;
@@ -263,9 +287,7 @@
             font-size: 0.85rem;
         }
 
-        /* ======================
-           FEATURES & SECTIONS
-        ====================== */
+        /* ===== FEATURES ===== */
         .features {
             padding: 60px 7%;
         }
@@ -316,9 +338,7 @@
             font-size: 0.9rem;
         }
 
-        /* ======================
-           TEAM SECTION
-        ====================== */
+        /* ===== TEAM ===== */
         .avatar-box {
             width: 100px;
             height: 100px;
@@ -332,9 +352,7 @@
             margin-bottom: 16px;
         }
 
-        /* ======================
-           CTA SECTION
-        ====================== */
+        /* ===== CTA ===== */
         .cta-container {
             padding: 40px 7%;
         }
@@ -362,9 +380,7 @@
             opacity: 0.95;
         }
 
-        /* ======================
-           FOOTER
-        ====================== */
+        /* ===== FOOTER ===== */
         footer {
             background: #0F172A;
             color: white;
@@ -377,27 +393,224 @@
             gap: 32px;
         }
 
-        footer h2 { margin-bottom: 12px; font-size: 1.5rem; }
-        footer h3 { font-size: 1.05rem; margin-bottom: 12px; color: #f8fafc; }
-        footer p { color: #94A3B8; line-height: 1.6; font-size: 0.9rem; }
-        footer a { color: #94A3B8; text-decoration: none; font-size: 0.9rem; transition: 0.2s; display: inline-block; margin-bottom: 8px; }
-        footer a:hover { color: white; }
+        footer h2 {
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+        }
+        footer h3 {
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: #f8fafc;
+        }
+        footer p {
+            color: #94A3B8;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+        footer a {
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        footer a:hover {
+            color: white;
+        }
 
-        /* ======================
-           MOBILE NATIVE APP VIEW OVERRIDES
-        ====================== */
+        /* ===== PANDA CHAT ===== */
+        .panda-fab {
+            position: fixed;
+            bottom: calc(90px + env(safe-area-inset-bottom));
+            right: 20px;
+            z-index: 998;
+            background: var(--white);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 30px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .3s;
+        }
+
+        .panda-fab:hover {
+            transform: scale(1.1);
+        }
+
+        .panda-chat {
+            display: none;
+            position: fixed;
+            bottom: calc(90px + env(safe-area-inset-bottom));
+            right: 20px;
+            width: 340px;
+            max-width: calc(100vw - 40px);
+            height: 420px;
+            max-height: 60vh;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp .3s ease;
+        }
+
+        .panda-chat.open {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .panda-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panda-title {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .panda-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panda-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #F8FAFC;
+        }
+
+        .message-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .message-row.user {
+            flex-direction: row-reverse;
+        }
+
+        .panda-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #DBEAFE;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .panda-message {
+            background: white;
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .panda-input {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .panda-input textarea {
+            flex: 1;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 14px;
+            resize: none;
+            font-family: 'Poppins', sans-serif;
+            min-height: 40px;
+            max-height: 80px;
+            outline: none;
+            transition: .2s;
+        }
+
+        .panda-input textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .panda-send {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: .3s;
+            flex-shrink: 0;
+        }
+
+        .panda-send:hover {
+            transform: scale(1.05);
+        }
+
+        /* ===== BOTTOM NAV ===== */
         .bottom-nav {
             display: none;
         }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 900px) {
-            nav.top-nav ul, 
+            nav.top-nav ul,
             nav.top-nav .nav-buttons {
-                display: none; /* Strip structural desktop actions */
+                display: none;
             }
 
             nav.top-nav {
-                justify-content: center; /* App style alignment center logo */
+                justify-content: center;
                 padding: 12px 5%;
             }
 
@@ -439,7 +652,6 @@
                 font-size: 20px;
             }
 
-            /* Responsive Framework Fixes */
             .hero {
                 grid-template-columns: 1fr;
                 text-align: center;
@@ -447,33 +659,65 @@
                 gap: 30px;
             }
 
-            .hero h1 { font-size: 34px; }
-            .hero p { margin: 0 auto 24px; }
-            .hero-buttons { justify-content: center; width: 100%; }
-            .hero-buttons .btn { flex: 1; min-width: 140px; }
+            .hero h1 {
+                font-size: 34px;
+            }
+            .hero p {
+                margin: 0 auto 24px;
+            }
+            .hero-buttons {
+                justify-content: center;
+                width: 100%;
+            }
+            .hero-buttons .btn {
+                flex: 1;
+                min-width: 140px;
+            }
 
             .stats {
                 grid-template-columns: repeat(2, 1fr);
                 padding: 20px 5%;
                 gap: 12px;
             }
-            .stat-card { padding: 16px; border-radius: 16px; }
-            .stat-card h2 { font-size: 26px; }
+            .stat-card {
+                padding: 16px;
+                border-radius: 16px;
+            }
+            .stat-card h2 {
+                font-size: 26px;
+            }
 
-            .features { padding: 40px 5%; }
-            .feature-grid { grid-template-columns: 1fr; gap: 16px; }
-            .feature-card { padding: 24px; border-radius: 20px; }
+            .features {
+                padding: 40px 5%;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .feature-card {
+                padding: 24px;
+                border-radius: 20px;
+            }
 
             .footer-grid {
                 grid-template-columns: 1fr;
                 gap: 24px;
             }
-            footer { padding: 40px 5% 40px; }
+            footer {
+                padding: 40px 5% 40px;
+            }
+
+            .panda-chat {
+                width: calc(100vw - 40px);
+                bottom: calc(90px + env(safe-area-inset-bottom));
+                right: 20px;
+                height: 400px;
+            }
         }
 
         @media (max-width: 480px) {
             .stats {
-                grid-template-columns: repeat(2, 1fr); /* Clean 2x2 grid instead of ugly full width stretch */
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -481,7 +725,11 @@
 
 <body>
 
-    <nav class="top-nav">
+    <!-- ===== OFFLINE BANNER ===== -->
+    <div id="offline-banner">🔴 You're offline. Progress will sync when back online.</div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="top-nav" id="topNav">
         <div class="logo">
             <div class="logo-badge">🐼</div>
             Hanverse
@@ -498,6 +746,7 @@
         </div>
     </nav>
 
+    <!-- ===== HERO ===== -->
     <section class="hero">
         <div>
             <div class="tag">✨ Structured YCT Learning</div>
@@ -505,7 +754,7 @@
             <p>Hanverse helps children learn Mandarin through interactive stories, games, videos, AI tutors, worksheets and structured YCT pathways.</p>
             <div class="hero-buttons">
                 <button class="btn btn-signup" onclick="location.href='signup.html'">Start Learning Free</button>
-                <button class="btn btn-login" onclick="location.href='login.html'">Watch Demo</button>
+                <button class="btn btn-login" onclick="location.href='#features'">Watch Demo</button>
             </div>
         </div>
         <div class="hero-card">
@@ -517,6 +766,7 @@
         </div>
     </section>
 
+    <!-- ===== STATS ===== -->
     <section class="stats">
         <div class="stat-card">
             <h2 id="students">0</h2>
@@ -536,7 +786,8 @@
         </div>
     </section>
 
-    <section class="features">
+    <!-- ===== FEATURES ===== -->
+    <section class="features" id="features">
         <h2 class="section-title">Why Children Love Hanverse</h2>
         <p class="section-subtitle">Fun, engaging and structured Mandarin learning designed specifically for young learners.</p>
         <div class="feature-grid">
@@ -558,6 +809,7 @@
         </div>
     </section>
 
+    <!-- ===== PARENT FEATURES ===== -->
     <section class="features" style="background: white;">
         <h2 class="section-title">Why Parents Love Hanverse</h2>
         <p class="section-subtitle">Designed to help children learn Mandarin safely, consistently and effectively.</p>
@@ -580,6 +832,7 @@
         </div>
     </section>
 
+    <!-- ===== TESTIMONIALS ===== -->
     <section class="features">
         <h2 class="section-title">What Learners Say</h2>
         <p class="section-subtitle">Children and parents love learning Mandarin with Hanverse.</p>
@@ -605,6 +858,7 @@
         </div>
     </section>
 
+    <!-- ===== TEAM ===== -->
     <section class="features" style="background: white;">
         <h2 class="section-title">Meet The Team</h2>
         <p class="section-subtitle">Passionate about making Mandarin accessible for African children.</p>
@@ -624,6 +878,7 @@
         </div>
     </section>
 
+    <!-- ===== CTA ===== -->
     <section class="cta-container">
         <div class="cta-card">
             <h2>Start Your Mandarin Adventure Today 🌟</h2>
@@ -635,6 +890,7 @@
         </div>
     </section>
 
+    <!-- ===== FOOTER ===== -->
     <footer>
         <div class="footer-grid">
             <div>
@@ -667,6 +923,7 @@
         <p style="text-align: center;">© 2026 Hanverse. All Rights Reserved.</p>
     </footer>
 
+    <!-- ===== BOTTOM NAV (Mobile) ===== -->
     <nav class="bottom-nav">
         <a href="index.html" class="active">
             <div class="nav-icon">🏠</div>
@@ -686,36 +943,55 @@
         </a>
     </nav>
 
-    <button class="panda-fab" onclick="togglePanda()" style="position: fixed; bottom: calc(90px + env(safe-area-inset-bottom)); right: 20px; z-index: 998; background: var(--white); border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center;">🐼</button>
+    <!-- ===== PANDA FAB ===== -->
+    <button class="panda-fab" id="pandaFab" aria-label="Open Panda AI Chat">🐼</button>
 
+    <!-- ===== PANDA CHAT ===== -->
     <div id="pandaChat" class="panda-chat">
         <div class="panda-header">
             <div class="panda-title">🐼 Panda AI Tutor</div>
-            <button class="panda-close" onclick="togglePanda()">✕</button>
+            <button class="panda-close" id="pandaClose">✕</button>
         </div>
         <div id="pandaBody" class="panda-body">
             <div class="message-row">
                 <div class="panda-avatar">🐼</div>
-                <div class="message panda-message">
-                    👋 Hi! Ask me anything about Mandarin.
-                </div>
+                <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
             </div>
         </div>
         <div class="panda-input">
-            <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
-            <button class="panda-send" onclick="sendPandaMessage()">➤</button>
+            <textarea id="pandaInput" placeholder="Ask Panda..." rows="1"></textarea>
+            <button class="panda-send" id="pandaSend">➤</button>
         </div>
     </div>
 
-    <script src="nav-user.js"></script>
-    <script src="panda-chat.js"></script>
     <script>
-        /* Top Navigation Scroll Accent Interaction */
+        // ============================================================
+        // 1. OFFLINE DETECTION
+        // ============================================================
+        const offlineBanner = document.getElementById('offline-banner');
+
+        function updateOfflineStatus() {
+            if (!navigator.onLine) {
+                offlineBanner.classList.add('show');
+            } else {
+                offlineBanner.classList.remove('show');
+            }
+        }
+
+        window.addEventListener('online', updateOfflineStatus);
+        window.addEventListener('offline', updateOfflineStatus);
+        updateOfflineStatus();
+
+        // ============================================================
+        // 2. NAVBAR SCROLL
+        // ============================================================
         window.addEventListener("scroll", () => {
             document.querySelector("nav.top-nav").classList.toggle("scrolled", window.scrollY > 20);
         });
 
-        /* Native Smooth Fast Animated Counters */
+        // ============================================================
+        // 3. ANIMATED COUNTERS
+        // ============================================================
         function animateCounter(id, target, suffix = '') {
             const el = document.getElementById(id);
             if (!el) return;
@@ -738,7 +1014,9 @@
             animateCounter("satisfaction", 95, "%");
         });
 
-        /* Interactivity Animation Intersection Observer */
+        // ============================================================
+        // 4. INTERSECTION OBSERVER (Cards)
+        // ============================================================
         const cards = document.querySelectorAll(".feature-card, .stat-card");
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -755,6 +1033,173 @@
             card.style.transition = "transform .5s ease, opacity .5s ease";
             observer.observe(card);
         });
+
+        // ============================================================
+        // 5. PANDA CHAT
+        // ============================================================
+        const pandaFab = document.getElementById('pandaFab');
+        const pandaChat = document.getElementById('pandaChat');
+        const pandaClose = document.getElementById('pandaClose');
+        const pandaInput = document.getElementById('pandaInput');
+        const pandaSend = document.getElementById('pandaSend');
+        const pandaBody = document.getElementById('pandaBody');
+
+        function togglePanda() {
+            pandaChat.classList.toggle('open');
+            if (pandaChat.classList.contains('open')) {
+                pandaInput.focus();
+            }
+        }
+
+        pandaFab.addEventListener('click', togglePanda);
+        pandaClose.addEventListener('click', togglePanda);
+
+        function sendPandaMessage() {
+            const text = pandaInput.value.trim();
+            if (!text) return;
+
+            // Add user message
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = `
+                <div class="message user-message">${escapeHtml(text)}</div>
+            `;
+            pandaBody.appendChild(userRow);
+
+            pandaInput.value = '';
+            pandaBody.scrollTop = pandaBody.scrollHeight;
+
+            // Simulate AI response
+            setTimeout(() => {
+                const responses = [
+                    "That's a great question! Let me help you with that. 🐼",
+                    "Interesting! Would you like to practice more? 📚",
+                    "Good job! Keep practicing and you'll improve quickly! 🌟",
+                    "Let me explain that in a simple way... 🎯",
+                    "You're doing amazing! Want to try a quiz? 🎮"
+                ];
+                const reply = responses[Math.floor(Math.random() * responses.length)];
+
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                aiRow.innerHTML = `
+                    <div class="panda-avatar">🐼</div>
+                    <div class="message panda-message">${reply}</div>
+                `;
+                pandaBody.appendChild(aiRow);
+                pandaBody.scrollTop = pandaBody.scrollHeight;
+            }, 600);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        pandaSend.addEventListener('click', sendPandaMessage);
+        pandaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendPandaMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        pandaInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+        });
+
+        // ============================================================
+        // 6. SERVICE WORKER (Offline Support)
+        // ============================================================
+      // Register Service Worker with Netlify path handling
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // Use root path for Netlify
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(registration => {
+        console.log('✅ Service Worker registered:', registration);
+        
+        // Check for updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('🔄 New version available! Reload to update.');
+              // Show update notification
+              showUpdateNotification();
+            }
+          });
+        });
+      })
+      .catch(error => {
+        console.log('❌ Service Worker registration failed:', error);
+      });
+  });
+}
+
+function showUpdateNotification() {
+  // Simple notification for new version
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+    background: #2563EB; color: white; padding: 12px 24px;
+    border-radius: 999px; font-weight: 600; z-index: 9999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2); cursor: pointer;
+  `;
+  banner.textContent = '🔄 New update available! Click to reload.';
+  banner.onclick = () => window.location.reload();
+  document.body.appendChild(banner);
+}
+
+        // ============================================================
+        // 7. LOCAL STORAGE QUOTA HANDLING
+        // ============================================================
+        function checkStorageQuota() {
+            try {
+                let total = 0;
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        total += localStorage[key].length * 2;
+                    }
+                }
+                const usageKB = (total / 1024).toFixed(2);
+                console.log(`📊 LocalStorage usage: ${usageKB} KB`);
+
+                // If > 4MB, clean old data
+                if (parseFloat(usageKB) > 4000) {
+                    console.warn('⚠️ Storage nearly full, cleaning old data...');
+                    const keys = Object.keys(localStorage);
+                    keys.forEach(key => {
+                        if (key.startsWith('offline_') || key.startsWith('temp_')) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+                }
+            } catch (e) {
+                // QuotaExceededError or other storage errors
+                console.warn('Storage check failed:', e);
+            }
+        }
+
+        // Run storage check periodically
+        setInterval(checkStorageQuota, 60000);
+        checkStorageQuota();
+
+        // ============================================================
+        // 8. SMOOTH SCROLL POLYFILL FALLBACK
+        // ============================================================
+        if (!('scrollBehavior' in document.documentElement.style)) {
+            import('https://cdn.jsdelivr.net/npm/smoothscroll-polyfill@0.4.4/dist/smoothscroll.min.js')
+                .then(() => console.log('✅ Smooth scroll polyfill loaded'))
+                .catch(() => console.log('⚠️ Smooth scroll polyfill failed'));
+        }
+
+        console.log('🐼 Hanverse loaded successfully!');
     </script>
+
 </body>
+
 </html>

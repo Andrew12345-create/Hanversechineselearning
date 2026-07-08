@@ -3080,7 +3080,126 @@ router.post('/reset-password', async (req, res) => {
     });
   }
 });
+// server.js - Sync endpoints
 
+// Sync quiz results
+app.post('/api/sync/quizzes', async (req, res) => {
+  try {
+    const { userId, quizzes } = req.body;
+    
+    // Validate user
+    const user = await db.users.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Process each quiz
+    for (const quiz of quizzes) {
+      await db.quizResults.create({
+        userId,
+        quizId: quiz.quizId,
+        answers: quiz.answers,
+        score: quiz.score,
+        timestamp: quiz.timestamp
+      });
+      
+      // Update user XP if quiz was completed successfully
+      if (quiz.score >= 70) {
+        await db.users.addXP(userId, 10); // Example: 10 XP per passed quiz
+      }
+    }
+    
+    res.json({ success: true, processed: quizzes.length });
+  } catch (error) {
+    console.error('Quiz sync error:', error);
+    res.status(500).json({ error: 'Sync failed' });
+  }
+});
+
+// Sync progress
+app.post('/api/sync/progress', async (req, res) => {
+  try {
+    const { userId, progress } = req.body;
+    
+    for (const item of progress) {
+      await db.progress.upsert({
+        userId,
+        lessonId: item.lessonId,
+        completed: item.completed,
+        score: item.score,
+        xpEarned: item.xpEarned,
+        timestamp: item.timestamp
+      });
+    }
+    
+    res.json({ success: true, processed: progress.length });
+  } catch (error) {
+    console.error('Progress sync error:', error);
+    res.status(500).json({ error: 'Sync failed' });
+  }
+});
+
+// Sync XP
+app.post('/api/sync/xp', async (req, res) => {
+  try {
+    const { userId, xp, entries } = req.body;
+    
+    // Add total XP
+    await db.users.addXP(userId, xp);
+    
+    // Log individual XP entries
+    for (const entry of entries) {
+      await db.xpLogs.create({
+        userId,
+        amount: entry.xp,
+        source: entry.source,
+        timestamp: entry.timestamp
+      });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('XP sync error:', error);
+    res.status(500).json({ error: 'Sync failed' });
+  }
+});
+
+// Sync achievements
+app.post('/api/sync/achievements', async (req, res) => {
+  try {
+    const { userId, achievements } = req.body;
+    
+    for (const achievement of achievements) {
+      await db.achievements.unlock({
+        userId,
+        achievementId: achievement.achievementId,
+        timestamp: achievement.timestamp
+      });
+    }
+    
+    res.json({ success: true, processed: achievements.length });
+  } catch (error) {
+    console.error('Achievement sync error:', error);
+    res.status(500).json({ error: 'Sync failed' });
+  }
+});
+
+// Sync streak
+app.post('/api/sync/streak', async (req, res) => {
+  try {
+    const { userId, count, lastDate } = req.body;
+    
+    await db.users.updateStreak(userId, {
+      count,
+      lastDate
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Streak sync error:', error);
+    res.status(500).json({ error: 'Sync failed' });
+  }
+});
 // ==========================================
 // ROOT DESK INDEX ROUTE 🏡
 // ==========================================
