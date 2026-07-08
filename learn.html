@@ -150,18 +150,69 @@
             }
         }
 
-        .user-status {
-            display: flex;
-            align-items: center;
+        .user-status-text {
             font-size: .65rem;
             color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        .user-status.online {
+        .user-status-text.online {
             color: #4CAF50;
         }
-        .user-status.offline {
+        .user-status-text.offline {
             color: #FF5722;
+        }
+
+        /* ===== MOBILE STATUS BAR (always visible) ===== */
+        #mobile-status {
+            display: none;
+            text-align: center;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #F8FAFC;
+            border-bottom: 1px solid var(--border);
+            transition: .3s;
+        }
+
+        #mobile-status.online {
+            color: #4CAF50;
+            background: #E8F5E9;
+        }
+
+        #mobile-status.offline {
+            color: #FF5722;
+            background: #FFEBEE;
+            animation: pulseBg 2s infinite;
+        }
+
+        @keyframes pulseBg {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        #mobile-status .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        #mobile-status .status-dot.online {
+            background: #4CAF50;
+        }
+        #mobile-status .status-dot.offline {
+            background: #FF5722;
+            animation: pulse 1s infinite;
         }
 
         /* ===== NAV ===== */
@@ -251,14 +302,6 @@
         .user-name {
             font-weight: 700;
             font-size: .8rem;
-        }
-
-        .user-status-text {
-            font-size: .65rem;
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
         /* ===== HERO ===== */
@@ -889,6 +932,11 @@
                 padding: 10px 5%;
             }
 
+            /* Show mobile status bar */
+            #mobile-status {
+                display: block;
+            }
+
             .bottom-nav {
                 display: flex;
                 position: fixed;
@@ -1015,6 +1063,12 @@
             <span>You're offline. Progress is saved locally.</span>
             <button class="sync-btn" onclick="forceSync()">🔄 Sync Now</button>
         </div>
+    </div>
+
+    <!-- ===== MOBILE STATUS BAR (always visible on mobile) ===== -->
+    <div id="mobile-status">
+        <span class="status-dot online" id="mobileStatusDot"></span>
+        <span id="mobileStatusLabel">Online</span>
     </div>
 
     <!-- ===== NAV ===== -->
@@ -1279,7 +1333,7 @@
     <div id="toast" class="toast"></div>
 
     <!-- ============================================================ -->
-    <!-- ===== COMPLETE JAVASCRIPT WITH OFFLINE SYNC ===== -->
+    <!-- ===== JAVASCRIPT ===== -->
     <!-- ============================================================ -->
     <script>
         // ============================================================
@@ -1299,27 +1353,28 @@
         const continueBtn = document.getElementById('continueBtn');
         const toast = document.getElementById('toast');
 
+        // Mobile status elements
+        const mobileStatus = document.getElementById('mobile-status');
+        const mobileStatusDot = document.getElementById('mobileStatusDot');
+        const mobileStatusLabel = document.getElementById('mobileStatusLabel');
+
         // ============================================================
         // 1. OFFLINE DETECTION & UI
         // ============================================================
         function updateConnectionStatus() {
             const isOnline = navigator.onLine;
 
-            // Update banner
+            // ---- Desktop / Tablet Status ----
             if (isOnline) {
                 offlineBanner.classList.remove('show');
-            } else {
-                offlineBanner.classList.add('show');
-            }
-
-            // Update status in nav
-            if (isOnline) {
                 statusDot.className = 'status-dot online';
                 statusLabel.textContent = 'Online';
                 connectionStatus.className = 'user-status-text online';
                 continueBtn.className = 'btn btn-primary';
                 continueBtn.disabled = false;
+                continueBtn.textContent = '🚀 Continue Learning';
             } else {
+                offlineBanner.classList.add('show');
                 statusDot.className = 'status-dot offline';
                 statusLabel.textContent = 'Offline';
                 connectionStatus.className = 'user-status-text offline';
@@ -1327,13 +1382,23 @@
                 continueBtn.disabled = true;
                 continueBtn.textContent = '📡 Offline - Waiting for Connection';
             }
+
+            // ---- Mobile Status Bar ----
+            if (isOnline) {
+                mobileStatus.className = 'online';
+                mobileStatusDot.className = 'status-dot online';
+                mobileStatusLabel.textContent = '🟢 Online';
+            } else {
+                mobileStatus.className = 'offline';
+                mobileStatusDot.className = 'status-dot offline';
+                mobileStatusLabel.textContent = '🔴 Offline - Data saved locally';
+            }
         }
 
         // Listen for online/offline events
         window.addEventListener('online', () => {
             updateConnectionStatus();
             showToast('🟢 Back online! Syncing data...', 'success');
-            // Auto-sync when coming back online
             setTimeout(forceSync, 1000);
         });
 
@@ -1350,7 +1415,6 @@
         function showToast(message, type = 'info') {
             toast.textContent = message;
             toast.className = 'toast ' + type;
-            // Force reflow
             void toast.offsetWidth;
             toast.classList.add('show');
 
@@ -1364,16 +1428,13 @@
         // 3. OFFLINE STORAGE FUNCTIONS
         // ============================================================
 
-        // Save progress locally (works offline)
         function saveProgressLocally(lessonId, score, xpEarned) {
             const user = getCurrentUser();
             if (!user) return;
 
             try {
-                // Get existing progress
                 let progress = JSON.parse(localStorage.getItem(OFFLINE_PROGRESS_KEY) || '{}');
 
-                // Update progress for this lesson
                 progress[`${user.id}_${lessonId}`] = {
                     lessonId,
                     completed: true,
@@ -1384,7 +1445,6 @@
 
                 localStorage.setItem(OFFLINE_PROGRESS_KEY, JSON.stringify(progress));
 
-                // Also queue for sync
                 queueForSync('progress', {
                     userId: user.id,
                     lessonId,
@@ -1393,9 +1453,7 @@
                     timestamp: new Date().toISOString()
                 });
 
-                // Update local dashboard
                 updateLocalDashboard(user.id);
-
                 showToast('✅ Progress saved locally!', 'success');
 
             } catch (error) {
@@ -1404,7 +1462,6 @@
             }
         }
 
-        // Queue actions for later sync
         function queueForSync(type, data) {
             try {
                 let queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
@@ -1415,26 +1472,25 @@
                     timestamp: new Date().toISOString()
                 });
                 localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-
-                // Update queue count in UI
                 updateQueueBadge(queue.length);
-
             } catch (error) {
                 console.error('Error queueing for sync:', error);
             }
         }
 
         function updateQueueBadge(count) {
-            // You can add a badge in the UI showing pending sync count
-            const badge = document.getElementById('syncBadge');
-            if (badge) {
-                badge.textContent = count > 0 ? count : '';
-                badge.style.display = count > 0 ? 'inline' : 'none';
+            // Update mobile status to show queue count
+            if (count > 0 && !navigator.onLine) {
+                mobileStatusLabel.textContent = `📡 ${count} items queued`;
+            } else if (navigator.onLine) {
+                mobileStatusLabel.textContent = '🟢 Online';
+            } else {
+                mobileStatusLabel.textContent = '🔴 Offline';
             }
         }
 
         // ============================================================
-        // 4. SYNC TO DB (when online)
+        // 4. SYNC TO DB
         // ============================================================
         async function forceSync() {
             if (!navigator.onLine) {
@@ -1450,7 +1506,6 @@
             }
 
             try {
-                // Get queue
                 const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
                 if (queue.length === 0) {
                     showToast('✅ No data to sync', 'success');
@@ -1464,7 +1519,6 @@
 
                 showToast(`🔄 Syncing ${queue.length} items...`, 'info');
 
-                // Process each item
                 const results = [];
                 for (const item of queue) {
                     try {
@@ -1476,13 +1530,11 @@
                     }
                 }
 
-                // Remove successfully synced items
                 const failed = results.filter(r => !r.success);
                 if (failed.length === 0) {
                     localStorage.removeItem(OFFLINE_QUEUE_KEY);
                     showToast(`✅ All ${queue.length} items synced!`, 'success');
                 } else {
-                    // Keep failed items in queue
                     const failedData = failed.map(f => ({
                         id: f.id,
                         type: f.type,
@@ -1490,10 +1542,9 @@
                         timestamp: f.timestamp
                     }));
                     localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(failedData));
-                    showToast(`⚠️ ${failed.length}/${queue.length} items synced. ${failed.length} failed.`, 'error');
+                    showToast(`⚠️ ${failed.length}/${queue.length} items synced.`, 'error');
                 }
 
-                // Update dashboard after sync
                 const user = getCurrentUser();
                 if (user) {
                     await fetchUserData(user.id);
@@ -1510,13 +1561,12 @@
                 syncBtn.disabled = false;
             }
 
-            // Update queue badge
             const remaining = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
             updateQueueBadge(remaining.length);
         }
 
         async function syncItem(item) {
-            // Simulate API call - replace with actual fetch to your backend
+            // REPLACE THIS with your actual API call
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     console.log(`✅ Synced ${item.type}:`, item.data);
@@ -1541,17 +1591,12 @@
                 const progress = JSON.parse(localStorage.getItem(OFFLINE_PROGRESS_KEY) || '{}');
                 const userProgress = Object.values(progress).filter(p => p.userId === userId || p.userId === undefined);
 
-                // Count completed lessons
                 const completed = userProgress.filter(p => p.completed).length;
-
-                // Calculate total XP
                 const totalXP = userProgress.reduce((sum, p) => sum + (p.xpEarned || 0), 0);
 
-                // Update UI
                 document.getElementById('lessonValue').textContent = completed;
                 document.getElementById('xpValue').textContent = totalXP;
 
-                // Also update streak if available
                 const streak = JSON.parse(localStorage.getItem('hanverse_streak') || '{"count":0}');
                 document.getElementById('streakValue').textContent = streak.count || 0;
 
@@ -1561,10 +1606,8 @@
         }
 
         async function fetchUserData(userId) {
-            // If online, fetch from server
             if (navigator.onLine) {
                 try {
-                    // Replace with actual API call
                     const response = await fetch(`/api/user/${userId}`);
                     if (response.ok) {
                         const data = await response.json();
@@ -1578,13 +1621,11 @@
                     console.warn('Could not fetch user data from server, using local');
                 }
             }
-
-            // Fallback to local
             updateLocalDashboard(userId);
         }
 
         // ============================================================
-        // 6. COMPLETE LESSON (Main Action)
+        // 6. COMPLETE LESSON
         // ============================================================
         function completeLesson() {
             const user = getCurrentUser();
@@ -1594,20 +1635,16 @@
                 return;
             }
 
-            // Generate random lesson ID for demo
             const lessonId = 'lesson_' + Math.floor(Math.random() * 10) + 1;
-            const score = Math.floor(Math.random() * 30) + 70; // 70-100
-            const xpEarned = Math.floor(Math.random() * 15) + 5; // 5-20
+            const score = Math.floor(Math.random() * 30) + 70;
+            const xpEarned = Math.floor(Math.random() * 15) + 5;
 
-            // Save locally (works offline)
             saveProgressLocally(lessonId, score, xpEarned);
 
-            // If online, try to sync immediately
             if (navigator.onLine) {
                 setTimeout(forceSync, 1000);
             }
 
-            // Animate feedback
             const btn = continueBtn;
             btn.textContent = '✅ Completed! +' + xpEarned + ' XP';
             btn.style.background = '#10B981';
@@ -1635,7 +1672,6 @@
 
             const body = document.getElementById('pandaBody');
 
-            // Add user message
             const userRow = document.createElement('div');
             userRow.className = 'message-row user';
             userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
@@ -1643,7 +1679,6 @@
             input.value = '';
             body.scrollTop = body.scrollHeight;
 
-            // Simulate AI response
             setTimeout(() => {
                 const responses = [
                     "That's a great question! Let me help you with that. 🐼",
@@ -1671,7 +1706,6 @@
             return div.innerHTML;
         }
 
-        // Enter key to send message
         document.addEventListener('DOMContentLoaded', () => {
             const input = document.getElementById('pandaInput');
             if (input) {
@@ -1695,7 +1729,8 @@
             }
             const box = document.getElementById('recommendationBox');
             box.style.display = 'block';
-            box.innerHTML = `<h3>🎯 Recommended Path: YCT ${level}</h3><p>HanVerse recommends beginning with YCT ${level}. Ready to start your journey?</p>`;
+            box.innerHTML =
+                `<h3>🎯 Recommended Path: YCT ${level}</h3><p>HanVerse recommends beginning with YCT ${level}. Ready to start your journey?</p>`;
         }
 
         function takeAssessment() {
@@ -1713,7 +1748,6 @@
             document.getElementById('premiumPopup').style.display = 'none';
         }
 
-        // Close premium popup on overlay click
         document.addEventListener('DOMContentLoaded', () => {
             const popup = document.getElementById('premiumPopup');
             if (popup) {
@@ -1729,26 +1763,23 @@
         // 10. INITIALIZATION
         // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
-            // Set initial connection status
             updateConnectionStatus();
 
-            // Load user data
             const user = getCurrentUser();
             if (user) {
                 document.getElementById('navUsername').textContent = user.username || 'Learner';
                 fetchUserData(user.id);
             }
 
-            // Check if there's pending sync data
             const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
             if (queue.length > 0 && navigator.onLine) {
                 showToast(`🔄 ${queue.length} items pending sync...`, 'info');
                 setTimeout(forceSync, 2000);
             } else if (queue.length > 0 && !navigator.onLine) {
                 showToast(`📡 ${queue.length} items queued for sync`, 'info');
+                mobileStatusLabel.textContent = `📡 ${queue.length} queued`;
             }
 
-            // Auto-sync every 5 minutes when online
             setInterval(() => {
                 if (navigator.onLine) {
                     const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
@@ -1756,7 +1787,7 @@
                         forceSync();
                     }
                 }
-            }, 300000); // 5 minutes
+            }, 300000);
 
             console.log('🐼 HanVerse Learn Page Loaded');
             console.log(`📊 Queue size: ${queue.length}`);
