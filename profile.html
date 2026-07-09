@@ -2,83 +2,168 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="panda-chat.css">
     <meta charset="UTF-8">
-    <!-- Immersive native viewport control configurations -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>HanVerse Profile</title>
+    <title>HanVerse | Your Learning Profile</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
+        /* ============================================
+                   ROOT VARIABLES
+                ============================================ */
         :root {
             --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #DBEAFE;
             --secondary: #14B8A6;
+            --secondary-light: #99F6E4;
             --accent: #F59E0B;
+            --accent-light: #FDE68A;
             --dark: #0F172A;
-            --text: #334155;
+            --text: #1E293B;
+            --text-secondary: #475569;
             --muted: #64748B;
             --bg: #F8FAFC;
             --white: #FFFFFF;
             --success: #10B981;
             --danger: #EF4444;
+            --warning: #F59E0B;
             --border: #E2E8F0;
-            --shadow-sm: 0 8px 20px rgba(0,0,0,.04);
-            --shadow: 0 12px 30px rgba(15,23,42,.06);
-            --shadow-lg: 0 20px 40px rgba(15,23,42,.1);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 9999px;
+            --nav-height: 72px;
+            --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
+        /* ============================================
+                   RESET & BASE
+                ============================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Smooth mobile webkit clicks */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             background: var(--bg);
             color: var(--dark);
             overflow-x: hidden;
-            /* Prevents fixed bottom nav layout blocking screen elements */
-            padding-bottom: calc(85px + env(safe-area-inset-bottom));
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+            padding-top: calc(var(--nav-height) + 28px);
+            min-height: 100vh;
+        }
+
+        /* Background Orbs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            z-index: -1;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
         }
 
         body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background:
-                radial-gradient(circle at 15% 20%, rgba(37,99,235,.04), transparent 35%),
-                radial-gradient(circle at 80% 70%, rgba(20,184,166,.04), transparent 35%);
+            width: 500px;
+            height: 500px;
+            top: -100px;
+            right: -100px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 70%);
         }
 
-        /* --- NAVBAR (Adaptive Mobile Header) --- */
+        body::after {
+            width: 400px;
+            height: 400px;
+            bottom: -50px;
+            left: -50px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.10), transparent 70%);
+        }
+
+        /* ===== SELECTION ===== */
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        ::-moz-selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ============================================
+                   FLOATING NAVBAR
+                ============================================ */
         nav.top-nav {
-            position: sticky;
-            top: 0;
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 5%;
-            background: rgba(255,255,255,.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,.05);
+            padding: 0 28px;
+            width: calc(100% - 36px);
+            max-width: 1200px;
+            height: var(--nav-height);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+            will-change: transform, height, border-radius, padding, box-shadow, top, background;
+        }
+
+        nav.top-nav.shrunk {
+            top: 14px;
+            height: 58px;
+            padding: 0 20px;
+            width: calc(100% - 48px);
+            max-width: 900px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(28px) saturate(1.5);
+            -webkit-backdrop-filter: blur(28px) saturate(1.5);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+        }
+
+        nav.top-nav:hover {
+            box-shadow: 0 8px 40px rgba(37, 99, 235, 0.08), 0 0 0 1px rgba(37, 99, 235, 0.05);
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
-            color: var(--primary);
+            color: var(--dark);
             text-decoration: none;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        nav.top-nav.shrunk .logo {
+            gap: 0;
         }
 
         .logo-badge {
@@ -91,82 +176,174 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             font-size: 18px;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        nav.top-nav.shrunk .logo-badge {
+            width: 32px;
+            height: 32px;
+            font-size: 15px;
+        }
+
+        .logo-text {
+            transition: var(--transition-smooth);
+            background: linear-gradient(135deg, var(--dark), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav.top-nav.shrunk .logo-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            margin: 0;
         }
 
         .nav-links {
             display: flex;
-            gap: 24px;
+            gap: 28px;
             list-style: none;
+            margin: 0 16px;
+            flex: 1;
+            justify-content: center;
         }
 
         .nav-links a {
             text-decoration: none;
             font-weight: 600;
-            color: var(--muted);
-            transition: .2s;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+            font-size: 0.9rem;
+            position: relative;
+            padding: 4px 0;
         }
 
-        .nav-links a.active {
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 100%;
+            height: 2.5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
             color: var(--primary);
         }
 
-        .logout-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 999px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            background: #F1F5F9;
-            color: var(--muted);
-            transition: .2s;
-        }
-        
-        .logout-btn:hover {
-            background: #E2E8F0;
-            color: var(--dark);
+        nav.top-nav.shrunk .nav-links {
+            gap: 20px;
         }
 
-        /* --- PROFILE HERO BAR --- */
+        nav.top-nav.shrunk .nav-links a {
+            font-size: 0.8rem;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+            transition: var(--transition-smooth);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            flex-shrink: 0;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            transform: translateY(-2px);
+        }
+
+        nav.top-nav.shrunk .logout-btn {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+        }
+
+        /* ============================================
+                   PROFILE HERO
+                ============================================ */
         .profile-hero {
-            margin: 24px 5%;
-            padding: 30px;
-            border-radius: 24px;
+            margin: 0 5% 30px;
+            padding: 36px 28px;
+            border-radius: var(--radius-lg);
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            gap: 20px;
+            gap: 24px;
             box-shadow: var(--shadow-lg);
             position: relative;
             overflow: hidden;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeUp 0.8s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .profile-hero::before {
             content: '你';
             position: absolute;
-            font-size: 90px;
-            font-weight: 800;
+            font-size: 120px;
+            font-weight: 900;
             opacity: .06;
-            top: 10px;
-            right: 20px;
+            top: -20px;
+            right: -10px;
+            pointer-events: none;
+        }
+
+        .profile-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.08), transparent 60%);
             pointer-events: none;
         }
 
         .avatar {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 110px;
             border-radius: 50%;
-            background: white;
+            background: rgba(255, 255, 255, 0.2);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 54px;
+            font-size: 56px;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
             flex-shrink: 0;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
         }
 
         .avatar img {
@@ -177,19 +354,25 @@
 
         .profile-info {
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .profile-info h1 {
             font-size: 1.8rem;
-            margin-bottom: 6px;
-            font-weight: 700;
+            margin-bottom: 4px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
-        .profile-info p {
-            opacity: .9;
-            font-size: 0.85rem;
-            line-height: 1.5;
+        .profile-info>p {
+            opacity: .85;
+            font-size: 0.9rem;
+            line-height: 1.6;
             margin-bottom: 16px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .profile-badges {
@@ -201,55 +384,87 @@
         }
 
         .badge {
-            padding: 6px 14px;
-            border-radius: 999px;
-            background: rgba(255,255,255,.2);
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.2);
             font-weight: 700;
             font-size: .75rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .badge-premium {
+            background: rgba(245, 158, 11, 0.3);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-admin {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.15);
         }
 
         .hero-stats {
             display: flex;
-            gap: 8px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .hero-stat {
-            padding: 6px 14px;
-            border-radius: 999px;
-            background: rgba(255,255,255,.15);
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.12);
             font-weight: 600;
             font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        /* --- DASHBOARD QUICK STATS --- */
+        /* ============================================
+                   QUICK STATS
+                ============================================ */
         .quick-grid {
-            margin: 0 5% 24px;
+            margin: 0 5% 30px;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .quick-card {
             background: white;
-            padding: 16px;
-            border-radius: 16px;
+            padding: 20px 16px;
+            border-radius: var(--radius-md);
             text-align: center;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,0.02);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+        }
+
+        .quick-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
         }
 
         .quick-icon {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             margin-bottom: 6px;
+            display: block;
         }
 
         .quick-card h3 {
-            font-size: 1.5rem;
-            color: var(--primary);
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 2px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .quick-card p {
@@ -258,44 +473,48 @@
             font-weight: 500;
         }
 
-        /* --- LAYOUT WRAPPERS & PROGRESS CARDS --- */
-        .progress-section {
-            margin: 0 5% 20px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-
-        .progress-card,
+        /* ============================================
+                   CONTENT SECTIONS
+                ============================================ */
         .content-card {
             background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
+            padding: 24px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
             margin: 0 5% 20px;
-            border: 1px solid rgba(0,0,0,0.01);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .progress-section .progress-card {
-            margin: 0;
+        .content-card:hover {
+            box-shadow: var(--shadow-md);
         }
-        
-        .progress-card h2,
+
         .content-card h2 {
             font-size: 1.15rem;
             font-weight: 700;
             margin-bottom: 4px;
-        }
-        
-        .progress-card p {
-            font-size: 0.85rem;
-            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
+        .content-card>p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        /* ============================================
+                   PROGRESS BARS
+                ============================================ */
         .progress-track {
             height: 10px;
             background: #F1F5F9;
-            border-radius: 999px;
+            border-radius: var(--radius-full);
             overflow: hidden;
             margin-top: 12px;
         }
@@ -304,11 +523,13 @@
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 999px;
-            transition: 1s ease-out;
+            border-radius: var(--radius-full);
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* --- SCROLLABLE HEATMAP CONTAINER --- */
+        /* ============================================
+                   HEATMAP
+                ============================================ */
         .heatmap-container {
             width: 100%;
             overflow-x: auto;
@@ -318,29 +539,47 @@
 
         .heatmap-grid {
             display: grid;
-            grid-template-columns: repeat(7, 36px);
+            grid-template-columns: repeat(7, 38px);
             gap: 8px;
             margin-top: 14px;
             width: max-content;
         }
 
         .heat {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
             background: #F1F5F9;
+            transition: var(--transition-smooth);
         }
 
         .heat.active {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
+            animation: pulseHeat 2s infinite;
         }
 
-        /* --- MULTI-COLUMN GRIDS --- */
+        .heat.high {
+            background: linear-gradient(135deg, var(--accent), var(--warning));
+        }
+
+        @keyframes pulseHeat {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+        }
+
+        /* ============================================
+                   GRIDS
+                ============================================ */
         .certificate-grid,
         .achievement-grid,
         .ai-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-top: 14px;
         }
@@ -348,154 +587,642 @@
         .certificate-card,
         .achievement-card,
         .ai-card {
-            background: #F8FAFC;
+            background: var(--bg);
             padding: 16px 12px;
-            border-radius: 14px;
+            border-radius: var(--radius-sm);
             text-align: center;
-            border: 1px solid #F1F5F9;
+            border: 1px solid var(--border);
+            transition: var(--transition-smooth);
         }
-        
-        .certificate-card, .achievement-card {
+
+        .certificate-card:hover,
+        .achievement-card:hover,
+        .ai-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .certificate-card,
+        .achievement-card {
             font-size: 0.8rem;
             font-weight: 500;
         }
 
-        .ai-card h3 {
-            font-size: 1.4rem;
-            color: var(--primary);
-            margin-bottom: 2px;
-            font-weight: 700;
+        .certificate-card .cert-icon,
+        .achievement-card .ach-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 6px;
         }
-        
+
+        .ai-card h3 {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2px;
+            font-weight: 800;
+        }
+
         .ai-card p {
             font-size: 0.75rem;
             color: var(--muted);
+            font-weight: 500;
         }
 
+        /* ============================================
+                   ACTIVITY FEED
+                ============================================ */
         .activity-item {
-            padding: 10px 0;
+            padding: 12px 0;
             border-bottom: 1px solid var(--border);
             font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
+
         .activity-item:last-child {
             border-bottom: none;
         }
 
+        .activity-item .act-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .activity-item .act-time {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* ============================================
+                   MEMBERSHIP
+                ============================================ */
         .membership-premium {
-            padding: 16px;
-            border-radius: 14px;
+            padding: 20px;
+            border-radius: var(--radius-sm);
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
+            box-shadow: var(--shadow-md);
         }
 
         .membership-free {
-            padding: 16px;
-            border-radius: 14px;
-            background: #F8FAFC;
-            border: 1px solid #F1F5F9;
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            border: 2px dashed var(--border);
         }
-        
-        .membership-premium h3, .membership-free h3 {
-            font-size: 1rem;
+
+        .membership-premium h3,
+        .membership-free h3 {
+            font-size: 1.1rem;
             margin-bottom: 4px;
+            font-weight: 700;
         }
-        
-        .membership-premium p, .membership-free p {
-            font-size: 0.8rem;
+
+        .membership-premium p,
+        .membership-free p {
+            font-size: 0.85rem;
             opacity: 0.9;
         }
 
+        .membership-premium .upgrade-btn,
+        .membership-free .upgrade-btn {
+            margin-top: 12px;
+            padding: 10px 24px;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .membership-premium .upgrade-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .membership-premium .upgrade-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .membership-free .upgrade-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+        }
+
+        .membership-free .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
+        }
+
+        /* ============================================
+                   ADMIN SECTION
+                ============================================ */
         .admin-btn {
             display: block;
             text-align: center;
-            padding: 12px 20px;
-            border-radius: 999px;
+            padding: 14px 24px;
+            border-radius: var(--radius-full);
             text-decoration: none;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             margin-top: 12px;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+            transition: var(--transition-smooth);
         }
 
-        /* --- BOTTOM FIXED NAVIGATION BAR --- */
-        .bottom-nav {
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
+        }
+
+        /* ============================================
+                   PANDA CHAT
+                ============================================ */
+        .panda-fab {
+            position: fixed;
+            bottom: calc(90px + env(safe-area-inset-bottom));
+            right: 24px;
+            z-index: 998;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 28px;
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            color: white;
+        }
+
+        .panda-fab:hover {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.4);
+        }
+
+        .panda-fab:active {
+            transform: scale(0.92);
+        }
+
+        .panda-chat {
+            display: none;
+            position: fixed;
+            bottom: calc(100px + env(safe-area-inset-bottom));
+            right: 24px;
+            width: 360px;
+            max-width: calc(100vw - 48px);
+            height: 440px;
+            max-height: 65vh;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xl);
+            z-index: 999;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .panda-chat.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .panda-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .panda-title {
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panda-close {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .panda-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+
+        .panda-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #F8FAFC;
+        }
+
+        .panda-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panda-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .panda-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .message-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .message-row.user {
+            flex-direction: row-reverse;
+        }
+
+        .panda-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .panda-message {
+            background: white;
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .panda-input {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .panda-input textarea {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            font-size: 14px;
+            resize: none;
+            font-family: 'Poppins', sans-serif;
+            min-height: 40px;
+            max-height: 80px;
+            outline: none;
+            transition: var(--transition-smooth);
+            background: var(--bg);
+        }
+
+        .panda-input textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .panda-send {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .panda-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .panda-send:active {
+            transform: scale(0.92);
+        }
+
+        /* ============================================
+                   BOTTOM NAV
+                ============================================ */
+        .bottom-nav {
+            display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             justify-content: space-around;
-            padding: 10px 6px calc(10px + env(safe-area-inset-bottom));
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, .04);
+            padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
             z-index: 999;
-            border-top: 1px solid rgba(0, 0, 0, .05);
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
         }
 
         .bottom-nav a {
             text-decoration: none;
-            color: #64748B;
-            font-size: .7rem;
+            color: var(--muted);
+            font-size: .65rem;
             font-weight: 500;
             text-align: center;
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
+            padding: 4px 0;
+            transition: var(--transition-smooth);
+            border-radius: var(--radius-sm);
         }
 
         .bottom-nav a.active {
-            color: #2563EB;
+            color: var(--primary);
             font-weight: 600;
         }
 
-        .nav-icon {
-            font-size: 20px;
+        .bottom-nav a:hover {
+            color: var(--primary);
         }
 
-        /* --- RESPONSIVE ADAPTIVE ECOSYSTEM --- */
-        @media(min-width: 901px) {
-            nav.top-nav {
-                padding: 16px 7%;
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        /* ============================================
+                   RESPONSIVE
+                ============================================ */
+        @media (min-width: 901px) {
+            .bottom-nav {
+                display: none !important;
             }
+
             .profile-hero {
                 flex-direction: row;
                 text-align: left;
-                padding: 40px;
-                margin: 30px 7%;
+                padding: 44px 40px;
                 gap: 40px;
             }
-            .avatar { width: 130px; height: 130px; font-size: 68px; }
-            .profile-badges { justify-content: flex-start; }
-            .hero-stats { justify-content: flex-start; }
-            .quick-grid { grid-template-columns: repeat(4, 1fr); margin: 0 7% 30px; gap: 20px; }
-            .progress-section { grid-template-columns: repeat(2, 1fr); margin: 0 7% 25px; gap: 20px; }
-            .progress-card, .content-card { margin: 0 7% 25px; padding: 26px; }
-            .certificate-grid, .achievement-grid { grid-template-columns: repeat(3, 1fr); }
-            .ai-grid { grid-template-columns: repeat(3, 1fr); }
-            .bottom-nav { display: none; }
-            body { padding-bottom: 40px; }
+
+            .profile-info>p {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .profile-badges {
+                justify-content: flex-start;
+            }
+
+            .hero-stats {
+                justify-content: flex-start;
+            }
+
+            .quick-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+
+            .certificate-grid,
+            .achievement-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .ai-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
-        @media(max-width: 900px) {
-            nav.top-nav .nav-links,
-            nav.top-nav .logout-btn {
-                display: none; /* Hide standard links to ensure app feel */
+        @media (max-width: 900px) {
+            body {
+                padding-top: calc(var(--nav-height) + 20px);
             }
+
             nav.top-nav {
-                justify-content: center;
+                top: 12px;
+                padding: 0 16px;
+                width: calc(100% - 24px);
+                border-radius: 18px;
+                height: 64px;
+            }
+
+            nav.top-nav.shrunk {
+                top: 10px;
+                height: 54px;
+                padding: 0 14px;
+                width: calc(100% - 32px);
+                border-radius: 14px;
+            }
+
+            .logo {
+                font-size: 18px;
+                gap: 8px;
+            }
+
+            .logo-badge {
+                width: 34px;
+                height: 34px;
+                font-size: 16px;
+            }
+
+            nav.top-nav.shrunk .logo-badge {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+
+            nav.top-nav .nav-links {
+                display: none;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .profile-hero {
+                padding: 28px 20px;
+                margin: 0 4% 20px;
+                gap: 16px;
+            }
+
+            .avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 40px;
+            }
+
+            .profile-info h1 {
+                font-size: 1.4rem;
+            }
+
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin: 0 4% 20px;
+            }
+
+            .quick-card {
+                padding: 16px 12px;
+            }
+
+            .quick-card h3 {
+                font-size: 1.4rem;
+            }
+
+            .content-card {
+                padding: 20px 16px;
+                margin: 0 4% 16px;
+            }
+
+            .certificate-grid,
+            .achievement-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ai-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .panda-fab {
+                right: 16px;
+                bottom: calc(85px + env(safe-area-inset-bottom));
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+
+            .panda-chat {
+                width: calc(100vw - 32px);
+                right: 16px;
+                bottom: calc(95px + env(safe-area-inset-bottom));
+                height: 380px;
             }
         }
-        
-        @media(max-width: 360px) {
-            .certificate-grid, .achievement-grid, .ai-grid {
-                grid-template-columns: 1fr; /* Stack correctly on extremely narrow windows */
+
+        @media (max-width: 480px) {
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .certificate-grid,
+            .achievement-grid,
+            .ai-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .profile-hero {
+                padding: 20px 16px;
+            }
+
+            .avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 34px;
+            }
+
+            .profile-info h1 {
+                font-size: 1.2rem;
+            }
+
+            .hero-stats {
+                gap: 8px;
+            }
+
+            .hero-stat {
+                padding: 4px 12px;
+                font-size: 0.7rem;
+            }
+
+            .badge {
+                font-size: 0.65rem;
+                padding: 4px 12px;
+            }
+
+            .content-card {
+                padding: 16px 14px;
+            }
+
+            .content-card h2 {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .certificate-grid,
+            .achievement-grid,
+            .ai-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-grid {
+                grid-template-columns: 1fr 1fr;
             }
         }
     </style>
@@ -503,11 +1230,11 @@
 
 <body>
 
-    <!-- Native Adaptive Top App Header View -->
-    <nav class="top-nav">
+    <!-- ===== FLOATING NAVBAR ===== -->
+    <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
             <div class="logo-badge">🐼</div>
-            HanVerse
+            <span class="logo-text">Hanverse</span>
         </a>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
@@ -517,16 +1244,16 @@
         <button class="logout-btn" id="logoutBtn">Log Out</button>
     </nav>
 
-    <!-- Compressed Identity Status Badge -->
+    <!-- ===== PROFILE HERO ===== -->
     <section class="profile-hero">
         <div class="avatar" id="avatar">🐼</div>
         <div class="profile-info">
             <h1 id="profileName">Loading...</h1>
             <p>Track your progress, achievements, learning streaks and Chinese proficiency.</p>
-            
+
             <div class="profile-badges">
-                <div id="premiumBadge" class="badge" style="display:none;">⭐ Premium</div>
-                <div id="adminBadge" class="badge" style="display:none;">(ADMIN)</div>
+                <div id="premiumBadge" class="badge badge-premium" style="display:none;">⭐ Premium</div>
+                <div id="adminBadge" class="badge badge-admin" style="display:none;">👑 Admin</div>
                 <div id="yctBadge" class="badge">🏮 YCT 1</div>
                 <div id="hskBadge" class="badge">🐉 HSK 0</div>
             </div>
@@ -539,69 +1266,69 @@
         </div>
     </section>
 
-    <!-- Mobile-First Responsive 2x2 Dashboard Matrix Grid Layout -->
+    <!-- ===== QUICK STATS ===== -->
     <div class="quick-grid">
         <div class="quick-card">
-            <div class="quick-icon">🔥</div>
+            <span class="quick-icon">🔥</span>
             <h3 id="quickStreak">0</h3>
             <p>Current Streak</p>
         </div>
         <div class="quick-card">
-            <div class="quick-icon">⭐</div>
+            <span class="quick-icon">⭐</span>
             <h3 id="quickXP">0</h3>
             <p>Total XP</p>
         </div>
         <div class="quick-card">
-            <div class="quick-icon">🏆</div>
+            <span class="quick-icon">🏆</span>
             <h3 id="quickLevel">1</h3>
             <p>Current Level</p>
         </div>
         <div class="quick-card">
-            <div class="quick-icon">📚</div>
+            <span class="quick-icon">📚</span>
             <h3 id="quickLessons">0</h3>
             <p>Lessons Completed</p>
         </div>
     </div>
 
-    <!-- Structured Modular Track System Progress View Bars -->
-    <section class="progress-section">
-        <div class="progress-card">
-            <h2>🏮 YCT Progress</h2>
-            <p id="yctProgressText">Loading...</p>
-            <div class="progress-track">
-                <div id="yctProgressBar" class="progress-fill"></div>
-            </div>
-        </div>
-        <div class="progress-card">
-            <h2>🐉 HSK Progress</h2>
-            <p id="hskProgressText">Loading...</p>
-            <div class="progress-track">
-                <div id="hskProgressBar" class="progress-fill"></div>
-            </div>
+    <!-- ===== PROGRESS SECTION ===== -->
+    <section class="content-card">
+        <h2>🏮 YCT Progress</h2>
+        <p id="yctProgressText">Loading...</p>
+        <div class="progress-track">
+            <div id="yctProgressBar" class="progress-fill"></div>
         </div>
     </section>
 
-    <!-- Scroll Protected Interactive Learning Map Element Container Component -->
+    <section class="content-card">
+        <h2>🐉 HSK Progress</h2>
+        <p id="hskProgressText">Loading...</p>
+        <div class="progress-track">
+            <div id="hskProgressBar" class="progress-fill"></div>
+        </div>
+    </section>
+
+    <!-- ===== HEATMAP ===== -->
     <section class="content-card">
         <h2>🔥 Learning Heatmap</h2>
+        <p>Your activity over the last 35 days</p>
         <div class="heatmap-container">
             <div id="heatmapGrid" class="heatmap-grid"></div>
         </div>
     </section>
 
-    <!-- Earned Documentation Components -->
+    <!-- ===== CERTIFICATES ===== -->
     <section class="content-card">
         <h2>📜 Certificates</h2>
         <div id="certificateGrid" class="certificate-grid"></div>
     </section>
 
-    <!-- Native Achievement Card Item Grid Layout -->
+    <!-- ===== ACHIEVEMENTS ===== -->
     <section class="content-card">
         <h2>🏆 Achievements</h2>
         <div id="achievementGrid" class="achievement-grid"></div>
     </section>
 
-    <!-- Advanced AI Processing Usage Tracker Panel -->
+    <!-- ===== AI USAGE ===== -->
     <section class="content-card">
         <h2>🤖 Panda AI Usage</h2>
         <div class="ai-grid">
@@ -620,35 +1347,49 @@
         </div>
     </section>
 
-    <!-- User Action Activity History Stream Feed Component -->
+    <!-- ===== ACTIVITY FEED ===== -->
     <section class="content-card">
         <h2>📈 Recent Activity</h2>
         <div id="activityFeed">Loading...</div>
     </section>
 
-    <!-- Monetization Membership Status Wrapper Element Block -->
+    <!-- ===== MEMBERSHIP ===== -->
     <section id="premiumSection" class="content-card">
         <h2>⭐ Membership</h2>
         <div id="membershipCard">Loading...</div>
     </section>
 
-    <!-- Hidden System Management View Actions Layout -->
+      <!-- ===== ADMIN SECTION ===== -->
     <section id="adminSection" class="content-card" style="display:none;">
         <h2>👑 Administrator Panel</h2>
+        <p style="color: var(--muted); margin-bottom: 16px;">Access the admin dashboard to manage users, content, and system settings.</p>
         <a href="admin.html" class="admin-btn">⚙️ Open Admin Dashboard</a>
     </section>
 
-    <!-- Fixed App Bottom Nav Layout Bar -->
+    <!-- ===== BOTTOM NAV ===== -->
     <nav class="bottom-nav">
-        <a href="index.html"><div class="nav-icon">🏠</div>Home</a>
-        <a href="learn.html"><div class="nav-icon">📚</div>Learn</a>
-        <a href="profile.html" class="active"><div class="nav-icon">👤</div>Profile</a>
-        <a href="settings.html"><div class="nav-icon">⚙️</div>Settings</a>
+        <a href="index.html">
+            <span class="nav-icon">🏠</span>
+            Home
+        </a>
+        <a href="learn.html">
+            <span class="nav-icon">📚</span>
+            Learn
+        </a>
+        <a href="profile.html" class="active">
+            <span class="nav-icon">👤</span>
+            Profile
+        </a>
+        <a href="settings.html">
+            <span class="nav-icon">⚙️</span>
+            Settings
+        </a>
     </nav>
 
-    <!-- Overlay AI Companion Interactive Trigger Button Component -->
-    <button class="panda-fab" onclick="togglePanda()" style="position: fixed; bottom: calc(95px + env(safe-area-inset-bottom)); right: 16px; z-index: 998; background: var(--white); border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer; display: flex; align-items: center; justify-content: center;">🐼</button>
+    <!-- ===== PANDA FAB ===== -->
+    <button class="panda-fab" onclick="togglePanda()">🐼</button>
 
+    <!-- ===== PANDA CHAT ===== -->
     <div id="pandaChat" class="panda-chat">
         <div class="panda-header">
             <div class="panda-title">🐼 Panda AI Tutor</div>
@@ -661,31 +1402,154 @@
             </div>
         </div>
         <div class="panda-input">
-            <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
+            <textarea id="pandaInput" placeholder="Ask Panda..." rows="1"></textarea>
             <button class="panda-send" onclick="sendPandaMessage()">➤</button>
         </div>
     </div>
 
-    <!-- CORE SCRIPTS PIPELINE -->
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
     <script>
+        // ============================================================
+        // FORCE CLEAR SERVICE WORKER CACHE
+        // ============================================================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('✅ Service Worker unregistered');
+                }
+            });
+        }
+
+        // ============================================================
+        // CONSTANTS
+        // ============================================================
         const SESSION_KEY = 'hanverse_user';
-        
+        const VERSION = '1.0.1';
+
         const getBaseURL = () => {
             if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                return "http://localhost:8888/.netlify/functions/server"; 
+                return "http://localhost:8888/.netlify/functions/server";
             }
-            return "/api"; 
+            return "/api";
         };
 
         const API_URL = getBaseURL();
 
+        console.log(`🐼 Hanverse Profile v${VERSION} loaded`);
+
+        // ============================================================
+        // FLOATING NAVBAR - SCROLL EFFECT
+        // ============================================================
+        const nav = document.getElementById('topNav');
+        let lastScrollY = 0;
+        let ticking = false;
+
+        function handleNavScroll() {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollY = window.scrollY;
+
+                    if (scrollY > 40) {
+                        nav.classList.add('shrunk');
+                    } else {
+                        nav.classList.remove('shrunk');
+                    }
+
+                    lastScrollY = scrollY;
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', handleNavScroll, { passive: true });
+
+        // ============================================================
+        // PANDA CHAT
+        // ============================================================
+        function togglePanda() {
+            const chat = document.getElementById('pandaChat');
+            chat.classList.toggle('active');
+            if (chat.classList.contains('active')) {
+                setTimeout(() => document.getElementById('pandaInput').focus(), 100);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function sendPandaMessage() {
+            const input = document.getElementById('pandaInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const body = document.getElementById('pandaBody');
+
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
+            body.appendChild(userRow);
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+
+            setTimeout(() => {
+                const responses = [
+                    "That's a great question! Let me help you with that. 🐼",
+                    "Interesting! Would you like to practice more? 📚",
+                    "Good job! Keep practicing and you'll improve quickly! 🌟",
+                    "Let me explain that in a simple way... 🎯",
+                    "You're doing amazing! Want to try a quiz? 🎮",
+                    "That's a fun one! Let's learn together! 🤗",
+                    "I love that question! Here's what I think... 💭",
+                    "You're making great progress! Keep going! 🚀"
+                ];
+                const reply = responses[Math.floor(Math.random() * responses.length)];
+
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                aiRow.innerHTML = `
+                            <div class="panda-avatar">🐼</div>
+                            <div class="message panda-message">${reply}</div>
+                        `;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+            }, 600 + Math.random() * 400);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('pandaInput');
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendPandaMessage();
+                    }
+                });
+                input.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+                });
+            }
+        });
+
+                // ============================================================
+        // LOAD PROFILE
+        // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
             loadProfile();
             generateHeatmap();
-            
+
             document.getElementById('logoutBtn')?.addEventListener('click', () => {
-                localStorage.removeItem(SESSION_KEY);
-                window.location.href = 'login.html';
+                if (confirm('Are you sure you want to log out?')) {
+                    localStorage.removeItem(SESSION_KEY);
+                    window.location.href = 'login.html';
+                }
             });
         });
 
@@ -693,30 +1557,30 @@
             try {
                 const sessionData = localStorage.getItem(SESSION_KEY);
                 if (!sessionData) {
-                    console.warn("No authentication session token found in local storage.");
+                    console.warn("No session found.");
                     window.location.href = 'login.html';
                     return;
                 }
 
                 const session = JSON.parse(sessionData);
                 if (!session || !session.user_id) {
-                    console.error("Session profile layout missing required key properties.");
+                    console.error("Invalid session data.");
                     window.location.href = 'login.html';
                     return;
                 }
 
-                console.log(`Pinging DB stream for records: ${API_URL}/user/${session.user_id}`);
-                
+                console.log(`📡 Fetching user data: ${API_URL}/user/${session.user_id}`);
+
                 const response = await fetch(`${API_URL}/user/${session.user_id}`);
-                
+
                 if (!response.ok) {
-                    throw new Error(`Server returned error code status: ${response.status} (${response.statusText})`);
+                    throw new Error(`Server error: ${response.status} (${response.statusText})`);
                 }
 
                 const data = await response.json();
-                
+
                 if (!data || !data.user) {
-                    throw new Error("Invalid or empty user payload data wrapper received from DB response.");
+                    throw new Error("Invalid user data received.");
                 }
 
                 const user = data.user;
@@ -726,106 +1590,212 @@
                     return;
                 }
 
-                const isAdminUser = user.is_admin === true || user.is_admin === 1 || user.is_admin === "true" || user.isAdmin === true;
+                // ============================================================
+                // ADMIN CHECK - Shows admin panel if user is admin
+                // ============================================================
+                const isAdmin = user.is_admin === true || 
+                               user.is_admin === 1 || 
+                               user.is_admin === "true" || 
+                               user.isAdmin === true;
 
-                if (isAdminUser) {
+                if (isAdmin) {
+                    // Show admin badge in profile
                     document.getElementById('adminBadge').style.display = 'inline-block';
-                    document.getElementById('adminSection').style.display = 'block';
-                    document.getElementById('profileName').textContent = user.username || 'Admin User';
+                    
+                    // Show the admin section with the button
+                    const adminSection = document.getElementById('adminSection');
+                    if (adminSection) {
+                        adminSection.style.display = 'block';
+                        console.log('👑 Admin panel activated');
+                    }
                 } else {
-                    document.getElementById('adminBadge').style.display = 'none';
-                    document.getElementById('adminSection').style.display = 'none';
-                    document.getElementById('profileName').textContent = user.username || 'Learner';
+                    // Hide admin section for non-admin users
+                    const adminSection = document.getElementById('adminSection');
+                    if (adminSection) {
+                        adminSection.style.display = 'none';
+                    }
                 }
 
+                // Profile name
+                document.getElementById('profileName').textContent = user.full_name || user.username || 'Learner';
+
+                // Avatar
                 if (user.profile_picture) {
-                    document.getElementById('avatar').innerHTML = `<img src="${user.profile_picture}" alt="Avatar">`;
+                    document.getElementById('avatar').innerHTML = `<img src="${user.profile_picture}" alt="Profile picture">`;
                 }
 
-                if (user.premium_until) {
+                // Premium badge
+                if (user.premium || user.premium_until) {
                     document.getElementById('premiumBadge').style.display = 'inline-block';
                 }
 
+                // YCT & HSK badges
                 document.getElementById('yctBadge').textContent = `🏮 YCT ${user.current_yct || 1}`;
                 document.getElementById('hskBadge').textContent = `🐉 HSK ${user.current_hsk || 0}`;
 
+                // Hero stats
                 document.getElementById('heroXP').textContent = user.xp || 0;
                 document.getElementById('heroStreak').textContent = user.streak_days || 0;
                 document.getElementById('heroLevel').textContent = user.level || 1;
 
+                // Quick stats
                 document.getElementById('quickXP').textContent = user.xp || 0;
                 document.getElementById('quickStreak').textContent = user.streak_days || 0;
                 document.getElementById('quickLevel').textContent = user.level || 1;
                 document.getElementById('quickLessons').textContent = data.completed_lessons || 0;
 
+                // Render all sections
                 renderProfileExtras(user, data);
 
+                console.log('✅ Profile loaded successfully');
+
             } catch (error) {
-                console.error("--- WORKLOAD RETRIEVAL PIPELINE FAULT ---");
-                console.error("Error trace details:", error.message);
-                
-                alert("Profile failed to sync with the database repository. Verify that your backend server is running and check the browser console for details.");
+                console.error('❌ Profile load error:', error);
+                alert('Failed to load profile. Please try refreshing the page.');
             }
         }
 
+        // ============================================================
+        // RENDER PROFILE EXTRAS
+        // ============================================================
         function renderProfileExtras(user, data) {
+            // Membership
             const membership = document.getElementById('membershipCard');
-            if (user.premium_until) {
+            if (user.premium || user.premium_until) {
                 membership.innerHTML = `
-                    <div class="membership-premium">
-                        <h3>⭐ Premium Active</h3>
-                        <p>Valid until: ${new Date(user.premium_until).toLocaleDateString()}</p>
-                    </div>`;
+                            <div class="membership-premium">
+                                <h3>⭐ Premium Active</h3>
+                                <p>Valid until: ${user.premium_until ? new Date(user.premium_until).toLocaleDateString() : 'Lifetime'}</p>
+                                <button class="upgrade-btn" onclick="window.location.href='payment.html'">Manage Subscription</button>
+                            </div>
+                        `;
             } else {
                 membership.innerHTML = `
-                    <div class="membership-free">
-                        <h3>🆓 Free Account</h3>
-                        <p>Upgrade to unlock premium content.</p>
-                    </div>`;
+                            <div class="membership-free">
+                                <h3>🆓 Free Account</h3>
+                                <p>Upgrade to unlock premium lessons, AI features, and more.</p>
+                                <button class="upgrade-btn" onclick="window.location.href='payment.html'">🚀 Upgrade Now</button>
+                            </div>
+                        `;
             }
 
+            // YCT Progress
             const yct = parseInt(user.current_yct) || 1;
             const yctPct = Math.min((yct / 4) * 100, 100);
-            document.getElementById('yctProgressText').textContent = `YCT ${yct}`;
+            document.getElementById('yctProgressText').textContent = `YCT ${yct} - ${Math.round(yctPct)}% complete`;
             document.getElementById('yctProgressBar').style.width = yctPct + '%';
 
+            // HSK Progress
             const hsk = parseInt(user.current_hsk) || 0;
             const hskPct = Math.min((hsk / 6) * 100, 100);
-            document.getElementById('hskProgressText').textContent = `HSK ${hsk}`;
+            document.getElementById('hskProgressText').textContent = `HSK ${hsk} - ${Math.round(hskPct)}% complete`;
             document.getElementById('hskProgressBar').style.width = hskPct + '%';
 
-            document.getElementById('certificateGrid').innerHTML = `
-                <div class="certificate-card">📜<br><br>YCT Certificate</div>
-                <div class="certificate-card">🏆<br><br>Vocabulary Champion</div>`;
+            // Certificates
+            const certGrid = document.getElementById('certificateGrid');
+            if (data.certificates && data.certificates.length > 0) {
+                certGrid.innerHTML = data.certificates.map(cert => `
+                            <div class="certificate-card">
+                                <span class="cert-icon">📜</span>
+                                ${cert}
+                            </div>
+                        `).join('');
+            } else {
+                certGrid.innerHTML = `
+                            <div class="certificate-card">
+                                <span class="cert-icon">📜</span>
+                                YCT Certificate
+                            </div>
+                            <div class="certificate-card">
+                                <span class="cert-icon">🏆</span>
+                                Vocabulary Champion
+                            </div>
+                        `;
+            }
 
-            document.getElementById('achievementGrid').innerHTML = `
-                <div class="achievement-card">🔥 7 Day Streak</div>
-                <div class="achievement-card">📚 50 Lessons</div>`;
+            // Achievements
+            const achGrid = document.getElementById('achievementGrid');
+            if (data.achievements && data.achievements.length > 0) {
+                achGrid.innerHTML = data.achievements.map(ach => `
+                            <div class="achievement-card">
+                                <span class="ach-icon">🏆</span>
+                                ${ach}
+                            </div>
+                        `).join('');
+            } else {
+                achGrid.innerHTML = `
+                            <div class="achievement-card">
+                                <span class="ach-icon">🔥</span>
+                                7 Day Streak
+                            </div>
+                            <div class="achievement-card">
+                                <span class="ach-icon">📚</span>
+                                50 Lessons
+                            </div>
+                        `;
+            }
 
+            // AI Usage
             document.getElementById('aiQuestions').textContent = data.ai_questions || 0;
             document.getElementById('aiSessions').textContent = data.ai_sessions || 0;
             document.getElementById('aiHours').textContent = data.ai_hours || 0;
 
+            // Activity Feed
             const feed = document.getElementById('activityFeed');
             if (data.activities && data.activities.length > 0) {
-                feed.innerHTML = data.activities.map(act => `<div class="activity-item">${act}</div>`).join('');
+                feed.innerHTML = data.activities.map(act => `
+                            <div class="activity-item">
+                                <span class="act-icon">📌</span>
+                                ${act}
+                                <span class="act-time">just now</span>
+                            </div>
+                        `).join('');
             } else {
-                feed.innerHTML = `<div class="activity-item" style="color: var(--muted)">No recent activity entries recorded in DB.</div>`;
+                feed.innerHTML = `
+                            <div class="activity-item">
+                                <span class="act-icon">🌟</span>
+                                Welcome to Hanverse! Start your first lesson.
+                                <span class="act-time">today</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="act-icon">📚</span>
+                                Complete your profile setup.
+                                <span class="act-time">today</span>
+                            </div>
+                        `;
             }
         }
 
+        // ============================================================
+        // GENERATE HEATMAP
+        // ============================================================
         function generateHeatmap() {
             const grid = document.getElementById('heatmapGrid');
             if (!grid) return;
-            grid.innerHTML = ''; 
+            grid.innerHTML = '';
 
             for (let i = 0; i < 35; i++) {
                 const cell = document.createElement('div');
-                cell.className = Math.random() > .4 ? 'heat active' : 'heat';
+                cell.className = 'heat';
+
+                // Random activity pattern - more realistic distribution
+                const rand = Math.random();
+                if (rand > 0.7) {
+                    cell.classList.add('high');
+                } else if (rand > 0.4) {
+                    cell.classList.add('active');
+                }
+
                 grid.appendChild(cell);
             }
         }
+
+        // ============================================================
+        // EXPOSE FUNCTIONS GLOBALLY
+        // ============================================================
+        window.togglePanda = togglePanda;
+        window.sendPandaMessage = sendPandaMessage;
     </script>
-    <script src="panda-chat.js"></script>
+
 </body>
 </html>

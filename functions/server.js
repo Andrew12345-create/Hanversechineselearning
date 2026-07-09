@@ -25,7 +25,395 @@ const router = express.Router();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+// ==========================================
+// EMAIL VERIFICATION SYSTEM 📧
+// ==========================================
 
+// ==========================================
+// SEND VERIFICATION EMAIL - FIXED
+// ==========================================
+router.post('/auth/send-verification', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { userId } = req.body || {};
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                error: 'User ID is required.'
+            });
+        }
+
+        console.log(`📤 Send verification request for user: ${userId}`);
+
+        // Get user details
+        const userResult = await pool.query(
+            `SELECT user_id, email, username, full_name, is_verified 
+             FROM users WHERE user_id = $1`,
+            [userId]
+        );
+
+        if (!userResult.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found.'
+            });
+        }
+
+        const user = userResult.rows[0];
+        console.log(`👤 User found: ${user.email}`);
+
+        // Check if already verified
+        if (user.is_verified) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email is already verified.'
+            });
+        }
+
+        // Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        console.log(`🔑 Generated token: ${verificationToken.substring(0, 10)}...`);
+
+        // Check if email_verifications table exists, create if not
+        try {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS email_verifications (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    token VARCHAR(64) NOT NULL UNIQUE,
+                    expires_at TIMESTAMP NOT NULL,
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            `);
+        } catch (tableError) {
+            console.warn('⚠️ Could not create email_verifications table:', tableError.message);
+        }
+
+        // Store or update token
+        const insertResult = await pool.query(
+            `INSERT INTO email_verifications (user_id, email, token, expires_at, created_at)
+             VALUES ($1, $2, $3, $4, NOW())
+             ON CONFLICT (user_id) DO UPDATE 
+             SET token = $3, email = $2, expires_at = $4, created_at = NOW()
+             RETURNING *`,
+            [userId, user.email, verificationToken, expiresAt]
+        );
+
+        console.log(`✅ Token stored for user ${userId}`);
+
+        // Build verification link
+        const baseUrl = getFrontendBaseUrl();
+       const verifyLink = `${baseUrl}/verify-email.html?token=${verificationToken}&email=${encodeURIComponent(user.email)}`;
+
+        console.log(`🔗 Verification link: ${verifyLink}`);
+
+        // Check if mailer is configured
+        if (!mailer) {
+            console.error('❌ Mailer not configured!');
+            return res.status(500).json({
+                success: false,
+                error: 'Email service is not configured. Please contact support.'
+            });
+        }
+
+        // Send email
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: 'Poppins', Arial, sans-serif; background: #0D0D1A; color: #E8E8F0; margin: 0; padding: 0; }
+                    .container { max-width: 600px; margin: 40px auto; background: #151529; border-radius: 24px; padding: 40px; border: 1px solid rgba(255,255,255,0.08); }
+                    .logo { text-align: center; font-size: 32px; margin-bottom: 20px; }
+                    .title { font-size: 28px; font-weight: 700; color: #FFFFFF; text-align: center; margin-bottom: 16px; }
+                    .subtitle { color: #8E8EA8; text-align: center; margin-bottom: 30px; line-height: 1.6; }
+                    .button { display: block; width: fit-content; margin: 30px auto; padding: 16px 40px; background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; transition: transform 0.2s; box-shadow: 0 4px 16px rgba(255, 65, 108, 0.3); }
+                    .button:hover { transform: translateY(-2px); }
+                    .footer { text-align: center; color: #8E8EA8; font-size: 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+                    .footer a { color: #4EA8DE; text-decoration: none; }
+                    .expiry { color: #8E8EA8; font-size: 14px; text-align: center; margin-top: 20px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="logo">🐼 HanVerse</div>
+                    <div class="title">Verify Your Email Address</div>
+                    <div class="subtitle">
+                        Hi <strong>${user.full_name || user.username || 'Parent'}</strong>!<br>
+                        Welcome to HanVerse! Please verify your email address to get full access to the Parent Hub.
+                    </div>
+                    <a href="${verifyLink}" class="button">✅ Verify Email</a>
+                    <div class="expiry">⏰ This link expires in <strong>24 hours</strong></div>
+                    <div class="footer">
+                        <p>If you didn't create a HanVerse account, you can ignore this email.</p>
+                        <p>Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const mailResult = await mailer.sendMail({
+            from: EMAIL_FROM,
+            to: user.email,
+            subject: 'Verify Your HanVerse Email Address',
+            html: html
+        });
+
+        console.log(`✅ Verification email sent to ${user.email}`);
+
+        return res.json({
+            success: true,
+            message: 'Verification email sent successfully.',
+            email: user.email
+        });
+
+    } catch (error) {
+        console.error('❌ Send verification error:', error);
+        console.error('❌ Error stack:', error.stack);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to send verification email. Please try again.',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// ==========================================
+// RESEND VERIFICATION EMAIL
+// ==========================================
+router.post('/auth/resend-verification', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { userId } = req.body || {};
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required.'
+      });
+    }
+
+    // Get user details
+    const userResult = await pool.query(
+      `SELECT user_id, email, username, full_name, is_verified 
+       FROM users WHERE user_id = $1`,
+      [userId]
+    );
+
+    if (!userResult.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    if (user.is_verified) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is already verified.'
+      });
+    }
+
+    // Delete old token
+    await pool.query(
+      `DELETE FROM email_verifications WHERE user_id = $1`,
+      [userId]
+    );
+
+    // Generate new token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await pool.query(
+      `INSERT INTO email_verifications (user_id, email, token, expires_at, created_at)
+       VALUES ($1, $2, $3, $4, NOW())`,
+      [userId, user.email, verificationToken, expiresAt]
+    );
+
+    // Build verification link
+    const baseUrl = getFrontendBaseUrl();
+    const verifyLink = `${baseUrl}/verify.html?token=${verificationToken}&email=${encodeURIComponent(user.email)}`;
+
+    // Send email (same HTML as above)
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: 'Poppins', Arial, sans-serif; background: #0D0D1A; color: #E8E8F0; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 40px auto; background: #151529; border-radius: 24px; padding: 40px; border: 1px solid rgba(255,255,255,0.08); }
+          .logo { text-align: center; font-size: 32px; margin-bottom: 20px; }
+          .title { font-size: 28px; font-weight: 700; color: #FFFFFF; text-align: center; margin-bottom: 16px; }
+          .subtitle { color: #8E8EA8; text-align: center; margin-bottom: 30px; line-height: 1.6; }
+          .button { display: block; width: fit-content; margin: 30px auto; padding: 16px 40px; background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 16px rgba(255, 65, 108, 0.3); }
+          .expiry { color: #8E8EA8; font-size: 14px; text-align: center; margin-top: 20px; }
+          .footer { text-align: center; color: #8E8EA8; font-size: 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+          .footer a { color: #4EA8DE; text-decoration: none; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="logo">🐼 HanVerse</div>
+          <div class="title">Verify Your Email Address</div>
+          <div class="subtitle">
+            Hi <strong>${user.full_name || user.username || 'Parent'}</strong>!<br>
+            We've resent your verification email. Please click the link below to verify your account.
+          </div>
+          <a href="${verifyLink}" class="button">✅ Verify Email</a>
+          <div class="expiry">⏰ This link expires in <strong>24 hours</strong></div>
+          <div class="footer">
+            <p>Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    if (mailer) {
+      await mailer.sendMail({
+        from: EMAIL_FROM,
+        to: user.email,
+        subject: 'Resend: Verify Your HanVerse Email',
+        html: html
+      });
+      console.log(`✅ Verification email resent to ${user.email}`);
+    } else {
+      console.warn('⚠️ Mailer not available, skipping email send');
+    }
+
+    return res.json({
+      success: true,
+      message: 'Verification email resent successfully.'
+    });
+
+  } catch (error) {
+    console.error('❌ Resend verification error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to resend verification email.'
+    });
+  }
+});
+
+// ==========================================
+// CHECK VERIFICATION STATUS - FIXED
+// ==========================================
+router.get('/auth/verification-status/:userId', async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+
+        const { userId } = req.params;
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                error: 'User ID is required.'
+            });
+        }
+
+        const result = await pool.query(
+            `SELECT user_id, email, is_verified, verified_at, email_confirmed
+             FROM users 
+             WHERE user_id = $1`,
+            [userId]
+        );
+
+        if (!result.rows.length) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found.'
+            });
+        }
+
+        const user = result.rows[0];
+
+        return res.json({
+            success: true,
+            isVerified: user.is_verified || false,
+            email: user.email,
+            verifiedAt: user.verified_at || null,
+            emailConfirmed: user.email_confirmed || false
+        });
+
+    } catch (error) {
+        console.error('❌ Verification status error:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to check verification status.'
+        });
+    }
+});
+// ==========================================
+// VERIFY EMAIL (Public endpoint for link click)
+// ==========================================
+router.get('/verify-email', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { token, email } = req.query;
+
+    if (!token || !email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing verification parameters.'
+      });
+    }
+
+    // Find the verification record
+    const tokenResult = await pool.query(
+      `SELECT user_id, email, expires_at 
+       FROM email_verifications 
+       WHERE token = $1 AND email = $2`,
+      [token, email]
+    );
+
+    if (!tokenResult.rows.length) {
+      return res.redirect(`${getFrontendBaseUrl()}/verify-success?verified=false&error=Invalid+verification+link`);
+    }
+
+    const record = tokenResult.rows[0];
+
+    // Check if token expired
+    if (new Date(record.expires_at) < new Date()) {
+      return res.redirect(`${getFrontendBaseUrl()}/verify-success?verified=false&error=Link+has+expired.+Please+request+a+new+one.`);
+    }
+
+    // Update user as verified
+    await pool.query(
+      `UPDATE users 
+       SET is_verified = true, 
+           verified_at = NOW(),
+           email_confirmed = true
+       WHERE user_id = $1`,
+      [record.user_id]
+    );
+
+    // Delete used token
+    await pool.query(
+      `DELETE FROM email_verifications WHERE token = $1`,
+      [token]
+    );
+
+    console.log(`✅ Email verified for user ${record.user_id}`);
+
+    return res.redirect(`${getFrontendBaseUrl()}/verify-success?verified=true`);
+
+  } catch (error) {
+    console.error('❌ Verify email error:', error);
+    return res.redirect(`${getFrontendBaseUrl()}/verify-success?verified=false&error=System+error.+Please+try+again.`);
+  }
+});
 /* ==========================================
    ENV / STARTUP DIAGNOSTICS LOGS 🔍
 ========================================== */
@@ -221,6 +609,46 @@ async function sendPasswordResetEmail({ to, username, token }) {
 // ==========================================
 // MIDDLEWARE: Admin Auth Check
 // ==========================================
+// Add to server.js - ADMIN ONLY endpoint
+router.post('/admin/toggle-verification/:userId', verifyAdminToken, async (req, res) => {
+    try {
+        if (!ensurePool(res)) return;
+        
+        const { userId } = req.params;
+        const { verified } = req.body; // true or false
+        
+        // Get current user
+        const userResult = await pool.query(
+            `SELECT is_verified FROM users WHERE user_id = $1`,
+            [userId]
+        );
+        
+        if (!userResult.rows.length) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        
+        const newStatus = verified !== undefined ? verified : !userResult.rows[0].is_verified;
+        
+        await pool.query(
+            `UPDATE users 
+             SET is_verified = $1, 
+                 verified_at = CASE WHEN $1 = true THEN NOW() ELSE NULL END,
+                 email_confirmed = $1
+             WHERE user_id = $2`,
+            [newStatus, userId]
+        );
+        
+        return res.json({
+            success: true,
+            message: `User verification set to ${newStatus}`,
+            is_verified: newStatus
+        });
+        
+    } catch (error) {
+        console.error('❌ Toggle verification error:', error);
+        return res.status(500).json({ success: false, error: 'Failed to toggle verification' });
+    }
+});
 async function verifyAdminToken(req, res, next) {
   try {
     const authHeader = req.headers.authorization;
@@ -240,6 +668,7 @@ async function verifyAdminToken(req, res, next) {
     return res.status(500).json({ success: false, error: 'Authentication check failed.' });
   }
 }
+
 
 /* ==========================================
    HEALTH / DEBUG ROUTES 🩺

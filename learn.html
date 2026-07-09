@@ -13,7 +13,10 @@
     <style>
         :root {
             --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #DBEAFE;
             --secondary: #14B8A6;
+            --secondary-light: #99F6E4;
             --accent: #F59E0B;
             --dark: #0F172A;
             --text: #334155;
@@ -25,6 +28,13 @@
             --border: #E2E8F0;
             --shadow-sm: 0 8px 20px rgba(0, 0, 0, .04);
             --shadow: 0 20px 50px rgba(15, 23, 42, .06);
+            --shadow-lg: 0 30px 60px rgba(0, 0, 0, 0.1);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 24px;
+            --radius-full: 9999px;
+            --nav-height: 72px;
+            --transition-smooth: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         * {
@@ -45,6 +55,7 @@
             overflow-x: hidden;
             min-height: 100vh;
             padding-bottom: calc(100px + env(safe-area-inset-bottom));
+            padding-top: calc(var(--nav-height) + 20px);
         }
 
         body::before {
@@ -57,51 +68,96 @@
                 radial-gradient(circle at 80% 70%, rgba(20, 184, 166, .05), transparent 35%);
         }
 
+        /* ===== SELECTION ===== */
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        ::-moz-selection {
+            background: var(--primary);
+            color: white;
+        }
+
         /* ===== OFFLINE BANNER ===== */
         #offline-banner {
             display: none;
-            background: #FF5722;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1002;
+            background: linear-gradient(135deg, #EF4444, #DC2626);
             color: white;
             text-align: center;
-            padding: 8px 16px;
+            padding: 12px 20px;
             font-size: 14px;
             font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 1001;
-        }
-        #offline-banner.show {
-            display: block;
+            transform: translateY(-100%);
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
         }
 
-        /* ===== NAV ===== */
+        #offline-banner.show {
+            display: block;
+            transform: translateY(0);
+        }
+
+        /* ===== FLOATING NAVBAR ===== */
         nav.top-nav {
-            position: sticky;
-            top: 0;
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 5%;
-            background: rgba(255, 255, 255, .92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, .05);
-            transition: .3s;
+            padding: 0 28px;
+            width: calc(100% - 36px);
+            max-width: 1200px;
+            height: var(--nav-height);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+            will-change: transform, height, border-radius, padding, box-shadow, top, background;
         }
 
-        nav.scrolled {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+        nav.top-nav.shrunk {
+            top: 14px;
+            height: 58px;
+            padding: 0 20px;
+            width: calc(100% - 48px);
+            max-width: 900px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(28px) saturate(1.5);
+            -webkit-backdrop-filter: blur(28px) saturate(1.5);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+        }
+
+        nav.top-nav:hover {
+            box-shadow: 0 8px 40px rgba(37, 99, 235, 0.08), 0 0 0 1px rgba(37, 99, 235, 0.05);
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             text-decoration: none;
             color: var(--primary);
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        nav.top-nav.shrunk .logo {
+            gap: 0;
         }
 
         .logo-badge {
@@ -114,19 +170,63 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             font-size: 18px;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        nav.top-nav.shrunk .logo-badge {
+            width: 32px;
+            height: 32px;
+            font-size: 15px;
+        }
+
+        .logo-text {
+            transition: var(--transition-smooth);
+        }
+
+        nav.top-nav.shrunk .logo-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            margin: 0;
         }
 
         .nav-links {
             display: flex;
             gap: 24px;
             list-style: none;
+            margin: 0 16px;
+            flex: 1;
+            justify-content: center;
         }
 
         .nav-links a {
             text-decoration: none;
             font-weight: 600;
             color: var(--muted);
-            transition: .25s;
+            transition: var(--transition-smooth);
+            font-size: 0.9rem;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 100%;
+            height: 2.5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            transform: translateX(-50%) scaleX(1);
         }
 
         .nav-links a.active,
@@ -134,23 +234,52 @@
             color: var(--primary);
         }
 
-        /* ===== USER CHIP IN NAVBAR (shows logged-in user) ===== */
+        nav.top-nav.shrunk .nav-links {
+            gap: 18px;
+        }
+
+        nav.top-nav.shrunk .nav-links a {
+            font-size: 0.8rem;
+        }
+
+        /* ===== USER CHIP ===== */
         .user-chip {
             display: flex;
             align-items: center;
             gap: 10px;
             background: white;
             padding: 6px 14px 6px 10px;
-            border-radius: 999px;
+            border-radius: var(--radius-full);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
             cursor: pointer;
-            transition: .2s;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
         }
 
         .user-chip:hover {
             border-color: var(--primary);
             box-shadow: 0 4px 15px rgba(37, 99, 235, .1);
+            transform: translateY(-2px);
+        }
+
+        nav.top-nav.shrunk .user-chip {
+            padding: 4px 10px 4px 6px;
+            gap: 6px;
+        }
+
+        nav.top-nav.shrunk .user-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+
+        nav.top-nav.shrunk .user-name {
+            font-size: 0.7rem;
+        }
+
+        nav.top-nav.shrunk .user-status {
+            font-size: 0.55rem;
         }
 
         .user-avatar {
@@ -160,7 +289,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #DBEAFE;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
             font-size: 16px;
             overflow: hidden;
             flex-shrink: 0;
@@ -197,7 +326,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #F59E0B;
+            background: var(--accent);
         }
 
         .user-status .premium-text {
@@ -212,6 +341,23 @@
             grid-template-columns: 1.2fr 0.8fr;
             gap: 32px;
             align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero-content {
+            animation: fadeUp 0.8s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .hero-content h1 {
@@ -219,17 +365,18 @@
             line-height: 1.1;
             margin-bottom: 16px;
             font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
         .gradient {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .hero p {
             font-size: 1rem;
-            line-height: 1.7;
+            line-height: 1.8;
             color: var(--muted);
             margin-bottom: 24px;
         }
@@ -243,19 +390,20 @@
         .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 999px;
+            border-radius: var(--radius-full);
             font-weight: 700;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: .25s;
+            transition: var(--transition-smooth);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
+            gap: 6px;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
+        .btn:active {
+            transform: scale(0.96);
         }
 
         .btn-primary {
@@ -264,15 +412,31 @@
             box-shadow: 0 6px 20px rgba(37, 99, 235, .15);
         }
 
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, .25);
+        }
+
         .btn-secondary {
             background: white;
-            border: 1px solid #DBEAFE;
+            border: 1px solid var(--border);
             color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
         }
 
         .btn-success {
             background: var(--success);
             color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
         }
 
         .btn-offline {
@@ -285,8 +449,15 @@
         .hero-card {
             background: white;
             padding: 24px;
-            border-radius: 24px;
+            border-radius: var(--radius-lg);
             box-shadow: var(--shadow);
+            transition: var(--transition-smooth);
+            animation: fadeUp 0.8s ease 0.2s both;
+        }
+
+        .hero-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
 
         .hero-card h3 {
@@ -299,10 +470,10 @@
             align-items: center;
             gap: 12px;
             padding: 12px 16px;
-            background: #F8FAFC;
-            border-radius: 16px;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
             margin-bottom: 10px;
-            transition: .25s;
+            transition: var(--transition-smooth);
             border: 1px solid transparent;
         }
 
@@ -312,11 +483,13 @@
 
         .path-step:hover {
             transform: translateX(4px);
-            border-color: #DBEAFE;
+            border-color: var(--primary-light);
+            background: var(--primary-light);
         }
 
         .step-icon {
             font-size: 20px;
+            flex-shrink: 0;
         }
 
         .step-title {
@@ -332,6 +505,8 @@
         /* ===== DASHBOARD ===== */
         .dashboard {
             padding: 20px 7% 40px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .dashboard-grid {
@@ -343,15 +518,16 @@
         .dashboard-card {
             background: white;
             padding: 20px;
-            border-radius: 20px;
+            border-radius: var(--radius-md);
             text-align: center;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
-            transition: .25s;
+            transition: var(--transition-smooth);
         }
 
         .dashboard-card:hover {
             transform: translateY(-4px);
+            box-shadow: var(--shadow);
         }
 
         .dashboard-icon {
@@ -361,7 +537,9 @@
 
         .dashboard-card h3 {
             font-size: 1.8rem;
-            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 2px;
             font-weight: 700;
         }
@@ -369,11 +547,14 @@
         .dashboard-card p {
             font-size: 0.8rem;
             color: var(--muted);
+            font-weight: 500;
         }
 
         /* ===== PLACEMENT ===== */
         .placement-section {
             padding: 20px 7% 40px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .placement-card {
@@ -381,7 +562,7 @@
             margin: auto;
             background: white;
             padding: 32px 24px;
-            border-radius: 24px;
+            border-radius: var(--radius-lg);
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
         }
@@ -400,13 +581,20 @@
         .placement-card select {
             width: 100%;
             padding: 14px;
-            border-radius: 14px;
+            border-radius: var(--radius-sm);
             border: 2px solid var(--border);
             margin-bottom: 16px;
             font-family: inherit;
             font-weight: 500;
             background-color: var(--bg);
             outline: none;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .placement-card select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .placement-actions {
@@ -423,11 +611,17 @@
         .recommendation-box {
             display: none;
             margin-top: 16px;
-            padding: 16px;
-            border-radius: 14px;
-            background: #EFF6FF;
-            border: 1px solid #BFDBFE;
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
             font-size: 0.9rem;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .recommendation-box h3 {
+            color: var(--primary);
+            margin-bottom: 4px;
         }
 
         /* ===== SECTIONS ===== */
@@ -435,7 +629,8 @@
             text-align: center;
             font-size: clamp(24px, 4vw, 36px);
             margin-bottom: 8px;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
         .section-subtitle {
@@ -443,14 +638,16 @@
             max-width: 600px;
             margin: 0 auto 32px;
             color: var(--muted);
-            line-height: 1.6;
-            font-size: 0.9rem;
+            line-height: 1.7;
+            font-size: 0.95rem;
         }
 
         .roadmap-section,
         .lessons-section,
         .worksheet-section {
             padding: 30px 7% 40px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .roadmap-grid,
@@ -466,22 +663,45 @@
         .worksheet-card {
             background: white;
             padding: 24px;
-            border-radius: 24px;
+            border-radius: var(--radius-md);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
-            transition: .25s;
+            transition: var(--transition-smooth);
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .roadmap-card::before,
+        .lesson-card::before,
+        .worksheet-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .roadmap-card:hover::before,
+        .lesson-card:hover::before,
+        .worksheet-card:hover::before {
+            opacity: 1;
         }
 
         .roadmap-card:hover,
         .lesson-card:hover,
         .worksheet-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-6px);
             box-shadow: var(--shadow);
+            border-color: var(--primary-light);
         }
 
         .roadmap-icon {
@@ -508,11 +728,12 @@
         .roadmap-badge {
             display: inline-block;
             padding: 6px 14px;
-            background: #DBEAFE;
+            background: var(--primary-light);
             color: var(--primary);
-            border-radius: 999px;
+            border-radius: var(--radius-full);
             font-size: .75rem;
             font-weight: 700;
+            margin-top: auto;
         }
 
         .lesson-btn {
@@ -520,13 +741,18 @@
             margin-top: auto;
             padding: 10px 18px;
             border: none;
-            border-radius: 999px;
+            border-radius: var(--radius-full);
             background: var(--primary);
             color: white;
             font-weight: 700;
             font-size: 0.85rem;
             cursor: pointer;
-            transition: 0.2s;
+            transition: var(--transition-smooth);
+        }
+
+        .lesson-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
         }
 
         .lesson-btn:disabled {
@@ -538,13 +764,20 @@
             border: 2px solid var(--accent);
         }
 
+        .premium::before {
+            content: '⭐';
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            font-size: 20px;
+        }
+
         .premium-btn {
             background: var(--accent);
         }
 
-        .worksheet-card {
-            font-size: 40px;
-            gap: 8px;
+        .premium-btn:hover {
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
         }
 
         .worksheet-card .btn {
@@ -570,19 +803,46 @@
             align-items: center;
             padding: 20px;
             backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .premium-content {
             position: relative;
             max-width: 500px;
             width: 100%;
+            animation: scaleUp 0.3s ease;
+        }
+
+        @keyframes scaleUp {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .premium-image {
             width: 100%;
-            border-radius: 20px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .premium-image:hover {
+            transform: scale(1.02);
         }
 
         .close-popup {
@@ -597,10 +857,15 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-sm);
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .close-popup:hover {
+            transform: rotate(90deg) scale(1.1);
         }
 
         /* ===== PANDA CHAT ===== */
@@ -609,22 +874,28 @@
             bottom: calc(85px + env(safe-area-inset-bottom));
             right: 20px;
             z-index: 998;
-            background: var(--white);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
-            width: 56px;
-            height: 56px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            font-size: 26px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            font-size: 28px;
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: .3s;
+            transition: var(--transition-smooth);
+            color: white;
         }
 
         .panda-fab:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.4);
+        }
+
+        .panda-fab:active {
+            transform: scale(0.92);
         }
 
         .panda-chat {
@@ -632,13 +903,13 @@
             position: fixed;
             bottom: calc(90px + env(safe-area-inset-bottom));
             right: 20px;
-            width: 340px;
+            width: 360px;
             max-width: calc(100vw - 40px);
-            height: 420px;
+            height: 440px;
             max-height: 60vh;
             background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
             z-index: 999;
             flex-direction: column;
             overflow: hidden;
@@ -667,25 +938,35 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .panda-title {
             font-weight: 700;
             font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .panda-close {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             border: none;
             color: white;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .panda-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
         }
 
         .panda-body {
@@ -695,11 +976,25 @@
             background: #F8FAFC;
         }
 
+        .panda-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panda-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .panda-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
         .message-row {
             display: flex;
             gap: 10px;
             margin-bottom: 12px;
             align-items: flex-start;
+            animation: fadeUp 0.3s ease;
         }
 
         .message-row.user {
@@ -707,10 +1002,10 @@
         }
 
         .panda-avatar {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            background: #DBEAFE;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -730,6 +1025,7 @@
             background: white;
             color: var(--dark);
             border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-sm);
         }
 
         .user-message {
@@ -743,13 +1039,14 @@
             gap: 8px;
             padding: 12px 16px;
             background: white;
-            border-top: 1px solid #E2E8F0;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
         }
 
         .panda-input textarea {
             flex: 1;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             padding: 8px 12px;
             font-size: 14px;
             resize: none;
@@ -757,105 +1054,86 @@
             min-height: 40px;
             max-height: 80px;
             outline: none;
-            transition: .2s;
+            transition: var(--transition-smooth);
+            background: var(--bg);
         }
 
         .panda-input textarea:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .panda-send {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             border: none;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             font-size: 18px;
             cursor: pointer;
-            transition: .3s;
+            transition: var(--transition-smooth);
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
         .panda-send:hover {
             transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .panda-send:active {
+            transform: scale(0.92);
         }
 
         /* ===== BOTTOM NAV ===== */
         .bottom-nav {
             display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            justify-content: space-around;
+            padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+            z-index: 999;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .bottom-nav a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .65rem;
+            font-weight: 500;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 0;
+            transition: var(--transition-smooth);
+            border-radius: var(--radius-sm);
+        }
+
+        .bottom-nav a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .bottom-nav a:hover {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 22px;
         }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 900px) {
-            nav.top-nav .nav-links,
-            nav.top-nav .user-chip {
-                display: none;
-            }
-
-            nav.top-nav {
-                justify-content: center;
-                padding: 12px 5%;
-            }
-
-            /* Show user info in bottom nav instead */
-            .bottom-nav {
-                display: flex;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: rgba(255, 255, 255, 0.96);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                justify-content: space-around;
-                padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
-                box-shadow: 0 -4px 20px rgba(0, 0, 0, .05);
-                z-index: 999;
-                border-top: 1px solid rgba(0, 0, 0, .05);
-            }
-
-            .bottom-nav a {
-                text-decoration: none;
-                color: #64748B;
-                font-size: .7rem;
-                font-weight: 500;
-                text-align: center;
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 4px;
-            }
-
-            .bottom-nav a.active {
-                color: #2563EB;
-                font-weight: 600;
-            }
-
-            .nav-icon {
-                font-size: 20px;
-            }
-
-            /* Mobile user avatar in bottom nav */
-            .bottom-nav .mobile-user {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 2px;
-            }
-
-            .bottom-nav .mobile-user .mini-avatar {
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                background: #DBEAFE;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 14px;
-            }
-
+        @media (max-width: 1024px) {
             .hero {
                 grid-template-columns: 1fr;
                 text-align: center;
@@ -863,25 +1141,17 @@
                 gap: 30px;
             }
 
-            .hero h1 {
-                font-size: 34px;
-            }
             .hero p {
                 margin: 0 auto 24px;
             }
+
             .hero-buttons {
                 justify-content: center;
-                width: 100%;
-            }
-            .hero-buttons .btn {
-                flex: 1;
-                min-width: 140px;
             }
 
             .dashboard-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 12px;
-                padding: 0;
             }
 
             .dashboard-card {
@@ -902,7 +1172,7 @@
             .roadmap-grid,
             .lesson-grid,
             .worksheet-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
                 gap: 14px;
             }
 
@@ -912,24 +1182,113 @@
                 padding: 20px;
                 border-radius: 18px;
             }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: calc(var(--nav-height) + 20px);
+            }
+
+            nav.top-nav {
+                top: 12px;
+                padding: 0 16px;
+                width: calc(100% - 24px);
+                border-radius: 18px;
+                height: 64px;
+            }
+
+            nav.top-nav.shrunk {
+                top: 10px;
+                height: 54px;
+                padding: 0 14px;
+                width: calc(100% - 32px);
+                border-radius: 14px;
+            }
+
+            .logo {
+                font-size: 18px;
+                gap: 8px;
+            }
+
+            .logo-badge {
+                width: 34px;
+                height: 34px;
+                font-size: 16px;
+            }
+
+            nav.top-nav.shrunk .logo-badge {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+
+            nav.top-nav .nav-links {
+                display: none;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .hero-card {
+                padding: 20px;
+            }
+
+            .roadmap-grid,
+            .lesson-grid,
+            .worksheet-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .placement-card {
+                padding: 24px 16px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
 
             .panda-fab {
                 bottom: calc(80px + env(safe-area-inset-bottom)) !important;
                 right: 16px !important;
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
             }
 
             .panda-chat {
-                width: calc(100vw - 40px);
+                width: calc(100vw - 32px);
+                right: 16px;
                 bottom: calc(90px + env(safe-area-inset-bottom));
-                right: 20px;
                 height: 400px;
             }
         }
 
         @media (max-width: 480px) {
             .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .dashboard-card {
+                padding: 12px;
+            }
+
+            .dashboard-card h3 {
+                font-size: 1.3rem;
+            }
+
+            .hero-buttons .btn {
+                flex: 1;
+                min-width: 120px;
+                padding: 10px 16px;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -944,7 +1303,7 @@
     <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
             <div class="logo-badge">🐼</div>
-            Hanverse
+            <span class="logo-text">Hanverse</span>
         </a>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
@@ -952,7 +1311,7 @@
             <li><a href="worksheets.html">Worksheets</a></li>
             <li><a href="profile.html">Profile</a></li>
         </ul>
-        
+
         <!-- ===== USER CHIP - SHOWS LOGGED IN USER ===== -->
         <div class="user-chip" id="userChip" onclick="goToProfile()">
             <div class="user-avatar" id="navUserAvatar">🐼</div>
@@ -973,7 +1332,7 @@
             <p>Follow Hanverse's structured learning path, earn XP, unlock achievements, complete lessons, and prepare for official YCT examinations.</p>
             <div class="hero-buttons">
                 <button class="btn btn-primary" id="continueBtn" onclick="completeLesson()">🚀 Continue Learning</button>
-                <button class="btn btn-secondary" onclick="document.getElementById('placement-section').scrollIntoView();">🎯 Placement Test</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('placement-section').scrollIntoView({behavior: 'smooth'})">🎯 Placement Test</button>
             </div>
         </div>
 
@@ -1132,17 +1491,17 @@
         <p class="section-subtitle">Download printable worksheets and revision materials.</p>
         <div class="worksheet-grid">
             <div class="worksheet-card">
-                <div>📄</div>
+                <div style="font-size: 40px;">📄</div>
                 <h3>YCT 1 Pack</h3>
                 <button class="btn btn-primary">Download</button>
             </div>
             <div class="worksheet-card">
-                <div>📄</div>
+                <div style="font-size: 40px;">📄</div>
                 <h3>YCT 2 Pack</h3>
                 <button class="btn btn-primary">Download</button>
             </div>
             <div class="worksheet-card">
-                <div>📄</div>
+                <div style="font-size: 40px;">📄</div>
                 <h3>Practice Papers</h3>
                 <button class="btn btn-primary">Download</button>
             </div>
@@ -1162,19 +1521,19 @@
     <!-- ===== BOTTOM NAV ===== -->
     <nav class="bottom-nav">
         <a href="index.html">
-            <div class="nav-icon">🏠</div>
+            <span class="nav-icon">🏠</span>
             Home
         </a>
         <a href="learn.html" class="active">
-            <div class="nav-icon">📚</div>
+            <span class="nav-icon">📚</span>
             Learn
         </a>
         <a href="profile.html">
-            <div class="nav-icon">👤</div>
+            <span class="nav-icon">👤</span>
             Profile
         </a>
         <a href="#" onclick="logout()">
-            <div class="nav-icon">🚪</div>
+            <span class="nav-icon">🚪</span>
             Logout
         </a>
     </nav>
@@ -1205,20 +1564,30 @@
     <!-- ============================================================ -->
     <script>
         // ============================================================
-        // SESSION KEY (same as profile.html)
+        // FORCE CLEAR SERVICE WORKER CACHE (Development)
+        // ============================================================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('✅ Service Worker unregistered');
+                }
+            });
+        }
+
+        // ============================================================
+        // CONSTANTS
         // ============================================================
         const SESSION_KEY = 'hanverse_user';
-        
-        // ============================================================
-        // API URL
-        // ============================================================
-        const getBaseURL = () => {
+        const VERSION = '1.0.1';
+        const API_URL = (() => {
             if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                return "http://localhost:8888/.netlify/functions/server"; 
+                return "http://localhost:8888/.netlify/functions/server";
             }
-            return "/api"; 
-        };
-        const API_URL = getBaseURL();
+            return "/api";
+        })();
+
+        console.log(`🐼 Hanverse Learn v${VERSION} loaded`);
 
         // ============================================================
         // OFFLINE DETECTION
@@ -1228,8 +1597,10 @@
         function updateOfflineStatus() {
             if (!navigator.onLine) {
                 offlineBanner.classList.add('show');
+                console.log('🔴 Offline mode');
             } else {
                 offlineBanner.classList.remove('show');
+                console.log('🟢 Online mode');
             }
         }
 
@@ -1238,11 +1609,31 @@
         updateOfflineStatus();
 
         // ============================================================
-        // NAVBAR SCROLL
+        // FLOATING NAVBAR - SCROLL EFFECT
         // ============================================================
-        window.addEventListener("scroll", () => {
-            document.querySelector("nav.top-nav").classList.toggle("scrolled", window.scrollY > 20);
-        });
+        const nav = document.getElementById('topNav');
+        let lastScrollY = 0;
+        let ticking = false;
+
+        function handleNavScroll() {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollY = window.scrollY;
+
+                    if (scrollY > 40) {
+                        nav.classList.add('shrunk');
+                    } else {
+                        nav.classList.remove('shrunk');
+                    }
+
+                    lastScrollY = scrollY;
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', handleNavScroll, { passive: true });
 
         // ============================================================
         // PANDA CHAT
@@ -1251,8 +1642,14 @@
             const chat = document.getElementById('pandaChat');
             chat.classList.toggle('active');
             if (chat.classList.contains('active')) {
-                document.getElementById('pandaInput').focus();
+                setTimeout(() => document.getElementById('pandaInput').focus(), 100);
             }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function sendPandaMessage() {
@@ -1275,25 +1672,22 @@
                     "Interesting! Would you like to practice more? 📚",
                     "Good job! Keep practicing and you'll improve quickly! 🌟",
                     "Let me explain that in a simple way... 🎯",
-                    "You're doing amazing! Want to try a quiz? 🎮"
+                    "You're doing amazing! Want to try a quiz? 🎮",
+                    "That's a fun one! Let's learn together! 🤗",
+                    "I love that question! Here's what I think... 💭",
+                    "You're making great progress! Keep going! 🚀"
                 ];
                 const reply = responses[Math.floor(Math.random() * responses.length)];
 
                 const aiRow = document.createElement('div');
                 aiRow.className = 'message-row';
                 aiRow.innerHTML = `
-                    <div class="panda-avatar">🐼</div>
-                    <div class="message panda-message">${reply}</div>
-                `;
+                            <div class="panda-avatar">🐼</div>
+                            <div class="message panda-message">${reply}</div>
+                        `;
                 body.appendChild(aiRow);
                 body.scrollTop = body.scrollHeight;
-            }, 600);
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            }, 600 + Math.random() * 400);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1313,20 +1707,20 @@
         });
 
         // ============================================================
-        // LOAD USER FROM SESSION (same as profile.html)
+        // LOAD USER FROM SESSION
         // ============================================================
-const sessionData = localStorage.getItem(SESSION_KEY);
+        function loadUserFromSession() {
+            try {
+                const sessionData = localStorage.getItem(SESSION_KEY);
 
-if (!sessionData) {
-    console.warn("No user session found.");
-    window.location.href = "login.html";
-    return;
-}
-
-const user = JSON.parse(sessionData);
+                if (!sessionData) {
+                    console.warn("No user session found.");
+                    window.location.href = "login.html";
+                    return null;
+                }
 
                 const session = JSON.parse(sessionData);
-                
+
                 if (!session || !session.user_id) {
                     console.error("Session missing user_id. Redirecting to login.");
                     window.location.href = 'login.html';
@@ -1335,7 +1729,7 @@ const user = JSON.parse(sessionData);
 
                 console.log('👤 User loaded from session:', session.username || session.full_name);
                 return session;
-                
+
             } catch (error) {
                 console.error("Session load error:", error);
                 window.location.href = 'login.html';
@@ -1349,21 +1743,21 @@ const user = JSON.parse(sessionData);
         async function fetchUserData(userId) {
             try {
                 console.log(`📡 Fetching user data: ${API_URL}/user/${userId}`);
-                
+
                 const response = await fetch(`${API_URL}/user/${userId}`);
-                
+
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status} (${response.statusText})`);
                 }
 
                 const data = await response.json();
-                
+
                 if (!data || !data.user) {
                     throw new Error("Invalid user data received from server.");
                 }
 
                 return data.user;
-                
+
             } catch (error) {
                 console.error("Fetch error:", error);
                 return null;
@@ -1380,26 +1774,27 @@ const user = JSON.parse(sessionData);
             const nameEl = document.getElementById('navUsername');
             const statusEl = document.getElementById('navUserStatus');
 
-            // Set name
             const displayName = user.full_name || user.username || 'Learner';
             nameEl.textContent = displayName;
 
-            // Set avatar
             if (user.profile_picture) {
-                avatarEl.innerHTML = `<img src="${user.profile_picture}" alt="Avatar">`;
+                avatarEl.innerHTML = `<img src="${user.profile_picture}" alt="${displayName}'s avatar">`;
             } else {
                 avatarEl.textContent = '🐼';
             }
 
-            // Set status (premium or free)
-const isPremium =
-    user.premium ||
-    user.premium_until;
-             else {
+            const isPremium = user.premium || user.premium_until;
+
+            if (isPremium) {
                 statusEl.innerHTML = `
-                    <span class="premium-dot" style="background: #94A3B8;"></span>
-                    <span>Free Member</span>
-                `;
+                            <span class="premium-dot"></span>
+                            <span class="premium-text">⭐ Premium</span>
+                        `;
+            } else {
+                statusEl.innerHTML = `
+                            <span class="premium-dot" style="background: #94A3B8;"></span>
+                            <span>Free Member</span>
+                        `;
             }
 
             console.log('✅ Navbar updated for:', displayName);
@@ -1414,8 +1809,7 @@ const isPremium =
             document.getElementById('xpValue').textContent = user.xp || 0;
             document.getElementById('streakValue').textContent = user.streak_days || 0;
             document.getElementById('levelValue').textContent = user.level || 1;
-            
-            // Get lessons from localStorage or fallback
+
             try {
                 const progress = JSON.parse(localStorage.getItem('hanverse_offline_progress') || '{}');
                 const userProgress = Object.values(progress).filter(p => p.userId === user.user_id || p.userId === undefined);
@@ -1473,37 +1867,9 @@ const isPremium =
             }
         }
 
-        async function forceSync() {
-            if (!navigator.onLine) {
-                showToast('❌ Cannot sync: You are offline');
-                return;
-            }
-
-            try {
-                const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
-                if (queue.length === 0) {
-                    showToast('✅ No data to sync');
-                    return;
-                }
-
-                showToast(`🔄 Syncing ${queue.length} items...`);
-
-                for (const item of queue) {
-                    console.log(`Syncing ${item.type}:`, item.data);
-                }
-
-                localStorage.removeItem(OFFLINE_QUEUE_KEY);
-                showToast(`✅ All ${queue.length} items synced!`);
-
-                const session = loadUserFromSession();
-                if (session) {
-                    updateDashboard(session);
-                }
-
-            } catch (error) {
-                console.error('Sync error:', error);
-                showToast('❌ Sync failed: ' + error.message);
-            }
+        function showToast(message) {
+            console.log('📢', message);
+            // Could add a visual toast here if desired
         }
 
         function completeLesson() {
@@ -1532,11 +1898,40 @@ const isPremium =
             }, 3000);
         }
 
-        // ============================================================
-        // TOAST
-        // ============================================================
-        function showToast(message) {
-            console.log(message);
+        async function forceSync() {
+            if (!navigator.onLine) {
+                showToast('❌ Cannot sync: You are offline');
+                return;
+            }
+
+            try {
+                const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+                if (queue.length === 0) {
+                    showToast('✅ No data to sync');
+                    return;
+                }
+
+                showToast(`🔄 Syncing ${queue.length} items...`);
+
+                for (const item of queue) {
+                    console.log(`Syncing ${item.type}:`, item.data);
+                }
+
+                localStorage.removeItem(OFFLINE_QUEUE_KEY);
+                showToast(`✅ All ${queue.length} items synced!`);
+
+                const session = loadUserFromSession();
+                if (session) {
+                    const user = await fetchUserData(session.user_id);
+                    if (user) {
+                        updateDashboard(user);
+                    }
+                }
+
+            } catch (error) {
+                console.error('Sync error:', error);
+                showToast('❌ Sync failed: ' + error.message);
+            }
         }
 
         // ============================================================
@@ -1598,16 +1993,41 @@ const isPremium =
         }
 
         // ============================================================
+        // SERVICE WORKER (Offline Support)
+        // ============================================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname + 'sw.js?v=' + VERSION;
+                navigator.serviceWorker.register(swPath, {
+                        scope: window.location.pathname,
+                        updateViaCache: 'none'
+                    })
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration);
+                        setInterval(() => {
+                            registration.update();
+                            console.log('🔄 Checking for SW updates...');
+                        }, 30000);
+                    })
+                    .catch(error => {
+                        console.log('ℹ️ Service Worker registration skipped:', error.message);
+                    });
+            });
+        }
+
+        // ============================================================
         // INITIALIZATION
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🐼 Hanverse Learn initializing...');
+
             // 1. Load session
             const session = loadUserFromSession();
             if (!session) return;
 
             // 2. Fetch fresh user data from API
             const user = await fetchUserData(session.user_id);
-            
+
             // 3. Update UI with user data (use fetched or session fallback)
             const userData = user || session;
             updateNavbar(userData);
@@ -1629,7 +2049,7 @@ const isPremium =
                 }
             }, 300000);
 
-            console.log('🐼 HanVerse Learn Page Loaded');
+            console.log('✅ Hanverse Learn loaded successfully!');
             console.log(`👤 User: ${userData.username || userData.full_name}`);
             console.log(`📡 Status: ${navigator.onLine ? 'Online' : 'Offline'}`);
             console.log(`⭐ Premium: ${userData.premium || userData.premium_until ? 'Yes' : 'No'}`);

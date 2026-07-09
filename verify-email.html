@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification | HanVerse</title>
+    <style>
+        body {
+            background: #0D0D1A;
+            color: #E8E8F0;
+            font-family: 'Poppins', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: #151529;
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+        }
+        .icon { font-size: 80px; margin-bottom: 20px; }
+        .title { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+        .desc { color: #8E8EA8; line-height: 1.6; margin-bottom: 30px; }
+        .btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .error { color: #ff6b6b; }
+        .success { color: #74C69D; }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon" id="statusIcon">⌛</div>
+        <h1 class="title" id="pageTitle">Verifying Your Email...</h1>
+        <p class="desc" id="pageDesc">Please wait while we confirm your email address.</p>
+        <a href="parents.html" class="btn" id="actionBtn" style="display:none;">Go to Parent Hub</a>
+        <div id="loadingSpinner" style="margin-top:20px;">
+            <div class="spinner"></div>
+            <p style="color:#8E8EA8; margin-top:10px;">Processing...</p>
+        </div>
+    </div>
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            const email = params.get('email');
+
+            const icon = document.getElementById('statusIcon');
+            const title = document.getElementById('pageTitle');
+            const desc = document.getElementById('pageDesc');
+            const btn = document.getElementById('actionBtn');
+            const spinner = document.getElementById('loadingSpinner');
+
+            async function verifyEmail() {
+                // Show loading state
+                icon.textContent = '⌛';
+                title.textContent = 'Verifying Your Email...';
+                desc.textContent = 'Please wait while we confirm your email address.';
+                btn.style.display = 'none';
+                spinner.style.display = 'block';
+
+                try {
+                    // Call the verification endpoint
+                    const response = await fetch(`/api/verify-email?token=${token}&email=${encodeURIComponent(email)}`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    // Check if we got redirected (success/error page)
+                    if (response.redirected) {
+                        // Follow the redirect - this handles success/error cases
+                        window.location.href = response.url;
+                        return;
+                    }
+
+                    // If we get here, something went wrong
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        icon.textContent = '✅';
+                        title.textContent = 'Email Verified!';
+                        desc.textContent = 'Your email has been successfully verified. You now have full access to the Parent Hub.';
+                        btn.textContent = '🚀 Go to Parent Hub';
+                        btn.href = 'parents.html';
+                        btn.style.display = 'inline-block';
+                        spinner.style.display = 'none';
+                    } else {
+                        throw new Error(data.error || 'Verification failed');
+                    }
+
+                } catch (error) {
+                    console.error('Verification error:', error);
+                    icon.textContent = '❌';
+                    title.textContent = 'Verification Failed';
+                    desc.textContent = error.message || 'There was a problem verifying your email. Please try again.';
+                    btn.textContent = 'Request New Link';
+                    btn.href = 'parents.html';
+                    btn.style.display = 'inline-block';
+                    spinner.style.display = 'none';
+                }
+            }
+
+            // Check if we have the required parameters
+            if (!token || !email) {
+                icon.textContent = '⚠️';
+                title.textContent = 'Invalid Link';
+                desc.textContent = 'The verification link is missing required information. Please request a new one.';
+                btn.textContent = 'Go to Parent Hub';
+                btn.href = 'parents.html';
+                btn.style.display = 'inline-block';
+                spinner.style.display = 'none';
+            } else {
+                verifyEmail();
+            }
+        })();
+    </script>
+</body>
+</html>

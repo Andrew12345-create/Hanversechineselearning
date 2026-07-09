@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>HanVerse Admin Panel 👑</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,6 +26,8 @@
             --muted: #8E8EA8;
             --border: rgba(255, 255, 255, 0.08);
             --gradient-primary: linear-gradient(135deg, #ff416c, #ff4b2b);
+            --gradient-success: linear-gradient(135deg, #11998e, #38ef7d);
+            --gradient-warning: linear-gradient(135deg, #f7971e, #ffd200);
             --radius: 12px;
             --radius-lg: 18px;
             --shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
@@ -64,6 +66,78 @@
         ::-webkit-scrollbar-thumb:hover { background: #2a2a4a; }
 
         /* ============================================
+           TOAST NOTIFICATIONS
+           ============================================ */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 24px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .toast-notification.success {
+            background: var(--green);
+            color: #0D0D1A;
+        }
+
+        .toast-notification.error {
+            background: var(--red);
+            color: white;
+        }
+
+        .toast-notification.info {
+            background: var(--blue);
+            color: white;
+        }
+
+        .toast-notification .toast-close {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+            opacity: 0.7;
+            transition: opacity var(--transition);
+        }
+
+        .toast-notification .toast-close:hover {
+            opacity: 1;
+        }
+
+        /* ============================================
            BUTTONS
            ============================================ */
         .btn {
@@ -83,13 +157,13 @@
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
         .btn:active:not(:disabled) { transform: scale(0.97); }
         .btn-primary { background: var(--gradient-primary); color: white; }
-        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; transform: translateY(-2px); }
         .btn-secondary { background: rgba(255, 255, 255, 0.06); color: white; }
-        .btn-secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
+        .btn-secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); transform: translateY(-2px); }
         .btn-danger { background: rgba(230, 57, 70, 0.15); color: var(--red); }
-        .btn-danger:hover:not(:disabled) { background: rgba(230, 57, 70, 0.25); }
+        .btn-danger:hover:not(:disabled) { background: rgba(230, 57, 70, 0.25); transform: translateY(-2px); }
         .btn-success { background: rgba(116, 198, 157, 0.15); color: var(--green); }
-        .btn-success:hover:not(:disabled) { background: rgba(116, 198, 157, 0.25); }
+        .btn-success:hover:not(:disabled) { background: rgba(116, 198, 157, 0.25); transform: translateY(-2px); }
         .btn-full { width: 100%; justify-content: center; }
 
         /* ============================================
@@ -107,8 +181,9 @@
             top: 0;
             z-index: 100;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
-        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .logo-icon {
             width: 42px;
             height: 42px;
@@ -120,9 +195,9 @@
             background: var(--gradient-primary);
             flex-shrink: 0;
         }
-        .logo h1 { font-size: 1.1rem; font-weight: 800; }
-        .logo h1 span { color: #ff6b6b; }
-        .top-actions { display: flex; gap: 10px; align-items: center; }
+        .logo h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+        .logo h1 span { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .top-actions .btn { padding: 8px 16px; font-size: 0.85rem; }
 
         /* ============================================
@@ -262,7 +337,7 @@
             justify-content: center;
             gap: 4px;
         }
-        .action-btn:hover { background: rgba(255, 255, 255, 0.1); }
+        .action-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-1px); }
         .action-btn.verify:hover { background: rgba(116, 198, 157, 0.15); color: var(--green); border-color: rgba(116, 198, 157, 0.3); }
         .action-btn.edit:hover { background: rgba(78, 168, 222, 0.15); color: var(--blue); border-color: rgba(78, 168, 222, 0.3); }
         .action-btn.email:hover { background: rgba(244, 211, 94, 0.15); color: var(--yellow); border-color: rgba(244, 211, 94, 0.3); }
@@ -298,6 +373,7 @@
             align-items: center;
             background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             z-index: 999;
             padding: 20px;
             overflow-y: auto;
@@ -346,11 +422,10 @@
         /* ============================================
            FORMS
            ============================================ */
-        .form-group { display: flex; flex-direction: column; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
         .form-group label {
             font-size: 0.75rem;
             font-weight: 700;
-            margin-bottom: 4px;
             color: var(--muted);
             letter-spacing: 0.5px;
             text-transform: uppercase;
@@ -360,7 +435,7 @@
             padding: 12px 14px;
             border-radius: var(--radius);
             border: 1px solid var(--border);
-            background: #0D0D1A;
+            background: var(--bg);
             color: white;
             outline: none;
             font-size: 0.9rem;
@@ -540,10 +615,10 @@
     <div id="app" style="display:none;">
         <!-- Header -->
         <header class="topbar" role="banner">
-            <div class="logo">
+            <a href="index.html" class="logo">
                 <div class="logo-icon" aria-hidden="true">👑</div>
                 <h1>HanVerse <span>Admin</span></h1>
-            </div>
+            </a>
             <nav class="top-actions" aria-label="Admin actions">
                 <button class="btn btn-secondary" id="broadcastBtn">
                     <i class="fas fa-bullhorn" aria-hidden="true"></i> <span>Broadcast</span>
@@ -775,7 +850,12 @@
         // CONFIGURATION
         // ==========================================
         const CONFIG = {
-            API_URL: '/api',
+            API_URL: (() => {
+                if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+                    return "http://localhost:8888/.netlify/functions/server";
+                }
+                return "/api";
+            })(),
             STORAGE_KEY: 'hanverse_admin',
         };
 
@@ -890,33 +970,16 @@
             if (existing) existing.remove();
 
             const toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                background: ${type === 'success' ? '#74C69D' : type === 'error' ? '#E63946' : '#4EA8DE'};
-                color: white;
-                padding: 14px 24px;
-                border-radius: 12px;
-                font-weight: 600;
-                z-index: 9999;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                max-width: 400px;
-                animation: slideIn 0.3s ease;
-            `;
+            toast.className = `toast-notification ${type}`;
             toast.innerHTML = `
                 <span>${message}</span>
-                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:white;font-size:18px;cursor:pointer;">✕</button>
+                <button class="toast-close" onclick="this.closest('.toast-notification').remove()">✕</button>
             `;
             document.body.appendChild(toast);
 
             setTimeout(() => {
                 if (toast.parentElement) toast.remove();
-            }, 4000);
+            }, 5000);
         }
 
         function getAdminUserId() {
@@ -934,7 +997,6 @@
         async function handleAuthSubmit(e) {
             e.preventDefault();
             const password = DOM.authPassword.value.trim();
-            const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
 
             if (!password) {
                 showError(DOM.authErr, 'Please enter your admin password.');
@@ -946,10 +1008,24 @@
                 btn.disabled = true;
                 showError(DOM.authErr, '');
 
+                // Get the current user from session
+                const sessionData = localStorage.getItem('hanverse_user');
+                if (!sessionData) {
+                    throw new Error('No user session found. Please login first.');
+                }
+
+                const user = JSON.parse(sessionData);
+                if (!user || !user.user_id) {
+                    throw new Error('Invalid user session.');
+                }
+
                 const res = await fetch(`${CONFIG.API_URL}/admin/verify-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: user.user_id, adminPassword: password }),
+                    body: JSON.stringify({ 
+                        userId: user.user_id, 
+                        adminPassword: password 
+                    }),
                 });
 
                 const data = await res.json();
@@ -985,7 +1061,11 @@
         // API - USER MANAGEMENT
         // ==========================================
         async function loadAdminData() {
-            if (!state.adminToken) return;
+            if (!state.adminToken) {
+                DOM.app.style.display = 'none';
+                openModal('authModal');
+                return;
+            }
 
             try {
                 state.isLoading = true;
@@ -999,6 +1079,15 @@
                 const data = await res.json();
 
                 if (!res.ok) {
+                    if (res.status === 401) {
+                        // Token expired
+                        state.adminToken = null;
+                        localStorage.removeItem(CONFIG.STORAGE_KEY);
+                        DOM.app.style.display = 'none';
+                        openModal('authModal');
+                        showError(DOM.authErr, 'Session expired. Please login again.');
+                        return;
+                    }
                     throw new Error(data.error || 'Failed to load users');
                 }
 
@@ -1018,7 +1107,6 @@
         // PARENT VERIFICATION FUNCTIONS
         // ==========================================
         
-        // Verify a parent
         async function verifyParent(parentId, parentName) {
             if (!parentId) {
                 showToast('❌ Error: Parent ID is missing.', 'error');
@@ -1051,7 +1139,6 @@
             }
         }
 
-        // Deny a parent
         async function denyParent(parentId, parentName) {
             if (!parentId) {
                 showToast('❌ Error: Parent ID is missing.', 'error');
@@ -1059,7 +1146,7 @@
             }
 
             const reason = prompt(`Why are you denying "${parentName || 'Parent'}"? (Optional)`, '');
-            if (reason === null) return; // User cancelled
+            if (reason === null) return;
 
             if (!confirm(`❌ Deny parent "${parentName || 'Unknown'}"? This will remove their parent access.`)) return;
 
@@ -1182,7 +1269,7 @@
                 const url = isEdit ?
                     `${CONFIG.API_URL}/admin/users/update/${userId}` :
                     `${CONFIG.API_URL}/admin/users`;
-                const method = isEdit ? 'POST' : 'POST';
+                const method = 'POST';
 
                 const res = await fetch(url, {
                     method,
@@ -1371,7 +1458,7 @@
                 const cardClass = isPendingParent ? 'user-card pending-verification' : 'user-card';
 
                 const parentId = user.parent_id || user.user_id;
-                const userName = user.full_name || 'User';
+                const userName = user.full_name || user.username || 'User';
 
                 let actionsHtml = '';
 
@@ -1460,7 +1547,7 @@
         function togglePanda() {
             DOM.pandaChat.classList.toggle('open');
             if (DOM.pandaChat.classList.contains('open')) {
-                DOM.pandaInput.focus();
+                setTimeout(() => DOM.pandaInput.focus(), 100);
             }
         }
 
@@ -1583,6 +1670,7 @@
             DOM.pandaInput.addEventListener('input', handlePandaInput);
 
             console.log('🐼 HanVerse Admin Panel initialized');
+            console.log(`📡 API URL: ${CONFIG.API_URL}`);
         }
 
         if (document.readyState === 'loading') {
