@@ -25,3 +25,38 @@
   to = "/index.html"
   status = 200
   force = false # <-- This is vital! It stops index.html from hijacking reset.html
+  [[redirects]]
+  from = "/parents"
+  to = "/parents.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn"
+  to = "/learn.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile"
+  to = "/profile.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/worksheets"
+  to = "/worksheets.html"
+  status = 200
+
+[[redirects]]
+  from = "/verify-email"
+  to = "/verify-email.html"
+  status = 200
+
+# SPA fallback (optional)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404
