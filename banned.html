@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Account Suspended – Hanverse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F8FAFC;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      z-index: 0;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      pointer-events: none;
+    }
+    body::before {
+      width: 500px; height: 500px; top: -120px; right: -120px;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.25), transparent 70%);
+    }
+    body::after {
+      width: 400px; height: 400px; bottom: -100px; left: -100px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.15), transparent 70%);
+    }
+
+    .banned-card {
+      position: relative; z-index: 1;
+      max-width: 640px; width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 40px;
+      padding: 48px 40px 40px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(255, 255, 255, 0.5);
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .banned-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 32px 100px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.6);
+    }
+
+    .banned-icon { font-size: 80px; line-height: 1; margin-bottom: 16px; display: inline-block; animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+    .banned-badge {
+      display: inline-block;
+      background: #FEE2E2;
+      color: #B91C1C;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      padding: 6px 20px;
+      border-radius: 9999px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(185, 28, 28, 0.15);
+      text-transform: uppercase;
+    }
+
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; color: #0F172A; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .subhead { font-size: 1.05rem; color: #475569; margin-bottom: 24px; line-height: 1.6; font-weight: 400; }
+
+    .ban-reason {
+      background: #F1F5F9;
+      border-radius: 20px;
+      padding: 18px 20px;
+      margin-bottom: 28px;
+      border-left: 4px solid #EF4444;
+      text-align: left;
+    }
+
+    .ban-reason strong { display: block; font-weight: 700; color: #0F172A; font-size: 0.9rem; margin-bottom: 4px; }
+    .ban-reason p { color: #334155; font-size: 0.9rem; line-height: 1.5; margin: 0; }
+    .ban-reason .code {
+      display: inline-block;
+      background: #E2E8F0;
+      padding: 0 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #1E293B;
+      margin-top: 6px;
+    }
+
+    .ban-reason .reason-text {
+      color: #B91C1C;
+      font-weight: 600;
+      background: #FEE2E2;
+      padding: 2px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .action-group { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 28px; border-radius: 9999px; font-weight: 700; font-size: 0.95rem;
+      text-decoration: none; transition: all 0.25s ease; border: none; cursor: pointer;
+      background: transparent; min-width: 140px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563EB, #14B8A6);
+      color: white;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(37, 99, 235, 0.35); }
+    .btn-primary:active { transform: scale(0.96); }
+
+    .btn-outline {
+      background: transparent;
+      color: #1E293B;
+      border: 1.5px solid #CBD5E1;
+    }
+    .btn-outline:hover { background: #F1F5F9; border-color: #94A3B8; transform: translateY(-2px); }
+    .btn-outline:active { transform: scale(0.96); }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      color: white;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.25);
+    }
+    .btn-danger:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(239, 68, 68, 0.35); }
+
+    .support-note {
+      margin-top: 28px;
+      font-size: 0.85rem;
+      color: #64748B;
+      border-top: 1px solid #E2E8F0;
+      padding-top: 24px;
+    }
+    .support-note a { color: #2563EB; font-weight: 600; text-decoration: none; }
+    .support-note a:hover { text-decoration: underline; }
+
+    .footer-logo { margin-top: 16px; font-weight: 700; font-size: 0.75rem; color: #94A3B8; letter-spacing: 0.3px; }
+    .footer-logo span { color: #2563EB; }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .banned-card { padding: 32px 20px 28px; border-radius: 28px; }
+      .banned-icon { font-size: 60px; }
+      .btn { min-width: 120px; padding: 10px 20px; font-size: 0.85rem; }
+      .action-group { flex-direction: column; align-items: center; }
+      .ban-reason { padding: 14px 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .banned-card:hover { transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banned-card">
+    <div class="banned-icon">🚫</div>
+    <div class="banned-badge">⛔ Account Suspended</div>
+
+    <h1 id="pageTitle">Access Revoked</h1>
+    <p class="subhead" id="subheadText">
+      Your Hanverse account has been suspended due to a violation of our Community Guidelines.
+    </p>
+
+    <div class="ban-reason" id="banReasonBlock">
+      <strong>📌 Why this happened</strong>
+      <p id="reasonText">
+        Our system detected activity that goes against our
+        <strong>Terms of Service</strong> or <strong>Community Standards</strong>.
+        This could include inappropriate behaviour, spam, or repeated rule violations.
+      </p>
+      <div style="margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <span style="font-size:0.85rem; color:#475569;">Reference ID</span>
+        <span class="code" id="banReference">#BAN-2026-07-23</span>
+      </div>
+      <div style="margin-top: 8px;">
+        <span style="font-size:0.85rem; color:#475569;">Reason:</span>
+        <span class="reason-text" id="banReasonDisplay">Policy Violation</span>
+      </div>
+    </div>
+
+    <div class="action-group">
+      <a href="#" class="btn btn-primary" id="appealBtn">
+        ✉️ Appeal Ban
+      </a>
+      <a href="index.html" class="btn btn-outline">
+        🏠 Return Home
+      </a>
+    </div>
+
+    <div class="support-note">
+      If you believe this is a mistake, please contact our support team.
+      We'll review your case as soon as possible.
+      <br>
+      <a href="mailto:support@hanverse.com">support@hanverse.com</a>
+    </div>
+
+    <div class="footer-logo">
+      🐼 <span>Hanverse</span> &bull; Learn Mandarin with heart
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // CONFIGURATION
+    // ============================================================
+    const API_BASE = '/api';
+    const SESSION_KEY = 'hanverse_user';
+
+    // ============================================================
+    // UTILITY FUNCTIONS
+    // ============================================================
+    function getSession() {
+      try {
+        const data = localStorage.getItem(SESSION_KEY);
+        return data ? JSON.parse(data) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function clearSession() {
+      localStorage.removeItem(SESSION_KEY);
+    }
+
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    function showLoading(btn) {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Loading...';
+      }
+    }
+
+    function hideLoading(btn, originalText) {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText || '✉️ Appeal Ban';
+      }
+    }
+
+    // ============================================================
+    // FETCH BAN DETAILS FROM BACKEND
+    // ============================================================
+    async function fetchBanDetails() {
+      try {
+        const session = getSession();
+        const userId = session?.user_id || session?.id;
+
+        if (!userId) {
+          // Try to get from URL param
+          const userIdParam = getQueryParam('userId');
+          if (userIdParam) {
+            return await fetchBanDetailsById(userIdParam);
+          }
+          return null;
+        }
+
+        return await fetchBanDetailsById(userId);
+      } catch (error) {
+        console.error('Error fetching ban details:', error);
+        return null;
+      }
+    }
+
+    async function fetchBanDetailsById(userId) {
+      try {
+        const response = await fetch(`${API_BASE}/user/${userId}`);
+        const data = await response.json();
+
+        if (data.success && data.user) {
+          return {
+            is_banned: data.user.is_banned,
+            banned_reason: data.user.banned_reason || 'Policy Violation',
+            user_id: data.user.user_id || data.user.id,
+            username: data.user.username || data.user.full_name || 'Learner'
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        return null;
+      }
+    }
+
+    // ============================================================
+    // UPDATE UI WITH BAN DETAILS
+    // ============================================================
+    function updateUI(banData) {
+      if (!banData) {
+        // If no ban data found, show generic message but still allow appeal
+        document.getElementById('reasonText').innerHTML = `
+          Your account has been suspended. Please contact support for more information.
+        `;
+        document.getElementById('banReasonDisplay').textContent = 'Suspension';
+        return;
+      }
+
+      // Update reason text
+      const reason = banData.banned_reason || 'Policy Violation';
+      document.getElementById('reasonText').innerHTML = `
+        Our system detected activity that goes against our
+        <strong>Terms of Service</strong> or <strong>Community Standards</strong>.
+        <br><br>
+        <strong>Reason provided:</strong> ${escapeHtml(reason)}
+      `;
+      document.getElementById('banReasonDisplay').textContent = reason;
+
+      // Update reference ID with user ID
+      if (banData.user_id) {
+        const date = new Date().toISOString().split('T')[0];
+        document.getElementById('banReference').textContent = `#BAN-${date}-${banData.user_id}`;
+      }
+
+      // Update appeal button with user info
+      const appealBtn = document.getElementById('appealBtn');
+      const username = banData.username || 'User';
+      appealBtn.href = `mailto:support@hanverse.com?subject=Appeal%20Ban%20%23BAN-${new Date().toISOString().split('T')[0]}-${banData.user_id || ''}&body=Hello%20Hanverse%20Team%2C%0A%0AI%20would%20like%20to%20appeal%20my%20account%20suspension.%0A%0AUsername%3A%20${encodeURIComponent(username)}%0AUser%20ID%3A%20${banData.user_id || 'N/A'}%0A%0AReason%20given%3A%20${encodeURIComponent(reason)}%0A%0APlease%20review%20my%20case.%20I%20believe%20this%20may%20be%20a%20mistake.%0A%0AThank%20you.`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ============================================================
+    // CHECK IF USER IS BANNED ON LOAD
+    // ============================================================
+    async function checkBanStatus() {
+      try {
+        // Check if we have a ban reason in the URL (from login redirect)
+        const urlReason = getQueryParam('reason');
+        const urlUserId = getQueryParam('userId');
+
+        if (urlReason) {
+          // User was redirected from login with ban info
+          document.getElementById('reasonText').innerHTML = `
+            Your account has been suspended. Please contact support for more information.
+            <br><br>
+            <strong>Reason provided:</strong> ${escapeHtml(urlReason)}
+          `;
+          document.getElementById('banReasonDisplay').textContent = urlReason;
+
+          if (urlUserId) {
+            const date = new Date().toISOString().split('T')[0];
+            document.getElementById('banReference').textContent = `#BAN-${date}-${urlUserId}`;
+          }
+
+          // Update appeal button
+          const appealBtn = document.getElementById('appealBtn');
+          appealBtn.href = `mailto:support@hanverse.com?subject=Appeal%20Ban&body=Hello%20Hanverse%20Team%2C%0A%0AI%20would%20like%20to%20appeal%20my%20account%20suspension.%0A%0AReason%20given%3A%20${encodeURIComponent(urlReason)}%0A%0APlease%20review%20my%20case.%0A%0AThank%20you.`;
+          return;
+        }
+
+        // Try to fetch ban details from the API
+        const banData = await fetchBanDetails();
+        if (banData && banData.is_banned) {
+          updateUI(banData);
+        } else {
+          // User is not banned, but we're on the banned page
+          // Could be a direct visit - show generic message
+          document.getElementById('reasonText').innerHTML = `
+            Your account has been suspended. Please contact support for more information.
+          `;
+          document.getElementById('banReasonDisplay').textContent = 'Suspension';
+
+          // Also try to get from session
+          const session = getSession();
+          if (session?.banned_reason) {
+            document.getElementById('reasonText').innerHTML = `
+              Your account has been suspended.
+              <br><br>
+              <strong>Reason provided:</strong> ${escapeHtml(session.banned_reason)}
+            `;
+            document.getElementById('banReasonDisplay').textContent = session.banned_reason;
+          }
+        }
+
+        // Clear any stored session to prevent auto-login
+        // But keep it for appeal reference
+        // Don't clear session immediately - we need it for appeal
+
+      } catch (error) {
+        console.error('Error checking ban status:', error);
+      }
+    }
+
+    // ============================================================
+    // APPEAL FUNCTION (Optional: Submit appeal to backend)
+    // ============================================================
+    async function submitAppeal(reason, userId) {
+      try {
+        const response = await fetch(`${API_BASE}/admin/appeals`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: userId,
+            reason: reason,
+            message: 'User is appealing their ban'
+          })
+        });
+
+        if (response.ok) {
+          showToast('success', 'Appeal submitted! We\'ll review your case.');
+        } else {
+          showToast('error', 'Failed to submit appeal. Please email support.');
+        }
+      } catch (error) {
+        console.error('Appeal error:', error);
+        showToast('error', 'Failed to submit appeal. Please email support.');
+      }
+    }
+
+    // ============================================================
+    // SIMPLE TOAST NOTIFICATION
+    // ============================================================
+    function showToast(type, message) {
+      const existing = document.querySelector('.toast-container');
+      if (existing) existing.remove();
+
+      const container = document.createElement('div');
+      container.className = 'toast-container';
+      container.style.cssText = `
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 9999;
+        max-width: 380px;
+        width: calc(100% - 48px);
+      `;
+
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        padding: 16px 20px;
+        border-radius: 12px;
+        background: ${type === 'success' ? '#22C55E' : '#EF4444'};
+        color: white;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        animation: slideInRight 0.4s cubic-bezier(0.22,1,0.36,1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.9rem;
+      `;
+      toast.innerHTML = `
+        <span style="font-size:20px;">${type === 'success' ? '✅' : '❌'}</span>
+        <span style="flex:1;">${message}</span>
+        <button style="background:none;border:none;color:white;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>
+      `;
+
+      toast.querySelector('button').addEventListener('click', () => toast.remove());
+
+      // Add animation keyframes if not exists
+      if (!document.getElementById('toastStyles')) {
+        const style = document.createElement('style');
+        style.id = 'toastStyles';
+        style.textContent = `
+          @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      container.appendChild(toast);
+      document.body.appendChild(container);
+
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 5000);
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      checkBanStatus();
+
+      // Listen for appeal button click (optional)
+      // The appeal button is already a mailto link
+      // But we can also add a toast notification
+      document.getElementById('appealBtn').addEventListener('click', (e) => {
+        // Don't prevent default - mailto will open
+        showToast('info', '📧 Opening email client...');
+      });
+    });
+
+    // Expose functions globally
+    window.submitAppeal = submitAppeal;
+    window.showToast = showToast;
+  </script>
+
+</body>
+</html>
