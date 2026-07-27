@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Hanverse Learn</title>
 
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
+    <link rel="apple-touch-icon" href="hanverse-logo2.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -237,7 +242,7 @@
         }
 
         /* ============================================
-                   FLOATING NAVBAR
+                   FLOATING NAVBAR (with logo image)
                 ============================================ */
         nav.top-nav {
             position: fixed;
@@ -287,19 +292,20 @@
             transition: var(--transition-smooth);
         }
 
-        .logo-badge {
+        .logo img {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            font-size: 20px;
+            object-fit: contain;
+            border-radius: 12px;
             transition: var(--transition-smooth);
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        nav.top-nav.shrunk .logo img {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
         }
 
         .logo-text {
@@ -308,6 +314,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            font-weight: 800;
         }
 
         nav.top-nav.shrunk .logo-text {
@@ -315,17 +322,6 @@
             width: 0;
             overflow: hidden;
             margin: 0;
-        }
-
-        nav.top-nav.shrunk .logo-badge {
-            width: 34px;
-            height: 34px;
-            font-size: 16px;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
-        }
-
-        nav.top-nav.shrunk .logo {
-            gap: 0;
         }
 
         nav ul {
@@ -409,6 +405,32 @@
 
         .btn:active {
             transform: scale(0.96);
+        }
+
+        .btn-login {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 8px 20px;
+        }
+
+        .btn-login:hover {
+            background: var(--bg);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .btn-signup {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+            padding: 10px 24px;
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
         }
 
         .btn-primary {
@@ -822,7 +844,9 @@
             border-color: var(--primary-light);
         }
 
-        .lesson-card .icon {
+        .lesson-card .icon,
+        .roadmap-card .icon,
+        .worksheet-card .icon {
             font-size: 40px;
         }
 
@@ -1378,16 +1402,14 @@
                 gap: 8px;
             }
 
-            .logo-badge {
+            .logo img {
                 width: 34px;
                 height: 34px;
-                font-size: 16px;
             }
 
-            nav.top-nav.shrunk .logo-badge {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
+            nav.top-nav.shrunk .logo img {
+                width: 28px;
+                height: 28px;
             }
 
             nav ul {
@@ -1504,10 +1526,10 @@
     <!-- ===== TOAST CONTAINER ===== -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- ===== NAVBAR ===== -->
+    <!-- ===== NAVBAR (with logo image) ===== -->
     <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
-            <div class="logo-badge">🐼</div>
+            <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
             <span class="logo-text">Hanverse</span>
         </a>
         <ul>
@@ -1760,6 +1782,10 @@
         }
 
         function navigateTo(url) {
+            if ((url === 'signup.html' || url === 'login.html') && isLoggedIn()) {
+                showToast('info', 'You are already logged in!');
+                return;
+            }
             window.location.href = url;
         }
 
@@ -1872,7 +1898,7 @@
                 // Fallback to default lessons
                 const allLessons = [
                     { id: 'lesson_1', title: 'Greetings & Introductions', level: 1, premium: false, icon: '👋',
-                    description: 'Learn how to say hello and introduce yourself.' },
+                        description: 'Learn how to say hello and introduce yourself.' },
                     { id: 'lesson_2', title: 'Numbers 1–10', level: 1, premium: false, icon: '🔢',
                         description: 'Master counting from one to ten.' },
                     { id: 'lesson_3', title: 'Colours & Objects', level: 1, premium: false, icon: '🎨',
@@ -1891,8 +1917,9 @@
                         description: 'Prepare for your YCT exam with practice questions.' },
                 ];
 
-                // Filter by user level
-                return allLessons.filter(l => l.level <= (userLevel || 1));
+                // Filter by user level (if logged in)
+                const level = userLevel || 1;
+                return allLessons.filter(l => l.level <= level);
             }
         }
 
@@ -2012,20 +2039,24 @@
         // LESSON FUNCTIONS
         // ============================================================
         async function startLesson(lessonId) {
+            if (!isLoggedIn()) {
+                showToast('warning', 'Please log in to start a lesson!');
+                setTimeout(() => navigateTo('login.html'), 1500);
+                return;
+            }
             showToast('info', '📚 Loading lesson...');
-            // Navigate to lesson page
             window.location.href = `lesson.html?id=${lessonId}`;
         }
 
         async function startNextLesson() {
-            const session = getSession();
-            if (!session) {
-                navigateTo('login.html');
+            if (!isLoggedIn()) {
+                showToast('warning', 'Please log in to continue learning!');
+                setTimeout(() => navigateTo('login.html'), 1500);
                 return;
             }
 
-            // Find first incomplete lesson
-            const lessons = await fetchLessons(session.current_yct || 1);
+            const session = getSession();
+            const lessons = await fetchLessons(session?.current_yct || 1);
             const incomplete = lessons.find(l => !localStorage.getItem(`lesson_${l.id}_completed`));
 
             if (incomplete) {
@@ -2038,21 +2069,18 @@
         function completeLesson(lessonId) {
             localStorage.setItem(`lesson_${lessonId}_completed`, 'true');
             showToast('success', '✅ Lesson completed! +10 XP');
-            // Refresh lesson list
             initPage();
         }
 
         function downloadWorksheet(worksheetId) {
             showToast('info', '📥 Downloading worksheet...');
-            // In production, this would download from the API
-            // window.location.href = `/api/worksheets/download/${worksheetId}`;
             setTimeout(() => {
                 showToast('success', '✅ Worksheet downloaded!');
             }, 1000);
         }
 
         // ============================================================
-        // PANDA AI CHAT - CONNECTED TO BACKEND
+        // PANDA AI CHAT
         // ============================================================
         const chatFallbacks = [
             "That's a great question! Let me help you with that. 🐼",
@@ -2072,7 +2100,6 @@
 
             if (!text) return;
 
-            // Add user message
             const userRow = document.createElement('div');
             userRow.className = 'message-row user';
             userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
@@ -2082,7 +2109,6 @@
             input.style.height = 'auto';
             body.scrollTop = body.scrollHeight;
 
-            // Show typing indicator
             const typing = document.createElement('div');
             typing.className = 'message-row';
             typing.id = 'typingIndicator';
@@ -2228,19 +2254,16 @@
         // NAVBAR SCROLL EFFECT
         // ============================================================
         const nav = document.getElementById('topNav');
-        let lastScrollY = 0;
         let ticking = false;
 
         function handleNavScroll() {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    const scrollY = window.scrollY;
-                    if (scrollY > 40) {
+                    if (window.scrollY > 40) {
                         nav.classList.add('shrunk');
                     } else {
                         nav.classList.remove('shrunk');
                     }
-                    lastScrollY = scrollY;
                     ticking = false;
                 });
                 ticking = true;
@@ -2322,68 +2345,70 @@
 
             try {
                 const session = getSession();
+                let userLevel = 1;
+                let isPremiumUser = false;
 
-                if (!session || !session.user_id) {
-                    log('No session found, redirecting to login');
-                    navigateTo('login.html');
-                    return;
+                if (session && session.user_id) {
+                    // User is logged in - fetch their data
+                    const user = await fetchUserData(session.user_id);
+                    if (user) {
+                        setSession({ ...session, ...user });
+                        userLevel = user.current_yct || 1;
+                        isPremiumUser = user.premium || user.is_premium || false;
+
+                        // Update dashboard
+                        document.getElementById('xpValue').textContent = user.xp || 0;
+                        document.getElementById('streakValue').textContent = user.streak_days || 0;
+                        document.getElementById('levelValue').textContent = user.level || 1;
+
+                        // Count completed lessons
+                        let completedCount = 0;
+                        const lessons = await fetchLessons(userLevel);
+                        lessons.forEach(l => {
+                            if (localStorage.getItem(`lesson_${l.id}_completed`) === 'true') {
+                                completedCount++;
+                            }
+                        });
+                        document.getElementById('lessonValue').textContent = completedCount || user
+                        .lessons_completed || 0;
+
+                        // Show welcome toast
+                        const name = user.full_name || user.username || 'Learner';
+                        showToast('success', `Welcome back, ${name}! 🎉`);
+                    }
+                } else {
+                    // Not logged in - show default values
+                    document.getElementById('xpValue').textContent = '—';
+                    document.getElementById('streakValue').textContent = '—';
+                    document.getElementById('lessonValue').textContent = '—';
+                    document.getElementById('levelValue').textContent = '?';
+                    showToast('info', '👋 Log in to track your progress and start learning!');
                 }
-
-                // Fetch user data
-                const user = await fetchUserData(session.user_id);
-                if (!user) {
-                    showToast('error', 'Failed to load user data. Please refresh.');
-                    hideLoading();
-                    return;
-                }
-
-                // Update session with fresh data
-                setSession({ ...session, ...user });
 
                 // Update navbar
                 updateNavbar();
 
-                // Update dashboard
-                document.getElementById('xpValue').textContent = user.xp || 0;
-                document.getElementById('streakValue').textContent = user.streak_days || 0;
-                document.getElementById('levelValue').textContent = user.level || 1;
-
-                // Count completed lessons
-                let completedCount = 0;
-                const lessons = await fetchLessons(user.current_yct || 1);
-                lessons.forEach(l => {
-                    if (localStorage.getItem(`lesson_${l.id}_completed`) === 'true') {
-                        completedCount++;
-                    }
-                });
-                document.getElementById('lessonValue').textContent = completedCount || user.lessons_completed || 0;
-
                 // Update path steps
-                updatePathSteps(user.current_yct || 1);
+                updatePathSteps(userLevel);
 
                 // Render roadmap
-                const roadmap = getRoadmap(user.current_yct || 1);
+                const roadmap = getRoadmap(userLevel);
                 renderRoadmap(roadmap);
 
                 // Render lessons
-                const isPremiumUser = user.premium || user.is_premium || false;
-                renderLessons(lessons, user.current_yct || 1, isPremiumUser);
+                const lessons = await fetchLessons(userLevel);
+                renderLessons(lessons, userLevel, isPremiumUser);
 
                 // Render worksheets
                 const worksheets = await fetchWorksheets();
                 renderWorksheets(worksheets);
 
                 // Set level selector
-                document.getElementById('levelSelect').value = user.current_yct || 1;
-
-                // Show welcome toast
-                const name = user.full_name || user.username || 'Learner';
-                showToast('success', `Welcome back, ${name}! 🎉`);
+                document.getElementById('levelSelect').value = userLevel || 1;
 
                 log('✅ Hanverse Learn loaded successfully!');
-                log(`👤 User: ${user.username || user.full_name}`);
-                log(`⭐ Premium: ${isPremiumUser ? 'Yes' : 'No'}`);
-                log(`📚 Level: YCT ${user.current_yct || 1}`);
+                log(`👤 Logged in: ${isLoggedIn() ? 'Yes' : 'No'}`);
+                log(`📚 Level: YCT ${userLevel}`);
 
             } catch (error) {
                 errorLog('Init error:', error);

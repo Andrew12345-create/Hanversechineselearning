@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Hanverse | Learn Mandarin Through Stories, Games & AI</title>
 
+  <!-- ===== FAVICON ===== -->
+  <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
+  <link rel="apple-touch-icon" href="hanverse-logo.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -106,7 +111,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loader-text { font-weight: 600; color: var(--text-secondary); }
 
-    /* ----- FLOATING NAVBAR ----- */
+    /* ----- FLOATING NAVBAR (with logo image) ----- */
     nav.top-nav {
       position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 1000;
       display: flex; justify-content: space-between; align-items: center;
@@ -120,11 +125,42 @@
       will-change: transform, height, border-radius, padding, box-shadow, top, background;
     }
     nav.top-nav.shrunk { top: 14px; height: var(--nav-shrunk-height); padding: 0 20px; width: calc(100% - 48px); max-width: 900px; border-radius: 16px; background: rgba(255,255,255,0.94); backdrop-filter: blur(28px) saturate(1.5); box-shadow: 0 8px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03); }
-    .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: var(--dark); text-decoration: none; flex-shrink: 0; transition: var(--transition-smooth); }
-    .logo-badge { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-size: 20px; transition: var(--transition-smooth); flex-shrink: 0; box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
-    .logo-text { transition: var(--transition-smooth); background: linear-gradient(135deg, var(--dark), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--dark);
+      text-decoration: none;
+      flex-shrink: 0;
+      transition: var(--transition-smooth);
+    }
+    /* logo image (visible) */
+    .logo img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: 12px;
+      transition: var(--transition-smooth);
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    nav.top-nav.shrunk .logo img {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+    }
+    .logo-text {
+      transition: var(--transition-smooth);
+      background: linear-gradient(135deg, var(--dark), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
     nav.top-nav.shrunk .logo-text { opacity: 0; width: 0; overflow: hidden; margin: 0; }
-    nav.top-nav.shrunk .logo-badge { width: 34px; height: 34px; font-size: 16px; }
+
     nav ul { display: flex; gap: 28px; list-style: none; align-items: center; margin: 0 16px; flex: 1; justify-content: center; }
     nav ul a { text-decoration: none; font-weight: 600; color: var(--text-secondary); transition: var(--transition-smooth); font-size: 0.9rem; position: relative; padding: 4px 0; letter-spacing: 0.3px; }
     nav ul a::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%) scaleX(0); width: 100%; height: 2.5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 2px; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
@@ -163,7 +199,6 @@
       margin: 0 auto;
       position: relative;
     }
-    /* extra decorative floating elements */
     .hero-deco {
       position: absolute;
       font-size: 4rem;
@@ -209,7 +244,7 @@
     .c3 { bottom:40px; left:40px; animation-delay:4s; }
     .c4 { bottom:30px; right:30px; animation-delay:6s; }
 
-    /* ----- VIDEO SECTION (prominent) ----- */
+    /* ----- VIDEO SECTION ----- */
     .video-section {
       padding: 40px 7% 60px;
       max-width: 1400px;
@@ -218,7 +253,7 @@
     }
     .video-wrapper {
       position: relative;
-      padding-bottom: 56.25%; /* 16:9 */
+      padding-bottom: 56.25%;
       height: 0;
       border-radius: var(--radius-lg);
       overflow: hidden;
@@ -239,7 +274,7 @@
     }
     .video-caption span { color: var(--primary); }
 
-    /* ----- STATS, FEATURES etc (same as original) ----- */
+    /* ----- STATS, FEATURES ----- */
     .stats { padding: 20px 7% 60px; display: grid; grid-template-columns: repeat(4,1fr); gap:24px; max-width:1400px; margin:0 auto; }
     .stat-card { background:white; padding:28px 20px; border-radius:var(--radius-md); text-align:center; box-shadow:var(--shadow-sm); transition:var(--transition-smooth); border:1px solid rgba(0,0,0,0.03); }
     .stat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--primary-light); }
@@ -275,11 +310,29 @@
     .cta-card .btn-signup { background:white; color:var(--primary); box-shadow:0 4px 16px rgba(0,0,0,0.15); }
     .cta-card .btn-signup:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,0.2); }
 
+    /* ----- FOOTER with logo ----- */
     footer { background:var(--dark); color:white; padding:60px 7% 40px; }
     .footer-grid { display:grid; grid-template-columns:2fr repeat(3,1fr); gap:40px; max-width:1400px; margin:0 auto; }
-    footer h2 { margin-bottom:12px; font-size:1.6rem; }
+    .footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .footer-brand img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      padding: 2px;
+    }
+    .footer-brand h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+    }
+    footer p { color:#94A3B8; line-height:1.7; font-size:0.9rem; margin-top: 4px; }
     footer h3 { font-size:1.05rem; margin-bottom:16px; color:#f8fafc; font-weight:600; }
-    footer p { color:#94A3B8; line-height:1.7; font-size:0.9rem; }
     footer a { color:#94A3B8; text-decoration:none; font-size:0.9rem; transition:var(--transition-smooth); display:inline-block; margin-bottom:8px; }
     footer a:hover { color:white; transform:translateX(4px); }
     footer hr { margin:40px 0 24px; border:none; height:1px; background:rgba(255,255,255,0.06); max-width:1400px; margin-left:auto; margin-right:auto; }
@@ -342,7 +395,8 @@
       nav.top-nav { top:12px; padding:0 16px; width:calc(100% - 24px); border-radius:18px; height:64px; }
       nav.top-nav.shrunk { top:10px; height:54px; padding:0 14px; width:calc(100% - 32px); border-radius:14px; }
       .logo { font-size:18px; gap:8px; }
-      .logo-badge { width:34px; height:34px; font-size:16px; }
+      .logo img { width:34px; height:34px; }
+      nav.top-nav.shrunk .logo img { width:28px; height:28px; }
       nav ul { display:none; }
       .bottom-nav { display:flex; }
       .hero h1 { font-size:32px; }
@@ -364,7 +418,6 @@
       .hero-card { height:220px; }
       .panda { font-size:56px; }
     }
-    /* motion reduce */
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; } }
     *:focus-visible { outline:3px solid var(--primary); outline-offset:2px; }
   </style>
@@ -380,10 +433,10 @@
   <!-- TOAST CONTAINER -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- NAVBAR -->
+  <!-- NAVBAR with logo image -->
   <nav class="top-nav" id="topNav">
     <a href="index.html" class="logo">
-      <div class="logo-badge">🐼</div>
+      <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
       <span class="logo-text">Hanverse</span>
     </a>
     <ul>
@@ -395,7 +448,7 @@
     <div class="nav-buttons" id="navButtons"></div>
   </nav>
 
-  <!-- HERO with extra decorative elements -->
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-deco">汉</div>
     <div class="hero-deco">语</div>
@@ -418,7 +471,7 @@
     </div>
   </section>
 
-  <!-- PROMINENT VIDEO SECTION (YouTube embed) -->
+  <!-- VIDEO SECTION -->
   <section class="video-section">
     <h2 class="section-title" style="margin-bottom: 8px;">🎬 Watch Hanverse in Action</h2>
     <p class="section-subtitle" style="margin-bottom: 24px;">See how children learn Mandarin through stories, games and AI — all in one place.</p>
@@ -491,10 +544,17 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
+  <!-- FOOTER with logo image -->
   <footer>
     <div class="footer-grid">
-      <div><h2>🐼 Hanverse</h2><p>Learn Mandarin through stories, games, AI tutors and structured YCT learning.</p><p style="margin-top:12px;font-size:0.8rem;color:#64748B;">Made with ❤️ for young learners</p></div>
+      <div>
+        <div class="footer-brand">
+          <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
+          <h2>Hanverse</h2>
+        </div>
+        <p>Learn Mandarin through stories, games, AI tutors and structured YCT learning.</p>
+        <p style="margin-top:12px;font-size:0.8rem;color:#64748B;">Made with ❤️ for young learners</p>
+      </div>
       <div><h3>Platform</h3><a href="index.html">Home</a><br><a href="learn.html">Learn</a><br><a href="login.html">Login</a><br><a href="signup.html">Signup</a></div>
       <div><h3>Resources</h3><a href="worksheets.html">Worksheets</a><br><a href="parents.html">Parents</a><br><a href="#">Blog</a><br><a href="#">Support</a></div>
       <div><h3>Follow Us</h3><a href="#">Instagram</a><br><a href="#">TikTok</a><br><a href="#">LinkedIn</a><br><a href="#">YouTube</a></div>
@@ -661,7 +721,7 @@
     }
     window.addEventListener('scroll', handleNavScroll, { passive: true });
 
-    // ----- INTERSECTION OBSERVER (cards) -----
+    // ----- INTERSECTION OBSERVER -----
     function initCardAnimations() {
       const cards = document.querySelectorAll('.feature-card, .stat-card');
       const observer = new IntersectionObserver((entries) => {

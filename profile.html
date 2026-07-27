@@ -6,14 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>HanVerse | Your Learning Profile</title>
 
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
+    <link rel="apple-touch-icon" href="hanverse-logo2.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================
-                   ROOT VARIABLES
-                ============================================ */
+           ROOT VARIABLES
+        ============================================ */
         :root {
             --primary: #2563EB;
             --primary-dark: #1D4ED8;
@@ -45,8 +50,8 @@
         }
 
         /* ============================================
-                   RESET & BASE
-                ============================================ */
+           RESET & BASE
+        ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -108,8 +113,8 @@
         }
 
         /* ============================================
-                   FLOATING NAVBAR
-                ============================================ */
+           FLOATING NAVBAR with logo image
+        ============================================ */
         nav.top-nav {
             position: fixed;
             top: 18px;
@@ -162,29 +167,24 @@
             flex-shrink: 0;
         }
 
-        nav.top-nav.shrunk .logo {
-            gap: 0;
-        }
-
-        .logo-badge {
+        .logo img {
             width: 38px;
             height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            font-size: 18px;
+            object-fit: contain;
+            border-radius: 10px;
             transition: var(--transition-smooth);
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
-        nav.top-nav.shrunk .logo-badge {
+        nav.top-nav.shrunk .logo img {
             width: 32px;
             height: 32px;
-            font-size: 15px;
+            border-radius: 8px;
+        }
+
+        nav.top-nav.shrunk .logo {
+            gap: 0;
         }
 
         .logo-text {
@@ -277,8 +277,8 @@
         }
 
         /* ============================================
-                   PROFILE HERO
-                ============================================ */
+           PROFILE HERO
+        ============================================ */
         .profile-hero {
             margin: 0 5% 30px;
             padding: 36px 28px;
@@ -423,8 +423,8 @@
         }
 
         /* ============================================
-                   QUICK STATS
-                ============================================ */
+           QUICK STATS
+        ============================================ */
         .quick-grid {
             margin: 0 5% 30px;
             display: grid;
@@ -474,8 +474,8 @@
         }
 
         /* ============================================
-                   CONTENT SECTIONS
-                ============================================ */
+           CONTENT SECTIONS
+        ============================================ */
         .content-card {
             background: white;
             padding: 24px 20px;
@@ -500,6 +500,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            color: var(--dark);
         }
 
         .content-card>p {
@@ -509,8 +510,8 @@
         }
 
         /* ============================================
-                   PROGRESS BARS
-                ============================================ */
+           PROGRESS BARS
+        ============================================ */
         .progress-track {
             height: 10px;
             background: #F1F5F9;
@@ -528,8 +529,8 @@
         }
 
         /* ============================================
-                   HEATMAP
-                ============================================ */
+           HEATMAP
+        ============================================ */
         .heatmap-container {
             width: 100%;
             overflow-x: auto;
@@ -573,8 +574,8 @@
         }
 
         /* ============================================
-                   GRIDS
-                ============================================ */
+           GRIDS
+        ============================================ */
         .certificate-grid,
         .achievement-grid,
         .ai-grid {
@@ -607,6 +608,7 @@
         .achievement-card {
             font-size: 0.8rem;
             font-weight: 500;
+            color: var(--text-secondary);
         }
 
         .certificate-card .cert-icon,
@@ -633,8 +635,8 @@
         }
 
         /* ============================================
-                   ACTIVITY FEED
-                ============================================ */
+           ACTIVITY FEED
+        ============================================ */
         .activity-item {
             padding: 12px 0;
             border-bottom: 1px solid var(--border);
@@ -642,6 +644,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            color: var(--text-secondary);
         }
 
         .activity-item:last-child {
@@ -660,8 +663,8 @@
         }
 
         /* ============================================
-                   MEMBERSHIP
-                ============================================ */
+           MEMBERSHIP
+        ============================================ */
         .membership-premium {
             padding: 20px;
             border-radius: var(--radius-sm);
@@ -725,8 +728,8 @@
         }
 
         /* ============================================
-                   ADMIN SECTION
-                ============================================ */
+           ADMIN SECTION
+        ============================================ */
         .admin-btn {
             display: block;
             text-align: center;
@@ -748,8 +751,8 @@
         }
 
         /* ============================================
-                   PANDA CHAT
-                ============================================ */
+           PANDA CHAT
+        ============================================ */
         .panda-fab {
             position: fixed;
             bottom: calc(90px + env(safe-area-inset-bottom));
@@ -968,8 +971,8 @@
         }
 
         /* ============================================
-                   BOTTOM NAV
-                ============================================ */
+           BOTTOM NAV
+        ============================================ */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -1016,8 +1019,8 @@
         }
 
         /* ============================================
-                   RESPONSIVE
-                ============================================ */
+           RESPONSIVE
+        ============================================ */
         @media (min-width: 901px) {
             .bottom-nav {
                 display: none !important;
@@ -1084,16 +1087,14 @@
                 gap: 8px;
             }
 
-            .logo-badge {
+            .logo img {
                 width: 34px;
                 height: 34px;
-                font-size: 16px;
             }
 
-            nav.top-nav.shrunk .logo-badge {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
+            nav.top-nav.shrunk .logo img {
+                width: 28px;
+                height: 28px;
             }
 
             nav.top-nav .nav-links {
@@ -1230,10 +1231,10 @@
 
 <body>
 
-    <!-- ===== FLOATING NAVBAR ===== -->
+    <!-- ===== FLOATING NAVBAR with logo image ===== -->
     <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
-            <div class="logo-badge">🐼</div>
+            <img src="hanverse-logo.png" alt="Hanverse" width="38" height="38" />
             <span class="logo-text">Hanverse</span>
         </a>
         <ul class="nav-links">
@@ -1359,7 +1360,7 @@
         <div id="membershipCard">Loading...</div>
     </section>
 
-      <!-- ===== ADMIN SECTION ===== -->
+    <!-- ===== ADMIN SECTION ===== -->
     <section id="adminSection" class="content-card" style="display:none;">
         <h2>👑 Administrator Panel</h2>
         <p style="color: var(--muted); margin-bottom: 16px;">Access the admin dashboard to manage users, content, and system settings.</p>
@@ -1538,7 +1539,7 @@
             }
         });
 
-                // ============================================================
+        // ============================================================
         // LOAD PROFILE
         // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
@@ -1593,15 +1594,15 @@
                 // ============================================================
                 // ADMIN CHECK - Shows admin panel if user is admin
                 // ============================================================
-                const isAdmin = user.is_admin === true || 
-                               user.is_admin === 1 || 
-                               user.is_admin === "true" || 
-                               user.isAdmin === true;
+                const isAdmin = user.is_admin === true ||
+                    user.is_admin === 1 ||
+                    user.is_admin === "true" ||
+                    user.isAdmin === true;
 
                 if (isAdmin) {
                     // Show admin badge in profile
                     document.getElementById('adminBadge').style.display = 'inline-block';
-                    
+
                     // Show the admin section with the button
                     const adminSection = document.getElementById('adminSection');
                     if (adminSection) {
@@ -1710,6 +1711,10 @@
                                 <span class="cert-icon">🏆</span>
                                 Vocabulary Champion
                             </div>
+                            <div class="certificate-card">
+                                <span class="cert-icon">🌟</span>
+                                Hanverse Explorer
+                            </div>
                         `;
             }
 
@@ -1731,6 +1736,10 @@
                             <div class="achievement-card">
                                 <span class="ach-icon">📚</span>
                                 50 Lessons
+                            </div>
+                            <div class="achievement-card">
+                                <span class="ach-icon">🎯</span>
+                                First Quiz
                             </div>
                         `;
             }
@@ -1760,6 +1769,11 @@
                             <div class="activity-item">
                                 <span class="act-icon">📚</span>
                                 Complete your profile setup.
+                                <span class="act-time">today</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="act-icon">🐼</span>
+                                Try the Panda AI tutor for practice.
                                 <span class="act-time">today</span>
                             </div>
                         `;

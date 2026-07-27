@@ -4,12 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>HanVerse Admin Panel 👑</title>
-    
+
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
+    <link rel="apple-touch-icon" href="hanverse-logo2.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
+
     <style>
         /* ============================================
            ROOT VARIABLES
@@ -167,7 +172,7 @@
         .btn-full { width: 100%; justify-content: center; }
 
         /* ============================================
-           TOPBAR
+           TOPBAR with logo
            ============================================ */
         .topbar {
             height: 72px;
@@ -183,20 +188,29 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        .logo-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: var(--radius);
+        .logo {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            background: var(--gradient-primary);
-            flex-shrink: 0;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text);
         }
-        .logo h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); }
-        .logo h1 span { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .logo img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .logo h1 {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+        .logo h1 span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
         .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .top-actions .btn { padding: 8px 16px; font-size: 0.85rem; }
 
@@ -294,7 +308,7 @@
         .user-info { overflow: hidden; flex: 1; }
         .user-info h3 { font-size: 1.05rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .user-info .user-email { font-size: 0.8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
+
         .pill-container {
             margin: 14px 0 20px;
             display: flex;
@@ -571,6 +585,8 @@
         @media (max-width: 992px) { .stats { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) {
             .topbar { padding: 0 16px; height: 64px; }
+            .logo img { width: 30px; height: 30px; }
+            .logo h1 { font-size: 0.95rem; }
             .top-actions .btn span { display: none; }
             .modal { padding: 24px 20px; }
             .modal-grid { grid-template-columns: 1fr; gap: 12px; }
@@ -616,7 +632,7 @@
         <!-- Header -->
         <header class="topbar" role="banner">
             <a href="index.html" class="logo">
-                <div class="logo-icon" aria-hidden="true">👑</div>
+                <img src="hanverse-logo.png" alt="Hanverse" width="36" height="36" />
                 <h1>HanVerse <span>Admin</span></h1>
             </a>
             <nav class="top-actions" aria-label="Admin actions">
@@ -1022,9 +1038,9 @@
                 const res = await fetch(`${CONFIG.API_URL}/admin/verify-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        userId: user.user_id, 
-                        adminPassword: password 
+                    body: JSON.stringify({
+                        userId: user.user_id,
+                        adminPassword: password
                     }),
                 });
 
@@ -1106,7 +1122,7 @@
         // ==========================================
         // PARENT VERIFICATION FUNCTIONS
         // ==========================================
-        
+
         async function verifyParent(parentId, parentName) {
             if (!parentId) {
                 showToast('❌ Error: Parent ID is missing.', 'error');
@@ -1117,7 +1133,7 @@
 
             try {
                 const adminUserId = getAdminUserId();
-                
+
                 const res = await fetch(`${CONFIG.API_URL}/admin/parents/verify/${parentId}`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
@@ -1152,13 +1168,13 @@
 
             try {
                 const adminUserId = getAdminUserId();
-                
+
                 const res = await fetch(`${CONFIG.API_URL}/admin/parents/deny/${parentId}`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         reason: reason || 'Not specified',
-                        adminUserId: adminUserId 
+                        adminUserId: adminUserId
                     })
                 });
 
@@ -1442,7 +1458,7 @@
                         <div class="notification-banner">
                             <span class="icon">🔔</span>
                             <span class="text">
-                                <strong>${unverifiedParents.length}</strong> parent${unverifiedParents.length > 1 ? 's' : ''} 
+                                <strong>${unverifiedParents.length}</strong> parent${unverifiedParents.length > 1 ? 's' : ''}
                                 waiting for verification. Review and verify them below.
                             </span>
                             <button class="btn btn-primary" onclick="window.adminApp.viewPendingParents()">
@@ -1482,7 +1498,7 @@
                     `;
                 }
 
-                let roleLabel = user.role === 'parent' ? '👪 Parent' : 
+                let roleLabel = user.role === 'parent' ? '👪 Parent' :
                                user.role === 'admin' ? '👑 Admin' : '🎓 Student';
 
                 let statusPills = `

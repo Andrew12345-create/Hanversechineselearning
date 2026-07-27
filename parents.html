@@ -4,12 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>HanVerse Parent Hub 👪</title>
-    
+
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
+    <link rel="apple-touch-icon" href="hanverse-logo2.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
+
     <style>
         /* ============================================
            ROOT VARIABLES
@@ -173,7 +178,7 @@
         }
 
         /* ============================================
-           FLOATING NAVBAR
+           FLOATING NAVBAR with logo image
            ============================================ */
         nav.top-nav {
             position: fixed;
@@ -227,29 +232,24 @@
             flex-shrink: 0;
         }
 
-        nav.top-nav.shrunk .logo {
-            gap: 0;
-        }
-
-        .logo-badge {
+        .logo img {
             width: 38px;
             height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            font-size: 18px;
+            object-fit: contain;
+            border-radius: 10px;
             transition: var(--transition-smooth);
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
-        nav.top-nav.shrunk .logo-badge {
+        nav.top-nav.shrunk .logo img {
             width: 32px;
             height: 32px;
-            font-size: 15px;
+            border-radius: 8px;
+        }
+
+        nav.top-nav.shrunk .logo {
+            gap: 0;
         }
 
         .logo-text {
@@ -382,12 +382,19 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .status-icon {
@@ -459,9 +466,17 @@
             margin-bottom: 8px;
             font-size: 0.88rem;
         }
-        .info-row:last-child { margin-bottom: 0; }
-        .info-label { color: var(--muted); font-weight: 500; }
-        .info-value { color: var(--dark); font-weight: 600; }
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        .info-label {
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .info-value {
+            color: var(--dark);
+            font-weight: 600;
+        }
 
         .btn {
             border: none;
@@ -884,16 +899,14 @@
                 gap: 8px;
             }
 
-            .logo-badge {
+            .logo img {
                 width: 34px;
                 height: 34px;
-                font-size: 16px;
             }
 
-            nav.top-nav.shrunk .logo-badge {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
+            nav.top-nav.shrunk .logo img {
+                width: 28px;
+                height: 28px;
             }
 
             nav.top-nav .nav-links {
@@ -961,7 +974,7 @@
     <!-- ===== FLOATING NAVBAR ===== -->
     <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
-            <div class="logo-badge">🐼</div>
+            <img src="hanverse-logo.png" alt="Hanverse" width="38" height="38" />
             <span class="logo-text">Hanverse</span>
         </a>
         <ul class="nav-links">
@@ -1021,7 +1034,7 @@
                 <button id="sendVerificationBtn" class="btn btn-primary" onclick="sendVerification()">
                     <i class="fas fa-envelope" aria-hidden="true"></i> Send Verification Email
                 </button>
-                
+
                 <div class="email-hint">
                     <i class="fas fa-info-circle" aria-hidden="true"></i>
                     Check your spam folder if you don't see the email within 5 minutes
@@ -1033,7 +1046,7 @@
                 <button class="btn btn-success" onclick="window.location.href='parent-dashboard.html'">
                     <i class="fas fa-arrow-right" aria-hidden="true"></i> Go to Parent Dashboard
                 </button>
-                
+
                 <div class="email-hint">
                     <i class="fas fa-check-circle" aria-hidden="true"></i>
                     Your email has been verified. You now have full access to parent features.
@@ -1045,7 +1058,7 @@
                 <button id="resendBtn" class="btn btn-secondary" onclick="resendVerification()">
                     <i class="fas fa-sync" aria-hidden="true"></i> Resend Verification Email
                 </button>
-                
+
                 <div class="email-hint">
                     <i class="fas fa-clock" aria-hidden="true"></i>
                     Didn't receive the email? Click above to resend.
@@ -1307,69 +1320,122 @@
             }
 
             // ==========================================
-// EMAIL VERIFICATION - FIXED
-// ==========================================
-async function sendVerification() {
-    if (state.isSending) return;
+            // SEND VERIFICATION EMAIL
+            // ==========================================
+            async function sendVerification() {
+                if (state.isSending) return;
 
-    state.isSending = true;
-    DOM.sendBtn.disabled = true;
-    DOM.sendBtn.innerHTML = `<span class="spinner"></span> Sending...`;
-    hideError();
-    hideSuccess();
+                state.isSending = true;
+                DOM.sendBtn.disabled = true;
+                DOM.sendBtn.innerHTML = `<span class="spinner"></span> Sending...`;
+                hideError();
+                hideSuccess();
 
-    try {
-        console.log(`📤 Sending verification request for user: ${state.userId}`);
-        
-        const response = await fetch(`${CONFIG.API_URL}/auth/send-verification`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userId: state.userId })
-        });
+                try {
+                    console.log(`📤 Sending verification request for user: ${state.userId}`);
 
-        console.log(`📥 Response status: ${response.status}`);
+                    const response = await fetch(`${CONFIG.API_URL}/auth/send-verification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ userId: state.userId })
+                    });
 
-        const data = await response.json();
-        console.log('📥 Response data:', data);
+                    console.log(`📥 Response status: ${response.status}`);
 
-        if (!response.ok) {
-            throw new Error(data.error || `Server error: ${response.status}`);
-        }
+                    const data = await response.json();
+                    console.log('📥 Response data:', data);
 
-        if (!data.success) {
-            throw new Error(data.error || 'Failed to send verification email');
-        }
+                    if (!response.ok) {
+                        throw new Error(data.error || `Server error: ${response.status}`);
+                    }
 
-        showToast('📧 Verification email sent! Check your inbox.', 'success');
-        showSuccess('Verification email sent successfully! Check your inbox and spam folder.');
-        
-        // Show resend area after 30 seconds
-        setTimeout(() => {
-            DOM.resendArea.style.display = 'block';
-        }, 30000);
+                    if (!data.success) {
+                        throw new Error(data.error || 'Failed to send verification email');
+                    }
 
-    } catch (error) {
-        console.error('❌ Send error:', error);
-        showError(error.message || 'Failed to send verification email. Please try again.');
-    } finally {
-        state.isSending = false;
-        DOM.sendBtn.disabled = false;
-        DOM.sendBtn.innerHTML = `<i class="fas fa-envelope" aria-hidden="true"></i> Send Verification Email`;
-    }
-}
+                    showToast('📧 Verification email sent! Check your inbox.', 'success');
+                    showSuccess('Verification email sent successfully! Check your inbox and spam folder.');
+
+                    // Show resend area after 30 seconds
+                    setTimeout(() => {
+                        DOM.resendArea.style.display = 'block';
+                    }, 30000);
+
+                } catch (error) {
+                    console.error('❌ Send error:', error);
+                    showError(error.message || 'Failed to send verification email. Please try again.');
+                } finally {
+                    state.isSending = false;
+                    DOM.sendBtn.disabled = false;
+                    DOM.sendBtn.innerHTML = `<i class="fas fa-envelope" aria-hidden="true"></i> Send Verification Email`;
+                }
+            }
+
+            // ==========================================
+            // RESEND VERIFICATION EMAIL
+            // ==========================================
+            async function resendVerification() {
+                if (state.isSending) return;
+
+                state.isSending = true;
+                DOM.resendBtn.disabled = true;
+                DOM.resendBtn.innerHTML = `<span class="spinner"></span> Resending...`;
+                hideError();
+                hideSuccess();
+
+                try {
+                    const response = await fetch(`${CONFIG.API_URL}/auth/resend-verification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ userId: state.userId })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || `Server error: ${response.status}`);
+                    }
+
+                    if (!data.success) {
+                        throw new Error(data.error || 'Failed to resend verification email');
+                    }
+
+                    showToast('📧 Verification email resent! Check your inbox.', 'success');
+                    showSuccess('Verification email resent! Check your inbox and spam folder.');
+
+                    // Reset polling
+                    if (state.pollTimer) {
+                        clearInterval(state.pollTimer);
+                        state.pollTimer = null;
+                    }
+                    state.pollAttempts = 0;
+                    startPolling();
+
+                } catch (error) {
+                    console.error('❌ Resend error:', error);
+                    showError(error.message || 'Failed to resend verification email. Please try again.');
+                } finally {
+                    state.isSending = false;
+                    DOM.resendBtn.disabled = false;
+                    DOM.resendBtn.innerHTML = `<i class="fas fa-sync" aria-hidden="true"></i> Resend Verification Email`;
+                }
+            }
+
             // ==========================================
             // CHECK VERIFICATION STATUS FROM DATABASE
             // ==========================================
             async function checkVerificationStatus() {
                 try {
                     const response = await fetch(`${CONFIG.API_URL}/auth/verification-status/${state.userId}`);
-                    
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    
+
                     const data = await response.json();
 
                     console.log(`🔍 Verification status from DB: ${data.isVerified ? '✅ Verified' : '⏳ Unverified'}`);
@@ -1399,17 +1465,17 @@ async function sendVerification() {
                 state.pollAttempts = 0;
                 state.pollTimer = setInterval(async () => {
                     state.pollAttempts++;
-                    
+
                     console.log(`🔄 Polling attempt ${state.pollAttempts}/${CONFIG.MAX_POLL_ATTEMPTS}`);
-                    
+
                     const verified = await checkVerificationStatus();
-                    
+
                     if (verified) {
                         clearInterval(state.pollTimer);
                         state.pollTimer = null;
                         return;
                     }
-                    
+
                     if (state.pollAttempts >= CONFIG.MAX_POLL_ATTEMPTS) {
                         clearInterval(state.pollTimer);
                         state.pollTimer = null;
@@ -1424,29 +1490,29 @@ async function sendVerification() {
             // ==========================================
             function onVerified(data) {
                 state.isVerified = true;
-                
+
                 // Update UI
                 DOM.statusIcon.className = 'status-icon verified';
                 DOM.statusIcon.innerHTML = '<i class="fa-solid fa-check-circle"></i>';
                 DOM.statusTitle.textContent = '✅ Email Verified!';
                 DOM.statusDesc.textContent = 'Your email has been confirmed. You now have full access to the Parent Hub.';
                 DOM.verificationStatus.innerHTML = '<span style="color: var(--success);">✅ Verified</span>';
-                
+
                 if (data.verifiedAt) {
                     DOM.verifiedAt.textContent = new Date(data.verifiedAt).toLocaleString();
                     DOM.verifiedAtRow.style.display = 'flex';
                 }
-                
+
                 DOM.actionArea.style.display = 'none';
                 DOM.resendArea.style.display = 'none';
                 DOM.successArea.style.display = 'block';
                 DOM.successMessage.classList.remove('show');
-                
+
                 // Update session
                 updateSessionUser({ is_verified: true });
-                
+
                 showToast('✅ Email verified successfully!', 'success');
-                
+
                 // Auto-redirect after 3 seconds
                 setTimeout(() => {
                     window.location.href = 'parent-dashboard.html';
@@ -1458,11 +1524,11 @@ async function sendVerification() {
                 DOM.statusIcon.innerHTML = '<i class="fa-solid fa-envelope"></i>';
                 DOM.statusTitle.textContent = '📧 Verify Your Email';
                 DOM.verificationStatus.innerHTML = '<span style="color: var(--warning);">⏳ Unverified</span>';
-                
+
                 // Show action area (send verification button)
                 DOM.actionArea.style.display = 'block';
                 DOM.successArea.style.display = 'none';
-                
+
                 DOM.statusDesc.textContent = 'Please click the button below to receive a verification email.';
             }
 
@@ -1485,7 +1551,7 @@ async function sendVerification() {
             async function init() {
                 // Get session user
                 const user = getSessionUser();
-                
+
                 if (!user || !user.user_id) {
                     showToast('Please login first.', 'error');
                     setTimeout(() => {
@@ -1509,7 +1575,7 @@ async function sendVerification() {
 
                 console.log('🐼 HanVerse Parent Hub initialized');
                 console.log(`📧 Email: ${state.email}`);
-                console.log(`🔄 Polling every ${CONFIG.POLL_INTERVAL/1000} seconds`);
+                console.log(`🔄 Polling every ${CONFIG.POLL_INTERVAL / 1000} seconds`);
             }
 
             // ==========================================
