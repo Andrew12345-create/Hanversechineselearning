@@ -74,25 +74,13 @@
            TOAST NOTIFICATIONS
            ============================================ */
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         @keyframes slideOut {
-            from {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(20px) scale(0.95);
-            }
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(20px) scale(0.95); }
         }
 
         .toast-notification {
@@ -112,20 +100,9 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .toast-notification.success {
-            background: var(--green);
-            color: #0D0D1A;
-        }
-
-        .toast-notification.error {
-            background: var(--red);
-            color: white;
-        }
-
-        .toast-notification.info {
-            background: var(--blue);
-            color: white;
-        }
+        .toast-notification.success { background: var(--green); color: #0D0D1A; }
+        .toast-notification.error { background: var(--red); color: white; }
+        .toast-notification.info { background: var(--blue); color: white; }
 
         .toast-notification .toast-close {
             background: none;
@@ -137,10 +114,7 @@
             opacity: 0.7;
             transition: opacity var(--transition);
         }
-
-        .toast-notification .toast-close:hover {
-            opacity: 1;
-        }
+        .toast-notification .toast-close:hover { opacity: 1; }
 
         /* ============================================
            BUTTONS
@@ -268,6 +242,32 @@
         }
 
         /* ============================================
+           SEARCH BAR
+           ============================================ */
+        .search-bar {
+            padding: 0 24px 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color var(--transition);
+        }
+        .search-bar input:focus { border-color: #ff416c; }
+        .search-bar input::placeholder { color: var(--muted); }
+
+        /* ============================================
            USER GRID
            ============================================ */
         .section { padding: 0 24px 30px; }
@@ -357,6 +357,7 @@
         .action-btn.email:hover { background: rgba(244, 211, 94, 0.15); color: var(--yellow); border-color: rgba(244, 211, 94, 0.3); }
         .action-btn.delete:hover { background: rgba(230, 57, 70, 0.15); color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
         .action-btn.deny:hover { background: rgba(230, 57, 70, 0.15); color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
         /* Notification Banner */
         .notification-banner {
@@ -601,6 +602,8 @@
             .tab { padding: 8px 14px; font-size: 0.75rem; }
             .section { padding: 0 12px 20px; }
             .user-actions { grid-template-columns: 1fr 1fr; }
+            .search-bar { padding: 0 12px 12px; }
+            .search-bar input { min-width: 120px; }
         }
     </style>
 </head>
@@ -671,6 +674,14 @@
                 <div class="stat-value" id="bannedUsers">0</div>
             </div>
         </section>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search users by name, email, or username..." />
+            <button class="btn btn-secondary" id="clearSearchBtn" style="display:none;">
+                <i class="fas fa-times"></i> Clear
+            </button>
+        </div>
 
         <!-- Tabs -->
         <nav class="tabs" role="tablist" aria-label="User filters">
@@ -883,6 +894,7 @@
             currentTab: 'all',
             adminToken: null,
             isLoading: false,
+            searchQuery: '',
         };
 
         // ==========================================
@@ -904,6 +916,8 @@
             pendingBadge: document.getElementById('pendingBadge'),
             parentsBadge: document.getElementById('parentsBadge'),
             tabs: document.querySelectorAll('.tab'),
+            searchInput: document.getElementById('searchInput'),
+            clearSearchBtn: document.getElementById('clearSearchBtn'),
             createUserBtn: document.getElementById('createUserBtn'),
             broadcastBtn: document.getElementById('broadcastBtn'),
             logoutBtn: document.getElementById('logoutBtn'),
@@ -1007,6 +1021,14 @@
             }
         }
 
+        function debounce(fn, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
         // ==========================================
         // AUTHENTICATION
         // ==========================================
@@ -1024,7 +1046,6 @@
                 btn.disabled = true;
                 showError(DOM.authErr, '');
 
-                // Get the current user from session
                 const sessionData = localStorage.getItem('hanverse_user');
                 if (!sessionData) {
                     throw new Error('No user session found. Please login first.');
@@ -1096,7 +1117,6 @@
 
                 if (!res.ok) {
                     if (res.status === 401) {
-                        // Token expired
                         state.adminToken = null;
                         localStorage.removeItem(CONFIG.STORAGE_KEY);
                         DOM.app.style.display = 'none';
@@ -1120,7 +1140,7 @@
         }
 
         // ==========================================
-        // PARENT VERIFICATION FUNCTIONS
+        // VERIFICATION FUNCTIONS
         // ==========================================
 
         async function verifyParent(parentId, parentName) {
@@ -1189,6 +1209,39 @@
 
             } catch (err) {
                 console.error('❌ Deny error:', err);
+                showToast(`❌ Error: ${err.message}`, 'error');
+            }
+        }
+
+        // Verify a regular user (non-parent)
+        async function verifyUser(userId, userName) {
+            if (!userId) {
+                showToast('❌ Error: User ID is missing.', 'error');
+                return;
+            }
+
+            if (!confirm(`✅ Verify user "${userName || 'Unknown'}"?`)) return;
+
+            try {
+                const adminUserId = getAdminUserId();
+
+                const res = await fetch(`${CONFIG.API_URL}/admin/toggle-verification/${userId}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ verified: true })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Verification failed');
+                }
+
+                showToast(`✅ ${userName || 'User'} has been verified!`, 'success');
+                await loadAdminData();
+
+            } catch (err) {
+                console.error('❌ Verify error:', err);
                 showToast(`❌ Error: ${err.message}`, 'error');
             }
         }
@@ -1282,15 +1335,33 @@
                 btn.disabled = true;
                 showError(DOM.userFormErr, '');
 
-                const url = isEdit ?
-                    `${CONFIG.API_URL}/admin/users/update/${userId}` :
-                    `${CONFIG.API_URL}/admin/users`;
-                const method = 'POST';
+                let url, method;
+
+                if (isEdit) {
+                    url = `${CONFIG.API_URL}/admin/users/update/${userId}`;
+                    method = 'POST';
+                } else {
+                    // Use signup endpoint for new users
+                    url = `${CONFIG.API_URL}/signup`;
+                    method = 'POST';
+                    // For signup, we need to include password
+                    if (!password) {
+                        throw new Error('Password is required for new users.');
+                    }
+                    // Don't send is_banned, is_premium, is_verified for signup
+                    // These will be handled by the signup endpoint
+                }
 
                 const res = await fetch(url, {
                     method,
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify(payload),
+                    headers: isEdit ? getAuthHeaders() : { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(isEdit ? payload : {
+                        username: payload.username,
+                        full_name: payload.full_name,
+                        email: payload.email,
+                        password: password,
+                        role: payload.role,
+                    }),
                 });
 
                 const data = await res.json();
@@ -1328,6 +1399,10 @@
                 showError(DOM.bulkEmailErr, 'Please fill in all fields.');
                 return;
             }
+
+            // Confirm broadcast
+            const count = state.users.filter(u => u.is_verified && !u.is_banned).length;
+            if (!confirm(`📧 Send broadcast to ${count} verified users?`)) return;
 
             try {
                 const btn = DOM.broadcastForm.querySelector('button[type="submit"]');
@@ -1426,8 +1501,10 @@
 
         function renderUsers() {
             let filtered = state.users;
+            const query = state.searchQuery.toLowerCase().trim();
             const isParentsTab = state.currentTab === 'parents';
 
+            // Apply tab filter
             switch (state.currentTab) {
                 case 'pending':
                     filtered = state.users.filter(u => !u.is_verified);
@@ -1443,6 +1520,16 @@
                     break;
                 default:
                     break;
+            }
+
+            // Apply search filter
+            if (query) {
+                filtered = filtered.filter(u => {
+                    const name = (u.full_name || '').toLowerCase();
+                    const email = (u.email || '').toLowerCase();
+                    const username = (u.username || '').toLowerCase();
+                    return name.includes(query) || email.includes(query) || username.includes(query);
+                });
             }
 
             if (filtered.length === 0) {
@@ -1553,8 +1640,27 @@
         // ==========================================
         function viewPendingParents() {
             state.currentTab = 'pending';
+            state.searchQuery = '';
+            DOM.searchInput.value = '';
+            DOM.clearSearchBtn.style.display = 'none';
             renderAll();
             document.getElementById('userSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // SEARCH
+        // ==========================================
+        const handleSearch = debounce(function() {
+            state.searchQuery = DOM.searchInput.value;
+            DOM.clearSearchBtn.style.display = state.searchQuery ? 'inline-flex' : 'none';
+            renderUsers();
+        }, 300);
+
+        function clearSearch() {
+            DOM.searchInput.value = '';
+            state.searchQuery = '';
+            DOM.clearSearchBtn.style.display = 'none';
+            renderUsers();
         }
 
         // ==========================================
@@ -1567,10 +1673,11 @@
             }
         }
 
-        function sendPandaMessage() {
+        async function sendPandaMessage() {
             const text = DOM.pandaInput.value.trim();
             if (!text) return;
 
+            // Add user message
             const userRow = document.createElement('div');
             userRow.className = 'message-row user';
             userRow.innerHTML = `
@@ -1581,16 +1688,53 @@
             DOM.pandaInput.value = '';
             DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
 
-            setTimeout(() => {
+            // Add typing indicator
+            const typing = document.createElement('div');
+            typing.className = 'message-row';
+            typing.id = 'typingIndicator';
+            typing.innerHTML = `
+                <div class="panda-avatar" aria-hidden="true">🐼</div>
+                <div class="message panda-message" style="font-style:italic;opacity:0.7;">🐼 Thinking...</div>
+            `;
+            DOM.pandaBody.appendChild(typing);
+            DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
+
+            try {
+                const res = await fetch(`${CONFIG.API_URL}/panda-chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text }),
+                });
+
+                const data = await res.json();
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) typingEl.remove();
+
+                const pandaRow = document.createElement('div');
+                pandaRow.className = 'message-row';
+                const reply = data.reply || "🤔 I'm still learning! Try asking me about Mandarin phrases, grammar, or culture.";
+                pandaRow.innerHTML = `
+                    <div class="panda-avatar" aria-hidden="true">🐼</div>
+                    <div class="message panda-message">${escapeHtml(reply)}</div>
+                `;
+                DOM.pandaBody.appendChild(pandaRow);
+                DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
+
+            } catch (err) {
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) typingEl.remove();
+
+                const fallback = "🤔 I'm still learning! Try asking me about Mandarin phrases, grammar, or culture.";
                 const pandaRow = document.createElement('div');
                 pandaRow.className = 'message-row';
                 pandaRow.innerHTML = `
                     <div class="panda-avatar" aria-hidden="true">🐼</div>
-                    <div class="message panda-message">🤔 Let me think about that... <br><br> I'm still learning! Try asking me about Mandarin phrases, grammar, or culture.</div>
+                    <div class="message panda-message">${fallback}</div>
                 `;
                 DOM.pandaBody.appendChild(pandaRow);
                 DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
-            }, 800);
+                console.error('Panda chat error:', err);
+            }
         }
 
         function escapeHtml(text) {
@@ -1643,7 +1787,7 @@
             window.adminApp = {
                 verifyParent,
                 denyParent,
-                verifyUser: verifyParent,
+                verifyUser,
                 editUser,
                 deleteUser,
                 openSingleEmail,
@@ -1678,6 +1822,9 @@
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
                 overlay.addEventListener('click', handleModalOverlayClick);
             });
+
+            DOM.searchInput.addEventListener('input', handleSearch);
+            DOM.clearSearchBtn.addEventListener('click', clearSearch);
 
             DOM.pandaToggle.addEventListener('click', togglePanda);
             DOM.pandaClose.addEventListener('click', togglePanda);
