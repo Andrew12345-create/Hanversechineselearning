@@ -203,6 +203,18 @@
             border-radius: var(--radius-lg);
             padding: 20px;
             transition: transform var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            opacity: 0.3;
         }
         .stat-card:hover { transform: translateY(-2px); }
         .stat-title { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
@@ -273,7 +285,7 @@
         .section { padding: 0 24px 30px; }
         .user-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 20px;
         }
         .user-card {
@@ -332,17 +344,17 @@
 
         .user-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+            gap: 6px;
         }
         .action-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             color: var(--text);
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             font-family: inherit;
             transition: all var(--transition);
@@ -710,8 +722,8 @@
     <div class="modal-overlay" id="userFormModal" role="dialog" aria-labelledby="userModalTitle">
         <div class="modal">
             <button class="modal-close" data-modal="userFormModal" aria-label="Close modal">✕</button>
-            <h2 id="userModalTitle">👤 Create New User</h2>
-            <p id="userModalSubtitle">Register or update a user entity within database clusters.</p>
+            <h2 id="userModalTitle">👤 Edit User</h2>
+            <p id="userModalSubtitle">Update user details in the database.</p>
             <form id="userForm" autocomplete="off">
                 <input type="hidden" id="formUserId" />
                 <div class="modal-grid">
@@ -729,7 +741,7 @@
                     </div>
                     <div class="form-group">
                         <label for="formPassword">Password</label>
-                        <input type="password" id="formPassword" placeholder="Minimum 6 characters" />
+                        <input type="password" id="formPassword" placeholder="Leave blank to keep current" />
                         <small class="form-hint">Leave blank to keep current password</small>
                     </div>
                     <div class="form-group">
@@ -741,31 +753,31 @@
                         <input type="number" id="formXp" value="0" min="0" />
                     </div>
                     <div class="form-group">
-                        <label for="formRole">Role Type</label>
+                        <label for="formRole">Role</label>
                         <select id="formRole">
-                            <option value="student">Standard Learner</option>
-                            <option value="parent">Parent Hub Account</option>
-                            <option value="admin">👑 System Admin</option>
+                            <option value="student">🎓 Student</option>
+                            <option value="parent">👪 Parent</option>
+                            <option value="admin">👑 Admin</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="formIsBanned">Account Status</label>
+                        <label for="formIsBanned">Status</label>
                         <select id="formIsBanned">
-                            <option value="false">Active / Clear</option>
+                            <option value="false">✅ Active</option>
                             <option value="true">🚫 Banned</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="formPremium">Premium Status</label>
+                        <label for="formPremium">Premium</label>
                         <select id="formPremium">
-                            <option value="false">Free Tier</option>
-                            <option value="true">✨ Premium Member</option>
+                            <option value="false">Free</option>
+                            <option value="true">✨ Premium</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="formIsVerified">Verification</label>
+                        <label for="formIsVerified">Verified</label>
                         <select id="formIsVerified">
-                            <option value="false">Unverified / Pending</option>
+                            <option value="false">⏳ Pending</option>
                             <option value="true">✅ Verified</option>
                         </select>
                     </div>
@@ -774,7 +786,7 @@
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" data-modal="userFormModal">Cancel</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save" aria-hidden="true"></i> Save User
+                        <i class="fas fa-save" aria-hidden="true"></i> Save Changes
                     </button>
                 </div>
             </form>
@@ -813,25 +825,25 @@
     <div class="modal-overlay" id="singleEmailModal" role="dialog" aria-labelledby="singleEmailTitle">
         <div class="modal">
             <button class="modal-close" data-modal="singleEmailModal" aria-label="Close modal">✕</button>
-            <h2 id="singleEmailTitle">📧 Direct Email Dispatcher</h2>
-            <p>Send a secure mail transport directly to user: <span id="targetEmailUser" class="highlight"></span></p>
+            <h2 id="singleEmailTitle">📧 Direct Email</h2>
+            <p>Send a direct email to: <span id="targetEmailUser" class="highlight"></span></p>
             <form id="singleEmailForm">
                 <input type="hidden" id="targetEmailId" />
                 <div class="modal-grid">
                     <div class="form-group">
                         <label for="singleSubject">Subject</label>
-                        <input type="text" id="singleSubject" placeholder="Account notice, rewards milestone..." required />
+                        <input type="text" id="singleSubject" placeholder="Account notice..." required />
                     </div>
                     <div class="form-group">
-                        <label for="singleMessage">Message Body</label>
-                        <textarea id="singleMessage" placeholder="Write your context logs..." required></textarea>
+                        <label for="singleMessage">Message</label>
+                        <textarea id="singleMessage" placeholder="Write your message..." required></textarea>
                     </div>
                 </div>
                 <div class="error" id="singleEmailErr" role="alert"></div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" data-modal="singleEmailModal">Cancel</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-envelope" aria-hidden="true"></i> Deliver Message
+                        <i class="fas fa-envelope" aria-hidden="true"></i> Send Email
                     </button>
                 </div>
             </form>
@@ -879,11 +891,12 @@
         const CONFIG = {
             API_URL: (() => {
                 if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                    return "http://localhost:8888/.netlify/functions/server";
+                    return "";
                 }
                 return "/api";
             })(),
             STORAGE_KEY: 'hanverse_admin',
+            SESSION_KEY: 'hanverse_user',
         };
 
         // ==========================================
@@ -921,7 +934,6 @@
             createUserBtn: document.getElementById('createUserBtn'),
             broadcastBtn: document.getElementById('broadcastBtn'),
             logoutBtn: document.getElementById('logoutBtn'),
-            // User Form
             userFormModal: document.getElementById('userFormModal'),
             userForm: document.getElementById('userForm'),
             userFormErr: document.getElementById('userFormErr'),
@@ -938,13 +950,11 @@
             formIsBanned: document.getElementById('formIsBanned'),
             formPremium: document.getElementById('formPremium'),
             formIsVerified: document.getElementById('formIsVerified'),
-            // Broadcast
             broadcastModal: document.getElementById('broadcastModal'),
             broadcastForm: document.getElementById('broadcastForm'),
             bulkSubject: document.getElementById('bulkSubject'),
             bulkMessage: document.getElementById('bulkMessage'),
             bulkEmailErr: document.getElementById('bulkEmailErr'),
-            // Single Email
             singleEmailModal: document.getElementById('singleEmailModal'),
             singleEmailForm: document.getElementById('singleEmailForm'),
             targetEmailId: document.getElementById('targetEmailId'),
@@ -952,7 +962,6 @@
             singleSubject: document.getElementById('singleSubject'),
             singleMessage: document.getElementById('singleMessage'),
             singleEmailErr: document.getElementById('singleEmailErr'),
-            // Panda Chat
             pandaToggle: document.getElementById('pandaToggle'),
             pandaChat: document.getElementById('pandaChat'),
             pandaClose: document.getElementById('pandaClose'),
@@ -969,6 +978,13 @@
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${state.adminToken}`,
             };
+        }
+
+        function getApiUrl(path) {
+            if (CONFIG.API_URL === "") {
+                return `/api${path}`;
+            }
+            return `${CONFIG.API_URL}${path}`;
         }
 
         function showError(element, message) {
@@ -1014,7 +1030,7 @@
 
         function getAdminUserId() {
             try {
-                const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+                const user = JSON.parse(localStorage.getItem(CONFIG.SESSION_KEY) || '{}');
                 return user.user_id || null;
             } catch {
                 return null;
@@ -1046,7 +1062,7 @@
                 btn.disabled = true;
                 showError(DOM.authErr, '');
 
-                const sessionData = localStorage.getItem('hanverse_user');
+                const sessionData = localStorage.getItem(CONFIG.SESSION_KEY);
                 if (!sessionData) {
                     throw new Error('No user session found. Please login first.');
                 }
@@ -1056,7 +1072,8 @@
                     throw new Error('Invalid user session.');
                 }
 
-                const res = await fetch(`${CONFIG.API_URL}/admin/verify-password`, {
+                const url = getApiUrl('/admin/verify-password');
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1109,11 +1126,19 @@
                 DOM.loadingState.style.display = 'flex';
                 DOM.userGrid.innerHTML = '';
 
-                const res = await fetch(`${CONFIG.API_URL}/admin/overview`, {
+                const url = getApiUrl('/admin/overview');
+                const res = await fetch(url, {
                     headers: getAuthHeaders(),
                 });
 
-                const data = await res.json();
+                let data;
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    throw new Error(`Server returned: ${text.substring(0, 100)}`);
+                }
 
                 if (!res.ok) {
                     if (res.status === 401) {
@@ -1153,8 +1178,9 @@
 
             try {
                 const adminUserId = getAdminUserId();
+                const url = getApiUrl(`/admin/parents/verify/${parentId}`);
 
-                const res = await fetch(`${CONFIG.API_URL}/admin/parents/verify/${parentId}`, {
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({ adminUserId: adminUserId })
@@ -1188,8 +1214,9 @@
 
             try {
                 const adminUserId = getAdminUserId();
+                const url = getApiUrl(`/admin/parents/deny/${parentId}`);
 
-                const res = await fetch(`${CONFIG.API_URL}/admin/parents/deny/${parentId}`, {
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({
@@ -1213,7 +1240,6 @@
             }
         }
 
-        // Verify a regular user (non-parent)
         async function verifyUser(userId, userName) {
             if (!userId) {
                 showToast('❌ Error: User ID is missing.', 'error');
@@ -1224,8 +1250,9 @@
 
             try {
                 const adminUserId = getAdminUserId();
+                const url = getApiUrl(`/admin/toggle-verification/${userId}`);
 
-                const res = await fetch(`${CONFIG.API_URL}/admin/toggle-verification/${userId}`, {
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({ verified: true })
@@ -1250,7 +1277,9 @@
             if (!confirm(`⚠️ Delete user "${userName}"? This action cannot be undone.`)) return;
 
             try {
-                const res = await fetch(`${CONFIG.API_URL}/admin/users/delete/${userId}`, {
+                const url = getApiUrl(`/admin/users/delete/${userId}`);
+
+                const res = await fetch(url, {
                     method: 'DELETE',
                     headers: getAuthHeaders(),
                 });
@@ -1274,7 +1303,7 @@
         // ==========================================
         function openCreateUser() {
             DOM.userModalTitle.textContent = '👤 Create New User';
-            DOM.userModalSubtitle.textContent = 'Register a new user entity within database clusters.';
+            DOM.userModalSubtitle.textContent = 'Register a new user in the database.';
             DOM.formUserId.value = '';
             DOM.userForm.reset();
             DOM.formLevel.value = '1';
@@ -1284,22 +1313,27 @@
             DOM.formPremium.value = 'false';
             DOM.formIsVerified.value = 'false';
             DOM.formPassword.required = true;
+            DOM.formPassword.placeholder = 'Create a password';
             showError(DOM.userFormErr, '');
             openModal('userFormModal');
         }
 
         function editUser(userId) {
             const user = state.users.find(u => u.user_id === userId);
-            if (!user) return;
+            if (!user) {
+                showToast('❌ User not found.', 'error');
+                return;
+            }
 
-            DOM.userModalTitle.textContent = '✏️ Edit User';
-            DOM.userModalSubtitle.textContent = 'Update user entity within database clusters.';
+            DOM.userModalTitle.textContent = `✏️ Edit User: ${user.full_name || user.username}`;
+            DOM.userModalSubtitle.textContent = `Update details for ${user.full_name || user.username}`;
             DOM.formUserId.value = user.user_id;
             DOM.formFullName.value = user.full_name || '';
             DOM.formUsername.value = user.username || '';
             DOM.formEmail.value = user.email || '';
             DOM.formPassword.value = '';
             DOM.formPassword.required = false;
+            DOM.formPassword.placeholder = 'Leave blank to keep current';
             DOM.formLevel.value = user.level || 1;
             DOM.formXp.value = user.xp || 0;
             DOM.formRole.value = user.role || 'student';
@@ -1328,40 +1362,45 @@
             };
 
             const password = DOM.formPassword.value.trim();
-            if (password) payload.password = password;
 
             try {
                 const btn = DOM.userForm.querySelector('button[type="submit"]');
                 btn.disabled = true;
                 showError(DOM.userFormErr, '');
 
-                let url, method;
+                let url, method, body;
 
                 if (isEdit) {
-                    url = `${CONFIG.API_URL}/admin/users/update/${userId}`;
+                    // Editing existing user - use admin update endpoint
+                    url = getApiUrl(`/admin/users/update/${userId}`);
                     method = 'POST';
+                    body = JSON.stringify(payload);
+                    
+                    // Add password if provided
+                    if (password) {
+                        const tempPayload = { ...payload, password };
+                        body = JSON.stringify(tempPayload);
+                    }
                 } else {
-                    // Use signup endpoint for new users
-                    url = `${CONFIG.API_URL}/signup`;
+                    // Creating new user - use signup endpoint
+                    url = getApiUrl('/signup');
                     method = 'POST';
-                    // For signup, we need to include password
                     if (!password) {
                         throw new Error('Password is required for new users.');
                     }
-                    // Don't send is_banned, is_premium, is_verified for signup
-                    // These will be handled by the signup endpoint
-                }
-
-                const res = await fetch(url, {
-                    method,
-                    headers: isEdit ? getAuthHeaders() : { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(isEdit ? payload : {
+                    body = JSON.stringify({
                         username: payload.username,
                         full_name: payload.full_name,
                         email: payload.email,
                         password: password,
                         role: payload.role,
-                    }),
+                    });
+                }
+
+                const res = await fetch(url, {
+                    method,
+                    headers: isEdit ? getAuthHeaders() : { 'Content-Type': 'application/json' },
+                    body: body,
                 });
 
                 const data = await res.json();
@@ -1371,7 +1410,7 @@
                 }
 
                 closeModal('userFormModal');
-                showToast(isEdit ? '✅ User updated!' : '✅ User created!', 'success');
+                showToast(isEdit ? '✅ User updated successfully!' : '✅ User created successfully!', 'success');
                 await loadAdminData();
 
             } catch (err) {
@@ -1382,7 +1421,7 @@
         }
 
         // ==========================================
-        // EMAIL FUNCTIONS
+        // EMAIL FUNCTIONS - FIXED FOR TIMEOUT
         // ==========================================
         function openBroadcast() {
             DOM.broadcastForm.reset();
@@ -1400,24 +1439,64 @@
                 return;
             }
 
-            // Confirm broadcast
             const count = state.users.filter(u => u.is_verified && !u.is_banned).length;
-            if (!confirm(`📧 Send broadcast to ${count} verified users?`)) return;
+            if (count === 0) {
+                showError(DOM.bulkEmailErr, 'No verified users to send to.');
+                return;
+            }
+
+            if (!confirm(`📧 Send broadcast to ${count} verified users? This may take a moment.`)) return;
 
             try {
                 const btn = DOM.broadcastForm.querySelector('button[type="submit"]');
                 btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
                 showError(DOM.bulkEmailErr, '');
 
-                const res = await fetch(`${CONFIG.API_URL}/admin/email-all`, {
+                const url = getApiUrl('/admin/email-all');
+
+                // Set a longer timeout for this request
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({ subject, message }),
+                    signal: controller.signal,
                 });
 
-                const data = await res.json();
+                clearTimeout(timeoutId);
+
+                let data;
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    // If the server timed out but emails were sent, we'll get a timeout message
+                    if (text.includes('TimeoutError') || text.includes('timed out')) {
+                        // Emails were likely sent even though the function timed out
+                        showToast('📧 Broadcast appears to be processing. Check your email inboxes.', 'info');
+                        closeModal('broadcastModal');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
+                        return;
+                    }
+                    throw new Error(`Server returned: ${text.substring(0, 100)}`);
+                }
 
                 if (!res.ok) {
+                    if (res.status === 401) {
+                        state.adminToken = null;
+                        localStorage.removeItem(CONFIG.STORAGE_KEY);
+                        DOM.app.style.display = 'none';
+                        openModal('authModal');
+                        showError(DOM.authErr, 'Session expired. Please login again.');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
+                        return;
+                    }
                     throw new Error(data.error || 'Broadcast failed');
                 }
 
@@ -1425,9 +1504,17 @@
                 showToast(`📧 Broadcast sent to ${data.sent || 0} users!`, 'success');
 
             } catch (err) {
-                showError(DOM.bulkEmailErr, err.message);
+                // Check if it's an abort error (timeout)
+                if (err.name === 'AbortError') {
+                    showToast('⏳ Broadcast is taking longer than expected. Emails are still being sent in the background.', 'info');
+                    closeModal('broadcastModal');
+                } else {
+                    console.error('❌ Broadcast error:', err);
+                    showError(DOM.bulkEmailErr, err.message);
+                }
                 const btn = DOM.broadcastForm.querySelector('button[type="submit"]');
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
             }
         }
 
@@ -1456,17 +1543,37 @@
             try {
                 const btn = DOM.singleEmailForm.querySelector('button[type="submit"]');
                 btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
                 showError(DOM.singleEmailErr, '');
 
-                const res = await fetch(`${CONFIG.API_URL}/admin/users/email/${userId}`, {
+                const url = getApiUrl(`/admin/users/email/${userId}`);
+
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({ subject, message }),
                 });
 
-                const data = await res.json();
+                let data;
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    throw new Error(`Server returned: ${text.substring(0, 100)}`);
+                }
 
                 if (!res.ok) {
+                    if (res.status === 401) {
+                        state.adminToken = null;
+                        localStorage.removeItem(CONFIG.STORAGE_KEY);
+                        DOM.app.style.display = 'none';
+                        openModal('authModal');
+                        showError(DOM.authErr, 'Session expired. Please login again.');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-envelope"></i> Send Email';
+                        return;
+                    }
                     throw new Error(data.error || 'Email delivery failed');
                 }
 
@@ -1477,6 +1584,7 @@
                 showError(DOM.singleEmailErr, err.message);
                 const btn = DOM.singleEmailForm.querySelector('button[type="submit"]');
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-envelope"></i> Send Email';
             }
         }
 
@@ -1504,7 +1612,6 @@
             const query = state.searchQuery.toLowerCase().trim();
             const isParentsTab = state.currentTab === 'parents';
 
-            // Apply tab filter
             switch (state.currentTab) {
                 case 'pending':
                     filtered = state.users.filter(u => !u.is_verified);
@@ -1522,7 +1629,6 @@
                     break;
             }
 
-            // Apply search filter
             if (query) {
                 filtered = filtered.filter(u => {
                     const name = (u.full_name || '').toLowerCase();
@@ -1677,7 +1783,6 @@
             const text = DOM.pandaInput.value.trim();
             if (!text) return;
 
-            // Add user message
             const userRow = document.createElement('div');
             userRow.className = 'message-row user';
             userRow.innerHTML = `
@@ -1688,7 +1793,6 @@
             DOM.pandaInput.value = '';
             DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
 
-            // Add typing indicator
             const typing = document.createElement('div');
             typing.className = 'message-row';
             typing.id = 'typingIndicator';
@@ -1700,7 +1804,8 @@
             DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
 
             try {
-                const res = await fetch(`${CONFIG.API_URL}/panda-chat`, {
+                const url = getApiUrl('/panda-chat');
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: text }),
@@ -1833,7 +1938,8 @@
             DOM.pandaInput.addEventListener('input', handlePandaInput);
 
             console.log('🐼 HanVerse Admin Panel initialized');
-            console.log(`📡 API URL: ${CONFIG.API_URL}`);
+            console.log(`📡 API URL: ${CONFIG.API_URL || '(relative)'}`);
+            console.log(`🔑 Token: ${state.adminToken ? '✅ Present' : '❌ Missing'}`);
         }
 
         if (document.readyState === 'loading') {
@@ -1844,5 +1950,6 @@
 
     })();
 </script>
+
 </body>
 </html>

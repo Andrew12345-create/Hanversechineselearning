@@ -3417,6 +3417,492 @@ router.get('/', (req, res) => {
     ]
   });
 });
+// ==========================================
+// ADMIN ROUTES - ADD THESE TO SERVER.JS
+// ==========================================
+
+// Verify Admin Password
+router.post('/admin/verify-password', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { userId, adminPassword } = req.body || {};
+
+    if (!userId || !adminPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID and admin password are required.'
+      });
+    }
+
+    const userResult = await pool.query(
+      `SELECT * FROM users WHERE user_id = $1`,
+      [userId]
+    );
+
+    if (!userResult.rows.length) {
+      return res.status(404).json({ success: false, error: 'User not found.' });
+    }
+
+    const user = userResult.rows[0];
+
+    if (!user.is_admin) {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Access denied. You do not have administrator permissions.' 
+      });
+    }
+
+    const valid = await bcrypt.compare(adminPassword, user.password_hash);
+    if (!valid) {
+      return res.status(401).json({ success: false, error: 'Invalid admin password.' });
+    }
+
+    const adminToken = generateToken(32);
+
+    return res.json({
+      success: true,
+      adminToken
+    });
+
+  } catch (error) {
+    console.error('❌ Admin verification error:', error);
+    return res.status(500).json({ success: false, error: 'Admin validation failed.' });
+  }
+});
+
+// Admin Overview - Get all users
+router.get('/admin/overview', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const usersQuery = await pool.query(
+      `SELECT * FROM users ORDER BY created_at DESC`
+    );
+
+    return res.json({
+      success: true,
+      users: usersQuery.rows.map(u => safeUser(u)),
+    });
+
+  } catch (error) {
+    console.error('❌ Admin overview error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load admin data' });
+  }
+});
+
+// Admin: Email Broadcast
+router.post('/admin/email-all', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { subject, message } = req.body || {};
+    if (!subject || !message) {
+      return res.status(400).json({ success: false, error: 'Subject and message body are required.' });
+    }
+
+    const usersResult = await pool.query(
+      `SELECT email, username FROM users WHERE is_verified = true AND is_banned = false AND email IS NOT NULL AND email != ''`
+    );
+
+    const users = usersResult.rows;
+    if (users.length === 0) {
+      return res.json({ success: true, message: 'No verified, active users found to email.', sent: 0 });
+    }
+
+    let sendCount = 0;
+    for (const user of users) {
+      try {
+        const html = `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <span style="font-size: 3rem;">🐼</span>
+              <h2 style="color: #ff416c; margin: 10px 0 0 0;">HanVerse Announcement</h2>
+            </div>
+            <p>Hi ${user.username || 'Learner'},</p>
+            <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff416c;">
+              ${message.replace(/\n/g, '<br>')}
+            </div>
+            <p style="font-size: 0.85rem; color: #6b7280; text-align: center; margin-top: 30px;">
+              You received this email because you are a verified member of HanVerse.<br>
+              🐼 Happy Learning!
+            </p>
+          </div>
+        `;
+
+        if (mailer) {
+          await mailer.sendMail({
+            from: EMAIL_FROM,
+            to: user.email,
+            subject: subject,
+            html: html
+          });
+          sendCount++;
+        }
+      } catch (mailErr) {
+        console.warn(`⚠️ Failed sending bulk announcement to ${user.email}:`, mailErr.message);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: `Successfully dispatched announcements to ${sendCount} active users.`,
+      sent: sendCount
+    });
+
+  } catch (error) {
+    console.error('❌ Bulk announcement failure:', error);
+    return res.status(500).json({ success: false, error: 'Bulk email system failed.' });
+  }
+});
+
+// Admin: Single Email
+router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const targetUserId = req.params.id;
+    const { subject, message } = req.body || {};
+
+    if (!subject || !message) {
+      return res.status(400).json({ success: false, error: 'Subject and message body fields are required.' });
+    }
+
+    const userResult = await pool.query(
+      `SELECT email, username FROM users WHERE user_id = $1`,
+      [targetUserId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Target user could not be found.' });
+    }
+
+    const targetUser = userResult.rows[0];
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <span style="font-size: 3rem;">🐼</span>
+          <h2 style="color: #ff416c; margin: 10px 0 0 0;">HanVerse Account Notice</h2>
+        </div>
+        <p>Hi ${targetUser.username || 'Learner'},</p>
+        <p>An administrator has sent you a direct message regarding your account status or milestone achievement:</p>
+        <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff416c;">
+          ${message.replace(/\n/g, '<br>')}
+        </div>
+        <p style="font-size: 0.85rem; color: #6b7280; text-align: center; margin-top: 30px;">
+          Please do not reply directly to this automated system address.<br>
+          🐼 Happy Learning!
+        </p>
+      </div>
+    `;
+
+    if (mailer) {
+      await mailer.sendMail({
+        from: EMAIL_FROM,
+        to: targetUser.email,
+        subject: subject,
+        html: html
+      });
+    } else {
+      return res.status(500).json({ success: false, error: 'Email service not available.' });
+    }
+
+    return res.json({
+      success: true,
+      message: `Direct communication sent successfully to ${targetUser.email}`
+    });
+
+  } catch (error) {
+    console.error('❌ Individual direct email pipeline failure:', error);
+    return res.status(500).json({ success: false, error: 'Internal mail transport error.' });
+  }
+});
+
+// Admin: Update User
+router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const targetUserId = req.params.id;
+    const { full_name, username, email, level, xp, is_admin, is_banned, premium, is_verified, password, role } = req.body || {};
+
+    if (!full_name || !username || !email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Full name, username, and email are required.' 
+      });
+    }
+
+    const oldUserRes = await pool.query(
+      `SELECT email, username, is_admin, premium, xp, level, is_banned, is_verified, role FROM users WHERE user_id = $1`, 
+      [targetUserId]
+    );
+    
+    if (oldUserRes.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'User not found.' });
+    }
+    
+    const oldUser = oldUserRes.rows[0];
+
+    let query = `UPDATE users SET 
+      full_name = $1, 
+      username = $2, 
+      email = $3, 
+      level = $4, 
+      xp = $5, 
+      is_admin = $6, 
+      is_banned = $7, 
+      premium = $8, 
+      is_verified = $9`;
+    
+    let params = [full_name, username, email, level, xp, is_admin, is_banned, premium, is_verified];
+
+    let paramIndex = 10;
+    if (role) {
+      query += `, role = $${paramIndex}`;
+      params.push(role);
+      paramIndex++;
+    }
+
+    if (password && password.trim().length >= 6) {
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(password, salt);
+      query += `, password_hash = $${paramIndex}`;
+      params.push(hash);
+      paramIndex++;
+    }
+
+    query += ` WHERE user_id = $${paramIndex}`;
+    params.push(targetUserId);
+
+    await pool.query(query, params);
+
+    return res.json({ 
+      success: true, 
+      message: 'User updated successfully.'
+    });
+
+  } catch (error) {
+    console.error('❌ Update error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update user.' });
+  }
+});
+
+// Admin: Ban/Unban user
+router.post('/admin/users/ban/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const targetUserId = req.params.id;
+    const { is_banned, banned_reason } = req.body;
+
+    if (typeof is_banned !== 'boolean') {
+      return res.status(400).json({ success: false, error: 'is_banned must be a boolean value.' });
+    }
+
+    await pool.query(
+      `UPDATE users SET is_banned = $1, banned_reason = $2 WHERE user_id = $3`, 
+      [is_banned, banned_reason || null, targetUserId]
+    );
+
+    return res.json({ 
+      success: true, 
+      message: `User ${is_banned ? 'banned' : 'unbanned'} successfully.`
+    });
+
+  } catch (error) {
+    console.error('❌ Ban error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update ban status.' });
+  }
+});
+
+// Admin: Delete user
+router.delete('/admin/users/delete/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const targetUserId = req.params.id;
+
+    await pool.query(`DELETE FROM user_progress WHERE user_id = $1`, [targetUserId]);
+    await pool.query(`DELETE FROM user_achievements WHERE user_id = $1`, [targetUserId]);
+    await pool.query(`DELETE FROM email_verifications WHERE user_id = $1`, [targetUserId]);
+    await pool.query(`DELETE FROM password_resets WHERE user_id = $1`, [targetUserId]);
+    await pool.query(`DELETE FROM users WHERE user_id = $1`, [targetUserId]);
+
+    return res.json({ 
+      success: true, 
+      message: 'User permanently deleted.' 
+    });
+
+  } catch (error) {
+    console.error('❌ Deletion error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to delete user.' });
+  }
+});
+
+// Admin: Toggle verification
+router.post('/admin/toggle-verification/:userId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    
+    const { userId } = req.params;
+    const { verified } = req.body;
+    
+    const userResult = await pool.query(
+      `SELECT is_verified FROM users WHERE user_id = $1`,
+      [userId]
+    );
+    
+    if (!userResult.rows.length) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+    
+    const newStatus = verified !== undefined ? verified : !userResult.rows[0].is_verified;
+    
+    await pool.query(
+      `UPDATE users 
+       SET is_verified = $1, 
+           verified_at = CASE WHEN $1 = true THEN NOW() ELSE NULL END,
+           email_confirmed = $1
+       WHERE user_id = $2`,
+      [newStatus, userId]
+    );
+    
+    return res.json({
+      success: true,
+      message: `User verification set to ${newStatus}`,
+      is_verified: newStatus
+    });
+    
+  } catch (error) {
+    console.error('❌ Toggle verification error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to toggle verification' });
+  }
+});
+
+// Admin: Parent Verification
+router.post('/admin/parents/verify/:parentId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { parentId } = req.params;
+    const adminUserId = req.body.adminUserId || null;
+
+    const parentResult = await pool.query(`
+      SELECT p.*, u.email, u.username 
+      FROM parents p
+      JOIN users u ON p.user_id = u.user_id
+      WHERE p.parent_id = $1
+    `, [parentId]);
+
+    if (!parentResult.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Parent not found'
+      });
+    }
+
+    const parent = parentResult.rows[0];
+
+    await pool.query(`
+      UPDATE parents 
+      SET is_verified = true,
+          verified_at = NOW(),
+          verified_by = $1,
+          updated_at = NOW()
+      WHERE parent_id = $2
+    `, [adminUserId, parentId]);
+
+    await pool.query(`
+      UPDATE users 
+      SET is_verified = true 
+      WHERE user_id = $1
+    `, [parent.user_id]);
+
+    return res.json({
+      success: true,
+      message: 'Parent verified successfully',
+      parent: {
+        parent_id: parent.parent_id,
+        full_name: parent.full_name,
+        email: parent.email,
+        is_verified: true,
+        verified_at: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error verifying parent:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to verify parent'
+    });
+  }
+});
+
+// Admin: Deny Parent
+router.post('/admin/parents/deny/:parentId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { parentId } = req.params;
+    const { reason } = req.body || {};
+    const adminUserId = req.body.adminUserId || null;
+
+    const parentResult = await pool.query(`
+      SELECT p.*, u.email, u.username 
+      FROM parents p
+      JOIN users u ON p.user_id = u.user_id
+      WHERE p.parent_id = $1
+    `, [parentId]);
+
+    if (!parentResult.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Parent not found'
+      });
+    }
+
+    const parent = parentResult.rows[0];
+
+    await pool.query(`
+      UPDATE parents 
+      SET is_active = false,
+          is_verified = false,
+          updated_at = NOW()
+      WHERE parent_id = $1
+    `, [parentId]);
+
+    await pool.query(`
+      UPDATE users 
+      SET role = 'student',
+          is_verified = false
+      WHERE user_id = $1
+    `, [parent.user_id]);
+
+    return res.json({
+      success: true,
+      message: 'Parent access denied',
+      parent: {
+        parent_id: parent.parent_id,
+        full_name: parent.full_name,
+        email: parent.email,
+        is_verified: false,
+        is_active: false
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error denying parent:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to deny parent'
+    });
+  }
+});
+
+console.log('✅ Admin routes registered successfully!');
 
 /* ==========================================
    NETLIFY MOUNT & EXPORT ENGINE 🚀
