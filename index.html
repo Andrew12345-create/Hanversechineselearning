@@ -10,6 +10,12 @@
   <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
   <link rel="apple-touch-icon" href="hanverse-logo.png" />
 
+  <!-- ===== META TAGS ===== -->
+  <meta property="og:title" content="Hanverse | Learn Mandarin Through Stories, Games & AI" />
+  <meta property="og:description" content="Interactive Mandarin learning for children through stories, games, videos, AI tutors, and structured YCT pathways." />
+  <meta property="og:image" content="https://hanverse.netlify.app/og-image.png" />
+  <meta name="description" content="Hanverse helps children learn Mandarin through interactive stories, games, videos, AI tutors, worksheets and structured YCT pathways." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -42,6 +48,10 @@
       --nav-height: 76px;
       --nav-shrunk-height: 58px;
       --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      --toast-success: #22C55E;
+      --toast-error: #EF4444;
+      --toast-warning: #F59E0B;
+      --toast-info: #3B82F6;
     }
 
     /* ----- RESET & BASE ----- */
@@ -56,7 +66,6 @@
       min-height: 100vh;
       position: relative;
     }
-    /* decorative animated background blobs */
     body::before, body::after {
       content: '';
       position: fixed;
@@ -111,7 +120,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loader-text { font-weight: 600; color: var(--text-secondary); }
 
-    /* ----- FLOATING NAVBAR (with logo image) ----- */
+    /* ----- FLOATING NAVBAR ----- */
     nav.top-nav {
       position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 1000;
       display: flex; justify-content: space-between; align-items: center;
@@ -136,7 +145,6 @@
       flex-shrink: 0;
       transition: var(--transition-smooth);
     }
-    /* logo image (visible) */
     .logo img {
       width: 40px;
       height: 40px;
@@ -177,15 +185,38 @@
     .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,99,235,0.35); }
     .btn-logout { background: rgba(239,68,68,0.08); color: #EF4444; padding: 6px 16px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(239,68,68,0.15); }
     .btn-logout:hover { background: rgba(239,68,68,0.15); transform: translateY(-1px); }
-    .user-chip { display: flex; align-items: center; gap: 10px; background: white; padding: 6px 16px 6px 8px; border-radius: var(--radius-full); box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid var(--border); cursor: pointer; transition: var(--transition-smooth); flex-shrink: 0; }
+    .btn-parent { background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; padding: 8px 18px; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(139,92,246,0.25); }
+    .btn-parent:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.35); }
+    .btn-admin { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 6px 14px; font-size: 0.7rem; }
+    .btn-admin:hover { transform: translateY(-2px); }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      padding: 6px 16px 6px 8px;
+      border-radius: var(--radius-full);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      flex-shrink: 0;
+    }
     .user-chip:hover { border-color: var(--primary); box-shadow: 0 4px 20px rgba(37,99,235,0.1); transform: translateY(-2px); }
-    .user-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary-light), var(--secondary-light)); font-size: 16px; overflow: hidden; flex-shrink: 0; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+      font-size: 16px; overflow: hidden; flex-shrink: 0;
+    }
     .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .user-info { display: flex; flex-direction: column; line-height: 1.2; }
     .user-name { font-weight: 700; font-size: 0.85rem; color: var(--dark); }
     .user-status { font-size: 0.65rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
     .user-status .premium-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
     .user-status .premium-text { color: var(--accent); font-weight: 600; }
+    .user-xp { font-size: 0.6rem; color: var(--muted); background: var(--bg); padding: 2px 8px; border-radius: var(--radius-full); }
 
     /* ----- HERO ----- */
     .hero {
@@ -274,13 +305,14 @@
     }
     .video-caption span { color: var(--primary); }
 
-    /* ----- STATS, FEATURES ----- */
+    /* ----- STATS ----- */
     .stats { padding: 20px 7% 60px; display: grid; grid-template-columns: repeat(4,1fr); gap:24px; max-width:1400px; margin:0 auto; }
     .stat-card { background:white; padding:28px 20px; border-radius:var(--radius-md); text-align:center; box-shadow:var(--shadow-sm); transition:var(--transition-smooth); border:1px solid rgba(0,0,0,0.03); }
     .stat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--primary-light); }
     .stat-card h2 { font-size:38px; background:linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:6px; font-weight:800; }
     .stat-card p { color:var(--muted); font-size:0.85rem; font-weight:500; }
 
+    /* ----- FEATURES ----- */
     .features { padding:60px 7%; max-width:1400px; margin:0 auto; }
     .features-alt { background:white; border-radius:var(--radius-lg); padding:60px 7%; max-width:1400px; margin:0 auto; box-shadow:var(--shadow-sm); }
     .section-title { text-align:center; font-size:clamp(28px,4vw,42px); margin-bottom:12px; font-weight:800; letter-spacing:-0.5px; }
@@ -298,6 +330,7 @@
     .feature-card:hover .avatar-box { transform:scale(1.05) rotate(-3deg); }
     .team-role { color:var(--primary); font-weight:700; font-size:0.85rem; margin-bottom:4px; }
 
+    /* ----- CTA ----- */
     .cta-container { padding:20px 7% 60px; max-width:1400px; margin:0 auto; }
     .cta-card { background:linear-gradient(135deg,var(--primary),var(--secondary)); padding:56px 40px; border-radius:var(--radius-lg); text-align:center; color:white; box-shadow:0 16px 48px rgba(37,99,235,0.25); position:relative; overflow:hidden; }
     .cta-card::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1), transparent 60%); }
@@ -310,7 +343,7 @@
     .cta-card .btn-signup { background:white; color:var(--primary); box-shadow:0 4px 16px rgba(0,0,0,0.15); }
     .cta-card .btn-signup:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,0.2); }
 
-    /* ----- FOOTER with logo ----- */
+    /* ----- FOOTER ----- */
     footer { background:var(--dark); color:white; padding:60px 7% 40px; }
     .footer-grid { display:grid; grid-template-columns:2fr repeat(3,1fr); gap:40px; max-width:1400px; margin:0 auto; }
     .footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -338,13 +371,13 @@
     footer hr { margin:40px 0 24px; border:none; height:1px; background:rgba(255,255,255,0.06); max-width:1400px; margin-left:auto; margin-right:auto; }
     footer .copyright { text-align:center; color:#64748B; font-size:0.85rem; }
 
-    /* bottom nav */
+    /* ----- BOTTOM NAV ----- */
     .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:rgba(255,255,255,0.96); backdrop-filter:blur(12px); justify-content:space-around; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); box-shadow:0 -4px 24px rgba(0,0,0,0.06); z-index:999; border-top:1px solid rgba(0,0,0,0.04); }
     .bottom-nav a { text-decoration:none; color:var(--muted); font-size:0.65rem; font-weight:500; text-align:center; flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 0; transition:var(--transition-smooth); border-radius:var(--radius-sm); }
     .bottom-nav a.active { color:var(--primary); font-weight:600; }
     .nav-icon { font-size:22px; }
 
-    /* panda chat */
+    /* ----- PANDA CHAT ----- */
     .panda-fab { position:fixed; bottom:calc(100px + env(safe-area-inset-bottom)); right:24px; z-index:998; background:linear-gradient(135deg,var(--primary),var(--secondary)); border:none; width:64px; height:64px; border-radius:50%; font-size:32px; box-shadow:0 8px 32px rgba(37,99,235,0.3); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:var(--transition-smooth); color:white; }
     .panda-fab:hover { transform:scale(1.1) rotate(-5deg); box-shadow:0 12px 40px rgba(37,99,235,0.4); }
     .panda-chat { display:none; position:fixed; bottom:calc(110px + env(safe-area-inset-bottom)); right:24px; width:360px; max-width:calc(100vw - 48px); height:440px; max-height:65vh; background:white; border-radius:var(--radius-md); box-shadow:var(--shadow-xl); z-index:999; flex-direction:column; overflow:hidden; animation:slideUp 0.35s cubic-bezier(0.22,1,0.36,1); }
@@ -367,12 +400,13 @@
     .panda-send { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border:none; width:42px; height:42px; border-radius:50%; font-size:18px; cursor:pointer; transition:var(--transition-smooth); flex-shrink:0; box-shadow:0 4px 12px rgba(37,99,235,0.2); }
     .panda-send:hover { transform:scale(1.05); box-shadow:0 6px 20px rgba(37,99,235,0.3); }
 
-    /* toast */
+    /* ----- TOAST ----- */
     .toast-container { position:fixed; top:100px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:12px; max-width:380px; width:calc(100% - 48px); }
     .toast { padding:16px 20px; border-radius:var(--radius-sm); background:white; box-shadow:var(--shadow-lg); border-left:4px solid var(--primary); animation:slideInRight 0.4s cubic-bezier(0.22,1,0.36,1); display:flex; align-items:center; gap:12px; font-size:0.9rem; }
-    .toast-success { border-left-color:#22C55E; }
-    .toast-error { border-left-color:#EF4444; }
-    .toast-warning { border-left-color:var(--accent); }
+    .toast-success { border-left-color:var(--toast-success); }
+    .toast-error { border-left-color:var(--toast-error); }
+    .toast-warning { border-left-color:var(--toast-warning); }
+    .toast-info { border-left-color:var(--toast-info); }
     .toast-icon { font-size:24px; flex-shrink:0; }
     .toast-message { flex:1; color:var(--dark); line-height:1.5; }
     .toast-close { background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer; padding:0 4px; }
@@ -380,7 +414,51 @@
     @keyframes slideOutRight { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(40px); } }
     .toast.removing { animation:slideOutRight 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
 
-    /* responsive */
+    /* ----- VERIFICATION BANNER ----- */
+    #verification-banner {
+      display: none;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1001;
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: white;
+      padding: 14px 24px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+      font-weight: 600;
+      font-size: 0.9rem;
+      max-width: 90%;
+      width: auto;
+      text-align: center;
+      animation: fadeUp 0.5s ease;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+    #verification-banner:hover { transform: translateX(-50%) scale(1.02); }
+    #verification-banner .resend-link {
+      color: white;
+      text-decoration: underline;
+      font-weight: 700;
+      margin-left: 8px;
+      cursor: pointer;
+    }
+    #verification-banner .close-banner {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      margin-left: 12px;
+      transition: var(--transition-smooth);
+    }
+    #verification-banner .close-banner:hover { background: rgba(255,255,255,0.3); }
+
+    /* ----- RESPONSIVE ----- */
     @media (max-width:1024px) {
       .hero { grid-template-columns:1fr; text-align:center; padding:40px 5% 60px; gap:40px; }
       .hero p { margin:0 auto 32px; }
@@ -411,12 +489,17 @@
       .panda-chat { width:calc(100vw - 32px); right:16px; bottom:calc(100px + env(safe-area-inset-bottom)); height:380px; }
       .panda-fab { right:16px; bottom:calc(90px + env(safe-area-inset-bottom)); width:56px; height:56px; font-size:28px; }
       .video-section { padding:20px 5% 40px; }
+      #verification-banner { top: 72px; padding: 12px 16px; font-size: 0.8rem; }
     }
     @media (max-width:480px) {
       .stats { grid-template-columns:1fr 1fr; }
       .hero-buttons .btn { flex:1; min-width:120px; padding:10px 16px; font-size:0.8rem; }
       .hero-card { height:220px; }
       .panda { font-size:56px; }
+      .user-chip { padding: 4px 12px 4px 6px; }
+      .user-avatar { width: 28px; height: 28px; font-size: 12px; }
+      .user-name { font-size: 0.7rem; }
+      .user-status { font-size: 0.55rem; }
     }
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; } }
     *:focus-visible { outline:3px solid var(--primary); outline-offset:2px; }
@@ -430,10 +513,17 @@
   <!-- OFFLINE BANNER -->
   <div id="offline-banner">🔴 You're offline. Progress will sync when back online.</div>
 
+  <!-- VERIFICATION BANNER -->
+  <div id="verification-banner" style="display:none;">
+    ⚠️ Please verify your email to access all features.
+    <span class="resend-link" id="resendVerificationLink">Resend verification</span>
+    <button class="close-banner" id="closeVerificationBanner">✕</button>
+  </div>
+
   <!-- TOAST CONTAINER -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- NAVBAR with logo image -->
+  <!-- NAVBAR -->
   <nav class="top-nav" id="topNav">
     <a href="index.html" class="logo">
       <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
@@ -441,9 +531,11 @@
     </a>
     <ul>
       <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="learn.html">Learn</a></li>
+      <li><a href="learn.html" id="navLearn">Learn</a></li>
       <li><a href="worksheets.html">Worksheets</a></li>
-      <li><a href="parents.html">Parents</a></li>
+      <li><a href="parents.html" id="navParents">Parents</a></li>
+      <li><a href="parent-dashboard.html" id="navParentDashboard" style="display:none;">📊 Dashboard</a></li>
+      <li><a href="admin.html" id="navAdmin" style="display:none;">⚙️ Admin</a></li>
     </ul>
     <div class="nav-buttons" id="navButtons"></div>
   </nav>
@@ -458,7 +550,7 @@
       <h1>Learn Mandarin Through <span class="gradient-text">Stories, Games & AI</span></h1>
       <p>Hanverse helps children learn Mandarin through interactive stories, games, videos, AI tutors, worksheets and structured YCT pathways.</p>
       <div class="hero-buttons" id="heroButtons">
-        <button class="btn btn-signup" id="heroSignupBtn" onclick="navigateTo('signup.html')">✨ Start Learning Free</button>
+        <button class="btn btn-signup" id="heroSignupBtn">✨ Start Learning Free</button>
         <button class="btn btn-login" onclick="scrollToSection('features')">▶ Explore Features</button>
       </div>
     </div>
@@ -476,7 +568,7 @@
     <h2 class="section-title" style="margin-bottom: 8px;">🎬 Watch Hanverse in Action</h2>
     <p class="section-subtitle" style="margin-bottom: 24px;">See how children learn Mandarin through stories, games and AI — all in one place.</p>
     <div class="video-wrapper">
-      <iframe src="https://www.youtube.com/embed/EMkzPg3u1TE" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/EMkzPg3u1TE" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
     </div>
     <div class="video-caption">⭐ <span>Hanverse</span> — fun, structured Mandarin learning for kids</div>
   </section>
@@ -538,13 +630,13 @@
       <h2>Start Your Mandarin Adventure Today 🌟</h2>
       <p>Join thousands of learners discovering Mandarin through stories, games, videos and AI.</p>
       <div class="hero-buttons">
-        <button class="btn btn-signup" onclick="navigateTo('signup.html')">🚀 Create Free Account</button>
-        <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
+        <button class="btn btn-signup" id="ctaSignupBtn">🚀 Create Free Account</button>
+        <button class="btn btn-login" id="ctaLoginBtn">Log In</button>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER with logo image -->
+  <!-- FOOTER -->
   <footer>
     <div class="footer-grid">
       <div>
@@ -566,6 +658,7 @@
   <nav class="bottom-nav">
     <a href="index.html" class="active"><span class="nav-icon">🏠</span>Home</a>
     <a href="learn.html"><span class="nav-icon">📚</span>Learn</a>
+    <a href="parent-dashboard.html" id="bottomNavDashboard" style="display:none;"><span class="nav-icon">📊</span>Dashboard</a>
     <a href="profile.html"><span class="nav-icon">👤</span>Profile</a>
     <a href="#" id="mobileLogoutBtn"><span class="nav-icon">🚪</span>Logout</a>
   </nav>
@@ -585,7 +678,9 @@
 
   <!-- ===== JAVASCRIPT ===== -->
   <script>
-    // ----- CONFIG -----
+    // ==========================================
+    // CONFIGURATION
+    // ==========================================
     const API_BASE = '/api';
     const SESSION_KEY = 'hanverse_user';
     const VERSION = '2.0.0';
@@ -594,79 +689,517 @@
     function log(...args) { if (DEBUG) console.log(...args); }
     function errorLog(...args) { console.error(...args); }
 
-    // ----- UTILITY -----
-    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
-    function getSession() { try { const d = localStorage.getItem(SESSION_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
-    function setSession(u) { localStorage.setItem(SESSION_KEY, JSON.stringify(u)); }
-    function clearSession() { localStorage.removeItem(SESSION_KEY); }
-    function getUserId() { const s = getSession(); return s?.user_id || s?.id || null; }
-    function getFullName() { const s = getSession(); return s?.full_name || s?.fullName || s?.username || 'Learner'; }
-    function isPremium() { const s = getSession(); return s?.premium || s?.is_premium || false; }
-    function isLoggedIn() { return !!getUserId(); }
-    function navigateTo(url) { if ((url==='signup.html'||url==='login.html') && isLoggedIn()) { showToast('info','You are already logged in!'); return; } window.location.href = url; }
-    function scrollToSection(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }
-
-    // ----- TOAST -----
-    function showToast(type, message, duration = 4000) {
-      const container = document.getElementById('toast-container');
-      if (!container) return;
-      const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
-      const toast = document.createElement('div');
-      toast.className = `toast toast-${type}`;
-      toast.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ️'}</span><span class="toast-message">${message}</span><button class="toast-close">✕</button>`;
-      toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
-      container.appendChild(toast);
-      setTimeout(() => removeToast(toast), duration);
-    }
-    function removeToast(toast) { if (toast.classList.contains('removing')) return; toast.classList.add('removing'); setTimeout(() => toast.remove(), 300); }
-
-    // ----- LOADING -----
-    function showLoading() { document.getElementById('loading-overlay').classList.add('show'); }
-    function hideLoading() { document.getElementById('loading-overlay').classList.remove('show'); }
-
-    // ----- API -----
-    async function apiCall(endpoint, options = {}) {
-      const url = `${API_BASE}${endpoint}`;
-      const headers = { 'Content-Type':'application/json', 'Accept':'application/json', ...options.headers };
-      try {
-        const res = await fetch(url, { ...options, headers, credentials:'same-origin' });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || data.message || `API error: ${res.status}`);
-        return data;
-      } catch (e) { errorLog(`API call failed: ${endpoint}`, e); throw e; }
+    // ==========================================
+    // UTILITY FUNCTIONS
+    // ==========================================
+    function escapeHtml(text) {
+      const d = document.createElement('div');
+      d.textContent = text;
+      return d.innerHTML;
     }
 
-    // ----- PANDA CHAT -----
-    const chatFallbacks = ["That's a great question! Let me help you with that. 🐼","Interesting! Would you like to practice more? 📚","Good job! Keep practicing and you'll improve quickly! 🌟","Let me explain that in a simple way... 🎯","You're doing amazing! Want to try a quiz? 🎮","That's a fun one! Let's learn together! 🤗","I love that question! Here's what I think... 💭","You're making great progress! Keep going! 🚀"];
-    async function sendPandaMessage() {
-      const input = document.getElementById('pandaInput');
-      const body = document.getElementById('pandaBody');
-      const text = input.value.trim();
-      if (!text) return;
-      const userRow = document.createElement('div'); userRow.className = 'message-row user'; userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
-      body.appendChild(userRow);
-      input.value = ''; input.style.height = 'auto'; body.scrollTop = body.scrollHeight;
-      const typing = document.createElement('div'); typing.className = 'message-row'; typing.id = 'typingIndicator';
-      typing.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message" style="font-style:italic;opacity:0.7;">🐼 Thinking...</div>`;
-      body.appendChild(typing); body.scrollTop = body.scrollHeight;
+    function debounce(fn, delay) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    // ==========================================
+    // SESSION MANAGEMENT
+    // ==========================================
+    function normalizeUser(user) {
+      if (!user) return null;
+      return {
+        id: user.user_id || user.id,
+        user_id: user.user_id || user.id,
+        username: user.username || '',
+        full_name: user.full_name || user.fullName || user.username || 'Learner',
+        fullName: user.full_name || user.fullName || user.username || 'Learner',
+        email: user.email || '',
+        xp: user.xp || 0,
+        level: user.level || 1,
+        streak_days: user.streak_days || user.streakDays || 0,
+        streakDays: user.streak_days || user.streakDays || 0,
+        is_verified: user.is_verified || false,
+        isVerified: user.is_verified || false,
+        premium: user.premium || user.is_premium || false,
+        is_premium: user.premium || user.is_premium || false,
+        isPremium: user.premium || user.is_premium || false,
+        premium_until: user.premium_until || null,
+        role: user.role || 'student',
+        profile_picture: user.profile_picture || null,
+        profilePicture: user.profile_picture || null,
+        is_admin: user.is_admin || false,
+        isAdmin: user.is_admin || false,
+        is_banned: user.is_banned || false,
+        isBanned: user.is_banned || false,
+        current_yct: user.current_yct || 1,
+        current_hsk: user.current_hsk || 0,
+        chinese_level: user.chinese_level || 'YCT 1',
+        lessons_completed: user.lessons_completed || 0,
+        achievements_count: user.achievements_count || 0
+      };
+    }
+
+    function getSession() {
       try {
-        const res = await apiCall('/panda-chat', { method:'POST', body: JSON.stringify({ message:text }) });
-        const typingEl = document.getElementById('typingIndicator'); if (typingEl) typingEl.remove();
-        const aiRow = document.createElement('div'); aiRow.className = 'message-row';
-        const reply = res.reply || "🐼 I'm not sure about that one. Try something simpler!";
-        aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${escapeHtml(reply)}</div>`;
-        body.appendChild(aiRow); body.scrollTop = body.scrollHeight;
-      } catch (e) {
-        const typingEl = document.getElementById('typingIndicator'); if (typingEl) typingEl.remove();
-        const fallback = chatFallbacks[Math.floor(Math.random() * chatFallbacks.length)];
-        const aiRow = document.createElement('div'); aiRow.className = 'message-row';
-        aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${fallback}</div>`;
-        body.appendChild(aiRow); body.scrollTop = body.scrollHeight;
-        errorLog('Panda chat fallback:', e.message);
+        const data = localStorage.getItem(SESSION_KEY);
+        if (!data) return null;
+        const parsed = JSON.parse(data);
+        return normalizeUser(parsed);
+      } catch {
+        return null;
       }
     }
 
-    // ----- STATS -----
+    function setSession(user) {
+      localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    }
+
+    function clearSession() {
+      localStorage.removeItem(SESSION_KEY);
+    }
+
+    function getUserId() {
+      const session = getSession();
+      return session?.user_id || session?.id || null;
+    }
+
+    function getFullName() {
+      const session = getSession();
+      return session?.full_name || session?.fullName || session?.username || 'Learner';
+    }
+
+    function isLoggedIn() {
+      return !!getUserId();
+    }
+
+    function isPremium() {
+      const session = getSession();
+      return session?.premium || session?.is_premium || false;
+    }
+
+    function isParent() {
+      const session = getSession();
+      return session?.role === 'parent';
+    }
+
+    function isStudent() {
+      const session = getSession();
+      return session?.role === 'student' || !session?.role;
+    }
+
+    function isAdmin() {
+      const session = getSession();
+      return session?.is_admin || session?.isAdmin || false;
+    }
+
+    function isVerified() {
+      const session = getSession();
+      return session?.is_verified || session?.isVerified || false;
+    }
+
+    // ==========================================
+    // NAVIGATION
+    // ==========================================
+    function navigateTo(url) {
+      if ((url === 'signup.html' || url === 'login.html') && isLoggedIn()) {
+        showToast('info', 'You are already logged in!');
+        return;
+      }
+      window.location.href = url;
+    }
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ==========================================
+    // TOAST SYSTEM
+    // ==========================================
+    function showToast(type, message, duration = 4000) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" aria-label="Close notification">✕</button>
+      `;
+
+      toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
+      container.appendChild(toast);
+
+      const timer = setTimeout(() => removeToast(toast), duration);
+      toast.dataset.timer = timer;
+    }
+
+    function removeToast(toast) {
+      if (toast.classList.contains('removing')) return;
+      toast.classList.add('removing');
+      if (toast.dataset.timer) {
+        clearTimeout(parseInt(toast.dataset.timer));
+      }
+      setTimeout(() => toast.remove(), 300);
+    }
+
+    // ==========================================
+    // LOADING OVERLAY
+    // ==========================================
+    let loadingCounter = 0;
+
+    function showLoading(message = '🐼 Loading Hanverse...') {
+      const overlay = document.getElementById('loading-overlay');
+      const text = overlay.querySelector('.loader-text');
+      if (text) text.textContent = message;
+      loadingCounter++;
+      overlay.classList.add('show');
+    }
+
+    function hideLoading() {
+      loadingCounter--;
+      if (loadingCounter <= 0) {
+        loadingCounter = 0;
+        document.getElementById('loading-overlay').classList.remove('show');
+      }
+    }
+
+    // ==========================================
+    // API CALLS
+    // ==========================================
+    async function apiCall(endpoint, options = {}) {
+      const url = `${API_BASE}${endpoint}`;
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...options.headers
+      };
+
+      try {
+        const res = await fetch(url, {
+          ...options,
+          headers,
+          credentials: 'same-origin'
+        });
+
+        let data;
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          data = { success: false, error: `Unexpected response from server` };
+        }
+
+        // Handle specific error codes
+        if (res.status === 403) {
+          if (data.error === 'not_verified') {
+            throw new Error('not_verified');
+          }
+          if (data.error === 'banned') {
+            throw new Error(`banned:${data.reason || 'Account suspended'}`);
+          }
+        }
+
+        if (!res.ok) {
+          throw new Error(data.error || data.message || `API error: ${res.status}`);
+        }
+
+        return data;
+      } catch (e) {
+        errorLog(`API call failed: ${endpoint}`, e);
+        throw e;
+      }
+    }
+
+    // ==========================================
+    // AUTH FUNCTIONS
+    // ==========================================
+    async function login(email, password) {
+      try {
+        showLoading('Logging in...');
+        const data = await apiCall('/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+
+        if (data.success) {
+          const user = normalizeUser(data.user);
+          setSession(user);
+          updateNavbar();
+          updateNavigation();
+          showToast('success', `Welcome back, ${user.full_name}! 🎉`);
+          hideLoading();
+          return true;
+        }
+        hideLoading();
+        return false;
+      } catch (error) {
+        hideLoading();
+        if (error.message === 'not_verified') {
+          showVerificationBanner(email);
+          showToast('warning', 'Please verify your email before logging in.');
+        } else if (error.message.startsWith('banned:')) {
+          const reason = error.message.split(':')[1] || 'Account suspended';
+          showToast('error', `Account suspended: ${reason}`);
+        } else {
+          showToast('error', error.message || 'Login failed. Please try again.');
+        }
+        return false;
+      }
+    }
+
+    async function signup(userData) {
+      try {
+        showLoading('Creating your account...');
+        const data = await apiCall('/signup', {
+          method: 'POST',
+          body: JSON.stringify(userData)
+        });
+
+        if (data.success) {
+          const user = normalizeUser(data.user);
+          setSession(user);
+          updateNavbar();
+          updateNavigation();
+          showToast('success', 'Account created! Please check your email for verification.');
+          showVerificationBanner(user.email);
+          hideLoading();
+          return true;
+        }
+        hideLoading();
+        return false;
+      } catch (error) {
+        hideLoading();
+        if (error.message.includes('email')) {
+          showToast('error', 'Email already registered. Please use a different email.');
+        } else if (error.message.includes('username')) {
+          showToast('error', 'Username already taken. Please choose a different one.');
+        } else {
+          showToast('error', error.message || 'Signup failed. Please try again.');
+        }
+        return false;
+      }
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to log out?')) {
+        clearSession();
+        updateNavbar();
+        updateNavigation();
+        hideVerificationBanner();
+        showToast('success', 'Logged out successfully');
+        window.location.reload();
+      }
+    }
+
+    // ==========================================
+    // VERIFICATION BANNER
+    // ==========================================
+    let verificationEmail = null;
+
+    function showVerificationBanner(email) {
+      const banner = document.getElementById('verification-banner');
+      if (!banner) return;
+      verificationEmail = email;
+      banner.style.display = 'block';
+    }
+
+    function hideVerificationBanner() {
+      const banner = document.getElementById('verification-banner');
+      if (banner) banner.style.display = 'none';
+    }
+
+    async function resendVerification() {
+      if (!verificationEmail) {
+        const session = getSession();
+        verificationEmail = session?.email || null;
+      }
+      if (!verificationEmail) {
+        showToast('warning', 'Please provide your email address.');
+        return;
+      }
+
+      try {
+        showLoading('Sending verification...');
+        await apiCall('/resend-verification', {
+          method: 'POST',
+          body: JSON.stringify({ email: verificationEmail })
+        });
+        showToast('success', 'Verification email sent! Check your inbox.');
+        hideLoading();
+      } catch (error) {
+        hideLoading();
+        showToast('error', error.message || 'Failed to send verification email.');
+      }
+    }
+
+    // ==========================================
+    // NAVBAR UPDATE
+    // ==========================================
+    function updateNavbar() {
+      const navButtons = document.getElementById('navButtons');
+      if (!navButtons) return;
+
+      const session = getSession();
+
+      if (session && session.user_id) {
+        const displayName = session.full_name || session.fullName || session.username || 'Learner';
+        const premium = session.premium || session.is_premium || false;
+        const xp = session.xp || 0;
+        const level = session.level || 1;
+        const avatar = session.profile_picture || session.profilePicture || null;
+
+        let roleBadge = '';
+        if (isParent()) roleBadge = '👨‍👩‍👦';
+        else if (isAdmin()) roleBadge = '👑';
+        else roleBadge = '🐼';
+
+        navButtons.innerHTML = `
+          <div class="user-chip" onclick="navigateTo('profile.html')">
+            <div class="user-avatar">
+              ${avatar ? `<img src="${avatar}" alt="${displayName}">` : roleBadge}
+            </div>
+            <div class="user-info">
+              <div class="user-name">${escapeHtml(displayName)}</div>
+              <div class="user-status">
+                <span class="premium-dot" style="${premium ? '' : 'background:#94A3B8;'}"></span>
+                <span ${premium ? 'class="premium-text"' : ''}>${premium ? '⭐ Premium' : 'Free Member'}</span>
+                <span class="user-xp">⚡${xp} XP</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-logout" onclick="logout()">Log Out</button>
+        `;
+
+        // Update hero button
+        const heroBtn = document.getElementById('heroSignupBtn');
+        if (heroBtn) {
+          if (isParent()) {
+            heroBtn.textContent = '📊 Parent Dashboard';
+            heroBtn.onclick = () => navigateTo('parent-dashboard.html');
+          } else if (isAdmin()) {
+            heroBtn.textContent = '⚙️ Admin Panel';
+            heroBtn.onclick = () => navigateTo('admin.html');
+          } else {
+            heroBtn.textContent = '📚 Continue Learning';
+            heroBtn.onclick = () => navigateTo('learn.html');
+          }
+        }
+
+        // Update CTA buttons
+        const ctaSignup = document.getElementById('ctaSignupBtn');
+        if (ctaSignup) {
+          if (isParent()) {
+            ctaSignup.textContent = '📊 Go to Dashboard';
+            ctaSignup.onclick = () => navigateTo('parent-dashboard.html');
+          } else if (isAdmin()) {
+            ctaSignup.textContent = '⚙️ Admin Panel';
+            ctaSignup.onclick = () => navigateTo('admin.html');
+          } else {
+            ctaSignup.textContent = '📚 Start Learning';
+            ctaSignup.onclick = () => navigateTo('learn.html');
+          }
+        }
+        const ctaLogin = document.getElementById('ctaLoginBtn');
+        if (ctaLogin) {
+          ctaLogin.textContent = '👤 My Profile';
+          ctaLogin.onclick = () => navigateTo('profile.html');
+        }
+
+        // Check verification status
+        if (!session.is_verified && !session.isVerified) {
+          showVerificationBanner(session.email);
+        } else {
+          hideVerificationBanner();
+        }
+
+        // Show verification status on user chip
+        if (!session.is_verified && !session.isVerified) {
+          const statusEl = document.querySelector('.user-status');
+          if (statusEl) {
+            statusEl.innerHTML += ' <span style="color:#F59E0B;font-weight:600;">⚠️ Unverified</span>';
+          }
+        }
+
+      } else {
+        // Logged out state
+        navButtons.innerHTML = `
+          <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
+          <button class="btn btn-signup" onclick="navigateTo('signup.html')">Sign Up</button>
+        `;
+
+        const heroBtn = document.getElementById('heroSignupBtn');
+        if (heroBtn) {
+          heroBtn.textContent = '✨ Start Learning Free';
+          heroBtn.onclick = () => navigateTo('signup.html');
+        }
+
+        const ctaSignup = document.getElementById('ctaSignupBtn');
+        if (ctaSignup) {
+          ctaSignup.textContent = '🚀 Create Free Account';
+          ctaSignup.onclick = () => navigateTo('signup.html');
+        }
+        const ctaLogin = document.getElementById('ctaLoginBtn');
+        if (ctaLogin) {
+          ctaLogin.textContent = 'Log In';
+          ctaLogin.onclick = () => navigateTo('login.html');
+        }
+
+        hideVerificationBanner();
+      }
+    }
+
+    // ==========================================
+    // NAVIGATION LINKS UPDATE
+    // ==========================================
+    function updateNavigation() {
+      const session = getSession();
+      const isLoggedInUser = !!session?.user_id;
+
+      // Parent dashboard link
+      const parentDashLink = document.getElementById('navParentDashboard');
+      const bottomDashLink = document.getElementById('bottomNavDashboard');
+      if (parentDashLink) {
+        parentDashLink.style.display = isParent() ? 'inline-block' : 'none';
+      }
+      if (bottomDashLink) {
+        bottomDashLink.style.display = isParent() ? 'flex' : 'none';
+      }
+
+      // Admin link
+      const adminLink = document.getElementById('navAdmin');
+      if (adminLink) {
+        adminLink.style.display = isAdmin() ? 'inline-block' : 'none';
+      }
+
+      // Parent page link - show to everyone
+      const parentPageLink = document.getElementById('navParents');
+      if (parentPageLink) {
+        parentPageLink.style.display = 'inline-block';
+      }
+
+      // Learn link - show to everyone
+      const learnLink = document.getElementById('navLearn');
+      if (learnLink) {
+        learnLink.style.display = 'inline-block';
+      }
+    }
+
+    // ==========================================
+    // STATS FETCHING
+    // ==========================================
     async function fetchStats() {
       try {
         const data = await apiCall('/stats');
@@ -676,44 +1209,44 @@
           animateCounter('games', data.totalGames || 30, '+');
           animateCounter('satisfaction', data.satisfactionRate || 95, '%');
         }
-      } catch { animateCounter('students', 500, '+'); animateCounter('lessons', 240, '+'); animateCounter('games', 30, '+'); animateCounter('satisfaction', 95, '%'); }
-    }
-    function animateCounter(id, target, suffix='') {
-      const el = document.getElementById(id); if (!el) return;
-      let count = 0; const inc = Math.max(1, Math.ceil(target/40));
-      const timer = setInterval(() => { count += inc; if (count >= target) { count = target; clearInterval(timer); } el.innerText = count + suffix; }, 25);
-    }
-
-    // ----- NAVBAR -----
-    function updateNavbar() {
-      const navButtons = document.getElementById('navButtons'); if (!navButtons) return;
-      const session = getSession();
-      if (session && (session.user_id || session.id)) {
-        const displayName = session.full_name || session.fullName || session.username || 'Learner';
-        const premium = session.premium || session.is_premium || false;
-        navButtons.innerHTML = `
-          <div class="user-chip" onclick="navigateTo('profile.html')">
-            <div class="user-avatar">${session.profile_picture ? `<img src="${session.profile_picture}" alt="${displayName}">` : '🐼'}</div>
-            <div class="user-info"><div class="user-name">${escapeHtml(displayName)}</div><div class="user-status"><span class="premium-dot" style="${premium ? '' : 'background:#94A3B8;'}"></span><span ${premium ? 'class="premium-text"' : ''}>${premium ? '⭐ Premium' : 'Free Member'}</span></div></div>
-          </div>
-          <button class="btn btn-logout" onclick="handleLogout()">Log Out</button>
-        `;
-        const heroBtn = document.getElementById('heroSignupBtn'); if (heroBtn) { heroBtn.textContent = '📚 Go to Dashboard'; heroBtn.onclick = () => navigateTo('dashboard.html'); }
-      } else {
-        navButtons.innerHTML = `<button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button><button class="btn btn-signup" onclick="navigateTo('signup.html')">Sign Up</button>`;
-        const heroBtn = document.getElementById('heroSignupBtn'); if (heroBtn) { heroBtn.textContent = '✨ Start Learning Free'; heroBtn.onclick = () => navigateTo('signup.html'); }
+      } catch (error) {
+        // Fallback values
+        animateCounter('students', 500, '+');
+        animateCounter('lessons', 240, '+');
+        animateCounter('games', 30, '+');
+        animateCounter('satisfaction', 95, '%');
       }
     }
 
-    function handleLogout() { if (confirm('Are you sure you want to log out?')) { clearSession(); updateNavbar(); showToast('success','Logged out successfully'); window.location.reload(); } }
+    function animateCounter(id, target, suffix = '') {
+      const el = document.getElementById(id);
+      if (!el) return;
+      let count = 0;
+      const inc = Math.max(1, Math.ceil(target / 40));
+      const timer = setInterval(() => {
+        count += inc;
+        if (count >= target) {
+          count = target;
+          clearInterval(timer);
+        }
+        el.innerText = count + suffix;
+      }, 25);
+    }
 
-    // ----- NAV SCROLL -----
+    // ==========================================
+    // NAVBAR SCROLL
+    // ==========================================
     const nav = document.getElementById('topNav');
     let ticking = false;
+
     function handleNavScroll() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          if (window.scrollY > 40) nav.classList.add('shrunk'); else nav.classList.remove('shrunk');
+          if (window.scrollY > 40) {
+            nav.classList.add('shrunk');
+          } else {
+            nav.classList.remove('shrunk');
+          }
           ticking = false;
         });
         ticking = true;
@@ -721,58 +1254,255 @@
     }
     window.addEventListener('scroll', handleNavScroll, { passive: true });
 
-    // ----- INTERSECTION OBSERVER -----
+    // ==========================================
+    // INTERSECTION OBSERVER FOR CARDS
+    // ==========================================
     function initCardAnimations() {
       const cards = document.querySelectorAll('.feature-card, .stat-card');
       const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; } });
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.style.opacity = '1';
+            e.target.style.transform = 'translateY(0)';
+          }
+        });
       }, { threshold: 0.05 });
-      cards.forEach(c => { c.style.opacity = '0'; c.style.transform = 'translateY(20px)'; c.style.transition = 'transform 0.6s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease'; observer.observe(c); });
+
+      cards.forEach(c => {
+        c.style.opacity = '0';
+        c.style.transform = 'translateY(20px)';
+        c.style.transition = 'transform 0.6s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease';
+        observer.observe(c);
+      });
     }
 
-    // ----- OFFLINE -----
+    // ==========================================
+    // OFFLINE STATUS
+    // ==========================================
     const offlineBanner = document.getElementById('offline-banner');
-    function updateOfflineStatus() {
-      if (!navigator.onLine) { offlineBanner.classList.add('show'); } else { offlineBanner.classList.remove('show'); }
-    }
-    window.addEventListener('online', updateOfflineStatus); window.addEventListener('offline', updateOfflineStatus); updateOfflineStatus();
 
-    // ----- PANDA UI -----
+    function updateOfflineStatus() {
+      if (!navigator.onLine) {
+        offlineBanner.classList.add('show');
+      } else {
+        offlineBanner.classList.remove('show');
+      }
+    }
+    window.addEventListener('online', updateOfflineStatus);
+    window.addEventListener('offline', updateOfflineStatus);
+    updateOfflineStatus();
+
+    // ==========================================
+    // PANDA CHAT
+    // ==========================================
     const pandaFab = document.getElementById('pandaFab');
     const pandaChat = document.getElementById('pandaChat');
     const pandaClose = document.getElementById('pandaClose');
     const pandaInput = document.getElementById('pandaInput');
     const pandaSend = document.getElementById('pandaSend');
-    function togglePanda() { pandaChat.classList.toggle('open'); if (pandaChat.classList.contains('open')) setTimeout(() => pandaInput.focus(), 100); }
+    const pandaBody = document.getElementById('pandaBody');
+
+    const chatFallbacks = [
+      "That's a great question! Let me help you with that. 🐼",
+      "Interesting! Would you like to practice more? 📚",
+      "Good job! Keep practicing and you'll improve quickly! 🌟",
+      "Let me explain that in a simple way... 🎯",
+      "You're doing amazing! Want to try a quiz? 🎮",
+      "That's a fun one! Let's learn together! 🤗",
+      "I love that question! Here's what I think... 💭",
+      "You're making great progress! Keep going! 🚀"
+    ];
+
+    function togglePanda() {
+      pandaChat.classList.toggle('open');
+      if (pandaChat.classList.contains('open')) {
+        setTimeout(() => pandaInput.focus(), 100);
+      }
+    }
+
     pandaFab.addEventListener('click', togglePanda);
     pandaClose.addEventListener('click', togglePanda);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && pandaChat.classList.contains('open')) togglePanda(); });
-    pandaSend.addEventListener('click', sendPandaMessage);
-    pandaInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPandaMessage(); } });
-    pandaInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 80) + 'px'; });
 
-    // ----- MOBILE LOGOUT -----
-    document.getElementById('mobileLogoutBtn').addEventListener('click', function(e) { e.preventDefault(); handleLogout(); });
-
-    // ----- INIT -----
-    document.addEventListener('DOMContentLoaded', function() {
-      log('🐼 Hanverse v' + VERSION + ' initializing...');
-      hideLoading();
-      updateNavbar();
-      fetchStats();
-      initCardAnimations();
-      if (isLoggedIn()) { const name = getFullName(); showToast('success', `Welcome back, ${name}! 🎉`); }
-      log('✅ Hanverse loaded successfully!');
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && pandaChat.classList.contains('open')) {
+        togglePanda();
+      }
     });
 
-    // expose globals
+    async function sendPandaMessage() {
+      const input = document.getElementById('pandaInput');
+      const body = document.getElementById('pandaBody');
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      // Add user message
+      const userRow = document.createElement('div');
+      userRow.className = 'message-row user';
+      userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
+      body.appendChild(userRow);
+      input.value = '';
+      input.style.height = 'auto';
+      body.scrollTop = body.scrollHeight;
+
+      // Add typing indicator
+      const typing = document.createElement('div');
+      typing.className = 'message-row';
+      typing.id = 'typingIndicator';
+      typing.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message" style="font-style:italic;opacity:0.7;">🐼 Thinking...</div>`;
+      body.appendChild(typing);
+      body.scrollTop = body.scrollHeight;
+
+      try {
+        const res = await apiCall('/panda-chat', {
+          method: 'POST',
+          body: JSON.stringify({ message: text })
+        });
+
+        const typingEl = document.getElementById('typingIndicator');
+        if (typingEl) typingEl.remove();
+
+        const aiRow = document.createElement('div');
+        aiRow.className = 'message-row';
+        const reply = res.reply || "🐼 I'm not sure about that one. Try something simpler!";
+        aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${escapeHtml(reply)}</div>`;
+        body.appendChild(aiRow);
+        body.scrollTop = body.scrollHeight;
+
+      } catch (error) {
+        const typingEl = document.getElementById('typingIndicator');
+        if (typingEl) typingEl.remove();
+
+        const fallback = chatFallbacks[Math.floor(Math.random() * chatFallbacks.length)];
+        const aiRow = document.createElement('div');
+        aiRow.className = 'message-row';
+        aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${fallback}</div>`;
+        body.appendChild(aiRow);
+        body.scrollTop = body.scrollHeight;
+        errorLog('Panda chat fallback:', error.message);
+      }
+    }
+
+    pandaSend.addEventListener('click', sendPandaMessage);
+    pandaInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendPandaMessage();
+      }
+    });
+
+    pandaInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+    });
+
+    // ==========================================
+    // VERIFICATION BANNER EVENTS
+    // ==========================================
+    document.getElementById('resendVerificationLink')?.addEventListener('click', resendVerification);
+    document.getElementById('closeVerificationBanner')?.addEventListener('click', hideVerificationBanner);
+
+    // ==========================================
+    // MOBILE LOGOUT
+    // ==========================================
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', function(e) {
+      e.preventDefault();
+      logout();
+    });
+
+    // ==========================================
+    // GLOBAL EXPOSURE
+    // ==========================================
     window.navigateTo = navigateTo;
     window.scrollToSection = scrollToSection;
-    window.handleLogout = handleLogout;
+    window.logout = logout;
+    window.login = login;
+    window.signup = signup;
     window.isLoggedIn = isLoggedIn;
     window.getSession = getSession;
     window.showToast = showToast;
     window.apiCall = apiCall;
+    window.resendVerification = resendVerification;
+    window.isParent = isParent;
+    window.isAdmin = isAdmin;
+    window.isVerified = isVerified;
+    window.getFullName = getFullName;
+    window.getUserId = getUserId;
+
+    // ==========================================
+    // INIT
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+      log('🐼 Hanverse v' + VERSION + ' initializing...');
+
+      // Update UI based on session
+      updateNavbar();
+      updateNavigation();
+
+      // Fetch stats
+      fetchStats();
+
+      // Initialize card animations
+      initCardAnimations();
+
+      // Show welcome toast if logged in
+      if (isLoggedIn()) {
+        const name = getFullName();
+        const session = getSession();
+        if (!session?.is_verified && !session?.isVerified) {
+          showToast('warning', `Welcome, ${name}! Please verify your email.`);
+          showVerificationBanner(session?.email);
+        } else {
+          showToast('success', `Welcome back, ${name}! 🎉`);
+        }
+      }
+
+      // Check for session expiry or refresh
+      const session = getSession();
+      if (session?.user_id) {
+        // Verify session with server
+        apiCall(`/user/${session.user_id}`)
+          .then(data => {
+            if (data.success) {
+              const freshUser = normalizeUser(data.user);
+              setSession(freshUser);
+              updateNavbar();
+              updateNavigation();
+            }
+          })
+          .catch(() => {
+            // Session invalid, clear it
+            clearSession();
+            updateNavbar();
+            updateNavigation();
+          });
+      }
+
+      log('✅ Hanverse loaded successfully!');
+      hideLoading();
+    });
+
+    // Handle unhandled promise rejections
+    window.addEventListener('unhandledrejection', (e) => {
+      errorLog('Unhandled rejection:', e.reason);
+      if (e.reason?.message && !e.reason.message.includes('not_verified')) {
+        showToast('error', 'Something went wrong. Please try again.');
+      }
+    });
+
+    // Handle global errors
+    window.addEventListener('error', (e) => {
+      errorLog('Global error:', e.message);
+    });
+
+    // ==========================================
+    // SERVICE WORKER (PWA)
+    // ==========================================
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => log('✅ Service Worker registered'))
+        .catch(() => log('ℹ️ Service Worker not available'));
+    }
   </script>
 
 </body>

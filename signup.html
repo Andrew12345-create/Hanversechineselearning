@@ -1,904 +1,2733 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="panda-chat.css">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HanVerse Sign Up</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Hanverse Sign Up</title>
+
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
+    <link rel="apple-touch-icon" href="hanverse-logo2.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
-:root{
---primary:#2563EB;
---secondary:#14B8A6;
---accent:#F59E0B;
-
---dark:#0F172A;
---text:#334155;
---muted:#64748B;
-
---bg:#F8FAFC;
---surface:#FFFFFF;
---white:#FFFFFF;
---shadow:0 20px 50px rgba(15,23,42,.08);
-
---border:#E2E8F0;
-
---yellow:#F4D35E;
---red:#E63946;
---blue:#2563EB;
---green:#74C69D;
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
-
-html{
-scroll-behavior:smooth;
-}
-
-body{
-background:var(--bg);
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:30px;
-}
-
-body::before{
-content:'';
-position:fixed;
-width:700px;
-height:700px;
-border-radius:50%;
-background:rgba(37,99,235,.08);
-top:-350px;
-left:-350px;
-z-index:0;
-}
-
-body::after{
-content:'';
-position:fixed;
-width:600px;
-height:600px;
-border-radius:50%;
-background:rgba(20,184,166,.08);
-bottom:-300px;
-right:-300px;
-z-index:0;
-}
-
-.container{
-position:relative;
-z-index:2;
-display:flex;
-width:100%;
-max-width:1150px;
-background:white;
-border-radius:40px;
-overflow:hidden;
-box-shadow:0 25px 60px rgba(0,0,0,.08);
-animation:fade .8s ease;
-}
-
-@keyframes fade{
-from{
-opacity:0;
-transform:translateY(30px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-/* LEFT */
-
-.left{
-flex:1;
-background:linear-gradient(135deg,var(--primary),#7BC7F4);
-padding:60px;
-color:white;
-position:relative;
-display:flex;
-flex-direction:column;
-justify-content:center;
-}
-
-.char{
-position:absolute;
-font-size:80px;
-font-weight:800;
-opacity:.08;
-pointer-events:none;
-}
-
-.c1{top:40px;left:40px;}
-.c2{top:120px;right:60px;}
-.c3{bottom:120px;left:60px;}
-.c4{bottom:50px;right:50px;}
-
-.star{
-position:absolute;
-top:40px;
-right:40px;
-font-size:40px;
-color:var(--yellow);
-}
-
-.welcome-label{
-font-size:18px;
-opacity:.95;
-}
-
-.left h1{
-font-size:58px;
-line-height:1.05;
-margin:15px 0;
-}
-
-.left p{
-line-height:1.9;
-font-size:17px;
-max-width:480px;
-}
-
-.trust-list{
-margin-top:35px;
-display:flex;
-flex-direction:column;
-gap:14px;
-}
-
-.trust-item{
-display:flex;
-align-items:center;
-gap:12px;
-font-weight:600;
-font-size:15px;
-}
-
-.panda{
-font-size:120px;
-margin-top:35px;
-cursor:pointer;
-animation:float 4s infinite ease-in-out;
-}
-
-@keyframes float{
-50%{
-transform:translateY(-15px);
-}
-}
-
-/* RIGHT */
-
-.right{
-flex:1;
-padding:50px 60px;
-display:flex;
-flex-direction:column;
-justify-content:center;
-overflow-y:auto;
-}
-
-.logo{
-font-size:40px;
-font-weight:800;
-color:var(--yellow);
-margin-bottom:10px;
-}
-
-.subtitle{
-color:var(--text-secondary);
-margin-bottom:24px;
-line-height:1.7;
-}
-
-.signup-header{
-margin-bottom:20px;
-}
-
-.signup-header h2{
-font-size:28px;
-margin-bottom:6px;
-color:var(--text-primary);
-}
-
-.signup-header p{
-color:var(--text-secondary);
-}
-
-.row-2{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
-}
-
-.input-group{
-margin-bottom:16px;
-position:relative;
-}
-
-.input-label{
-display:block;
-margin-bottom:7px;
-font-weight:600;
-color:var(--text-primary);
-font-size:.9rem;
-}
-
-input{
-width:100%;
-padding:14px 18px;
-font-size:14px;
-border-radius:16px;
-border:1.5px solid transparent;
-background:#F8FAFC;
-transition:.25s;
-}
-
-input:focus{
-outline:none;
-border-color:var(--green);
-background:white;
-box-shadow:0 0 0 4px rgba(116,198,157,.12);
-}
-
-.input--error{
-border-color:var(--red)!important;
-background:#FFF5F5;
-box-shadow:0 0 0 4px rgba(230,57,70,.10)!important;
-}
-
-.field-error{
-display:none;
-font-size:.78rem;
-font-weight:600;
-color:var(--red);
-margin-top:5px;
-}
-
-.field-error.visible{
-display:block;
-}
-
-/* FIXED EYE ICON */
-
-.eye{
-position:absolute;
-right:18px;
-top:44px;
-cursor:pointer;
-font-size:18px;
-user-select:none;
-}
-
-/* PASSWORD STRENGTH */
-
-.strength-bar{
-height:4px;
-border-radius:999px;
-background:#E5E7EB;
-margin-top:6px;
-overflow:hidden;
-}
-
-.strength-fill{
-height:100%;
-width:0%;
-transition:.3s;
-border-radius:999px;
-}
-
-.btn{
-width:100%;
-padding:15px;
-border:none;
-border-radius:40px;
-font-weight:700;
-font-size:.95rem;
-cursor:pointer;
-transition:.25s;
-}
-
-.signup-btn{
-background:linear-gradient(
-135deg,
-var(--green),
-#52B788
-);
-color:white;
-box-shadow:0 10px 26px rgba(116,198,157,.38);
-margin-top:6px;
-}
-
-.signup-btn:hover{
-transform:translateY(-2px);
-box-shadow:0 16px 36px rgba(116,198,157,.48);
-}
-
-.signup-btn:disabled{
-opacity:.7;
-cursor:not-allowed;
-transform:none;
-}
-
-.google{
-background:white;
-border:1.5px solid #E5E7EB;
-margin-top:12px;
-color:var(--text-primary);
-}
-
-.google:hover{
-transform:translateY(-2px);
-border-color:var(--green);
-box-shadow:0 8px 20px rgba(0,0,0,.07);
-}
-
-.bottom{
-margin-top:24px;
-text-align:center;
-}
-
-.bottom a{
-text-decoration:none;
-font-weight:700;
-color:var(--red);
-}
-
-@media(max-width:900px){
-
-.container{
-flex-direction:column;
-}
-
-.left{
-padding:40px;
-text-align:center;
-}
-
-.right{
-padding:40px;
-}
-
-.left h1{
-font-size:42px;
-}
-
-.panda{
-font-size:90px;
-}
-
-.row-2{
-grid-template-columns:1fr;
-}
-
-}
-
-@media(max-width:600px){
-.left{
-padding:30px;
-}
-.right{
-padding:30px;
-}
-.left h1{
-font-size:34px;
-}
-.logo{
-font-size:34px;
-}
-.bottom-nav{
-display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;
-background:rgba(255,255,255,.95);backdrop-filter:blur(20px);
-border-top:1px solid var(--border);padding:12px 20px;
-justify-content:space-around;align-items:center;
-box-shadow:0 -8px 32px rgba(0,0,0,.07);
-padding-bottom:calc(12px + env(safe-area-inset-bottom));
-}
-.bottom-nav a{
-flex:1;text-align:center;text-decoration:none;color:var(--text-secondary);
-font-size:.75rem;font-weight:500;transition:.2s;padding:8px 4px;
-}
-.bottom-nav a.active{color:var(--blue);}
-.bottom-nav a.active .nav-icon{background:linear-gradient(135deg,var(--green),#52B788);color:white;}
-.nav-icon{
-width:46px;height:46px;border-radius:14px;margin:0 auto 4px;
-display:flex;align-items:center;justify-content:center;
-font-size:20px;background:rgba(116,198,157,.08);transition:.2s;color:var(--text-secondary);
-}
-.bottom-nav a.active .nav-icon{background:linear-gradient(135deg,var(--green),#52B788);color:white;}
-}
-@media(max-width:380px){
-.bottom-nav{display:flex;}
-}
-
-
-.right{
-padding:30px;
-}
-
-.left h1{
-font-size:34px;
-}
-
-.logo{
-font-size:34px;
-}
-        .role-selector {
-            display: flex;
-            gap: 12px;
-            margin: 12px 0 16px;
+        /* ============================================
+           ROOT VARIABLES - Hanverse Theme
+        ============================================ */
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #DBEAFE;
+            --secondary: #14B8A6;
+            --secondary-light: #99F6E4;
+            --accent: #F59E0B;
+            --accent-light: #FDE68A;
+            --dark: #0F172A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --muted: #64748B;
+            --bg: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --red: #EF4444;
+            --border: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 32px;
+            --radius-full: 9999px;
+            --nav-height: 76px;
+            --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .role-option {
+
+        /* ============================================
+           RESET & BASE
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+            position: relative;
+        }
+
+        /* Animated background blobs */
+        body::before {
+            content: '';
+            position: fixed;
+            z-index: 0;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.08), transparent 70%);
+            top: -350px;
+            left: -350px;
+            pointer-events: none;
+            animation: floatBlob 20s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            z-index: 0;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.08), transparent 70%);
+            bottom: -300px;
+            right: -300px;
+            pointer-events: none;
+            animation: floatBlob 25s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes floatBlob {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(60px, -40px) scale(1.2);
+            }
+        }
+
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        ::-moz-selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ============================================
+           LOADING OVERLAY
+        ============================================ */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #loading-overlay.show {
+            display: flex;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-text {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* ============================================
+           TOAST NOTIFICATIONS
+        ============================================ */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: calc(100% - 48px);
+        }
+
+        .toast {
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            background: white;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary);
+            animation: slideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+
+        .toast-success {
+            border-left-color: #22C55E;
+        }
+        .toast-error {
+            border-left-color: #EF4444;
+        }
+        .toast-warning {
+            border-left-color: var(--accent);
+        }
+        .toast-info {
+            border-left-color: var(--primary);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .toast-message {
             flex: 1;
-            padding: 12px;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: var(--transition-smooth);
+        }
+        .toast-close:hover {
+            color: var(--dark);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+        }
+
+        .toast.removing {
+            animation: slideOutRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* ============================================
+           VERIFICATION BANNER
+        ============================================ */
+        #verification-banner {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+            font-weight: 600;
+            font-size: 0.9rem;
+            max-width: 90%;
+            width: auto;
+            text-align: center;
+            animation: fadeUp 0.5s ease;
+            transition: var(--transition-smooth);
+            cursor: default;
+        }
+
+        #verification-banner .resend-link {
+            color: white;
+            text-decoration: underline;
+            font-weight: 700;
+            margin-left: 8px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        #verification-banner .resend-link:hover {
+            opacity: 0.8;
+        }
+
+        #verification-banner .close-banner {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 12px;
+            transition: var(--transition-smooth);
+        }
+
+        #verification-banner .close-banner:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* ============================================
+           MAIN CONTAINER
+        ============================================ */
+        .container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            width: 100%;
+            max-width: 1150px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            animation: fadeContainer 0.8s ease;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        @keyframes fadeContainer {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ============================================
+           LEFT PANEL - HANVERSE BRANDING
+        ============================================ */
+        .left {
+            flex: 1;
+            background: linear-gradient(145deg, #1E3A5F, #2563EB, #14B8A6);
+            padding: 48px 40px;
+            color: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 520px;
+            overflow: hidden;
+        }
+
+        .left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .left .pattern-char {
+            position: absolute;
+            font-size: 100px;
+            font-weight: 900;
+            opacity: 0.06;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .left .pattern-char.c1 {
+            top: 20px;
+            left: 20px;
+        }
+        .left .pattern-char.c2 {
+            top: 80px;
+            right: 40px;
+            font-size: 70px;
+        }
+        .left .pattern-char.c3 {
+            bottom: 80px;
+            left: 40px;
+            font-size: 70px;
+        }
+        .left .pattern-char.c4 {
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .left .star-deco {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 36px;
+            animation: spinStar 20s linear infinite;
+        }
+
+        @keyframes spinStar {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .welcome-label {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 1px;
+        }
+
+        .left h1 {
+            font-size: 48px;
+            line-height: 1.05;
+            margin: 12px 0 16px;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(to right, #fff, #FDE68A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .left .tagline {
+            line-height: 1.9;
+            font-size: 17px;
+            max-width: 460px;
+            opacity: 0.92;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+        }
+
+        .trust-list {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 12px 18px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: var(--transition-smooth);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .trust-item:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateX(4px);
+        }
+
+        .trust-item .icon {
+            font-size: 20px;
+        }
+
+        .panda-mascot {
+            font-size: 100px;
+            margin-top: 28px;
+            animation: floatPanda 5s ease-in-out infinite;
+            cursor: pointer;
+            width: max-content;
+            align-self: center;
+            user-select: none;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.15));
+        }
+
+        .panda-mascot:hover {
+            transform: scale(1.05) rotate(-3deg);
+        }
+
+        @keyframes floatPanda {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-16px);
+            }
+        }
+
+        /* ============================================
+           RIGHT PANEL - SIGNUP FORM
+        ============================================ */
+        .right {
+            flex: 1;
+            padding: 40px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--white);
+            overflow-y: auto;
+        }
+
+        .right::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .right::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .right::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .brand-logo {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 2px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-sub {
+            color: var(--muted);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .signup-header {
+            margin-bottom: 16px;
+        }
+
+        .signup-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 2px;
+        }
+
+        .signup-header p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        /* ============================================
+           ROLE SELECTOR
+        ============================================ */
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .role-option {
+            padding: 14px 12px;
             border: 2px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition-smooth);
             background: var(--bg);
+            user-select: none;
         }
-        .role-option.selected {
-            border-color: var(--green);
-            background: rgba(116, 198, 157, 0.1);
-        }
+
         .role-option:hover {
-            border-color: var(--green);
+            border-color: var(--secondary);
+            transform: translateY(-2px);
         }
+
+        .role-option.selected {
+            border-color: var(--secondary);
+            background: rgba(20, 184, 166, 0.08);
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.15);
+        }
+
         .role-option .role-icon {
-            font-size: 24px;
+            font-size: 28px;
             display: block;
+            margin-bottom: 4px;
         }
+
         .role-option .role-label {
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 4px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--dark);
         }
+
         .role-option .role-desc {
-            font-size: 10px;
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* ============================================
+           FORM ELEMENTS
+        ============================================ */
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.85rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            transition: var(--transition-smooth);
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+        }
+
+        input:hover {
+            border-color: var(--primary-light);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+        }
+
+        input.input-error {
+            border-color: var(--red);
+            background: #FEF2F2;
+        }
+
+        input.input-error:focus {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+        }
+
+        input.input-success {
+            border-color: var(--success);
+            background: #F0FDF4;
+        }
+
+        input::placeholder {
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            user-select: none;
+            padding: 4px;
+            border-radius: 50%;
+            transition: var(--transition-smooth);
+            background: none;
+            border: none;
             color: var(--muted);
         }
+
+        .eye-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--dark);
+        }
+
+        .field-error {
+            display: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--red);
+            margin-top: 4px;
+        }
+
+        .field-error.visible {
+            display: block;
+        }
+
+        .field-hint {
+            display: none;
+            font-size: 0.7rem;
+            color: var(--success);
+            margin-top: 3px;
+        }
+
+        .field-hint.visible {
+            display: block;
+        }
+
+        /* ============================================
+           PASSWORD STRENGTH
+        ============================================ */
+        .strength-bar {
+            height: 4px;
+            border-radius: var(--radius-full);
+            background: var(--border);
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: var(--transition-smooth);
+            border-radius: var(--radius-full);
+        }
+
+        .strength-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 3px;
+            transition: var(--transition-smooth);
+        }
+
+        .password-requirements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 12px;
+            margin-top: 4px;
+            font-size: 0.65rem;
+            color: var(--muted);
+            max-width: 100%;
+        }
+
+        .password-requirements .req {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition-smooth);
+        }
+
+        .password-requirements .req.met {
+            color: var(--success);
+        }
+
+        /* ============================================
+           TERMS CHECKBOX
+        ============================================ */
         .checkbox-group {
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            margin: 12px 0 16px;
+            margin: 10px 0 14px;
         }
+
         .checkbox-group input[type="checkbox"] {
             width: 18px;
             height: 18px;
+            min-width: 18px;
             margin-top: 2px;
             cursor: pointer;
-            accent-color: var(--green);
+            accent-color: var(--secondary);
+            padding: 0;
         }
+
         .checkbox-group label {
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.5;
+            cursor: pointer;
         }
+
         .checkbox-group a {
-            color: var(--green);
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+
+        .checkbox-group a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           BUTTONS
+        ============================================ */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-signup {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .btn-signup::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: 0.7s;
+        }
+
+        .btn-signup:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-signup:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-signup:disabled::before {
+            display: none;
+        }
+
+        .btn-google {
+            background: white;
+            border: 2px solid var(--border);
+            color: var(--dark);
+            margin-top: 10px;
+        }
+
+        .btn-google:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-google:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-google .google-icon {
+            font-size: 20px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 14px 0;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .bottom {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .bottom a {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        .bottom a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           BOTTOM NAV - Hanverse Style
+        ============================================ */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .bottom-nav a {
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            padding: 6px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            border-radius: var(--radius-sm);
+        }
+
+        .bottom-nav a.active {
+            color: var(--primary);
+        }
+
+        .bottom-nav a:hover {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            margin: 0 auto 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: rgba(37, 99, 235, 0.06);
+            transition: var(--transition-smooth);
+            color: var(--muted);
+        }
+
+        .bottom-nav a.active .nav-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        /* ============================================
+           PANDA CHAT - Floating Widget
+        ============================================ */
+        .panda-fab {
+            position: fixed;
+            bottom: calc(100px + env(safe-area-inset-bottom));
+            right: 24px;
+            z-index: 998;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 30px;
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            color: white;
+        }
+
+        .panda-fab:hover {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.4);
+        }
+
+        .panda-fab:active {
+            transform: scale(0.92);
+        }
+
+        .panda-chat {
+            display: none;
+            position: fixed;
+            bottom: calc(110px + env(safe-area-inset-bottom));
+            right: 24px;
+            width: 360px;
+            max-width: calc(100vw - 48px);
+            height: 440px;
+            max-height: 65vh;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xl);
+            z-index: 999;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .panda-chat.open {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .panda-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .panda-title {
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panda-close {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .panda-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+
+        .panda-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #FAF9F5;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panda-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panda-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .panda-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .message-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .message-row.user {
+            flex-direction: row-reverse;
+        }
+
+        .panda-avatar {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .message {
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 80%;
+        }
+
+        .panda-message {
+            background: white;
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .panda-input {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            background: white;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .panda-input textarea {
+            flex: 1;
+            height: 40px;
+            min-height: 40px;
+            max-height: 80px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 14px;
+            resize: none;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            transition: var(--transition-smooth);
+        }
+
+        .panda-input textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .panda-send {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .panda-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .panda-send:active {
+            transform: scale(0.92);
+        }
+
+        /* ============================================
+           RESPONSIVE - 1024px
+        ============================================ */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+                margin-bottom: 60px;
+                border-radius: 30px;
+            }
+
+            .left {
+                padding: 36px 32px;
+                min-height: 260px;
+                text-align: center;
+                border-radius: 30px 30px 0 0;
+            }
+
+            .left .tagline {
+                margin: 0 auto;
+                max-width: 100%;
+            }
+
+            .trust-list {
+                align-items: center;
+            }
+
+            .trust-item {
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .right {
+                padding: 32px 28px;
+                max-height: none;
+                border-radius: 0 0 30px 30px;
+            }
+
+            .left h1 {
+                font-size: 38px;
+            }
+
+            .panda-mascot {
+                font-size: 72px;
+                margin-top: 20px;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .left .pattern-char {
+                font-size: 60px;
+            }
+            .left .star-deco {
+                font-size: 28px;
+                top: 20px;
+                right: 20px;
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE - 768px
+        ============================================ */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                border-radius: 24px;
+                margin-top: 10px;
+            }
+
+            .right {
+                padding: 24px 20px;
+                max-height: 80vh;
+                border-radius: 0 0 24px 24px;
+            }
+
+            .left {
+                padding: 24px 20px;
+                min-height: 200px;
+                border-radius: 24px 24px 0 0;
+            }
+
+            .left h1 {
+                font-size: 30px;
+            }
+
+            .left .tagline {
+                font-size: 15px;
+            }
+
+            .trust-item {
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+
+            .panda-mascot {
+                font-size: 56px;
+                margin-top: 16px;
+            }
+
+            .brand-logo {
+                font-size: 26px;
+            }
+
+            .signup-header h2 {
+                font-size: 24px;
+            }
+
+            .row-2 {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .role-selector {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .panda-chat {
+                width: calc(100vw - 32px);
+                right: 16px;
+                bottom: calc(100px + env(safe-area-inset-bottom));
+                height: 380px;
+            }
+
+            .panda-fab {
+                right: 16px;
+                bottom: calc(90px + env(safe-area-inset-bottom));
+                width: 56px;
+                height: 56px;
+                font-size: 26px;
+            }
+
+            #verification-banner {
+                top: 72px;
+                padding: 12px 16px;
+                font-size: 0.8rem;
+                width: 92%;
+            }
+
+            .left .pattern-char {
+                font-size: 40px;
+            }
+            .left .pattern-char.c2,
+            .left .pattern-char.c3 {
+                font-size: 36px;
+            }
+            .left .star-deco {
+                font-size: 22px;
+            }
+
+            .toast-container {
+                top: 80px;
+                right: 12px;
+                max-width: calc(100% - 24px);
+            }
+
+            .password-requirements {
+                gap: 2px 10px;
+                font-size: 0.6rem;
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE - 480px
+        ============================================ */
+        @media (max-width: 480px) {
+            .right {
+                padding: 20px 16px;
+                max-height: 75vh;
+            }
+
+            .left {
+                padding: 16px 14px;
+                min-height: 160px;
+            }
+
+            .left h1 {
+                font-size: 26px;
+            }
+
+            .signup-header h2 {
+                font-size: 20px;
+            }
+
+            .btn {
+                font-size: 0.85rem;
+                padding: 13px;
+            }
+
+            input {
+                padding: 11px 14px;
+                font-size: 14px;
+            }
+
+            .trust-item {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+
+            .panda-mascot {
+                font-size: 44px;
+            }
+
+            .brand-logo {
+                font-size: 22px;
+            }
+
+            .role-selector {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+
+            .role-option {
+                padding: 10px 8px;
+            }
+
+            .role-option .role-icon {
+                font-size: 22px;
+            }
+            .role-option .role-label {
+                font-size: 12px;
+            }
+            .role-option .role-desc {
+                font-size: 10px;
+            }
+
+            .bottom-nav a {
+                font-size: 0.6rem;
+            }
+
+            .nav-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            .checkbox-group label {
+                font-size: 12px;
+            }
+
+            .password-requirements {
+                gap: 2px 8px;
+                font-size: 0.55rem;
+            }
+
+            .password-requirements .req {
+                font-size: 0.55rem;
+            }
+
+            .toast-container {
+                top: 70px;
+                right: 8px;
+                max-width: calc(100% - 16px);
+            }
+
+            .toast {
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE - 380px
+        ============================================ */
+        @media (max-width: 380px) {
+            .right {
+                padding: 16px 12px;
+                max-height: 70vh;
+            }
+
+            .left {
+                padding: 12px 10px;
+                min-height: 140px;
+            }
+
+            .left h1 {
+                font-size: 22px;
+                margin: 8px 0 10px;
+            }
+
+            .left .tagline {
+                font-size: 13px;
+                line-height: 1.6;
+            }
+
+            .trust-item {
+                font-size: 11px;
+                padding: 6px 10px;
+                gap: 10px;
+            }
+
+            .trust-item .icon {
+                font-size: 16px;
+            }
+
+            .panda-mascot {
+                font-size: 36px;
+                margin-top: 12px;
+            }
+
+            .signup-header h2 {
+                font-size: 18px;
+            }
+
+            .brand-logo {
+                font-size: 20px;
+            }
+
+            .brand-sub {
+                font-size: 0.8rem;
+                margin-bottom: 12px;
+            }
+
+            .role-selector {
+                gap: 4px;
+                margin-bottom: 12px;
+            }
+
+            .role-option {
+                padding: 8px 6px;
+            }
+
+            .role-option .role-icon {
+                font-size: 18px;
+                margin-bottom: 2px;
+            }
+            .role-option .role-label {
+                font-size: 10px;
+            }
+            .role-option .role-desc {
+                font-size: 8px;
+            }
+
+            .input-group {
+                margin-bottom: 10px;
+            }
+
+            .input-label {
+                font-size: 0.75rem;
+            }
+
+            input {
+                padding: 10px 12px;
+                font-size: 13px;
+                border-radius: 12px;
+            }
+
+            .btn {
+                font-size: 0.8rem;
+                padding: 12px;
+            }
+
+            .checkbox-group label {
+                font-size: 11px;
+            }
+
+            .nav-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+
+            .bottom-nav a {
+                font-size: 0.55rem;
+            }
+
+            .bottom {
+                font-size: 0.8rem;
+            }
+
+            .divider {
+                font-size: 0.75rem;
+                margin: 10px 0;
+            }
+
+            .toast-container {
+                top: 60px;
+                right: 8px;
+                max-width: calc(100% - 16px);
+            }
+
+            .toast {
+                padding: 10px 14px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* ============================================
+           MOTION REDUCTION
+        ============================================ */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .panda-mascot:hover,
+            .trust-item:hover,
+            .btn:hover {
+                transform: none !important;
+            }
+
+            .panda-mascot {
+                animation: none !important;
+            }
+
+            body::before,
+            body::after {
+                animation: none !important;
+            }
+        }
+
+        /* ============================================
+           FOCUS VISIBLE - Accessibility
+        ============================================ */
+        *:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* Remove default focus outline for mouse users */
+        *:focus:not(:focus-visible) {
+            outline: none;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- LEFT SIDE - Keep your existing left side -->
-    <div class="left">
-        <div class="char c1">汉</div>
-        <div class="char c2">字</div>
-        <div class="char c3">学</div>
-        <div class="char c4">习</div>
-        <div class="star">🌱</div>
-        <p class="welcome-label">Join</p>
-        <h1>HanVerse</h1>
-        <p>Start your Mandarin learning adventure. Build vocabulary, earn XP and track your progress from day one.</p>
-        <div class="trust-list">
-            <div class="trust-item">🌱 Free to Get Started</div>
-            <div class="trust-item">⭐ Earn XP from Lesson 1</div>
-            <div class="trust-item">📈 Personalised Progress</div>
-            <div class="trust-item">🤖 AI Learning Assistant</div>
-        </div>
-        <div class="panda">🐼</div>
+    <!-- ===== LOADING OVERLAY ===== -->
+    <div id="loading-overlay">
+        <div class="loader"></div>
+        <div class="loader-text">🐼 Creating your account...</div>
     </div>
 
-    <!-- RIGHT SIDE - Updated with role selection -->
-    <div class="right">
-        <div class="logo">HanVerse</div>
-        <p class="subtitle">Learn Mandarin Through Stories,<br>Games & AI</p>
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toast-container" class="toast-container"></div>
 
-        <div class="signup-header">
-            <h2>Create Account ✨</h2>
-            <p>Fill in your details to get started.</p>
+    <!-- ===== VERIFICATION BANNER ===== -->
+    <div id="verification-banner" style="display:none;">
+        ⚠️ Please verify your email to access all features.
+        <span class="resend-link" id="resendVerificationBanner">Resend verification</span>
+        <button class="close-banner" id="closeVerificationBanner" aria-label="Close banner">✕</button>
+    </div>
+
+    <!-- ===== MAIN CONTAINER ===== -->
+    <div class="container">
+        <!-- ===== LEFT PANEL - HANVERSE BRANDING ===== -->
+        <div class="left">
+            <span class="pattern-char c1">汉</span>
+            <span class="pattern-char c2">语</span>
+            <span class="pattern-char c3">乐</span>
+            <span class="pattern-char c4">学</span>
+            <span class="star-deco">🌱</span>
+
+            <p class="welcome-label">🐼 Join</p>
+            <h1>Hanverse</h1>
+            <p class="tagline">Start your Mandarin learning adventure. Build vocabulary, earn XP and track your progress from day one.</p>
+
+            <div class="trust-list">
+                <div class="trust-item">
+                    <span class="icon">🌱</span>
+                    Free to Get Started
+                </div>
+                <div class="trust-item">
+                    <span class="icon">⭐</span>
+                    Earn XP from Lesson 1
+                </div>
+                <div class="trust-item">
+                    <span class="icon">📈</span>
+                    Personalised Progress
+                </div>
+                <div class="trust-item">
+                    <span class="icon">🤖</span>
+                    AI Learning Assistant
+                </div>
+            </div>
+
+            <div class="panda-mascot" onclick="togglePanda()" role="button" aria-label="Open Panda Chat">🐼</div>
         </div>
 
-        <!-- ROLE SELECTION - NEW -->
-        <div class="role-selector">
-            <div class="role-option selected" data-role="parent" onclick="selectRole('parent')">
-                <span class="role-icon">👪</span>
-                <div class="role-label">Parent</div>
-                <div class="role-desc">Monitor children's learning</div>
-            </div>
-            <div class="role-option" data-role="student" onclick="selectRole('student')">
-                <span class="role-icon">👨‍🎓</span>
-                <div class="role-label">Student</div>
-                <div class="role-desc">Learn Mandarin yourself</div>
-            </div>
-        </div>
+        <!-- ===== RIGHT PANEL - SIGNUP FORM ===== -->
+        <div class="right">
+            <div class="brand-logo">Hanverse</div>
+            <p class="brand-sub">Learn Mandarin Through Stories, Games &amp; AI</p>
 
-        <div class="row-2">
+            <div class="signup-header">
+                <h2>Create Account ✨</h2>
+                <p>Fill in your details to get started.</p>
+            </div>
+
+            <!-- ===== ROLE SELECTOR ===== -->
+            <div class="role-selector" role="radiogroup" aria-label="Account type">
+                <div class="role-option selected" data-role="parent" role="radio" aria-checked="true" tabindex="0" onclick="selectRole('parent')">
+                    <span class="role-icon">👪</span>
+                    <div class="role-label">Parent</div>
+                    <div class="role-desc">Monitor children's learning</div>
+                </div>
+                <div class="role-option" data-role="student" role="radio" aria-checked="false" tabindex="0" onclick="selectRole('student')">
+                    <span class="role-icon">👨‍🎓</span>
+                    <div class="role-label">Student</div>
+                    <div class="role-desc">Learn Mandarin yourself</div>
+                </div>
+            </div>
+
+            <!-- ===== NAME & USERNAME ===== -->
+            <div class="row-2">
+                <div class="input-group">
+                    <label class="input-label" for="fullName">Full Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="fullName" placeholder="Your full name" autocomplete="name" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="username">Username</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="username" placeholder="hanverse_user" autocomplete="username" required>
+                        <div class="field-error" id="usernameError">❌ Username already taken</div>
+                        <div class="field-hint" id="usernameHint">✓ 3-20 characters, letters &amp; numbers only</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== EMAIL ===== -->
             <div class="input-group">
-                <label class="input-label">Full Name</label>
-                <input type="text" id="fullName" placeholder="Your full name" required>
+                <label class="input-label" for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" placeholder="your@email.com" autocomplete="email" required>
+                    <div class="field-error" id="emailError">❌ Please enter a valid email address</div>
+                    <div class="field-hint" id="emailHint">✓ Valid email format</div>
+                </div>
             </div>
+
+            <!-- ===== PASSWORD ===== -->
             <div class="input-group">
-                <label class="input-label">Username</label>
-                <input type="text" id="username" placeholder="hanverse_user" required>
-                <div class="field-error" id="usernameError">❌ Username already taken</div>
+                <label class="input-label" for="password">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" placeholder="Create a strong password" autocomplete="new-password" required oninput="validatePassword(this.value)">
+                    <button class="eye-btn" id="togglePasswordBtn" type="button" aria-label="Toggle password visibility">👁️</button>
+                </div>
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <div class="strength-label" id="strengthLabel">Weak</div>
+                <div class="password-requirements">
+                    <span class="req" id="reqLength">🔴 6+ characters</span>
+                    <span class="req" id="reqUpper">🔴 Uppercase letter</span>
+                    <span class="req" id="reqNumber">🔴 Number</span>
+                    <span class="req" id="reqSpecial">🔴 Special character</span>
+                </div>
+            </div>
+
+            <!-- ===== CONFIRM PASSWORD ===== -->
+            <div class="input-group">
+                <label class="input-label" for="confirmPassword">Confirm Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="confirmPassword" placeholder="Repeat your password" autocomplete="new-password" required oninput="validateConfirmPassword()">
+                    <button class="eye-btn" id="toggleConfirmBtn" type="button" aria-label="Toggle password visibility">👁️</button>
+                    <div class="field-error" id="confirmError">❌ Passwords do not match</div>
+                    <div class="field-hint" id="confirmHint">✓ Passwords match</div>
+                </div>
+            </div>
+
+            <!-- ===== TERMS CHECKBOX ===== -->
+            <div class="checkbox-group">
+                <input type="checkbox" id="termsCheckbox" aria-required="true">
+                <label for="termsCheckbox">
+                    I agree to the <a href="#" onclick="showToast('info', '📜 Terms of Service page coming soon!')">Terms of Service</a> and <a href="#" onclick="showToast('info', '🔒 Privacy Policy page coming soon!')">Privacy Policy</a>
+                </label>
+            </div>
+
+            <!-- ===== SIGNUP BUTTON ===== -->
+            <button class="btn btn-signup" id="signupBtn">Create Account</button>
+
+            <!-- ===== DIVIDER ===== -->
+            <div class="divider">or continue with</div>
+
+            <!-- ===== GOOGLE BUTTON ===== -->
+            <button class="btn btn-google" id="googleBtn">
+                <span class="google-icon">🌐</span>
+                Continue with Google
+            </button>
+
+            <!-- ===== LOGIN LINK ===== -->
+            <div class="bottom">
+                Already have an account? <a href="login.html">Log In</a>
             </div>
         </div>
+    </div>
 
-        <div class="input-group">
-            <label class="input-label">Email Address</label>
-            <input type="email" id="email" placeholder="your@email.com" required>
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <span>Home</span>
+        </a>
+        <a href="learn.html" class="nav-item">
+            <div class="nav-icon">📚</div>
+            <span>Learn</span>
+        </a>
+        <a href="signup.html" class="nav-item active">
+            <div class="nav-icon">✨</div>
+            <span>Sign Up</span>
+        </a>
+        <a href="login.html" class="nav-item">
+            <div class="nav-icon">🔑</div>
+            <span>Login</span>
+        </a>
+    </nav>
+
+    <!-- ===== PANDA FAB ===== -->
+    <button class="panda-fab" id="pandaFabBtn" aria-label="Open Panda AI Chat">🐼</button>
+
+    <!-- ===== PANDA CHAT ===== -->
+    <div id="pandaChat" class="panda-chat">
+        <div class="panda-header">
+            <div class="panda-title">🐼 Panda AI Tutor</div>
+            <button class="panda-close" id="pandaCloseBtn" aria-label="Close chat">✕</button>
         </div>
-
-        <div class="input-group">
-            <label class="input-label">Password</label>
-            <input type="password" id="password" placeholder="At least 6 characters" oninput="updateStrength(this.value)" required>
-            <span class="eye" onclick="togglePw('password')">👁️</span>
-            <div class="strength-bar">
-                <div class="strength-fill" id="strengthFill"></div>
+        <div id="pandaBody" class="panda-body">
+            <div class="message-row">
+                <div class="panda-avatar">🐼</div>
+                <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
             </div>
         </div>
-
-        <div class="input-group">
-            <label class="input-label">Confirm Password</label>
-            <input type="password" id="confirmPassword" placeholder="Repeat password" required>
-            <span class="eye" onclick="togglePw('confirmPassword')">👁️</span>
-        </div>
-
-        <!-- TERMS CHECKBOX -->
-        <div class="checkbox-group">
-            <input type="checkbox" id="termsCheckbox">
-            <label for="termsCheckbox">
-                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
-            </label>
-        </div>
-
-        <button class="btn signup-btn" id="signupBtn">Create Account</button>
-        <button class="btn google" id="googleBtn">🌐 Continue with Google</button>
-
-        <div class="bottom">
-            Already have an account? <a href="login.html">Log In</a>
+        <div class="panda-input">
+            <textarea id="pandaInput" placeholder="Ask Panda..." rows="1" aria-label="Chat input"></textarea>
+            <button class="panda-send" id="pandaSendBtn" aria-label="Send message">➤</button>
         </div>
     </div>
-</div>
 
-<!-- Bottom Navigation -->
-<nav class="bottom-nav">
-    <a href="index.html" class="nav-item">
-        <div class="nav-icon">🏠</div>
-        <span>Home</span>
-    </a>
-    <a href="learn.html" class="nav-item">
-        <div class="nav-icon">📚</div>
-        <span>Learn</span>
-    </a>
-    <a href="signup.html" class="nav-item active">
-        <div class="nav-icon">✨</div>
-        <span>Sign Up</span>
-    </a>
-    <a href="login.html" class="nav-item">
-        <div class="nav-icon">🔑</div>
-        <span>Login</span>
-    </a>
-</nav>
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
+        // Use relative path for Netlify dev and production
+        const API_BASE = '/api';
+        const SESSION_KEY = 'hanverse_user';
+        const VERSION = '2.0.0';
+        const DEBUG = true; // Set to false in production
 
-<!-- Panda Chat -->
-<button class="panda-fab" onclick="togglePanda()">🐼</button>
-<div id="pandaChat" class="panda-chat">
-    <div class="panda-header">
-        <div class="panda-title">🐼 Panda AI Tutor</div>
-        <button class="panda-close" onclick="togglePanda()">✕</button>
-    </div>
-    <div id="pandaBody" class="panda-body">
-        <div class="message-row">
-            <div class="panda-avatar">🐼</div>
-            <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
-        </div>
-    </div>
-    <div class="panda-input">
-        <textarea id="pandaInput" placeholder="Ask Panda..."></textarea>
-        <button class="panda-send" onclick="sendPandaMessage()">➤</button>
-    </div>
-</div>
+        let selectedRole = 'parent';
 
-<script>
-    // ==========================================
-    // ROLE SELECTION
-    // ==========================================
-    let selectedRole = 'parent';
-
-    function selectRole(role) {
-        selectedRole = role;
-        document.querySelectorAll('.role-option').forEach(el => {
-            el.classList.toggle('selected', el.dataset.role === role);
-        });
-    }
-
-    // ==========================================
-    // API URL
-    // ==========================================
-    const API_URL = window.location.hostname === "localhost" 
-        ? "/.netlify/functions/server" 
-        : "/api";
-
-    // ==========================================
-    // DOM ELEMENTS
-    // ==========================================
-    const signupBtn = document.getElementById('signupBtn');
-    const usernameInput = document.getElementById('username');
-    const fullNameInput = document.getElementById('fullName');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    const termsCheckbox = document.getElementById('termsCheckbox');
-    const usernameError = document.getElementById('usernameError');
-
-    // ==========================================
-    // TOGGLE PASSWORD VISIBILITY
-    // ==========================================
-    function togglePw(fieldId) {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.type = field.type === 'password' ? 'text' : 'password';
-        }
-    }
-
-    // ==========================================
-    // PASSWORD STRENGTH
-    // ==========================================
-    function updateStrength(password) {
-        const fill = document.getElementById('strengthFill');
-        if (!fill) return;
-
-        let score = 0;
-        if (password.length >= 6) score += 25;
-        if (password.length >= 10) score += 25;
-        if (/[A-Z]/.test(password) && /[0-9]/.test(password)) score += 25;
-        if (/[^A-Za-z0-9]/.test(password)) score += 25;
-
-        fill.style.width = Math.min(score, 100) + '%';
-        
-        if (score < 50) fill.style.background = '#E63946';
-        else if (score < 75) fill.style.background = '#F4D35E';
-        else fill.style.background = '#74C69D';
-    }
-
-    // ==========================================
-    // TOAST NOTIFICATIONS
-    // ==========================================
-    function showToast(message, type = 'success') {
-        // Remove existing toast
-        const oldToast = document.querySelector('.toast-notification');
-        if (oldToast) oldToast.remove();
-
-        const toast = document.createElement('div');
-        toast.className = `toast-notification ${type}`;
-        toast.innerHTML = `
-            <span>${message}</span>
-            <button onclick="this.parentElement.remove()">✕</button>
-        `;
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: ${type === 'success' ? '#74C69D' : '#E63946'};
-            color: white;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 90%;
-            animation: slideUp 0.3s ease;
-        `;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            if (toast.parentElement) toast.remove();
-        }, 4000);
-    }
-
-    // Add animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        .toast-notification button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 0 4px;
-        }
-    `;
-    document.head.appendChild(style);
-
-    // ==========================================
-    // SIGNUP FUNCTION
-    // ==========================================
-    async function signupUser() {
-        // Get values
-        const username = usernameInput.value.trim();
-        const full_name = fullNameInput.value.trim();
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-
-        // Validate
-        if (!username || !full_name || !email || !password || !confirmPassword) {
-            showToast('Please fill in all fields.', 'error');
-            return;
+        // ============================================================
+        // LOGGING
+        // ============================================================
+        function log(...args) {
+            if (DEBUG) console.log(...args);
         }
 
-        if (password.length < 6) {
-            showToast('Password must be at least 6 characters.', 'error');
-            return;
+        function errorLog(...args) {
+            console.error(...args);
         }
 
-        if (password !== confirmPassword) {
-            showToast('Passwords do not match.', 'error');
-            return;
+        // ============================================================
+        // UTILITY FUNCTIONS
+        // ============================================================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
-        if (!termsCheckbox.checked) {
-            showToast('Please agree to the Terms of Service.', 'error');
-            return;
+        function normalizeUser(user) {
+            if (!user) return null;
+            return {
+                user_id: user.user_id || user.id,
+                id: user.user_id || user.id,
+                username: user.username || '',
+                full_name: user.full_name || user.fullName || user.username || 'Learner',
+                fullName: user.full_name || user.fullName || user.username || 'Learner',
+                email: user.email || '',
+                xp: user.xp || 0,
+                level: user.level || 1,
+                streak_days: user.streak_days || user.streakDays || 0,
+                streakDays: user.streak_days || user.streakDays || 0,
+                is_verified: user.is_verified || false,
+                isVerified: user.is_verified || false,
+                premium: user.premium || user.is_premium || false,
+                is_premium: user.premium || user.is_premium || false,
+                isPremium: user.premium || user.is_premium || false,
+                role: user.role || 'student',
+                profile_picture: user.profile_picture || null,
+                profilePicture: user.profile_picture || null,
+                is_admin: user.is_admin || false,
+                isAdmin: user.is_admin || false,
+                is_banned: user.is_banned || false,
+                isBanned: user.is_banned || false,
+                current_yct: user.current_yct || 1,
+                lessons_completed: user.lessons_completed || 0,
+                achievements_count: user.achievements_count || 0
+            };
         }
 
-        // Check username availability
-        try {
-            const checkRes = await fetch(`${API_URL}/check-username/${username}`);
-            if (checkRes.ok) {
-                const checkData = await checkRes.json();
-                if (!checkData.available) {
-                    usernameError.classList.add('visible');
-                    usernameInput.classList.add('input--error');
-                    showToast('Username is already taken.', 'error');
-                    return;
-                }
+        function getSession() {
+            try {
+                const data = localStorage.getItem(SESSION_KEY);
+                if (!data) return null;
+                const parsed = JSON.parse(data);
+                return normalizeUser(parsed);
+            } catch {
+                return null;
             }
-        } catch (e) {
-            // Skip check if endpoint doesn't exist
         }
 
-        // Disable button
-        signupBtn.disabled = true;
-        signupBtn.textContent = 'Creating Account...';
+        function setSession(user) {
+            localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+        }
 
-        try {
-            const response = await fetch(`${API_URL}/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+        function isLoggedIn() {
+            const session = getSession();
+            return !!(session?.user_id || session?.id);
+        }
+
+        function getUserId() {
+            const session = getSession();
+            return session?.user_id || session?.id || null;
+        }
+
+        // ============================================================
+        // TOAST NOTIFICATIONS
+        // ============================================================
+        function showToast(type, message, duration = 4000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                        <span class="toast-message">${message}</span>
+                        <button class="toast-close" aria-label="Close notification">✕</button>
+                    `;
+
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                removeToast(toast);
+            });
+
+            container.appendChild(toast);
+
+            const timer = setTimeout(() => {
+                removeToast(toast);
+            }, duration);
+            toast.dataset.timer = timer;
+        }
+
+        function removeToast(toast) {
+            if (toast.classList.contains('removing')) return;
+            toast.classList.add('removing');
+            if (toast.dataset.timer) {
+                clearTimeout(parseInt(toast.dataset.timer));
+            }
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }
+
+        // ============================================================
+        // LOADING OVERLAY
+        // ============================================================
+        let loadingCounter = 0;
+
+        function showLoading(message = '🐼 Loading...') {
+            const overlay = document.getElementById('loading-overlay');
+            const text = overlay?.querySelector('.loader-text');
+            if (text) text.textContent = message;
+            loadingCounter++;
+            if (overlay) overlay.classList.add('show');
+        }
+
+        function hideLoading() {
+            loadingCounter--;
+            if (loadingCounter <= 0) {
+                loadingCounter = 0;
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.classList.remove('show');
+            }
+        }
+
+        // ============================================================
+        // API CALLS - FIXED
+        // ============================================================
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE}${endpoint}`;
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                ...options.headers
+            };
+
+            try {
+                log(`📡 API Call: ${endpoint}`, options.method || 'GET');
+
+                const response = await fetch(url, {
+                    ...options,
+                    headers,
+                    credentials: 'same-origin'
+                });
+
+                log(`📡 Response Status: ${response.status} ${response.statusText}`);
+
+                // Try to parse as JSON
+                let data;
+                const contentType = response.headers.get('content-type');
+
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                    log('📡 Response Data:', data);
+                } else {
+                    // Get text for debugging
+                    const text = await response.text();
+                    log('📡 Non-JSON Response:', text.substring(0, 200));
+
+                    // Check for HTML errors
+                    if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                        throw new Error('Server returned HTML. Check your API endpoint configuration.');
+                    }
+
+                    throw new Error(`Unexpected response: ${text.substring(0, 100)}`);
+                }
+
+                // Handle specific error codes
+                if (response.status === 403) {
+                    if (data.error === 'not_verified') {
+                        throw new Error('not_verified');
+                    }
+                    if (data.error === 'banned') {
+                        throw new Error(`banned:${data.reason || 'Account suspended'}`);
+                    }
+                }
+
+                // Handle 409 Conflict (email/username taken)
+                if (response.status === 409) {
+                    throw new Error(data.error || 'Email or username already exists.');
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.error || data.message || `API error: ${response.status}`);
+                }
+
+                return data;
+            } catch (error) {
+                errorLog(`❌ API call failed: ${endpoint}`, error);
+                throw error;
+            }
+        }
+
+        // ============================================================
+        // ROLE SELECTION
+        // ============================================================
+        function selectRole(role) {
+            selectedRole = role;
+            document.querySelectorAll('.role-option').forEach(el => {
+                const isSelected = el.dataset.role === role;
+                el.classList.toggle('selected', isSelected);
+                el.setAttribute('aria-checked', isSelected);
+            });
+            log('Role selected:', role);
+        }
+
+        // Keyboard support for role selector
+        document.querySelectorAll('.role-option').forEach(el => {
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    selectRole(el.dataset.role);
+                }
+            });
+        });
+
+        // ============================================================
+        // PASSWORD VALIDATION
+        // ============================================================
+        function validatePassword(password) {
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+            if (!fill || !label) return;
+
+            // Check requirements
+            const hasLength = password.length >= 6;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+            // Update requirement indicators
+            updateRequirement('reqLength', hasLength);
+            updateRequirement('reqUpper', hasUpper);
+            updateRequirement('reqNumber', hasNumber);
+            updateRequirement('reqSpecial', hasSpecial);
+
+            // Calculate score
+            let score = 0;
+            if (hasLength) score += 25;
+            if (hasUpper && hasNumber) score += 25;
+            if (hasSpecial) score += 25;
+            if (password.length >= 10) score += 25;
+
+            // Cap at 100
+            score = Math.min(score, 100);
+
+            // Update bar
+            fill.style.width = score + '%';
+
+            // Update label
+            let strengthText = 'Weak';
+            let color = '#EF4444';
+            if (score >= 80) {
+                strengthText = 'Strong 💪';
+                color = '#22C55E';
+            } else if (score >= 50) {
+                strengthText = 'Medium 👍';
+                color = '#F59E0B';
+            } else if (score >= 25) {
+                strengthText = 'Weak';
+                color = '#EF4444';
+            } else {
+                strengthText = 'Very Weak';
+                color = '#EF4444';
+            }
+
+            label.textContent = strengthText;
+            fill.style.background = color;
+            label.style.color = color;
+
+            // Validate confirm password if it has value
+            const confirmInput = document.getElementById('confirmPassword');
+            if (confirmInput.value) {
+                validateConfirmPassword();
+            }
+        }
+
+        function updateRequirement(id, met) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const suffix = {
+                'reqLength': ' 6+ characters',
+                'reqUpper': ' Uppercase letter',
+                'reqNumber': ' Number',
+                'reqSpecial': ' Special character'
+            } [id] || '';
+            el.textContent = (met ? '✅' : '🔴') + suffix;
+            el.classList.toggle('met', met);
+        }
+
+        function validateConfirmPassword() {
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const errorEl = document.getElementById('confirmError');
+            const hintEl = document.getElementById('confirmHint');
+
+            if (!confirm) {
+                errorEl.classList.remove('visible');
+                hintEl.classList.remove('visible');
+                return;
+            }
+
+            if (password === confirm) {
+                errorEl.classList.remove('visible');
+                hintEl.classList.add('visible');
+                document.getElementById('confirmPassword').classList.remove('input-error');
+                document.getElementById('confirmPassword').classList.add('input-success');
+            } else {
+                errorEl.classList.add('visible');
+                hintEl.classList.remove('visible');
+                document.getElementById('confirmPassword').classList.remove('input-success');
+                document.getElementById('confirmPassword').classList.add('input-error');
+            }
+        }
+
+        // ============================================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================================
+        function togglePassword(fieldId, btnId) {
+            const field = document.getElementById(fieldId);
+            const btn = document.getElementById(btnId);
+            if (!field || !btn) return;
+
+            const isPassword = field.type === 'password';
+            field.type = isPassword ? 'text' : 'password';
+            btn.textContent = isPassword ? '🙈' : '👁️';
+        }
+
+        // ============================================================
+        // EMAIL VALIDATION
+        // ============================================================
+        function validateEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const errorEl = document.getElementById('emailError');
+            const hintEl = document.getElementById('emailHint');
+            const input = document.getElementById('email');
+
+            if (!email) {
+                errorEl.classList.remove('visible');
+                hintEl.classList.remove('visible');
+                input.classList.remove('input-error', 'input-success');
+                return true;
+            }
+
+            if (regex.test(email)) {
+                errorEl.classList.remove('visible');
+                hintEl.classList.add('visible');
+                input.classList.remove('input-error');
+                input.classList.add('input-success');
+                return true;
+            } else {
+                errorEl.classList.add('visible');
+                hintEl.classList.remove('visible');
+                input.classList.remove('input-success');
+                input.classList.add('input-error');
+                return false;
+            }
+        }
+
+        // ============================================================
+        // USERNAME VALIDATION
+        // ============================================================
+        function validateUsername(username) {
+            const errorEl = document.getElementById('usernameError');
+            const hintEl = document.getElementById('usernameHint');
+            const input = document.getElementById('username');
+
+            if (!username) {
+                errorEl.classList.remove('visible');
+                hintEl.classList.remove('visible');
+                input.classList.remove('input-error', 'input-success');
+                return true;
+            }
+
+            const isValid = /^[a-zA-Z0-9_]{3,20}$/.test(username);
+            if (isValid) {
+                errorEl.classList.remove('visible');
+                hintEl.classList.add('visible');
+                input.classList.remove('input-error');
+                input.classList.add('input-success');
+                return true;
+            } else {
+                errorEl.textContent = '❌ 3-20 characters, letters, numbers & underscores only';
+                errorEl.classList.add('visible');
+                hintEl.classList.remove('visible');
+                input.classList.remove('input-success');
+                input.classList.add('input-error');
+                return false;
+            }
+        }
+
+        // ============================================================
+        // SIGNUP FUNCTION - FIXED
+        // ============================================================
+        async function signupUser() {
+            const fullNameInput = document.getElementById('fullName');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+            const termsCheckbox = document.getElementById('termsCheckbox');
+            const signupBtn = document.getElementById('signupBtn');
+
+            // Get values
+            const full_name = fullNameInput.value.trim();
+            const username = usernameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmInput.value;
+
+            // Validate all fields
+            let isValid = true;
+
+            // Full name
+            if (!full_name || full_name.length < 2) {
+                fullNameInput.classList.add('input-error');
+                showToast('warning', 'Please enter your full name.');
+                isValid = false;
+            } else {
+                fullNameInput.classList.remove('input-error');
+            }
+
+            // Username
+            if (!validateUsername(username)) {
+                isValid = false;
+            }
+
+            // Email
+            if (!validateEmail(email)) {
+                isValid = false;
+            }
+
+            // Password
+            if (password.length < 6) {
+                passwordInput.classList.add('input-error');
+                showToast('warning', 'Password must be at least 6 characters.');
+                isValid = false;
+            } else {
+                passwordInput.classList.remove('input-error');
+            }
+
+            // Confirm password
+            if (password !== confirmPassword) {
+                confirmInput.classList.add('input-error');
+                document.getElementById('confirmError').classList.add('visible');
+                showToast('warning', 'Passwords do not match.');
+                isValid = false;
+            } else {
+                confirmInput.classList.remove('input-error');
+                document.getElementById('confirmError').classList.remove('visible');
+            }
+
+            // Terms
+            if (!termsCheckbox.checked) {
+                showToast('warning', 'Please agree to the Terms of Service.');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            try {
+                signupBtn.disabled = true;
+                signupBtn.textContent = 'Creating Account...';
+                showLoading('Creating your account...');
+
+                const requestData = {
                     username,
                     full_name,
                     email,
                     password,
-                    role: selectedRole // Send selected role
-                })
+                    role: selectedRole
+                };
+
+                log('📤 Sending signup request:', { ...requestData, password: '***' });
+
+                const response = await apiCall('/signup', {
+                    method: 'POST',
+                    body: JSON.stringify(requestData)
+                });
+
+                log('📥 Signup response:', response);
+
+                if (response.success && response.user) {
+                    const user = normalizeUser(response.user);
+                    setSession(user);
+
+                    showToast('success', '🎉 Account created successfully! Please check your email for verification.');
+
+                    // Show verification banner
+                    showVerificationBanner(email);
+
+                    // Redirect after delay
+                    setTimeout(() => {
+                        if (selectedRole === 'parent') {
+                            window.location.href = 'parent-dashboard.html';
+                        } else {
+                            window.location.href = 'learn.html';
+                        }
+                    }, 2500);
+
+                } else {
+                    showToast('error', response.error || 'Signup failed. Please try again.');
+                }
+
+            } catch (error) {
+                errorLog('Signup error:', error);
+
+                if (error.message.includes('email already exists') || error.message.includes('email')) {
+                    showToast('error', 'An account with that email already exists.');
+                    document.getElementById('email').classList.add('input-error');
+                } else if (error.message.includes('username already taken') || error.message.includes('username')) {
+                    showToast('error', 'That username is already taken.');
+                    document.getElementById('usernameError').textContent = '❌ Username already taken';
+                    document.getElementById('usernameError').classList.add('visible');
+                } else if (error.message === 'not_verified') {
+                    showToast('warning', 'Please verify your email before logging in.');
+                    showVerificationBanner(email);
+                } else {
+                    showToast('error', error.message || 'Unable to connect to server. Please try again.');
+                }
+            } finally {
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Create Account';
+                hideLoading();
+            }
+        }
+
+        // ============================================================
+        // VERIFICATION BANNER
+        // ============================================================
+        let verificationEmail = null;
+
+        function showVerificationBanner(email) {
+            const banner = document.getElementById('verification-banner');
+            if (!banner) return;
+            verificationEmail = email || null;
+            banner.style.display = 'block';
+            setTimeout(() => {
+                banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+
+        function hideVerificationBanner() {
+            const banner = document.getElementById('verification-banner');
+            if (banner) banner.style.display = 'none';
+        }
+
+        async function resendVerificationEmail() {
+            const email = verificationEmail || document.getElementById('email')?.value?.trim();
+            if (!email) {
+                showToast('warning', 'Please enter your email address first.');
+                return;
+            }
+
+            try {
+                showLoading('Sending verification...');
+                await apiCall('/auth/resend-verification', {
+                    method: 'POST',
+                    body: JSON.stringify({ userId: getUserId() })
+                });
+                showToast('success', 'Verification email sent! Check your inbox.');
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                showToast('error', error.message || 'Failed to send verification email.');
+            }
+        }
+
+        // ============================================================
+        // GOOGLE LOGIN
+        // ============================================================
+        function googleLogin() {
+            showToast('info', '🌐 Google login coming soon!');
+            // Uncomment when Google OAuth is implemented:
+            // window.location.href = `${API_BASE}/auth/google`;
+        }
+
+        // ============================================================
+        // PANDA CHAT
+        // ============================================================
+        const chatFallbacks = [
+            "That's a great question! Let me help you with that. 🐼",
+            "Interesting! Would you like to practice more? 📚",
+            "Good job! Keep practicing and you'll improve quickly! 🌟",
+            "Let me explain that in a simple way... 🎯",
+            "You're doing amazing! Want to try a quiz? 🎮",
+            "That's a fun one! Let's learn together! 🤗",
+            "I love that question! Here's what I think... 💭",
+            "You're making great progress! Keep going! 🚀"
+        ];
+
+        function togglePanda() {
+            const chat = document.getElementById('pandaChat');
+            if (chat) {
+                chat.classList.toggle('open');
+                if (chat.classList.contains('open')) {
+                    setTimeout(() => {
+                        const input = document.getElementById('pandaInput');
+                        if (input) input.focus();
+                    }, 100);
+                }
+            }
+        }
+
+        async function sendPandaMessage() {
+            const input = document.getElementById('pandaInput');
+            const body = document.getElementById('pandaBody');
+            const text = input?.value?.trim();
+
+            if (!text) return;
+
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
+            body.appendChild(userRow);
+
+            input.value = '';
+            input.style.height = 'auto';
+            body.scrollTop = body.scrollHeight;
+
+            const typing = document.createElement('div');
+            typing.className = 'message-row';
+            typing.id = 'typingIndicator';
+            typing.innerHTML = `
+                        <div class="panda-avatar">🐼</div>
+                        <div class="message panda-message" style="font-style:italic;opacity:0.7;">🐼 Thinking...</div>
+                    `;
+            body.appendChild(typing);
+            body.scrollTop = body.scrollHeight;
+
+            try {
+                const response = await apiCall('/panda-chat', {
+                    method: 'POST',
+                    body: JSON.stringify({ message: text })
+                });
+
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) typingEl.remove();
+
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                const reply = response.reply || "🐼 I'm not sure about that one. Try something simpler!";
+                aiRow.innerHTML = `
+                            <div class="panda-avatar">🐼</div>
+                            <div class="message panda-message">${escapeHtml(reply)}</div>
+                        `;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+
+            } catch (error) {
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) typingEl.remove();
+
+                const fallback = chatFallbacks[Math.floor(Math.random() * chatFallbacks.length)];
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                aiRow.innerHTML = `
+                            <div class="panda-avatar">🐼</div>
+                            <div class="message panda-message">${fallback}</div>
+                        `;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+                errorLog('Panda chat fallback:', error.message);
+            }
+        }
+
+        // ============================================================
+        // DOM READY
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🐼 Hanverse Signup v' + VERSION + ' initializing...');
+            log('📡 API Base URL:', API_BASE);
+
+            // ===== CHECK IF ALREADY LOGGED IN =====
+            if (isLoggedIn()) {
+                const session = getSession();
+                const name = session?.full_name || session?.username || 'Learner';
+                showToast('info', `Already logged in as ${name}. Redirecting...`);
+                setTimeout(() => {
+                    if (session?.role === 'parent') {
+                        window.location.href = 'parent-dashboard.html';
+                    } else {
+                        window.location.href = 'learn.html';
+                    }
+                }, 1500);
+                return;
+            }
+
+            // ===== EVENT LISTENERS =====
+            // Signup button
+            const signupBtn = document.getElementById('signupBtn');
+            if (signupBtn) {
+                signupBtn.addEventListener('click', signupUser);
+            } else {
+                errorLog('❌ Signup button not found!');
+            }
+
+            // Google button
+            const googleBtn = document.getElementById('googleBtn');
+            if (googleBtn) googleBtn.addEventListener('click', googleLogin);
+
+            // Password toggles
+            const togglePassBtn = document.getElementById('togglePasswordBtn');
+            if (togglePassBtn) {
+                togglePassBtn.addEventListener('click', () => {
+                    togglePassword('password', 'togglePasswordBtn');
+                });
+            }
+
+            const toggleConfirmBtn = document.getElementById('toggleConfirmBtn');
+            if (toggleConfirmBtn) {
+                toggleConfirmBtn.addEventListener('click', () => {
+                    togglePassword('confirmPassword', 'toggleConfirmBtn');
+                });
+            }
+
+            // Email validation
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('input', function() {
+                    validateEmail(this.value);
+                });
+            }
+
+            // Username validation
+            const usernameInput = document.getElementById('username');
+            if (usernameInput) {
+                usernameInput.addEventListener('input', function() {
+                    validateUsername(this.value);
+                });
+            }
+
+            // Confirm password on input
+            const confirmInput = document.getElementById('confirmPassword');
+            if (confirmInput) {
+                confirmInput.addEventListener('input', validateConfirmPassword);
+            }
+
+            // Enter key support on all inputs
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') signupUser();
+                });
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || data.message || 'Signup failed.');
+            // ===== VERIFICATION BANNER EVENTS =====
+            const resendBanner = document.getElementById('resendVerificationBanner');
+            if (resendBanner) {
+                resendBanner.addEventListener('click', resendVerificationEmail);
             }
 
-            // Save user data
-            if (data.user) {
-                localStorage.setItem('hanverse_user', JSON.stringify(data.user));
+            const closeBanner = document.getElementById('closeVerificationBanner');
+            if (closeBanner) {
+                closeBanner.addEventListener('click', hideVerificationBanner);
             }
 
-            showToast('🎉 Account created successfully!', 'success');
+            // ===== PANDA CHAT =====
+            const pandaFab = document.getElementById('pandaFabBtn');
+            if (pandaFab) pandaFab.addEventListener('click', togglePanda);
 
-            // Redirect based on role
-            setTimeout(() => {
-                if (selectedRole === 'parent') {
-                    window.location.href = 'parent-hub.html';
-                } else {
-                    window.location.href = 'dashboard.html';
+            const pandaClose = document.getElementById('pandaCloseBtn');
+            if (pandaClose) pandaClose.addEventListener('click', togglePanda);
+
+            const pandaSend = document.getElementById('pandaSendBtn');
+            if (pandaSend) pandaSend.addEventListener('click', sendPandaMessage);
+
+            const pandaInput = document.getElementById('pandaInput');
+            if (pandaInput) {
+                pandaInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendPandaMessage();
+                    }
+                });
+                pandaInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+                });
+            }
+
+            // ESC to close chat
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const chat = document.getElementById('pandaChat');
+                    if (chat && chat.classList.contains('open')) {
+                        chat.classList.remove('open');
+                    }
                 }
-            }, 1500);
+            });
 
-        } catch (error) {
-            console.error('Signup Error:', error);
-            showToast(error.message || 'Unable to connect to server.', 'error');
-            signupBtn.disabled = false;
-            signupBtn.textContent = 'Create Account';
-        }
-    }
+            // ===== HANDLE VERIFICATION REDIRECT =====
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('verified') === 'true') {
+                showToast('success', '✅ Email verified successfully! You can now log in.');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
 
-    // ==========================================
-    // EVENT LISTENERS
-    // ==========================================
-    signupBtn.addEventListener('click', signupUser);
+            if (urlParams.get('verified') === 'false') {
+                const error = urlParams.get('error') || 'Verification failed. Please try again.';
+                showToast('error', `❌ ${decodeURIComponent(error)}`);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
 
-    // Enter key support
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') signupUser();
+            log('✅ Hanverse Signup ready!');
+            log('📡 Check your server at:', `${API_BASE}/health`);
         });
-    });
 
-    // Clear username error on input
-    usernameInput.addEventListener('input', () => {
-        usernameError.classList.remove('visible');
-        usernameInput.classList.remove('input--error');
-    });
+        // ============================================================
+        // EXPOSE GLOBALLY
+        // ============================================================
+        window.selectRole = selectRole;
+        window.signupUser = signupUser;
+        window.googleLogin = googleLogin;
+        window.togglePassword = togglePassword;
+        window.togglePanda = togglePanda;
+        window.sendPandaMessage = sendPandaMessage;
+        window.showToast = showToast;
+        window.apiCall = apiCall;
+        window.getSession = getSession;
+        window.setSession = setSession;
+        window.isLoggedIn = isLoggedIn;
+        window.getUserId = getUserId;
+        window.normalizeUser = normalizeUser;
+        window.showVerificationBanner = showVerificationBanner;
+        window.hideVerificationBanner = hideVerificationBanner;
+        window.resendVerificationEmail = resendVerificationEmail;
+        window.validateEmail = validateEmail;
+        window.validateUsername = validateUsername;
+        window.validatePassword = validatePassword;
+        window.validateConfirmPassword = validateConfirmPassword;
+        window.showLoading = showLoading;
+        window.hideLoading = hideLoading;
+    </script>
 
-    // ==========================================
-    // PANDA CHAT FUNCTIONS
-    // ==========================================
-    function togglePanda() {
-        const chat = document.getElementById('pandaChat');
-        chat.classList.toggle('open');
-    }
-
-    function sendPandaMessage() {
-        const input = document.getElementById('pandaInput');
-        const body = document.getElementById('pandaBody');
-        const text = input.value.trim();
-        if (!text) return;
-
-        // Add user message
-        const userRow = document.createElement('div');
-        userRow.className = 'message-row user';
-        userRow.innerHTML = `
-            <div class="panda-avatar">👤</div>
-            <div class="message user-message">${text}</div>
-        `;
-        body.appendChild(userRow);
-        input.value = '';
-        body.scrollTop = body.scrollHeight;
-
-        // Simulate response
-        setTimeout(() => {
-            const pandaRow = document.createElement('div');
-            pandaRow.className = 'message-row';
-            pandaRow.innerHTML = `
-                <div class="panda-avatar">🐼</div>
-                <div class="message panda-message">🤔 I'm still learning! Ask me about Mandarin phrases, grammar, or culture.</div>
-            `;
-            body.appendChild(pandaRow);
-            body.scrollTop = body.scrollHeight;
-        }, 800);
-    }
-
-    console.log('🐼 HanVerse Signup Page Loaded');
-</script>
-
-<script src="panda-chat.js"></script>
 </body>
 </html>

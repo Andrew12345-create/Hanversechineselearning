@@ -134,6 +134,60 @@
         }
 
         /* ============================================
+                   VERIFICATION BANNER
+                ============================================ */
+        #verification-banner {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+            font-weight: 600;
+            font-size: 0.9rem;
+            max-width: 90%;
+            width: auto;
+            text-align: center;
+            animation: fadeUp 0.5s ease;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        #verification-banner:hover {
+            transform: translateX(-50%) scale(1.02);
+        }
+
+        #verification-banner .resend-link {
+            color: white;
+            text-decoration: underline;
+            font-weight: 700;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+
+        #verification-banner .close-banner {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 12px;
+            transition: var(--transition-smooth);
+        }
+
+        #verification-banner .close-banner:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ============================================
                    OFFLINE BANNER
                 ============================================ */
         #offline-banner {
@@ -196,6 +250,9 @@
         .toast-warning {
             border-left-color: var(--accent);
         }
+        .toast-info {
+            border-left-color: var(--primary);
+        }
 
         .toast-icon {
             font-size: 24px;
@@ -242,7 +299,7 @@
         }
 
         /* ============================================
-                   FLOATING NAVBAR (with logo image)
+                   FLOATING NAVBAR
                 ============================================ */
         nav.top-nav {
             position: fixed;
@@ -569,6 +626,19 @@
             font-weight: 600;
         }
 
+        .user-status .unverified-text {
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        .user-xp {
+            font-size: 0.6rem;
+            color: var(--muted);
+            background: var(--bg);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
+
         nav.top-nav.shrunk .user-chip {
             padding: 4px 12px 4px 6px;
             gap: 6px;
@@ -685,6 +755,17 @@
             background: var(--primary-light);
         }
 
+        .path-step.locked {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+        }
+
+        .path-step.locked:hover {
+            transform: none;
+            border-color: transparent;
+            background: var(--bg);
+        }
+
         .step-icon {
             font-size: 20px;
             flex-shrink: 0;
@@ -698,17 +779,6 @@
         .step-desc {
             font-size: .75rem;
             color: var(--muted);
-        }
-
-        .path-step.locked {
-            opacity: 0.5;
-            filter: grayscale(0.5);
-        }
-
-        .path-step.locked:hover {
-            transform: none;
-            border-color: transparent;
-            background: var(--bg);
         }
 
         /* ============================================
@@ -865,7 +935,7 @@
             line-height: 1.5;
         }
 
-        .lesson-card .badge {
+        .badge {
             display: inline-block;
             padding: 4px 14px;
             border-radius: var(--radius-full);
@@ -875,14 +945,19 @@
             color: var(--primary);
         }
 
-        .lesson-card .badge.premium-badge {
+        .badge.premium-badge {
             background: var(--accent-light);
             color: var(--accent);
         }
 
-        .lesson-card .badge.completed-badge {
+        .badge.completed-badge {
             background: #D1FAE5;
             color: #065F46;
+        }
+
+        .badge.locked-badge {
+            background: #FEE2E2;
+            color: #991B1B;
         }
 
         .lesson-card .btn {
@@ -912,6 +987,20 @@
             top: 8px;
             right: 12px;
             font-size: 18px;
+        }
+
+        .lesson-card.requires-login {
+            border-color: var(--primary-light);
+        }
+
+        .roadmap-card.locked {
+            opacity: 0.6;
+            filter: grayscale(0.3);
+        }
+
+        .roadmap-card.locked .btn {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         /* ============================================
@@ -982,6 +1071,58 @@
         .recommendation-box h3 {
             color: var(--primary);
             margin-bottom: 4px;
+        }
+
+        /* ============================================
+                   LOADING SKELETONS
+                ============================================ */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-card {
+            background: white;
+            padding: 28px 24px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .skeleton-card .skeleton-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .skeleton-card .skeleton-title {
+            width: 60%;
+            height: 20px;
+        }
+
+        .skeleton-card .skeleton-desc {
+            width: 80%;
+            height: 14px;
+        }
+
+        .skeleton-card .skeleton-btn {
+            width: 80%;
+            height: 40px;
+            border-radius: var(--radius-full);
         }
 
         /* ============================================
@@ -1458,6 +1599,13 @@
                 height: 56px;
                 font-size: 28px;
             }
+
+            #verification-banner {
+                top: 72px;
+                padding: 12px 16px;
+                font-size: 0.8rem;
+                width: 92%;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1523,20 +1671,24 @@
     <!-- ===== OFFLINE BANNER ===== -->
     <div id="offline-banner">🔴 You're offline. Progress will sync when back online.</div>
 
+    <!-- ===== VERIFICATION BANNER ===== -->
+    <div id="verification-banner" style="display:none;">
+        ⚠️ Please verify your email to access all features.
+        <span class="resend-link" id="resendVerificationLink">Resend verification</span>
+        <button class="close-banner" id="closeVerificationBanner">✕</button>
+    </div>
+
     <!-- ===== TOAST CONTAINER ===== -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- ===== NAVBAR (with logo image) ===== -->
+    <!-- ===== NAVBAR ===== -->
     <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
             <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
             <span class="logo-text">Hanverse</span>
         </a>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="learn.html" class="active">Learn</a></li>
-            <li><a href="worksheets.html">Worksheets</a></li>
-            <li><a href="parents.html">Parents</a></li>
+        <ul id="navLinks">
+            <!-- Dynamically populated -->
         </ul>
         <div class="nav-buttons" id="navButtons">
             <!-- Dynamically populated -->
@@ -1649,7 +1801,7 @@
         <h2 class="section-title">📚 Your Lessons</h2>
         <p class="section-subtitle" id="lessonSubtitle">Choose a lesson and continue your learning journey.</p>
         <div id="lessonGrid" class="lesson-grid">
-            <!-- Dynamically populated -->
+            <!-- Dynamically populated with skeletons initially -->
         </div>
     </section>
 
@@ -1667,7 +1819,9 @@
         <div class="premium-overlay">
             <div class="premium-content">
                 <button class="close-popup" onclick="closePremiumPopup()">✕</button>
-                <img src="pay-hanverse-subscription-card.png" class="premium-image" onclick="window.location.href='payment.html'" alt="Premium Upgrade">
+                <img src="pay-hanverse-subscription-card.png"
+                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 250%22%3E%3Crect width=%22400%22 height=%22250%22 fill=%22%23f3f4f6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%239ca3af%22 font-family=%22sans-serif%22 font-size=%2224%22%3E⭐ Premium Upgrade%3C/text%3E%3C/svg%3E'"
+                class="premium-image" onclick="window.location.href='payment.html'" alt="Premium Upgrade">
             </div>
         </div>
     </div>
@@ -1725,6 +1879,8 @@
         const VERSION = '2.0.0';
         const DEBUG = false;
 
+        let verificationEmail = null;
+
         // ============================================================
         // LOGGING
         // ============================================================
@@ -1745,10 +1901,43 @@
             return div.innerHTML;
         }
 
+        function normalizeUser(user) {
+            if (!user) return null;
+            return {
+                user_id: user.user_id || user.id,
+                id: user.user_id || user.id,
+                username: user.username || '',
+                full_name: user.full_name || user.fullName || user.username || 'Learner',
+                fullName: user.full_name || user.fullName || user.username || 'Learner',
+                email: user.email || '',
+                xp: user.xp || 0,
+                level: user.level || 1,
+                streak_days: user.streak_days || user.streakDays || 0,
+                streakDays: user.streak_days || user.streakDays || 0,
+                is_verified: user.is_verified || false,
+                isVerified: user.is_verified || false,
+                premium: user.premium || user.is_premium || false,
+                is_premium: user.premium || user.is_premium || false,
+                isPremium: user.premium || user.is_premium || false,
+                role: user.role || 'student',
+                profile_picture: user.profile_picture || null,
+                profilePicture: user.profile_picture || null,
+                is_admin: user.is_admin || false,
+                isAdmin: user.is_admin || false,
+                is_banned: user.is_banned || false,
+                isBanned: user.is_banned || false,
+                current_yct: user.current_yct || 1,
+                lessons_completed: user.lessons_completed || 0,
+                achievements_count: user.achievements_count || 0
+            };
+        }
+
         function getSession() {
             try {
                 const data = localStorage.getItem(SESSION_KEY);
-                return data ? JSON.parse(data) : null;
+                if (!data) return null;
+                const parsed = JSON.parse(data);
+                return normalizeUser(parsed);
             } catch {
                 return null;
             }
@@ -1772,13 +1961,28 @@
             return session?.full_name || session?.fullName || session?.username || 'Learner';
         }
 
+        function isLoggedIn() {
+            return !!getUserId();
+        }
+
         function isPremium() {
             const session = getSession();
             return session?.premium || session?.is_premium || false;
         }
 
-        function isLoggedIn() {
-            return !!getUserId();
+        function isParent() {
+            const session = getSession();
+            return session?.role === 'parent';
+        }
+
+        function isAdmin() {
+            const session = getSession();
+            return session?.is_admin || session?.isAdmin || false;
+        }
+
+        function isVerified() {
+            const session = getSession();
+            return session?.is_verified || session?.isVerified || false;
         }
 
         function navigateTo(url) {
@@ -1806,10 +2010,10 @@
             const toast = document.createElement('div');
             toast.className = `toast toast-${type}`;
             toast.innerHTML = `
-                <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
-                <span class="toast-message">${message}</span>
-                <button class="toast-close">✕</button>
-            `;
+                    <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close">✕</button>
+                `;
 
             toast.querySelector('.toast-close').addEventListener('click', () => {
                 removeToast(toast);
@@ -1817,14 +2021,18 @@
 
             container.appendChild(toast);
 
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 removeToast(toast);
             }, duration);
+            toast.dataset.timer = timer;
         }
 
         function removeToast(toast) {
             if (toast.classList.contains('removing')) return;
             toast.classList.add('removing');
+            if (toast.dataset.timer) {
+                clearTimeout(parseInt(toast.dataset.timer));
+            }
             setTimeout(() => {
                 toast.remove();
             }, 300);
@@ -1833,12 +2041,22 @@
         // ============================================================
         // LOADING OVERLAY
         // ============================================================
-        function showLoading() {
-            document.getElementById('loading-overlay').classList.add('show');
+        let loadingCounter = 0;
+
+        function showLoading(message = '🐼 Loading...') {
+            const overlay = document.getElementById('loading-overlay');
+            const text = overlay.querySelector('.loader-text');
+            if (text) text.textContent = message;
+            loadingCounter++;
+            overlay.classList.add('show');
         }
 
         function hideLoading() {
-            document.getElementById('loading-overlay').classList.remove('show');
+            loadingCounter--;
+            if (loadingCounter <= 0) {
+                loadingCounter = 0;
+                document.getElementById('loading-overlay').classList.remove('show');
+            }
         }
 
         // ============================================================
@@ -1859,7 +2077,23 @@
                     credentials: 'same-origin'
                 });
 
-                const data = await response.json();
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = { success: false, error: 'Unexpected response from server' };
+                }
+
+                // Handle specific error codes
+                if (response.status === 403) {
+                    if (data.error === 'not_verified') {
+                        throw new Error('not_verified');
+                    }
+                    if (data.error === 'banned') {
+                        throw new Error(`banned:${data.reason || 'Account suspended'}`);
+                    }
+                }
 
                 if (!response.ok) {
                     throw new Error(data.error || data.message || `API error: ${response.status}`);
@@ -1873,16 +2107,72 @@
         }
 
         // ============================================================
+        // VERIFICATION BANNER
+        // ============================================================
+        function showVerificationBanner(email) {
+            const banner = document.getElementById('verification-banner');
+            if (!banner) return;
+            verificationEmail = email || getSession()?.email || null;
+            banner.style.display = 'block';
+        }
+
+        function hideVerificationBanner() {
+            const banner = document.getElementById('verification-banner');
+            if (banner) banner.style.display = 'none';
+        }
+
+        async function resendVerification() {
+            if (!verificationEmail) {
+                const session = getSession();
+                verificationEmail = session?.email || null;
+            }
+            if (!verificationEmail) {
+                showToast('warning', 'Please provide your email address.');
+                return;
+            }
+
+            try {
+                showLoading('Sending verification...');
+                await apiCall('/auth/resend-verification', {
+                    method: 'POST',
+                    body: JSON.stringify({ userId: getUserId() })
+                });
+                showToast('success', 'Verification email sent! Check your inbox.');
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                showToast('error', error.message || 'Failed to send verification email.');
+            }
+        }
+
+        // ============================================================
         // FETCH USER DATA
         // ============================================================
         async function fetchUserData(userId) {
             try {
                 const data = await apiCall(`/user/${userId}`);
-                return data.user;
+                return data.user ? normalizeUser(data.user) : null;
             } catch (error) {
                 errorLog('Fetch user error:', error);
+                if (error.message === 'not_verified') {
+                    showVerificationBanner();
+                }
                 return null;
             }
+        }
+
+        async function refreshUserData() {
+            const session = getSession();
+            if (session && session.user_id) {
+                const user = await fetchUserData(session.user_id);
+                if (user) {
+                    setSession({ ...session, ...user });
+                    updateDashboard(user);
+                    updatePathSteps(user.current_yct || 1);
+                    return user;
+                }
+            }
+            return null;
         }
 
         // ============================================================
@@ -1890,12 +2180,10 @@
         // ============================================================
         async function fetchLessons(userLevel) {
             try {
-                // Try to get from API first
                 const data = await apiCall('/lessons');
                 return data.lessons || [];
             } catch (error) {
                 errorLog('Lessons API not available, using defaults');
-                // Fallback to default lessons
                 const allLessons = [
                     { id: 'lesson_1', title: 'Greetings & Introductions', level: 1, premium: false, icon: '👋',
                         description: 'Learn how to say hello and introduce yourself.' },
@@ -1917,9 +2205,8 @@
                         description: 'Prepare for your YCT exam with practice questions.' },
                 ];
 
-                // Filter by user level (if logged in)
                 const level = userLevel || 1;
-                return allLessons.filter(l => l.level <= level);
+                return allLessons.filter(l => l.level <= level + 1);
             }
         }
 
@@ -1929,31 +2216,30 @@
         async function fetchWorksheets() {
             try {
                 const data = await apiCall('/worksheets');
-                return data.worksheets || [];
+                if (data.success && data.worksheets) {
+                    return data.worksheets;
+                }
+                return [];
             } catch (error) {
-                errorLog('Worksheets API not available, using defaults');
-                return [
-                    { id: 'ws_1', title: 'YCT 1 Practice Pack', level: 1, icon: '📄' },
-                    { id: 'ws_2', title: 'YCT 2 Practice Pack', level: 2, icon: '📄' },
-                    { id: 'ws_3', title: 'Writing Practice Sheets', level: 1, icon: '✍️' },
-                    { id: 'ws_4', title: 'Listening Comprehension', level: 2, icon: '🎧' },
-                ];
+                errorLog('Worksheets API not available');
+                return [];
             }
         }
 
         // ============================================================
-        // FETCH ROADMAP
+        // GET ROADMAP
         // ============================================================
         function getRoadmap(userLevel) {
             const allRoadmaps = [
-                { level: 1, title: 'YCT 1', icon: '🌱', description: 'Greetings, family, numbers, colors and basic vocabulary.',
-                    badge: 'Beginner' },
-                { level: 2, title: 'YCT 2', icon: '📖', description: 'Build confidence with everyday conversations.',
-                    badge: 'Elementary' },
-                { level: 3, title: 'YCT 3', icon: '🚀', description: 'Read stories and engage in longer conversations.',
-                    badge: 'Intermediate' },
-                { level: 4, title: 'YCT 4', icon: '🏆', description: 'Master exam preparation and advanced topics.',
-                    badge: 'Advanced' },
+                { level: 1, title: 'YCT 1', icon: '🌱',
+                    description: 'Greetings, family, numbers, colors and basic vocabulary.',
+                badge: 'Beginner' },
+                { level: 2, title: 'YCT 2', icon: '📖',
+                    description: 'Build confidence with everyday conversations.', badge: 'Elementary' },
+                { level: 3, title: 'YCT 3', icon: '🚀',
+                    description: 'Read stories and engage in longer conversations.', badge: 'Intermediate' },
+                { level: 4, title: 'YCT 4', icon: '🏆',
+                    description: 'Master exam preparation and advanced topics.', badge: 'Advanced' },
             ];
 
             return allRoadmaps.map(r => ({
@@ -1968,59 +2254,117 @@
         function renderRoadmap(roadmap) {
             const grid = document.getElementById('roadmapGrid');
             grid.innerHTML = roadmap.map(item => `
-                <div class="roadmap-card ${item.locked ? 'locked' : ''}">
-                    <div class="icon">${item.icon}</div>
-                    <h3>${item.title}</h3>
-                    <p>${item.description}</p>
-                    <span class="badge">${item.badge}</span>
-                    ${item.locked ? '<span style="font-size: 0.7rem; color: var(--muted);">🔒 Locked</span>' : ''}
-                </div>
-            `).join('');
+                    <div class="roadmap-card ${item.locked ? 'locked' : ''}">
+                        <div class="icon">${item.icon}</div>
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                        <span class="badge">${item.badge}</span>
+                        ${item.locked ? '<span style="font-size: 0.7rem; color: var(--muted);">🔒 Locked</span>' : '<span style="font-size: 0.7rem; color: var(--success);">✅ Available</span>'}
+                    </div>
+                `).join('');
         }
 
-        function renderLessons(lessons, userLevel, isPremiumUser) {
+        function renderLessonSkeletons(count = 3) {
             const grid = document.getElementById('lessonGrid');
-            if (!lessons.length) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">
-                        <p style="font-size: 2rem;">📚</p>
-                        <p>No lessons available yet. Check back soon!</p>
+            grid.innerHTML = Array.from({ length: count }, () => `
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-icon"></div>
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-desc"></div>
+                        <div class="skeleton skeleton-btn"></div>
                     </div>
-                `;
+                `).join('');
+        }
+
+        function renderLessons(lessons, userLevel, isPremiumUser, isLoggedInUser) {
+            const grid = document.getElementById('lessonGrid');
+
+            if (!lessons || lessons.length === 0) {
+                grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">
+                            <p style="font-size: 2rem;">📚</p>
+                            <p>No lessons available yet. Check back soon!</p>
+                            ${!isLoggedInUser ? '<button class="btn btn-primary" style="margin-top: 16px;" onclick="navigateTo(\'login.html\')">🔑 Log in to access lessons</button>' : ''}
+                        </div>
+                    `;
                 return;
             }
 
-            grid.innerHTML = lessons.map(lesson => {
+            // Show only lessons up to user's level + 1 (to encourage progression)
+            const maxLevel = (userLevel || 1) + 1;
+            const filteredLessons = lessons.filter(l => l.level <= maxLevel);
+
+            if (filteredLessons.length === 0) {
+                grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">
+                            <p style="font-size: 2rem;">🌟</p>
+                            <p>You've completed all available lessons at your level!</p>
+                            <p style="font-size: 0.85rem; margin-top: 8px;">Check back soon for more content.</p>
+                        </div>
+                    `;
+                return;
+            }
+
+            grid.innerHTML = filteredLessons.map(lesson => {
                 const isLocked = lesson.premium && !isPremiumUser;
                 const isCompleted = localStorage.getItem(`lesson_${lesson.id}_completed`) === 'true';
+                const requiresLogin = !isLoggedInUser;
+
+                let buttonHtml;
+                let badgeHtml;
+
+                if (requiresLogin) {
+                    buttonHtml =
+                        `<button class="btn btn-secondary" onclick="navigateTo('login.html')">🔑 Log in to access</button>`;
+                    badgeHtml = `<span class="badge">🔒 Login Required</span>`;
+                } else if (isLocked) {
+                    buttonHtml = `<button class="btn btn-premium" onclick="showPremiumPopup()">🔓 Unlock Premium</button>`;
+                    badgeHtml = `<span class="badge premium-badge">⭐ Premium</span>`;
+                } else if (isCompleted) {
+                    buttonHtml =
+                        `<button class="btn btn-success" onclick="showToast('info', 'Lesson already completed! 🎉')">✅ Completed</button>`;
+                    badgeHtml = `<span class="badge completed-badge">✅ Completed</span>`;
+                } else {
+                    buttonHtml =
+                        `<button class="btn btn-primary" onclick="startLesson('${lesson.id}')">▶ Start Lesson</button>`;
+                    badgeHtml = `<span class="badge">Level ${lesson.level}</span>`;
+                }
 
                 return `
-                    <div class="lesson-card ${isLocked ? 'premium-locked' : ''} ${isCompleted ? 'completed' : ''}">
-                        <div class="icon">${lesson.icon || '📚'}</div>
-                        <h3>${lesson.title}</h3>
-                        <p>${lesson.description || 'A fun lesson to learn Mandarin.'}</p>
-                        <span class="badge ${isLocked ? 'premium-badge' : ''} ${isCompleted ? 'completed-badge' : ''}">
-                            ${isLocked ? '⭐ Premium' : isCompleted ? '✅ Completed' : `Level ${lesson.level}`}
-                        </span>
-                        <button class="btn ${isLocked ? 'btn-premium' : isCompleted ? 'btn-success' : 'btn-primary'}"
-                                onclick="${isLocked ? 'showPremiumPopup()' : isCompleted ? 'showToast(\'info\', \'Lesson already completed! 🎉\')' : `startLesson('${lesson.id}')`}">
-                            ${isLocked ? '🔓 Unlock Premium' : isCompleted ? '✅ Completed' : '▶ Start Lesson'}
-                        </button>
-                    </div>
-                `;
+                        <div class="lesson-card ${isLocked ? 'premium-locked' : ''} ${isCompleted ? 'completed' : ''} ${requiresLogin ? 'requires-login' : ''}">
+                            <div class="icon">${lesson.icon || '📚'}</div>
+                            <h3>${lesson.title}</h3>
+                            <p>${lesson.description || 'A fun lesson to learn Mandarin.'}</p>
+                            ${badgeHtml}
+                            ${buttonHtml}
+                        </div>
+                    `;
             }).join('');
         }
 
         function renderWorksheets(worksheets) {
             const grid = document.getElementById('worksheetGrid');
+
+            if (!worksheets || worksheets.length === 0) {
+                grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">
+                            <p style="font-size: 2rem;">📝</p>
+                            <p>Worksheets coming soon!</p>
+                            <p style="font-size: 0.85rem; margin-top: 8px;">Check back later for printable resources.</p>
+                        </div>
+                    `;
+                return;
+            }
+
             grid.innerHTML = worksheets.map(ws => `
-                <div class="worksheet-card">
-                    <div class="icon">${ws.icon || '📄'}</div>
-                    <h3>${ws.title}</h3>
-                    <span class="badge">YCT ${ws.level}</span>
-                    <button class="btn btn-secondary" onclick="downloadWorksheet('${ws.id}')">📥 Download</button>
-                </div>
-            `).join('');
+                    <div class="worksheet-card">
+                        <div class="icon">${ws.icon || '📄'}</div>
+                        <h3>${ws.title}</h3>
+                        <p>${ws.description || 'Printable worksheet for practice.'}</p>
+                        <span class="badge">YCT ${ws.level || 1}</span>
+                        <button class="btn btn-secondary" onclick="downloadWorksheet('${ws.id}')">📥 Download</button>
+                    </div>
+                `).join('');
         }
 
         function updatePathSteps(userLevel) {
@@ -2035,6 +2379,122 @@
             });
         }
 
+        function updateDashboard(user) {
+            if (!user) return;
+            document.getElementById('xpValue').textContent = user.xp || 0;
+            document.getElementById('streakValue').textContent = user.streak_days || 0;
+            document.getElementById('levelValue').textContent = user.level || 1;
+
+            // Count completed lessons from localStorage
+            let completedCount = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('lesson_') && key.endsWith('_completed') && localStorage.getItem(key) === 'true') {
+                    completedCount++;
+                }
+            }
+            document.getElementById('lessonValue').textContent = completedCount || user.lessons_completed || 0;
+        }
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        function updateNavigation() {
+            const nav = document.getElementById('navLinks');
+            if (!nav) return;
+
+            const isLoggedInUser = isLoggedIn();
+            const isParentUser = isParent();
+            const isAdminUser = isAdmin();
+
+            let links = [
+                { href: 'index.html', text: 'Home' },
+                { href: 'learn.html', text: 'Learn', active: true },
+                { href: 'worksheets.html', text: 'Worksheets' }
+            ];
+
+            if (isLoggedInUser && isParentUser) {
+                links.push({ href: 'parent-dashboard.html', text: '📊 Dashboard' });
+            }
+            if (isLoggedInUser && isAdminUser) {
+                links.push({ href: 'admin.html', text: '⚙️ Admin' });
+            }
+            links.push({ href: 'parents.html', text: 'Parents' });
+
+            nav.innerHTML = links.map(l => `
+                    <li><a href="${l.href}" ${l.active ? 'class="active"' : ''}>${l.text}</a></li>
+                `).join('');
+        }
+
+        // ============================================================
+        // NAVBAR UPDATE
+        // ============================================================
+        function updateNavbar() {
+            const navButtons = document.getElementById('navButtons');
+            if (!navButtons) return;
+
+            const session = getSession();
+
+            if (session && session.user_id) {
+                const displayName = session.full_name || session.fullName || session.username || 'Learner';
+                const premium = session.premium || session.is_premium || false;
+                const verified = session.is_verified || session.isVerified || false;
+                const xp = session.xp || 0;
+
+                let statusText = premium ? '⭐ Premium' : 'Free Member';
+                let statusClass = premium ? 'premium-text' : '';
+                let statusDot = premium ? '' : 'style="background:#94A3B8;"';
+
+                if (!verified) {
+                    statusText = '⚠️ Unverified';
+                    statusClass = 'unverified-text';
+                    statusDot = 'style="background:#EF4444;"';
+                }
+
+                navButtons.innerHTML = `
+                        <div class="user-chip" onclick="navigateTo('profile.html')">
+                            <div class="user-avatar">
+                                ${session.profile_picture ? `<img src="${session.profile_picture}" alt="${displayName}">` : '🐼'}
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name">${escapeHtml(displayName)}</div>
+                                <div class="user-status">
+                                    <span class="premium-dot" ${statusDot}></span>
+                                    <span class="${statusClass}">${statusText}</span>
+                                    <span class="user-xp">⚡${xp} XP</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-logout" onclick="handleLogout()">Log Out</button>
+                    `;
+
+                if (!verified) {
+                    showVerificationBanner(session.email);
+                } else {
+                    hideVerificationBanner();
+                }
+            } else {
+                navButtons.innerHTML = `
+                        <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
+                        <button class="btn btn-signup" onclick="navigateTo('signup.html')">Sign Up</button>
+                    `;
+                hideVerificationBanner();
+            }
+        }
+
+        // ============================================================
+        // LOGOUT
+        // ============================================================
+        function handleLogout() {
+            if (confirm('Are you sure you want to log out?')) {
+                clearSession();
+                updateNavbar();
+                updateNavigation();
+                showToast('success', 'Logged out successfully');
+                window.location.reload();
+            }
+        }
+
         // ============================================================
         // LESSON FUNCTIONS
         // ============================================================
@@ -2044,6 +2504,13 @@
                 setTimeout(() => navigateTo('login.html'), 1500);
                 return;
             }
+
+            if (!isVerified()) {
+                showToast('warning', 'Please verify your email to access lessons.');
+                showVerificationBanner();
+                return;
+            }
+
             showToast('info', '📚 Loading lesson...');
             window.location.href = `lesson.html?id=${lessonId}`;
         }
@@ -2055,14 +2522,40 @@
                 return;
             }
 
+            if (!isVerified()) {
+                showToast('warning', 'Please verify your email to access lessons.');
+                showVerificationBanner();
+                return;
+            }
+
             const session = getSession();
             const lessons = await fetchLessons(session?.current_yct || 1);
-            const incomplete = lessons.find(l => !localStorage.getItem(`lesson_${l.id}_completed`));
+
+            if (!lessons || lessons.length === 0) {
+                showToast('info', '📚 No lessons available yet. Check back soon!');
+                return;
+            }
+
+            const incomplete = lessons.find(l =>
+                !localStorage.getItem(`lesson_${l.id}_completed`) &&
+                (!l.premium || isPremium())
+            );
 
             if (incomplete) {
                 startLesson(incomplete.id);
             } else {
-                showToast('success', '🎉 You\'ve completed all lessons!');
+                // Check if there are locked premium lessons
+                const lockedPremium = lessons.find(l =>
+                    l.premium && !isPremium() &&
+                    !localStorage.getItem(`lesson_${l.id}_completed`)
+                );
+
+                if (lockedPremium) {
+                    showToast('warning', '⭐ Upgrade to Premium to unlock more lessons!');
+                    showPremiumPopup();
+                } else {
+                    showToast('success', '🎉 You\'ve completed all available lessons!');
+                }
             }
         }
 
@@ -2077,6 +2570,66 @@
             setTimeout(() => {
                 showToast('success', '✅ Worksheet downloaded!');
             }, 1000);
+        }
+
+        // ============================================================
+        // PLACEMENT FUNCTIONS
+        // ============================================================
+        function recommendLevel() {
+            const level = document.getElementById('levelSelect').value;
+            if (!level) {
+                showToast('warning', 'Please select a level.');
+                return;
+            }
+            const box = document.getElementById('recommendationBox');
+            box.style.display = 'block';
+            box.innerHTML = `
+                    <h3>🎯 Recommended Path: YCT ${level}</h3>
+                    <p>HanVerse recommends beginning with YCT ${level}. Ready to start your journey?</p>
+                    <button class="btn btn-primary" style="margin-top: 12px;" onclick="startLesson('lesson_1')">Start Learning →</button>
+                `;
+        }
+
+        async function takeAssessment() {
+            if (!isLoggedIn()) {
+                showToast('warning', 'Please log in to take the assessment.');
+                setTimeout(() => navigateTo('login.html'), 1500);
+                return;
+            }
+
+            showToast('info', '📝 Starting assessment...');
+            try {
+                const userId = getUserId();
+                const response = await apiCall('/placement', {
+                    method: 'POST',
+                    body: JSON.stringify({ userId })
+                });
+
+                if (response.success) {
+                    showToast('success', `🎯 Recommended level: YCT ${response.level}`);
+                    document.getElementById('levelSelect').value = response.level;
+                    recommendLevel();
+                }
+            } catch (error) {
+                errorLog('Assessment error:', error);
+                showToast('warning', 'Assessment coming soon!');
+            }
+        }
+
+        // ============================================================
+        // PREMIUM POPUP
+        // ============================================================
+        function showPremiumPopup() {
+            if (!isLoggedIn()) {
+                showToast('warning', 'Please log in to upgrade to Premium.');
+                setTimeout(() => navigateTo('login.html'), 1500);
+                return;
+            }
+            document.getElementById('premiumPopup').style.display = 'block';
+        }
+
+        function closePremiumPopup() {
+            document.getElementById('premiumPopup').style.display = 'none';
         }
 
         // ============================================================
@@ -2113,9 +2666,9 @@
             typing.className = 'message-row';
             typing.id = 'typingIndicator';
             typing.innerHTML = `
-                <div class="panda-avatar">🐼</div>
-                <div class="message panda-message" style="font-style: italic; opacity: 0.7;">🐼 Thinking...</div>
-            `;
+                    <div class="panda-avatar">🐼</div>
+                    <div class="message panda-message" style="font-style: italic; opacity: 0.7;">🐼 Thinking...</div>
+                `;
             body.appendChild(typing);
             body.scrollTop = body.scrollHeight;
 
@@ -2132,9 +2685,9 @@
                 aiRow.className = 'message-row';
                 const reply = response.reply || "🐼 I'm not sure about that one. Try something simpler!";
                 aiRow.innerHTML = `
-                    <div class="panda-avatar">🐼</div>
-                    <div class="message panda-message">${escapeHtml(reply)}</div>
-                `;
+                        <div class="panda-avatar">🐼</div>
+                        <div class="message panda-message">${escapeHtml(reply)}</div>
+                    `;
                 body.appendChild(aiRow);
                 body.scrollTop = body.scrollHeight;
 
@@ -2146,108 +2699,14 @@
                 const aiRow = document.createElement('div');
                 aiRow.className = 'message-row';
                 aiRow.innerHTML = `
-                    <div class="panda-avatar">🐼</div>
-                    <div class="message panda-message">${fallback}</div>
-                `;
+                        <div class="panda-avatar">🐼</div>
+                        <div class="message panda-message">${fallback}</div>
+                    `;
                 body.appendChild(aiRow);
                 body.scrollTop = body.scrollHeight;
 
                 errorLog('Panda chat fallback used:', error.message);
             }
-        }
-
-        // ============================================================
-        // NAVBAR
-        // ============================================================
-        function updateNavbar() {
-            const navButtons = document.getElementById('navButtons');
-            if (!navButtons) return;
-
-            const session = getSession();
-
-            if (session && (session.user_id || session.id)) {
-                const displayName = session.full_name || session.fullName || session.username || 'Learner';
-                const premium = session.premium || session.is_premium || false;
-
-                navButtons.innerHTML = `
-                    <div class="user-chip" onclick="navigateTo('profile.html')">
-                        <div class="user-avatar">
-                            ${session.profile_picture ? `<img src="${session.profile_picture}" alt="${displayName}">` : '🐼'}
-                        </div>
-                        <div class="user-info">
-                            <div class="user-name">${escapeHtml(displayName)}</div>
-                            <div class="user-status">
-                                <span class="premium-dot" style="${premium ? '' : 'background: #94A3B8;'}"></span>
-                                <span ${premium ? 'class="premium-text"' : ''}>
-                                    ${premium ? '⭐ Premium' : 'Free Member'}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn btn-logout" onclick="handleLogout()">Log Out</button>
-                `;
-            } else {
-                navButtons.innerHTML = `
-                    <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
-                    <button class="btn btn-signup" onclick="navigateTo('signup.html')">Sign Up</button>
-                `;
-            }
-        }
-
-        // ============================================================
-        // LOGOUT
-        // ============================================================
-        function handleLogout() {
-            if (confirm('Are you sure you want to log out?')) {
-                clearSession();
-                updateNavbar();
-                showToast('success', 'Logged out successfully');
-                window.location.reload();
-            }
-        }
-
-        // ============================================================
-        // PLACEMENT FUNCTIONS
-        // ============================================================
-        function recommendLevel() {
-            const level = document.getElementById('levelSelect').value;
-            if (!level) {
-                showToast('warning', 'Please select a level.');
-                return;
-            }
-            const box = document.getElementById('recommendationBox');
-            box.style.display = 'block';
-            box.innerHTML = `
-                <h3>🎯 Recommended Path: YCT ${level}</h3>
-                <p>HanVerse recommends beginning with YCT ${level}. Ready to start your journey?</p>
-                <button class="btn btn-primary" style="margin-top: 12px;" onclick="startLesson('lesson_1')">Start Learning →</button>
-            `;
-        }
-
-        async function takeAssessment() {
-            showToast('info', '📝 Starting assessment...');
-            try {
-                const response = await apiCall('/placement', { method: 'POST' });
-                if (response.success) {
-                    showToast('success', `🎯 Recommended level: YCT ${response.level}`);
-                    document.getElementById('levelSelect').value = response.level;
-                    recommendLevel();
-                }
-            } catch (error) {
-                errorLog('Assessment error:', error);
-                showToast('warning', 'Assessment coming soon!');
-            }
-        }
-
-        // ============================================================
-        // PREMIUM POPUP
-        // ============================================================
-        function showPremiumPopup() {
-            document.getElementById('premiumPopup').style.display = 'block';
-        }
-
-        function closePremiumPopup() {
-            document.getElementById('premiumPopup').style.display = 'none';
         }
 
         // ============================================================
@@ -2280,7 +2739,6 @@
         function updateOfflineStatus() {
             if (!navigator.onLine) {
                 offlineBanner.classList.add('show');
-                showToast('warning', '🔴 You are offline. Progress will sync when back online.');
             } else {
                 offlineBanner.classList.remove('show');
             }
@@ -2330,6 +2788,12 @@
         });
 
         // ============================================================
+        // VERIFICATION BANNER EVENTS
+        // ============================================================
+        document.getElementById('resendVerificationLink')?.addEventListener('click', resendVerification);
+        document.getElementById('closeVerificationBanner')?.addEventListener('click', hideVerificationBanner);
+
+        // ============================================================
         // MOBILE LOGOUT
         // ============================================================
         document.getElementById('mobileLogoutBtn').addEventListener('click', function(e) {
@@ -2341,15 +2805,22 @@
         // INITIALIZATION
         // ============================================================
         async function initPage() {
-            showLoading();
+            showLoading('🐼 Loading your lessons...');
 
             try {
                 const session = getSession();
                 let userLevel = 1;
                 let isPremiumUser = false;
+                let isLoggedInUser = isLoggedIn();
 
-                if (session && session.user_id) {
-                    // User is logged in - fetch their data
+                // Update navigation first
+                updateNavigation();
+
+                // Show lesson skeletons while loading
+                renderLessonSkeletons(3);
+
+                if (isLoggedInUser && session?.user_id) {
+                    // Fetch fresh user data
                     const user = await fetchUserData(session.user_id);
                     if (user) {
                         setSession({ ...session, ...user });
@@ -2357,27 +2828,47 @@
                         isPremiumUser = user.premium || user.is_premium || false;
 
                         // Update dashboard
-                        document.getElementById('xpValue').textContent = user.xp || 0;
-                        document.getElementById('streakValue').textContent = user.streak_days || 0;
-                        document.getElementById('levelValue').textContent = user.level || 1;
+                        updateDashboard(user);
 
-                        // Count completed lessons
-                        let completedCount = 0;
-                        const lessons = await fetchLessons(userLevel);
-                        lessons.forEach(l => {
-                            if (localStorage.getItem(`lesson_${l.id}_completed`) === 'true') {
-                                completedCount++;
-                            }
-                        });
-                        document.getElementById('lessonValue').textContent = completedCount || user
-                        .lessons_completed || 0;
+                        // Update path steps
+                        updatePathSteps(userLevel);
 
                         // Show welcome toast
                         const name = user.full_name || user.username || 'Learner';
-                        showToast('success', `Welcome back, ${name}! 🎉`);
+                        if (!user.is_verified && !user.isVerified) {
+                            showToast('warning', `Welcome back, ${name}! Please verify your email.`);
+                            showVerificationBanner(user.email);
+                        } else {
+                            showToast('success', `Welcome back, ${name}! 🎉`);
+                            hideVerificationBanner();
+                        }
+                    } else {
+                        // Session might be stale - try refresh
+                        try {
+                            const refreshed = await apiCall('/auth/refresh', {
+                                method: 'POST',
+                                body: JSON.stringify({ userId: session.user_id })
+                            });
+                            if (refreshed.success && refreshed.user) {
+                                const user = normalizeUser(refreshed.user);
+                                setSession(user);
+                                userLevel = user.current_yct || 1;
+                                isPremiumUser = user.premium || user.is_premium || false;
+                                updateDashboard(user);
+                                updatePathSteps(userLevel);
+                            }
+                        } catch (refreshError) {
+                            errorLog('Session refresh failed:', refreshError);
+                            // Continue with cached session
+                            userLevel = session.current_yct || 1;
+                            isPremiumUser = session.premium || session.is_premium || false;
+                            if (session.xp !== undefined) {
+                                updateDashboard(session);
+                            }
+                        }
                     }
                 } else {
-                    // Not logged in - show default values
+                    // Not logged in
                     document.getElementById('xpValue').textContent = '—';
                     document.getElementById('streakValue').textContent = '—';
                     document.getElementById('lessonValue').textContent = '—';
@@ -2388,26 +2879,25 @@
                 // Update navbar
                 updateNavbar();
 
-                // Update path steps
-                updatePathSteps(userLevel);
-
                 // Render roadmap
                 const roadmap = getRoadmap(userLevel);
                 renderRoadmap(roadmap);
 
-                // Render lessons
-                const lessons = await fetchLessons(userLevel);
-                renderLessons(lessons, userLevel, isPremiumUser);
+                // Render lessons with delay for skeleton effect
+                setTimeout(async () => {
+                    const lessons = await fetchLessons(userLevel);
+                    renderLessons(lessons, userLevel, isPremiumUser, isLoggedInUser);
 
-                // Render worksheets
-                const worksheets = await fetchWorksheets();
-                renderWorksheets(worksheets);
+                    // Render worksheets
+                    const worksheets = await fetchWorksheets();
+                    renderWorksheets(worksheets);
+                }, 300);
 
                 // Set level selector
                 document.getElementById('levelSelect').value = userLevel || 1;
 
                 log('✅ Hanverse Learn loaded successfully!');
-                log(`👤 Logged in: ${isLoggedIn() ? 'Yes' : 'No'}`);
+                log(`👤 Logged in: ${isLoggedInUser ? 'Yes' : 'No'}`);
                 log(`📚 Level: YCT ${userLevel}`);
 
             } catch (error) {
@@ -2465,6 +2955,29 @@
         window.apiCall = apiCall;
         window.getSession = getSession;
         window.isLoggedIn = isLoggedIn;
+        window.isPremium = isPremium;
+        window.isParent = isParent;
+        window.isAdmin = isAdmin;
+        window.isVerified = isVerified;
+        window.resendVerification = resendVerification;
+        window.hideVerificationBanner = hideVerificationBanner;
+        window.showVerificationBanner = showVerificationBanner;
+        window.getUserId = getUserId;
+        window.getFullName = getFullName;
+        window.clearSession = clearSession;
+        window.setSession = setSession;
+        window.normalizeUser = normalizeUser;
+        window.fetchUserData = fetchUserData;
+        window.refreshUserData = refreshUserData;
+        window.fetchLessons = fetchLessons;
+        window.fetchWorksheets = fetchWorksheets;
+        window.renderLessons = renderLessons;
+        window.renderWorksheets = renderWorksheets;
+        window.renderRoadmap = renderRoadmap;
+        window.updatePathSteps = updatePathSteps;
+        window.updateDashboard = updateDashboard;
+        window.updateNavbar = updateNavbar;
+        window.updateNavigation = updateNavigation;
     </script>
 
 </body>
