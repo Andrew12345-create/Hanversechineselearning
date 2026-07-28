@@ -1713,131 +1713,141 @@
         }
 
         async function resendVerificationEmail() {
-            const email = verificationEmail || document.getElementById('email')?.value?.trim();
-            if (!email) {
-                showToast('warning', 'Please enter your email address first.');
-                return;
-            }
+    const email = verificationEmail || document.getElementById('email')?.value?.trim();
+    if (!email) {
+        showToast('warning', 'Please enter your email address first.');
+        return;
+    }
 
-            try {
-                showLoading('Sending verification...');
-                await apiCall('/auth/resend-verification', {
-                    method: 'POST',
-                    body: JSON.stringify({ userId: getUserId() })
-                });
-                showToast('success', 'Verification email sent! Check your inbox.');
-                hideLoading();
-            } catch (error) {
-                hideLoading();
-                if (error.message === 'not_verified') {
-                    showToast('warning', 'Please verify your email before logging in.');
-                    showVerificationBanner(email);
-                } else {
-                    showToast('error', error.message || 'Failed to send verification email.');
-                }
-            }
+    try {
+        showLoading('Sending verification...');
+        
+        // Step 1: Get the user ID from the email
+        const userResponse = await apiCall('/auth/user-by-email', {
+            method: 'POST',
+            body: JSON.stringify({ email })
+        });
+        
+        if (!userResponse.success || !userResponse.user) {
+            throw new Error('User not found with that email.');
         }
-
+        
+        const userId = userResponse.user.user_id || userResponse.user.id;
+        
+        // Step 2: Send verification using the user ID
+        await apiCall('/auth/resend-verification', {
+            method: 'POST',
+            body: JSON.stringify({ userId })
+        });
+        
+        showToast('success', 'Verification email sent! Check your inbox.');
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        showToast('error', error.message || 'Failed to send verification email.');
+    }
+}
         // ============================================================
         // LOGIN FUNCTION
         // ============================================================
-        async function loginUser() {
-            const emailInput = document.getElementById('email');
-            const passwordInput = document.getElementById('password');
-            const loginBtn = document.getElementById('loginBtn');
+       async function loginUser() {
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
 
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
 
-            // Validate
-            if (!email) {
-                emailInput.classList.add('error');
-                showToast('warning', 'Please enter your email.');
-                emailInput.focus();
-                return;
+    if (!email) {
+        emailInput.classList.add('error');
+        showToast('warning', 'Please enter your email.');
+        emailInput.focus();
+        return;
+    }
+    emailInput.classList.remove('error');
+
+    if (!password) {
+        passwordInput.classList.add('error');
+        showToast('warning', 'Please enter your password.');
+        passwordInput.focus();
+        return;
+    }
+    passwordInput.classList.remove('error');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        emailInput.classList.add('error');
+        showToast('warning', 'Please enter a valid email address.');
+        emailInput.focus();
+        return;
+    }
+
+    try {
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logging In...';
+        showLoading('Logging in...');
+
+        const response = await apiCall('/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.success && response.user) {
+            const user = normalizeUser(response.user);
+            setSession(user);
+
+            const rememberMe = document.getElementById('rememberMe');
+            if (rememberMe && rememberMe.checked) {
+                localStorage.setItem('hanverse_remembered_email', email);
+            } else {
+                localStorage.removeItem('hanverse_remembered_email');
             }
-            emailInput.classList.remove('error');
 
-            if (!password) {
-                passwordInput.classList.add('error');
-                showToast('warning', 'Please enter your password.');
-                passwordInput.focus();
-                return;
-            }
-            passwordInput.classList.remove('error');
+            showToast('success', `Welcome back, ${user.full_name || user.username}! 🎉`);
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                emailInput.classList.add('error');
-                showToast('warning', 'Please enter a valid email address.');
-                emailInput.focus();
-                return;
-            }
-
-            try {
-                loginBtn.disabled = true;
-                loginBtn.textContent = 'Logging In...';
-                showLoading('Logging in...');
-
-                const response = await apiCall('/login', {
-                    method: 'POST',
-                    body: JSON.stringify({ email, password })
-                });
-
-                if (response.success && response.user) {
-                    const user = normalizeUser(response.user);
-                    setSession(user);
-
-                    const rememberMe = document.getElementById('rememberMe');
-                    if (rememberMe && rememberMe.checked) {
-                        localStorage.setItem('hanverse_remembered_email', email);
-                    } else {
-                        localStorage.removeItem('hanverse_remembered_email');
-                    }
-
-                    showToast('success', `Welcome back, ${user.full_name || user.username}! 🎉`);
-
-                    setTimeout(() => {
-                        if (isParent()) {
-                            window.location.href = 'parent-dashboard.html';
-                        } else if (isAdmin()) {
-                            window.location.href = 'admin.html';
-                        } else {
-                            window.location.href = 'learn.html';
-                        }
-                    }, 800);
-
+            setTimeout(() => {
+                if (isParent()) {
+                    window.location.href = 'parent-dashboard.html';
+                } else if (isAdmin()) {
+                    window.location.href = 'admin.html';
                 } else {
-                    showToast('error', response.error || 'Login failed. Please try again.');
+                    window.location.href = 'learn.html';
                 }
+            }, 800);
 
-            } catch (error) {
-                errorLog('Login error:', error);
-
-                if (error.message === 'not_verified') {
-                    showToast('warning', 'Please verify your email before logging in.');
-                    showVerificationBanner(email);
-                } else if (error.message.startsWith('banned:')) {
-                    const reason = error.message.split(':')[1] || 'Account suspended';
-                    showToast('error', `Account suspended: ${reason}`);
-                    document.querySelector('.right').innerHTML = `
-                            <div style="text-align:center;padding:40px;">
-                                <div style="font-size:70px;">🚫</div>
-                                <h2 style="margin-top:15px;color:#E63946;">Account Banned</h2>
-                                <p style="margin-top:10px;color:var(--text-secondary);">${reason}</p>
-                                <p style="margin-top:8px;font-size:0.85rem;color:var(--muted);">Please contact support for assistance.</p>
-                            </div>
-                        `;
-                } else {
-                    showToast('error', error.message || 'Unable to connect to server.');
-                }
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Log In';
-                hideLoading();
-            }
+        } else {
+            showToast('error', response.error || 'Login failed. Please try again.');
         }
 
+    } catch (error) {
+        errorLog('Login error:', error);
+
+        if (error.message === 'not_verified') {
+            showToast('warning', 'Please verify your email before logging in.');
+            showVerificationBanner(email);
+        } else if (error.message.startsWith('banned:')) {
+            const reason = error.message.split(':')[1] || 'Account suspended';
+            showToast('error', `Account suspended: ${reason}`);
+            document.querySelector('.right').innerHTML = `
+                <div style="text-align:center;padding:40px;">
+                    <div style="font-size:70px;">🚫</div>
+                    <h2 style="margin-top:15px;color:#E63946;">Account Banned</h2>
+                    <p style="margin-top:10px;color:var(--text-secondary);">${reason}</p>
+                    <p style="margin-top:8px;font-size:0.85rem;color:var(--muted);">Please contact support for assistance.</p>
+                </div>
+            `;
+        } else if (error.message === 'Invalid email or password.') {
+            showToast('error', '❌ Invalid email or password. Please try again.');
+            passwordInput.classList.add('error');
+        } else {
+            showToast('error', error.message || 'Unable to connect to server. Please try again.');
+        }
+    } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Log In';
+        hideLoading();
+    }
+}
         // ============================================================
         // GOOGLE LOGIN
         // ============================================================
