@@ -565,9 +565,9 @@ function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
 ========================================== */
 async function sendVerificationEmail({ to, username, fullName, token }) {
   const baseUrl = getFrontendBaseUrl();
-  const verifyLink = `${baseUrl}/login.html?verify=true&token=${token}&email=${encodeURIComponent(to)}`;
-
-  const html = getVerificationEmailHTML({
+  
+const verifyLink = `${baseUrl}/verify-email.html?token=${token}&email=${encodeURIComponent(to)}`;
+ const html = getVerificationEmailHTML({
     username,
     fullName: fullName || username,
     verifyLink
