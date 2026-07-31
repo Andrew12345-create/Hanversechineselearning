@@ -560,6 +560,263 @@ function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
   `;
 }
 
+// ==========================================
+// WELCOME EMAIL TEMPLATE 🎉
+// ==========================================
+function getWelcomeEmailHTML({ username, fullName }) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welcome to HanVerse! 🐼</title>
+      <style>
+        body {
+          font-family: 'Poppins', Arial, sans-serif;
+          background: #0F172A;
+          color: #E8E8F0;
+          margin: 0;
+          padding: 0;
+          -webkit-font-smoothing: antialiased;
+        }
+        .container {
+          max-width: 560px;
+          margin: 40px auto;
+          background: linear-gradient(145deg, #1E293B, #0F172A);
+          border-radius: 24px;
+          padding: 48px 40px;
+          border: 1px solid rgba(255,255,255,0.06);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+        .logo-wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          margin-bottom: 8px;
+        }
+        .logo {
+          font-size: 42px;
+        }
+        .brand {
+          font-size: 28px;
+          font-weight: 800;
+          background: linear-gradient(135deg, #60A5FA, #34D399);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .title {
+          font-size: 26px;
+          font-weight: 700;
+          color: #FFFFFF;
+          text-align: center;
+          margin: 20px 0 12px;
+        }
+        .subtitle {
+          color: #94A3B8;
+          text-align: center;
+          line-height: 1.7;
+          font-size: 15px;
+          margin-bottom: 28px;
+        }
+        .subtitle strong {
+          color: #F1F5F9;
+        }
+        .features-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin: 24px 0;
+        }
+        .feature-card {
+          background: rgba(255,255,255,0.03);
+          border-radius: 12px;
+          padding: 16px;
+          text-align: center;
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .feature-icon {
+          font-size: 28px;
+          display: block;
+          margin-bottom: 8px;
+        }
+        .feature-name {
+          color: #F1F5F9;
+          font-weight: 600;
+          font-size: 14px;
+          display: block;
+        }
+        .feature-desc {
+          color: #94A3B8;
+          font-size: 12px;
+          display: block;
+          margin-top: 4px;
+        }
+        .button-container {
+          text-align: center;
+          margin: 32px 0;
+        }
+        .button {
+          display: inline-block;
+          padding: 16px 44px;
+          background: linear-gradient(135deg, #3B82F6, #14B8A6);
+          color: white;
+          text-decoration: none;
+          border-radius: 12px;
+          font-weight: 600;
+          font-size: 16px;
+          transition: transform 0.2s, box-shadow 0.2s;
+          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+        .button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+        }
+        .divider {
+          border: none;
+          height: 1px;
+          background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
+          margin: 28px 0;
+        }
+        .get-started {
+          background: rgba(255,255,255,0.03);
+          border-radius: 12px;
+          padding: 20px;
+          margin: 16px 0;
+        }
+        .get-started h4 {
+          color: #F1F5F9;
+          margin: 0 0 12px 0;
+          font-size: 16px;
+        }
+        .get-started ol {
+          color: #94A3B8;
+          margin: 0;
+          padding-left: 20px;
+          font-size: 14px;
+          line-height: 1.8;
+        }
+        .get-started ol li {
+          margin-bottom: 4px;
+        }
+        .footer {
+          text-align: center;
+          color: #64748B;
+          font-size: 13px;
+          margin-top: 32px;
+          padding-top: 24px;
+          border-top: 1px solid rgba(255,255,255,0.06);
+          line-height: 1.8;
+        }
+        .footer a {
+          color: #60A5FA;
+          text-decoration: none;
+        }
+        .footer a:hover {
+          text-decoration: underline;
+        }
+        .social-links {
+          display: flex;
+          justify-content: center;
+          gap: 16px;
+          margin: 12px 0;
+        }
+        .social-links span {
+          color: #64748B;
+          font-size: 20px;
+        }
+        @media (max-width: 480px) {
+          .container { padding: 28px 20px; }
+          .title { font-size: 22px; }
+          .button { padding: 14px 32px; font-size: 14px; }
+          .features-grid { grid-template-columns: 1fr; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo-wrapper">
+            <span class="logo">🐼</span>
+            <span class="brand">HanVerse</span>
+          </div>
+        </div>
+
+        <div class="title">🎉 Welcome to HanVerse, ${fullName || username || 'Learner'}!</div>
+
+        <div class="subtitle">
+          You've joined a magical world where learning Mandarin is fun and easy!<br>
+          <strong>Let's get started on your language adventure! 🚀</strong>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <span class="feature-icon">📚</span>
+            <span class="feature-name">Interactive Stories</span>
+            <span class="feature-desc">Learn through engaging stories</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🎮</span>
+            <span class="feature-name">Fun Games</span>
+            <span class="feature-desc">Play and learn at the same time</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🤖</span>
+            <span class="feature-name">AI Panda Tutor</span>
+            <span class="feature-desc">Your personal Mandarin assistant</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🏆</span>
+            <span class="feature-name">Achievements</span>
+            <span class="feature-desc">Earn rewards as you progress</span>
+          </div>
+        </div>
+
+        <div class="get-started">
+          <h4>🌟 Your First Steps:</h4>
+          <ol>
+            <li>Complete your profile and set your learning goals</li>
+            <li>Take a placement test to find your perfect starting level</li>
+            <li>Start your first lesson and earn XP points!</li>
+            <li>Chat with Panda AI whenever you need help</li>
+          </ol>
+        </div>
+
+        <div class="button-container">
+          <a href="${getFrontendBaseUrl()}/dashboard.html" class="button">🚀 Start Learning Now</a>
+        </div>
+
+        <hr class="divider">
+
+        <div style="text-align: center; color: #94A3B8; font-size: 14px; margin: 16px 0;">
+          <p style="margin: 4px 0;">🎯 Complete your first lesson today and earn 50 bonus XP!</p>
+          <p style="margin: 4px 0; font-size: 13px; color: #64748B;">👆 Click the button above to begin</p>
+        </div>
+
+        <div class="footer">
+          <p>Have questions? We're here to help! <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+          <div class="social-links">
+            <span>🐼</span>
+            <span>🎋</span>
+            <span>🏮</span>
+            <span>🎐</span>
+          </div>
+          <p style="margin-top: 8px; font-size: 12px; color: #475569;">
+            🐼 HanVerse — Learn Mandarin Through Stories, Games & AI
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 /* ==========================================
    EMAIL SEND FUNCTIONS
 ========================================== */
@@ -583,6 +840,27 @@ const verifyLink = `${baseUrl}/verify-email.html?token=${token}&email=${encodeUR
     console.log(`✅ Verification email sent to ${to}`);
   } else {
     console.warn('⚠️ Mailer not available, skipping email send');
+  }
+}
+// ==========================================
+// SEND WELCOME EMAIL
+// ==========================================
+async function sendWelcomeEmail({ to, username, fullName }) {
+  const html = getWelcomeEmailHTML({
+    username,
+    fullName: fullName || username
+  });
+
+  if (mailer) {
+    await mailer.sendMail({
+      from: EMAIL_FROM,
+      to,
+      subject: '🎉 Welcome to HanVerse! Your Mandarin Adventure Begins!',
+      html
+    });
+    console.log(`✅ Welcome email sent to ${to}`);
+  } else {
+    console.warn('⚠️ Mailer not available, skipping welcome email');
   }
 }
 
@@ -786,17 +1064,30 @@ router.post('/signup', async (req, res) => {
       console.warn("⚠️ Could not insert into email_verifications table:", verificationInsertError.message);
     }
 
-    // --- SEND VERIFICATION EMAIL ---
-    try {
-      await sendVerificationEmail({
-        to: cleanEmail,
-        username: cleanUsername,
-        fullName: cleanFullName,
-        token: verificationToken
-      });
-    } catch (mailError) {
-      console.warn("⚠️ Verification email could not be sent:", mailError.message);
-    }
+   // --- SEND VERIFICATION EMAIL ---
+try {
+  await sendVerificationEmail({
+    to: cleanEmail,
+    username: cleanUsername,
+    fullName: cleanFullName,
+    token: verificationToken
+  });
+  console.log('✅ Verification email sent');
+} catch (mailError) {
+  console.warn("⚠️ Verification email could not be sent:", mailError.message);
+}
+
+// --- SEND WELCOME EMAIL (separate from verification) ---
+try {
+  await sendWelcomeEmail({
+    to: cleanEmail,
+    username: cleanUsername,
+    fullName: cleanFullName
+  });
+  console.log('✅ Welcome email sent');
+} catch (mailError) {
+  console.warn("⚠️ Welcome email could not be sent:", mailError.message);
+}
 
     return res.status(201).json({
       success: true,
@@ -3334,6 +3625,237 @@ router.post('/admin/toggle-verification/:userId', verifyAdminToken, async (req, 
   } catch (error) {
     console.error('❌ Toggle verification error:', error);
     return res.status(500).json({ success: false, error: 'Failed to toggle verification' });
+  }
+});
+// ==========================================
+// SEND INVITATION EMAIL 📨
+// ==========================================
+router.post('/send-invite', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const { inviterId, inviteeEmail, inviteeName, customMessage } = req.body || {};
+
+    if (!inviterId || !inviteeEmail) {
+      return res.status(400).json({
+        success: false,
+        error: 'Inviter ID and invitee email are required.'
+      });
+    }
+
+    // Get inviter info
+    const inviterResult = await pool.query(
+      `SELECT username, full_name FROM users WHERE user_id = $1`,
+      [inviterId]
+    );
+
+    if (!inviterResult.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Inviter not found.'
+      });
+    }
+
+    const inviter = inviterResult.rows[0];
+    const inviterName = inviter.full_name || inviter.username;
+    const signupLink = `${getFrontendBaseUrl()}/signup.html?ref=${inviter.username}`;
+
+    // Build the invite email HTML
+    const inviteHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>You're Invited to HanVerse! 🐼</title>
+        <style>
+          body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background: #0F172A;
+            color: #E8E8F0;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 560px;
+            margin: 40px auto;
+            background: linear-gradient(145deg, #1E293B, #0F172A);
+            border-radius: 24px;
+            padding: 48px 40px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 32px;
+          }
+          .logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+          }
+          .brand {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60A5FA, #34D399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+          .title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #FFFFFF;
+            text-align: center;
+            margin: 20px 0 12px;
+          }
+          .subtitle {
+            color: #94A3B8;
+            text-align: center;
+            line-height: 1.7;
+            font-size: 15px;
+            margin-bottom: 28px;
+          }
+          .invite-message {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            border-left: 4px solid #3B82F6;
+            color: #E8E8F0;
+            font-style: italic;
+          }
+          .button-container {
+            text-align: center;
+            margin: 32px 0;
+          }
+          .button {
+            display: inline-block;
+            padding: 16px 44px;
+            background: linear-gradient(135deg, #3B82F6, #14B8A6);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+          }
+          .perks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+          }
+          .perk {
+            text-align: center;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+          }
+          .perk .icon { font-size: 24px; display: block; }
+          .perk .label { color: #94A3B8; font-size: 13px; margin-top: 4px; display: block; }
+          .footer {
+            text-align: center;
+            color: #64748B;
+            font-size: 13px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo-wrapper">
+              <span style="font-size: 42px;">🐼</span>
+              <span class="brand">HanVerse</span>
+            </div>
+          </div>
+
+          <div class="title">🌟 You're Invited to HanVerse!</div>
+
+          <div class="subtitle">
+            <strong>${inviterName}</strong> has invited you to join the fun way to learn Mandarin! 🎉
+          </div>
+
+          ${customMessage ? `<div class="invite-message">"${customMessage}"</div>` : ''}
+
+          <div class="perks">
+            <div class="perk">
+              <span class="icon">📚</span>
+              <span class="label">Interactive Stories</span>
+            </div>
+            <div class="perk">
+              <span class="icon">🎮</span>
+              <span class="label">Fun Games</span>
+            </div>
+            <div class="perk">
+              <span class="icon">🤖</span>
+              <span class="label">AI Panda Tutor</span>
+            </div>
+            <div class="perk">
+              <span class="icon">🏆</span>
+              <span class="label">Achievements</span>
+            </div>
+          </div>
+
+          <div style="text-align: center; color: #F59E0B; font-size: 14px; margin: 16px 0;">
+            ✨ <strong>Bonus:</strong> When you sign up, you'll both get 50 bonus XP! ✨
+          </div>
+
+          <div class="button-container">
+            <a href="${signupLink}" class="button">🎯 Join HanVerse Now</a>
+          </div>
+
+          <div class="footer">
+            <p>Start your Mandarin adventure today! 🐼<br>
+            <span style="font-size: 12px; color: #475569;">
+              This invitation was sent by a HanVerse member.
+            </span></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    if (mailer) {
+      await mailer.sendMail({
+        from: EMAIL_FROM,
+        to: inviteeEmail,
+        subject: `🌟 ${inviterName} invited you to HanVerse!`,
+        html: inviteHTML
+      });
+    } else {
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Email service not available.' 
+      });
+    }
+
+    // Log the invitation
+    try {
+      await pool.query(`
+        INSERT INTO invitations (inviter_id, invitee_email, invitee_name, custom_message, sent_at)
+        VALUES ($1, $2, $3, $4, NOW())
+      `, [inviterId, inviteeEmail, inviteeName || null, customMessage || null]);
+    } catch (logError) {
+      console.warn('⚠️ Could not log invitation:', logError.message);
+    }
+
+    return res.json({
+      success: true,
+      message: `Invitation sent to ${inviteeEmail}!`
+    });
+
+  } catch (error) {
+    console.error('❌ Invite error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to send invitation.'
+    });
   }
 });
 

@@ -2582,6 +2582,7 @@
                 }, 1500);
                 return;
             }
+            
 
             // ===== EVENT LISTENERS =====
             // Signup button
@@ -2701,6 +2702,169 @@
             log('✅ Hanverse Signup ready!');
             log('📡 Check your server at:', `${API_BASE}/health`);
         });
+        // Check for referral code in URL
+// ============================================================
+// REFERRAL HANDLING - Add this to signup.html
+// ============================================================
+// Check for referral code in URL and store it
+function getReferralFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('ref');
+}
+
+// Store referral in session storage when page loads
+const referralCode = getReferralFromUrl();
+if (referralCode) {
+    sessionStorage.setItem('hanverse_referral', referralCode);
+    console.log('📌 Referral detected:', referralCode);
+}
+
+// ============================================================
+// MODIFIED SIGNUP FUNCTION - Add referral to signup request
+// ============================================================
+// Replace the existing signupUser function with this one:
+async function signupUser() {
+    const fullNameInput = document.getElementById('fullName');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirmPassword');
+    const termsCheckbox = document.getElementById('termsCheckbox');
+    const signupBtn = document.getElementById('signupBtn');
+
+    // Get values
+    const full_name = fullNameInput.value.trim();
+    const username = usernameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const confirmPassword = confirmInput.value;
+
+    // Validate all fields
+    let isValid = true;
+
+    // Full name
+    if (!full_name || full_name.length < 2) {
+        fullNameInput.classList.add('input-error');
+        showToast('warning', 'Please enter your full name.');
+        isValid = false;
+    } else {
+        fullNameInput.classList.remove('input-error');
+    }
+
+    // Username
+    if (!validateUsername(username)) {
+        isValid = false;
+    }
+
+    // Email
+    if (!validateEmail(email)) {
+        isValid = false;
+    }
+
+    // Password
+    if (password.length < 6) {
+        passwordInput.classList.add('input-error');
+        showToast('warning', 'Password must be at least 6 characters.');
+        isValid = false;
+    } else {
+        passwordInput.classList.remove('input-error');
+    }
+
+    // Confirm password
+    if (password !== confirmPassword) {
+        confirmInput.classList.add('input-error');
+        document.getElementById('confirmError').classList.add('visible');
+        showToast('warning', 'Passwords do not match.');
+        isValid = false;
+    } else {
+        confirmInput.classList.remove('input-error');
+        document.getElementById('confirmError').classList.remove('visible');
+    }
+
+    // Terms
+    if (!termsCheckbox.checked) {
+        showToast('warning', 'Please agree to the Terms of Service.');
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    try {
+        signupBtn.disabled = true;
+        signupBtn.textContent = 'Creating Account...';
+        showLoading('Creating your account...');
+
+        const requestData = {
+            username,
+            full_name,
+            email,
+            password,
+            role: selectedRole
+        };
+
+        // ✅ ADD REFERRAL CODE IF PRESENT
+        const referral = sessionStorage.getItem('hanverse_referral');
+        if (referral) {
+            requestData.referral = referral;
+            console.log('📌 Adding referral to signup:', referral);
+        }
+
+        log('📤 Sending signup request:', { ...requestData, password: '***' });
+
+        const response = await apiCall('/signup', {
+            method: 'POST',
+            body: JSON.stringify(requestData)
+        });
+
+        log('📥 Signup response:', response);
+
+        if (response.success && response.user) {
+            const user = normalizeUser(response.user);
+            setSession(user);
+
+            // Clear referral after use
+            sessionStorage.removeItem('hanverse_referral');
+
+            showToast('success', '🎉 Account created successfully! Please check your email for verification.');
+
+            // Show verification banner
+            showVerificationBanner(email);
+
+            // Redirect after delay
+            setTimeout(() => {
+                if (selectedRole === 'parent') {
+                    window.location.href = 'parent-dashboard.html';
+                } else {
+                    window.location.href = 'learn.html';
+                }
+            }, 2500);
+
+        } else {
+            showToast('error', response.error || 'Signup failed. Please try again.');
+        }
+
+    } catch (error) {
+        errorLog('Signup error:', error);
+
+        if (error.message.includes('email already exists') || error.message.includes('email')) {
+            showToast('error', 'An account with that email already exists.');
+            document.getElementById('email').classList.add('input-error');
+        } else if (error.message.includes('username already taken') || error.message.includes('username')) {
+            showToast('error', 'That username is already taken.');
+            document.getElementById('usernameError').textContent = '❌ Username already taken';
+            document.getElementById('usernameError').classList.add('visible');
+        } else if (error.message === 'not_verified') {
+            showToast('warning', 'Please verify your email before logging in.');
+            showVerificationBanner(email);
+        } else {
+            showToast('error', error.message || 'Unable to connect to server. Please try again.');
+        }
+    } finally {
+        signupBtn.disabled = false;
+        signupBtn.textContent = 'Create Account';
+        hideLoading();
+    }
+}  
 
         // ============================================================
         // EXPOSE GLOBALLY

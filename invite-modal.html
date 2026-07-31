@@ -1,0 +1,402 @@
+<!-- Invite Modal - Add this to your dashboard or main page -->
+<div id="inviteModal" class="invite-modal" style="display: none;">
+  <div class="invite-modal-content">
+    <div class="invite-modal-header">
+      <h2>🐼 Invite Friends to HanVerse</h2>
+      <button class="invite-close-btn" onclick="closeInviteModal()">&times;</button>
+    </div>
+    
+    <div class="invite-modal-body">
+      <p class="invite-subtitle">Share the joy of learning Mandarin! Invite your friends and earn <strong>50 bonus XP</strong> for each friend who joins! 🎉</p>
+      
+      <div class="invite-form-group">
+        <label for="inviteEmail">Friend's Email Address</label>
+        <input type="email" id="inviteEmail" placeholder="friend@example.com" />
+      </div>
+      
+      <div class="invite-form-group">
+        <label for="inviteMessage">Personal Message (Optional)</label>
+        <textarea id="inviteMessage" rows="3" placeholder="Join me on HanVerse to learn Mandarin the fun way! 🐼"></textarea>
+      </div>
+      
+      <div class="invite-form-group">
+        <label for="inviteName">Friend's Name (Optional)</label>
+        <input type="text" id="inviteName" placeholder="Enter their name" />
+      </div>
+      
+      <button class="invite-send-btn" onclick="sendInvite()">
+        <span id="inviteBtnText">📨 Send Invitation</span>
+        <span id="inviteLoading" style="display: none;">Sending...</span>
+      </button>
+      
+      <div id="inviteMessageResult" class="invite-result"></div>
+      
+      <div class="invite-divider">
+        <span>or share your referral link</span>
+      </div>
+      
+      <div class="invite-referral-section">
+        <div class="invite-referral-link">
+          <input type="text" id="referralLink" readonly value="https://hanverse.netlify.app/signup.html?ref=YOUR_USERNAME" />
+          <button onclick="copyReferralLink()" class="invite-copy-btn">📋 Copy</button>
+        </div>
+        <div id="copyMessage" style="color: #34D399; font-size: 13px; margin-top: 8px; display: none;">✅ Copied to clipboard!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Modal Styles */
+  .invite-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  .invite-modal-content {
+    background: linear-gradient(145deg, #1E293B, #0F172A);
+    border-radius: 24px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    padding: 32px;
+  }
+  
+  .invite-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .invite-modal-header h2 {
+    color: white;
+    font-size: 24px;
+    margin: 0;
+  }
+  
+  .invite-close-btn {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .invite-close-btn:hover {
+    color: white;
+  }
+  
+  .invite-subtitle {
+    color: #94A3B8;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  
+  .invite-form-group {
+    margin-bottom: 16px;
+  }
+  
+  .invite-form-group label {
+    display: block;
+    color: #E8E8F0;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  
+  .invite-form-group input,
+  .invite-form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+  
+  .invite-form-group input:focus,
+  .invite-form-group textarea:focus {
+    outline: none;
+    border-color: #3B82F6;
+  }
+  
+  .invite-form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  .invite-send-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #3B82F6, #14B8A6);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 8px;
+  }
+  
+  .invite-send-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+  }
+  
+  .invite-send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .invite-result {
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    display: none;
+  }
+  
+  .invite-result.success {
+    display: block;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: #34D399;
+  }
+  
+  .invite-result.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #F87171;
+  }
+  
+  .invite-divider {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+    color: #64748B;
+    font-size: 13px;
+  }
+  
+  .invite-divider::before,
+  .invite-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  
+  .invite-divider span {
+    padding: 0 16px;
+  }
+  
+  .invite-referral-section {
+    margin-top: 16px;
+  }
+  
+  .invite-referral-link {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .invite-referral-link input {
+    flex: 1;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #94A3B8;
+    font-size: 13px;
+    cursor: default;
+  }
+  
+  .invite-copy-btn {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  
+  .invite-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  @media (max-width: 480px) {
+    .invite-modal-content {
+      padding: 20px;
+    }
+    
+    .invite-modal-header h2 {
+      font-size: 20px;
+    }
+    
+    .invite-referral-link {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  // Modal functions
+  function openInviteModal() {
+    const modal = document.getElementById('inviteModal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Set referral link with username
+    const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+    if (user.username) {
+      document.getElementById('referralLink').value = 
+        `https://hanverse.netlify.app/signup.html?ref=${user.username}`;
+    }
+  }
+  
+  function closeInviteModal() {
+    const modal = document.getElementById('inviteModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    // Reset form
+    document.getElementById('inviteEmail').value = '';
+    document.getElementById('inviteMessage').value = '';
+    document.getElementById('inviteName').value = '';
+    document.getElementById('inviteMessageResult').className = 'invite-result';
+    document.getElementById('inviteMessageResult').style.display = 'none';
+  }
+  
+  // Close modal on outside click
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('inviteModal');
+    if (e.target === modal) {
+      closeInviteModal();
+    }
+  });
+  
+  // Copy referral link
+  function copyReferralLink() {
+    const linkInput = document.getElementById('referralLink');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(linkInput.value).then(() => {
+      const msg = document.getElementById('copyMessage');
+      msg.style.display = 'block';
+      setTimeout(() => {
+        msg.style.display = 'none';
+      }, 3000);
+    }).catch(() => {
+      // Fallback
+      document.execCommand('copy');
+      const msg = document.getElementById('copyMessage');
+      msg.style.display = 'block';
+      setTimeout(() => {
+        msg.style.display = 'none';
+      }, 3000);
+    });
+  }
+  
+  // Send invite
+  async function sendInvite() {
+    const email = document.getElementById('inviteEmail').value.trim();
+    const message = document.getElementById('inviteMessage').value.trim();
+    const name = document.getElementById('inviteName').value.trim();
+    const resultDiv = document.getElementById('inviteMessageResult');
+    const sendBtn = document.querySelector('.invite-send-btn');
+    const btnText = document.getElementById('inviteBtnText');
+    const loading = document.getElementById('inviteLoading');
+    
+    // Validate email
+    if (!email) {
+      resultDiv.className = 'invite-result error';
+      resultDiv.textContent = '❌ Please enter your friend\'s email address.';
+      resultDiv.style.display = 'block';
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      resultDiv.className = 'invite-result error';
+      resultDiv.textContent = '❌ Please enter a valid email address.';
+      resultDiv.style.display = 'block';
+      return;
+    }
+    
+    // Get user
+    const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+    if (!user.user_id) {
+      resultDiv.className = 'invite-result error';
+      resultDiv.textContent = '❌ Please log in first.';
+      resultDiv.style.display = 'block';
+      return;
+    }
+    
+    // Disable button and show loading
+    sendBtn.disabled = true;
+    btnText.style.display = 'none';
+    loading.style.display = 'inline';
+    resultDiv.style.display = 'none';
+    
+    try {
+      const response = await fetch('/api/send-invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inviterId: user.user_id,
+          inviteeEmail: email,
+          inviteeName: name || null,
+          customMessage: message || null
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        resultDiv.className = 'invite-result success';
+        resultDiv.textContent = `✅ ${data.message}`;
+        resultDiv.style.display = 'block';
+        document.getElementById('inviteEmail').value = '';
+        document.getElementById('inviteMessage').value = '';
+        document.getElementById('inviteName').value = '';
+      } else {
+        resultDiv.className = 'invite-result error';
+        resultDiv.textContent = `❌ ${data.error || 'Failed to send invitation.'}`;
+        resultDiv.style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Invite error:', error);
+      resultDiv.className = 'invite-result error';
+      resultDiv.textContent = '❌ Network error. Please try again.';
+      resultDiv.style.display = 'block';
+    } finally {
+      // Re-enable button
+      sendBtn.disabled = false;
+      btnText.style.display = 'inline';
+      loading.style.display = 'none';
+    }
+  }
+</script>
