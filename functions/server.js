@@ -171,187 +171,239 @@ function getFrontendBaseUrl() {
 /* ==========================================
    EMAIL TEMPLATES 🐼
 ========================================== */
-function getVerificationEmailHTML({ username, fullName, verifyLink, logoUrl }) {
+// ==========================================
+// VERIFICATION EMAIL - CHILD-FRIENDLY VERSION
+// ==========================================
+function getVerificationEmailHTML({ username, fullName, verifyLink }) {
   return `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Verify Your HanVerse Email</title>
+      <title>Welcome to HanVerse! 🐼</title>
       <style>
         body {
-          font-family: 'Poppins', Arial, sans-serif;
-          background: #0F172A;
-          color: #E8E8F0;
+          font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif;
+          background: #F0F7FF;
           margin: 0;
-          padding: 0;
+          padding: 20px;
           -webkit-font-smoothing: antialiased;
         }
         .container {
-          max-width: 560px;
-          margin: 40px auto;
-          background: linear-gradient(145deg, #1E293B, #0F172A);
-          border-radius: 24px;
-          padding: 48px 40px;
-          border: 1px solid rgba(255,255,255,0.06);
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+          max-width: 580px;
+          margin: 0 auto;
+          background: #FFFFFF;
+          border-radius: 30px;
+          padding: 40px 35px;
+          box-shadow: 0 10px 40px rgba(37, 99, 235, 0.10);
+          border: 2px solid #E0EEFF;
         }
         .header {
           text-align: center;
-          margin-bottom: 32px;
+          margin-bottom: 25px;
         }
         .logo-wrapper {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 12px;
-          margin-bottom: 8px;
+          margin-bottom: 4px;
         }
         .logo {
-          font-size: 42px;
+          font-size: 48px;
+          background: #F0F7FF;
+          padding: 10px;
+          border-radius: 50%;
         }
         .brand {
-          font-size: 28px;
-          font-weight: 800;
-          background: linear-gradient(135deg, #60A5FA, #34D399);
+          font-size: 32px;
+          font-weight: 900;
+          background: linear-gradient(135deg, #2563EB, #14B8A6);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          letter-spacing: -1px;
         }
-        .panda-icon {
-          font-size: 36px;
+        .panda-badge {
+          display: inline-block;
+          background: #FEF3C7;
+          padding: 4px 16px;
+          border-radius: 20px;
+          font-size: 14px;
+          color: #D97706;
+          font-weight: 700;
+          margin-top: 4px;
         }
         .title {
-          font-size: 26px;
-          font-weight: 700;
-          color: #FFFFFF;
+          font-size: 28px;
+          font-weight: 800;
+          color: #1E293B;
           text-align: center;
-          margin: 20px 0 12px;
+          margin: 16px 0 10px;
+          line-height: 1.2;
+        }
+        .title .highlight {
+          color: #2563EB;
         }
         .subtitle {
-          color: #94A3B8;
+          color: #475569;
           text-align: center;
-          line-height: 1.7;
-          font-size: 15px;
-          margin-bottom: 28px;
+          line-height: 1.8;
+          font-size: 16px;
+          margin-bottom: 24px;
         }
         .subtitle strong {
-          color: #F1F5F9;
+          color: #1E293B;
         }
         .button-container {
           text-align: center;
-          margin: 32px 0;
+          margin: 28px 0 24px;
         }
         .button {
           display: inline-block;
-          padding: 16px 44px;
-          background: linear-gradient(135deg, #3B82F6, #14B8A6);
-          color: white;
+          padding: 18px 48px;
+          background: linear-gradient(135deg, #2563EB, #14B8A6);
+          color: white !important;
           text-decoration: none;
-          border-radius: 12px;
-          font-weight: 600;
-          font-size: 16px;
-          transition: transform 0.2s, box-shadow 0.2s;
-          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+          border-radius: 50px;
+          font-weight: 700;
+          font-size: 18px;
+          transition: all 0.3s ease;
+          box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25);
+          letter-spacing: 0.5px;
         }
         .button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
-        }
-        .divider {
-          border: none;
-          height: 1px;
-          background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
-          margin: 28px 0;
-        }
-        .info-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          background: rgba(255,255,255,0.03);
-          border-radius: 12px;
-          padding: 16px 20px;
-          margin: 16px 0;
-        }
-        .info-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #94A3B8;
-          font-size: 13px;
-        }
-        .info-item span {
-          color: #F1F5F9;
+          transform: translateY(-3px);
+          box-shadow: 0 12px 35px rgba(37, 99, 235, 0.35);
         }
         .expiry {
           text-align: center;
           color: #64748B;
-          font-size: 13px;
-          margin-top: 16px;
+          font-size: 14px;
+          margin-top: 8px;
         }
         .expiry strong {
           color: #F59E0B;
         }
+        .divider {
+          border: none;
+          height: 2px;
+          background: linear-gradient(to right, transparent, #DBEAFE, transparent);
+          margin: 28px 0;
+        }
+        .features-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 12px;
+          margin: 16px 0 24px;
+        }
+        .feature-item {
+          text-align: center;
+          padding: 14px 8px;
+          background: #F8FAFC;
+          border-radius: 16px;
+          border: 1px solid #E2E8F0;
+        }
+        .feature-item .icon {
+          font-size: 28px;
+          display: block;
+          margin-bottom: 4px;
+        }
+        .feature-item .label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #1E293B;
+        }
+        .info-box {
+          background: #F0F7FF;
+          border-radius: 16px;
+          padding: 16px 20px;
+          margin: 16px 0;
+          border-left: 4px solid #2563EB;
+        }
+        .info-box p {
+          margin: 4px 0;
+          color: #1E293B;
+          font-size: 14px;
+        }
+        .info-box .emoji {
+          font-size: 18px;
+        }
         .footer {
           text-align: center;
-          color: #64748B;
+          color: #94A3B8;
           font-size: 13px;
-          margin-top: 32px;
+          margin-top: 28px;
           padding-top: 24px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          border-top: 2px solid #F1F5F9;
           line-height: 1.8;
         }
         .footer a {
-          color: #60A5FA;
+          color: #2563EB;
           text-decoration: none;
+          font-weight: 600;
         }
         .footer a:hover {
           text-decoration: underline;
         }
-        .features {
-          display: flex;
-          justify-content: center;
-          gap: 24px;
-          margin: 12px 0 8px;
-          flex-wrap: wrap;
+        .footer .social {
+          font-size: 20px;
+          margin: 8px 0;
+          letter-spacing: 8px;
         }
-        .features span {
-          color: #64748B;
+        .footer .tagline {
+          color: #94A3B8;
           font-size: 12px;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .features span::before {
-          content: "✓";
-          color: #34D399;
-          font-weight: 700;
+          font-style: italic;
         }
         @media (max-width: 480px) {
-          .container { padding: 28px 20px; }
+          .container { padding: 24px 18px; }
           .title { font-size: 22px; }
-          .button { padding: 14px 32px; font-size: 14px; }
-          .info-grid { grid-template-columns: 1fr; }
+          .button { padding: 14px 32px; font-size: 16px; }
+          .features-grid { grid-template-columns: 1fr 1fr; }
         }
       </style>
     </head>
     <body>
       <div class="container">
+        <!-- HEADER -->
         <div class="header">
           <div class="logo-wrapper">
             <span class="logo">🐼</span>
             <span class="brand">HanVerse</span>
           </div>
+          <div class="panda-badge">✨ Your Mandarin Adventure Starts Here!</div>
         </div>
 
-        <div class="title">✨ Welcome to HanVerse, ${fullName || username || 'Parent'}!</div>
+        <!-- TITLE -->
+        <div class="title">
+          Welcome to <span class="highlight">HanVerse</span>, ${fullName || username || 'Friend'}! 🎉
+        </div>
 
+        <!-- SUBTITLE -->
         <div class="subtitle">
-          You're one step away from unlocking a world of Mandarin learning.<br>
-          <strong>Verify your email</strong> to get full access to stories, games, and AI tutoring.
+          You're just one click away from unlocking <strong>stories, games, and your AI Panda tutor</strong>!<br>
+          Let's make learning Mandarin fun and exciting!
         </div>
 
+        <!-- FEATURES -->
+        <div class="features-grid">
+          <div class="feature-item">
+            <span class="icon">📚</span>
+            <span class="label">Stories</span>
+          </div>
+          <div class="feature-item">
+            <span class="icon">🎮</span>
+            <span class="label">Games</span>
+          </div>
+          <div class="feature-item">
+            <span class="icon">🤖</span>
+            <span class="label">AI Tutor</span>
+          </div>
+        </div>
+
+        <!-- VERIFY BUTTON -->
         <div class="button-container">
           <a href="${verifyLink}" class="button">✅ Verify My Email</a>
         </div>
@@ -362,25 +414,19 @@ function getVerificationEmailHTML({ username, fullName, verifyLink, logoUrl }) {
 
         <hr class="divider">
 
-        <div class="info-grid">
-          <div class="info-item">📧 <span>${username || 'Your username'}</span></div>
-          <div class="info-item">📚 <span>YCT 1 - 4</span></div>
-          <div class="info-item">🎮 <span>30+ Games</span></div>
-          <div class="info-item">🤖 <span>AI Tutor</span></div>
+        <!-- INFO BOX -->
+        <div class="info-box">
+          <p><span class="emoji">📧</span> <strong>${username || 'Your username'}</strong></p>
+          <p><span class="emoji">🎯</span> Start at <strong>YCT 1</strong> and work your way up!</p>
+          <p><span class="emoji">🏆</span> Earn <strong>XP</strong> and unlock achievements!</p>
         </div>
 
-        <div class="features">
-          <span>Interactive Stories</span>
-          <span>AI Tutor</span>
-          <span>Progress Tracking</span>
-        </div>
-
+        <!-- FOOTER -->
         <div class="footer">
-          <p>If you didn't create a HanVerse account, you can safely ignore this email.</p>
-          <p>Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
-          <p style="margin-top: 8px; font-size: 12px; color: #475569;">
-            🐼 HanVerse — Learn Mandarin Through Stories, Games & AI
-          </p>
+          <p>Didn't create a HanVerse account? No worries — just ignore this email.</p>
+          <p>💬 Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+          <div class="social">🐼 🎋 🏮 🎐</div>
+          <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
         </div>
       </div>
     </body>
@@ -388,6 +434,9 @@ function getVerificationEmailHTML({ username, fullName, verifyLink, logoUrl }) {
   `;
 }
 
+// ==========================================
+// PASSWORD RESET EMAIL - CHILD-FRIENDLY VERSION
+// ==========================================
 function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
   return `
     <!DOCTYPE html>
@@ -395,145 +444,191 @@ function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Reset Your HanVerse Password</title>
+      <title>Reset Your HanVerse Password 🔐</title>
       <style>
         body {
-          font-family: 'Poppins', Arial, sans-serif;
-          background: #0F172A;
-          color: #E8E8F0;
+          font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif;
+          background: #FFF7ED;
           margin: 0;
-          padding: 0;
+          padding: 20px;
           -webkit-font-smoothing: antialiased;
         }
         .container {
           max-width: 560px;
-          margin: 40px auto;
-          background: linear-gradient(145deg, #1E293B, #0F172A);
-          border-radius: 24px;
-          padding: 48px 40px;
-          border: 1px solid rgba(255,255,255,0.06);
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+          margin: 0 auto;
+          background: #FFFFFF;
+          border-radius: 30px;
+          padding: 40px 35px;
+          box-shadow: 0 10px 40px rgba(245, 158, 11, 0.10);
+          border: 2px solid #FED7AA;
         }
         .header {
           text-align: center;
-          margin-bottom: 32px;
+          margin-bottom: 20px;
         }
         .logo-wrapper {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 12px;
-          margin-bottom: 8px;
+          margin-bottom: 4px;
+        }
+        .logo {
+          font-size: 48px;
+          background: #FFF7ED;
+          padding: 10px;
+          border-radius: 50%;
         }
         .brand {
-          font-size: 28px;
-          font-weight: 800;
-          background: linear-gradient(135deg, #60A5FA, #34D399);
+          font-size: 32px;
+          font-weight: 900;
+          background: linear-gradient(135deg, #2563EB, #14B8A6);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          letter-spacing: -1px;
+        }
+        .security-badge {
+          display: inline-block;
+          background: #FEF3C7;
+          padding: 4px 16px;
+          border-radius: 20px;
+          font-size: 14px;
+          color: #D97706;
+          font-weight: 700;
+          margin-top: 4px;
         }
         .title {
           font-size: 26px;
-          font-weight: 700;
-          color: #FFFFFF;
+          font-weight: 800;
+          color: #1E293B;
           text-align: center;
-          margin: 20px 0 12px;
+          margin: 12px 0 8px;
+          line-height: 1.2;
+        }
+        .title .highlight {
+          color: #F59E0B;
         }
         .subtitle {
-          color: #94A3B8;
+          color: #475569;
           text-align: center;
-          line-height: 1.7;
-          font-size: 15px;
-          margin-bottom: 28px;
+          line-height: 1.8;
+          font-size: 16px;
+          margin-bottom: 20px;
         }
         .subtitle strong {
-          color: #F1F5F9;
+          color: #1E293B;
         }
         .button-container {
           text-align: center;
-          margin: 32px 0;
+          margin: 24px 0 16px;
         }
         .button {
           display: inline-block;
-          padding: 16px 44px;
+          padding: 18px 48px;
           background: linear-gradient(135deg, #F59E0B, #D97706);
-          color: white;
+          color: white !important;
           text-decoration: none;
-          border-radius: 12px;
-          font-weight: 600;
-          font-size: 16px;
-          transition: transform 0.2s, box-shadow 0.2s;
-          box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+          border-radius: 50px;
+          font-weight: 700;
+          font-size: 18px;
+          transition: all 0.3s ease;
+          box-shadow: 0 8px 25px rgba(245, 158, 11, 0.25);
+          letter-spacing: 0.5px;
         }
         .button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
-        }
-        .divider {
-          border: none;
-          height: 1px;
-          background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
-          margin: 28px 0;
+          transform: translateY(-3px);
+          box-shadow: 0 12px 35px rgba(245, 158, 11, 0.35);
         }
         .expiry {
           text-align: center;
           color: #64748B;
-          font-size: 13px;
-          margin-top: 16px;
+          font-size: 14px;
+          margin-top: 8px;
         }
         .expiry strong {
-          color: #F59E0B;
+          color: #EF4444;
+        }
+        .security-box {
+          background: #FEF2F2;
+          border-radius: 16px;
+          padding: 16px 20px;
+          margin: 16px 0;
+          border: 2px solid #FECACA;
+          border-left: 4px solid #EF4444;
+        }
+        .security-box p {
+          margin: 4px 0;
+          color: #991B1B;
+          font-size: 14px;
+          font-weight: 500;
+        }
+        .security-box .icon {
+          font-size: 18px;
+        }
+        .divider {
+          border: none;
+          height: 2px;
+          background: linear-gradient(to right, transparent, #FED7AA, transparent);
+          margin: 24px 0;
         }
         .footer {
           text-align: center;
-          color: #64748B;
+          color: #94A3B8;
           font-size: 13px;
-          margin-top: 32px;
-          padding-top: 24px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          margin-top: 24px;
+          padding-top: 20px;
+          border-top: 2px solid #F1F5F9;
           line-height: 1.8;
         }
         .footer a {
-          color: #60A5FA;
+          color: #2563EB;
           text-decoration: none;
+          font-weight: 600;
         }
-        .security-note {
-          background: rgba(239, 68, 68, 0.08);
-          border-radius: 12px;
-          padding: 16px 20px;
-          margin: 16px 0;
-          border-left: 3px solid #EF4444;
+        .footer a:hover {
+          text-decoration: underline;
+        }
+        .footer .social {
+          font-size: 20px;
+          margin: 8px 0;
+          letter-spacing: 8px;
+        }
+        .footer .tagline {
           color: #94A3B8;
-          font-size: 14px;
-          line-height: 1.6;
-        }
-        .security-note strong {
-          color: #FCA5A5;
+          font-size: 12px;
+          font-style: italic;
         }
         @media (max-width: 480px) {
-          .container { padding: 28px 20px; }
+          .container { padding: 24px 18px; }
           .title { font-size: 22px; }
-          .button { padding: 14px 32px; font-size: 14px; }
+          .button { padding: 14px 32px; font-size: 16px; }
         }
       </style>
     </head>
     <body>
       <div class="container">
+        <!-- HEADER -->
         <div class="header">
           <div class="logo-wrapper">
-            <span style="font-size: 42px;">🐼</span>
+            <span class="logo">🐼</span>
             <span class="brand">HanVerse</span>
           </div>
+          <div class="security-badge">🔒 Account Security</div>
         </div>
 
-        <div class="title">🔒 Reset Your Password</div>
+        <!-- TITLE -->
+        <div class="title">
+          Reset Your <span class="highlight">Password</span> 🔐
+        </div>
 
+        <!-- SUBTITLE -->
         <div class="subtitle">
-          Hi <strong>${fullName || username || 'Learner'}</strong>,<br>
+          Hi <strong>${fullName || username || 'Learner'}</strong>!<br>
           We received a request to reset your HanVerse password.
         </div>
 
+        <!-- RESET BUTTON -->
         <div class="button-container">
           <a href="${resetLink}" class="button">🔄 Reset Password</a>
         </div>
@@ -542,17 +637,22 @@ function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
           ⏰ This link expires in <strong>1 hour</strong>
         </div>
 
-        <div class="security-note">
-          <strong>🔐 Security Notice:</strong> If you didn't request this password reset, you can safely ignore this email. Your account remains secure.
+        <!-- SECURITY NOTE -->
+        <div class="security-box">
+          <p><span class="icon">🛡️</span> <strong>Security Notice:</strong></p>
+          <p style="font-weight: 400; color: #991B1B;">
+            If you didn't request a password reset, just ignore this email.<br>
+            Your account is safe and secure!
+          </p>
         </div>
 
         <hr class="divider">
 
+        <!-- FOOTER -->
         <div class="footer">
-          <p>Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
-          <p style="margin-top: 8px; font-size: 12px; color: #475569;">
-            🐼 HanVerse — Learn Mandarin Through Stories, Games & AI
-          </p>
+          <p>💬 Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+          <div class="social">🐼 🎋 🏮 🎐</div>
+          <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
         </div>
       </div>
     </body>
@@ -562,6 +662,9 @@ function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
 
 // ==========================================
 // WELCOME EMAIL TEMPLATE 🎉
+// ==========================================
+// ==========================================
+// WELCOME EMAIL - CHILD-FRIENDLY VERSION
 // ==========================================
 function getWelcomeEmailHTML({ username, fullName }) {
   return `
@@ -573,250 +676,561 @@ function getWelcomeEmailHTML({ username, fullName }) {
       <title>Welcome to HanVerse! 🐼</title>
       <style>
         body {
-          font-family: 'Poppins', Arial, sans-serif;
-          background: #0F172A;
-          color: #E8E8F0;
+          font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif;
+          background: #F0FDF4;
           margin: 0;
-          padding: 0;
+          padding: 20px;
           -webkit-font-smoothing: antialiased;
         }
         .container {
-          max-width: 560px;
-          margin: 40px auto;
-          background: linear-gradient(145deg, #1E293B, #0F172A);
-          border-radius: 24px;
-          padding: 48px 40px;
-          border: 1px solid rgba(255,255,255,0.06);
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+          max-width: 580px;
+          margin: 0 auto;
+          background: #FFFFFF;
+          border-radius: 30px;
+          padding: 40px 35px;
+          box-shadow: 0 10px 40px rgba(20, 184, 166, 0.10);
+          border: 2px solid #D1FAE5;
         }
         .header {
           text-align: center;
-          margin-bottom: 32px;
+          margin-bottom: 20px;
         }
         .logo-wrapper {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 12px;
-          margin-bottom: 8px;
+          margin-bottom: 4px;
         }
         .logo {
-          font-size: 42px;
+          font-size: 48px;
+          background: #F0FDF4;
+          padding: 10px;
+          border-radius: 50%;
         }
         .brand {
-          font-size: 28px;
-          font-weight: 800;
-          background: linear-gradient(135deg, #60A5FA, #34D399);
+          font-size: 32px;
+          font-weight: 900;
+          background: linear-gradient(135deg, #2563EB, #14B8A6);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          letter-spacing: -1px;
+        }
+        .welcome-badge {
+          display: inline-block;
+          background: #FEF3C7;
+          padding: 4px 16px;
+          border-radius: 20px;
+          font-size: 14px;
+          color: #D97706;
+          font-weight: 700;
+          margin-top: 4px;
         }
         .title {
-          font-size: 26px;
-          font-weight: 700;
-          color: #FFFFFF;
+          font-size: 30px;
+          font-weight: 800;
+          color: #1E293B;
           text-align: center;
-          margin: 20px 0 12px;
+          margin: 12px 0 8px;
+          line-height: 1.2;
+        }
+        .title .highlight {
+          color: #14B8A6;
         }
         .subtitle {
-          color: #94A3B8;
+          color: #475569;
           text-align: center;
-          line-height: 1.7;
-          font-size: 15px;
-          margin-bottom: 28px;
+          line-height: 1.8;
+          font-size: 16px;
+          margin-bottom: 20px;
         }
         .subtitle strong {
-          color: #F1F5F9;
+          color: #1E293B;
         }
-        .features-grid {
+        .welcome-message {
+          background: #F0FDF4;
+          border-radius: 16px;
+          padding: 20px 24px;
+          margin: 16px 0;
+          border: 2px solid #D1FAE5;
+          text-align: center;
+        }
+        .welcome-message .big-emoji {
+          font-size: 36px;
+          display: block;
+          margin-bottom: 4px;
+        }
+        .welcome-message p {
+          margin: 4px 0;
+          color: #065F46;
+          font-size: 15px;
+          font-weight: 500;
+        }
+        .steps-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 12px;
-          margin: 24px 0;
+          margin: 20px 0;
         }
-        .feature-card {
-          background: rgba(255,255,255,0.03);
-          border-radius: 12px;
-          padding: 16px;
+        .step-item {
+          background: #F8FAFC;
+          border-radius: 16px;
+          padding: 16px 12px;
           text-align: center;
-          border: 1px solid rgba(255,255,255,0.05);
+          border: 1px solid #E2E8F0;
+          transition: all 0.2s ease;
         }
-        .feature-icon {
-          font-size: 28px;
+        .step-item .step-icon {
+          font-size: 32px;
           display: block;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
         }
-        .feature-name {
-          color: #F1F5F9;
+        .step-item .step-number {
+          display: inline-block;
+          background: #2563EB;
+          color: white;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 1px 10px;
+          border-radius: 10px;
+          margin-bottom: 6px;
+        }
+        .step-item .step-text {
+          font-size: 13px;
           font-weight: 600;
-          font-size: 14px;
-          display: block;
+          color: #1E293B;
         }
-        .feature-desc {
-          color: #94A3B8;
-          font-size: 12px;
-          display: block;
-          margin-top: 4px;
+        .step-item .step-desc {
+          font-size: 11px;
+          color: #64748B;
+          margin-top: 2px;
         }
         .button-container {
           text-align: center;
-          margin: 32px 0;
+          margin: 24px 0 16px;
         }
         .button {
           display: inline-block;
-          padding: 16px 44px;
-          background: linear-gradient(135deg, #3B82F6, #14B8A6);
-          color: white;
+          padding: 18px 48px;
+          background: linear-gradient(135deg, #14B8A6, #2563EB);
+          color: white !important;
           text-decoration: none;
-          border-radius: 12px;
-          font-weight: 600;
-          font-size: 16px;
-          transition: transform 0.2s, box-shadow 0.2s;
-          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+          border-radius: 50px;
+          font-weight: 700;
+          font-size: 18px;
+          transition: all 0.3s ease;
+          box-shadow: 0 8px 25px rgba(20, 184, 166, 0.25);
+          letter-spacing: 0.5px;
         }
         .button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+          transform: translateY(-3px);
+          box-shadow: 0 12px 35px rgba(20, 184, 166, 0.35);
+        }
+        .bonus-box {
+          text-align: center;
+          background: #FEF3C7;
+          border-radius: 16px;
+          padding: 12px 20px;
+          margin: 12px 0;
+          border: 2px solid #FDE68A;
+        }
+        .bonus-box .bonus-text {
+          font-weight: 700;
+          color: #D97706;
+          font-size: 15px;
+        }
+        .bonus-box .bonus-emoji {
+          font-size: 20px;
         }
         .divider {
           border: none;
-          height: 1px;
-          background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
-          margin: 28px 0;
-        }
-        .get-started {
-          background: rgba(255,255,255,0.03);
-          border-radius: 12px;
-          padding: 20px;
-          margin: 16px 0;
-        }
-        .get-started h4 {
-          color: #F1F5F9;
-          margin: 0 0 12px 0;
-          font-size: 16px;
-        }
-        .get-started ol {
-          color: #94A3B8;
-          margin: 0;
-          padding-left: 20px;
-          font-size: 14px;
-          line-height: 1.8;
-        }
-        .get-started ol li {
-          margin-bottom: 4px;
+          height: 2px;
+          background: linear-gradient(to right, transparent, #D1FAE5, transparent);
+          margin: 24px 0;
         }
         .footer {
           text-align: center;
-          color: #64748B;
+          color: #94A3B8;
           font-size: 13px;
-          margin-top: 32px;
-          padding-top: 24px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          margin-top: 24px;
+          padding-top: 20px;
+          border-top: 2px solid #F1F5F9;
           line-height: 1.8;
         }
         .footer a {
-          color: #60A5FA;
+          color: #2563EB;
           text-decoration: none;
+          font-weight: 600;
         }
         .footer a:hover {
           text-decoration: underline;
         }
-        .social-links {
-          display: flex;
-          justify-content: center;
-          gap: 16px;
-          margin: 12px 0;
-        }
-        .social-links span {
-          color: #64748B;
+        .footer .social {
           font-size: 20px;
+          margin: 8px 0;
+          letter-spacing: 8px;
+        }
+        .footer .tagline {
+          color: #94A3B8;
+          font-size: 12px;
+          font-style: italic;
         }
         @media (max-width: 480px) {
-          .container { padding: 28px 20px; }
-          .title { font-size: 22px; }
-          .button { padding: 14px 32px; font-size: 14px; }
-          .features-grid { grid-template-columns: 1fr; }
+          .container { padding: 24px 18px; }
+          .title { font-size: 24px; }
+          .button { padding: 14px 32px; font-size: 16px; }
+          .steps-grid { grid-template-columns: 1fr; }
         }
       </style>
     </head>
     <body>
       <div class="container">
+        <!-- HEADER -->
         <div class="header">
           <div class="logo-wrapper">
             <span class="logo">🐼</span>
             <span class="brand">HanVerse</span>
           </div>
+          <div class="welcome-badge">🎉 Welcome to the Family!</div>
         </div>
 
-        <div class="title">🎉 Welcome to HanVerse, ${fullName || username || 'Learner'}!</div>
+        <!-- TITLE -->
+        <div class="title">
+          Hey <span class="highlight">${fullName || username || 'Learner'}</span>! 👋
+        </div>
 
+        <!-- SUBTITLE -->
         <div class="subtitle">
-          You've joined a magical world where learning Mandarin is fun and easy!<br>
-          <strong>Let's get started on your language adventure! 🚀</strong>
+          You've joined a <strong>magical world</strong> where learning Mandarin is<br>
+          fun, easy, and full of <strong>adventures</strong>! 🚀
         </div>
 
-        <div class="features-grid">
-          <div class="feature-card">
-            <span class="feature-icon">📚</span>
-            <span class="feature-name">Interactive Stories</span>
-            <span class="feature-desc">Learn through engaging stories</span>
+        <!-- WELCOME MESSAGE -->
+        <div class="welcome-message">
+          <span class="big-emoji">🌟</span>
+          <p><strong>Welcome to HanVerse!</strong></p>
+          <p style="font-size: 14px; color: #065F46; font-weight: 400;">
+            Get ready for an exciting journey of learning Mandarin through stories, games, and AI!
+          </p>
+        </div>
+
+        <!-- STEPS -->
+        <div class="steps-grid">
+          <div class="step-item">
+            <span class="step-icon">📝</span>
+            <span class="step-number">STEP 1</span>
+            <div class="step-text">Complete Your Profile</div>
+            <div class="step-desc">Tell us about yourself</div>
           </div>
-          <div class="feature-card">
-            <span class="feature-icon">🎮</span>
-            <span class="feature-name">Fun Games</span>
-            <span class="feature-desc">Play and learn at the same time</span>
+          <div class="step-item">
+            <span class="step-icon">🎯</span>
+            <span class="step-number">STEP 2</span>
+            <div class="step-text">Take Placement Test</div>
+            <div class="step-desc">Find your perfect level</div>
           </div>
-          <div class="feature-card">
-            <span class="feature-icon">🤖</span>
-            <span class="feature-name">AI Panda Tutor</span>
-            <span class="feature-desc">Your personal Mandarin assistant</span>
+          <div class="step-item">
+            <span class="step-icon">📚</span>
+            <span class="step-number">STEP 3</span>
+            <div class="step-text">Start Your First Lesson</div>
+            <div class="step-desc">Earn XP and level up!</div>
           </div>
-          <div class="feature-card">
-            <span class="feature-icon">🏆</span>
-            <span class="feature-name">Achievements</span>
-            <span class="feature-desc">Earn rewards as you progress</span>
+          <div class="step-item">
+            <span class="step-icon">🤖</span>
+            <span class="step-number">STEP 4</span>
+            <div class="step-text">Chat with Panda AI</div>
+            <div class="step-desc">Your personal tutor!</div>
           </div>
         </div>
 
-        <div class="get-started">
-          <h4>🌟 Your First Steps:</h4>
-          <ol>
-            <li>Complete your profile and set your learning goals</li>
-            <li>Take a placement test to find your perfect starting level</li>
-            <li>Start your first lesson and earn XP points!</li>
-            <li>Chat with Panda AI whenever you need help</li>
-          </ol>
+        <!-- BONUS -->
+        <div class="bonus-box">
+          <span class="bonus-emoji">🎁</span>
+          <span class="bonus-text">Complete your first lesson today and earn 50 BONUS XP! ⚡</span>
         </div>
 
+        <!-- START BUTTON -->
         <div class="button-container">
-          <a href="${getFrontendBaseUrl()}/dashboard.html" class="button">🚀 Start Learning Now</a>
+          <a href="${getFrontendBaseUrl()}/learn.html" class="button">🚀 Start Learning Now</a>
         </div>
 
         <hr class="divider">
 
-        <div style="text-align: center; color: #94A3B8; font-size: 14px; margin: 16px 0;">
-          <p style="margin: 4px 0;">🎯 Complete your first lesson today and earn 50 bonus XP!</p>
-          <p style="margin: 4px 0; font-size: 13px; color: #64748B;">👆 Click the button above to begin</p>
-        </div>
-
+        <!-- FOOTER -->
         <div class="footer">
-          <p>Have questions? We're here to help! <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
-          <div class="social-links">
-            <span>🐼</span>
-            <span>🎋</span>
-            <span>🏮</span>
-            <span>🎐</span>
-          </div>
-          <p style="margin-top: 8px; font-size: 12px; color: #475569;">
-            🐼 HanVerse — Learn Mandarin Through Stories, Games & AI
-          </p>
+          <p>💬 Questions? We're here to help! <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+          <div class="social">🐼 🎋 🏮 🎐</div>
+          <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
         </div>
       </div>
     </body>
     </html>
   `;
 }
+// ==========================================
+// INVITE EMAIL - CHILD-FRIENDLY VERSION
+// ==========================================
+function getInviteEmailHTML({ inviterName, customMessage, signupLink }) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>You're Invited to HanVerse! 🐼</title>
+      <style>
+        body {
+          font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif;
+          background: #F5F3FF;
+          margin: 0;
+          padding: 20px;
+          -webkit-font-smoothing: antialiased;
+        }
+        .container {
+          max-width: 580px;
+          margin: 0 auto;
+          background: #FFFFFF;
+          border-radius: 30px;
+          padding: 40px 35px;
+          box-shadow: 0 10px 40px rgba(139, 92, 246, 0.10);
+          border: 2px solid #DDD6FE;
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .logo-wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          margin-bottom: 4px;
+        }
+        .logo {
+          font-size: 48px;
+          background: #F5F3FF;
+          padding: 10px;
+          border-radius: 50%;
+        }
+        .brand {
+          font-size: 32px;
+          font-weight: 900;
+          background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          letter-spacing: -1px;
+        }
+        .invite-badge {
+          display: inline-block;
+          background: #FEF3C7;
+          padding: 4px 16px;
+          border-radius: 20px;
+          font-size: 14px;
+          color: #D97706;
+          font-weight: 700;
+          margin-top: 4px;
+        }
+        .title {
+          font-size: 28px;
+          font-weight: 800;
+          color: #1E293B;
+          text-align: center;
+          margin: 12px 0 8px;
+          line-height: 1.2;
+        }
+        .title .highlight {
+          color: #8B5CF6;
+        }
+        .subtitle {
+          color: #475569;
+          text-align: center;
+          line-height: 1.8;
+          font-size: 16px;
+          margin-bottom: 16px;
+        }
+        .subtitle strong {
+          color: #1E293B;
+        }
+        .invite-message {
+          background: #F5F3FF;
+          border-radius: 16px;
+          padding: 16px 20px;
+          margin: 12px 0;
+          border-left: 4px solid #8B5CF6;
+          font-style: italic;
+          color: #4C1D95;
+          font-size: 15px;
+        }
+        .perks-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin: 16px 0 20px;
+        }
+        .perk-item {
+          text-align: center;
+          padding: 14px 12px;
+          background: #F8FAFC;
+          border-radius: 16px;
+          border: 1px solid #E2E8F0;
+        }
+        .perk-item .icon {
+          font-size: 32px;
+          display: block;
+          margin-bottom: 4px;
+        }
+        .perk-item .label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1E293B;
+        }
+        .bonus-box {
+          text-align: center;
+          background: #FEF3C7;
+          border-radius: 16px;
+          padding: 12px 20px;
+          margin: 12px 0;
+          border: 2px solid #FDE68A;
+        }
+        .bonus-box .bonus-text {
+          font-weight: 700;
+          color: #D97706;
+          font-size: 15px;
+        }
+        .button-container {
+          text-align: center;
+          margin: 24px 0 16px;
+        }
+        .button {
+          display: inline-block;
+          padding: 18px 48px;
+          background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+          color: white !important;
+          text-decoration: none;
+          border-radius: 50px;
+          font-weight: 700;
+          font-size: 18px;
+          transition: all 0.3s ease;
+          box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25);
+          letter-spacing: 0.5px;
+        }
+        .button:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 12px 35px rgba(139, 92, 246, 0.35);
+        }
+        .divider {
+          border: none;
+          height: 2px;
+          background: linear-gradient(to right, transparent, #DDD6FE, transparent);
+          margin: 24px 0;
+        }
+        .footer {
+          text-align: center;
+          color: #94A3B8;
+          font-size: 13px;
+          margin-top: 24px;
+          padding-top: 20px;
+          border-top: 2px solid #F1F5F9;
+          line-height: 1.8;
+        }
+        .footer a {
+          color: #8B5CF6;
+          text-decoration: none;
+          font-weight: 600;
+        }
+        .footer a:hover {
+          text-decoration: underline;
+        }
+        .footer .social {
+          font-size: 20px;
+          margin: 8px 0;
+          letter-spacing: 8px;
+        }
+        .footer .tagline {
+          color: #94A3B8;
+          font-size: 12px;
+          font-style: italic;
+        }
+        @media (max-width: 480px) {
+          .container { padding: 24px 18px; }
+          .title { font-size: 22px; }
+          .button { padding: 14px 32px; font-size: 16px; }
+          .perks-grid { grid-template-columns: 1fr; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+          <div class="logo-wrapper">
+            <span class="logo">🐼</span>
+            <span class="brand">HanVerse</span>
+          </div>
+          <div class="invite-badge">✨ You're Invited!</div>
+        </div>
 
+        <!-- TITLE -->
+        <div class="title">
+          <span class="highlight">${inviterName}</span> Invited You! 🎉
+        </div>
+
+        <!-- SUBTITLE -->
+        <div class="subtitle">
+          Join the fun way to learn Mandarin through <strong>stories, games, and AI</strong>!<br>
+          Your adventure starts here! 🚀
+        </div>
+
+        <!-- CUSTOM MESSAGE -->
+        ${customMessage ? `<div class="invite-message">"${customMessage}"</div>` : ''}
+
+        <!-- PERKS -->
+        <div class="perks-grid">
+          <div class="perk-item">
+            <span class="icon">📚</span>
+            <span class="label">Interactive Stories</span>
+          </div>
+          <div class="perk-item">
+            <span class="icon">🎮</span>
+            <span class="label">Fun Games</span>
+          </div>
+          <div class="perk-item">
+            <span class="icon">🤖</span>
+            <span class="label">AI Panda Tutor</span>
+          </div>
+          <div class="perk-item">
+            <span class="icon">🏆</span>
+            <span class="label">Achievements</span>
+          </div>
+        </div>
+
+        <!-- BONUS -->
+        <div class="bonus-box">
+          <span class="bonus-text">🎁 Bonus: You'll both get <strong>50 XP</strong> when you sign up!</span>
+        </div>
+
+        <!-- JOIN BUTTON -->
+        <div class="button-container">
+          <a href="${signupLink}" class="button">🎯 Join HanVerse Now</a>
+        </div>
+
+        <hr class="divider">
+
+        <!-- FOOTER -->
+        <div class="footer">
+          <p>Start your Mandarin adventure today! 🐼</p>
+          <p style="font-size: 12px; color: #94A3B8;">
+            This invitation was sent by a HanVerse member.
+          </p>
+          <div class="social">🐼 🎋 🏮 🎐</div>
+          <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
 /* ==========================================
    EMAIL SEND FUNCTIONS
 ========================================== */
@@ -3661,165 +4075,12 @@ router.post('/send-invite', async (req, res) => {
     const signupLink = `${getFrontendBaseUrl()}/signup.html?ref=${inviter.username}`;
 
     // Build the invite email HTML
-    const inviteHTML = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>You're Invited to HanVerse! 🐼</title>
-        <style>
-          body {
-            font-family: 'Poppins', Arial, sans-serif;
-            background: #0F172A;
-            color: #E8E8F0;
-            margin: 0;
-            padding: 0;
-          }
-          .container {
-            max-width: 560px;
-            margin: 40px auto;
-            background: linear-gradient(145deg, #1E293B, #0F172A);
-            border-radius: 24px;
-            padding: 48px 40px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-          }
-          .header {
-            text-align: center;
-            margin-bottom: 32px;
-          }
-          .logo-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 8px;
-          }
-          .brand {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #60A5FA, #34D399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-          .title {
-            font-size: 26px;
-            font-weight: 700;
-            color: #FFFFFF;
-            text-align: center;
-            margin: 20px 0 12px;
-          }
-          .subtitle {
-            color: #94A3B8;
-            text-align: center;
-            line-height: 1.7;
-            font-size: 15px;
-            margin-bottom: 28px;
-          }
-          .invite-message {
-            background: rgba(255,255,255,0.03);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 16px 0;
-            border-left: 4px solid #3B82F6;
-            color: #E8E8F0;
-            font-style: italic;
-          }
-          .button-container {
-            text-align: center;
-            margin: 32px 0;
-          }
-          .button {
-            display: inline-block;
-            padding: 16px 44px;
-            background: linear-gradient(135deg, #3B82F6, #14B8A6);
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-          }
-          .perks {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 20px 0;
-          }
-          .perk {
-            text-align: center;
-            padding: 12px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-          }
-          .perk .icon { font-size: 24px; display: block; }
-          .perk .label { color: #94A3B8; font-size: 13px; margin-top: 4px; display: block; }
-          .footer {
-            text-align: center;
-            color: #64748B;
-            font-size: 13px;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid rgba(255,255,255,0.06);
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <div class="logo-wrapper">
-              <span style="font-size: 42px;">🐼</span>
-              <span class="brand">HanVerse</span>
-            </div>
-          </div>
-
-          <div class="title">🌟 You're Invited to HanVerse!</div>
-
-          <div class="subtitle">
-            <strong>${inviterName}</strong> has invited you to join the fun way to learn Mandarin! 🎉
-          </div>
-
-          ${customMessage ? `<div class="invite-message">"${customMessage}"</div>` : ''}
-
-          <div class="perks">
-            <div class="perk">
-              <span class="icon">📚</span>
-              <span class="label">Interactive Stories</span>
-            </div>
-            <div class="perk">
-              <span class="icon">🎮</span>
-              <span class="label">Fun Games</span>
-            </div>
-            <div class="perk">
-              <span class="icon">🤖</span>
-              <span class="label">AI Panda Tutor</span>
-            </div>
-            <div class="perk">
-              <span class="icon">🏆</span>
-              <span class="label">Achievements</span>
-            </div>
-          </div>
-
-          <div style="text-align: center; color: #F59E0B; font-size: 14px; margin: 16px 0;">
-            ✨ <strong>Bonus:</strong> When you sign up, you'll both get 50 bonus XP! ✨
-          </div>
-
-          <div class="button-container">
-            <a href="${signupLink}" class="button">🎯 Join HanVerse Now</a>
-          </div>
-
-          <div class="footer">
-            <p>Start your Mandarin adventure today! 🐼<br>
-            <span style="font-size: 12px; color: #475569;">
-              This invitation was sent by a HanVerse member.
-            </span></p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+    // Replace the inviteHTML building section with:
+const inviteHTML = getInviteEmailHTML({
+  inviterName: inviterName,
+  customMessage: customMessage || null,
+  signupLink: signupLink
+});
 
     if (mailer) {
       await mailer.sendMail({

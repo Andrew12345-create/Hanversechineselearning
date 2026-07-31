@@ -4,444 +4,873 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Invite Friends - HanVerse 🐼</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Sans+MS&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <style>
-          /* Modal Styles */
-  .invite-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  
-  .invite-modal-content {
-    background: linear-gradient(145deg, #1E293B, #0F172A);
-    border-radius: 24px;
-    max-width: 500px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    padding: 32px;
-  }
-  
-  .invite-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .invite-modal-header h2 {
-    color: white;
-    font-size: 24px;
-    margin: 0;
-  }
-  
-  .invite-close-btn {
-    background: none;
-    border: none;
-    color: #94A3B8;
-    font-size: 28px;
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-  
-  .invite-close-btn:hover {
-    color: white;
-  }
-  
-  .invite-subtitle {
-    color: #94A3B8;
-    font-size: 15px;
-    line-height: 1.7;
-    margin-bottom: 24px;
-  }
-  
-  .invite-form-group {
-    margin-bottom: 16px;
-  }
-  
-  .invite-form-group label {
-    display: block;
-    color: #E8E8F0;
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 6px;
-  }
-  
-  .invite-form-group input,
-  .invite-form-group textarea {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: white;
-    font-size: 14px;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-    font-family: inherit;
-  }
-  
-  .invite-form-group input:focus,
-  .invite-form-group textarea:focus {
-    outline: none;
-    border-color: #3B82F6;
-  }
-  
-  .invite-form-group textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-  
-  .invite-send-btn {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #3B82F6, #14B8A6);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-top: 8px;
-  }
-  
-  .invite-send-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
-  }
-  
-  .invite-send-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-  
-  .invite-result {
-    margin-top: 16px;
-    padding: 12px;
-    border-radius: 8px;
-    display: none;
-  }
-  
-  .invite-result.success {
-    display: block;
-    background: rgba(52, 211, 153, 0.1);
-    border: 1px solid rgba(52, 211, 153, 0.3);
-    color: #34D399;
-  }
-  
-  .invite-result.error {
-    display: block;
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #F87171;
-  }
-  
-  .invite-divider {
-    display: flex;
-    align-items: center;
-    margin: 24px 0;
-    color: #64748B;
-    font-size: 13px;
-  }
-  
-  .invite-divider::before,
-  .invite-divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.06);
-  }
-  
-  .invite-divider span {
-    padding: 0 16px;
-  }
-  
-  .invite-referral-section {
-    margin-top: 16px;
-  }
-  
-  .invite-referral-link {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .invite-referral-link input {
-    flex: 1;
-    padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: #94A3B8;
-    font-size: 13px;
-    cursor: default;
-  }
-  
-  .invite-copy-btn {
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.2s;
-    white-space: nowrap;
-  }
-  
-  .invite-copy-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  
-  @media (max-width: 480px) {
-    .invite-modal-content {
-      padding: 20px;
-    }
-    
-    .invite-modal-header h2 {
-      font-size: 20px;
-    }
-    
-    .invite-referral-link {
-      flex-direction: column;
-    }
-  }
+        /* ============================================
+           ROOT VARIABLES - HanVerse Colors
+        ============================================ */
+        :root {
+            --primary: #2563EB;
+            --primary-light: #DBEAFE;
+            --secondary: #14B8A6;
+            --secondary-light: #99F6E4;
+            --purple: #8B5CF6;
+            --purple-light: #DDD6FE;
+            --accent: #F59E0B;
+            --accent-light: #FDE68A;
+            --dark: #0F172A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --muted: #64748B;
+            --bg: #F5F3FF;
+            --white: #FFFFFF;
+            --success: #22C55E;
+            --error: #EF4444;
+            --border: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 30px;
+            --radius-full: 9999px;
+            --transition-smooth: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* ============================================
+           RESET & BASE
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Comic Sans MS', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: 'Poppins', Arial, sans-serif;
-            background: #0F172A;
-            color: #E8E8F0;
+            background: linear-gradient(135deg, #F5F3FF 0%, #DBEAFE 50%, #D1FAE5 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
             margin: 0;
+            position: relative;
+            overflow-x: hidden;
         }
-        
+
+        /* Animated background decorations */
+        body::before {
+            content: '🐼';
+            position: fixed;
+            font-size: 120px;
+            opacity: 0.06;
+            top: -40px;
+            right: -40px;
+            transform: rotate(15deg);
+            pointer-events: none;
+            animation: floatSlow 20s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '🎋';
+            position: fixed;
+            font-size: 100px;
+            opacity: 0.05;
+            bottom: -30px;
+            left: -30px;
+            transform: rotate(-10deg);
+            pointer-events: none;
+            animation: floatSlow 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(30px, -20px) rotate(5deg); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            font-size: 24px;
+            opacity: 0.10;
+            pointer-events: none;
+            animation: floatParticle 15s ease-in-out infinite;
+        }
+        .particle:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+        .particle:nth-child(2) { top: 20%; right: 8%; animation-delay: 3s; font-size: 18px; }
+        .particle:nth-child(3) { bottom: 30%; left: 3%; animation-delay: 6s; font-size: 30px; }
+        .particle:nth-child(4) { bottom: 15%; right: 5%; animation-delay: 9s; font-size: 20px; }
+
+        @keyframes floatParticle {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, -30px) rotate(10deg); }
+            75% { transform: translate(-15px, 25px) rotate(-5deg); }
+        }
+
+        ::selection {
+            background: var(--purple);
+            color: white;
+        }
+
+        /* ============================================
+           MAIN CARD
+        ============================================ */
         .invite-page {
-            max-width: 500px;
+            max-width: 540px;
             width: 100%;
-            background: linear-gradient(145deg, #1E293B, #0F172A);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 40px 38px;
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.15), 
+                        0 0 0 1px rgba(139, 92, 246, 0.08);
+            border: 2px solid rgba(139, 92, 246, 0.12);
+            position: relative;
+            z-index: 2;
+            animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            transition: var(--transition-smooth);
         }
-        
+
+        .invite-page:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 24px 70px rgba(139, 92, 246, 0.20);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ============================================
+           HEADER
+        ============================================ */
         .invite-page-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
-        
-        .invite-page-header .brand {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #60A5FA, #34D399);
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 2px;
+        }
+
+        .logo-icon {
+            font-size: 52px;
+            background: linear-gradient(135deg, #F5F3FF, #DBEAFE);
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+            display: inline-block;
+            animation: bounce 3s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .brand {
+            font-size: 34px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #8B5CF6, #6D28D9, #2563EB);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
         }
-        
-        /* Copy the rest of the styles from the modal version above */
+
+        .invite-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            padding: 6px 20px;
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            color: #D97706;
+            font-weight: 700;
+            margin-top: 4px;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+        }
+
+        .invite-page-header h1 {
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--text);
+            margin: 16px 0 6px;
+            line-height: 1.2;
+        }
+
+        .invite-page-header h1 .highlight {
+            background: linear-gradient(135deg, #8B5CF6, #2563EB);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .invite-page-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* ============================================
+           FORM
+        ============================================ */
+        .invite-subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 24px;
+            text-align: center;
+            background: linear-gradient(135deg, #F5F3FF, #DBEAFE);
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--purple);
+        }
+
+        .invite-subtitle strong {
+            color: var(--purple);
+            font-weight: 700;
+        }
+
+        .invite-form-group {
+            margin-bottom: 16px;
+        }
+
+        .invite-form-group label {
+            display: block;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .invite-form-group label .required {
+            color: var(--error);
+        }
+
+        .invite-form-group input,
+        .invite-form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #F8FAFC;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 14px;
+            transition: var(--transition-smooth);
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .invite-form-group input:focus,
+        .invite-form-group textarea:focus {
+            outline: none;
+            border-color: var(--purple);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.08);
+        }
+
+        .invite-form-group input::placeholder,
+        .invite-form-group textarea::placeholder {
+            color: var(--muted);
+        }
+
+        .invite-form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* ============================================
+           SEND BUTTON
+        ============================================ */
+        .invite-send-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            margin-top: 4px;
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .invite-send-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.35);
+        }
+
+        .invite-send-btn:active {
+            transform: scale(0.97);
+        }
+
+        .invite-send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .invite-send-btn .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .invite-send-btn.loading .spinner {
+            display: inline-block;
+        }
+
+        .invite-send-btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ============================================
+           RESULT MESSAGES
+        ============================================ */
+        .invite-result {
+            margin-top: 16px;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            display: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .invite-result.success {
+            display: block;
+            background: #F0FDF4;
+            border: 2px solid #86EFAC;
+            color: #065F46;
+        }
+
+        .invite-result.success::before {
+            content: '🎉 ';
+        }
+
+        .invite-result.error {
+            display: block;
+            background: #FEF2F2;
+            border: 2px solid #FCA5A5;
+            color: #991B1B;
+        }
+
+        .invite-result.error::before {
+            content: '😅 ';
+        }
+
+        /* ============================================
+           DIVIDER
+        ============================================ */
+        .invite-divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .invite-divider::before,
+        .invite-divider::after {
+            content: "";
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--border), transparent);
+        }
+
+        .invite-divider span {
+            padding: 0 16px;
+            background: white;
+        }
+
+        /* ============================================
+           REFERRAL SECTION
+        ============================================ */
+        .invite-referral-section {
+            margin-top: 4px;
+        }
+
+        .invite-referral-link {
+            display: flex;
+            gap: 10px;
+        }
+
+        .invite-referral-link input {
+            flex: 1;
+            padding: 10px 14px;
+            background: #F8FAFC;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            cursor: default;
+            transition: var(--transition-smooth);
+        }
+
+        .invite-referral-link input:focus {
+            border-color: var(--purple);
+            background: white;
+        }
+
+        .invite-copy-btn {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+        }
+
+        .invite-copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+        }
+
+        .invite-copy-btn:active {
+            transform: scale(0.96);
+        }
+
+        #copyMessage {
+            color: var(--success);
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+            background: #F0FDF4;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid #86EFAC;
+        }
+
+        #copyMessage.show {
+            display: block;
+            animation: fadeUp 0.3s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================
+           PERKS / FEATURES
+        ============================================ */
+        .perks-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 16px 0 8px;
+        }
+
+        .perk-mini-item {
+            text-align: center;
+            padding: 10px 6px;
+            background: #F8FAFC;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition-smooth);
+        }
+
+        .perk-mini-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--purple);
+            background: #F5F3FF;
+        }
+
+        .perk-mini-item .icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .perk-mini-item .label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* ============================================
+           BACK LINK
+        ============================================ */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 20px;
+            transition: var(--transition-smooth);
+        }
+
+        .back-link:hover {
+            color: var(--purple);
+            transform: translateX(-4px);
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 640px) {
+            .invite-page {
+                padding: 28px 20px;
+                border-radius: 24px;
+            }
+
+            .invite-page-header h1 {
+                font-size: 24px;
+            }
+
+            .brand {
+                font-size: 28px;
+            }
+
+            .logo-icon {
+                font-size: 40px;
+                padding: 8px;
+            }
+
+            .perks-mini {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+
+            .invite-referral-link {
+                flex-direction: column;
+            }
+
+            .invite-copy-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .invite-send-btn {
+                font-size: 15px;
+                padding: 14px;
+            }
+
+            body::before {
+                font-size: 80px;
+            }
+            body::after {
+                font-size: 70px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .invite-page {
+                padding: 20px 16px;
+            }
+
+            .invite-page-header h1 {
+                font-size: 20px;
+            }
+
+            .brand {
+                font-size: 24px;
+            }
+
+            .invite-subtitle {
+                font-size: 13px;
+                padding: 12px 14px;
+            }
+
+            .invite-form-group input,
+            .invite-form-group textarea {
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+        }
+
+        /* ============================================
+           MOTION REDUCTION
+        ============================================ */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .invite-page:hover {
+                transform: none !important;
+            }
+
+            .invite-send-btn:hover {
+                transform: none !important;
+            }
+        }
+
+        /* ============================================
+           FOCUS VISIBLE
+        ============================================ */
+        *:focus-visible {
+            outline: 3px solid var(--purple);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
+    <!-- Floating particles -->
+    <div class="particle">🌸</div>
+    <div class="particle">🎋</div>
+    <div class="particle">🏮</div>
+    <div class="particle">🌟</div>
+
     <div class="invite-page">
+        <!-- ===== HEADER ===== -->
         <div class="invite-page-header">
-            <div style="font-size: 48px;">🐼</div>
-            <div class="brand">HanVerse</div>
-            <h1 style="color: white; font-size: 28px; margin: 16px 0 8px;">Invite Friends</h1>
-            <p style="color: #94A3B8; margin: 0;">Share the joy of learning Mandarin! 🎉</p>
+            <div class="logo-wrapper">
+                <span class="logo-icon">🐼</span>
+                <span class="brand">HanVerse</span>
+            </div>
+            <div class="invite-badge">✨ Share the Fun!</div>
+            <h1>Invite <span class="highlight">Friends</span></h1>
+            <p>Share the joy of learning Mandarin! 🎉</p>
         </div>
-        
-        <!-- Copy the form from the modal version -->
-       <div class="invite-modal-body">
-    <p class="invite-subtitle">Share the joy of learning Mandarin! Invite your friends and earn <strong>50 bonus XP</strong> for each friend who joins! 🎉</p>
-    
-    <div class="invite-form-group">
-        <label for="inviteEmail">Friend's Email Address</label>
-        <input type="email" id="inviteEmail" placeholder="friend@example.com" />
-    </div>
-    
-    <div class="invite-form-group">
-        <label for="inviteMessage">Personal Message (Optional)</label>
-        <textarea id="inviteMessage" rows="3" placeholder="Join me on HanVerse to learn Mandarin the fun way! 🐼"></textarea>
-    </div>
-    
-    <div class="invite-form-group">
-        <label for="inviteName">Friend's Name (Optional)</label>
-        <input type="text" id="inviteName" placeholder="Enter their name" />
-    </div>
-    
-    <button class="invite-send-btn" onclick="sendInvite()">
-        <span id="inviteBtnText">📨 Send Invitation</span>
-        <span id="inviteLoading" style="display: none;">Sending...</span>
-    </button>
-    
-    <div id="inviteMessageResult" class="invite-result"></div>
-    
-    <div class="invite-divider">
-        <span>or share your referral link</span>
-    </div>
-    
-    <div class="invite-referral-section">
-        <div class="invite-referral-link">
-            <input type="text" id="referralLink" readonly value="https://hanverse.netlify.app/signup.html?ref=YOUR_USERNAME" />
-            <button onclick="copyReferralLink()" class="invite-copy-btn">📋 Copy</button>
+
+        <!-- ===== PERKS MINI ===== -->
+        <div class="perks-mini">
+            <div class="perk-mini-item">
+                <span class="icon">📚</span>
+                <span class="label">Stories</span>
+            </div>
+            <div class="perk-mini-item">
+                <span class="icon">🎮</span>
+                <span class="label">Games</span>
+            </div>
+            <div class="perk-mini-item">
+                <span class="icon">🤖</span>
+                <span class="label">AI Tutor</span>
+            </div>
+            <div class="perk-mini-item">
+                <span class="icon">🏆</span>
+                <span class="label">XP &amp; More</span>
+            </div>
         </div>
-        <div id="copyMessage" style="color: #34D399; font-size: 13px; margin-top: 8px; display: none;">✅ Copied to clipboard!</div>
+
+        <!-- ===== SUBTITLE ===== -->
+        <div class="invite-subtitle">
+            Invite your friends and earn <strong>50 bonus XP</strong> for each friend who joins! 🎁
+        </div>
+
+        <!-- ===== FORM ===== -->
+        <div class="invite-form-group">
+            <label for="inviteEmail">Friend's Email Address <span class="required">*</span></label>
+            <input type="email" id="inviteEmail" placeholder="friend@example.com" />
+        </div>
+
+        <div class="invite-form-group">
+            <label for="inviteMessage">Personal Message <span style="color:var(--muted);font-weight:400;">(Optional)</span></label>
+            <textarea id="inviteMessage" rows="3" placeholder="Join me on HanVerse to learn Mandarin the fun way! 🐼"></textarea>
+        </div>
+
+        <div class="invite-form-group">
+            <label for="inviteName">Friend's Name <span style="color:var(--muted);font-weight:400;">(Optional)</span></label>
+            <input type="text" id="inviteName" placeholder="Enter their name" />
+        </div>
+
+        <button class="invite-send-btn" onclick="sendInvite()">
+            <span class="btn-text">📨 Send Invitation</span>
+            <span class="spinner"></span>
+        </button>
+
+        <div id="inviteMessageResult" class="invite-result"></div>
+
+        <!-- ===== DIVIDER ===== -->
+        <div class="invite-divider">
+            <span>or share your referral link</span>
+        </div>
+
+        <!-- ===== REFERRAL LINK ===== -->
+        <div class="invite-referral-section">
+            <div class="invite-referral-link">
+                <input type="text" id="referralLink" readonly value="https://hanverse.netlify.app/signup.html?ref=YOUR_USERNAME" />
+                <button onclick="copyReferralLink()" class="invite-copy-btn">📋 Copy</button>
+            </div>
+            <div id="copyMessage">✅ Copied to clipboard!</div>
+        </div>
+
+        <!-- ===== BACK LINK ===== -->
+        <a href="index.html" class="back-link">← Back to Home</a>
     </div>
-</div>
-    
+
     <script>
-         // Modal functions
-  function openInviteModal() {
-    const modal = document.getElementById('inviteModal');
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    
-    // Set referral link with username
-    const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
-    if (user.username) {
-      document.getElementById('referralLink').value = 
-        `https://hanverse.netlify.app/signup.html?ref=${user.username}`;
-    }
-  }
-  
-  function closeInviteModal() {
-    const modal = document.getElementById('inviteModal');
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-    // Reset form
-    document.getElementById('inviteEmail').value = '';
-    document.getElementById('inviteMessage').value = '';
-    document.getElementById('inviteName').value = '';
-    document.getElementById('inviteMessageResult').className = 'invite-result';
-    document.getElementById('inviteMessageResult').style.display = 'none';
-  }
-  
-  // Close modal on outside click
-  document.addEventListener('click', function(e) {
-    const modal = document.getElementById('inviteModal');
-    if (e.target === modal) {
-      closeInviteModal();
-    }
-  });
-  
-  // Copy referral link
-  function copyReferralLink() {
-    const linkInput = document.getElementById('referralLink');
-    linkInput.select();
-    linkInput.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(linkInput.value).then(() => {
-      const msg = document.getElementById('copyMessage');
-      msg.style.display = 'block';
-      setTimeout(() => {
-        msg.style.display = 'none';
-      }, 3000);
-    }).catch(() => {
-      // Fallback
-      document.execCommand('copy');
-      const msg = document.getElementById('copyMessage');
-      msg.style.display = 'block';
-      setTimeout(() => {
-        msg.style.display = 'none';
-      }, 3000);
-    });
-  }
-  
-  // Send invite
-  async function sendInvite() {
-    const email = document.getElementById('inviteEmail').value.trim();
-    const message = document.getElementById('inviteMessage').value.trim();
-    const name = document.getElementById('inviteName').value.trim();
-    const resultDiv = document.getElementById('inviteMessageResult');
-    const sendBtn = document.querySelector('.invite-send-btn');
-    const btnText = document.getElementById('inviteBtnText');
-    const loading = document.getElementById('inviteLoading');
-    
-    // Validate email
-    if (!email) {
-      resultDiv.className = 'invite-result error';
-      resultDiv.textContent = '❌ Please enter your friend\'s email address.';
-      resultDiv.style.display = 'block';
-      return;
-    }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      resultDiv.className = 'invite-result error';
-      resultDiv.textContent = '❌ Please enter a valid email address.';
-      resultDiv.style.display = 'block';
-      return;
-    }
-    
-    // Get user
-    const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
-    if (!user.user_id) {
-      resultDiv.className = 'invite-result error';
-      resultDiv.textContent = '❌ Please log in first.';
-      resultDiv.style.display = 'block';
-      return;
-    }
-    
-    // Disable button and show loading
-    sendBtn.disabled = true;
-    btnText.style.display = 'none';
-    loading.style.display = 'inline';
-    resultDiv.style.display = 'none';
-    
-    try {
-      const response = await fetch('/api/send-invite', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          inviterId: user.user_id,
-          inviteeEmail: email,
-          inviteeName: name || null,
-          customMessage: message || null
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        resultDiv.className = 'invite-result success';
-        resultDiv.textContent = `✅ ${data.message}`;
-        resultDiv.style.display = 'block';
-        document.getElementById('inviteEmail').value = '';
-        document.getElementById('inviteMessage').value = '';
-        document.getElementById('inviteName').value = '';
-      } else {
-        resultDiv.className = 'invite-result error';
-        resultDiv.textContent = `❌ ${data.error || 'Failed to send invitation.'}`;
-        resultDiv.style.display = 'block';
-      }
-    } catch (error) {
-      console.error('Invite error:', error);
-      resultDiv.className = 'invite-result error';
-      resultDiv.textContent = '❌ Network error. Please try again.';
-      resultDiv.style.display = 'block';
-    } finally {
-      // Re-enable button
-      sendBtn.disabled = false;
-      btnText.style.display = 'inline';
-      loading.style.display = 'none';
-    }
-  }
+        // ==========================================
+        // REFERRAL LINK
+        // ==========================================
+        function setReferralLink() {
+            const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+            const linkInput = document.getElementById('referralLink');
+            if (user.username) {
+                linkInput.value = `https://hanverse.netlify.app/signup.html?ref=${user.username}`;
+            }
+        }
+
+        // ==========================================
+        // COPY REFERRAL LINK
+        // ==========================================
+        function copyReferralLink() {
+            const linkInput = document.getElementById('referralLink');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+            
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                showCopyMessage();
+            }).catch(() => {
+                // Fallback
+                document.execCommand('copy');
+                showCopyMessage();
+            });
+        }
+
+        function showCopyMessage() {
+            const msg = document.getElementById('copyMessage');
+            msg.classList.add('show');
+            setTimeout(() => {
+                msg.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==========================================
+        // SEND INVITE
+        // ==========================================
+        async function sendInvite() {
+            const email = document.getElementById('inviteEmail').value.trim();
+            const message = document.getElementById('inviteMessage').value.trim();
+            const name = document.getElementById('inviteName').value.trim();
+            const resultDiv = document.getElementById('inviteMessageResult');
+            const sendBtn = document.querySelector('.invite-send-btn');
+            
+            // Validate email
+            if (!email) {
+                resultDiv.className = 'invite-result error';
+                resultDiv.textContent = 'Please enter your friend\'s email address.';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                resultDiv.className = 'invite-result error';
+                resultDiv.textContent = 'Please enter a valid email address.';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            // Get user
+            const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
+            if (!user.user_id) {
+                resultDiv.className = 'invite-result error';
+                resultDiv.textContent = 'Please log in first.';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            // Loading state
+            sendBtn.classList.add('loading');
+            sendBtn.disabled = true;
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/send-invite', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        inviterId: user.user_id,
+                        inviteeEmail: email,
+                        inviteeName: name || null,
+                        customMessage: message || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.className = 'invite-result success';
+                    resultDiv.textContent = data.message;
+                    resultDiv.style.display = 'block';
+                    
+                    // Reset form
+                    document.getElementById('inviteEmail').value = '';
+                    document.getElementById('inviteMessage').value = '';
+                    document.getElementById('inviteName').value = '';
+                } else {
+                    resultDiv.className = 'invite-result error';
+                    resultDiv.textContent = data.error || 'Failed to send invitation.';
+                    resultDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Invite error:', error);
+                resultDiv.className = 'invite-result error';
+                resultDiv.textContent = 'Network error. Please try again.';
+                resultDiv.style.display = 'block';
+            } finally {
+                sendBtn.classList.remove('loading');
+                sendBtn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // INIT
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            setReferralLink();
+            
+            // Enter key support
+            document.getElementById('inviteEmail').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendInvite();
+            });
+        });
+
+        // Make functions global
+        window.sendInvite = sendInvite;
+        window.copyReferralLink = copyReferralLink;
     </script>
 </body>
 </html>
