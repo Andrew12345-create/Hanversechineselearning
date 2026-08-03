@@ -12,7 +12,7 @@
 
   <!-- ===== META TAGS ===== -->
   <meta property="og:title" content="Hanverse | Learn Mandarin Through Stories, Games & AI" />
-  <meta property="og:description" content="Interactive Mandarin learning for children through stories, games, videos, AI tutors, and structured YCT pathways." />
+  <meta property="og:description" content="The most engaging way for African children to learn Mandarin through stories, games, AI tutors, and structured YCT pathways." />
   <meta property="og:image" content="https://hanverse.netlify.app/og-image.png" />
   <meta name="description" content="Hanverse helps children learn Mandarin through interactive stories, games, videos, AI tutors, worksheets and structured YCT pathways." />
 
@@ -183,6 +183,8 @@
     .btn-login:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
     .btn-signup { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 4px 16px rgba(37,99,235,0.25); padding: 10px 24px; }
     .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,99,235,0.35); }
+    .btn-premium-cta { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; box-shadow: 0 4px 16px rgba(245,158,11,0.3); padding: 10px 24px; }
+    .btn-premium-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(245,158,11,0.4); }
     .btn-logout { background: rgba(239,68,68,0.08); color: #EF4444; padding: 6px 16px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(239,68,68,0.15); }
     .btn-logout:hover { background: rgba(239,68,68,0.15); transform: translateY(-1px); }
     .btn-parent { background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; padding: 8px 18px; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(139,92,246,0.25); }
@@ -238,7 +240,61 @@
       max-width: 1400px;
       margin: 0 auto;
       position: relative;
+      overflow: hidden;
     }
+    /* HERO ANIMATIONS - Floating Lanterns, Clouds, Sparkles */
+    .hero-lantern {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.15;
+      animation: floatLantern 12s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-lantern:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; font-size: 2.5rem; }
+    .hero-lantern:nth-child(2) { top: 20%; right: 8%; animation-delay: 3s; font-size: 1.8rem; }
+    .hero-lantern:nth-child(3) { bottom: 15%; left: 10%; animation-delay: 6s; font-size: 2.2rem; }
+    .hero-lantern:nth-child(4) { bottom: 25%; right: 12%; animation-delay: 9s; font-size: 1.5rem; }
+
+    .hero-cloud {
+      position: absolute;
+      font-size: 3rem;
+      opacity: 0.06;
+      animation: floatCloud 25s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-cloud:nth-child(5) { top: 5%; left: -5%; animation-delay: 0s; font-size: 4rem; }
+    .hero-cloud:nth-child(6) { bottom: 10%; right: -5%; animation-delay: 8s; font-size: 3.5rem; }
+
+    .hero-sparkle {
+      position: absolute;
+      font-size: 1.2rem;
+      opacity: 0.3;
+      animation: sparkle 3s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-sparkle:nth-child(7) { top: 30%; left: 20%; animation-delay: 0.5s; }
+    .hero-sparkle:nth-child(8) { top: 50%; right: 25%; animation-delay: 1.5s; }
+    .hero-sparkle:nth-child(9) { bottom: 40%; left: 30%; animation-delay: 2.5s; }
+    .hero-sparkle:nth-child(10) { bottom: 20%; right: 35%; animation-delay: 0.8s; }
+
+    @keyframes floatLantern {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(15px, -25px) rotate(5deg); }
+      50% { transform: translate(-10px, -15px) rotate(-3deg); }
+      75% { transform: translate(20px, -30px) rotate(4deg); }
+    }
+    @keyframes floatCloud {
+      0% { transform: translateX(-100px); }
+      100% { transform: translateX(calc(100vw + 100px)); }
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 0.1; transform: scale(0.8); }
+      50% { opacity: 0.6; transform: scale(1.2); }
+    }
+
     .hero-deco {
       position: absolute;
       font-size: 4rem;
@@ -248,26 +304,28 @@
       z-index: 0;
       animation: floatSlow 25s linear infinite;
     }
-    .hero-deco:nth-child(1) { top: 5%; left: 3%; animation-delay: 0s; }
-    .hero-deco:nth-child(2) { bottom: 8%; right: 2%; animation-delay: 5s; font-size: 6rem; }
-    .hero-deco:nth-child(3) { top: 40%; right: 15%; animation-delay: 10s; font-size: 3rem; opacity: 0.04; }
+    .hero-deco:nth-child(11) { top: 5%; left: 3%; animation-delay: 0s; }
+    .hero-deco:nth-child(12) { bottom: 8%; right: 2%; animation-delay: 5s; font-size: 6rem; }
+    .hero-deco:nth-child(13) { top: 40%; right: 15%; animation-delay: 10s; font-size: 3rem; opacity: 0.04; }
     @keyframes floatSlow {
       0%,100% { transform: translate(0,0) rotate(0deg); }
       25% { transform: translate(15px,-20px) rotate(3deg); }
       75% { transform: translate(-10px,15px) rotate(-3deg); }
     }
 
-    .hero-content { animation: fadeUp 0.8s ease; z-index: 1; }
+    .hero-content { animation: fadeUp 0.8s ease; z-index: 1; position: relative; }
     @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
     .tag { display: inline-flex; align-items: center; gap: 8px; background: var(--primary-light); color: var(--primary); padding: 8px 18px; border-radius: var(--radius-full); font-weight: 700; font-size: 0.8rem; margin-bottom: 24px; letter-spacing: 0.3px; }
     .tag .pulse { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(0.8); } }
     .hero h1 { font-size: clamp(36px, 5.5vw, 68px); line-height: 1.08; margin-bottom: 24px; font-weight: 900; letter-spacing: -1.5px; }
+    .hero h1 .highlight { background: linear-gradient(135deg, var(--accent), #EF4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .gradient-text { background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .hero p { font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); margin-bottom: 36px; max-width: 540px; }
 
     .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; }
 
+    /* Hero Card - Panda with animated elements */
     .hero-card {
       background: white; height: 420px; border-radius: var(--radius-lg);
       display: flex; align-items: center; justify-content: center; position: relative;
@@ -277,13 +335,39 @@
     }
     .hero-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: var(--shadow-xl); }
     .hero-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(20,184,166,0.05)); z-index: 1; }
-    .panda { font-size: 130px; z-index: 2; animation: float 6s ease-in-out infinite; }
+    .panda { font-size: 130px; z-index: 2; animation: float 6s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.1)); }
+    .panda:hover { animation-play-state: paused; transform: scale(1.05) rotate(-3deg); transition: transform 0.3s ease; }
     @keyframes float { 0%,100% { transform:translateY(0px); } 50% { transform:translateY(-16px); } }
     .float-char { position: absolute; font-size: 60px; font-weight: 800; opacity: 0.06; z-index: 0; animation: floatSlow 20s linear infinite; }
     .c1 { top:30px; left:30px; animation-delay:0s; }
     .c2 { top:50px; right:40px; animation-delay:2s; }
     .c3 { bottom:40px; left:40px; animation-delay:4s; }
     .c4 { bottom:30px; right:30px; animation-delay:6s; }
+
+    /* ----- HOW IT WORKS ----- */
+    .how-it-works { padding: 60px 7%; max-width: 1400px; margin: 0 auto; }
+    .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; }
+    .how-step { text-align: center; padding: 30px 20px; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); transition: var(--transition-smooth); border: 1px solid var(--border); }
+    .how-step:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+    .how-step .step-number { display: inline-block; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-weight: 800; font-size: 1.2rem; margin-bottom: 16px; }
+    .how-step .step-icon { font-size: 3rem; display: block; margin-bottom: 12px; }
+    .how-step h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .how-step p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+
+    /* ----- LEARNING JOURNEY MAP ----- */
+    .journey { padding: 60px 7%; max-width: 1400px; margin: 0 auto; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+    .journey-map { display: flex; flex-direction: column; align-items: center; gap: 0; margin-top: 40px; position: relative; padding: 20px 0; }
+    .journey-map::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: linear-gradient(to bottom, var(--primary-light), var(--secondary-light)); transform: translateX(-50%); border-radius: 2px; }
+    .journey-stop { display: flex; align-items: center; gap: 24px; padding: 20px 30px; background: var(--bg); border-radius: var(--radius-md); margin-bottom: 20px; width: 100%; max-width: 600px; transition: var(--transition-smooth); border: 2px solid transparent; position: relative; z-index: 1; }
+    .journey-stop:last-child { margin-bottom: 0; }
+    .journey-stop:hover { border-color: var(--primary-light); transform: translateX(8px); box-shadow: var(--shadow-md); }
+    .journey-stop .stop-icon { font-size: 2.5rem; flex-shrink: 0; width: 60px; text-align: center; }
+    .journey-stop .stop-content { flex: 1; }
+    .journey-stop .stop-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 2px; }
+    .journey-stop .stop-desc { font-size: 0.85rem; color: var(--muted); }
+    .journey-stop .stop-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 12px; border-radius: var(--radius-full); background: var(--primary-light); color: var(--primary); }
+    .journey-stop.locked { opacity: 0.5; filter: grayscale(0.5); }
+    .journey-stop.locked .stop-badge { background: var(--border); color: var(--muted); }
 
     /* ----- VIDEO SECTION ----- */
     .video-section {
@@ -340,9 +424,60 @@
     .feature-card:hover .avatar-box { transform:scale(1.05) rotate(-3deg); }
     .team-role { color:var(--primary); font-weight:700; font-size:0.85rem; margin-bottom:4px; }
 
+    /* ----- PARENT TRUST SECTION ----- */
+    .parent-trust { padding:60px 7%; max-width:1400px; margin:0 auto; background: linear-gradient(135deg, #F8FAFC, #EEF2FF); border-radius: var(--radius-lg); }
+    .trust-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 32px; }
+    .trust-item-card { background: white; padding: 28px 24px; border-radius: var(--radius-md); text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: var(--transition-smooth); }
+    .trust-item-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .trust-item-card .icon { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+    .trust-item-card h4 { font-weight: 700; margin-bottom: 4px; font-size: 1rem; }
+    .trust-item-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ----- PRICING ----- */
+    .pricing { padding: 60px 7%; max-width: 1400px; margin: 0 auto; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; }
+    .pricing-card { background: white; border-radius: var(--radius-lg); padding: 36px 28px; text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: var(--transition-smooth); position: relative; }
+    .pricing-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .pricing-card.popular { border-color: var(--accent); box-shadow: 0 8px 32px rgba(245,158,11,0.15); }
+    .pricing-card.popular::before { content: '⭐ Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 4px 20px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; }
+    .pricing-card .plan-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .pricing-card .plan-price { font-size: 2.8rem; font-weight: 900; margin-bottom: 4px; }
+    .pricing-card .plan-price span { font-size: 1rem; font-weight: 400; color: var(--muted); }
+    .pricing-card .plan-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
+    .pricing-card ul { list-style: none; text-align: left; margin: 20px 0; padding: 0; }
+    .pricing-card ul li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+    .pricing-card ul li:last-child { border-bottom: none; }
+    .pricing-card ul li .check { color: var(--success); font-weight: 700; }
+    .pricing-card .btn { width: 100%; justify-content: center; margin-top: 12px; }
+
+    /* ----- TESTIMONIALS ----- */
+    .testimonials { padding: 60px 7%; max-width: 1400px; margin: 0 auto; }
+    .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+    .testimonial-card { background: white; padding: 28px 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: var(--transition-smooth); }
+    .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .testimonial-card .stars { color: var(--accent); font-size: 1.2rem; margin-bottom: 12px; }
+    .testimonial-card blockquote { font-style: italic; font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); margin-bottom: 16px; }
+    .testimonial-card .author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-card .author .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--secondary-light)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .testimonial-card .author .name { font-weight: 700; font-size: 0.9rem; }
+    .testimonial-card .author .role { font-size: 0.75rem; color: var(--muted); }
+
+    /* ----- FAQ ----- */
+    .faq { padding: 60px 7%; max-width: 1400px; margin: 0 auto; }
+    .faq-grid { max-width: 800px; margin: 0 auto; }
+    .faq-item { background: white; border-radius: var(--radius-md); margin-bottom: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; transition: var(--transition-smooth); }
+    .faq-item:hover { box-shadow: var(--shadow-md); }
+    .faq-question { padding: 18px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; transition: var(--transition-smooth); }
+    .faq-question:hover { background: var(--bg); }
+    .faq-question .icon { transition: var(--transition-smooth); font-size: 1.2rem; }
+    .faq-item.open .faq-question .icon { transform: rotate(180deg); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; padding: 0 24px; }
+    .faq-item.open .faq-answer { max-height: 300px; padding: 0 24px 18px; }
+    .faq-answer p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+
     /* ----- CTA ----- */
-    .cta-container { padding:20px 7% 60px; max-width:1400px; margin:0 auto; }
-    .cta-card { background:linear-gradient(135deg,var(--primary),var(--secondary)); padding:56px 40px; border-radius:var(--radius-lg); text-align:center; color:white; box-shadow:0 16px 48px rgba(37,99,235,0.25); position:relative; overflow:hidden; }
+    .cta-container { padding: 20px 7% 60px; max-width: 1400px; margin: 0 auto; }
+    .cta-card { background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 56px 40px; border-radius: var(--radius-lg); text-align:center; color:white; box-shadow:0 16px 48px rgba(37,99,235,0.25); position:relative; overflow:hidden; }
     .cta-card::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1), transparent 60%); }
     .cta-card>* { position:relative; z-index:1; }
     .cta-card h2 { font-size:clamp(28px,4vw,44px); margin-bottom:16px; font-weight:800; }
@@ -477,6 +612,8 @@
       .panda { font-size:90px; }
       .stats { grid-template-columns:repeat(2,1fr); }
       .footer-grid { grid-template-columns:1fr 1fr; }
+      .pricing-grid { grid-template-columns:1fr 1fr; }
+      .how-grid { grid-template-columns:1fr 1fr; }
     }
     @media (max-width:768px) {
       body { padding-top: calc(var(--nav-height) + 20px); }
@@ -500,6 +637,10 @@
       .panda-fab { right:16px; bottom:calc(90px + env(safe-area-inset-bottom)); width:56px; height:56px; font-size:28px; }
       .video-section { padding:20px 5% 40px; }
       #verification-banner { top: 72px; padding: 12px 16px; font-size: 0.8rem; }
+      .pricing-grid { grid-template-columns:1fr; max-width:400px; margin:0 auto; }
+      .how-grid { grid-template-columns:1fr; max-width:400px; margin:0 auto; }
+      .journey-stop { flex-direction: column; text-align: center; padding: 16px; gap: 8px; }
+      .journey-stop .stop-icon { font-size: 2rem; }
     }
     @media (max-width:480px) {
       .stats { grid-template-columns:1fr 1fr; }
@@ -510,6 +651,7 @@
       .user-avatar { width: 28px; height: 28px; font-size: 12px; }
       .user-name { font-size: 0.7rem; }
       .user-status { font-size: 0.55rem; }
+      .testimonial-grid { grid-template-columns:1fr; }
     }
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; } }
     *:focus-visible { outline:3px solid var(--primary); outline-offset:2px; }
@@ -533,7 +675,7 @@
   <!-- TOAST CONTAINER -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- ===== NAVBAR - FIXED ===== -->
+  <!-- ===== NAVBAR ===== -->
   <nav class="top-nav" id="topNav">
     <a href="index.html" class="logo">
       <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
@@ -551,18 +693,33 @@
     <div class="nav-buttons" id="navButtons"></div>
   </nav>
 
-  <!-- ===== HERO - FIXED (single hero-buttons) ===== -->
+  <!-- ===== HERO ===== -->
   <section class="hero">
+    <!-- Animated Elements -->
+    <div class="hero-lantern">🏮</div>
+    <div class="hero-lantern">🏮</div>
+    <div class="hero-lantern">🏮</div>
+    <div class="hero-lantern">🏮</div>
+    <div class="hero-cloud">☁️</div>
+    <div class="hero-cloud">☁️</div>
+    <div class="hero-sparkle">✨</div>
+    <div class="hero-sparkle">✨</div>
+    <div class="hero-sparkle">✨</div>
+    <div class="hero-sparkle">✨</div>
     <div class="hero-deco">汉</div>
     <div class="hero-deco">语</div>
     <div class="hero-deco">乐</div>
+
     <div class="hero-content">
       <div class="tag"><span class="pulse"></span>Structured YCT Learning</div>
-      <h1>Learn Mandarin Through <span class="gradient-text">Stories, Games & AI</span></h1>
-      <p>Hanverse helps children learn Mandarin through interactive stories, games, videos, AI tutors, worksheets and structured YCT pathways.</p>
+      <h1>
+        Learn Chinese Through <span class="highlight">Adventure</span>
+        <span class="gradient-text">Stories • Games • AI</span>
+      </h1>
+      <p>The most engaging way for African children to learn Mandarin. Every lesson unlocks new adventures.</p>
       <div class="hero-buttons" id="heroButtons">
-        <button class="btn btn-signup" id="heroSignupBtn">✨ Start Learning Free</button>
-        <button class="btn btn-login" onclick="scrollToSection('features')">▶ Explore Features</button>
+        <button class="btn btn-signup" id="heroSignupBtn">🚀 Start Free</button>
+        <button class="btn btn-login" onclick="scrollToSection('how-it-works')">▶ How It Works</button>
         <button class="btn btn-invite" id="heroInviteBtn" style="display:none;" onclick="openInviteModal()">🐼 Invite Friends</button>
       </div>
     </div>
@@ -575,7 +732,81 @@
     </div>
   </section>
 
-  <!-- VIDEO SECTION -->
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="how-it-works" id="how-it-works">
+    <h2 class="section-title">How Hanverse Works</h2>
+    <p class="section-subtitle">Three simple steps to start your Mandarin adventure.</p>
+    <div class="how-grid">
+      <div class="how-step">
+        <span class="step-number">1</span>
+        <span class="step-icon">📝</span>
+        <h3>Create Account</h3>
+        <p>Sign up for free and set up your learning profile. Parents can create accounts for their children in minutes.</p>
+      </div>
+      <div class="how-step">
+        <span class="step-number">2</span>
+        <span class="step-icon">🎮</span>
+        <h3>Play & Learn</h3>
+        <p>Explore interactive stories, games, and lessons. Every activity teaches new Mandarin words and phrases.</p>
+      </div>
+      <div class="how-step">
+        <span class="step-number">3</span>
+        <span class="step-icon">🗣️</span>
+        <h3>Speak Chinese</h3>
+        <p>Practice with Panda AI, earn XP, unlock achievements, and track your progress through YCT levels.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== LEARNING JOURNEY MAP ===== -->
+  <section class="journey">
+    <h2 class="section-title">Your Learning Journey 🗺️</h2>
+    <p class="section-subtitle">Progress through the Mandarin world and unlock new adventures.</p>
+    <div class="journey-map" id="journeyMap">
+      <div class="journey-stop">
+        <div class="stop-icon">🐼</div>
+        <div class="stop-content">
+          <div class="stop-title">Bamboo Forest</div>
+          <div class="stop-desc">Start your journey with basic greetings and vocabulary</div>
+        </div>
+        <span class="stop-badge">YCT 1</span>
+      </div>
+      <div class="journey-stop">
+        <div class="stop-icon">🏮</div>
+        <div class="stop-content">
+          <div class="stop-title">Lantern Village</div>
+          <div class="stop-desc">Learn everyday conversations and build confidence</div>
+        </div>
+        <span class="stop-badge">YCT 2</span>
+      </div>
+      <div class="journey-stop">
+        <div class="stop-icon">🐉</div>
+        <div class="stop-content">
+          <div class="stop-title">Dragon Mountain</div>
+          <div class="stop-desc">Read stories and engage in longer conversations</div>
+        </div>
+        <span class="stop-badge">YCT 3</span>
+      </div>
+      <div class="journey-stop">
+        <div class="stop-icon">🏯</div>
+        <div class="stop-content">
+          <div class="stop-title">Forbidden City</div>
+          <div class="stop-desc">Master advanced topics and exam preparation</div>
+        </div>
+        <span class="stop-badge">YCT 4</span>
+      </div>
+      <div class="journey-stop">
+        <div class="stop-icon">👑</div>
+        <div class="stop-content">
+          <div class="stop-title">Mandarin Master</div>
+          <div class="stop-desc">Complete your journey and earn your certificate</div>
+        </div>
+        <span class="stop-badge">🎓 Graduate</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== VIDEO SECTION ===== -->
   <section class="video-section">
     <h2 class="section-title" style="margin-bottom: 8px;">🎬 Watch Hanverse in Action</h2>
     <p class="section-subtitle" style="margin-bottom: 24px;">See how children learn Mandarin through stories, games and AI — all in one place.</p>
@@ -585,48 +816,157 @@
     <div class="video-caption">⭐ <span>Hanverse</span> — fun, structured Mandarin learning for kids</div>
   </section>
 
-  <!-- STATS -->
+  <!-- ===== STATS ===== -->
   <section class="stats" id="stats">
-    <div class="stat-card"><h2 id="students">0</h2><p>Students Learning</p></div>
-    <div class="stat-card"><h2 id="lessons">0</h2><p>Interactive Lessons</p></div>
-    <div class="stat-card"><h2 id="games">0</h2><p>Learning Games</p></div>
-    <div class="stat-card"><h2 id="satisfaction">0</h2><p>Parent Satisfaction</p></div>
+    <div class="stat-card"><h2 id="students">500+</h2><p>Students Learning</p></div>
+    <div class="stat-card"><h2 id="lessons">240+</h2><p>Interactive Lessons</p></div>
+    <div class="stat-card"><h2 id="games">30+</h2><p>Learning Games</p></div>
+    <div class="stat-card"><h2 id="satisfaction">95%</h2><p>Parent Satisfaction</p></div>
   </section>
 
-  <!-- FEATURES -->
+  <!-- ===== FEATURES ===== -->
   <section class="features" id="features">
     <h2 class="section-title">Why Children ❤️ Hanverse</h2>
     <p class="section-subtitle">Fun, engaging and structured Mandarin learning designed specifically for young learners.</p>
     <div class="feature-grid">
       <div class="feature-card"><span class="feature-icon">🎮</span><h3>Interactive Games</h3><p>Learn Mandarin through exciting educational games that make practice feel like play.</p></div>
       <div class="feature-card"><span class="feature-icon">📖</span><h3>Stories & Reading</h3><p>Build vocabulary and comprehension through beautifully illustrated stories.</p></div>
-      <div class="feature-card"><span class="feature-icon">🤖</span><h3>AI Tutor</h3><p>Practice speaking and learning with AI support that adapts to your child's level.</p></div>
+      <div class="feature-card"><span class="feature-icon">🤖</span><h3>AI Tutor</h3><p>Kid-safe AI designed for young learners. Practice speaking with Panda AI that adapts to your child's level.</p></div>
     </div>
   </section>
 
-  <!-- PARENT FEATURES -->
+  <!-- ===== PARENT FEATURES ===== -->
   <section class="features-alt">
     <h2 class="section-title">Why Parents 👨‍👩‍👦 Love Hanverse</h2>
     <p class="section-subtitle">Designed to help children learn Mandarin safely, consistently and effectively.</p>
     <div class="feature-grid">
-      <div class="feature-card"><span class="feature-icon">🛡️</span><h3>Safe Learning</h3><p>Every lesson is designed for children with safe content and age-appropriate learning.</p></div>
+      <div class="feature-card"><span class="feature-icon">🛡️</span><h3>Safe & Secure</h3><p>Kid-safe AI with no ads, no inappropriate content, and full parental controls.</p></div>
       <div class="feature-card"><span class="feature-icon">📊</span><h3>Track Progress</h3><p>Monitor completed lessons, earned badges, XP points and learning streaks.</p></div>
       <div class="feature-card"><span class="feature-icon">🎯</span><h3>Structured YCT Path</h3><p>Students follow a clear pathway from YCT 1 to advanced Mandarin proficiency.</p></div>
     </div>
   </section>
 
-  <!-- TESTIMONIALS -->
-  <section class="features">
-    <h2 class="section-title">What Our Community Says 💬</h2>
-    <p class="section-subtitle">Children and parents love learning Mandarin with Hanverse.</p>
-    <div class="feature-grid">
-      <div class="feature-card" style="text-align:center;"><span class="feature-icon">⭐</span><p style="font-style:italic;">"Learning Mandarin has never been this fun. I love the games and stories."</p><br><h3 style="margin-bottom:0;">Student</h3><p style="color:var(--muted);font-size:0.8rem;">Age 10</p></div>
-      <div class="feature-card" style="text-align:center;"><span class="feature-icon">❤️</span><p style="font-style:italic;">"The structured lessons help my child stay motivated every week."</p><br><h3 style="margin-bottom:0;">Parent</h3><p style="color:var(--muted);font-size:0.8rem;">2 children learning</p></div>
-      <div class="feature-card" style="text-align:center;"><span class="feature-icon">🤖</span><p style="font-style:italic;">"The AI tutor helps me practice every day without feeling nervous."</p><br><h3 style="margin-bottom:0;">Learner</h3><p style="color:var(--muted);font-size:0.8rem;">YCT Level 2</p></div>
+  <!-- ===== PARENT TRUST SECTION ===== -->
+  <section class="parent-trust">
+    <h2 class="section-title">Why Parents Trust Hanverse</h2>
+    <p class="section-subtitle">Built with families in mind. Safe, effective, and proven.</p>
+    <div class="trust-grid">
+      <div class="trust-item-card">
+        <span class="icon">🧑‍🏫</span>
+        <h4>Structured Curriculum</h4>
+        <p>Complete YCT 1-4 pathway aligned with international standards.</p>
+      </div>
+      <div class="trust-item-card">
+        <span class="icon">🔒</span>
+        <h4>Kid-Safe AI</h4>
+        <p>Every interaction is moderated and designed for young learners.</p>
+      </div>
+      <div class="trust-item-card">
+        <span class="icon">📈</span>
+        <h4>Progress Reports</h4>
+        <p>Weekly email summaries of your child's learning achievements.</p>
+      </div>
+      <div class="trust-item-card">
+        <span class="icon">🎓</span>
+        <h4>Certificates</h4>
+        <p>Earn official certificates for completing each YCT level.</p>
+      </div>
     </div>
   </section>
 
-  <!-- TEAM -->
+  <!-- ===== TESTIMONIALS ===== -->
+  <section class="testimonials">
+    <h2 class="section-title">What Our Community Says 💬</h2>
+    <p class="section-subtitle">Real families sharing their Hanverse experience.</p>
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <blockquote>"Learning Mandarin has never been this fun. I love the games and stories. I can already introduce myself in Chinese!"</blockquote>
+        <div class="author">
+          <div class="avatar">👦</div>
+          <div>
+            <div class="name">Aiden</div>
+            <div class="role">Age 10, YCT 1</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <blockquote>"The structured lessons help my child stay motivated every week. She's now teaching me Chinese phrases!"</blockquote>
+        <div class="author">
+          <div class="avatar">👩</div>
+          <div>
+            <div class="name">Sarah</div>
+            <div class="role">Parent of 2 learners</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <blockquote>"The AI tutor is amazing! I practice every day without feeling nervous. My pronunciation has improved so much."</blockquote>
+        <div class="author">
+          <div class="avatar">👧</div>
+          <div>
+            <div class="name">Maya</div>
+            <div class="role">Age 12, YCT 2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PRICING ===== -->
+  <section class="pricing" id="pricing">
+    <h2 class="section-title">Choose Your Plan 🎯</h2>
+    <p class="section-subtitle">Start free and upgrade when you're ready.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0 <span>/month</span></div>
+        <div class="plan-desc">Perfect for beginners.</div>
+        <ul>
+          <li><span class="check">✅</span> 10+ free lessons</li>
+          <li><span class="check">✅</span> 5 interactive games</li>
+          <li><span class="check">✅</span> Panda AI Tutor (limited)</li>
+          <li><span class="check">✅</span> Basic progress tracking</li>
+          <li><span class="check">✅</span> YCT 1 curriculum</li>
+        </ul>
+        <button class="btn btn-signup" onclick="navigateTo('signup.html')">Start Free</button>
+      </div>
+      <div class="pricing-card popular">
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">$9.99 <span>/month</span></div>
+        <div class="plan-desc">Full access to everything.</div>
+        <ul>
+          <li><span class="check">✅</span> All 240+ lessons</li>
+          <li><span class="check">✅</span> All 30+ games</li>
+          <li><span class="check">✅</span> Unlimited AI Tutor</li>
+          <li><span class="check">✅</span> Full progress tracking</li>
+          <li><span class="check">✅</span> All YCT 1-4 curriculum</li>
+          <li><span class="check">✅</span> Achievements & badges</li>
+          <li><span class="check">✅</span> Parent dashboard</li>
+          <li><span class="check">✅</span> Weekly progress emails</li>
+        </ul>
+        <button class="btn btn-premium-cta" onclick="navigateTo('signup.html?plan=premium')">Get Premium</button>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-name">School</div>
+        <div class="plan-price">Contact <span>us</span></div>
+        <div class="plan-desc">For classrooms and schools.</div>
+        <ul>
+          <li><span class="check">✅</span> Everything in Premium</li>
+          <li><span class="check">✅</span> Teacher dashboard</li>
+          <li><span class="check">✅</span> Classroom management</li>
+          <li><span class="check">✅</span> Bulk student accounts</li>
+          <li><span class="check">✅</span> Custom curriculum</li>
+          <li><span class="check">✅</span> Dedicated support</li>
+        </ul>
+        <button class="btn btn-secondary" onclick="showToast('info', '📧 Contact us at schools@hanverse.com')">Contact Sales</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEAM ===== -->
   <section class="features-alt">
     <h2 class="section-title">Meet The Team 👋</h2>
     <p class="section-subtitle">Passionate about making Mandarin accessible for African children.</p>
@@ -636,7 +976,50 @@
     </div>
   </section>
 
-  <!-- CTA -->
+  <!-- ===== FAQ ===== -->
+  <section class="faq" id="faq">
+    <h2 class="section-title">Frequently Asked Questions ❓</h2>
+    <p class="section-subtitle">Everything you need to know about Hanverse.</p>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          <span>What age is Hanverse for?</span>
+          <span class="icon">▼</span>
+        </div>
+        <div class="faq-answer"><p>Hanverse is designed for children aged 5-12. Our content is tailored to be age-appropriate and engaging for young learners.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          <span>How much does Hanverse cost?</span>
+          <span class="icon">▼</span>
+        </div>
+        <div class="faq-answer"><p>We offer a free tier with 10+ lessons and games. Premium is $9.99/month with full access to all content, AI tutor, and progress tracking.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          <span>Can I use Hanverse offline?</span>
+          <span class="icon">▼</span>
+        </div>
+        <div class="faq-answer"><p>Currently, Hanverse requires an internet connection. Offline mode is coming soon as a premium feature!</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          <span>Is Hanverse safe for my child?</span>
+          <span class="icon">▼</span>
+        </div>
+        <div class="faq-answer"><p>Absolutely! Hanverse is kid-safe with no ads, no inappropriate content, and our AI is specifically designed for young learners. Parents have full control over their child's account.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          <span>What curriculum does Hanverse follow?</span>
+          <span class="icon">▼</span>
+        </div>
+        <div class="faq-answer"><p>Hanverse follows the official YCT (Youth Chinese Test) curriculum from YCT 1 to YCT 4. Our lessons prepare students for certification.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
   <section class="cta-container">
     <div class="cta-card">
       <h2>Start Your Mandarin Adventure Today 🌟</h2>
@@ -648,7 +1031,7 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
+  <!-- ===== FOOTER ===== -->
   <footer>
     <div class="footer-grid">
       <div>
@@ -656,7 +1039,7 @@
           <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
           <h2>Hanverse</h2>
         </div>
-        <p>Learn Mandarin through stories, games, AI tutors and structured YCT learning.</p>
+        <p>The most engaging way for African children to learn Mandarin through stories, games, AI tutors and structured YCT learning.</p>
         <p style="margin-top:12px;font-size:0.8rem;color:#64748B;">Made with ❤️ for young learners</p>
       </div>
       <div><h3>Platform</h3><a href="index.html">Home</a><br><a href="learn.html">Learn</a><br><a href="login.html">Login</a><br><a href="signup.html">Signup</a></div>
@@ -666,7 +1049,7 @@
     <hr><p class="copyright">© 2026 Hanverse. All Rights Reserved.</p>
   </footer>
 
-  <!-- BOTTOM NAV -->
+  <!-- ===== BOTTOM NAV ===== -->
   <nav class="bottom-nav">
     <a href="index.html" class="active"><span class="nav-icon">🏠</span>Home</a>
     <a href="learn.html"><span class="nav-icon">📚</span>Learn</a>
@@ -675,7 +1058,7 @@
     <a href="#" id="mobileLogoutBtn"><span class="nav-icon">🚪</span>Logout</a>
   </nav>
 
-  <!-- PANDA FAB & CHAT -->
+  <!-- ===== PANDA FAB & CHAT ===== -->
   <button class="panda-fab" id="pandaFab" aria-label="Open Panda AI Chat">🐼</button>
   <div id="pandaChat" class="panda-chat">
     <div class="panda-header"><div class="panda-title">🐼 Panda AI Tutor</div><button class="panda-close" id="pandaClose">✕</button></div>
@@ -821,6 +1204,10 @@
         showToast('info', 'You are already logged in!');
         return;
       }
+      if (url === 'signup.html?plan=premium') {
+        window.location.href = 'signup.html?plan=premium';
+        return;
+      }
       window.location.href = url;
     }
 
@@ -914,7 +1301,6 @@
           data = { success: false, error: `Unexpected response from server` };
         }
 
-        // Handle specific error codes
         if (res.status === 403) {
           if (data.error === 'not_verified') {
             throw new Error('not_verified');
@@ -955,7 +1341,6 @@
           hideLoading();
           return true;
         }
-        
         hideLoading();
         return false;
       } catch (error) {
@@ -1059,7 +1444,7 @@
     }
 
     // ==========================================
-    // NAVBAR UPDATE - FIXED
+    // NAVBAR UPDATE
     // ==========================================
     function updateNavbar() {
       const navButtons = document.getElementById('navButtons');
@@ -1131,7 +1516,7 @@
           ctaLogin.onclick = () => navigateTo('profile.html');
         }
 
-        // ✅ Show invite button
+        // Show invite button
         const inviteBtn = document.getElementById('heroInviteBtn');
         if (inviteBtn) {
           inviteBtn.style.display = 'inline-flex';
@@ -1165,7 +1550,7 @@
 
         const heroBtn = document.getElementById('heroSignupBtn');
         if (heroBtn) {
-          heroBtn.textContent = '✨ Start Learning Free';
+          heroBtn.textContent = '🚀 Start Free';
           heroBtn.onclick = () => navigateTo('signup.html');
         }
 
@@ -1180,7 +1565,7 @@
           ctaLogin.onclick = () => navigateTo('login.html');
         }
 
-        // ✅ Hide invite button when logged out
+        // Hide invite button when logged out
         const inviteBtn = document.getElementById('heroInviteBtn');
         if (inviteBtn) {
           inviteBtn.style.display = 'none';
@@ -1237,33 +1622,22 @@
       try {
         const data = await apiCall('/stats');
         if (data.success) {
-          animateCounter('students', data.totalStudents || 500, '+');
-          animateCounter('lessons', data.totalLessons || 240, '+');
-          animateCounter('games', data.totalGames || 30, '+');
-          animateCounter('satisfaction', data.satisfactionRate || 95, '%');
+          const students = data.totalStudents || 500;
+          const lessons = data.totalLessons || 240;
+          const games = data.totalGames || 30;
+          const satisfaction = data.satisfactionRate || 95;
+          document.getElementById('students').textContent = students + '+';
+          document.getElementById('lessons').textContent = lessons + '+';
+          document.getElementById('games').textContent = games + '+';
+          document.getElementById('satisfaction').textContent = satisfaction + '%';
         }
       } catch (error) {
-        // Fallback values
-        animateCounter('students', 500, '+');
-        animateCounter('lessons', 240, '+');
-        animateCounter('games', 30, '+');
-        animateCounter('satisfaction', 95, '%');
+        // Fallback values - show with + to indicate growth
+        document.getElementById('students').textContent = '500+';
+        document.getElementById('lessons').textContent = '240+';
+        document.getElementById('games').textContent = '30+';
+        document.getElementById('satisfaction').textContent = '95%';
       }
-    }
-
-    function animateCounter(id, target, suffix = '') {
-      const el = document.getElementById(id);
-      if (!el) return;
-      let count = 0;
-      const inc = Math.max(1, Math.ceil(target / 40));
-      const timer = setInterval(() => {
-        count += inc;
-        if (count >= target) {
-          count = target;
-          clearInterval(timer);
-        }
-        el.innerText = count + suffix;
-      }, 25);
     }
 
     // ==========================================
@@ -1291,7 +1665,7 @@
     // INTERSECTION OBSERVER FOR CARDS
     // ==========================================
     function initCardAnimations() {
-      const cards = document.querySelectorAll('.feature-card, .stat-card');
+      const cards = document.querySelectorAll('.feature-card, .stat-card, .how-step, .journey-stop, .pricing-card, .testimonial-card, .trust-item-card');
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(e => {
           if (e.isIntersecting) {
@@ -1369,7 +1743,6 @@
 
       if (!text) return;
 
-      // Add user message
       const userRow = document.createElement('div');
       userRow.className = 'message-row user';
       userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
@@ -1378,7 +1751,6 @@
       input.style.height = 'auto';
       body.scrollTop = body.scrollHeight;
 
-      // Add typing indicator
       const typing = document.createElement('div');
       typing.className = 'message-row';
       typing.id = 'typingIndicator';
@@ -1436,16 +1808,13 @@
     document.getElementById('closeVerificationBanner')?.addEventListener('click', hideVerificationBanner);
 
     // ==========================================
-    // OPEN INVITE MODAL (placeholder)
+    // OPEN INVITE MODAL
     // ==========================================
     function openInviteModal() {
-      // If you have invite-modal.html loaded, use it
-      // Otherwise, navigate to invite.html
       if (document.getElementById('inviteModal')) {
         const modal = document.getElementById('inviteModal');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        // Set referral link...
       } else {
         window.location.href = 'invite.html';
       }
@@ -1485,17 +1854,18 @@
     document.addEventListener('DOMContentLoaded', function() {
       log('🐼 Hanverse v' + VERSION + ' initializing...');
 
-      // Update UI based on session
       updateNavbar();
       updateNavigation();
-
-      // Fetch stats
       fetchStats();
-
-      // Initialize card animations
       initCardAnimations();
 
-      // Show welcome toast if logged in
+      // FAQ toggle
+      document.querySelectorAll('.faq-question').forEach(q => {
+        q.addEventListener('click', function() {
+          this.parentElement.classList.toggle('open');
+        });
+      });
+
       if (isLoggedIn()) {
         const name = getFullName();
         const session = getSession();
@@ -1507,10 +1877,8 @@
         }
       }
 
-      // Check for session expiry or refresh
       const session = getSession();
       if (session?.user_id) {
-        // Verify session with server
         apiCall(`/user/${session.user_id}`)
           .then(data => {
             if (data.success) {
@@ -1521,18 +1889,24 @@
             }
           })
           .catch(() => {
-            // Session invalid, clear it
             clearSession();
             updateNavbar();
             updateNavigation();
           });
       }
 
+      // Check URL params for plan selection
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('plan') === 'premium') {
+        setTimeout(() => {
+          document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+        }, 500);
+      }
+
       log('✅ Hanverse loaded successfully!');
       hideLoading();
     });
 
-    // Handle unhandled promise rejections
     window.addEventListener('unhandledrejection', (e) => {
       errorLog('Unhandled rejection:', e.reason);
       if (e.reason?.message && !e.reason.message.includes('not_verified')) {
@@ -1540,7 +1914,6 @@
       }
     });
 
-    // Handle global errors
     window.addEventListener('error', (e) => {
       errorLog('Global error:', e.message);
     });
