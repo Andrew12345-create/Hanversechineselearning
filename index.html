@@ -1,1932 +1,2627 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Hanverse | Learn Mandarin Through Stories, Games & AI</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Hanverse | Learn Mandarin Through Adventure</title>
 
-  <!-- ===== FAVICON ===== -->
-  <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
-  <link rel="apple-touch-icon" href="hanverse-logo.png" />
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
+    <link rel="apple-touch-icon" href="hanverse-logo.png" />
 
-  <!-- ===== META TAGS ===== -->
-  <meta property="og:title" content="Hanverse | Learn Mandarin Through Stories, Games & AI" />
-  <meta property="og:description" content="The most engaging way for African children to learn Mandarin through stories, games, AI tutors, and structured YCT pathways." />
-  <meta property="og:image" content="https://hanverse.netlify.app/og-image.png" />
-  <meta name="description" content="Hanverse helps children learn Mandarin through interactive stories, games, videos, AI tutors, worksheets and structured YCT pathways." />
+    <!-- ===== GSAP ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <style>
-    /* ----- ROOT VARIABLES ----- */
-    :root {
-      --primary: #2563EB;
-      --primary-dark: #1D4ED8;
-      --primary-light: #DBEAFE;
-      --secondary: #14B8A6;
-      --secondary-light: #99F6E4;
-      --accent: #F59E0B;
-      --accent-light: #FDE68A;
-      --dark: #0F172A;
-      --text: #1E293B;
-      --text-secondary: #475569;
-      --muted: #64748B;
-      --bg: #F8FAFC;
-      --white: #FFFFFF;
-      --border: #E2E8F0;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-      --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
-      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
-      --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
-      --radius-sm: 12px;
-      --radius-md: 20px;
-      --radius-lg: 32px;
-      --radius-full: 9999px;
-      --nav-height: 76px;
-      --nav-shrunk-height: 58px;
-      --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-      --toast-success: #22C55E;
-      --toast-error: #EF4444;
-      --toast-warning: #F59E0B;
-      --toast-info: #3B82F6;
-    }
+    <style>
+        /* ===== ROOT VARIABLES ===== */
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #DBEAFE;
+            --secondary: #14B8A6;
+            --secondary-light: #99F6E4;
+            --accent: #F59E0B;
+            --accent-light: #FDE68A;
+            --dark: #0F172A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --muted: #64748B;
+            --bg: #F8FAFC;
+            --white: #FFFFFF;
+            --border: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 32px;
+            --radius-full: 9999px;
+            --nav-height: 76px;
+            --nav-shrunk-height: 58px;
+            --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
 
-    /* ----- RESET & BASE ----- */
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--dark);
-      overflow-x: hidden;
-      padding-bottom: calc(90px + env(safe-area-inset-bottom));
-      padding-top: calc(var(--nav-height) + 28px);
-      min-height: 100vh;
-      position: relative;
-    }
-    body::before, body::after {
-      content: '';
-      position: fixed;
-      z-index: -1;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.4;
-      pointer-events: none;
-    }
-    body::before {
-      width: 500px; height: 500px; top: -100px; right: -100px;
-      background: radial-gradient(circle, rgba(37,99,235,0.18), transparent 70%);
-      animation: floatBlob 18s ease-in-out infinite alternate;
-    }
-    body::after {
-      width: 400px; height: 400px; bottom: -50px; left: -50px;
-      background: radial-gradient(circle, rgba(20,184,166,0.15), transparent 70%);
-      animation: floatBlob 22s ease-in-out infinite alternate-reverse;
-    }
-    @keyframes floatBlob {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(60px, -40px) scale(1.3); }
-    }
-    ::selection { background: var(--primary); color: white; }
-    ::-moz-selection { background: var(--primary); color: white; }
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            background: var(--bg);
+            color: var(--dark);
+            overflow-x: hidden;
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+            padding-top: calc(var(--nav-height) + 28px);
+            min-height: 100vh;
+            position: relative;
+        }
 
-    /* ----- OFFLINE BANNER ----- */
-    #offline-banner {
-      display: none;
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1002;
-      background: linear-gradient(135deg, #EF4444, #DC2626);
-      color: white; text-align: center; padding: 12px 20px;
-      font-size: 14px; font-weight: 600;
-      transform: translateY(-100%);
-      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
-      box-shadow: 0 4px 20px rgba(239,68,68,0.3);
-    }
-    #offline-banner.show { display: block; transform: translateY(0); }
+        /* Background Blobs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            z-index: -1;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        body::before {
+            width: 500px;
+            height: 500px;
+            top: -100px;
+            right: -100px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.15), transparent 70%);
+            animation: floatBlob 18s ease-in-out infinite alternate;
+        }
+        body::after {
+            width: 400px;
+            height: 400px;
+            bottom: -50px;
+            left: -50px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.12), transparent 70%);
+            animation: floatBlob 22s ease-in-out infinite alternate-reverse;
+        }
 
-    /* ----- LOADING OVERLAY ----- */
-    #loading-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-      z-index: 9999; align-items: center; justify-content: center; flex-direction: column; gap: 20px;
-    }
-    #loading-overlay.show { display: flex; }
-    .loader {
-      width: 48px; height: 48px; border: 4px solid var(--border);
-      border-top-color: var(--primary); border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loader-text { font-weight: 600; color: var(--text-secondary); }
+        @keyframes floatBlob {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(60px, -40px) scale(1.3);
+            }
+        }
 
-    /* ----- FLOATING NAVBAR ----- */
-    nav.top-nav {
-      position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 1000;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0 28px; width: calc(100% - 36px); max-width: 1200px;
-      height: var(--nav-height);
-      background: rgba(255,255,255,0.82); backdrop-filter: blur(24px) saturate(1.3);
-      -webkit-backdrop-filter: blur(24px) saturate(1.3);
-      border-radius: 24px; border: 1px solid rgba(255,255,255,0.4);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.02);
-      transition: var(--transition-smooth);
-      will-change: transform, height, border-radius, padding, box-shadow, top, background;
-    }
-    nav.top-nav.shrunk { top: 14px; height: var(--nav-shrunk-height); padding: 0 20px; width: calc(100% - 48px); max-width: 900px; border-radius: 16px; background: rgba(255,255,255,0.94); backdrop-filter: blur(28px) saturate(1.5); box-shadow: 0 8px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03); }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--dark);
-      text-decoration: none;
-      flex-shrink: 0;
-      transition: var(--transition-smooth);
-    }
-    .logo img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      border-radius: 12px;
-      transition: var(--transition-smooth);
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    nav.top-nav.shrunk .logo img {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-    }
-    .logo-text {
-      transition: var(--transition-smooth);
-      background: linear-gradient(135deg, var(--dark), var(--primary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-weight: 800;
-    }
-    nav.top-nav.shrunk .logo-text { opacity: 0; width: 0; overflow: hidden; margin: 0; }
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+        ::-moz-selection {
+            background: var(--primary);
+            color: white;
+        }
 
-    nav ul { display: flex; gap: 28px; list-style: none; align-items: center; margin: 0 16px; flex: 1; justify-content: center; }
-    nav ul a { text-decoration: none; font-weight: 600; color: var(--text-secondary); transition: var(--transition-smooth); font-size: 0.9rem; position: relative; padding: 4px 0; letter-spacing: 0.3px; }
-    nav ul a::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%) scaleX(0); width: 100%; height: 2.5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 2px; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
-    nav ul a:hover::after, nav ul a.active::after { transform: translateX(-50%) scaleX(1); }
-    nav ul a:hover, nav ul a.active { color: var(--primary); }
-    .nav-buttons { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: calc(100% - 48px);
+        }
+        .toast {
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            background: white;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary);
+            animation: slideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+        .toast-success {
+            border-left-color: #22C55E;
+        }
+        .toast-error {
+            border-left-color: #EF4444;
+        }
+        .toast-warning {
+            border-left-color: #F59E0B;
+        }
+        .toast-info {
+            border-left-color: #3B82F6;
+        }
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .toast-message {
+            flex: 1;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+        }
+        .toast.removing {
+            animation: slideOutRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
 
-    /* ----- BUTTONS ----- */
-    .btn { padding: 10px 22px; border: none; border-radius: var(--radius-full); cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: var(--transition-smooth); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; letter-spacing: 0.2px; position: relative; overflow: hidden; }
-    .btn:active { transform: scale(0.96); }
-    .btn-login { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); padding: 8px 20px; }
-    .btn-login:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
-    .btn-signup { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 4px 16px rgba(37,99,235,0.25); padding: 10px 24px; }
-    .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,99,235,0.35); }
-    .btn-premium-cta { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; box-shadow: 0 4px 16px rgba(245,158,11,0.3); padding: 10px 24px; }
-    .btn-premium-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(245,158,11,0.4); }
-    .btn-logout { background: rgba(239,68,68,0.08); color: #EF4444; padding: 6px 16px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(239,68,68,0.15); }
-    .btn-logout:hover { background: rgba(239,68,68,0.15); transform: translateY(-1px); }
-    .btn-parent { background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; padding: 8px 18px; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(139,92,246,0.25); }
-    .btn-parent:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.35); }
-    .btn-admin { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 6px 14px; font-size: 0.7rem; }
-    .btn-admin:hover { transform: translateY(-2px); }
-    .btn-invite {
-      background: linear-gradient(135deg, #8B5CF6, #6D28D9);
-      color: white;
-      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
-      padding: 10px 24px;
-    }
-    .btn-invite:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(139, 92, 246, 0.35);
-    }
-    .user-chip {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: white;
-      padding: 6px 16px 6px 8px;
-      border-radius: var(--radius-full);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      border: 1px solid var(--border);
-      cursor: pointer;
-      transition: var(--transition-smooth);
-      flex-shrink: 0;
-    }
-    .user-chip:hover { border-color: var(--primary); box-shadow: 0 4px 20px rgba(37,99,235,0.1); transform: translateY(-2px); }
-    .user-avatar {
-      width: 34px; height: 34px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
-      font-size: 16px; overflow: hidden; flex-shrink: 0;
-    }
-    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .user-info { display: flex; flex-direction: column; line-height: 1.2; }
-    .user-name { font-weight: 700; font-size: 0.85rem; color: var(--dark); }
-    .user-status { font-size: 0.65rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
-    .user-status .premium-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-    .user-status .premium-text { color: var(--accent); font-weight: 600; }
-    .user-xp { font-size: 0.6rem; color: var(--muted); background: var(--bg); padding: 2px 8px; border-radius: var(--radius-full); }
+        /* ===== LOADING OVERLAY ===== */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        #loading-overlay.show {
+            display: flex;
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .loader-text {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
 
-    /* ----- HERO ----- */
-    .hero {
-      min-height: 80vh;
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 60px;
-      align-items: center;
-      padding: 40px 7% 60px;
-      max-width: 1400px;
-      margin: 0 auto;
-      position: relative;
-      overflow: hidden;
-    }
-    /* HERO ANIMATIONS - Floating Lanterns, Clouds, Sparkles */
-    .hero-lantern {
-      position: absolute;
-      font-size: 2rem;
-      opacity: 0.15;
-      animation: floatLantern 12s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .hero-lantern:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; font-size: 2.5rem; }
-    .hero-lantern:nth-child(2) { top: 20%; right: 8%; animation-delay: 3s; font-size: 1.8rem; }
-    .hero-lantern:nth-child(3) { bottom: 15%; left: 10%; animation-delay: 6s; font-size: 2.2rem; }
-    .hero-lantern:nth-child(4) { bottom: 25%; right: 12%; animation-delay: 9s; font-size: 1.5rem; }
+        /* ===== OFFLINE BANNER ===== */
+        #offline-banner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1002;
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            transform: translateY(-100%);
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        }
+        #offline-banner.show {
+            display: block;
+            transform: translateY(0);
+        }
 
-    .hero-cloud {
-      position: absolute;
-      font-size: 3rem;
-      opacity: 0.06;
-      animation: floatCloud 25s linear infinite;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .hero-cloud:nth-child(5) { top: 5%; left: -5%; animation-delay: 0s; font-size: 4rem; }
-    .hero-cloud:nth-child(6) { bottom: 10%; right: -5%; animation-delay: 8s; font-size: 3.5rem; }
+        /* ===== VERIFICATION BANNER ===== */
+        #verification-banner {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+            font-weight: 600;
+            font-size: 0.9rem;
+            max-width: 90%;
+            width: auto;
+            text-align: center;
+            animation: fadeUp 0.5s ease;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        #verification-banner:hover {
+            transform: translateX(-50%) scale(1.02);
+        }
+        #verification-banner .resend-link {
+            color: white;
+            text-decoration: underline;
+            font-weight: 700;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        #verification-banner .close-banner {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 12px;
+            transition: var(--transition-smooth);
+        }
+        #verification-banner .close-banner:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
 
-    .hero-sparkle {
-      position: absolute;
-      font-size: 1.2rem;
-      opacity: 0.3;
-      animation: sparkle 3s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .hero-sparkle:nth-child(7) { top: 30%; left: 20%; animation-delay: 0.5s; }
-    .hero-sparkle:nth-child(8) { top: 50%; right: 25%; animation-delay: 1.5s; }
-    .hero-sparkle:nth-child(9) { bottom: 40%; left: 30%; animation-delay: 2.5s; }
-    .hero-sparkle:nth-child(10) { bottom: 20%; right: 35%; animation-delay: 0.8s; }
+        /* ===== FLOATING NAVBAR ===== */
+        nav.top-nav {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 28px;
+            width: calc(100% - 36px);
+            max-width: 1200px;
+            height: var(--nav-height);
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+            will-change: transform, height, border-radius, padding, box-shadow, top, background;
+        }
+        nav.top-nav.shrunk {
+            top: 14px;
+            height: var(--nav-shrunk-height);
+            padding: 0 20px;
+            width: calc(100% - 48px);
+            max-width: 900px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(28px) saturate(1.5);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--dark);
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: var(--transition-smooth);
+        }
+        .logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 12px;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        nav.top-nav.shrunk .logo img {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+        }
+        .logo-text {
+            transition: var(--transition-smooth);
+            background: linear-gradient(135deg, var(--dark), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+        nav.top-nav.shrunk .logo-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            margin: 0;
+        }
+        nav ul {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+            align-items: center;
+            margin: 0 16px;
+            flex: 1;
+            justify-content: center;
+        }
+        nav ul a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+            font-size: 0.9rem;
+            position: relative;
+            padding: 4px 0;
+            letter-spacing: 0.3px;
+        }
+        nav ul a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 100%;
+            height: 2.5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        nav ul a:hover::after,
+        nav ul a.active::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+        nav ul a:hover,
+        nav ul a.active {
+            color: var(--primary);
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
 
-    @keyframes floatLantern {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      25% { transform: translate(15px, -25px) rotate(5deg); }
-      50% { transform: translate(-10px, -15px) rotate(-3deg); }
-      75% { transform: translate(20px, -30px) rotate(4deg); }
-    }
-    @keyframes floatCloud {
-      0% { transform: translateX(-100px); }
-      100% { transform: translateX(calc(100vw + 100px)); }
-    }
-    @keyframes sparkle {
-      0%, 100% { opacity: 0.1; transform: scale(0.8); }
-      50% { opacity: 0.6; transform: scale(1.2); }
-    }
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            letter-spacing: 0.2px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-login {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 8px 20px;
+        }
+        .btn-login:hover {
+            background: var(--bg);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+        .btn-signup {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+            padding: 10px 24px;
+        }
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
+        }
+        .btn-premium-cta {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+            padding: 10px 24px;
+        }
+        .btn-premium-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4);
+        }
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.08);
+            color: #EF4444;
+            padding: 6px 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--dark);
+        }
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
 
-    .hero-deco {
-      position: absolute;
-      font-size: 4rem;
-      opacity: 0.06;
-      font-weight: 900;
-      pointer-events: none;
-      z-index: 0;
-      animation: floatSlow 25s linear infinite;
-    }
-    .hero-deco:nth-child(11) { top: 5%; left: 3%; animation-delay: 0s; }
-    .hero-deco:nth-child(12) { bottom: 8%; right: 2%; animation-delay: 5s; font-size: 6rem; }
-    .hero-deco:nth-child(13) { top: 40%; right: 15%; animation-delay: 10s; font-size: 3rem; opacity: 0.04; }
-    @keyframes floatSlow {
-      0%,100% { transform: translate(0,0) rotate(0deg); }
-      25% { transform: translate(15px,-20px) rotate(3deg); }
-      75% { transform: translate(-10px,15px) rotate(-3deg); }
-    }
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 6px 16px 6px 8px;
+            border-radius: var(--radius-full);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+        .user-chip:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            font-size: 16px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .user-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--dark);
+        }
+        .user-status {
+            font-size: 0.65rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .user-status .premium-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+        .user-status .premium-text {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .user-xp {
+            font-size: 0.6rem;
+            color: var(--muted);
+            background: var(--bg);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
 
-    .hero-content { animation: fadeUp 0.8s ease; z-index: 1; position: relative; }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-    .tag { display: inline-flex; align-items: center; gap: 8px; background: var(--primary-light); color: var(--primary); padding: 8px 18px; border-radius: var(--radius-full); font-weight: 700; font-size: 0.8rem; margin-bottom: 24px; letter-spacing: 0.3px; }
-    .tag .pulse { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(0.8); } }
-    .hero h1 { font-size: clamp(36px, 5.5vw, 68px); line-height: 1.08; margin-bottom: 24px; font-weight: 900; letter-spacing: -1.5px; }
-    .hero h1 .highlight { background: linear-gradient(135deg, var(--accent), #EF4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .gradient-text { background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .hero p { font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); margin-bottom: 36px; max-width: 540px; }
+        /* ============================================
+           HERO SECTION
+        ============================================ */
+        .hero {
+            min-height: 85vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            padding: 40px 7% 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; }
+        /* Hero Animations */
+        .hero-lantern {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.15;
+            animation: floatLantern 12s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-lantern:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+            font-size: 2.5rem;
+        }
+        .hero-lantern:nth-child(2) {
+            top: 20%;
+            right: 8%;
+            animation-delay: 3s;
+            font-size: 1.8rem;
+        }
+        .hero-lantern:nth-child(3) {
+            bottom: 15%;
+            left: 10%;
+            animation-delay: 6s;
+            font-size: 2.2rem;
+        }
+        .hero-lantern:nth-child(4) {
+            bottom: 25%;
+            right: 12%;
+            animation-delay: 9s;
+            font-size: 1.5rem;
+        }
 
-    /* Hero Card - Panda with animated elements */
-    .hero-card {
-      background: white; height: 420px; border-radius: var(--radius-lg);
-      display: flex; align-items: center; justify-content: center; position: relative;
-      overflow: hidden; box-shadow: var(--shadow-lg); transition: var(--transition-smooth);
-      animation: fadeUp 0.8s ease 0.2s both;
-      z-index: 1;
-    }
-    .hero-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: var(--shadow-xl); }
-    .hero-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(20,184,166,0.05)); z-index: 1; }
-    .panda { font-size: 130px; z-index: 2; animation: float 6s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.1)); }
-    .panda:hover { animation-play-state: paused; transform: scale(1.05) rotate(-3deg); transition: transform 0.3s ease; }
-    @keyframes float { 0%,100% { transform:translateY(0px); } 50% { transform:translateY(-16px); } }
-    .float-char { position: absolute; font-size: 60px; font-weight: 800; opacity: 0.06; z-index: 0; animation: floatSlow 20s linear infinite; }
-    .c1 { top:30px; left:30px; animation-delay:0s; }
-    .c2 { top:50px; right:40px; animation-delay:2s; }
-    .c3 { bottom:40px; left:40px; animation-delay:4s; }
-    .c4 { bottom:30px; right:30px; animation-delay:6s; }
+        .hero-cloud {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.06;
+            animation: floatCloud 25s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-cloud:nth-child(5) {
+            top: 5%;
+            left: -5%;
+            animation-delay: 0s;
+            font-size: 4rem;
+        }
+        .hero-cloud:nth-child(6) {
+            bottom: 10%;
+            right: -5%;
+            animation-delay: 8s;
+            font-size: 3.5rem;
+        }
 
-    /* ----- HOW IT WORKS ----- */
-    .how-it-works { padding: 60px 7%; max-width: 1400px; margin: 0 auto; }
-    .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; }
-    .how-step { text-align: center; padding: 30px 20px; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); transition: var(--transition-smooth); border: 1px solid var(--border); }
-    .how-step:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
-    .how-step .step-number { display: inline-block; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-weight: 800; font-size: 1.2rem; margin-bottom: 16px; }
-    .how-step .step-icon { font-size: 3rem; display: block; margin-bottom: 12px; }
-    .how-step h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-    .how-step p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+        .hero-sparkle {
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0.3;
+            animation: sparkle 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-sparkle:nth-child(7) {
+            top: 30%;
+            left: 20%;
+            animation-delay: 0.5s;
+        }
+        .hero-sparkle:nth-child(8) {
+            top: 50%;
+            right: 25%;
+            animation-delay: 1.5s;
+        }
+        .hero-sparkle:nth-child(9) {
+            bottom: 40%;
+            left: 30%;
+            animation-delay: 2.5s;
+        }
+        .hero-sparkle:nth-child(10) {
+            bottom: 20%;
+            right: 35%;
+            animation-delay: 0.8s;
+        }
 
-    /* ----- LEARNING JOURNEY MAP ----- */
-    .journey { padding: 60px 7%; max-width: 1400px; margin: 0 auto; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
-    .journey-map { display: flex; flex-direction: column; align-items: center; gap: 0; margin-top: 40px; position: relative; padding: 20px 0; }
-    .journey-map::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: linear-gradient(to bottom, var(--primary-light), var(--secondary-light)); transform: translateX(-50%); border-radius: 2px; }
-    .journey-stop { display: flex; align-items: center; gap: 24px; padding: 20px 30px; background: var(--bg); border-radius: var(--radius-md); margin-bottom: 20px; width: 100%; max-width: 600px; transition: var(--transition-smooth); border: 2px solid transparent; position: relative; z-index: 1; }
-    .journey-stop:last-child { margin-bottom: 0; }
-    .journey-stop:hover { border-color: var(--primary-light); transform: translateX(8px); box-shadow: var(--shadow-md); }
-    .journey-stop .stop-icon { font-size: 2.5rem; flex-shrink: 0; width: 60px; text-align: center; }
-    .journey-stop .stop-content { flex: 1; }
-    .journey-stop .stop-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 2px; }
-    .journey-stop .stop-desc { font-size: 0.85rem; color: var(--muted); }
-    .journey-stop .stop-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 12px; border-radius: var(--radius-full); background: var(--primary-light); color: var(--primary); }
-    .journey-stop.locked { opacity: 0.5; filter: grayscale(0.5); }
-    .journey-stop.locked .stop-badge { background: var(--border); color: var(--muted); }
+        @keyframes floatLantern {
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(15px, -25px) rotate(5deg);
+            }
+            50% {
+                transform: translate(-10px, -15px) rotate(-3deg);
+            }
+            75% {
+                transform: translate(20px, -30px) rotate(4deg);
+            }
+        }
+        @keyframes floatCloud {
+            0% {
+                transform: translateX(-100px);
+            }
+            100% {
+                transform: translateX(calc(100vw + 100px));
+            }
+        }
+        @keyframes sparkle {
+            0%,
+            100% {
+                opacity: 0.1;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
 
-    /* ----- VIDEO SECTION ----- */
-    .video-section {
-      padding: 40px 7% 60px;
-      max-width: 1400px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .video-wrapper {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-lg);
-      background: #000;
-      transition: var(--transition-smooth);
-    }
-    .video-wrapper:hover { transform: scale(1.01); box-shadow: var(--shadow-xl); }
-    .video-wrapper iframe {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      border: 0;
-    }
-    .video-caption {
-      margin-top: 16px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-    }
-    .video-caption span { color: var(--primary); }
+        .hero-deco {
+            position: absolute;
+            font-size: 4rem;
+            opacity: 0.06;
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatSlow 25s linear infinite;
+        }
+        .hero-deco:nth-child(11) {
+            top: 5%;
+            left: 3%;
+            animation-delay: 0s;
+        }
+        .hero-deco:nth-child(12) {
+            bottom: 8%;
+            right: 2%;
+            animation-delay: 5s;
+            font-size: 6rem;
+        }
+        .hero-deco:nth-child(13) {
+            top: 40%;
+            right: 15%;
+            animation-delay: 10s;
+            font-size: 3rem;
+            opacity: 0.04;
+        }
+        @keyframes floatSlow {
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(15px, -20px) rotate(3deg);
+            }
+            75% {
+                transform: translate(-10px, 15px) rotate(-3deg);
+            }
+        }
 
-    /* ----- STATS ----- */
-    .stats { padding: 20px 7% 60px; display: grid; grid-template-columns: repeat(4,1fr); gap:24px; max-width:1400px; margin:0 auto; }
-    .stat-card { background:white; padding:28px 20px; border-radius:var(--radius-md); text-align:center; box-shadow:var(--shadow-sm); transition:var(--transition-smooth); border:1px solid rgba(0,0,0,0.03); }
-    .stat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--primary-light); }
-    .stat-card h2 { font-size:38px; background:linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:6px; font-weight:800; }
-    .stat-card p { color:var(--muted); font-size:0.85rem; font-weight:500; }
+        .hero-content {
+            animation: fadeUp 0.8s ease;
+            z-index: 1;
+            position: relative;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    /* ----- FEATURES ----- */
-    .features { padding:60px 7%; max-width:1400px; margin:0 auto; }
-    .features-alt { background:white; border-radius:var(--radius-lg); padding:60px 7%; max-width:1400px; margin:0 auto; box-shadow:var(--shadow-sm); }
-    .section-title { text-align:center; font-size:clamp(28px,4vw,42px); margin-bottom:12px; font-weight:800; letter-spacing:-0.5px; }
-    .section-subtitle { text-align:center; max-width:640px; margin:0 auto 48px; color:var(--text-secondary); line-height:1.7; font-size:1rem; }
-    .feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:28px; }
-    .feature-card { background:white; padding:32px 28px; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); transition:var(--transition-smooth); border:1px solid rgba(0,0,0,0.03); position:relative; overflow:hidden; }
-    .feature-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--primary),var(--secondary)); opacity:0; transition:var(--transition-smooth); }
-    .feature-card:hover::before { opacity:1; }
-    .feature-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--primary-light); }
-    .feature-icon { font-size:44px; margin-bottom:16px; display:block; }
-    .feature-card h3 { margin-bottom:8px; font-size:1.2rem; font-weight:700; }
-    .feature-card p { color:var(--text-secondary); line-height:1.7; font-size:0.9rem; }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 8px 18px;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-bottom: 24px;
+            letter-spacing: 0.3px;
+        }
+        .tag .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
 
-    .avatar-box { width:100px; height:100px; border-radius:50%; margin:0 auto 16px; display:flex; align-items:center; justify-content:center; font-size:52px; background:linear-gradient(135deg,var(--primary-light),var(--secondary-light)); transition:var(--transition-smooth); }
-    .feature-card:hover .avatar-box { transform:scale(1.05) rotate(-3deg); }
-    .team-role { color:var(--primary); font-weight:700; font-size:0.85rem; margin-bottom:4px; }
+        .hero h1 {
+            font-size: clamp(40px, 5.5vw, 72px);
+            line-height: 1.08;
+            margin-bottom: 16px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), #EF4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-    /* ----- PARENT TRUST SECTION ----- */
-    .parent-trust { padding:60px 7%; max-width:1400px; margin:0 auto; background: linear-gradient(135deg, #F8FAFC, #EEF2FF); border-radius: var(--radius-lg); }
-    .trust-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 32px; }
-    .trust-item-card { background: white; padding: 28px 24px; border-radius: var(--radius-md); text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: var(--transition-smooth); }
-    .trust-item-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-    .trust-item-card .icon { font-size: 2.5rem; display: block; margin-bottom: 12px; }
-    .trust-item-card h4 { font-weight: 700; margin-bottom: 4px; font-size: 1rem; }
-    .trust-item-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+        .hero p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            max-width: 540px;
+        }
 
-    /* ----- PRICING ----- */
-    .pricing { padding: 60px 7%; max-width: 1400px; margin: 0 auto; }
-    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; }
-    .pricing-card { background: white; border-radius: var(--radius-lg); padding: 36px 28px; text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: var(--transition-smooth); position: relative; }
-    .pricing-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-    .pricing-card.popular { border-color: var(--accent); box-shadow: 0 8px 32px rgba(245,158,11,0.15); }
-    .pricing-card.popular::before { content: '⭐ Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 4px 20px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; }
-    .pricing-card .plan-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-    .pricing-card .plan-price { font-size: 2.8rem; font-weight: 900; margin-bottom: 4px; }
-    .pricing-card .plan-price span { font-size: 1rem; font-weight: 400; color: var(--muted); }
-    .pricing-card .plan-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
-    .pricing-card ul { list-style: none; text-align: left; margin: 20px 0; padding: 0; }
-    .pricing-card ul li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
-    .pricing-card ul li:last-child { border-bottom: none; }
-    .pricing-card ul li .check { color: var(--success); font-weight: 700; }
-    .pricing-card .btn { width: 100%; justify-content: center; margin-top: 12px; }
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
 
-    /* ----- TESTIMONIALS ----- */
-    .testimonials { padding: 60px 7%; max-width: 1400px; margin: 0 auto; }
-    .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
-    .testimonial-card { background: white; padding: 28px 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: var(--transition-smooth); }
-    .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-    .testimonial-card .stars { color: var(--accent); font-size: 1.2rem; margin-bottom: 12px; }
-    .testimonial-card blockquote { font-style: italic; font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary); margin-bottom: 16px; }
-    .testimonial-card .author { display: flex; align-items: center; gap: 12px; }
-    .testimonial-card .author .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-light), var(--secondary-light)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-    .testimonial-card .author .name { font-weight: 700; font-size: 0.9rem; }
-    .testimonial-card .author .role { font-size: 0.75rem; color: var(--muted); }
+        /* Hero Card - Panda */
+        .hero-card {
+            background: white;
+            height: 450px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-smooth);
+            animation: fadeUp 0.8s ease 0.2s both;
+            z-index: 1;
+        }
+        .hero-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: var(--shadow-xl);
+        }
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(20, 184, 166, 0.05));
+            z-index: 1;
+        }
+        .panda {
+            font-size: 150px;
+            z-index: 2;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.1));
+            cursor: pointer;
+        }
+        .float-char {
+            position: absolute;
+            font-size: 60px;
+            font-weight: 800;
+            opacity: 0.06;
+            z-index: 0;
+            animation: floatSlow 20s linear infinite;
+        }
+        .c1 {
+            top: 30px;
+            left: 30px;
+            animation-delay: 0s;
+        }
+        .c2 {
+            top: 50px;
+            right: 40px;
+            animation-delay: 2s;
+        }
+        .c3 {
+            bottom: 40px;
+            left: 40px;
+            animation-delay: 4s;
+        }
+        .c4 {
+            bottom: 30px;
+            right: 30px;
+            animation-delay: 6s;
+        }
 
-    /* ----- FAQ ----- */
-    .faq { padding: 60px 7%; max-width: 1400px; margin: 0 auto; }
-    .faq-grid { max-width: 800px; margin: 0 auto; }
-    .faq-item { background: white; border-radius: var(--radius-md); margin-bottom: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; transition: var(--transition-smooth); }
-    .faq-item:hover { box-shadow: var(--shadow-md); }
-    .faq-question { padding: 18px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; transition: var(--transition-smooth); }
-    .faq-question:hover { background: var(--bg); }
-    .faq-question .icon { transition: var(--transition-smooth); font-size: 1.2rem; }
-    .faq-item.open .faq-question .icon { transform: rotate(180deg); }
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; padding: 0 24px; }
-    .faq-item.open .faq-answer { max-height: 300px; padding: 0 24px 18px; }
-    .faq-answer p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+        /* Hero Trust Badges */
+        .hero-trust {
+            display: flex;
+            gap: 24px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .hero-trust-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .hero-trust-item .icon {
+            font-size: 1.2rem;
+        }
 
-    /* ----- CTA ----- */
-    .cta-container { padding: 20px 7% 60px; max-width: 1400px; margin: 0 auto; }
-    .cta-card { background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 56px 40px; border-radius: var(--radius-lg); text-align:center; color:white; box-shadow:0 16px 48px rgba(37,99,235,0.25); position:relative; overflow:hidden; }
-    .cta-card::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1), transparent 60%); }
-    .cta-card>* { position:relative; z-index:1; }
-    .cta-card h2 { font-size:clamp(28px,4vw,44px); margin-bottom:16px; font-weight:800; }
-    .cta-card p { max-width:600px; margin:0 auto 32px; line-height:1.7; font-size:1rem; opacity:0.92; }
-    .cta-card .hero-buttons { justify-content:center; }
-    .cta-card .btn-login { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); color:white; }
-    .cta-card .btn-login:hover { background:rgba(255,255,255,0.25); border-color:rgba(255,255,255,0.5); }
-    .cta-card .btn-signup { background:white; color:var(--primary); box-shadow:0 4px 16px rgba(0,0,0,0.15); }
-    .cta-card .btn-signup:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,0.2); }
+        /* ============================================
+           HOW IT WORKS
+        ============================================ */
+        .how-it-works {
+            padding: 60px 7%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .how-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .how-step {
+            text-align: center;
+            padding: 30px 20px;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+            border: 1px solid var(--border);
+        }
+        .how-step:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+        }
+        .how-step .step-number {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+        }
+        .how-step .step-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .how-step h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .how-step p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
 
-    /* ----- FOOTER ----- */
-    footer { background:var(--dark); color:white; padding:60px 7% 40px; }
-    .footer-grid { display:grid; grid-template-columns:2fr repeat(3,1fr); gap:40px; max-width:1400px; margin:0 auto; }
-    .footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .footer-brand img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.04);
-      padding: 2px;
-    }
-    .footer-brand h2 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff, var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 0;
-    }
-    footer p { color:#94A3B8; line-height:1.7; font-size:0.9rem; margin-top: 4px; }
-    footer h3 { font-size:1.05rem; margin-bottom:16px; color:#f8fafc; font-weight:600; }
-    footer a { color:#94A3B8; text-decoration:none; font-size:0.9rem; transition:var(--transition-smooth); display:inline-block; margin-bottom:8px; }
-    footer a:hover { color:white; transform:translateX(4px); }
-    footer hr { margin:40px 0 24px; border:none; height:1px; background:rgba(255,255,255,0.06); max-width:1400px; margin-left:auto; margin-right:auto; }
-    footer .copyright { text-align:center; color:#64748B; font-size:0.85rem; }
+        /* ============================================
+           SECTION TITLES
+        ============================================ */
+        .section-title {
+            text-align: center;
+            font-size: clamp(28px, 4vw, 42px);
+            margin-bottom: 12px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .section-subtitle {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 48px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
 
-    /* ----- BOTTOM NAV ----- */
-    .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:rgba(255,255,255,0.96); backdrop-filter:blur(12px); justify-content:space-around; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); box-shadow:0 -4px 24px rgba(0,0,0,0.06); z-index:999; border-top:1px solid rgba(0,0,0,0.04); }
-    .bottom-nav a { text-decoration:none; color:var(--muted); font-size:0.65rem; font-weight:500; text-align:center; flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 0; transition:var(--transition-smooth); border-radius:var(--radius-sm); }
-    .bottom-nav a.active { color:var(--primary); font-weight:600; }
-    .nav-icon { font-size:22px; }
+        /* ============================================
+           TRUST SECTION
+        ============================================ */
+        .trust-section {
+            padding: 60px 7%;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #F8FAFC, #EEF2FF);
+            border-radius: var(--radius-lg);
+        }
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+        .trust-item {
+            background: white;
+            padding: 28px 24px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition-smooth);
+        }
+        .trust-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        .trust-item .icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .trust-item h4 {
+            font-weight: 700;
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+        .trust-item p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
 
-    /* ----- PANDA CHAT ----- */
-    .panda-fab { position:fixed; bottom:calc(100px + env(safe-area-inset-bottom)); right:24px; z-index:998; background:linear-gradient(135deg,var(--primary),var(--secondary)); border:none; width:64px; height:64px; border-radius:50%; font-size:32px; box-shadow:0 8px 32px rgba(37,99,235,0.3); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:var(--transition-smooth); color:white; }
-    .panda-fab:hover { transform:scale(1.1) rotate(-5deg); box-shadow:0 12px 40px rgba(37,99,235,0.4); }
-    .panda-chat { display:none; position:fixed; bottom:calc(110px + env(safe-area-inset-bottom)); right:24px; width:360px; max-width:calc(100vw - 48px); height:440px; max-height:65vh; background:white; border-radius:var(--radius-md); box-shadow:var(--shadow-xl); z-index:999; flex-direction:column; overflow:hidden; animation:slideUp 0.35s cubic-bezier(0.22,1,0.36,1); }
-    .panda-chat.open { display:flex; }
-    @keyframes slideUp { from { opacity:0; transform:translateY(20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
-    .panda-header { padding:16px 20px; background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
-    .panda-title { font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px; }
-    .panda-close { background:rgba(255,255,255,0.15); border:none; color:white; width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:var(--transition-smooth); }
-    .panda-close:hover { background:rgba(255,255,255,0.25); transform:rotate(90deg); }
-    .panda-body { flex:1; padding:16px; overflow-y:auto; background:#F8FAFC; }
-    .message-row { display:flex; gap:10px; margin-bottom:12px; align-items:flex-start; animation:fadeUp 0.3s ease; }
-    .message-row.user { flex-direction:row-reverse; }
-    .panda-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary-light),var(--secondary-light)); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-    .message { max-width:80%; padding:10px 16px; border-radius:16px; font-size:14px; line-height:1.6; }
-    .panda-message { background:white; color:var(--dark); border-bottom-left-radius:4px; box-shadow:var(--shadow-sm); }
-    .user-message { background:var(--primary); color:white; border-bottom-right-radius:4px; }
-    .panda-input { display:flex; gap:10px; padding:12px 16px; background:white; border-top:1px solid var(--border); flex-shrink:0; }
-    .panda-input textarea { flex:1; border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 14px; font-size:14px; resize:none; font-family:'Poppins',sans-serif; min-height:40px; max-height:80px; outline:none; transition:var(--transition-smooth); background:var(--bg); }
-    .panda-input textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
-    .panda-send { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border:none; width:42px; height:42px; border-radius:50%; font-size:18px; cursor:pointer; transition:var(--transition-smooth); flex-shrink:0; box-shadow:0 4px 12px rgba(37,99,235,0.2); }
-    .panda-send:hover { transform:scale(1.05); box-shadow:0 6px 20px rgba(37,99,235,0.3); }
+        /* ============================================
+           FEATURES
+        ============================================ */
+        .features {
+            padding: 60px 7%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+        }
+        .feature-card {
+            background: white;
+            padding: 32px 28px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        .feature-icon {
+            font-size: 44px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .feature-card h3 {
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 0.9rem;
+        }
 
-    /* ----- TOAST ----- */
-    .toast-container { position:fixed; top:100px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:12px; max-width:380px; width:calc(100% - 48px); }
-    .toast { padding:16px 20px; border-radius:var(--radius-sm); background:white; box-shadow:var(--shadow-lg); border-left:4px solid var(--primary); animation:slideInRight 0.4s cubic-bezier(0.22,1,0.36,1); display:flex; align-items:center; gap:12px; font-size:0.9rem; }
-    .toast-success { border-left-color:var(--toast-success); }
-    .toast-error { border-left-color:var(--toast-error); }
-    .toast-warning { border-left-color:var(--toast-warning); }
-    .toast-info { border-left-color:var(--toast-info); }
-    .toast-icon { font-size:24px; flex-shrink:0; }
-    .toast-message { flex:1; color:var(--dark); line-height:1.5; }
-    .toast-close { background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer; padding:0 4px; }
-    @keyframes slideInRight { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
-    @keyframes slideOutRight { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(40px); } }
-    .toast.removing { animation:slideOutRight 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+        /* ============================================
+           SUCCESS STORIES (Testimonials)
+        ============================================ */
+        .success-stories {
+            padding: 60px 7%;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+            margin-top: 32px;
+        }
+        .testimonial-card {
+            background: var(--bg);
+            padding: 28px 24px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            transition: var(--transition-smooth);
+        }
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        .testimonial-card .stars {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+        .testimonial-card blockquote {
+            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .testimonial-card .author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .testimonial-card .author .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .testimonial-card .author .name {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .testimonial-card .author .role {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
 
-    /* ----- VERIFICATION BANNER ----- */
-    #verification-banner {
-      display: none;
-      position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1001;
-      background: linear-gradient(135deg, #F59E0B, #D97706);
-      color: white;
-      padding: 14px 24px;
-      border-radius: var(--radius-md);
-      box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
-      font-weight: 600;
-      font-size: 0.9rem;
-      max-width: 90%;
-      width: auto;
-      text-align: center;
-      animation: fadeUp 0.5s ease;
-      cursor: pointer;
-      transition: var(--transition-smooth);
-    }
-    #verification-banner:hover { transform: translateX(-50%) scale(1.02); }
-    #verification-banner .resend-link {
-      color: white;
-      text-decoration: underline;
-      font-weight: 700;
-      margin-left: 8px;
-      cursor: pointer;
-    }
-    #verification-banner .close-banner {
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 16px;
-      margin-left: 12px;
-      transition: var(--transition-smooth);
-    }
-    #verification-banner .close-banner:hover { background: rgba(255,255,255,0.3); }
+        /* ============================================
+           PRICING - INTERACTIVE
+        ============================================ */
+        .pricing {
+            padding: 60px 7%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .pricing-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+        .pricing-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+        }
+        .pricing-card.popular {
+            border-color: var(--accent);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.15);
+        }
+        .pricing-card.popular::before {
+            content: '⭐ Most Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 4px 20px;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .pricing-card .plan-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .pricing-card .plan-price {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+        .pricing-card .plan-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--muted);
+        }
+        .pricing-card .plan-desc {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .pricing-card ul {
+            list-style: none;
+            text-align: left;
+            margin: 20px 0;
+            padding: 0;
+        }
+        .pricing-card ul li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pricing-card ul li:last-child {
+            border-bottom: none;
+        }
+        .pricing-card ul li .check {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .pricing-card ul li .cross {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        .pricing-card .btn {
+            width: 100%;
+            justify-content: center;
+            margin-top: 12px;
+        }
 
-    /* ----- RESPONSIVE ----- */
-    @media (max-width:1024px) {
-      .hero { grid-template-columns:1fr; text-align:center; padding:40px 5% 60px; gap:40px; }
-      .hero p { margin:0 auto 32px; }
-      .hero-buttons { justify-content:center; }
-      .hero-card { height:320px; }
-      .panda { font-size:90px; }
-      .stats { grid-template-columns:repeat(2,1fr); }
-      .footer-grid { grid-template-columns:1fr 1fr; }
-      .pricing-grid { grid-template-columns:1fr 1fr; }
-      .how-grid { grid-template-columns:1fr 1fr; }
-    }
-    @media (max-width:768px) {
-      body { padding-top: calc(var(--nav-height) + 20px); }
-      nav.top-nav { top:12px; padding:0 16px; width:calc(100% - 24px); border-radius:18px; height:64px; }
-      nav.top-nav.shrunk { top:10px; height:54px; padding:0 14px; width:calc(100% - 32px); border-radius:14px; }
-      .logo { font-size:18px; gap:8px; }
-      .logo img { width:34px; height:34px; }
-      nav.top-nav.shrunk .logo img { width:28px; height:28px; }
-      nav ul { display:none; }
-      .bottom-nav { display:flex; }
-      .hero h1 { font-size:32px; }
-      .hero-card { height:260px; }
-      .panda { font-size:70px; }
-      .feature-grid { grid-template-columns:1fr; }
-      .stats { grid-template-columns:1fr 1fr; gap:12px; }
-      .stat-card { padding:16px 12px; }
-      .stat-card h2 { font-size:26px; }
-      .footer-grid { grid-template-columns:1fr; }
-      .cta-card { padding:32px 20px; }
-      .panda-chat { width:calc(100vw - 32px); right:16px; bottom:calc(100px + env(safe-area-inset-bottom)); height:380px; }
-      .panda-fab { right:16px; bottom:calc(90px + env(safe-area-inset-bottom)); width:56px; height:56px; font-size:28px; }
-      .video-section { padding:20px 5% 40px; }
-      #verification-banner { top: 72px; padding: 12px 16px; font-size: 0.8rem; }
-      .pricing-grid { grid-template-columns:1fr; max-width:400px; margin:0 auto; }
-      .how-grid { grid-template-columns:1fr; max-width:400px; margin:0 auto; }
-      .journey-stop { flex-direction: column; text-align: center; padding: 16px; gap: 8px; }
-      .journey-stop .stop-icon { font-size: 2rem; }
-    }
-    @media (max-width:480px) {
-      .stats { grid-template-columns:1fr 1fr; }
-      .hero-buttons .btn { flex:1; min-width:120px; padding:10px 16px; font-size:0.8rem; }
-      .hero-card { height:220px; }
-      .panda { font-size:56px; }
-      .user-chip { padding: 4px 12px 4px 6px; }
-      .user-avatar { width: 28px; height: 28px; font-size: 12px; }
-      .user-name { font-size: 0.7rem; }
-      .user-status { font-size: 0.55rem; }
-      .testimonial-grid { grid-template-columns:1fr; }
-    }
-    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; } }
-    *:focus-visible { outline:3px solid var(--primary); outline-offset:2px; }
-  </style>
+        /* ============================================
+           CTA
+        ============================================ */
+        .cta-container {
+            padding: 20px 7% 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .cta-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 56px 40px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            color: white;
+            box-shadow: 0 16px 48px rgba(37, 99, 235, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1), transparent 60%);
+        }
+        .cta-card>* {
+            position: relative;
+            z-index: 1;
+        }
+        .cta-card h2 {
+            font-size: clamp(28px, 4vw, 44px);
+            margin-bottom: 16px;
+            font-weight: 800;
+        }
+        .cta-card p {
+            max-width: 600px;
+            margin: 0 auto 32px;
+            line-height: 1.7;
+            font-size: 1rem;
+            opacity: 0.92;
+        }
+        .cta-card .hero-buttons {
+            justify-content: center;
+        }
+        .cta-card .btn-login {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        .cta-card .btn-login:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .cta-card .btn-signup {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        .cta-card .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ============================================
+           FOOTER
+        ============================================ */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 7% 40px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .footer-brand img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 2px;
+        }
+        .footer-brand h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+        footer p {
+            color: #94A3B8;
+            line-height: 1.7;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        footer h3 {
+            font-size: 1.05rem;
+            margin-bottom: 16px;
+            color: #f8fafc;
+            font-weight: 600;
+        }
+        footer a {
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        footer a:hover {
+            color: white;
+            transform: translateX(4px);
+        }
+        footer hr {
+            margin: 40px 0 24px;
+            border: none;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        footer .copyright {
+            text-align: center;
+            color: #64748B;
+            font-size: 0.85rem;
+        }
+
+        /* ============================================
+           BOTTOM NAV
+        ============================================ */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            justify-content: space-around;
+            padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+            z-index: 999;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        .bottom-nav a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 0;
+            transition: var(--transition-smooth);
+            border-radius: var(--radius-sm);
+        }
+        .bottom-nav a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        /* ============================================
+           PANDA CHAT
+        ============================================ */
+        .panda-fab {
+            position: fixed;
+            bottom: calc(100px + env(safe-area-inset-bottom));
+            right: 24px;
+            z-index: 998;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            font-size: 32px;
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            color: white;
+        }
+        .panda-fab:hover {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.4);
+        }
+        .panda-chat {
+            display: none;
+            position: fixed;
+            bottom: calc(110px + env(safe-area-inset-bottom));
+            right: 24px;
+            width: 360px;
+            max-width: calc(100vw - 48px);
+            height: 440px;
+            max-height: 65vh;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xl);
+            z-index: 999;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .panda-chat.open {
+            display: flex;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .panda-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .panda-title {
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panda-close {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+        .panda-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+        .panda-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #F8FAFC;
+        }
+        .message-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+            animation: fadeUp 0.3s ease;
+        }
+        .message-row.user {
+            flex-direction: row-reverse;
+        }
+        .panda-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .message {
+            max-width: 80%;
+            padding: 10px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .panda-message {
+            background: white;
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+        .user-message {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .panda-input {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .panda-input textarea {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            font-size: 14px;
+            resize: none;
+            font-family: 'Poppins', sans-serif;
+            min-height: 40px;
+            max-height: 80px;
+            outline: none;
+            transition: var(--transition-smooth);
+            background: var(--bg);
+        }
+        .panda-input textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .panda-send {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .panda-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 40px 5% 60px;
+                gap: 40px;
+            }
+            .hero p {
+                margin: 0 auto 32px;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+            .hero-trust {
+                justify-content: center;
+            }
+            .hero-card {
+                height: 320px;
+            }
+            .panda {
+                font-size: 100px;
+            }
+            .pricing-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .how-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: calc(var(--nav-height) + 20px);
+            }
+            nav.top-nav {
+                top: 12px;
+                padding: 0 16px;
+                width: calc(100% - 24px);
+                border-radius: 18px;
+                height: 64px;
+            }
+            nav.top-nav.shrunk {
+                top: 10px;
+                height: 54px;
+                padding: 0 14px;
+                width: calc(100% - 32px);
+                border-radius: 14px;
+            }
+            .logo {
+                font-size: 18px;
+                gap: 8px;
+            }
+            .logo img {
+                width: 34px;
+                height: 34px;
+            }
+            nav.top-nav.shrunk .logo img {
+                width: 28px;
+                height: 28px;
+            }
+            nav ul {
+                display: none;
+            }
+            .bottom-nav {
+                display: flex;
+            }
+            .hero h1 {
+                font-size: 32px;
+            }
+            .hero-card {
+                height: 260px;
+            }
+            .panda {
+                font-size: 80px;
+            }
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            .how-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            .trust-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .cta-card {
+                padding: 32px 20px;
+            }
+            .panda-chat {
+                width: calc(100vw - 32px);
+                right: 16px;
+                bottom: calc(100px + env(safe-area-inset-bottom));
+                height: 380px;
+            }
+            .panda-fab {
+                right: 16px;
+                bottom: calc(90px + env(safe-area-inset-bottom));
+                width: 56px;
+                height: 56px;
+                font-size: 28px;
+            }
+            #verification-banner {
+                top: 72px;
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-buttons .btn {
+                flex: 1;
+                min-width: 120px;
+                padding: 10px 16px;
+                font-size: 0.8rem;
+            }
+            .hero-card {
+                height: 220px;
+            }
+            .panda {
+                font-size: 60px;
+            }
+            .user-chip {
+                padding: 4px 12px 4px 6px;
+            }
+            .user-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            .user-name {
+                font-size: 0.7rem;
+            }
+            .user-status {
+                font-size: 0.55rem;
+            }
+            .trust-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-trust {
+                gap: 12px;
+            }
+            .hero-trust-item {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        *:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- LOADING OVERLAY -->
-  <div id="loading-overlay"><div class="loader"></div><div class="loader-text">🐼 Loading Hanverse...</div></div>
-
-  <!-- OFFLINE BANNER -->
-  <div id="offline-banner">🔴 You're offline. Progress will sync when back online.</div>
-
-  <!-- VERIFICATION BANNER -->
-  <div id="verification-banner" style="display:none;">
-    ⚠️ Please verify your email to access all features.
-    <span class="resend-link" id="resendVerificationLink">Resend verification</span>
-    <button class="close-banner" id="closeVerificationBanner">✕</button>
-  </div>
-
-  <!-- TOAST CONTAINER -->
-  <div id="toast-container" class="toast-container"></div>
-
-  <!-- ===== NAVBAR ===== -->
-  <nav class="top-nav" id="topNav">
-    <a href="index.html" class="logo">
-      <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
-      <span class="logo-text">Hanverse</span>
-    </a>
-    <ul>
-      <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="learn.html" id="navLearn">Learn</a></li>
-      <li><a href="worksheets.html">Worksheets</a></li>
-      <li><a href="parents.html" id="navParents">Parents</a></li>
-      <li><a href="parent-dashboard.html" id="navParentDashboard" style="display:none;">📊 Dashboard</a></li>
-      <li><a href="#" id="navInvite" style="display:none;" onclick="openInviteModal(); return false;">🐼 Invite</a></li>
-      <li><a href="admin.html" id="navAdmin" style="display:none;">⚙️ Admin</a></li>
-    </ul>
-    <div class="nav-buttons" id="navButtons"></div>
-  </nav>
-
-  <!-- ===== HERO ===== -->
-  <section class="hero">
-    <!-- Animated Elements -->
-    <div class="hero-lantern">🏮</div>
-    <div class="hero-lantern">🏮</div>
-    <div class="hero-lantern">🏮</div>
-    <div class="hero-lantern">🏮</div>
-    <div class="hero-cloud">☁️</div>
-    <div class="hero-cloud">☁️</div>
-    <div class="hero-sparkle">✨</div>
-    <div class="hero-sparkle">✨</div>
-    <div class="hero-sparkle">✨</div>
-    <div class="hero-sparkle">✨</div>
-    <div class="hero-deco">汉</div>
-    <div class="hero-deco">语</div>
-    <div class="hero-deco">乐</div>
-
-    <div class="hero-content">
-      <div class="tag"><span class="pulse"></span>Structured YCT Learning</div>
-      <h1>
-        Learn Chinese Through <span class="highlight">Adventure</span>
-        <span class="gradient-text">Stories • Games • AI</span>
-      </h1>
-      <p>The most engaging way for African children to learn Mandarin. Every lesson unlocks new adventures.</p>
-      <div class="hero-buttons" id="heroButtons">
-        <button class="btn btn-signup" id="heroSignupBtn">🚀 Start Free</button>
-        <button class="btn btn-login" onclick="scrollToSection('how-it-works')">▶ How It Works</button>
-        <button class="btn btn-invite" id="heroInviteBtn" style="display:none;" onclick="openInviteModal()">🐼 Invite Friends</button>
-      </div>
+    <!-- ===== LOADING OVERLAY ===== -->
+    <div id="loading-overlay">
+        <div class="loader"></div>
+        <div class="loader-text">🐼 Loading Hanverse...</div>
     </div>
-    <div class="hero-card">
-      <div class="float-char c1">你</div>
-      <div class="float-char c2">好</div>
-      <div class="float-char c3">学</div>
-      <div class="float-char c4">汉</div>
-      <div class="panda">🐼</div>
+
+    <!-- ===== OFFLINE BANNER ===== -->
+    <div id="offline-banner">🔴 You're offline. Progress will sync when back online.</div>
+
+    <!-- ===== VERIFICATION BANNER ===== -->
+    <div id="verification-banner" style="display:none;">
+        ⚠️ Please verify your email to access all features.
+        <span class="resend-link" id="resendVerificationLink">Resend verification</span>
+        <button class="close-banner" id="closeVerificationBanner">✕</button>
     </div>
-  </section>
 
-  <!-- ===== HOW IT WORKS ===== -->
-  <section class="how-it-works" id="how-it-works">
-    <h2 class="section-title">How Hanverse Works</h2>
-    <p class="section-subtitle">Three simple steps to start your Mandarin adventure.</p>
-    <div class="how-grid">
-      <div class="how-step">
-        <span class="step-number">1</span>
-        <span class="step-icon">📝</span>
-        <h3>Create Account</h3>
-        <p>Sign up for free and set up your learning profile. Parents can create accounts for their children in minutes.</p>
-      </div>
-      <div class="how-step">
-        <span class="step-number">2</span>
-        <span class="step-icon">🎮</span>
-        <h3>Play & Learn</h3>
-        <p>Explore interactive stories, games, and lessons. Every activity teaches new Mandarin words and phrases.</p>
-      </div>
-      <div class="how-step">
-        <span class="step-number">3</span>
-        <span class="step-icon">🗣️</span>
-        <h3>Speak Chinese</h3>
-        <p>Practice with Panda AI, earn XP, unlock achievements, and track your progress through YCT levels.</p>
-      </div>
-    </div>
-  </section>
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toast-container" class="toast-container"></div>
 
-  <!-- ===== LEARNING JOURNEY MAP ===== -->
-  <section class="journey">
-    <h2 class="section-title">Your Learning Journey 🗺️</h2>
-    <p class="section-subtitle">Progress through the Mandarin world and unlock new adventures.</p>
-    <div class="journey-map" id="journeyMap">
-      <div class="journey-stop">
-        <div class="stop-icon">🐼</div>
-        <div class="stop-content">
-          <div class="stop-title">Bamboo Forest</div>
-          <div class="stop-desc">Start your journey with basic greetings and vocabulary</div>
-        </div>
-        <span class="stop-badge">YCT 1</span>
-      </div>
-      <div class="journey-stop">
-        <div class="stop-icon">🏮</div>
-        <div class="stop-content">
-          <div class="stop-title">Lantern Village</div>
-          <div class="stop-desc">Learn everyday conversations and build confidence</div>
-        </div>
-        <span class="stop-badge">YCT 2</span>
-      </div>
-      <div class="journey-stop">
-        <div class="stop-icon">🐉</div>
-        <div class="stop-content">
-          <div class="stop-title">Dragon Mountain</div>
-          <div class="stop-desc">Read stories and engage in longer conversations</div>
-        </div>
-        <span class="stop-badge">YCT 3</span>
-      </div>
-      <div class="journey-stop">
-        <div class="stop-icon">🏯</div>
-        <div class="stop-content">
-          <div class="stop-title">Forbidden City</div>
-          <div class="stop-desc">Master advanced topics and exam preparation</div>
-        </div>
-        <span class="stop-badge">YCT 4</span>
-      </div>
-      <div class="journey-stop">
-        <div class="stop-icon">👑</div>
-        <div class="stop-content">
-          <div class="stop-title">Mandarin Master</div>
-          <div class="stop-desc">Complete your journey and earn your certificate</div>
-        </div>
-        <span class="stop-badge">🎓 Graduate</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== VIDEO SECTION ===== -->
-  <section class="video-section">
-    <h2 class="section-title" style="margin-bottom: 8px;">🎬 Watch Hanverse in Action</h2>
-    <p class="section-subtitle" style="margin-bottom: 24px;">See how children learn Mandarin through stories, games and AI — all in one place.</p>
-    <div class="video-wrapper">
-      <iframe src="https://www.youtube.com/embed/EMkzPg3u1TE" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
-    </div>
-    <div class="video-caption">⭐ <span>Hanverse</span> — fun, structured Mandarin learning for kids</div>
-  </section>
-
-  <!-- ===== STATS ===== -->
-  <section class="stats" id="stats">
-    <div class="stat-card"><h2 id="students">500+</h2><p>Students Learning</p></div>
-    <div class="stat-card"><h2 id="lessons">240+</h2><p>Interactive Lessons</p></div>
-    <div class="stat-card"><h2 id="games">30+</h2><p>Learning Games</p></div>
-    <div class="stat-card"><h2 id="satisfaction">95%</h2><p>Parent Satisfaction</p></div>
-  </section>
-
-  <!-- ===== FEATURES ===== -->
-  <section class="features" id="features">
-    <h2 class="section-title">Why Children ❤️ Hanverse</h2>
-    <p class="section-subtitle">Fun, engaging and structured Mandarin learning designed specifically for young learners.</p>
-    <div class="feature-grid">
-      <div class="feature-card"><span class="feature-icon">🎮</span><h3>Interactive Games</h3><p>Learn Mandarin through exciting educational games that make practice feel like play.</p></div>
-      <div class="feature-card"><span class="feature-icon">📖</span><h3>Stories & Reading</h3><p>Build vocabulary and comprehension through beautifully illustrated stories.</p></div>
-      <div class="feature-card"><span class="feature-icon">🤖</span><h3>AI Tutor</h3><p>Kid-safe AI designed for young learners. Practice speaking with Panda AI that adapts to your child's level.</p></div>
-    </div>
-  </section>
-
-  <!-- ===== PARENT FEATURES ===== -->
-  <section class="features-alt">
-    <h2 class="section-title">Why Parents 👨‍👩‍👦 Love Hanverse</h2>
-    <p class="section-subtitle">Designed to help children learn Mandarin safely, consistently and effectively.</p>
-    <div class="feature-grid">
-      <div class="feature-card"><span class="feature-icon">🛡️</span><h3>Safe & Secure</h3><p>Kid-safe AI with no ads, no inappropriate content, and full parental controls.</p></div>
-      <div class="feature-card"><span class="feature-icon">📊</span><h3>Track Progress</h3><p>Monitor completed lessons, earned badges, XP points and learning streaks.</p></div>
-      <div class="feature-card"><span class="feature-icon">🎯</span><h3>Structured YCT Path</h3><p>Students follow a clear pathway from YCT 1 to advanced Mandarin proficiency.</p></div>
-    </div>
-  </section>
-
-  <!-- ===== PARENT TRUST SECTION ===== -->
-  <section class="parent-trust">
-    <h2 class="section-title">Why Parents Trust Hanverse</h2>
-    <p class="section-subtitle">Built with families in mind. Safe, effective, and proven.</p>
-    <div class="trust-grid">
-      <div class="trust-item-card">
-        <span class="icon">🧑‍🏫</span>
-        <h4>Structured Curriculum</h4>
-        <p>Complete YCT 1-4 pathway aligned with international standards.</p>
-      </div>
-      <div class="trust-item-card">
-        <span class="icon">🔒</span>
-        <h4>Kid-Safe AI</h4>
-        <p>Every interaction is moderated and designed for young learners.</p>
-      </div>
-      <div class="trust-item-card">
-        <span class="icon">📈</span>
-        <h4>Progress Reports</h4>
-        <p>Weekly email summaries of your child's learning achievements.</p>
-      </div>
-      <div class="trust-item-card">
-        <span class="icon">🎓</span>
-        <h4>Certificates</h4>
-        <p>Earn official certificates for completing each YCT level.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== TESTIMONIALS ===== -->
-  <section class="testimonials">
-    <h2 class="section-title">What Our Community Says 💬</h2>
-    <p class="section-subtitle">Real families sharing their Hanverse experience.</p>
-    <div class="testimonial-grid">
-      <div class="testimonial-card">
-        <div class="stars">⭐⭐⭐⭐⭐</div>
-        <blockquote>"Learning Mandarin has never been this fun. I love the games and stories. I can already introduce myself in Chinese!"</blockquote>
-        <div class="author">
-          <div class="avatar">👦</div>
-          <div>
-            <div class="name">Aiden</div>
-            <div class="role">Age 10, YCT 1</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars">⭐⭐⭐⭐⭐</div>
-        <blockquote>"The structured lessons help my child stay motivated every week. She's now teaching me Chinese phrases!"</blockquote>
-        <div class="author">
-          <div class="avatar">👩</div>
-          <div>
-            <div class="name">Sarah</div>
-            <div class="role">Parent of 2 learners</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars">⭐⭐⭐⭐⭐</div>
-        <blockquote>"The AI tutor is amazing! I practice every day without feeling nervous. My pronunciation has improved so much."</blockquote>
-        <div class="author">
-          <div class="avatar">👧</div>
-          <div>
-            <div class="name">Maya</div>
-            <div class="role">Age 12, YCT 2</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== PRICING ===== -->
-  <section class="pricing" id="pricing">
-    <h2 class="section-title">Choose Your Plan 🎯</h2>
-    <p class="section-subtitle">Start free and upgrade when you're ready.</p>
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="plan-name">Free</div>
-        <div class="plan-price">$0 <span>/month</span></div>
-        <div class="plan-desc">Perfect for beginners.</div>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="top-nav" id="topNav">
+        <a href="index.html" class="logo">
+            <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
+            <span class="logo-text">Hanverse</span>
+        </a>
         <ul>
-          <li><span class="check">✅</span> 10+ free lessons</li>
-          <li><span class="check">✅</span> 5 interactive games</li>
-          <li><span class="check">✅</span> Panda AI Tutor (limited)</li>
-          <li><span class="check">✅</span> Basic progress tracking</li>
-          <li><span class="check">✅</span> YCT 1 curriculum</li>
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="learn.html">Learn</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="parents.html">Parents</a></li>
         </ul>
-        <button class="btn btn-signup" onclick="navigateTo('signup.html')">Start Free</button>
-      </div>
-      <div class="pricing-card popular">
-        <div class="plan-name">Premium</div>
-        <div class="plan-price">$9.99 <span>/month</span></div>
-        <div class="plan-desc">Full access to everything.</div>
-        <ul>
-          <li><span class="check">✅</span> All 240+ lessons</li>
-          <li><span class="check">✅</span> All 30+ games</li>
-          <li><span class="check">✅</span> Unlimited AI Tutor</li>
-          <li><span class="check">✅</span> Full progress tracking</li>
-          <li><span class="check">✅</span> All YCT 1-4 curriculum</li>
-          <li><span class="check">✅</span> Achievements & badges</li>
-          <li><span class="check">✅</span> Parent dashboard</li>
-          <li><span class="check">✅</span> Weekly progress emails</li>
-        </ul>
-        <button class="btn btn-premium-cta" onclick="navigateTo('signup.html?plan=premium')">Get Premium</button>
-      </div>
-      <div class="pricing-card">
-        <div class="plan-name">School</div>
-        <div class="plan-price">Contact <span>us</span></div>
-        <div class="plan-desc">For classrooms and schools.</div>
-        <ul>
-          <li><span class="check">✅</span> Everything in Premium</li>
-          <li><span class="check">✅</span> Teacher dashboard</li>
-          <li><span class="check">✅</span> Classroom management</li>
-          <li><span class="check">✅</span> Bulk student accounts</li>
-          <li><span class="check">✅</span> Custom curriculum</li>
-          <li><span class="check">✅</span> Dedicated support</li>
-        </ul>
-        <button class="btn btn-secondary" onclick="showToast('info', '📧 Contact us at schools@hanverse.com')">Contact Sales</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== TEAM ===== -->
-  <section class="features-alt">
-    <h2 class="section-title">Meet The Team 👋</h2>
-    <p class="section-subtitle">Passionate about making Mandarin accessible for African children.</p>
-    <div class="feature-grid">
-      <div class="feature-card" style="text-align:center;"><div class="avatar-box">👩🏽</div><h3>Kimberly</h3><p class="team-role">Co-Founder &amp; CEO</p><p style="color:var(--text-secondary);">Business Strategy, Vision &amp; Growth</p></div>
-      <div class="feature-card" style="text-align:center;"><div class="avatar-box">👨🏽</div><h3>Andrew</h3><p class="team-role">Co-Founder &amp; Language Expert</p><p style="color:var(--text-secondary);">Mandarin Curriculum &amp; Learning Content</p></div>
-    </div>
-  </section>
-
-  <!-- ===== FAQ ===== -->
-  <section class="faq" id="faq">
-    <h2 class="section-title">Frequently Asked Questions ❓</h2>
-    <p class="section-subtitle">Everything you need to know about Hanverse.</p>
-    <div class="faq-grid">
-      <div class="faq-item">
-        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-          <span>What age is Hanverse for?</span>
-          <span class="icon">▼</span>
+        <div class="nav-buttons" id="navButtons">
+            <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
+            <button class="btn btn-signup" onclick="navigateTo('signup.html')">Start Free</button>
         </div>
-        <div class="faq-answer"><p>Hanverse is designed for children aged 5-12. Our content is tailored to be age-appropriate and engaging for young learners.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-          <span>How much does Hanverse cost?</span>
-          <span class="icon">▼</span>
-        </div>
-        <div class="faq-answer"><p>We offer a free tier with 10+ lessons and games. Premium is $9.99/month with full access to all content, AI tutor, and progress tracking.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-          <span>Can I use Hanverse offline?</span>
-          <span class="icon">▼</span>
-        </div>
-        <div class="faq-answer"><p>Currently, Hanverse requires an internet connection. Offline mode is coming soon as a premium feature!</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-          <span>Is Hanverse safe for my child?</span>
-          <span class="icon">▼</span>
-        </div>
-        <div class="faq-answer"><p>Absolutely! Hanverse is kid-safe with no ads, no inappropriate content, and our AI is specifically designed for young learners. Parents have full control over their child's account.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-          <span>What curriculum does Hanverse follow?</span>
-          <span class="icon">▼</span>
-        </div>
-        <div class="faq-answer"><p>Hanverse follows the official YCT (Youth Chinese Test) curriculum from YCT 1 to YCT 4. Our lessons prepare students for certification.</p></div>
-      </div>
-    </div>
-  </section>
+    </nav>
 
-  <!-- ===== CTA ===== -->
-  <section class="cta-container">
-    <div class="cta-card">
-      <h2>Start Your Mandarin Adventure Today 🌟</h2>
-      <p>Join thousands of learners discovering Mandarin through stories, games, videos and AI.</p>
-      <div class="hero-buttons">
-        <button class="btn btn-signup" id="ctaSignupBtn">🚀 Create Free Account</button>
-        <button class="btn btn-login" id="ctaLoginBtn">Log In</button>
-      </div>
-    </div>
-  </section>
+    <!-- ========================================== -->
+    <!-- HERO SECTION -->
+    <!-- ========================================== -->
+    <section class="hero">
+        <!-- Animated Decorations -->
+        <div class="hero-lantern">🏮</div>
+        <div class="hero-lantern">🏮</div>
+        <div class="hero-lantern">🏮</div>
+        <div class="hero-lantern">🏮</div>
+        <div class="hero-cloud">☁️</div>
+        <div class="hero-cloud">☁️</div>
+        <div class="hero-sparkle">✨</div>
+        <div class="hero-sparkle">✨</div>
+        <div class="hero-sparkle">✨</div>
+        <div class="hero-sparkle">✨</div>
+        <div class="hero-deco">汉</div>
+        <div class="hero-deco">语</div>
+        <div class="hero-deco">乐</div>
 
-  <!-- ===== FOOTER ===== -->
-  <footer>
-    <div class="footer-grid">
-      <div>
-        <div class="footer-brand">
-          <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
-          <h2>Hanverse</h2>
-        </div>
-        <p>The most engaging way for African children to learn Mandarin through stories, games, AI tutors and structured YCT learning.</p>
-        <p style="margin-top:12px;font-size:0.8rem;color:#64748B;">Made with ❤️ for young learners</p>
-      </div>
-      <div><h3>Platform</h3><a href="index.html">Home</a><br><a href="learn.html">Learn</a><br><a href="login.html">Login</a><br><a href="signup.html">Signup</a></div>
-      <div><h3>Resources</h3><a href="worksheets.html">Worksheets</a><br><a href="parents.html">Parents</a><br><a href="#">Blog</a><br><a href="#">Support</a></div>
-      <div><h3>Follow Us</h3><a href="#">Instagram</a><br><a href="#">TikTok</a><br><a href="#">LinkedIn</a><br><a href="https://www.youtube.com/@Hanverse-chinese">YouTube</a></div>
-    </div>
-    <hr><p class="copyright">© 2026 Hanverse. All Rights Reserved.</p>
-  </footer>
-
-  <!-- ===== BOTTOM NAV ===== -->
-  <nav class="bottom-nav">
-    <a href="index.html" class="active"><span class="nav-icon">🏠</span>Home</a>
-    <a href="learn.html"><span class="nav-icon">📚</span>Learn</a>
-    <a href="parent-dashboard.html" id="bottomNavDashboard" style="display:none;"><span class="nav-icon">📊</span>Dashboard</a>
-    <a href="profile.html"><span class="nav-icon">👤</span>Profile</a>
-    <a href="#" id="mobileLogoutBtn"><span class="nav-icon">🚪</span>Logout</a>
-  </nav>
-
-  <!-- ===== PANDA FAB & CHAT ===== -->
-  <button class="panda-fab" id="pandaFab" aria-label="Open Panda AI Chat">🐼</button>
-  <div id="pandaChat" class="panda-chat">
-    <div class="panda-header"><div class="panda-title">🐼 Panda AI Tutor</div><button class="panda-close" id="pandaClose">✕</button></div>
-    <div id="pandaBody" class="panda-body">
-      <div class="message-row"><div class="panda-avatar">🐼</div><div class="message panda-message">👋 Hi! Ask me anything about Mandarin. I'm here to help!</div></div>
-    </div>
-    <div class="panda-input">
-      <textarea id="pandaInput" placeholder="Ask Panda anything..." rows="1"></textarea>
-      <button class="panda-send" id="pandaSend">➤</button>
-    </div>
-  </div>
-
-  <!-- ===== JAVASCRIPT ===== -->
-  <script>
-    // ==========================================
-    // CONFIGURATION
-    // ==========================================
-    const API_BASE = '/api';
-    const SESSION_KEY = 'hanverse_user';
-    const VERSION = '2.0.0';
-    const DEBUG = false;
-
-    function log(...args) { if (DEBUG) console.log(...args); }
-    function errorLog(...args) { console.error(...args); }
-
-    // ==========================================
-    // UTILITY FUNCTIONS
-    // ==========================================
-    function escapeHtml(text) {
-      const d = document.createElement('div');
-      d.textContent = text;
-      return d.innerHTML;
-    }
-
-    function debounce(fn, delay) {
-      let timer;
-      return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), delay);
-      };
-    }
-
-    // ==========================================
-    // SESSION MANAGEMENT
-    // ==========================================
-    function normalizeUser(user) {
-      if (!user) return null;
-      return {
-        id: user.user_id || user.id,
-        user_id: user.user_id || user.id,
-        username: user.username || '',
-        full_name: user.full_name || user.fullName || user.username || 'Learner',
-        fullName: user.full_name || user.fullName || user.username || 'Learner',
-        email: user.email || '',
-        xp: user.xp || 0,
-        level: user.level || 1,
-        streak_days: user.streak_days || user.streakDays || 0,
-        streakDays: user.streak_days || user.streakDays || 0,
-        is_verified: user.is_verified || false,
-        isVerified: user.is_verified || false,
-        premium: user.premium || user.is_premium || false,
-        is_premium: user.premium || user.is_premium || false,
-        isPremium: user.premium || user.is_premium || false,
-        premium_until: user.premium_until || null,
-        role: user.role || 'student',
-        profile_picture: user.profile_picture || null,
-        profilePicture: user.profile_picture || null,
-        is_admin: user.is_admin || false,
-        isAdmin: user.is_admin || false,
-        is_banned: user.is_banned || false,
-        isBanned: user.is_banned || false,
-        current_yct: user.current_yct || 1,
-        current_hsk: user.current_hsk || 0,
-        chinese_level: user.chinese_level || 'YCT 1',
-        lessons_completed: user.lessons_completed || 0,
-        achievements_count: user.achievements_count || 0
-      };
-    }
-
-    function getSession() {
-      try {
-        const data = localStorage.getItem(SESSION_KEY);
-        if (!data) return null;
-        const parsed = JSON.parse(data);
-        return normalizeUser(parsed);
-      } catch {
-        return null;
-      }
-    }
-
-    function setSession(user) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    }
-
-    function clearSession() {
-      localStorage.removeItem(SESSION_KEY);
-    }
-
-    function getUserId() {
-      const session = getSession();
-      return session?.user_id || session?.id || null;
-    }
-
-    function getFullName() {
-      const session = getSession();
-      return session?.full_name || session?.fullName || session?.username || 'Learner';
-    }
-
-    function isLoggedIn() {
-      return !!getUserId();
-    }
-
-    function isPremium() {
-      const session = getSession();
-      return session?.premium || session?.is_premium || false;
-    }
-
-    function isParent() {
-      const session = getSession();
-      return session?.role === 'parent';
-    }
-
-    function isStudent() {
-      const session = getSession();
-      return session?.role === 'student' || !session?.role;
-    }
-
-    function isAdmin() {
-      const session = getSession();
-      return session?.is_admin || session?.isAdmin || false;
-    }
-
-    function isVerified() {
-      const session = getSession();
-      return session?.is_verified || session?.isVerified || false;
-    }
-
-    // ==========================================
-    // NAVIGATION
-    // ==========================================
-    function navigateTo(url) {
-      if ((url === 'signup.html' || url === 'login.html') && isLoggedIn()) {
-        showToast('info', 'You are already logged in!');
-        return;
-      }
-      if (url === 'signup.html?plan=premium') {
-        window.location.href = 'signup.html?plan=premium';
-        return;
-      }
-      window.location.href = url;
-    }
-
-    function scrollToSection(id) {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // ==========================================
-    // TOAST SYSTEM
-    // ==========================================
-    function showToast(type, message, duration = 4000) {
-      const container = document.getElementById('toast-container');
-      if (!container) return;
-
-      const icons = {
-        success: '✅',
-        error: '❌',
-        warning: '⚠️',
-        info: 'ℹ️'
-      };
-
-      const toast = document.createElement('div');
-      toast.className = `toast toast-${type}`;
-      toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
-        <span class="toast-message">${message}</span>
-        <button class="toast-close" aria-label="Close notification">✕</button>
-      `;
-
-      toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
-      container.appendChild(toast);
-
-      const timer = setTimeout(() => removeToast(toast), duration);
-      toast.dataset.timer = timer;
-    }
-
-    function removeToast(toast) {
-      if (toast.classList.contains('removing')) return;
-      toast.classList.add('removing');
-      if (toast.dataset.timer) {
-        clearTimeout(parseInt(toast.dataset.timer));
-      }
-      setTimeout(() => toast.remove(), 300);
-    }
-
-    // ==========================================
-    // LOADING OVERLAY
-    // ==========================================
-    let loadingCounter = 0;
-
-    function showLoading(message = '🐼 Loading Hanverse...') {
-      const overlay = document.getElementById('loading-overlay');
-      const text = overlay.querySelector('.loader-text');
-      if (text) text.textContent = message;
-      loadingCounter++;
-      overlay.classList.add('show');
-    }
-
-    function hideLoading() {
-      loadingCounter--;
-      if (loadingCounter <= 0) {
-        loadingCounter = 0;
-        document.getElementById('loading-overlay').classList.remove('show');
-      }
-    }
-
-    // ==========================================
-    // API CALLS
-    // ==========================================
-    async function apiCall(endpoint, options = {}) {
-      const url = `${API_BASE}${endpoint}`;
-      const headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        ...options.headers
-      };
-
-      try {
-        const res = await fetch(url, {
-          ...options,
-          headers,
-          credentials: 'same-origin'
-        });
-
-        let data;
-        const contentType = res.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          data = await res.json();
-        } else {
-          data = { success: false, error: `Unexpected response from server` };
-        }
-
-        if (res.status === 403) {
-          if (data.error === 'not_verified') {
-            throw new Error('not_verified');
-          }
-          if (data.error === 'banned') {
-            throw new Error(`banned:${data.reason || 'Account suspended'}`);
-          }
-        }
-
-        if (!res.ok) {
-          throw new Error(data.error || data.message || `API error: ${res.status}`);
-        }
-
-        return data;
-      } catch (e) {
-        errorLog(`API call failed: ${endpoint}`, e);
-        throw e;
-      }
-    }
-
-    // ==========================================
-    // AUTH FUNCTIONS
-    // ==========================================
-    async function login(email, password) {
-      try {
-        showLoading('Logging in...');
-        const data = await apiCall('/login', {
-          method: 'POST',
-          body: JSON.stringify({ email, password })
-        });
-
-        if (data.success) {
-          const user = normalizeUser(data.user);
-          setSession(user);
-          updateNavbar();
-          updateNavigation();
-          showToast('success', `Welcome back, ${user.full_name}! 🎉`);
-          hideLoading();
-          return true;
-        }
-        hideLoading();
-        return false;
-      } catch (error) {
-        hideLoading();
-        if (error.message === 'not_verified') {
-          showVerificationBanner(email);
-          showToast('warning', 'Please verify your email before logging in.');
-        } else if (error.message.startsWith('banned:')) {
-          const reason = error.message.split(':')[1] || 'Account suspended';
-          showToast('error', `Account suspended: ${reason}`);
-        } else {
-          showToast('error', error.message || 'Login failed. Please try again.');
-        }
-        return false;
-      }
-    }
-
-    async function signup(userData) {
-      try {
-        showLoading('Creating your account...');
-        const data = await apiCall('/signup', {
-          method: 'POST',
-          body: JSON.stringify(userData)
-        });
-
-        if (data.success) {
-          const user = normalizeUser(data.user);
-          setSession(user);
-          updateNavbar();
-          updateNavigation();
-          showToast('success', 'Account created! Please check your email for verification.');
-          showVerificationBanner(user.email);
-          hideLoading();
-          return true;
-        }
-        hideLoading();
-        return false;
-      } catch (error) {
-        hideLoading();
-        if (error.message.includes('email')) {
-          showToast('error', 'Email already registered. Please use a different email.');
-        } else if (error.message.includes('username')) {
-          showToast('error', 'Username already taken. Please choose a different one.');
-        } else {
-          showToast('error', error.message || 'Signup failed. Please try again.');
-        }
-        return false;
-      }
-    }
-
-    function logout() {
-      if (confirm('Are you sure you want to log out?')) {
-        clearSession();
-        updateNavbar();
-        updateNavigation();
-        hideVerificationBanner();
-        showToast('success', 'Logged out successfully');
-        window.location.reload();
-      }
-    }
-
-    // ==========================================
-    // VERIFICATION BANNER
-    // ==========================================
-    let verificationEmail = null;
-
-    function showVerificationBanner(email) {
-      const banner = document.getElementById('verification-banner');
-      if (!banner) return;
-      verificationEmail = email;
-      banner.style.display = 'block';
-    }
-
-    function hideVerificationBanner() {
-      const banner = document.getElementById('verification-banner');
-      if (banner) banner.style.display = 'none';
-    }
-
-    async function resendVerification() {
-      if (!verificationEmail) {
-        const session = getSession();
-        verificationEmail = session?.email || null;
-      }
-      if (!verificationEmail) {
-        showToast('warning', 'Please provide your email address.');
-        return;
-      }
-
-      try {
-        showLoading('Sending verification...');
-        await apiCall('/resend-verification', {
-          method: 'POST',
-          body: JSON.stringify({ email: verificationEmail })
-        });
-        showToast('success', 'Verification email sent! Check your inbox.');
-        hideLoading();
-      } catch (error) {
-        hideLoading();
-        showToast('error', error.message || 'Failed to send verification email.');
-      }
-    }
-
-    // ==========================================
-    // NAVBAR UPDATE
-    // ==========================================
-    function updateNavbar() {
-      const navButtons = document.getElementById('navButtons');
-      if (!navButtons) return;
-
-      const session = getSession();
-
-      if (session && session.user_id) {
-        const displayName = session.full_name || session.fullName || session.username || 'Learner';
-        const premium = session.premium || session.is_premium || false;
-        const xp = session.xp || 0;
-        const level = session.level || 1;
-        const avatar = session.profile_picture || session.profilePicture || null;
-
-        let roleBadge = '';
-        if (isParent()) roleBadge = '👨‍👩‍👦';
-        else if (isAdmin()) roleBadge = '👑';
-        else roleBadge = '🐼';
-
-        navButtons.innerHTML = `
-          <div class="user-chip" onclick="navigateTo('profile.html')">
-            <div class="user-avatar">
-              ${avatar ? `<img src="${avatar}" alt="${displayName}">` : roleBadge}
+        <div class="hero-content">
+            <div class="tag">
+                <span class="pulse"></span>
+                Structured YCT Learning
             </div>
-            <div class="user-info">
-              <div class="user-name">${escapeHtml(displayName)}</div>
-              <div class="user-status">
-                <span class="premium-dot" style="${premium ? '' : 'background:#94A3B8;'}"></span>
-                <span ${premium ? 'class="premium-text"' : ''}>${premium ? '⭐ Premium' : 'Free Member'}</span>
-                <span class="user-xp">⚡${xp} XP</span>
-              </div>
+            <h1>
+                Learn Chinese Through
+                <span class="highlight">Adventure</span>
+                <span class="gradient-text">Stories • Games • AI</span>
+            </h1>
+            <p>
+                The most engaging way for African children to learn Mandarin.
+                Every lesson unlocks new adventures.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-signup" onclick="navigateTo('signup.html')">🚀 Start Free</button>
+                <button class="btn btn-login" onclick="scrollToSection('how-it-works')">▶ How It Works</button>
             </div>
-          </div>
-          <button class="btn btn-logout" onclick="logout()">Log Out</button>
-        `;
+            <div class="hero-trust">
+                <span class="hero-trust-item">
+                    <span class="icon">⭐</span>
+                    4.9/5 Parent Rating
+                </span>
+                <span class="hero-trust-item">
+                    <span class="icon">👨‍👩‍👦</span>
+                    5,000+ Families
+                </span>
+                <span class="hero-trust-item">
+                    <span class="icon">🛡️</span>
+                    Kid-Safe & Ad-Free
+                </span>
+            </div>
+        </div>
 
-        // Update hero button
-        const heroBtn = document.getElementById('heroSignupBtn');
-        if (heroBtn) {
-          if (isParent()) {
-            heroBtn.textContent = '📊 Parent Dashboard';
-            heroBtn.onclick = () => navigateTo('parent-dashboard.html');
-          } else if (isAdmin()) {
-            heroBtn.textContent = '⚙️ Admin Panel';
-            heroBtn.onclick = () => navigateTo('admin.html');
-          } else {
-            heroBtn.textContent = '📚 Continue Learning';
-            heroBtn.onclick = () => navigateTo('learn.html');
-          }
+        <div class="hero-card">
+            <div class="float-char c1">你</div>
+            <div class="float-char c2">好</div>
+            <div class="float-char c3">学</div>
+            <div class="float-char c4">汉</div>
+            <div class="panda" id="pandaMascot">🐼</div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- HOW IT WORKS -->
+    <!-- ========================================== -->
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">How Hanverse Works</h2>
+        <p class="section-subtitle">Three simple steps to start your Mandarin adventure.</p>
+        <div class="how-grid">
+            <div class="how-step">
+                <span class="step-number">1</span>
+                <span class="step-icon">📝</span>
+                <h3>Create Account</h3>
+                <p>Sign up for free and set up your learning profile. Parents can create accounts for their children in minutes.</p>
+            </div>
+            <div class="how-step">
+                <span class="step-number">2</span>
+                <span class="step-icon">🎮</span>
+                <h3>Play & Learn</h3>
+                <p>Explore interactive stories, games, and lessons. Every activity teaches new Mandarin words and phrases.</p>
+            </div>
+            <div class="how-step">
+                <span class="step-number">3</span>
+                <span class="step-icon">🗣️</span>
+                <h3>Speak Chinese</h3>
+                <p>Practice with Panda AI, earn XP, unlock achievements, and track your progress through YCT levels.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TRUST SECTION -->
+    <!-- ========================================== -->
+    <section class="trust-section">
+        <h2 class="section-title">Why Parents Trust Hanverse</h2>
+        <p class="section-subtitle">Built with families in mind. Safe, effective, and proven.</p>
+        <div class="trust-grid">
+            <div class="trust-item">
+                <span class="icon">🧑‍🏫</span>
+                <h4>Structured Curriculum</h4>
+                <p>Complete YCT 1-4 pathway aligned with international standards.</p>
+            </div>
+            <div class="trust-item">
+                <span class="icon">🔒</span>
+                <h4>Kid-Safe AI</h4>
+                <p>Every interaction is moderated and designed for young learners. No ads.</p>
+            </div>
+            <div class="trust-item">
+                <span class="icon">📈</span>
+                <h4>Progress Reports</h4>
+                <p>Weekly email summaries of your child's learning achievements.</p>
+            </div>
+            <div class="trust-item">
+                <span class="icon">🎓</span>
+                <h4>Certificates</h4>
+                <p>Earn official certificates for completing each YCT level.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- FEATURES -->
+    <!-- ========================================== -->
+    <section class="features" id="features">
+        <h2 class="section-title">What's Inside Hanverse</h2>
+        <p class="section-subtitle">Everything your child needs to fall in love with Mandarin.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🎙️</span>
+                <h3>AI Speaking Coach</h3>
+                <p>Practice pronunciation with Panda AI. Get instant feedback and improve your speaking skills.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📖</span>
+                <h3>Interactive Stories</h3>
+                <p>Beautifully illustrated stories that teach vocabulary and comprehension in context.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🏆</span>
+                <h3>Achievements</h3>
+                <p>Unlock badges, earn XP, and celebrate every milestone on your learning journey.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🏮</span>
+                <h3>Chinese Culture</h3>
+                <p>Explore festivals, food, landmarks, and traditions that bring the language to life.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🤖</span>
+                <h3>Panda AI Tutor</h3>
+                <p>Kid-safe AI that adapts to your child's level and makes learning feel like a game.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📄</span>
+                <h3>Printable Worksheets</h3>
+                <p>Download practice materials for offline learning and revision.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SUCCESS STORIES -->
+    <!-- ========================================== -->
+    <section class="success-stories">
+        <h2 class="section-title">⭐ Success Stories</h2>
+        <p class="section-subtitle">Real families, real results. Hear from our community.</p>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <blockquote>"My daughter went from knowing zero Mandarin to confidently introducing herself in Chinese within just 3 weeks. She loves the games!"</blockquote>
+                <div class="author">
+                    <div class="avatar">👩</div>
+                    <div>
+                        <div class="name">Sarah M.</div>
+                        <div class="role">Parent of 2 learners</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <blockquote>"The AI tutor is a game-changer. My son practices every day without me having to remind him. His pronunciation has improved dramatically."</blockquote>
+                <div class="author">
+                    <div class="avatar">👨</div>
+                    <div>
+                        <div class="name">David K.</div>
+                        <div class="role">Parent, Nairobi</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <blockquote>"I was nervous about learning a new language, but HanVerse made it so much fun. I've already earned 5 badges and can't wait to unlock more!"</blockquote>
+                <div class="author">
+                    <div class="avatar">👧</div>
+                    <div>
+                        <div class="name">Aisha</div>
+                        <div class="role">Age 12, YCT 2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- PRICING -->
+    <!-- ========================================== -->
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Choose Your Plan 🎯</h2>
+        <p class="section-subtitle">Start free and upgrade when you're ready. No hidden fees.</p>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="plan-name">Free</div>
+                <div class="plan-price">$0 <span>/month</span></div>
+                <div class="plan-desc">Perfect for beginners.</div>
+                <ul>
+                    <li><span class="check">✅</span> 10+ free lessons</li>
+                    <li><span class="check">✅</span> 5 interactive games</li>
+                    <li><span class="check">✅</span> Panda AI Tutor (limited)</li>
+                    <li><span class="check">✅</span> Basic progress tracking</li>
+                    <li><span class="check">✅</span> YCT 1 curriculum</li>
+                    <li><span class="cross">❌</span> Premium stories</li>
+                    <li><span class="cross">❌</span> Parent dashboard</li>
+                </ul>
+                <button class="btn btn-signup" onclick="navigateTo('signup.html')">Start Free</button>
+            </div>
+
+            <div class="pricing-card popular">
+                <div class="plan-name">Premium</div>
+                <div class="plan-price">$9.99 <span>/month</span></div>
+                <div class="plan-desc">Full access to everything.</div>
+                <ul>
+                    <li><span class="check">✅</span> All 240+ lessons</li>
+                    <li><span class="check">✅</span> All 30+ games</li>
+                    <li><span class="check">✅</span> Unlimited AI Tutor</li>
+                    <li><span class="check">✅</span> Full progress tracking</li>
+                    <li><span class="check">✅</span> All YCT 1-4 curriculum</li>
+                    <li><span class="check">✅</span> Achievements & badges</li>
+                    <li><span class="check">✅</span> Parent dashboard</li>
+                    <li><span class="check">✅</span> Weekly progress emails</li>
+                </ul>
+                <button class="btn btn-premium-cta" onclick="navigateTo('signup.html?plan=premium')">Get Premium</button>
+            </div>
+
+            <div class="pricing-card">
+                <div class="plan-name">Family</div>
+                <div class="plan-price">$19.99 <span>/month</span></div>
+                <div class="plan-desc">For the whole family.</div>
+                <ul>
+                    <li><span class="check">✅</span> Everything in Premium</li>
+                    <li><span class="check">✅</span> Up to 4 children</li>
+                    <li><span class="check">✅</span> Family progress dashboard</li>
+                    <li><span class="check">✅</span> Individual learning paths</li>
+                    <li><span class="check">✅</span> Parent controls</li>
+                    <li><span class="check">✅</span> Family certificates</li>
+                    <li><span class="check">✅</span> Priority support</li>
+                    <li><span class="check">✅</span> Save 50% vs individual</li>
+                </ul>
+                <button class="btn btn-signup" onclick="navigateTo('signup.html?plan=family')">Start Family Trial</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- CTA -->
+    <!-- ========================================== -->
+    <section class="cta-container">
+        <div class="cta-card">
+            <h2>Start Your Mandarin Adventure Today 🌟</h2>
+            <p>Join thousands of learners discovering Mandarin through stories, games, videos and AI.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-signup" onclick="navigateTo('signup.html')">🚀 Create Free Account</button>
+                <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- FOOTER -->
+    <!-- ========================================== -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">
+                    <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
+                    <h2>Hanverse</h2>
+                </div>
+                <p>The most engaging way for African children to learn Mandarin through stories, games, AI tutors and structured YCT learning.</p>
+                <p style="margin-top: 12px; font-size: 0.8rem; color: #64748B;">Made with ❤️ for young learners</p>
+            </div>
+            <div>
+                <h3>Platform</h3>
+                <a href="index.html">Home</a><br>
+                <a href="learn.html">Learn</a><br>
+                <a href="pricing.html">Pricing</a><br>
+                <a href="about.html">About</a>
+            </div>
+            <div>
+                <h3>Resources</h3>
+                <a href="parents.html">Parents</a><br>
+                <a href="worksheets.html">Worksheets</a><br>
+                <a href="success-stories.html">Success Stories</a><br>
+                <a href="faq.html">FAQ</a>
+            </div>
+            <div>
+                <h3>Connect</h3>
+                <a href="#">Instagram</a><br>
+                <a href="#">TikTok</a><br>
+                <a href="#">LinkedIn</a><br>
+                <a href="https://www.youtube.com/@Hanverse-chinese">YouTube</a>
+            </div>
+        </div>
+        <hr>
+        <p class="copyright">© 2026 Hanverse. All Rights Reserved.</p>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- BOTTOM NAV -->
+    <!-- ========================================== -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="active"><span class="nav-icon">🏠</span>Home</a>
+        <a href="learn.html"><span class="nav-icon">📚</span>Learn</a>
+        <a href="pricing.html"><span class="nav-icon">💰</span>Pricing</a>
+        <a href="profile.html"><span class="nav-icon">👤</span>Profile</a>
+        <a href="#" id="mobileLogoutBtn"><span class="nav-icon">🚪</span>Logout</a>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- PANDA FAB & CHAT -->
+    <!-- ========================================== -->
+    <button class="panda-fab" id="pandaFab" aria-label="Open Panda AI Chat">🐼</button>
+    <div id="pandaChat" class="panda-chat">
+        <div class="panda-header">
+            <div class="panda-title">🐼 Panda AI Tutor</div>
+            <button class="panda-close" id="pandaClose">✕</button>
+        </div>
+        <div id="pandaBody" class="panda-body">
+            <div class="message-row">
+                <div class="panda-avatar">🐼</div>
+                <div class="message panda-message">👋 Hi! Ask me anything about Mandarin. I'm here to help!</div>
+            </div>
+        </div>
+        <div class="panda-input">
+            <textarea id="pandaInput" placeholder="Ask Panda anything..." rows="1"></textarea>
+            <button class="panda-send" id="pandaSend">➤</button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ========================================== -->
+    <script>
+        // ============================================================
+        // REGISTER GSAP PLUGINS
+        // ============================================================
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
+        const API_BASE = '/api';
+        const SESSION_KEY = 'hanverse_user';
+        const VERSION = '2.0.0';
+        const DEBUG = false;
+
+        function log(...args) {
+            if (DEBUG) console.log(...args);
         }
 
-        // Update CTA buttons
-        const ctaSignup = document.getElementById('ctaSignupBtn');
-        if (ctaSignup) {
-          if (isParent()) {
-            ctaSignup.textContent = '📊 Go to Dashboard';
-            ctaSignup.onclick = () => navigateTo('parent-dashboard.html');
-          } else if (isAdmin()) {
-            ctaSignup.textContent = '⚙️ Admin Panel';
-            ctaSignup.onclick = () => navigateTo('admin.html');
-          } else {
-            ctaSignup.textContent = '📚 Start Learning';
-            ctaSignup.onclick = () => navigateTo('learn.html');
-          }
-        }
-        const ctaLogin = document.getElementById('ctaLoginBtn');
-        if (ctaLogin) {
-          ctaLogin.textContent = '👤 My Profile';
-          ctaLogin.onclick = () => navigateTo('profile.html');
+        function errorLog(...args) {
+            console.error(...args);
         }
 
-        // Show invite button
-        const inviteBtn = document.getElementById('heroInviteBtn');
-        if (inviteBtn) {
-          inviteBtn.style.display = 'inline-flex';
-        }
-        const navInvite = document.getElementById('navInvite');
-        if (navInvite) {
-          navInvite.style.display = 'inline-block';
-        }
-
-        // Check verification status
-        if (!session.is_verified && !session.isVerified) {
-          showVerificationBanner(session.email);
-        } else {
-          hideVerificationBanner();
+        // ============================================================
+        // UTILITY FUNCTIONS
+        // ============================================================
+        function escapeHtml(text) {
+            const d = document.createElement('div');
+            d.textContent = text;
+            return d.innerHTML;
         }
 
-        // Show verification status on user chip
-        if (!session.is_verified && !session.isVerified) {
-          const statusEl = document.querySelector('.user-status');
-          if (statusEl) {
-            statusEl.innerHTML += ' <span style="color:#F59E0B;font-weight:600;">⚠️ Unverified</span>';
-          }
-        }
-
-      } else {
-        // Logged out state
-        navButtons.innerHTML = `
-          <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
-          <button class="btn btn-signup" onclick="navigateTo('signup.html')">Sign Up</button>
-        `;
-
-        const heroBtn = document.getElementById('heroSignupBtn');
-        if (heroBtn) {
-          heroBtn.textContent = '🚀 Start Free';
-          heroBtn.onclick = () => navigateTo('signup.html');
-        }
-
-        const ctaSignup = document.getElementById('ctaSignupBtn');
-        if (ctaSignup) {
-          ctaSignup.textContent = '🚀 Create Free Account';
-          ctaSignup.onclick = () => navigateTo('signup.html');
-        }
-        const ctaLogin = document.getElementById('ctaLoginBtn');
-        if (ctaLogin) {
-          ctaLogin.textContent = 'Log In';
-          ctaLogin.onclick = () => navigateTo('login.html');
-        }
-
-        // Hide invite button when logged out
-        const inviteBtn = document.getElementById('heroInviteBtn');
-        if (inviteBtn) {
-          inviteBtn.style.display = 'none';
-        }
-        const navInvite = document.getElementById('navInvite');
-        if (navInvite) {
-          navInvite.style.display = 'none';
-        }
-
-        hideVerificationBanner();
-      }
-    }
-
-    // ==========================================
-    // NAVIGATION LINKS UPDATE
-    // ==========================================
-    function updateNavigation() {
-      const session = getSession();
-      const isLoggedInUser = !!session?.user_id;
-
-      // Parent dashboard link
-      const parentDashLink = document.getElementById('navParentDashboard');
-      const bottomDashLink = document.getElementById('bottomNavDashboard');
-      if (parentDashLink) {
-        parentDashLink.style.display = isParent() ? 'inline-block' : 'none';
-      }
-      if (bottomDashLink) {
-        bottomDashLink.style.display = isParent() ? 'flex' : 'none';
-      }
-
-      // Admin link
-      const adminLink = document.getElementById('navAdmin');
-      if (adminLink) {
-        adminLink.style.display = isAdmin() ? 'inline-block' : 'none';
-      }
-
-      // Parent page link - show to everyone
-      const parentPageLink = document.getElementById('navParents');
-      if (parentPageLink) {
-        parentPageLink.style.display = 'inline-block';
-      }
-
-      // Learn link - show to everyone
-      const learnLink = document.getElementById('navLearn');
-      if (learnLink) {
-        learnLink.style.display = 'inline-block';
-      }
-    }
-
-    // ==========================================
-    // STATS FETCHING
-    // ==========================================
-    async function fetchStats() {
-      try {
-        const data = await apiCall('/stats');
-        if (data.success) {
-          const students = data.totalStudents || 500;
-          const lessons = data.totalLessons || 240;
-          const games = data.totalGames || 30;
-          const satisfaction = data.satisfactionRate || 95;
-          document.getElementById('students').textContent = students + '+';
-          document.getElementById('lessons').textContent = lessons + '+';
-          document.getElementById('games').textContent = games + '+';
-          document.getElementById('satisfaction').textContent = satisfaction + '%';
-        }
-      } catch (error) {
-        // Fallback values - show with + to indicate growth
-        document.getElementById('students').textContent = '500+';
-        document.getElementById('lessons').textContent = '240+';
-        document.getElementById('games').textContent = '30+';
-        document.getElementById('satisfaction').textContent = '95%';
-      }
-    }
-
-    // ==========================================
-    // NAVBAR SCROLL
-    // ==========================================
-    const nav = document.getElementById('topNav');
-    let ticking = false;
-
-    function handleNavScroll() {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (window.scrollY > 40) {
-            nav.classList.add('shrunk');
-          } else {
-            nav.classList.remove('shrunk');
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }
-    window.addEventListener('scroll', handleNavScroll, { passive: true });
-
-    // ==========================================
-    // INTERSECTION OBSERVER FOR CARDS
-    // ==========================================
-    function initCardAnimations() {
-      const cards = document.querySelectorAll('.feature-card, .stat-card, .how-step, .journey-stop, .pricing-card, .testimonial-card, .trust-item-card');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.style.opacity = '1';
-            e.target.style.transform = 'translateY(0)';
-          }
-        });
-      }, { threshold: 0.05 });
-
-      cards.forEach(c => {
-        c.style.opacity = '0';
-        c.style.transform = 'translateY(20px)';
-        c.style.transition = 'transform 0.6s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease';
-        observer.observe(c);
-      });
-    }
-
-    // ==========================================
-    // OFFLINE STATUS
-    // ==========================================
-    const offlineBanner = document.getElementById('offline-banner');
-
-    function updateOfflineStatus() {
-      if (!navigator.onLine) {
-        offlineBanner.classList.add('show');
-      } else {
-        offlineBanner.classList.remove('show');
-      }
-    }
-    window.addEventListener('online', updateOfflineStatus);
-    window.addEventListener('offline', updateOfflineStatus);
-    updateOfflineStatus();
-
-    // ==========================================
-    // PANDA CHAT
-    // ==========================================
-    const pandaFab = document.getElementById('pandaFab');
-    const pandaChat = document.getElementById('pandaChat');
-    const pandaClose = document.getElementById('pandaClose');
-    const pandaInput = document.getElementById('pandaInput');
-    const pandaSend = document.getElementById('pandaSend');
-    const pandaBody = document.getElementById('pandaBody');
-
-    const chatFallbacks = [
-      "That's a great question! Let me help you with that. 🐼",
-      "Interesting! Would you like to practice more? 📚",
-      "Good job! Keep practicing and you'll improve quickly! 🌟",
-      "Let me explain that in a simple way... 🎯",
-      "You're doing amazing! Want to try a quiz? 🎮",
-      "That's a fun one! Let's learn together! 🤗",
-      "I love that question! Here's what I think... 💭",
-      "You're making great progress! Keep going! 🚀"
-    ];
-
-    function togglePanda() {
-      pandaChat.classList.toggle('open');
-      if (pandaChat.classList.contains('open')) {
-        setTimeout(() => pandaInput.focus(), 100);
-      }
-    }
-
-    pandaFab.addEventListener('click', togglePanda);
-    pandaClose.addEventListener('click', togglePanda);
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && pandaChat.classList.contains('open')) {
-        togglePanda();
-      }
-    });
-
-    async function sendPandaMessage() {
-      const input = document.getElementById('pandaInput');
-      const body = document.getElementById('pandaBody');
-      const text = input.value.trim();
-
-      if (!text) return;
-
-      const userRow = document.createElement('div');
-      userRow.className = 'message-row user';
-      userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
-      body.appendChild(userRow);
-      input.value = '';
-      input.style.height = 'auto';
-      body.scrollTop = body.scrollHeight;
-
-      const typing = document.createElement('div');
-      typing.className = 'message-row';
-      typing.id = 'typingIndicator';
-      typing.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message" style="font-style:italic;opacity:0.7;">🐼 Thinking...</div>`;
-      body.appendChild(typing);
-      body.scrollTop = body.scrollHeight;
-
-      try {
-        const res = await apiCall('/panda-chat', {
-          method: 'POST',
-          body: JSON.stringify({ message: text })
-        });
-
-        const typingEl = document.getElementById('typingIndicator');
-        if (typingEl) typingEl.remove();
-
-        const aiRow = document.createElement('div');
-        aiRow.className = 'message-row';
-        const reply = res.reply || "🐼 I'm not sure about that one. Try something simpler!";
-        aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${escapeHtml(reply)}</div>`;
-        body.appendChild(aiRow);
-        body.scrollTop = body.scrollHeight;
-
-      } catch (error) {
-        const typingEl = document.getElementById('typingIndicator');
-        if (typingEl) typingEl.remove();
-
-        const fallback = chatFallbacks[Math.floor(Math.random() * chatFallbacks.length)];
-        const aiRow = document.createElement('div');
-        aiRow.className = 'message-row';
-        aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${fallback}</div>`;
-        body.appendChild(aiRow);
-        body.scrollTop = body.scrollHeight;
-        errorLog('Panda chat fallback:', error.message);
-      }
-    }
-
-    pandaSend.addEventListener('click', sendPandaMessage);
-    pandaInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendPandaMessage();
-      }
-    });
-
-    pandaInput.addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-    });
-
-    // ==========================================
-    // VERIFICATION BANNER EVENTS
-    // ==========================================
-    document.getElementById('resendVerificationLink')?.addEventListener('click', resendVerification);
-    document.getElementById('closeVerificationBanner')?.addEventListener('click', hideVerificationBanner);
-
-    // ==========================================
-    // OPEN INVITE MODAL
-    // ==========================================
-    function openInviteModal() {
-      if (document.getElementById('inviteModal')) {
-        const modal = document.getElementById('inviteModal');
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-      } else {
-        window.location.href = 'invite.html';
-      }
-    }
-
-    // ==========================================
-    // MOBILE LOGOUT
-    // ==========================================
-    document.getElementById('mobileLogoutBtn')?.addEventListener('click', function(e) {
-      e.preventDefault();
-      logout();
-    });
-
-    // ==========================================
-    // GLOBAL EXPOSURE
-    // ==========================================
-    window.navigateTo = navigateTo;
-    window.scrollToSection = scrollToSection;
-    window.logout = logout;
-    window.login = login;
-    window.signup = signup;
-    window.isLoggedIn = isLoggedIn;
-    window.getSession = getSession;
-    window.showToast = showToast;
-    window.apiCall = apiCall;
-    window.resendVerification = resendVerification;
-    window.isParent = isParent;
-    window.isAdmin = isAdmin;
-    window.isVerified = isVerified;
-    window.getFullName = getFullName;
-    window.getUserId = getUserId;
-    window.openInviteModal = openInviteModal;
-
-    // ==========================================
-    // INIT
-    // ==========================================
-    document.addEventListener('DOMContentLoaded', function() {
-      log('🐼 Hanverse v' + VERSION + ' initializing...');
-
-      updateNavbar();
-      updateNavigation();
-      fetchStats();
-      initCardAnimations();
-
-      // FAQ toggle
-      document.querySelectorAll('.faq-question').forEach(q => {
-        q.addEventListener('click', function() {
-          this.parentElement.classList.toggle('open');
-        });
-      });
-
-      if (isLoggedIn()) {
-        const name = getFullName();
-        const session = getSession();
-        if (!session?.is_verified && !session?.isVerified) {
-          showToast('warning', `Welcome, ${name}! Please verify your email.`);
-          showVerificationBanner(session?.email);
-        } else {
-          showToast('success', `Welcome back, ${name}! 🎉`);
-        }
-      }
-
-      const session = getSession();
-      if (session?.user_id) {
-        apiCall(`/user/${session.user_id}`)
-          .then(data => {
-            if (data.success) {
-              const freshUser = normalizeUser(data.user);
-              setSession(freshUser);
-              updateNavbar();
-              updateNavigation();
+        function getSession() {
+            try {
+                const data = localStorage.getItem(SESSION_KEY);
+                if (!data) return null;
+                const parsed = JSON.parse(data);
+                return parsed;
+            } catch {
+                return null;
             }
-          })
-          .catch(() => {
-            clearSession();
+        }
+
+        function setSession(user) {
+            localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+        }
+
+        function clearSession() {
+            localStorage.removeItem(SESSION_KEY);
+        }
+
+        function getUserId() {
+            const session = getSession();
+            return session?.user_id || session?.id || null;
+        }
+
+        function isLoggedIn() {
+            return !!getUserId();
+        }
+
+        function isAdmin() {
+            const session = getSession();
+            return session?.is_admin || session?.isAdmin || false;
+        }
+
+        function isParent() {
+            const session = getSession();
+            return session?.role === 'parent';
+        }
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        function navigateTo(url) {
+            if ((url === 'signup.html' || url === 'login.html') && isLoggedIn()) {
+                showToast('info', 'You are already logged in!');
+                return;
+            }
+            window.location.href = url;
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ============================================================
+        // TOAST SYSTEM
+        // ============================================================
+        function showToast(type, message, duration = 4000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                        <span class="toast-message">${message}</span>
+                        <button class="toast-close" aria-label="Close notification">✕</button>
+                    `;
+
+            toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
+            container.appendChild(toast);
+
+            const timer = setTimeout(() => removeToast(toast), duration);
+            toast.dataset.timer = timer;
+        }
+
+        function removeToast(toast) {
+            if (toast.classList.contains('removing')) return;
+            toast.classList.add('removing');
+            if (toast.dataset.timer) {
+                clearTimeout(parseInt(toast.dataset.timer));
+            }
+            setTimeout(() => toast.remove(), 300);
+        }
+
+        // ============================================================
+        // NAVBAR UPDATE
+        // ============================================================
+        function updateNavbar() {
+            const navButtons = document.getElementById('navButtons');
+            if (!navButtons) return;
+
+            const session = getSession();
+
+            if (session && session.user_id) {
+                const displayName = session.full_name || session.fullName || session.username || 'Learner';
+                const premium = session.premium || session.is_premium || false;
+                const xp = session.xp || 0;
+                const avatar = session.profile_picture || session.profilePicture || null;
+
+                let roleBadge = '';
+                if (isParent()) roleBadge = '👨‍👩‍👦';
+                else if (isAdmin()) roleBadge = '👑';
+                else roleBadge = '🐼';
+
+                navButtons.innerHTML = `
+                            <div class="user-chip" onclick="navigateTo('profile.html')">
+                                <div class="user-avatar">
+                                    ${avatar ? `<img src="${avatar}" alt="${displayName}">` : roleBadge}
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-name">${escapeHtml(displayName)}</div>
+                                    <div class="user-status">
+                                        <span class="premium-dot" style="${premium ? '' : 'background:#94A3B8;'}"></span>
+                                        <span ${premium ? 'class="premium-text"' : ''}>${premium ? '⭐ Premium' : 'Free Member'}</span>
+                                        <span class="user-xp">⚡${xp} XP</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-logout" onclick="logout()">Log Out</button>
+                        `;
+            } else {
+                navButtons.innerHTML = `
+                            <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
+                            <button class="btn btn-signup" onclick="navigateTo('signup.html')">Start Free</button>
+                        `;
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                clearSession();
+                updateNavbar();
+                showToast('success', 'Logged out successfully');
+                window.location.reload();
+            }
+        }
+
+        // ============================================================
+        // NAVBAR SCROLL
+        // ============================================================
+        const nav = document.getElementById('topNav');
+        let ticking = false;
+
+        function handleNavScroll() {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if (window.scrollY > 40) {
+                        nav.classList.add('shrunk');
+                    } else {
+                        nav.classList.remove('shrunk');
+                    }
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+        window.addEventListener('scroll', handleNavScroll, { passive: true });
+
+        // ============================================================
+        // GSAP ANIMATIONS
+        // ============================================================
+        window.addEventListener("load", () => {
+            // === PANDA ANIMATION ===
+            const panda = document.getElementById('pandaMascot');
+            if (panda) {
+                // Floating
+                gsap.to(panda, {
+                    y: -12,
+                    duration: 2,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+
+                // Wave effect - subtle rotation
+                gsap.to(panda, {
+                    rotation: 3,
+                    duration: 2.5,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                    delay: 0.5
+                });
+
+                // Hover interaction
+                panda.addEventListener("mouseenter", () => {
+                    gsap.to(panda, {
+                        scale: 1.1,
+                        rotation: -5,
+                        duration: 0.3,
+                        ease: "back.out(1.7)"
+                    });
+                });
+
+                panda.addEventListener("mouseleave", () => {
+                    gsap.to(panda, {
+                        scale: 1,
+                        rotation: 3,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+            }
+
+            // === CARD ANIMATIONS ON SCROLL ===
+            const cards = document.querySelectorAll('.feature-card, .how-step, .pricing-card, .testimonial-card, .trust-item');
+            cards.forEach((card, index) => {
+                gsap.from(card, {
+                    opacity: 0,
+                    y: 40,
+                    duration: 0.6,
+                    delay: index * 0.08,
+                    scrollTrigger: {
+                        trigger: card,
+                        start: "top 85%",
+                        toggleActions: "play none none none"
+                    }
+                });
+            });
+
+            // === HERO CARD REVEAL ===
+            gsap.from('.hero-card', {
+                opacity: 0,
+                scale: 0.95,
+                duration: 1,
+                delay: 0.3,
+                ease: "power2.out"
+            });
+
+            // === HERO CONTENT REVEAL ===
+            gsap.from('.hero-content', {
+                opacity: 0,
+                y: 30,
+                duration: 0.8,
+                delay: 0.1,
+                ease: "power2.out"
+            });
+
+            // === STATS COUNTER ===
+            const stats = document.querySelectorAll('.stat-card h2');
+            stats.forEach(stat => {
+                const target = parseInt(stat.textContent);
+                if (target > 0) {
+                    gsap.from(stat, {
+                        textContent: 0,
+                        duration: 2,
+                        ease: "power2.out",
+                        scrollTrigger: {
+                            trigger: stat,
+                            start: "top 85%",
+                            toggleActions: "play none none none"
+                        },
+                        onUpdate: function() {
+                            stat.textContent = Math.round(this.targets()[0].textContent) + '+';
+                        }
+                    });
+                }
+            });
+        });
+
+        // ==========================================
+        // PANDA CHAT
+        // ==========================================
+        const pandaFab = document.getElementById('pandaFab');
+        const pandaChat = document.getElementById('pandaChat');
+        const pandaClose = document.getElementById('pandaClose');
+        const pandaInput = document.getElementById('pandaInput');
+        const pandaSend = document.getElementById('pandaSend');
+        const pandaBody = document.getElementById('pandaBody');
+
+        const chatFallbacks = [
+            "That's a great question! Let me help you with that. 🐼",
+            "Interesting! Would you like to practice more? 📚",
+            "Good job! Keep practicing and you'll improve quickly! 🌟",
+            "Let me explain that in a simple way... 🎯",
+            "You're doing amazing! Want to try a quiz? 🎮",
+            "That's a fun one! Let's learn together! 🤗",
+            "I love that question! Here's what I think... 💭",
+            "You're making great progress! Keep going! 🚀"
+        ];
+
+        function togglePanda() {
+            pandaChat.classList.toggle('open');
+            if (pandaChat.classList.contains('open')) {
+                setTimeout(() => pandaInput.focus(), 100);
+            }
+        }
+
+        pandaFab.addEventListener('click', togglePanda);
+        pandaClose.addEventListener('click', togglePanda);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && pandaChat.classList.contains('open')) {
+                togglePanda();
+            }
+        });
+
+        async function sendPandaMessage() {
+            const input = document.getElementById('pandaInput');
+            const body = document.getElementById('pandaBody');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
+            body.appendChild(userRow);
+            input.value = '';
+            input.style.height = 'auto';
+            body.scrollTop = body.scrollHeight;
+
+            const typing = document.createElement('div');
+            typing.className = 'message-row';
+            typing.id = 'typingIndicator';
+            typing.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message" style="font-style:italic;opacity:0.7;">🐼 Thinking...</div>`;
+            body.appendChild(typing);
+            body.scrollTop = body.scrollHeight;
+
+            try {
+                const res = await fetch(`${API_BASE}/panda-chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await res.json();
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) typingEl.remove();
+
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                const reply = data.reply || "🐼 I'm not sure about that one. Try something simpler!";
+                aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${escapeHtml(reply)}</div>`;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+
+            } catch (error) {
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) typingEl.remove();
+
+                const fallback = chatFallbacks[Math.floor(Math.random() * chatFallbacks.length)];
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${fallback}</div>`;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+                errorLog('Panda chat fallback:', error.message);
+            }
+        }
+
+        pandaSend.addEventListener('click', sendPandaMessage);
+        pandaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendPandaMessage();
+            }
+        });
+
+        pandaInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+        });
+
+        // ==========================================
+        // MOBILE LOGOUT
+        // ==========================================
+        document.getElementById('mobileLogoutBtn')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+
+        // ==========================================
+        // INIT
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🐼 Hanverse v' + VERSION + ' initializing...');
+
             updateNavbar();
-            updateNavigation();
-          });
-      }
 
-      // Check URL params for plan selection
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('plan') === 'premium') {
-        setTimeout(() => {
-          document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-        }, 500);
-      }
+            // Show welcome toast if logged in
+            if (isLoggedIn()) {
+                const session = getSession();
+                const name = session?.full_name || session?.fullName || session?.username || 'Learner';
+                showToast('success', `Welcome back, ${name}! 🎉`);
+            }
 
-      log('✅ Hanverse loaded successfully!');
-      hideLoading();
-    });
+            log('✅ Hanverse loaded successfully!');
+            hideLoading();
+        });
 
-    window.addEventListener('unhandledrejection', (e) => {
-      errorLog('Unhandled rejection:', e.reason);
-      if (e.reason?.message && !e.reason.message.includes('not_verified')) {
-        showToast('error', 'Something went wrong. Please try again.');
-      }
-    });
+        // ==========================================
+        // SERVICE WORKER (PWA)
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => log('✅ Service Worker registered'))
+                .catch(() => log('ℹ️ Service Worker not available'));
+        }
 
-    window.addEventListener('error', (e) => {
-      errorLog('Global error:', e.message);
-    });
-
-    // ==========================================
-    // SERVICE WORKER (PWA)
-    // ==========================================
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => log('✅ Service Worker registered'))
-        .catch(() => log('ℹ️ Service Worker not available'));
-    }
-  </script>
+        // ==========================================
+        // EXPOSE GLOBALLY
+        // ==========================================
+        window.navigateTo = navigateTo;
+        window.scrollToSection = scrollToSection;
+        window.logout = logout;
+        window.showToast = showToast;
+        window.isLoggedIn = isLoggedIn;
+        window.getSession = getSession;
+    </script>
 
 </body>
 </html>

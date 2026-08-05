@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Hanverse Learn</title>
+    <title>Hanverse Learn - Your Adventure</title>
 
     <!-- ===== FAVICON ===== -->
     <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
@@ -13,12 +13,15 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- ===== GSAP FOR ANIMATIONS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
 
     <style>
         /* ============================================
-                   ROOT VARIABLES
-                ============================================ */
+           ROOT VARIABLES
+           ============================================ */
         :root {
             --primary: #2563EB;
             --primary-dark: #1D4ED8;
@@ -47,11 +50,13 @@
             --nav-height: 76px;
             --nav-shrunk-height: 58px;
             --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            --coin-gold: #F59E0B;
+            --hearts: #EF4444;
         }
 
         /* ============================================
-                   RESET & BASE
-                ============================================ */
+           RESET & BASE
+           ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -94,8 +99,8 @@
         }
 
         /* ============================================
-                   LOADING OVERLAY
-                ============================================ */
+           LOADING OVERLAY
+           ============================================ */
         #loading-overlay {
             display: none;
             position: fixed;
@@ -134,8 +139,8 @@
         }
 
         /* ============================================
-                   VERIFICATION BANNER
-                ============================================ */
+           VERIFICATION BANNER
+           ============================================ */
         #verification-banner {
             display: none;
             position: fixed;
@@ -154,12 +159,8 @@
             width: auto;
             text-align: center;
             animation: fadeUp 0.5s ease;
-            cursor: pointer;
             transition: var(--transition-smooth);
-        }
-
-        #verification-banner:hover {
-            transform: translateX(-50%) scale(1.02);
+            cursor: default;
         }
 
         #verification-banner .resend-link {
@@ -188,8 +189,8 @@
         }
 
         /* ============================================
-                   OFFLINE BANNER
-                ============================================ */
+           OFFLINE BANNER
+           ============================================ */
         #offline-banner {
             display: none;
             position: fixed;
@@ -214,8 +215,8 @@
         }
 
         /* ============================================
-                   TOAST NOTIFICATIONS
-                ============================================ */
+           TOAST NOTIFICATIONS
+           ============================================ */
         .toast-container {
             position: fixed;
             top: 100px;
@@ -299,8 +300,8 @@
         }
 
         /* ============================================
-                   FLOATING NAVBAR
-                ============================================ */
+           FLOATING NAVBAR
+           ============================================ */
         nav.top-nav {
             position: fixed;
             top: 18px;
@@ -442,8 +443,8 @@
         }
 
         /* ============================================
-                   BUTTONS
-                ============================================ */
+           BUTTONS
+           ============================================ */
         .btn {
             padding: 10px 22px;
             border: none;
@@ -547,9 +548,22 @@
             transform: translateY(-1px);
         }
 
+        .btn-adventure {
+            background: linear-gradient(135deg, var(--accent), #EF4444);
+            color: white;
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+            padding: 14px 32px;
+            font-size: 1rem;
+        }
+
+        .btn-adventure:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(245, 158, 11, 0.4);
+        }
+
         /* ============================================
-                   USER CHIP
-                ============================================ */
+           USER CHIP
+           ============================================ */
         .user-chip {
             display: flex;
             align-items: center;
@@ -659,16 +673,33 @@
         }
 
         /* ============================================
-                   HERO
-                ============================================ */
-        .hero {
-            padding: 40px 7%;
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 32px;
+           STREAK ICON - ANIMATED FIRE
+           ============================================ */
+        .streak-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
             align-items: center;
+            margin: 0 auto;
+        }
+
+        .streak-icon img {
+            width: 100%;
+            filter: drop-shadow(0 0 12px rgba(255, 170, 0, 0.45));
+        }
+
+        /* ============================================
+           HERO - ADVENTURE GREETING
+           ============================================ */
+        .hero {
+            padding: 20px 7% 30px;
             max-width: 1400px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
         }
 
         .hero-content {
@@ -686,41 +717,100 @@
             }
         }
 
-        .hero-content h1 {
-            font-size: clamp(30px, 4.5vw, 56px);
+        .hero-greeting {
+            font-size: 0.9rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .hero-greeting strong {
+            color: var(--dark);
+        }
+
+        .hero h1 {
+            font-size: clamp(28px, 4vw, 44px);
             line-height: 1.1;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
             font-weight: 800;
-            letter-spacing: -0.5px;
         }
 
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero p {
+        .hero .sub-title {
             font-size: 1rem;
-            line-height: 1.8;
             color: var(--text-secondary);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
-        .hero-buttons {
+        .hero-stats {
             display: flex;
-            gap: 12px;
+            gap: 24px;
             flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .hero-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: white;
+            padding: 6px 16px 6px 12px;
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .hero-stat .icon {
+            font-size: 1.2rem;
+        }
+
+        .hero-stat .value {
+            color: var(--dark);
+        }
+
+        .hero-stat .label {
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        /* Streak stat with animated fire */
+        .hero-stat.streak-stat {
+            padding: 6px 16px 6px 8px;
+        }
+
+        .hero-stat.streak-stat .streak-icon-small {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-stat.streak-stat .streak-icon-small img {
+            width: 100%;
+            filter: drop-shadow(0 0 8px rgba(255, 170, 0, 0.4));
         }
 
         .hero-card {
             background: white;
-            padding: 24px;
+            padding: 28px;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
             transition: var(--transition-smooth);
             animation: fadeUp 0.8s ease 0.2s both;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '🐼';
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.06;
+            bottom: -10px;
+            right: -10px;
+            transform: rotate(-10deg);
         }
 
         .hero-card:hover {
@@ -728,77 +818,105 @@
             box-shadow: var(--shadow-lg);
         }
 
-        .hero-card h3 {
-            margin-bottom: 16px;
-            font-size: 1.1rem;
-        }
-
-        .path-step {
+        .hero-card .panda-greeting {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .hero-card .panda-greeting .panda-avatar {
+            font-size: 3rem;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .hero-card .panda-greeting .message {
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .hero-card .panda-greeting .message span {
+            color: var(--primary);
+        }
+
+        .hero-card .adventure-preview {
             background: var(--bg);
-            border-radius: var(--radius-sm);
-            margin-bottom: 10px;
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 2px dashed var(--border);
             transition: var(--transition-smooth);
-            border: 1px solid transparent;
+            cursor: pointer;
         }
 
-        .path-step:last-child {
-            margin-bottom: 0;
-        }
-
-        .path-step:hover {
-            transform: translateX(4px);
-            border-color: var(--primary-light);
+        .hero-card .adventure-preview:hover {
+            border-color: var(--primary);
             background: var(--primary-light);
         }
 
-        .path-step.locked {
-            opacity: 0.5;
-            filter: grayscale(0.5);
+        .hero-card .adventure-preview .preview-icon {
+            font-size: 2.2rem;
         }
 
-        .path-step.locked:hover {
-            transform: none;
-            border-color: transparent;
-            background: var(--bg);
+        .hero-card .adventure-preview .preview-info {
+            flex: 1;
         }
 
-        .step-icon {
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .step-title {
+        .hero-card .adventure-preview .preview-info h4 {
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
-        .step-desc {
-            font-size: .75rem;
+        .hero-card .adventure-preview .preview-info p {
+            font-size: 0.8rem;
             color: var(--muted);
         }
 
+        .hero-card .adventure-preview .preview-badge {
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .hero-card .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
         /* ============================================
-                   DASHBOARD
-                ============================================ */
+           DASHBOARD - GAME STYLE
+           ============================================ */
         .dashboard {
-            padding: 20px 7% 40px;
+            padding: 20px 7% 30px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
         }
 
         .dashboard-card {
             background: white;
-            padding: 20px;
+            padding: 16px 12px;
             border-radius: var(--radius-md);
             text-align: center;
             box-shadow: var(--shadow-sm);
@@ -813,31 +931,241 @@
 
         .dashboard-icon {
             font-size: 1.8rem;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+            display: block;
         }
 
         .dashboard-card h3 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 2px;
+            margin-bottom: 0;
             font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .dashboard-card h3.coins {
+            background: linear-gradient(135deg, var(--coin-gold), #D97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-card h3.hearts {
+            background: linear-gradient(135deg, var(--hearts), #DC2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .dashboard-card p {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--muted);
             font-weight: 500;
         }
 
         /* ============================================
-                   SECTIONS
-                ============================================ */
+           DAILY QUEST
+           ============================================ */
+        .daily-quest {
+            padding: 20px 7% 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .quest-card {
+            background: linear-gradient(135deg, #1E293B, #0F172A);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quest-card::before {
+            content: '🌟';
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.05;
+            right: -20px;
+            bottom: -30px;
+        }
+
+        .quest-card .quest-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .quest-card .quest-icon {
+            font-size: 2.5rem;
+        }
+
+        .quest-card .quest-content h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .quest-card .quest-content p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .quest-card .quest-rewards {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .quest-card .quest-rewards .reward {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 4px 14px;
+            border-radius: var(--radius-full);
+        }
+
+        .quest-card .btn {
+            flex-shrink: 0;
+        }
+
+        /* ============================================
+           ADVENTURE MAP (Roadmap)
+           ============================================ */
+        .adventure-map {
+            padding: 40px 7% 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .map-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            margin-top: 30px;
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .map-container::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary-light), var(--secondary-light), var(--accent-light));
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .map-stop {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 16px 24px;
+            background: white;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            width: 100%;
+            max-width: 600px;
+            transition: var(--transition-smooth);
+            border: 2px solid var(--border);
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .map-stop:last-child {
+            margin-bottom: 0;
+        }
+
+        .map-stop:hover {
+            border-color: var(--primary-light);
+            transform: translateX(6px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .map-stop .stop-icon {
+            font-size: 2.2rem;
+            flex-shrink: 0;
+            width: 50px;
+            text-align: center;
+        }
+
+        .map-stop .stop-content {
+            flex: 1;
+        }
+
+        .map-stop .stop-title {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .map-stop .stop-desc {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .map-stop .stop-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: var(--radius-full);
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .map-stop.locked {
+            opacity: 0.5;
+            filter: grayscale(0.4);
+        }
+
+        .map-stop.locked .stop-badge {
+            background: var(--border);
+            color: var(--muted);
+        }
+
+        .map-stop.completed {
+            border-color: var(--success);
+            background: #F0FDF4;
+        }
+
+        .map-stop.completed .stop-badge {
+            background: var(--success);
+            color: white;
+        }
+
+        .map-stop.current {
+            border-color: var(--accent);
+            background: rgba(245, 158, 11, 0.05);
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+        }
+
+        /* ============================================
+           LESSONS - NETFLIX STYLE CARDS
+           ============================================ */
+        .lessons-section {
+            padding: 40px 7% 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
         .section-title {
             text-align: center;
             font-size: clamp(28px, 4vw, 42px);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             font-weight: 800;
             letter-spacing: -0.5px;
         }
@@ -845,289 +1173,212 @@
         .section-subtitle {
             text-align: center;
             max-width: 640px;
-            margin: 0 auto 48px;
+            margin: 0 auto 32px;
             color: var(--text-secondary);
             line-height: 1.7;
             font-size: 1rem;
         }
 
-        .lessons-section,
-        .roadmap-section,
-        .worksheet-section,
-        .placement-section {
-            padding: 40px 7%;
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .lesson-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .lesson-card .card-image {
+            height: 140px;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+        }
+
+        .lesson-card .card-image .card-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            backdrop-filter: blur(4px);
+        }
+
+        .lesson-card .card-image .card-badge.premium {
+            background: var(--accent);
+        }
+
+        .lesson-card .card-image .card-badge.completed {
+            background: var(--success);
+        }
+
+        .lesson-card .card-body {
+            padding: 20px;
+        }
+
+        .lesson-card .card-body h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .lesson-card .card-body .card-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .lesson-card .card-body .card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .lesson-card .card-body p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .lesson-card .card-body .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* ============================================
+           ACHIEVEMENTS
+           ============================================ */
+        .achievements-section {
+            padding: 40px 7% 30px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        .lesson-grid,
-        .roadmap-grid,
-        .worksheet-grid {
+        .achievement-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
         }
 
-        .lesson-card,
-        .roadmap-card,
-        .worksheet-card {
+        .achievement-item {
             background: white;
-            padding: 28px 24px;
+            padding: 20px 12px;
             border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
+            text-align: center;
             border: 1px solid var(--border);
             transition: var(--transition-smooth);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
+            box-shadow: var(--shadow-sm);
         }
 
-        .lesson-card::before,
-        .roadmap-card::before,
-        .worksheet-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            opacity: 0;
-            transition: var(--transition-smooth);
-        }
-
-        .lesson-card:hover::before,
-        .roadmap-card:hover::before,
-        .worksheet-card:hover::before {
-            opacity: 1;
-        }
-
-        .lesson-card:hover,
-        .roadmap-card:hover,
-        .worksheet-card:hover {
-            transform: translateY(-4px);
+        .achievement-item:hover {
+            transform: translateY(-3px);
             box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
         }
 
-        .lesson-card .icon,
-        .roadmap-card .icon,
-        .worksheet-card .icon {
-            font-size: 40px;
-        }
-
-        .lesson-card h3,
-        .roadmap-card h3,
-        .worksheet-card h3 {
-            font-size: 1.1rem;
+        .achievement-item .achievement-icon {
+            font-size: 2.5rem;
+            display: block;
             margin-bottom: 4px;
         }
 
-        .lesson-card p,
-        .roadmap-card p,
-        .worksheet-card p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.5;
+        .achievement-item .achievement-name {
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
-        .badge {
+        .achievement-item .achievement-desc {
+            font-size: 0.65rem;
+            color: var(--muted);
+        }
+
+        .achievement-item.locked {
+            opacity: 0.4;
+            filter: grayscale(0.6);
+        }
+
+        /* ============================================
+           WORKSHEETS
+           ============================================ */
+        .worksheet-section {
+            padding: 40px 7% 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .worksheet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .worksheet-card {
+            background: white;
+            padding: 24px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition-smooth);
+        }
+
+        .worksheet-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .worksheet-card .icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .worksheet-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .worksheet-card p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .worksheet-card .badge {
             display: inline-block;
-            padding: 4px 14px;
+            padding: 2px 12px;
             border-radius: var(--radius-full);
             font-size: 0.7rem;
             font-weight: 700;
             background: var(--primary-light);
             color: var(--primary);
-        }
-
-        .badge.premium-badge {
-            background: var(--accent-light);
-            color: var(--accent);
-        }
-
-        .badge.completed-badge {
-            background: #D1FAE5;
-            color: #065F46;
-        }
-
-        .badge.locked-badge {
-            background: #FEE2E2;
-            color: #991B1B;
-        }
-
-        .lesson-card .btn {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .lesson-card.premium-locked {
-            border-color: var(--accent);
-        }
-
-        .lesson-card.premium-locked::after {
-            content: '⭐';
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            font-size: 18px;
-        }
-
-        .lesson-card.completed {
-            border-color: var(--success);
-        }
-
-        .lesson-card.completed::after {
-            content: '✅';
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            font-size: 18px;
-        }
-
-        .lesson-card.requires-login {
-            border-color: var(--primary-light);
-        }
-
-        .roadmap-card.locked {
-            opacity: 0.6;
-            filter: grayscale(0.3);
-        }
-
-        .roadmap-card.locked .btn {
-            opacity: 0.5;
-            cursor: not-allowed;
+            margin-bottom: 12px;
         }
 
         /* ============================================
-                   PLACEMENT
-                ============================================ */
-        .placement-card {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 32px 24px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-        }
-
-        .placement-card h2 {
-            margin-bottom: 8px;
-            font-size: 1.3rem;
-        }
-
-        .placement-card p {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            font-size: 0.9rem;
-        }
-
-        .placement-card select {
-            width: 100%;
-            padding: 14px;
-            border-radius: var(--radius-sm);
-            border: 2px solid var(--border);
-            margin-bottom: 16px;
-            font-family: inherit;
-            font-weight: 500;
-            background-color: var(--bg);
-            outline: none;
-            transition: var(--transition-smooth);
-            cursor: pointer;
-        }
-
-        .placement-card select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .placement-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .placement-actions .btn {
-            flex: 1;
-            min-width: 140px;
-        }
-
-        .recommendation-box {
-            display: none;
-            margin-top: 16px;
-            padding: 16px 20px;
-            border-radius: var(--radius-sm);
-            background: var(--primary-light);
-            border: 1px solid var(--primary);
-            font-size: 0.9rem;
-            animation: fadeUp 0.3s ease;
-        }
-
-        .recommendation-box h3 {
-            color: var(--primary);
-            margin-bottom: 4px;
-        }
-
-        /* ============================================
-                   LOADING SKELETONS
-                ============================================ */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: var(--radius-sm);
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        .skeleton-card {
-            background: white;
-            padding: 28px 24px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .skeleton-card .skeleton-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .skeleton-card .skeleton-title {
-            width: 60%;
-            height: 20px;
-        }
-
-        .skeleton-card .skeleton-desc {
-            width: 80%;
-            height: 14px;
-        }
-
-        .skeleton-card .skeleton-btn {
-            width: 80%;
-            height: 40px;
-            border-radius: var(--radius-full);
-        }
-
-        /* ============================================
-                   PREMIUM POPUP
-                ============================================ */
+           PREMIUM POPUP
+           ============================================ */
         .premium-popup {
             display: none;
             position: fixed;
@@ -1210,8 +1461,8 @@
         }
 
         /* ============================================
-                   PANDA CHAT
-                ============================================ */
+           PANDA CHAT
+           ============================================ */
         .panda-fab {
             position: fixed;
             bottom: calc(100px + env(safe-area-inset-bottom));
@@ -1430,8 +1681,8 @@
         }
 
         /* ============================================
-                   BOTTOM NAV
-                ============================================ */
+           BOTTOM NAV
+           ============================================ */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -1478,42 +1729,92 @@
         }
 
         /* ============================================
-                   RESPONSIVE
-                ============================================ */
+           LOADING SKELETONS
+           ============================================ */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .skeleton-card .skeleton-image {
+            height: 140px;
+            background: #e8e8e8;
+        }
+
+        .skeleton-card .skeleton-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .skeleton-card .skeleton-title {
+            height: 20px;
+            width: 60%;
+        }
+
+        .skeleton-card .skeleton-meta {
+            height: 14px;
+            width: 40%;
+        }
+
+        .skeleton-card .skeleton-desc {
+            height: 14px;
+            width: 80%;
+        }
+
+        .skeleton-card .skeleton-btn {
+            height: 40px;
+            width: 100%;
+            border-radius: var(--radius-full);
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (max-width: 1024px) {
             .hero {
                 grid-template-columns: 1fr;
                 text-align: center;
-                padding: 40px 5%;
-                gap: 30px;
+                gap: 24px;
             }
-
-            .hero p {
-                margin: 0 auto 24px;
-            }
-
-            .hero-buttons {
+            .hero-stats {
                 justify-content: center;
             }
-
+            .hero-card .panda-greeting {
+                justify-content: center;
+            }
             .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+                grid-template-columns: repeat(3, 1fr);
             }
-
-            .dashboard-card {
-                padding: 16px;
+            .quest-card {
+                flex-direction: column;
+                text-align: center;
             }
-
-            .dashboard-card h3 {
-                font-size: 1.5rem;
+            .quest-card .quest-info {
+                flex-direction: column;
+                text-align: center;
             }
-
-            .lesson-grid,
-            .roadmap-grid,
-            .worksheet-grid {
+            .lesson-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 16px;
             }
         }
 
@@ -1521,7 +1822,6 @@
             body {
                 padding-top: calc(var(--nav-height) + 20px);
             }
-
             nav.top-nav {
                 top: 12px;
                 padding: 0 16px;
@@ -1529,7 +1829,6 @@
                 border-radius: 18px;
                 height: 64px;
             }
-
             nav.top-nav.shrunk {
                 top: 10px;
                 height: 54px;
@@ -1537,61 +1836,54 @@
                 width: calc(100% - 32px);
                 border-radius: 14px;
             }
-
             .logo {
                 font-size: 18px;
                 gap: 8px;
             }
-
             .logo img {
                 width: 34px;
                 height: 34px;
             }
-
             nav.top-nav.shrunk .logo img {
                 width: 28px;
                 height: 28px;
             }
-
             nav ul {
                 display: none;
             }
-
             .bottom-nav {
                 display: flex;
             }
-
             .hero h1 {
-                font-size: 32px;
+                font-size: 28px;
             }
-
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .lesson-grid,
-            .roadmap-grid,
-            .worksheet-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .placement-card {
-                padding: 24px 16px;
-            }
-
             .dashboard-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
             }
-
+            .lesson-grid {
+                grid-template-columns: 1fr;
+            }
+            .map-stop {
+                flex-direction: column;
+                text-align: center;
+                padding: 16px;
+                gap: 4px;
+            }
+            .map-stop .stop-icon {
+                font-size: 1.8rem;
+                width: auto;
+            }
+            .quest-card .quest-rewards {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
             .panda-chat {
                 width: calc(100vw - 32px);
                 right: 16px;
                 bottom: calc(100px + env(safe-area-inset-bottom));
                 height: 380px;
             }
-
             .panda-fab {
                 right: 16px;
                 bottom: calc(90px + env(safe-area-inset-bottom));
@@ -1599,40 +1891,57 @@
                 height: 56px;
                 font-size: 28px;
             }
-
             #verification-banner {
                 top: 72px;
                 padding: 12px 16px;
                 font-size: 0.8rem;
                 width: 92%;
             }
+            .achievement-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .worksheet-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 480px) {
             .dashboard-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
             }
-
             .dashboard-card {
-                padding: 12px;
+                padding: 12px 8px;
             }
-
             .dashboard-card h3 {
-                font-size: 1.3rem;
+                font-size: 1.2rem;
             }
-
             .hero-buttons .btn {
                 flex: 1;
                 min-width: 120px;
                 padding: 10px 16px;
                 font-size: 0.8rem;
             }
+            .hero-card .adventure-preview {
+                flex-direction: column;
+                text-align: center;
+            }
+            .achievement-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .streak-icon {
+                width: 40px;
+                height: 40px;
+            }
+            .hero-stat.streak-stat .streak-icon-small {
+                width: 24px;
+                height: 24px;
+            }
         }
 
         /* ============================================
-                   MOTION REDUCTION
-                ============================================ */
+           MOTION REDUCTION
+           ============================================ */
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -1641,18 +1950,18 @@
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
-
             .lesson-card:hover,
-            .roadmap-card:hover,
+            .map-stop:hover,
+            .dashboard-card:hover,
             .worksheet-card:hover,
-            .dashboard-card:hover {
+            .achievement-item:hover {
                 transform: none !important;
             }
         }
 
         /* ============================================
-                   FOCUS VISIBLE
-                ============================================ */
+           FOCUS VISIBLE
+           ============================================ */
         *:focus-visible {
             outline: 3px solid var(--primary);
             outline-offset: 2px;
@@ -1665,7 +1974,7 @@
     <!-- ===== LOADING OVERLAY ===== -->
     <div id="loading-overlay">
         <div class="loader"></div>
-        <div class="loader-text">🐼 Loading your lessons...</div>
+        <div class="loader-text">🐼 Loading your adventure...</div>
     </div>
 
     <!-- ===== OFFLINE BANNER ===== -->
@@ -1695,113 +2004,144 @@
         </div>
     </nav>
 
-    <!-- ===== HERO ===== -->
+    <!-- ===== HERO - ADVENTURE GREETING ===== -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Master Mandarin <span class="gradient-text">One Lesson At A Time</span></h1>
-            <p>Follow Hanverse's structured learning path, earn XP, unlock achievements, complete lessons, and prepare for official YCT examinations.</p>
+            <p class="hero-greeting">🐼 <strong id="greetingName">Adventurer</strong></p>
+            <h1>Today's <span class="gradient-text">Adventure</span></h1>
+            <p class="sub-title" id="todayAdventure">🏮 Continue your journey through Lantern Village</p>
+
+            <div class="hero-stats">
+                <!-- Streak with animated fire icon -->
+                <div class="hero-stat streak-stat">
+                    <span class="streak-icon-small">
+                        <img src="assets/icons/fire.png" alt="Streak" onerror="this.style.display='none'; this.parentElement.innerHTML='🔥'">
+                    </span>
+                    <span class="value" id="heroStreak">0</span>
+                    <span class="label">Day Streak</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="icon">⭐</span>
+                    <span class="value" id="heroXp">0</span>
+                    <span class="label">XP</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="icon">🪙</span>
+                    <span class="value" id="heroCoins">0</span>
+                    <span class="label">Coins</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="icon">❤️</span>
+                    <span class="value" id="heroHearts">5</span>
+                    <span class="label">Hearts</span>
+                </div>
+            </div>
+
             <div class="hero-buttons">
-                <button class="btn btn-primary" id="continueBtn" onclick="startNextLesson()">🚀 Continue Learning</button>
-                <button class="btn btn-secondary" onclick="document.getElementById('placement-section').scrollIntoView({behavior: 'smooth'})">🎯 Placement Test</button>
+                <button class="btn btn-adventure" id="continueBtn" onclick="startNextLesson()">🚀 Continue Adventure</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('adventure-map').scrollIntoView({behavior:'smooth'})">🗺️ Adventure Map</button>
             </div>
         </div>
 
         <div class="hero-card">
-            <h3>🎯 Your Learning Journey</h3>
-            <div id="pathSteps">
-                <div class="path-step">
-                    <div class="step-icon">🌱</div>
-                    <div>
-                        <div class="step-title">YCT 1</div>
-                        <div class="step-desc">Foundations & Basics</div>
-                    </div>
-                </div>
-                <div class="path-step">
-                    <div class="step-icon">📖</div>
-                    <div>
-                        <div class="step-title">YCT 2</div>
-                        <div class="step-desc">Everyday Communication</div>
-                    </div>
-                </div>
-                <div class="path-step">
-                    <div class="step-icon">🚀</div>
-                    <div>
-                        <div class="step-title">YCT 3</div>
-                        <div class="step-desc">Stories & Conversations</div>
-                    </div>
-                </div>
-                <div class="path-step">
-                    <div class="step-icon">🏆</div>
-                    <div>
-                        <div class="step-title">YCT 4</div>
-                        <div class="step-desc">Exam Readiness</div>
-                    </div>
+            <div class="panda-greeting">
+                <span class="panda-avatar">🐼</span>
+                <div class="message">
+                    Hi <span id="pandaGreetingName">Adventurer</span>!<br>
+                    Ready for today's quest?
                 </div>
             </div>
+
+            <div class="adventure-preview" onclick="startNextLesson()">
+                <span class="preview-icon" id="previewIcon">🏮</span>
+                <div class="preview-info">
+                    <h4 id="previewTitle">The Lost Lantern</h4>
+                    <p id="previewDesc">15 minutes · +40 XP · 🪙20 Coins</p>
+                </div>
+                <span class="preview-badge">Continue</span>
+            </div>
+
+            <button class="btn btn-primary" onclick="startNextLesson()">▶ Continue Learning</button>
         </div>
     </section>
 
-    <!-- ===== DASHBOARD ===== -->
+    <!-- ===== DASHBOARD - GAME STYLE ===== -->
     <section class="dashboard">
         <div class="dashboard-grid">
             <div class="dashboard-card">
-                <div class="dashboard-icon">⭐</div>
+                <span class="dashboard-icon">⭐</span>
                 <h3 id="xpValue">0</h3>
                 <p>XP Earned</p>
             </div>
             <div class="dashboard-card">
-                <div class="dashboard-icon">🔥</div>
+                <span class="dashboard-icon">
+                    <div class="streak-icon">
+                        <img src="assets/icons/fire.png" alt="Streak" onerror="this.style.display='none'; this.parentElement.innerHTML='🔥'">
+                    </div>
+                </span>
                 <h3 id="streakValue">0</h3>
                 <p>Day Streak</p>
             </div>
             <div class="dashboard-card">
-                <div class="dashboard-icon">📚</div>
+                <span class="dashboard-icon">📚</span>
                 <h3 id="lessonValue">0</h3>
                 <p>Completed</p>
             </div>
             <div class="dashboard-card">
-                <div class="dashboard-icon">🏆</div>
+                <span class="dashboard-icon">🏆</span>
                 <h3 id="levelValue">1</h3>
                 <p>Current Level</p>
             </div>
-        </div>
-    </section>
-
-    <!-- ===== PLACEMENT ===== -->
-    <section id="placement-section" class="placement-section">
-        <div class="placement-card">
-            <h2>🎯 Find Your Starting Point</h2>
-            <p>Choose your current YCT level or take our quick assessment to get personalized recommendations.</p>
-            <select id="levelSelect">
-                <option value="">Select Level</option>
-                <option value="1">YCT 1 - Beginner</option>
-                <option value="2">YCT 2 - Elementary</option>
-                <option value="3">YCT 3 - Intermediate</option>
-                <option value="4">YCT 4 - Advanced</option>
-            </select>
-            <div class="placement-actions">
-                <button class="btn btn-primary" onclick="recommendLevel()">Continue</button>
-                <button class="btn btn-secondary" onclick="takeAssessment()">Quick Assessment</button>
+            <div class="dashboard-card">
+                <span class="dashboard-icon">🪙</span>
+                <h3 class="coins" id="coinValue">0</h3>
+                <p>Panda Coins</p>
             </div>
-            <div id="recommendationBox" class="recommendation-box"></div>
         </div>
     </section>
 
-    <!-- ===== ROADMAP ===== -->
-    <section class="roadmap-section">
-        <h2 class="section-title">🗺️ Official Hanverse Roadmap</h2>
-        <p class="section-subtitle">Progress through the complete YCT curriculum and unlock new skills as you advance.</p>
-        <div id="roadmapGrid" class="roadmap-grid">
+    <!-- ===== DAILY QUEST ===== -->
+    <section class="daily-quest">
+        <div class="quest-card">
+            <div class="quest-info">
+                <span class="quest-icon">🌟</span>
+                <div class="quest-content">
+                    <h3>Daily Quest</h3>
+                    <p id="questDescription">Learn 5 new words today</p>
+                </div>
+            </div>
+            <div class="quest-rewards">
+                <span class="reward">⭐ +30 XP</span>
+                <span class="reward">🪙 +20 Coins</span>
+            </div>
+            <button class="btn btn-adventure" onclick="startNextLesson()">Start</button>
+        </div>
+    </section>
+
+    <!-- ===== ADVENTURE MAP ===== -->
+    <section class="adventure-map" id="adventure-map">
+        <h2 class="section-title">🗺️ Adventure Map</h2>
+        <p class="section-subtitle">Explore the Mandarin world. Complete each stop to unlock the next.</p>
+        <div class="map-container" id="mapContainer">
             <!-- Dynamically populated -->
         </div>
     </section>
 
-    <!-- ===== LESSONS ===== -->
+    <!-- ===== LESSONS - NETFLIX STYLE ===== -->
     <section class="lessons-section">
-        <h2 class="section-title">📚 Your Lessons</h2>
-        <p class="section-subtitle" id="lessonSubtitle">Choose a lesson and continue your learning journey.</p>
+        <h2 class="section-title">📺 Your Lessons</h2>
+        <p class="section-subtitle" id="lessonSubtitle">Continue your adventure with these stories and challenges.</p>
         <div id="lessonGrid" class="lesson-grid">
-            <!-- Dynamically populated with skeletons initially -->
+            <!-- Dynamically populated with skeletons -->
+        </div>
+    </section>
+
+    <!-- ===== ACHIEVEMENTS ===== -->
+    <section class="achievements-section">
+        <h2 class="section-title">🏆 Achievements</h2>
+        <p class="section-subtitle">Unlock badges as you progress through your journey.</p>
+        <div class="achievement-grid" id="achievementGrid">
+            <!-- Dynamically populated -->
         </div>
     </section>
 
@@ -1833,8 +2173,8 @@
             Home
         </a>
         <a href="learn.html" class="active">
-            <span class="nav-icon">📚</span>
-            Learn
+            <span class="nav-icon">🗺️</span>
+            Adventure
         </a>
         <a href="profile.html">
             <span class="nav-icon">👤</span>
@@ -1880,6 +2220,8 @@
         const DEBUG = false;
 
         let verificationEmail = null;
+        let coinBalance = 0;
+        let heartsBalance = 5;
 
         // ============================================================
         // LOGGING
@@ -1958,7 +2300,7 @@
 
         function getFullName() {
             const session = getSession();
-            return session?.full_name || session?.fullName || session?.username || 'Learner';
+            return session?.full_name || session?.fullName || session?.username || 'Adventurer';
         }
 
         function isLoggedIn() {
@@ -2085,7 +2427,6 @@
                     data = { success: false, error: 'Unexpected response from server' };
                 }
 
-                // Handle specific error codes
                 if (response.status === 403) {
                     if (data.error === 'not_verified') {
                         throw new Error('not_verified');
@@ -2168,7 +2509,7 @@
                 if (user) {
                     setSession({ ...session, ...user });
                     updateDashboard(user);
-                    updatePathSteps(user.current_yct || 1);
+                    updateHero(user);
                     return user;
                 }
             }
@@ -2185,24 +2526,25 @@
             } catch (error) {
                 errorLog('Lessons API not available, using defaults');
                 const allLessons = [
-                    { id: 'lesson_1', title: 'Greetings & Introductions', level: 1, premium: false, icon: '👋',
-                        description: 'Learn how to say hello and introduce yourself.' },
-                    { id: 'lesson_2', title: 'Numbers 1–10', level: 1, premium: false, icon: '🔢',
-                        description: 'Master counting from one to ten.' },
-                    { id: 'lesson_3', title: 'Colours & Objects', level: 1, premium: false, icon: '🎨',
-                        description: 'Learn the names of common colours and objects.' },
-                    { id: 'lesson_4', title: 'Family Members', level: 2, premium: true, icon: '👨‍👩‍👧‍👦',
-                        description: 'Learn to talk about your family.' },
-                    { id: 'lesson_5', title: 'Daily Activities', level: 2, premium: true, icon: '🏃',
-                        description: 'Describe your daily routine.' },
-                    { id: 'lesson_6', title: 'Food & Drinks', level: 2, premium: true, icon: '🍜',
-                        description: 'Order food and talk about your favorite meals.' },
-                    { id: 'lesson_7', title: 'Listening Practice', level: 3, premium: true, icon: '🎧',
-                        description: 'Improve your listening comprehension.' },
-                    { id: 'lesson_8', title: 'Story Time', level: 3, premium: true, icon: '📖',
-                        description: 'Read and understand short stories in Mandarin.' },
-                    { id: 'lesson_9', title: 'Exam Practice', level: 4, premium: true, icon: '📝',
-                        description: 'Prepare for your YCT exam with practice questions.' },
+                    { id: 'lesson_1', title: 'The Magic Greeting', level: 1, premium: false, icon: '👋',
+                        description: 'Learn how to say hello and introduce yourself.', xp: 30, coins: 15, time: '10 min' },
+                    { id: 'lesson_2', title: 'Bamboo Numbers', level: 1, premium: false, icon: '🔢',
+                        description: 'Master counting from one to ten.', xp: 35, coins: 20, time: '12 min' },
+                    { id: 'lesson_3', title: 'The Rainbow Forest', level: 1, premium: false, icon: '🎨',
+                        description: 'Learn the names of common colours and objects.', xp: 40, coins: 25, time: '15 min' },
+                    { id: 'lesson_4', title: 'Family Dragon', level: 2, premium: true, icon: '👨‍👩‍👧‍👦',
+                        description: 'Learn to talk about your family.', xp: 45, coins: 30, time: '15 min' },
+                    { id: 'lesson_5', title: 'Daily Panda', level: 2, premium: true, icon: '🏃',
+                        description: 'Describe your daily routine.', xp: 50, coins: 35, time: '18 min' },
+                    { id: 'lesson_6', title: 'The Hungry Panda', level: 2, premium: true, icon: '🍜',
+                        description: 'Order food and talk about your favorite meals.', xp: 55, coins: 40, time: '20 min' },
+                    { id: 'lesson_7', title: 'Dragon Ears', level: 3, premium: true, icon: '🎧',
+                        description: 'Improve your listening comprehension.', xp: 60, coins: 45, time: '20 min' },
+                    { id: 'lesson_8', title: 'The Lost Story', level: 3, premium: true, icon: '📖',
+                        description: 'Read and understand short stories in Mandarin.', xp: 65, coins: 50, time: '25 min' },
+                    { id: 'lesson_9', title: 'Forbidden Exam', level: 4, premium: true, icon: '📝',
+                        description: 'Prepare for your YCT exam with practice questions.', xp: 70, coins: 55,
+                        time: '30 min' },
                 ];
 
                 const level = userLevel || 1;
@@ -2227,39 +2569,83 @@
         }
 
         // ============================================================
-        // GET ROADMAP
+        // ADVENTURE MAP DATA
         // ============================================================
-        function getRoadmap(userLevel) {
-            const allRoadmaps = [
-                { level: 1, title: 'YCT 1', icon: '🌱',
-                    description: 'Greetings, family, numbers, colors and basic vocabulary.',
-                badge: 'Beginner' },
-                { level: 2, title: 'YCT 2', icon: '📖',
-                    description: 'Build confidence with everyday conversations.', badge: 'Elementary' },
-                { level: 3, title: 'YCT 3', icon: '🚀',
-                    description: 'Read stories and engage in longer conversations.', badge: 'Intermediate' },
-                { level: 4, title: 'YCT 4', icon: '🏆',
-                    description: 'Master exam preparation and advanced topics.', badge: 'Advanced' },
+        function getAdventureMap(userLevel) {
+            const mapStops = [
+                { id: 1, title: 'Bamboo Forest', icon: '🌳', desc: 'Greetings, numbers, and colors', badge: 'YCT 1',
+                    level: 1 },
+                { id: 2, title: 'Lantern Village', icon: '🏮', desc: 'Family, daily life, and food', badge: 'YCT 2',
+                    level: 2 },
+                { id: 3, title: 'Dragon Mountain', icon: '🐉', desc: 'Stories and conversations', badge: 'YCT 3',
+                    level: 3 },
+                { id: 4, title: 'Panda Palace', icon: '🐼', desc: 'Advanced topics and culture', badge: 'YCT 4',
+                    level: 4 },
+                { id: 5, title: 'Forbidden City', icon: '🏯', desc: 'Mastery and exam prep', badge: '🎓', level: 5 },
+                { id: 6, title: 'Mandarin Master', icon: '👑', desc: 'You did it! 🎉', badge: '🌟', level: 6 },
             ];
 
-            return allRoadmaps.map(r => ({
-                ...r,
-                locked: r.level > (userLevel || 1)
+            const currentLevel = userLevel || 1;
+            return mapStops.map(stop => ({
+                ...stop,
+                locked: stop.level > currentLevel + 1,
+                completed: stop.level < currentLevel,
+                current: stop.level === currentLevel
             }));
+        }
+
+        // ============================================================
+        // ACHIEVEMENTS DATA
+        // ============================================================
+        function getAchievements(user) {
+            const allAchievements = [
+                { id: 'first_lesson', icon: '🌟', name: 'First Adventure', desc: 'Complete your first lesson',
+                    unlocked: false },
+                { id: 'streak_7', icon: '🔥', name: '7 Day Streak', desc: 'Learn 7 days in a row', unlocked: false },
+                { id: 'dragon_explorer', icon: '🐉', name: 'Dragon Explorer', desc: 'Reach Dragon Mountain',
+                unlocked: false },
+                { id: 'perfect_quiz', icon: '🎯', name: 'Perfect Score', desc: 'Get 100% on a quiz', unlocked: false },
+                { id: '100_words', icon: '❤️', name: '100 Words', desc: 'Learn 100 Mandarin words', unlocked: false },
+                { id: 'yct_1', icon: '🌱', name: 'YCT 1 Graduate', desc: 'Complete YCT 1', unlocked: false },
+                { id: 'yct_2', icon: '📖', name: 'YCT 2 Graduate', desc: 'Complete YCT 2', unlocked: false },
+                { id: 'yct_3', icon: '🚀', name: 'YCT 3 Graduate', desc: 'Complete YCT 3', unlocked: false },
+            ];
+
+            // Simulate some unlocks based on user progress
+            if (user) {
+                const completed = user.lessons_completed || 0;
+                const streak = user.streak_days || 0;
+                const level = user.current_yct || 1;
+
+                if (completed >= 1) allAchievements[0].unlocked = true;
+                if (streak >= 7) allAchievements[1].unlocked = true;
+                if (level >= 3) allAchievements[2].unlocked = true;
+                if (level >= 2) allAchievements[5].unlocked = true;
+                if (level >= 3) allAchievements[6].unlocked = true;
+                if (level >= 4) allAchievements[7].unlocked = true;
+            }
+
+            return allAchievements;
         }
 
         // ============================================================
         // RENDER FUNCTIONS
         // ============================================================
-        function renderRoadmap(roadmap) {
-            const grid = document.getElementById('roadmapGrid');
-            grid.innerHTML = roadmap.map(item => `
-                    <div class="roadmap-card ${item.locked ? 'locked' : ''}">
-                        <div class="icon">${item.icon}</div>
-                        <h3>${item.title}</h3>
-                        <p>${item.description}</p>
-                        <span class="badge">${item.badge}</span>
-                        ${item.locked ? '<span style="font-size: 0.7rem; color: var(--muted);">🔒 Locked</span>' : '<span style="font-size: 0.7rem; color: var(--success);">✅ Available</span>'}
+
+        function renderAdventureMap(mapStops) {
+            const container = document.getElementById('mapContainer');
+            container.innerHTML = mapStops.map(stop => `
+                    <div class="map-stop ${stop.locked ? 'locked' : ''} ${stop.completed ? 'completed' : ''} ${stop.current ? 'current' : ''}" 
+                         onclick="${!stop.locked ? `startLesson('lesson_${stop.level}')` : ''}">
+                        <div class="stop-icon">${stop.icon}</div>
+                        <div class="stop-content">
+                            <div class="stop-title">${stop.title}</div>
+                            <div class="stop-desc">${stop.desc}</div>
+                        </div>
+                        <span class="stop-badge">${stop.badge}</span>
+                        ${stop.completed ? '<span style="font-size:0.7rem;margin-left:8px;">✅</span>' : ''}
+                        ${stop.current ? '<span style="font-size:0.7rem;margin-left:8px;color:var(--accent);">📍 Current</span>' : ''}
+                        ${stop.locked ? '<span style="font-size:0.7rem;margin-left:8px;color:var(--muted);">🔒</span>' : ''}
                     </div>
                 `).join('');
         }
@@ -2268,10 +2654,13 @@
             const grid = document.getElementById('lessonGrid');
             grid.innerHTML = Array.from({ length: count }, () => `
                     <div class="skeleton-card">
-                        <div class="skeleton skeleton-icon"></div>
-                        <div class="skeleton skeleton-title"></div>
-                        <div class="skeleton skeleton-desc"></div>
-                        <div class="skeleton skeleton-btn"></div>
+                        <div class="skeleton-image skeleton"></div>
+                        <div class="skeleton-body">
+                            <div class="skeleton-title skeleton"></div>
+                            <div class="skeleton-meta skeleton"></div>
+                            <div class="skeleton-desc skeleton"></div>
+                            <div class="skeleton-btn skeleton"></div>
+                        </div>
                     </div>
                 `).join('');
         }
@@ -2281,25 +2670,26 @@
 
             if (!lessons || lessons.length === 0) {
                 grid.innerHTML = `
-                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">
-                            <p style="font-size: 2rem;">📚</p>
-                            <p>No lessons available yet. Check back soon!</p>
-                            ${!isLoggedInUser ? '<button class="btn btn-primary" style="margin-top: 16px;" onclick="navigateTo(\'login.html\')">🔑 Log in to access lessons</button>' : ''}
+                        <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--muted);">
+                            <p style="font-size: 3rem;">📚</p>
+                            <p style="font-size: 1.2rem; font-weight: 600;">No lessons available yet</p>
+                            <p style="font-size: 0.9rem; margin-top: 8px;">Check back soon for new adventures!</p>
+                            ${!isLoggedInUser ? '<button class="btn btn-primary" style="margin-top: 20px;" onclick="navigateTo(\'login.html\')">🔑 Log in to access lessons</button>' : ''}
                         </div>
                     `;
                 return;
             }
 
-            // Show only lessons up to user's level + 1 (to encourage progression)
             const maxLevel = (userLevel || 1) + 1;
             const filteredLessons = lessons.filter(l => l.level <= maxLevel);
 
             if (filteredLessons.length === 0) {
                 grid.innerHTML = `
-                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">
-                            <p style="font-size: 2rem;">🌟</p>
-                            <p>You've completed all available lessons at your level!</p>
-                            <p style="font-size: 0.85rem; margin-top: 8px;">Check back soon for more content.</p>
+                        <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--muted);">
+                            <p style="font-size: 3rem;">🌟</p>
+                            <p style="font-size: 1.2rem; font-weight: 600;">You've completed all lessons!</p>
+                            <p style="font-size: 0.9rem; margin-top: 8px;">Upgrade to Premium for more adventures.</p>
+                            ${!isPremiumUser ? '<button class="btn btn-premium" style="margin-top: 20px;" onclick="showPremiumPopup()">⭐ Unlock Premium</button>' : ''}
                         </div>
                     `;
                 return;
@@ -2315,28 +2705,41 @@
 
                 if (requiresLogin) {
                     buttonHtml =
-                        `<button class="btn btn-secondary" onclick="navigateTo('login.html')">🔑 Log in to access</button>`;
-                    badgeHtml = `<span class="badge">🔒 Login Required</span>`;
+                        `<button class="btn btn-secondary" onclick="navigateTo('login.html')">🔑 Log in</button>`;
+                    badgeHtml = `<span class="card-badge">🔒 Login</span>`;
                 } else if (isLocked) {
-                    buttonHtml = `<button class="btn btn-premium" onclick="showPremiumPopup()">🔓 Unlock Premium</button>`;
-                    badgeHtml = `<span class="badge premium-badge">⭐ Premium</span>`;
+                    buttonHtml = `<button class="btn btn-premium" onclick="showPremiumPopup()">⭐ Unlock</button>`;
+                    badgeHtml = `<span class="card-badge premium">⭐ Premium</span>`;
                 } else if (isCompleted) {
                     buttonHtml =
-                        `<button class="btn btn-success" onclick="showToast('info', 'Lesson already completed! 🎉')">✅ Completed</button>`;
-                    badgeHtml = `<span class="badge completed-badge">✅ Completed</span>`;
+                        `<button class="btn btn-success" onclick="showToast('info', '✅ Completed!')">✅ Done</button>`;
+                    badgeHtml = `<span class="card-badge completed">✅ Completed</span>`;
                 } else {
                     buttonHtml =
-                        `<button class="btn btn-primary" onclick="startLesson('${lesson.id}')">▶ Start Lesson</button>`;
-                    badgeHtml = `<span class="badge">Level ${lesson.level}</span>`;
+                        `<button class="btn btn-primary" onclick="startLesson('${lesson.id}')">▶ Play</button>`;
+                    badgeHtml = `<span class="card-badge">Level ${lesson.level}</span>`;
                 }
 
+                const xpDisplay = lesson.xp || 30;
+                const coinsDisplay = lesson.coins || 15;
+                const timeDisplay = lesson.time || '15 min';
+
                 return `
-                        <div class="lesson-card ${isLocked ? 'premium-locked' : ''} ${isCompleted ? 'completed' : ''} ${requiresLogin ? 'requires-login' : ''}">
-                            <div class="icon">${lesson.icon || '📚'}</div>
-                            <h3>${lesson.title}</h3>
-                            <p>${lesson.description || 'A fun lesson to learn Mandarin.'}</p>
-                            ${badgeHtml}
-                            ${buttonHtml}
+                        <div class="lesson-card ${isLocked ? 'premium-locked' : ''} ${isCompleted ? 'completed' : ''}">
+                            <div class="card-image">
+                                <span>${lesson.icon || '📚'}</span>
+                                ${badgeHtml}
+                            </div>
+                            <div class="card-body">
+                                <h3>${lesson.title}</h3>
+                                <div class="card-meta">
+                                    <span>⏱️ ${timeDisplay}</span>
+                                    <span>⭐ +${xpDisplay} XP</span>
+                                    <span>🪙 +${coinsDisplay}</span>
+                                </div>
+                                <p>${lesson.description || 'A fun lesson to learn Mandarin.'}</p>
+                                ${buttonHtml}
+                            </div>
                         </div>
                     `;
             }).join('');
@@ -2358,7 +2761,7 @@
 
             grid.innerHTML = worksheets.map(ws => `
                     <div class="worksheet-card">
-                        <div class="icon">${ws.icon || '📄'}</div>
+                        <span class="icon">${ws.icon || '📄'}</span>
                         <h3>${ws.title}</h3>
                         <p>${ws.description || 'Printable worksheet for practice.'}</p>
                         <span class="badge">YCT ${ws.level || 1}</span>
@@ -2367,16 +2770,63 @@
                 `).join('');
         }
 
-        function updatePathSteps(userLevel) {
-            const steps = document.querySelectorAll('.path-step');
-            steps.forEach((step, index) => {
-                const level = index + 1;
-                if (level > (userLevel || 1)) {
-                    step.classList.add('locked');
-                } else {
-                    step.classList.remove('locked');
-                }
-            });
+        function renderAchievements(achievements) {
+            const grid = document.getElementById('achievementGrid');
+            grid.innerHTML = achievements.map(a => `
+                    <div class="achievement-item ${a.unlocked ? '' : 'locked'}">
+                        <span class="achievement-icon">${a.icon}</span>
+                        <div class="achievement-name">${a.name}</div>
+                        <div class="achievement-desc">${a.desc}</div>
+                        ${a.unlocked ? '<span style="font-size:0.6rem;color:var(--success);">✅ Unlocked</span>' : '<span style="font-size:0.6rem;color:var(--muted);">🔒 Locked</span>'}
+                    </div>
+                `).join('');
+        }
+
+        function updateHero(user) {
+            if (!user) return;
+
+            const name = user.full_name || user.username || 'Adventurer';
+            document.getElementById('greetingName').textContent = name;
+            document.getElementById('pandaGreetingName').textContent = name;
+
+            document.getElementById('heroStreak').textContent = user.streak_days || 0;
+            document.getElementById('heroXp').textContent = user.xp || 0;
+
+            // Coins - simulate from XP
+            coinBalance = Math.floor((user.xp || 0) / 2);
+            document.getElementById('heroCoins').textContent = coinBalance;
+            document.getElementById('coinValue').textContent = coinBalance;
+
+            // Hearts - default 5, could be stored in user object later
+            heartsBalance = 5;
+            document.getElementById('heroHearts').textContent = heartsBalance;
+
+            // Update adventure preview based on level
+            const level = user.current_yct || 1;
+            const adventures = [
+                { icon: '🌳', title: 'Bamboo Forest', desc: '10 min · +30 XP · 🪙15 Coins' },
+                { icon: '🏮', title: 'Lantern Village', desc: '15 min · +40 XP · 🪙20 Coins' },
+                { icon: '🐉', title: 'Dragon Mountain', desc: '20 min · +50 XP · 🪙30 Coins' },
+                { icon: '🐼', title: 'Panda Palace', desc: '25 min · +60 XP · 🪙40 Coins' },
+                { icon: '🏯', title: 'Forbidden City', desc: '30 min · +70 XP · 🪙50 Coins' },
+                { icon: '👑', title: 'Mandarin Master', desc: '35 min · +100 XP · 🪙75 Coins' },
+            ];
+
+            const adventure = adventures[Math.min(level - 1, adventures.length - 1)];
+            document.getElementById('previewIcon').textContent = adventure.icon;
+            document.getElementById('previewTitle').textContent = adventure.title;
+            document.getElementById('previewDesc').textContent = adventure.desc;
+            document.getElementById('todayAdventure').textContent = `📚 Continue your journey through ${adventure.title}`;
+
+            // Update quest
+            const quests = [
+                'Learn 5 new words today 🌟',
+                'Complete 1 lesson today 📚',
+                'Practice speaking with Panda 🗣️',
+                'Review 10 vocabulary words 🔄',
+                'Earn 50 XP today ⭐'
+            ];
+            document.getElementById('questDescription').textContent = quests[Math.floor(Math.random() * quests.length)];
         }
 
         function updateDashboard(user) {
@@ -2385,7 +2835,6 @@
             document.getElementById('streakValue').textContent = user.streak_days || 0;
             document.getElementById('levelValue').textContent = user.level || 1;
 
-            // Count completed lessons from localStorage
             let completedCount = 0;
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
@@ -2409,7 +2858,7 @@
 
             let links = [
                 { href: 'index.html', text: 'Home' },
-                { href: 'learn.html', text: 'Learn', active: true },
+                { href: 'learn.html', text: 'Adventure', active: true },
                 { href: 'worksheets.html', text: 'Worksheets' }
             ];
 
@@ -2511,7 +2960,7 @@
                 return;
             }
 
-            showToast('info', '📚 Loading lesson...');
+            showToast('info', '📚 Loading adventure...');
             window.location.href = `lesson.html?id=${lessonId}`;
         }
 
@@ -2544,24 +2993,23 @@
             if (incomplete) {
                 startLesson(incomplete.id);
             } else {
-                // Check if there are locked premium lessons
                 const lockedPremium = lessons.find(l =>
                     l.premium && !isPremium() &&
                     !localStorage.getItem(`lesson_${l.id}_completed`)
                 );
 
                 if (lockedPremium) {
-                    showToast('warning', '⭐ Upgrade to Premium to unlock more lessons!');
+                    showToast('warning', '⭐ Upgrade to Premium to unlock more adventures!');
                     showPremiumPopup();
                 } else {
-                    showToast('success', '🎉 You\'ve completed all available lessons!');
+                    showToast('success', '🎉 You\'ve completed all available adventures!');
                 }
             }
         }
 
         function completeLesson(lessonId) {
             localStorage.setItem(`lesson_${lessonId}_completed`, 'true');
-            showToast('success', '✅ Lesson completed! +10 XP');
+            showToast('success', '✅ Adventure completed! +30 XP 🪙15 Coins');
             initPage();
         }
 
@@ -2570,50 +3018,6 @@
             setTimeout(() => {
                 showToast('success', '✅ Worksheet downloaded!');
             }, 1000);
-        }
-
-        // ============================================================
-        // PLACEMENT FUNCTIONS
-        // ============================================================
-        function recommendLevel() {
-            const level = document.getElementById('levelSelect').value;
-            if (!level) {
-                showToast('warning', 'Please select a level.');
-                return;
-            }
-            const box = document.getElementById('recommendationBox');
-            box.style.display = 'block';
-            box.innerHTML = `
-                    <h3>🎯 Recommended Path: YCT ${level}</h3>
-                    <p>HanVerse recommends beginning with YCT ${level}. Ready to start your journey?</p>
-                    <button class="btn btn-primary" style="margin-top: 12px;" onclick="startLesson('lesson_1')">Start Learning →</button>
-                `;
-        }
-
-        async function takeAssessment() {
-            if (!isLoggedIn()) {
-                showToast('warning', 'Please log in to take the assessment.');
-                setTimeout(() => navigateTo('login.html'), 1500);
-                return;
-            }
-
-            showToast('info', '📝 Starting assessment...');
-            try {
-                const userId = getUserId();
-                const response = await apiCall('/placement', {
-                    method: 'POST',
-                    body: JSON.stringify({ userId })
-                });
-
-                if (response.success) {
-                    showToast('success', `🎯 Recommended level: YCT ${response.level}`);
-                    document.getElementById('levelSelect').value = response.level;
-                    recommendLevel();
-                }
-            } catch (error) {
-                errorLog('Assessment error:', error);
-                showToast('warning', 'Assessment coming soon!');
-            }
         }
 
         // ============================================================
@@ -2645,6 +3049,17 @@
             "I love that question! Here's what I think... 💭",
             "You're making great progress! Keep going! 🚀"
         ];
+
+        function togglePanda() {
+            const chat = document.getElementById('pandaChat');
+            chat.classList.toggle('open');
+            if (chat.classList.contains('open')) {
+                setTimeout(() => {
+                    const input = document.getElementById('pandaInput');
+                    if (input) input.focus();
+                }, 100);
+            }
+        }
 
         async function sendPandaMessage() {
             const input = document.getElementById('pandaInput');
@@ -2757,13 +3172,6 @@
         const pandaInput = document.getElementById('pandaInput');
         const pandaSend = document.getElementById('pandaSend');
 
-        function togglePanda() {
-            pandaChat.classList.toggle('open');
-            if (pandaChat.classList.contains('open')) {
-                setTimeout(() => pandaInput.focus(), 100);
-            }
-        }
-
         pandaFab.addEventListener('click', togglePanda);
         pandaClose.addEventListener('click', togglePanda);
 
@@ -2802,10 +3210,52 @@
         });
 
         // ============================================================
+        // FIRE ANIMATION WITH GSAP
+        // ============================================================
+        window.addEventListener("load", () => {
+            // Animate the main streak icon in the dashboard
+            const fire = document.querySelector(".streak-icon");
+            if (fire) {
+                // Floating animation
+                gsap.to(fire, {
+                    y: -5,
+                    duration: 1.6,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+
+                // Pulse animation on the image
+                const fireImg = fire.querySelector("img");
+                if (fireImg) {
+                    gsap.to(fireImg, {
+                        scale: 1.06,
+                        duration: 0.8,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "power1.inOut"
+                    });
+                }
+            }
+
+            // Animate the small streak icon in the hero stats
+            const smallFire = document.querySelector(".hero-stat.streak-stat .streak-icon-small img");
+            if (smallFire) {
+                gsap.to(smallFire, {
+                    scale: 1.1,
+                    duration: 0.6,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "power1.inOut"
+                });
+            }
+        });
+
+        // ============================================================
         // INITIALIZATION
         // ============================================================
         async function initPage() {
-            showLoading('🐼 Loading your lessons...');
+            showLoading('🐼 Loading your adventure...');
 
             try {
                 const session = getSession();
@@ -2813,27 +3263,19 @@
                 let isPremiumUser = false;
                 let isLoggedInUser = isLoggedIn();
 
-                // Update navigation first
                 updateNavigation();
-
-                // Show lesson skeletons while loading
                 renderLessonSkeletons(3);
 
                 if (isLoggedInUser && session?.user_id) {
-                    // Fetch fresh user data
                     const user = await fetchUserData(session.user_id);
                     if (user) {
                         setSession({ ...session, ...user });
                         userLevel = user.current_yct || 1;
                         isPremiumUser = user.premium || user.is_premium || false;
 
-                        // Update dashboard
                         updateDashboard(user);
+                        updateHero(user);
 
-                        // Update path steps
-                        updatePathSteps(userLevel);
-
-                        // Show welcome toast
                         const name = user.full_name || user.username || 'Learner';
                         if (!user.is_verified && !user.isVerified) {
                             showToast('warning', `Welcome back, ${name}! Please verify your email.`);
@@ -2843,7 +3285,6 @@
                             hideVerificationBanner();
                         }
                     } else {
-                        // Session might be stale - try refresh
                         try {
                             const refreshed = await apiCall('/auth/refresh', {
                                 method: 'POST',
@@ -2855,48 +3296,48 @@
                                 userLevel = user.current_yct || 1;
                                 isPremiumUser = user.premium || user.is_premium || false;
                                 updateDashboard(user);
-                                updatePathSteps(userLevel);
+                                updateHero(user);
                             }
                         } catch (refreshError) {
                             errorLog('Session refresh failed:', refreshError);
-                            // Continue with cached session
                             userLevel = session.current_yct || 1;
                             isPremiumUser = session.premium || session.is_premium || false;
                             if (session.xp !== undefined) {
                                 updateDashboard(session);
+                                updateHero(session);
                             }
                         }
                     }
                 } else {
-                    // Not logged in
                     document.getElementById('xpValue').textContent = '—';
                     document.getElementById('streakValue').textContent = '—';
                     document.getElementById('lessonValue').textContent = '—';
                     document.getElementById('levelValue').textContent = '?';
+                    document.getElementById('coinValue').textContent = '—';
+                    document.getElementById('heroStreak').textContent = '—';
+                    document.getElementById('heroXp').textContent = '—';
+                    document.getElementById('heroCoins').textContent = '—';
+                    document.getElementById('heroHearts').textContent = '❤️';
                     showToast('info', '👋 Log in to track your progress and start learning!');
                 }
 
-                // Update navbar
                 updateNavbar();
 
-                // Render roadmap
-                const roadmap = getRoadmap(userLevel);
-                renderRoadmap(roadmap);
+                const mapStops = getAdventureMap(userLevel);
+                renderAdventureMap(mapStops);
 
-                // Render lessons with delay for skeleton effect
+                const achievements = getAchievements(session);
+                renderAchievements(achievements);
+
                 setTimeout(async () => {
                     const lessons = await fetchLessons(userLevel);
                     renderLessons(lessons, userLevel, isPremiumUser, isLoggedInUser);
 
-                    // Render worksheets
                     const worksheets = await fetchWorksheets();
                     renderWorksheets(worksheets);
                 }, 300);
 
-                // Set level selector
-                document.getElementById('levelSelect').value = userLevel || 1;
-
-                log('✅ Hanverse Learn loaded successfully!');
+                log('✅ Hanverse Learn - Adventure loaded successfully!');
                 log(`👤 Logged in: ${isLoggedInUser ? 'Yes' : 'No'}`);
                 log(`📚 Level: YCT ${userLevel}`);
 
@@ -2947,8 +3388,6 @@
         window.sendPandaMessage = sendPandaMessage;
         window.showPremiumPopup = showPremiumPopup;
         window.closePremiumPopup = closePremiumPopup;
-        window.recommendLevel = recommendLevel;
-        window.takeAssessment = takeAssessment;
         window.handleLogout = handleLogout;
         window.navigateTo = navigateTo;
         window.showToast = showToast;
@@ -2973,9 +3412,10 @@
         window.fetchWorksheets = fetchWorksheets;
         window.renderLessons = renderLessons;
         window.renderWorksheets = renderWorksheets;
-        window.renderRoadmap = renderRoadmap;
-        window.updatePathSteps = updatePathSteps;
+        window.renderAdventureMap = renderAdventureMap;
+        window.renderAchievements = renderAchievements;
         window.updateDashboard = updateDashboard;
+        window.updateHero = updateHero;
         window.updateNavbar = updateNavbar;
         window.updateNavigation = updateNavigation;
     </script>

@@ -11,6 +11,10 @@
     <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
     <link rel="apple-touch-icon" href="hanverse-logo2.png" />
 
+    <!-- ===== GSAP + SCROLLTRIGGER ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -110,6 +114,91 @@
         ::-moz-selection {
             background: var(--primary);
             color: white;
+        }
+
+        /* ============================================
+           TOAST NOTIFICATIONS
+        ============================================ */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: calc(100% - 48px);
+        }
+
+        .toast {
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            background: white;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary);
+            animation: slideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+
+        .toast-success {
+            border-left-color: #22C55E;
+        }
+        .toast-error {
+            border-left-color: #EF4444;
+        }
+        .toast-warning {
+            border-left-color: var(--accent);
+        }
+        .toast-info {
+            border-left-color: var(--primary);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .toast-message {
+            flex: 1;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+        }
+
+        .toast.removing {
+            animation: slideOutRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
         /* ============================================
@@ -344,6 +433,8 @@
             border: 3px solid rgba(255, 255, 255, 0.3);
             position: relative;
             z-index: 1;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
 
         .avatar img {
@@ -392,6 +483,11 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .badge:hover {
+            transform: translateY(-2px);
         }
 
         .badge-premium {
@@ -420,6 +516,11 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: transform 0.2s ease;
+        }
+
+        .hero-stat:hover {
+            transform: translateY(-2px);
         }
 
         /* ============================================
@@ -487,6 +588,7 @@
             max-width: 1400px;
             margin-left: auto;
             margin-right: auto;
+            opacity: 1;
         }
 
         .content-card:hover {
@@ -525,7 +627,7 @@
             width: 0%;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             border-radius: var(--radius-full);
-            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            transition: none;
         }
 
         /* ============================================
@@ -552,25 +654,23 @@
             border-radius: var(--radius-sm);
             background: #F1F5F9;
             transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .heat:hover {
+            transform: scale(1.1);
         }
 
         .heat.active {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            animation: pulseHeat 2s infinite;
         }
 
         .heat.high {
             background: linear-gradient(135deg, var(--accent), var(--warning));
         }
 
-        @keyframes pulseHeat {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(0.9);
-            }
+        .heat.low {
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
         }
 
         /* ============================================
@@ -645,6 +745,13 @@
             align-items: center;
             gap: 12px;
             color: var(--text-secondary);
+            transition: background 0.2s ease;
+            border-radius: var(--radius-sm);
+            padding: 12px 8px;
+        }
+
+        .activity-item:hover {
+            background: var(--bg);
         }
 
         .activity-item:last-child {
@@ -671,6 +778,11 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease;
+        }
+
+        .membership-premium:hover {
+            transform: translateY(-2px);
         }
 
         .membership-free {
@@ -678,6 +790,12 @@
             border-radius: var(--radius-sm);
             background: var(--bg);
             border: 2px dashed var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .membership-free:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-light);
         }
 
         .membership-premium h3,
@@ -1213,6 +1331,17 @@
             .content-card h2 {
                 font-size: 1rem;
             }
+
+            .toast-container {
+                top: 80px;
+                right: 12px;
+                max-width: calc(100% - 24px);
+            }
+
+            .toast {
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
         }
 
         @media (max-width: 360px) {
@@ -1230,6 +1359,9 @@
 </head>
 
 <body>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toast-container" class="toast-container"></div>
 
     <!-- ===== FLOATING NAVBAR with logo image ===== -->
     <nav class="top-nav" id="topNav">
@@ -1413,6 +1545,49 @@
     <!-- ============================================================ -->
     <script>
         // ============================================================
+        // REGISTER SCROLLTRIGGER PLUGIN
+        // ============================================================
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ============================================================
+        // TOAST NOTIFICATIONS
+        // ============================================================
+        function showToast(type, message, duration = 4000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                        <span class="toast-message">${message}</span>
+                        <button class="toast-close" aria-label="Close notification">✕</button>
+                    `;
+
+            toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
+            container.appendChild(toast);
+
+            const timer = setTimeout(() => removeToast(toast), duration);
+            toast.dataset.timer = timer;
+        }
+
+        function removeToast(toast) {
+            if (toast.classList.contains('removing')) return;
+            toast.classList.add('removing');
+            if (toast.dataset.timer) {
+                clearTimeout(parseInt(toast.dataset.timer));
+            }
+            setTimeout(() => toast.remove(), 300);
+        }
+
+        // ============================================================
         // FORCE CLEAR SERVICE WORKER CACHE
         // ============================================================
         if ('serviceWorker' in navigator) {
@@ -1540,6 +1715,85 @@
         });
 
         // ============================================================
+        // GSAP ANIMATIONS
+        // ============================================================
+        window.addEventListener("load", () => {
+            // === AVATAR FLOATING ===
+            const avatar = document.querySelector('.avatar');
+            if (avatar) {
+                gsap.to(avatar, {
+                    y: -6,
+                    rotation: 2,
+                    duration: 2,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+
+                // Hover interactions
+                avatar.addEventListener("mouseenter", () => {
+                    gsap.to(avatar, {
+                        scale: 1.08,
+                        duration: 0.25,
+                        ease: "power2.out"
+                    });
+                });
+
+                avatar.addEventListener("mouseleave", () => {
+                    gsap.to(avatar, {
+                        scale: 1,
+                        duration: 0.25,
+                        ease: "power2.out"
+                    });
+                });
+            }
+
+            // === ANIMATE CARDS ON SCROLL ===
+            const cards = document.querySelectorAll('.quick-card, .content-card');
+            cards.forEach((card, index) => {
+                gsap.from(card, {
+                    opacity: 0,
+                    y: 30,
+                    duration: 0.6,
+                    delay: index * 0.08,
+                    scrollTrigger: {
+                        trigger: card,
+                        start: "top 85%",
+                        toggleActions: "play none none none"
+                    }
+                });
+            });
+
+            // === PROGRESS BARS - Animate after data loads ===
+            // These will be triggered by the loadProfile function
+        });
+
+        // ============================================================
+        // ANIMATE PROGRESS BARS (called after data loads)
+        // ============================================================
+        function animateProgressBars(yctPct, hskPct) {
+            // YCT Progress Bar
+            gsap.fromTo(
+                "#yctProgressBar", { width: "0%" }, {
+                    width: yctPct + "%",
+                    duration: 1.2,
+                    ease: "power2.out",
+                    delay: 0.2
+                }
+            );
+
+            // HSK Progress Bar
+            gsap.fromTo(
+                "#hskProgressBar", { width: "0%" }, {
+                    width: hskPct + "%",
+                    duration: 1.2,
+                    ease: "power2.out",
+                    delay: 0.4
+                }
+            );
+        }
+
+        // ============================================================
         // LOAD PROFILE
         // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
@@ -1600,17 +1854,13 @@
                     user.isAdmin === true;
 
                 if (isAdmin) {
-                    // Show admin badge in profile
                     document.getElementById('adminBadge').style.display = 'inline-block';
-
-                    // Show the admin section with the button
                     const adminSection = document.getElementById('adminSection');
                     if (adminSection) {
                         adminSection.style.display = 'block';
                         console.log('👑 Admin panel activated');
                     }
                 } else {
-                    // Hide admin section for non-admin users
                     const adminSection = document.getElementById('adminSection');
                     if (adminSection) {
                         adminSection.style.display = 'none';
@@ -1643,16 +1893,25 @@
                 document.getElementById('quickXP').textContent = user.xp || 0;
                 document.getElementById('quickStreak').textContent = user.streak_days || 0;
                 document.getElementById('quickLevel').textContent = user.level || 1;
-                document.getElementById('quickLessons').textContent = data.completed_lessons || 0;
+                document.getElementById('quickLessons').textContent = user.lessons_completed || 0;
 
                 // Render all sections
                 renderProfileExtras(user, data);
 
+                // === ANIMATE PROGRESS BARS AFTER DATA LOADS ===
+                const yct = parseInt(user.current_yct) || 1;
+                const yctPct = Math.min((yct / 4) * 100, 100);
+                const hsk = parseInt(user.current_hsk) || 0;
+                const hskPct = Math.min((hsk / 6) * 100, 100);
+                animateProgressBars(yctPct, hskPct);
+
                 console.log('✅ Profile loaded successfully');
+
+                showToast('success', `Welcome back, ${user.full_name || user.username || 'Learner'}! 🎉`);
 
             } catch (error) {
                 console.error('❌ Profile load error:', error);
-                alert('Failed to load profile. Please try refreshing the page.');
+                showToast('error', 'Failed to load profile. Please refresh the page.');
             }
         }
 
@@ -1684,13 +1943,11 @@
             const yct = parseInt(user.current_yct) || 1;
             const yctPct = Math.min((yct / 4) * 100, 100);
             document.getElementById('yctProgressText').textContent = `YCT ${yct} - ${Math.round(yctPct)}% complete`;
-            document.getElementById('yctProgressBar').style.width = yctPct + '%';
 
             // HSK Progress
             const hsk = parseInt(user.current_hsk) || 0;
             const hskPct = Math.min((hsk / 6) * 100, 100);
             document.getElementById('hskProgressText').textContent = `HSK ${hsk} - ${Math.round(hskPct)}% complete`;
-            document.getElementById('hskProgressBar').style.width = hskPct + '%';
 
             // Certificates
             const certGrid = document.getElementById('certificateGrid');
@@ -1792,13 +2049,26 @@
                 const cell = document.createElement('div');
                 cell.className = 'heat';
 
-                // Random activity pattern - more realistic distribution
                 const rand = Math.random();
                 if (rand > 0.7) {
                     cell.classList.add('high');
                 } else if (rand > 0.4) {
                     cell.classList.add('active');
+                } else if (rand > 0.2) {
+                    cell.classList.add('low');
                 }
+
+                const day = i + 1;
+                const activity = ['✨', '🔥', '📚', '⭐', '🎯', '🌟', '💪'][Math.floor(Math.random() * 7)];
+                cell.title = `Day ${day}: ${activity} ${Math.floor(Math.random() * 50 + 10)} XP`;
+
+                // Animate heat cells with GSAP
+                gsap.from(cell, {
+                    scale: 0,
+                    duration: 0.3,
+                    delay: i * 0.02,
+                    ease: "back.out(1.7)"
+                });
 
                 grid.appendChild(cell);
             }
@@ -1809,7 +2079,9 @@
         // ============================================================
         window.togglePanda = togglePanda;
         window.sendPandaMessage = sendPandaMessage;
+        window.showToast = showToast;
     </script>
 
 </body>
+
 </html>
