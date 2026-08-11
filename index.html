@@ -19,36 +19,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
     <style>
-        /* ===== ROOT VARIABLES ===== */
+        /* ============================================
+           ROOT VARIABLES - HanVerse Design Tokens
+        ============================================ */
         :root {
-            --primary: #2563EB;
-            --primary-dark: #1D4ED8;
-            --primary-light: #DBEAFE;
-            --secondary: #14B8A6;
-            --secondary-light: #99F6E4;
-            --accent: #F59E0B;
-            --accent-light: #FDE68A;
-            --dark: #0F172A;
-            --text: #1E293B;
-            --text-secondary: #475569;
-            --muted: #64748B;
-            --bg: #F8FAFC;
-            --white: #FFFFFF;
-            --border: #E2E8F0;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
-            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
-            --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+            --han-cream: #FFFDF7;
+            --han-blue: #4EA8DE;
+            --han-blue-dark: #3A8BBF;
+            --han-yellow: #F4D35E;
+            --han-yellow-dark: #D4B34A;
+            --han-green: #74C69D;
+            --han-green-dark: #5AA87F;
+            --han-coral: #F47C7C;
+            --han-red: #E63946;
+            --han-text: #1F2937;
+            --han-muted: #6B7280;
+            --han-border: #E5E7EB;
+            --han-white: #FFFFFF;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+            --shadow-xl: 0 20px 60px rgba(0,0,0,0.12);
             --radius-sm: 12px;
             --radius-md: 20px;
             --radius-lg: 32px;
             --radius-full: 9999px;
-            --nav-height: 76px;
+            --nav-height: 72px;
             --nav-shrunk-height: 58px;
             --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* ===== RESET & BASE ===== */
+        /* ============================================
+           RESET & BASE
+        ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -60,8 +63,8 @@
             scroll-behavior: smooth;
         }
         body {
-            background: var(--bg);
-            color: var(--dark);
+            background: var(--han-cream);
+            color: var(--han-text);
             overflow-x: hidden;
             padding-bottom: calc(90px + env(safe-area-inset-bottom));
             padding-top: calc(var(--nav-height) + 28px);
@@ -69,49 +72,38 @@
             position: relative;
         }
 
-        /* Background Blobs */
-        body::before,
+        /* ===== Subtle Background ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            z-index: -1;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(78, 168, 222, 0.04), transparent 70%);
+            top: -200px;
+            right: -200px;
+            pointer-events: none;
+        }
         body::after {
             content: '';
             position: fixed;
             z-index: -1;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.3;
-            pointer-events: none;
-        }
-        body::before {
             width: 500px;
             height: 500px;
-            top: -100px;
-            right: -100px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.15), transparent 70%);
-            animation: floatBlob 18s ease-in-out infinite alternate;
-        }
-        body::after {
-            width: 400px;
-            height: 400px;
-            bottom: -50px;
-            left: -50px;
-            background: radial-gradient(circle, rgba(20, 184, 166, 0.12), transparent 70%);
-            animation: floatBlob 22s ease-in-out infinite alternate-reverse;
-        }
-
-        @keyframes floatBlob {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-            100% {
-                transform: translate(60px, -40px) scale(1.3);
-            }
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 211, 94, 0.03), transparent 70%);
+            bottom: -200px;
+            left: -200px;
+            pointer-events: none;
         }
 
         ::selection {
-            background: var(--primary);
+            background: var(--han-blue);
             color: white;
         }
         ::-moz-selection {
-            background: var(--primary);
+            background: var(--han-blue);
             color: white;
         }
 
@@ -132,7 +124,7 @@
             border-radius: var(--radius-sm);
             background: white;
             box-shadow: var(--shadow-lg);
-            border-left: 4px solid var(--primary);
+            border-left: 4px solid var(--han-blue);
             animation: slideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1);
             display: flex;
             align-items: center;
@@ -140,16 +132,16 @@
             font-size: 0.9rem;
         }
         .toast-success {
-            border-left-color: #22C55E;
+            border-left-color: var(--han-green);
         }
         .toast-error {
-            border-left-color: #EF4444;
+            border-left-color: var(--han-coral);
         }
         .toast-warning {
-            border-left-color: #F59E0B;
+            border-left-color: var(--han-yellow);
         }
         .toast-info {
-            border-left-color: #3B82F6;
+            border-left-color: var(--han-blue);
         }
         .toast-icon {
             font-size: 24px;
@@ -157,13 +149,13 @@
         }
         .toast-message {
             flex: 1;
-            color: var(--dark);
+            color: var(--han-text);
             line-height: 1.5;
         }
         .toast-close {
             background: none;
             border: none;
-            color: var(--muted);
+            color: var(--han-muted);
             font-size: 18px;
             cursor: pointer;
             padding: 0 4px;
@@ -197,7 +189,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 253, 247, 0.88);
             backdrop-filter: blur(8px);
             z-index: 9999;
             align-items: center;
@@ -211,8 +203,8 @@
         .loader {
             width: 48px;
             height: 48px;
-            border: 4px solid var(--border);
-            border-top-color: var(--primary);
+            border: 4px solid var(--han-border);
+            border-top-color: var(--han-blue);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -223,7 +215,7 @@
         }
         .loader-text {
             font-weight: 600;
-            color: var(--text-secondary);
+            color: var(--han-muted);
         }
 
         /* ===== OFFLINE BANNER ===== */
@@ -234,7 +226,7 @@
             left: 0;
             right: 0;
             z-index: 1002;
-            background: linear-gradient(135deg, #EF4444, #DC2626);
+            background: var(--han-coral);
             color: white;
             text-align: center;
             padding: 12px 20px;
@@ -242,7 +234,7 @@
             font-weight: 600;
             transform: translateY(-100%);
             transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+            box-shadow: 0 4px 20px rgba(244, 124, 124, 0.3);
         }
         #offline-banner.show {
             display: block;
@@ -257,11 +249,11 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 1001;
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            color: white;
+            background: var(--han-yellow);
+            color: var(--han-text);
             padding: 14px 24px;
             border-radius: var(--radius-md);
-            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 8px 32px rgba(244, 211, 94, 0.3);
             font-weight: 600;
             font-size: 0.9rem;
             max-width: 90%;
@@ -271,20 +263,17 @@
             cursor: pointer;
             transition: var(--transition-smooth);
         }
-        #verification-banner:hover {
-            transform: translateX(-50%) scale(1.02);
-        }
         #verification-banner .resend-link {
-            color: white;
+            color: var(--han-text);
             text-decoration: underline;
             font-weight: 700;
             margin-left: 8px;
             cursor: pointer;
         }
         #verification-banner .close-banner {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.06);
             border: none;
-            color: white;
+            color: var(--han-text);
             width: 28px;
             height: 28px;
             border-radius: 50%;
@@ -294,7 +283,7 @@
             transition: var(--transition-smooth);
         }
         #verification-banner .close-banner:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.12);
         }
         @keyframes fadeUp {
             from {
@@ -307,7 +296,9 @@
             }
         }
 
-        /* ===== FLOATING NAVBAR ===== */
+        /* ============================================
+           FLOATING NAVBAR
+        ============================================ */
         nav.top-nav {
             position: fixed;
             top: 18px;
@@ -321,12 +312,12 @@
             width: calc(100% - 36px);
             max-width: 1200px;
             height: var(--nav-height);
-            background: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(24px) saturate(1.3);
-            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            background: rgba(255, 253, 247, 0.92);
+            backdrop-filter: blur(20px) saturate(1.2);
+            -webkit-backdrop-filter: blur(20px) saturate(1.2);
             border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(229, 231, 235, 0.3);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
             transition: var(--transition-smooth);
             will-change: transform, height, border-radius, padding, box-shadow, top, background;
         }
@@ -337,9 +328,9 @@
             width: calc(100% - 48px);
             max-width: 900px;
             border-radius: 16px;
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(28px) saturate(1.5);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+            background: rgba(255, 253, 247, 0.96);
+            backdrop-filter: blur(24px) saturate(1.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
         }
         .logo {
             display: flex;
@@ -347,32 +338,30 @@
             gap: 10px;
             font-size: 22px;
             font-weight: 800;
-            color: var(--dark);
+            color: var(--han-text);
             text-decoration: none;
             flex-shrink: 0;
             transition: var(--transition-smooth);
         }
         .logo img {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             object-fit: contain;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: var(--transition-smooth);
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
         nav.top-nav.shrunk .logo img {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
         }
         .logo-text {
             transition: var(--transition-smooth);
-            background: linear-gradient(135deg, var(--dark), var(--primary));
+            background: linear-gradient(135deg, var(--han-text), var(--han-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-weight: 800;
         }
         nav.top-nav.shrunk .logo-text {
             opacity: 0;
@@ -392,7 +381,7 @@
         nav ul a {
             text-decoration: none;
             font-weight: 600;
-            color: var(--text-secondary);
+            color: var(--han-muted);
             transition: var(--transition-smooth);
             font-size: 0.9rem;
             position: relative;
@@ -407,7 +396,7 @@
             transform: translateX(-50%) scaleX(0);
             width: 100%;
             height: 2.5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: var(--han-blue);
             border-radius: 2px;
             transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -417,7 +406,7 @@
         }
         nav ul a:hover,
         nav ul a.active {
-            color: var(--primary);
+            color: var(--han-text);
         }
         .nav-buttons {
             display: flex;
@@ -426,7 +415,9 @@
             flex-shrink: 0;
         }
 
-        /* ===== BUTTONS ===== */
+        /* ============================================
+           BUTTONS
+        ============================================ */
         .btn {
             padding: 10px 22px;
             border: none;
@@ -449,57 +440,54 @@
         }
         .btn-login {
             background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
+            color: var(--han-muted);
+            border: 1px solid var(--han-border);
             padding: 8px 20px;
         }
         .btn-login:hover {
-            background: var(--bg);
-            border-color: var(--primary);
-            color: var(--primary);
+            background: var(--han-cream);
+            border-color: var(--han-blue);
+            color: var(--han-blue);
             transform: translateY(-1px);
         }
         .btn-signup {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--han-blue);
             color: white;
-            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 4px 16px rgba(78, 168, 222, 0.25);
             padding: 10px 24px;
+        }
+        .btn-signup .arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .btn-signup:hover .arrow {
+            transform: translateX(4px);
         }
         .btn-signup:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
-        }
-        .btn-premium-cta {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            color: white;
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
-            padding: 10px 24px;
-        }
-        .btn-premium-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4);
-        }
-        .btn-logout {
-            background: rgba(239, 68, 68, 0.08);
-            color: #EF4444;
-            padding: 6px 16px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1px solid rgba(239, 68, 68, 0.15);
-        }
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.15);
-            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(78, 168, 222, 0.35);
         }
         .btn-secondary {
             background: white;
-            border: 1px solid var(--border);
-            color: var(--dark);
+            border: 1px solid var(--han-border);
+            color: var(--han-text);
         }
         .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
+            border-color: var(--han-blue);
+            color: var(--han-blue);
             transform: translateY(-2px);
+        }
+        .btn-logout {
+            background: rgba(244, 124, 124, 0.1);
+            color: var(--han-coral);
+            padding: 6px 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(244, 124, 124, 0.15);
+        }
+        .btn-logout:hover {
+            background: rgba(244, 124, 124, 0.2);
+            transform: translateY(-1px);
         }
 
         .user-chip {
@@ -509,15 +497,15 @@
             background: white;
             padding: 6px 16px 6px 8px;
             border-radius: var(--radius-full);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            border: 1px solid var(--border);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--han-border);
             cursor: pointer;
             transition: var(--transition-smooth);
             flex-shrink: 0;
         }
         .user-chip:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+            border-color: var(--han-blue);
+            box-shadow: 0 4px 20px rgba(78, 168, 222, 0.1);
             transform: translateY(-2px);
         }
         .user-avatar {
@@ -527,7 +515,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            background: linear-gradient(135deg, #DCE8F5, #FCD34D);
             font-size: 16px;
             overflow: hidden;
             flex-shrink: 0;
@@ -545,11 +533,11 @@
         .user-name {
             font-weight: 700;
             font-size: 0.85rem;
-            color: var(--dark);
+            color: var(--han-text);
         }
         .user-status {
             font-size: 0.65rem;
-            color: var(--muted);
+            color: var(--han-muted);
             display: flex;
             align-items: center;
             gap: 4px;
@@ -559,16 +547,16 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: var(--accent);
+            background: var(--han-yellow);
         }
         .user-status .premium-text {
-            color: var(--accent);
+            color: var(--han-yellow);
             font-weight: 600;
         }
         .user-xp {
             font-size: 0.6rem;
-            color: var(--muted);
-            background: var(--bg);
+            color: var(--han-muted);
+            background: var(--han-cream);
             padding: 2px 8px;
             border-radius: var(--radius-full);
         }
@@ -579,8 +567,8 @@
         .hero {
             min-height: 85vh;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 40px;
             align-items: center;
             padding: 40px 7% 60px;
             max-width: 1400px;
@@ -589,88 +577,79 @@
             overflow: hidden;
         }
 
-        /* Hero Animations */
-        .hero-lantern {
+        /* ===== Hero Decorations - Subtle Atmospheric ===== */
+        .hero-deco {
             position: absolute;
-            font-size: 2rem;
-            opacity: 0.15;
-            animation: floatLantern 12s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
+            opacity: 0.06;
         }
-        .hero-lantern:nth-child(1) {
-            top: 10%;
-            left: 5%;
-            animation-delay: 0s;
-            font-size: 2.5rem;
-        }
-        .hero-lantern:nth-child(2) {
-            top: 20%;
-            right: 8%;
-            animation-delay: 3s;
-            font-size: 1.8rem;
-        }
-        .hero-lantern:nth-child(3) {
-            bottom: 15%;
-            left: 10%;
-            animation-delay: 6s;
+        .hero-deco.lantern {
             font-size: 2.2rem;
+            animation: floatLantern 15s ease-in-out infinite;
         }
-        .hero-lantern:nth-child(4) {
-            bottom: 25%;
-            right: 12%;
-            animation-delay: 9s;
-            font-size: 1.5rem;
+        .hero-deco.lantern:nth-child(1) {
+            top: 8%;
+            left: 3%;
+            animation-delay: 0s;
+        }
+        .hero-deco.lantern:nth-child(2) {
+            bottom: 12%;
+            right: 5%;
+            animation-delay: 5s;
+        }
+        .hero-deco.lantern:nth-child(3) {
+            top: 40%;
+            right: 8%;
+            animation-delay: 10s;
+            font-size: 1.6rem;
         }
 
-        .hero-cloud {
-            position: absolute;
-            font-size: 3rem;
-            opacity: 0.06;
-            animation: floatCloud 25s linear infinite;
-            pointer-events: none;
-            z-index: 0;
+        .hero-deco.char {
+            font-size: 5rem;
+            font-weight: 900;
+            animation: floatChar 25s linear infinite;
         }
-        .hero-cloud:nth-child(5) {
+        .hero-deco.char:nth-child(4) {
+            top: 15%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+        .hero-deco.char:nth-child(5) {
+            bottom: 20%;
+            right: 20%;
+            animation-delay: 8s;
+        }
+
+        .hero-deco.star {
+            font-size: 1rem;
+            animation: sparkle 4s ease-in-out infinite;
+            opacity: 0.12;
+        }
+        .hero-deco.star:nth-child(6) {
+            top: 25%;
+            left: 12%;
+            animation-delay: 0.5s;
+        }
+        .hero-deco.star:nth-child(7) {
+            bottom: 30%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+        .hero-deco.cloud {
+            font-size: 4rem;
+            opacity: 0.03;
+            animation: floatCloud 30s linear infinite;
+        }
+        .hero-deco.cloud:nth-child(8) {
             top: 5%;
             left: -5%;
             animation-delay: 0s;
-            font-size: 4rem;
         }
-        .hero-cloud:nth-child(6) {
-            bottom: 10%;
+        .hero-deco.cloud:nth-child(9) {
+            bottom: 8%;
             right: -5%;
-            animation-delay: 8s;
-            font-size: 3.5rem;
-        }
-
-        .hero-sparkle {
-            position: absolute;
-            font-size: 1.2rem;
-            opacity: 0.3;
-            animation: sparkle 3s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .hero-sparkle:nth-child(7) {
-            top: 30%;
-            left: 20%;
-            animation-delay: 0.5s;
-        }
-        .hero-sparkle:nth-child(8) {
-            top: 50%;
-            right: 25%;
-            animation-delay: 1.5s;
-        }
-        .hero-sparkle:nth-child(9) {
-            bottom: 40%;
-            left: 30%;
-            animation-delay: 2.5s;
-        }
-        .hero-sparkle:nth-child(10) {
-            bottom: 20%;
-            right: 35%;
-            animation-delay: 0.8s;
+            animation-delay: 12s;
         }
 
         @keyframes floatLantern {
@@ -679,72 +658,41 @@
                 transform: translate(0, 0) rotate(0deg);
             }
             25% {
-                transform: translate(15px, -25px) rotate(5deg);
-            }
-            50% {
-                transform: translate(-10px, -15px) rotate(-3deg);
+                transform: translate(12px, -18px) rotate(3deg);
             }
             75% {
-                transform: translate(20px, -30px) rotate(4deg);
+                transform: translate(-8px, 12px) rotate(-2deg);
             }
         }
-        @keyframes floatCloud {
-            0% {
-                transform: translateX(-100px);
-            }
-            100% {
-                transform: translateX(calc(100vw + 100px));
-            }
-        }
-        @keyframes sparkle {
-            0%,
-            100% {
-                opacity: 0.1;
-                transform: scale(0.8);
-            }
-            50% {
-                opacity: 0.6;
-                transform: scale(1.2);
-            }
-        }
-
-        .hero-deco {
-            position: absolute;
-            font-size: 4rem;
-            opacity: 0.06;
-            font-weight: 900;
-            pointer-events: none;
-            z-index: 0;
-            animation: floatSlow 25s linear infinite;
-        }
-        .hero-deco:nth-child(11) {
-            top: 5%;
-            left: 3%;
-            animation-delay: 0s;
-        }
-        .hero-deco:nth-child(12) {
-            bottom: 8%;
-            right: 2%;
-            animation-delay: 5s;
-            font-size: 6rem;
-        }
-        .hero-deco:nth-child(13) {
-            top: 40%;
-            right: 15%;
-            animation-delay: 10s;
-            font-size: 3rem;
-            opacity: 0.04;
-        }
-        @keyframes floatSlow {
+        @keyframes floatChar {
             0%,
             100% {
                 transform: translate(0, 0) rotate(0deg);
             }
             25% {
-                transform: translate(15px, -20px) rotate(3deg);
+                transform: translate(8px, -12px) rotate(2deg);
             }
             75% {
-                transform: translate(-10px, 15px) rotate(-3deg);
+                transform: translate(-6px, 8px) rotate(-1deg);
+            }
+        }
+        @keyframes sparkle {
+            0%,
+            100% {
+                opacity: 0.04;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.15;
+                transform: scale(1.2);
+            }
+        }
+        @keyframes floatCloud {
+            0% {
+                transform: translateX(-80px);
+            }
+            100% {
+                transform: translateX(calc(100vw + 80px));
             }
         }
 
@@ -764,23 +712,23 @@
             }
         }
 
-        .tag {
+        .hero-tag {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: var(--primary-light);
-            color: var(--primary);
-            padding: 8px 18px;
+            background: rgba(78, 168, 222, 0.08);
+            color: var(--han-blue);
+            padding: 6px 16px;
             border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 0.8rem;
-            margin-bottom: 24px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            margin-bottom: 20px;
             letter-spacing: 0.3px;
         }
-        .tag .pulse {
-            width: 8px;
-            height: 8px;
-            background: var(--primary);
+        .hero-tag .pulse {
+            width: 6px;
+            height: 6px;
+            background: var(--han-blue);
             border-radius: 50%;
             display: inline-block;
             animation: pulse 2s infinite;
@@ -798,31 +746,41 @@
         }
 
         .hero h1 {
-            font-size: clamp(40px, 5.5vw, 72px);
+            font-size: clamp(42px, 5.5vw, 72px);
             line-height: 1.08;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             font-weight: 900;
             letter-spacing: -1.5px;
+            color: var(--han-text);
         }
         .hero h1 .highlight {
-            background: linear-gradient(135deg, var(--accent), #EF4444);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--han-blue);
         }
 
         .hero p {
             font-size: 1.1rem;
             line-height: 1.8;
-            color: var(--text-secondary);
-            margin-bottom: 32px;
-            max-width: 540px;
+            color: var(--han-muted);
+            margin-bottom: 24px;
+            max-width: 520px;
+        }
+
+        .hero-features {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .hero-feature {
+            font-size: 0.85rem;
+            color: var(--han-muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hero-feature .icon {
+            font-size: 1rem;
         }
 
         .hero-buttons {
@@ -831,10 +789,10 @@
             flex-wrap: wrap;
         }
 
-        /* Hero Card - Panda */
-        .hero-card {
-            background: white;
-            height: 450px;
+        /* ===== Hero Panda ===== */
+        .hero-panda {
+            background: var(--han-white);
+            height: 420px;
             border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
@@ -845,74 +803,81 @@
             transition: var(--transition-smooth);
             animation: fadeUp 0.8s ease 0.2s both;
             z-index: 1;
+            border: 1px solid rgba(229, 231, 235, 0.3);
         }
-        .hero-card:hover {
+        .hero-panda:hover {
             transform: translateY(-4px) scale(1.01);
             box-shadow: var(--shadow-xl);
         }
-        .hero-card::before {
+        .hero-panda::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(20, 184, 166, 0.05));
+            background: radial-gradient(circle at 50% 60%, rgba(244, 211, 94, 0.06), transparent 60%);
             z-index: 1;
         }
-        .panda {
-            font-size: 150px;
+        .panda-mascot {
+            font-size: 140px;
             z-index: 2;
-            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.1));
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.04));
             cursor: pointer;
+            user-select: none;
+            transition: transform 0.3s ease;
         }
-        .float-char {
+        .panda-char {
             position: absolute;
-            font-size: 60px;
+            font-size: 46px;
             font-weight: 800;
-            opacity: 0.06;
+            opacity: 0.04;
             z-index: 0;
-            animation: floatSlow 20s linear infinite;
+            animation: floatChar 20s linear infinite;
         }
-        .c1 {
+        .pc1 {
             top: 30px;
             left: 30px;
             animation-delay: 0s;
         }
-        .c2 {
-            top: 50px;
-            right: 40px;
-            animation-delay: 2s;
-        }
-        .c3 {
-            bottom: 40px;
-            left: 40px;
-            animation-delay: 4s;
-        }
-        .c4 {
+        .pc2 {
             bottom: 30px;
             right: 30px;
             animation-delay: 6s;
         }
 
-        /* Hero Trust Badges */
-        .hero-trust {
+        /* ===== Value Strip ===== */
+        .value-strip {
+            padding: 20px 7%;
+            max-width: 1400px;
+            margin: 0 auto 20px;
             display: flex;
-            gap: 24px;
-            margin-top: 24px;
+            justify-content: center;
+            gap: 40px;
             flex-wrap: wrap;
+            border-top: 1px solid var(--han-border);
+            border-bottom: 1px solid var(--han-border);
+            background: var(--han-white);
         }
-        .hero-trust-item {
+        .value-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+            gap: 10px;
+            font-size: 0.9rem;
             font-weight: 500;
+            color: var(--han-muted);
+            padding: 12px 0;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
-        .hero-trust-item .icon {
-            font-size: 1.2rem;
+        .value-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .value-item .icon {
+            font-size: 1.3rem;
         }
 
         /* ============================================
-           HOW IT WORKS
+           HOW IT WORKS - ADVENTURE JOURNEY
         ============================================ */
         .how-it-works {
             padding: 60px 7%;
@@ -924,15 +889,34 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             margin-top: 40px;
+            position: relative;
+        }
+        .how-grid::before {
+            content: '';
+            position: absolute;
+            top: 60px;
+            left: 33.33%;
+            right: 33.33%;
+            height: 2px;
+            background: var(--han-border);
+            z-index: 0;
         }
         .how-step {
             text-align: center;
-            padding: 30px 20px;
-            background: white;
+            padding: 36px 24px;
+            background: var(--han-white);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
             transition: var(--transition-smooth);
-            border: 1px solid var(--border);
+            border: 1px solid var(--han-border);
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .how-step.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
         .how-step:hover {
             transform: translateY(-6px);
@@ -940,18 +924,18 @@
         }
         .how-step .step-number {
             display: inline-block;
-            width: 50px;
-            height: 50px;
-            line-height: 50px;
+            width: 48px;
+            height: 48px;
+            line-height: 48px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--han-blue);
             color: white;
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 16px;
         }
         .how-step .step-icon {
-            font-size: 3rem;
+            font-size: 2.8rem;
             display: block;
             margin-bottom: 12px;
         }
@@ -959,11 +943,21 @@
             font-size: 1.2rem;
             font-weight: 700;
             margin-bottom: 8px;
+            color: var(--han-text);
         }
         .how-step p {
-            color: var(--text-secondary);
+            color: var(--han-muted);
             font-size: 0.9rem;
             line-height: 1.7;
+        }
+        .how-step .step-path {
+            width: 40px;
+            height: 2px;
+            background: var(--han-border);
+            margin: 12px auto 0;
+        }
+        .how-step .step-path.active {
+            background: var(--han-blue);
         }
 
         /* ============================================
@@ -971,63 +965,19 @@
         ============================================ */
         .section-title {
             text-align: center;
-            font-size: clamp(28px, 4vw, 42px);
+            font-size: clamp(30px, 4vw, 44px);
             margin-bottom: 12px;
             font-weight: 800;
             letter-spacing: -0.5px;
+            color: var(--han-text);
         }
         .section-subtitle {
             text-align: center;
             max-width: 640px;
             margin: 0 auto 48px;
-            color: var(--text-secondary);
+            color: var(--han-muted);
             line-height: 1.7;
             font-size: 1rem;
-        }
-
-        /* ============================================
-           TRUST SECTION
-        ============================================ */
-        .trust-section {
-            padding: 60px 7%;
-            max-width: 1400px;
-            margin: 0 auto;
-            background: linear-gradient(135deg, #F8FAFC, #EEF2FF);
-            border-radius: var(--radius-lg);
-        }
-        .trust-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            margin-top: 32px;
-        }
-        .trust-item {
-            background: white;
-            padding: 28px 24px;
-            border-radius: var(--radius-md);
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            transition: var(--transition-smooth);
-        }
-        .trust-item:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-        }
-        .trust-item .icon {
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: 12px;
-        }
-        .trust-item h4 {
-            font-weight: 700;
-            margin-bottom: 4px;
-            font-size: 1rem;
-        }
-        .trust-item p {
-            font-size: 0.85rem;
-            color: var(--muted);
-            line-height: 1.6;
         }
 
         /* ============================================
@@ -1040,121 +990,211 @@
         }
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 28px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
         }
         .feature-card {
-            background: white;
-            padding: 32px 28px;
+            background: var(--han-white);
+            padding: 28px 24px;
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-sm);
             transition: var(--transition-smooth);
-            border: 1px solid var(--border);
+            border: 1px solid var(--han-border);
             position: relative;
             overflow: hidden;
-        }
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
             opacity: 0;
-            transition: var(--transition-smooth);
+            transform: translateY(24px);
         }
-        .feature-card:hover::before {
+        .feature-card.visible {
             opacity: 1;
+            transform: translateY(0);
         }
         .feature-card:hover {
             transform: translateY(-4px);
             box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
+            border-color: rgba(78, 168, 222, 0.15);
         }
-        .feature-icon {
-            font-size: 44px;
-            margin-bottom: 16px;
-            display: block;
+        .feature-card .icon-wrapper {
+            display: inline-block;
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            transition: transform 0.4s ease;
+        }
+        .feature-card:hover .icon-wrapper {
+            transform: scale(1.08) rotate(-2deg);
         }
         .feature-card h3 {
-            margin-bottom: 8px;
-            font-size: 1.2rem;
+            margin-bottom: 6px;
+            font-size: 1.1rem;
             font-weight: 700;
+            color: var(--han-text);
         }
         .feature-card p {
-            color: var(--text-secondary);
+            color: var(--han-muted);
             line-height: 1.7;
             font-size: 0.9rem;
         }
+        .feature-card .card-sparkle {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 2rem;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+        }
+        .feature-card:hover .card-sparkle {
+            opacity: 0.06;
+        }
 
         /* ============================================
-           SUCCESS STORIES (Testimonials)
+           PARENT SECTION
         ============================================ */
-        .success-stories {
+        .parent-section {
             padding: 60px 7%;
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
+            background: var(--han-white);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
         }
-        .testimonial-grid {
+        .parent-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 28px;
-            margin-top: 32px;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
         }
-        .testimonial-card {
-            background: var(--bg);
-            padding: 28px 24px;
+        .parent-visual {
+            background: var(--han-cream);
             border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            transition: var(--transition-smooth);
+            padding: 40px;
+            text-align: center;
+            border: 1px solid var(--han-border);
         }
-        .testimonial-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
-        }
-        .testimonial-card .stars {
-            color: var(--accent);
-            font-size: 1.2rem;
+        .parent-visual .icon {
+            font-size: 3rem;
+            display: block;
             margin-bottom: 12px;
         }
-        .testimonial-card blockquote {
-            font-style: italic;
+        .parent-content h2 {
+            font-size: clamp(28px, 3vw, 38px);
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--han-text);
+        }
+        .parent-content .sub {
+            color: var(--han-muted);
             font-size: 0.95rem;
+            margin-bottom: 24px;
             line-height: 1.7;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
         }
-        .testimonial-card .author {
+        .parent-benefits {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .parent-benefit {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
+            padding: 12px 16px;
+            background: var(--han-cream);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--han-border);
+            transition: var(--transition-smooth);
+            opacity: 0;
+            transform: translateY(16px);
         }
-        .testimonial-card .author .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+        .parent-benefit.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .testimonial-card .author .name {
+        .parent-benefit:hover {
+            border-color: var(--han-blue);
+            transform: translateY(-2px);
+        }
+        .parent-benefit .icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .parent-benefit .text h4 {
+            font-size: 0.85rem;
             font-weight: 700;
-            font-size: 0.9rem;
+            color: var(--han-text);
         }
-        .testimonial-card .author .role {
+        .parent-benefit .text p {
             font-size: 0.75rem;
-            color: var(--muted);
+            color: var(--han-muted);
+            line-height: 1.5;
         }
 
         /* ============================================
-           PRICING - INTERACTIVE
+           YCT JOURNEY
+        ============================================ */
+        .yct-journey {
+            padding: 60px 7%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .yct-path {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 32px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .yct-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 16px 22px;
+            background: var(--han-white);
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--han-border);
+            min-width: 80px;
+            transition: var(--transition-smooth);
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        .yct-step.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .yct-step:hover {
+            border-color: var(--han-blue);
+            transform: translateY(-4px) scale(1.02);
+        }
+        .yct-step .level {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--han-text);
+        }
+        .yct-step .label {
+            font-size: 0.7rem;
+            color: var(--han-muted);
+            font-weight: 500;
+        }
+        .yct-step .icon {
+            font-size: 1.8rem;
+        }
+        .yct-arrow {
+            font-size: 1.2rem;
+            color: var(--han-muted);
+            opacity: 0.4;
+            transition: opacity 0.6s ease;
+        }
+        .yct-arrow.visible {
+            opacity: 0.6;
+        }
+
+        /* ============================================
+           PRICING
         ============================================ */
         .pricing {
             padding: 60px 7%;
@@ -1168,22 +1208,28 @@
             margin-top: 40px;
         }
         .pricing-card {
-            background: white;
+            background: var(--han-white);
             border-radius: var(--radius-lg);
-            padding: 36px 28px;
+            padding: 32px 24px;
             text-align: center;
             box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
+            border: 1px solid var(--han-border);
             transition: var(--transition-smooth);
             position: relative;
+            opacity: 0;
+            transform: translateY(24px);
+        }
+        .pricing-card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
         .pricing-card:hover {
             transform: translateY(-6px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-md);
         }
         .pricing-card.popular {
-            border-color: var(--accent);
-            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.15);
+            border-color: var(--han-blue);
+            box-shadow: 0 8px 32px rgba(78, 168, 222, 0.1);
         }
         .pricing-card.popular::before {
             content: '⭐ Most Popular';
@@ -1191,56 +1237,54 @@
             top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--accent);
+            background: var(--han-blue);
             color: white;
-            padding: 4px 20px;
+            padding: 4px 18px;
             border-radius: var(--radius-full);
             font-size: 0.7rem;
             font-weight: 700;
         }
         .pricing-card .plan-name {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+            color: var(--han-text);
         }
         .pricing-card .plan-price {
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             font-weight: 900;
-            margin-bottom: 4px;
+            color: var(--han-text);
         }
         .pricing-card .plan-price span {
             font-size: 1rem;
             font-weight: 400;
-            color: var(--muted);
+            color: var(--han-muted);
         }
         .pricing-card .plan-desc {
-            color: var(--muted);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+            color: var(--han-muted);
+            font-size: 0.85rem;
+            margin: 8px 0 16px;
         }
         .pricing-card ul {
             list-style: none;
             text-align: left;
-            margin: 20px 0;
+            margin: 16px 0;
             padding: 0;
         }
         .pricing-card ul li {
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
+            padding: 6px 0;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-        .pricing-card ul li:last-child {
-            border-bottom: none;
+            color: var(--han-muted);
         }
         .pricing-card ul li .check {
-            color: var(--success);
+            color: var(--han-green);
             font-weight: 700;
         }
         .pricing-card ul li .cross {
-            color: var(--danger);
+            color: var(--han-coral);
             font-weight: 700;
         }
         .pricing-card .btn {
@@ -1250,47 +1294,113 @@
         }
 
         /* ============================================
-           CTA
+           WHY KIDS COME BACK
         ============================================ */
-        .cta-container {
+        .why-kids {
+            padding: 40px 7% 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+        .why-card {
+            background: var(--han-white);
+            padding: 28px 20px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid var(--han-border);
+            transition: var(--transition-smooth);
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        .why-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .why-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        .why-card .icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .why-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--han-text);
+            margin-bottom: 4px;
+        }
+        .why-card p {
+            font-size: 0.85rem;
+            color: var(--han-muted);
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           FINAL CTA
+        ============================================ */
+        .cta-final {
             padding: 20px 7% 60px;
             max-width: 1400px;
             margin: 0 auto;
         }
         .cta-card {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--han-blue), var(--han-blue-dark));
             padding: 56px 40px;
             border-radius: var(--radius-lg);
             text-align: center;
             color: white;
-            box-shadow: 0 16px 48px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 16px 48px rgba(78, 168, 222, 0.3);
             position: relative;
             overflow: hidden;
         }
-        .cta-card::before {
-            content: '';
+        .cta-card .cta-stars {
             position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1), transparent 60%);
+            font-size: 1.2rem;
+            pointer-events: none;
+            z-index: 0;
         }
-        .cta-card>* {
+        .cta-card .cta-stars:nth-child(1) {
+            top: 15%;
+            left: 10%;
+            animation: sparkle 4s ease-in-out infinite;
+        }
+        .cta-card .cta-stars:nth-child(2) {
+            bottom: 20%;
+            right: 15%;
+            animation: sparkle 5s ease-in-out infinite 1s;
+        }
+        .cta-card .cta-stars:nth-child(3) {
+            top: 50%;
+            left: 5%;
+            animation: sparkle 6s ease-in-out infinite 2s;
+        }
+        .cta-card h2 {
+            font-size: clamp(30px, 4vw, 44px);
+            margin-bottom: 12px;
+            font-weight: 800;
             position: relative;
             z-index: 1;
         }
-        .cta-card h2 {
-            font-size: clamp(28px, 4vw, 44px);
-            margin-bottom: 16px;
-            font-weight: 800;
-        }
         .cta-card p {
             max-width: 600px;
-            margin: 0 auto 32px;
+            margin: 0 auto 28px;
             line-height: 1.7;
             font-size: 1rem;
-            opacity: 0.92;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
         }
         .cta-card .hero-buttons {
             justify-content: center;
+            position: relative;
+            z-index: 1;
         }
         .cta-card .btn-login {
             background: rgba(255, 255, 255, 0.15);
@@ -1299,23 +1409,29 @@
         }
         .cta-card .btn-login:hover {
             background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
         }
         .cta-card .btn-signup {
             background: white;
-            color: var(--primary);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            color: var(--han-blue);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        .cta-card .btn-signup .arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .cta-card .btn-signup:hover .arrow {
+            transform: translateX(4px);
         }
         .cta-card .btn-signup:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
         /* ============================================
            FOOTER
         ============================================ */
         footer {
-            background: var(--dark);
+            background: var(--han-text);
             color: white;
             padding: 60px 7% 40px;
         }
@@ -1341,28 +1457,28 @@
             padding: 2px;
         }
         .footer-brand h2 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff, var(--secondary));
+            background: linear-gradient(135deg, #fff, var(--han-yellow));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin: 0;
         }
         footer p {
-            color: #94A3B8;
+            color: #9CA3AF;
             line-height: 1.7;
             font-size: 0.9rem;
             margin-top: 4px;
         }
         footer h3 {
-            font-size: 1.05rem;
+            font-size: 1rem;
             margin-bottom: 16px;
-            color: #f8fafc;
+            color: #F9FAFB;
             font-weight: 600;
         }
         footer a {
-            color: #94A3B8;
+            color: #9CA3AF;
             text-decoration: none;
             font-size: 0.9rem;
             transition: var(--transition-smooth);
@@ -1384,7 +1500,7 @@
         }
         footer .copyright {
             text-align: center;
-            color: #64748B;
+            color: #6B7280;
             font-size: 0.85rem;
         }
 
@@ -1397,17 +1513,17 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(255, 253, 247, 0.96);
             backdrop-filter: blur(12px);
             justify-content: space-around;
             padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.04);
             z-index: 999;
-            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            border-top: 1px solid var(--han-border);
         }
         .bottom-nav a {
             text-decoration: none;
-            color: var(--muted);
+            color: var(--han-muted);
             font-size: 0.65rem;
             font-weight: 500;
             text-align: center;
@@ -1421,7 +1537,7 @@
             border-radius: var(--radius-sm);
         }
         .bottom-nav a.active {
-            color: var(--primary);
+            color: var(--han-blue);
             font-weight: 600;
         }
         .nav-icon {
@@ -1436,13 +1552,13 @@
             bottom: calc(100px + env(safe-area-inset-bottom));
             right: 24px;
             z-index: 998;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--han-blue);
             border: none;
-            width: 64px;
-            height: 64px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            font-size: 32px;
-            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
+            font-size: 30px;
+            box-shadow: 0 8px 32px rgba(78, 168, 222, 0.3);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -1452,7 +1568,7 @@
         }
         .panda-fab:hover {
             transform: scale(1.1) rotate(-5deg);
-            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 12px 40px rgba(78, 168, 222, 0.4);
         }
         .panda-chat {
             display: none;
@@ -1486,7 +1602,7 @@
         }
         .panda-header {
             padding: 16px 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--han-blue);
             color: white;
             display: flex;
             justify-content: space-between;
@@ -1522,7 +1638,7 @@
             flex: 1;
             padding: 16px;
             overflow-y: auto;
-            background: #F8FAFC;
+            background: #FAF9F5;
         }
         .message-row {
             display: flex;
@@ -1538,7 +1654,7 @@
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            background: linear-gradient(135deg, #DCE8F5, #FCD34D);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1554,12 +1670,12 @@
         }
         .panda-message {
             background: white;
-            color: var(--dark);
+            color: var(--han-text);
             border-bottom-left-radius: 4px;
             box-shadow: var(--shadow-sm);
         }
         .user-message {
-            background: var(--primary);
+            background: var(--han-blue);
             color: white;
             border-bottom-right-radius: 4px;
         }
@@ -1568,12 +1684,12 @@
             gap: 10px;
             padding: 12px 16px;
             background: white;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--han-border);
             flex-shrink: 0;
         }
         .panda-input textarea {
             flex: 1;
-            border: 1px solid var(--border);
+            border: 1px solid var(--han-border);
             border-radius: var(--radius-sm);
             padding: 8px 14px;
             font-size: 14px;
@@ -1583,14 +1699,14 @@
             max-height: 80px;
             outline: none;
             transition: var(--transition-smooth);
-            background: var(--bg);
+            background: var(--han-cream);
         }
         .panda-input textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--han-blue);
+            box-shadow: 0 0 0 3px rgba(78, 168, 222, 0.1);
         }
         .panda-send {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--han-blue);
             color: white;
             border: none;
             width: 42px;
@@ -1600,11 +1716,11 @@
             cursor: pointer;
             transition: var(--transition-smooth);
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 12px rgba(78, 168, 222, 0.2);
         }
         .panda-send:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 6px 20px rgba(78, 168, 222, 0.3);
         }
 
         /* ============================================
@@ -1615,28 +1731,43 @@
                 grid-template-columns: 1fr;
                 text-align: center;
                 padding: 40px 5% 60px;
-                gap: 40px;
+                gap: 30px;
             }
             .hero p {
-                margin: 0 auto 32px;
+                margin: 0 auto 24px;
+            }
+            .hero-features {
+                justify-content: center;
             }
             .hero-buttons {
                 justify-content: center;
             }
-            .hero-trust {
-                justify-content: center;
-            }
-            .hero-card {
+            .hero-panda {
                 height: 320px;
+                max-width: 500px;
+                margin: 0 auto;
             }
-            .panda {
+            .panda-mascot {
                 font-size: 100px;
+            }
+            .parent-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .parent-benefits {
+                grid-template-columns: 1fr 1fr;
             }
             .pricing-grid {
                 grid-template-columns: 1fr 1fr;
             }
             .how-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+            .how-grid::before {
+                display: none;
+            }
+            .how-step .step-path {
+                display: none;
             }
         }
 
@@ -1677,13 +1808,20 @@
                 display: flex;
             }
             .hero h1 {
-                font-size: 32px;
+                font-size: 36px;
             }
-            .hero-card {
+            .hero-panda {
                 height: 260px;
             }
-            .panda {
+            .panda-mascot {
                 font-size: 80px;
+            }
+            .value-strip {
+                gap: 20px;
+                padding: 12px 5%;
+            }
+            .value-item {
+                font-size: 0.8rem;
             }
             .pricing-grid {
                 grid-template-columns: 1fr;
@@ -1695,17 +1833,35 @@
                 max-width: 400px;
                 margin: 0 auto;
             }
-            .testimonial-grid {
-                grid-template-columns: 1fr;
-            }
             .feature-grid {
                 grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
             }
-            .trust-grid {
-                grid-template-columns: 1fr 1fr;
+            .parent-benefits {
+                grid-template-columns: 1fr;
+            }
+            .parent-visual {
+                padding: 24px;
+            }
+            .yct-path {
+                gap: 8px;
+            }
+            .yct-step {
+                padding: 12px 16px;
+                min-width: 60px;
+            }
+            .yct-step .level {
+                font-size: 1rem;
+            }
+            .yct-arrow {
+                font-size: 1rem;
             }
             .cta-card {
                 padding: 32px 20px;
+            }
+            .why-grid {
+                grid-template-columns: 1fr 1fr;
             }
             .panda-chat {
                 width: calc(100vw - 32px);
@@ -1718,7 +1874,7 @@
                 bottom: calc(90px + env(safe-area-inset-bottom));
                 width: 56px;
                 height: 56px;
-                font-size: 28px;
+                font-size: 26px;
             }
             #verification-banner {
                 top: 72px;
@@ -1731,16 +1887,25 @@
         }
 
         @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 30px;
+            }
+            .hero p {
+                font-size: 0.95rem;
+            }
+            .hero-feature {
+                font-size: 0.75rem;
+            }
             .hero-buttons .btn {
                 flex: 1;
                 min-width: 120px;
                 padding: 10px 16px;
                 font-size: 0.8rem;
             }
-            .hero-card {
+            .hero-panda {
                 height: 220px;
             }
-            .panda {
+            .panda-mascot {
                 font-size: 60px;
             }
             .user-chip {
@@ -1757,14 +1922,24 @@
             .user-status {
                 font-size: 0.55rem;
             }
-            .trust-grid {
+            .value-item .icon {
+                font-size: 1rem;
+            }
+            .why-grid {
                 grid-template-columns: 1fr;
             }
-            .hero-trust {
-                gap: 12px;
+            .yct-path {
+                gap: 4px;
             }
-            .hero-trust-item {
-                font-size: 0.75rem;
+            .yct-step {
+                padding: 8px 12px;
+                min-width: 50px;
+            }
+            .yct-step .level {
+                font-size: 0.85rem;
+            }
+            .yct-step .icon {
+                font-size: 1.3rem;
             }
         }
 
@@ -1776,9 +1951,22 @@
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
+            .hero-deco {
+                display: none;
+            }
+            .feature-card,
+            .how-step,
+            .pricing-card,
+            .parent-benefit,
+            .yct-step,
+            .value-item,
+            .why-card {
+                opacity: 1 !important;
+                transform: none !important;
+            }
         }
         *:focus-visible {
-            outline: 3px solid var(--primary);
+            outline: 3px solid var(--han-blue);
             outline-offset: 2px;
         }
     </style>
@@ -1788,7 +1976,7 @@
     <!-- ===== LOADING OVERLAY ===== -->
     <div id="loading-overlay">
         <div class="loader"></div>
-        <div class="loader-text">🐼 Loading Hanverse...</div>
+        <div class="loader-text">🐼 Entering HanVerse...</div>
     </div>
 
     <!-- ===== OFFLINE BANNER ===== -->
@@ -1807,14 +1995,14 @@
     <!-- ===== NAVBAR ===== -->
     <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
-            <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
+            <img src="hanverse-logo.png" alt="Hanverse" width="38" height="38" />
             <span class="logo-text">Hanverse</span>
         </a>
         <ul>
             <li><a href="index.html" class="active">Home</a></li>
             <li><a href="learn.html">Learn</a></li>
-            <li><a href="pricing.html">Pricing</a></li>
             <li><a href="about.html">About</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
             <li><a href="parents.html">Parents</a></li>
         </ul>
         <div class="nav-buttons" id="navButtons">
@@ -1826,119 +2014,89 @@
     <!-- ========================================== -->
     <!-- HERO SECTION -->
     <!-- ========================================== -->
-    <section class="hero">
-        <!-- Animated Decorations -->
-        <div class="hero-lantern">🏮</div>
-        <div class="hero-lantern">🏮</div>
-        <div class="hero-lantern">🏮</div>
-        <div class="hero-lantern">🏮</div>
-        <div class="hero-cloud">☁️</div>
-        <div class="hero-cloud">☁️</div>
-        <div class="hero-sparkle">✨</div>
-        <div class="hero-sparkle">✨</div>
-        <div class="hero-sparkle">✨</div>
-        <div class="hero-sparkle">✨</div>
-        <div class="hero-deco">汉</div>
-        <div class="hero-deco">语</div>
-        <div class="hero-deco">乐</div>
+    <section class="hero" id="hero">
+        <!-- Subtle Atmospheric Decorations -->
+        <div class="hero-deco lantern">🏮</div>
+        <div class="hero-deco lantern">🏮</div>
+        <div class="hero-deco lantern">🏮</div>
+        <div class="hero-deco char">汉</div>
+        <div class="hero-deco char">语</div>
+        <div class="hero-deco star">✨</div>
+        <div class="hero-deco star">✨</div>
+        <div class="hero-deco cloud">☁️</div>
+        <div class="hero-deco cloud">☁️</div>
 
-        <div class="hero-content">
-            <div class="tag">
+        <div class="hero-content" id="heroContent">
+            <div class="hero-tag">
                 <span class="pulse"></span>
                 Structured YCT Learning
             </div>
             <h1>
-                Learn Chinese Through
-                <span class="highlight">Adventure</span>
-                <span class="gradient-text">Stories • Games • AI</span>
+                Learn Chinese.<br>
+                <span class="highlight">Enter the HanVerse.</span>
             </h1>
             <p>
-                The most engaging way for African children to learn Mandarin.
-                Every lesson unlocks new adventures.
+                An interactive Chinese-learning adventure where kids learn Mandarin through stories, games, speaking, characters, and culture.
             </p>
-            <div class="hero-buttons">
-                <button class="btn btn-signup" onclick="navigateTo('signup.html')">🚀 Start Free</button>
-                <button class="btn btn-login" onclick="scrollToSection('how-it-works')">▶ How It Works</button>
+            <div class="hero-features">
+                <span class="hero-feature"><span class="icon">📖</span> Stories</span>
+                <span class="hero-feature"><span class="icon">🎮</span> Games</span>
+                <span class="hero-feature"><span class="icon">🗣️</span> Speaking</span>
+                <span class="hero-feature"><span class="icon">✍️</span> Characters</span>
+                <span class="hero-feature"><span class="icon">🐼</span> Han Panda</span>
             </div>
-            <div class="hero-trust">
-                <span class="hero-trust-item">
-                    <span class="icon">⭐</span>
-                    4.9/5 Parent Rating
-                </span>
-                <span class="hero-trust-item">
-                    <span class="icon">👨‍👩‍👦</span>
-                    5,000+ Families
-                </span>
-                <span class="hero-trust-item">
-                    <span class="icon">🛡️</span>
-                    Kid-Safe & Ad-Free
-                </span>
+            <div class="hero-buttons">
+                <button class="btn btn-signup" onclick="navigateTo('signup.html')">
+                    Start Learning Free <span class="arrow">→</span>
+                </button>
+                <button class="btn btn-login" onclick="scrollToSection('features')">Explore HanVerse</button>
             </div>
         </div>
 
-        <div class="hero-card">
-            <div class="float-char c1">你</div>
-            <div class="float-char c2">好</div>
-            <div class="float-char c3">学</div>
-            <div class="float-char c4">汉</div>
-            <div class="panda" id="pandaMascot">🐼</div>
+        <div class="hero-panda" id="heroPanda">
+            <div class="panda-char pc1">你</div>
+            <div class="panda-char pc2">好</div>
+            <div class="panda-mascot" id="pandaMascot">🐼</div>
         </div>
     </section>
 
     <!-- ========================================== -->
-    <!-- HOW IT WORKS -->
+    <!-- VALUE STRIP - Factual Benefits -->
+    <!-- ========================================== -->
+    <div class="value-strip" id="valueStrip">
+        <span class="value-item"><span class="icon">📚</span> YCT-Aligned Learning</span>
+        <span class="value-item"><span class="icon">🎮</span> Interactive Practice</span>
+        <span class="value-item"><span class="icon">🛡️</span> Kid-Friendly Experience</span>
+        <span class="value-item"><span class="icon">🐼</span> Learn With Han Panda</span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- YOUR HANVERSE ADVENTURE -->
     <!-- ========================================== -->
     <section class="how-it-works" id="how-it-works">
-        <h2 class="section-title">How Hanverse Works</h2>
-        <p class="section-subtitle">Three simple steps to start your Mandarin adventure.</p>
-        <div class="how-grid">
-            <div class="how-step">
-                <span class="step-number">1</span>
-                <span class="step-icon">📝</span>
-                <h3>Create Account</h3>
-                <p>Sign up for free and set up your learning profile. Parents can create accounts for their children in minutes.</p>
+        <h2 class="section-title">Your HanVerse Adventure</h2>
+        <p class="section-subtitle">A journey from beginner to confident Mandarin speaker.</p>
+        <div class="how-grid" id="howGrid">
+            <div class="how-step" data-delay="0">
+                <span class="step-number">01</span>
+                <span class="step-icon">🐼</span>
+                <h3>Meet Han</h3>
+                <p>Create your profile and meet your Chinese-learning companion.</p>
+                <div class="step-path active"></div>
             </div>
-            <div class="how-step">
-                <span class="step-number">2</span>
+            <div class="how-step" data-delay="0.15">
+                <span class="step-number">02</span>
                 <span class="step-icon">🎮</span>
-                <h3>Play & Learn</h3>
-                <p>Explore interactive stories, games, and lessons. Every activity teaches new Mandarin words and phrases.</p>
+                <h3>Explore</h3>
+                <p>Learn through stories, games, speaking and challenges.</p>
+                <div class="step-path active"></div>
             </div>
-            <div class="how-step">
-                <span class="step-number">3</span>
-                <span class="step-icon">🗣️</span>
-                <h3>Speak Chinese</h3>
-                <p>Practice with Panda AI, earn XP, unlock achievements, and track your progress through YCT levels.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- TRUST SECTION -->
-    <!-- ========================================== -->
-    <section class="trust-section">
-        <h2 class="section-title">Why Parents Trust Hanverse</h2>
-        <p class="section-subtitle">Built with families in mind. Safe, effective, and proven.</p>
-        <div class="trust-grid">
-            <div class="trust-item">
-                <span class="icon">🧑‍🏫</span>
-                <h4>Structured Curriculum</h4>
-                <p>Complete YCT 1-4 pathway aligned with international standards.</p>
-            </div>
-            <div class="trust-item">
-                <span class="icon">🔒</span>
-                <h4>Kid-Safe AI</h4>
-                <p>Every interaction is moderated and designed for young learners. No ads.</p>
-            </div>
-            <div class="trust-item">
-                <span class="icon">📈</span>
-                <h4>Progress Reports</h4>
-                <p>Weekly email summaries of your child's learning achievements.</p>
-            </div>
-            <div class="trust-item">
-                <span class="icon">🎓</span>
-                <h4>Certificates</h4>
-                <p>Earn official certificates for completing each YCT level.</p>
+            <div class="how-step" data-delay="0.3">
+                <span class="step-number">03</span>
+                <span class="step-icon">🏆</span>
+                <h3>Master</h3>
+                <p>Earn XP, maintain your streak and progress through your journey.</p>
+                <div class="step-path"></div>
             </div>
         </div>
     </section>
@@ -1947,79 +2105,127 @@
     <!-- FEATURES -->
     <!-- ========================================== -->
     <section class="features" id="features">
-        <h2 class="section-title">What's Inside Hanverse</h2>
+        <h2 class="section-title">What's Inside HanVerse</h2>
         <p class="section-subtitle">Everything your child needs to fall in love with Mandarin.</p>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <span class="feature-icon">🎙️</span>
-                <h3>AI Speaking Coach</h3>
-                <p>Practice pronunciation with Panda AI. Get instant feedback and improve your speaking skills.</p>
+        <div class="feature-grid" id="featureGrid">
+            <div class="feature-card" data-delay="0">
+                <div class="icon-wrapper">🐼</div>
+                <h3>Learn With Han</h3>
+                <p>Han Panda guides learners through their Chinese-learning journey with encouragement and support.</p>
+                <span class="card-sparkle">✨</span>
             </div>
-            <div class="feature-card">
-                <span class="feature-icon">📖</span>
+            <div class="feature-card" data-delay="0.08">
+                <div class="icon-wrapper">🎮</div>
+                <h3>Play & Practice</h3>
+                <p>Turn vocabulary and language skills into interactive challenges that feel like games.</p>
+                <span class="card-sparkle">✨</span>
+            </div>
+            <div class="feature-card" data-delay="0.16">
+                <div class="icon-wrapper">🗣️</div>
+                <h3>Speak Chinese</h3>
+                <p>Practice listening and speaking instead of only memorizing words with our AI conversation partner.</p>
+                <span class="card-sparkle">✨</span>
+            </div>
+            <div class="feature-card" data-delay="0.24">
+                <div class="icon-wrapper">✍️</div>
+                <h3>Master Characters</h3>
+                <p>Learn Chinese characters through guided practice with stroke order and recognition.</p>
+                <span class="card-sparkle">✨</span>
+            </div>
+            <div class="feature-card" data-delay="0.32">
+                <div class="icon-wrapper">📖</div>
                 <h3>Interactive Stories</h3>
-                <p>Beautifully illustrated stories that teach vocabulary and comprehension in context.</p>
+                <p>Learn vocabulary and expressions through engaging, beautifully illustrated stories.</p>
+                <span class="card-sparkle">✨</span>
             </div>
-            <div class="feature-card">
-                <span class="feature-icon">🏆</span>
-                <h3>Achievements</h3>
-                <p>Unlock badges, earn XP, and celebrate every milestone on your learning journey.</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">🏮</span>
-                <h3>Chinese Culture</h3>
-                <p>Explore festivals, food, landmarks, and traditions that bring the language to life.</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">🤖</span>
-                <h3>Panda AI Tutor</h3>
-                <p>Kid-safe AI that adapts to your child's level and makes learning feel like a game.</p>
-            </div>
-            <div class="feature-card">
-                <span class="feature-icon">📄</span>
-                <h3>Printable Worksheets</h3>
-                <p>Download practice materials for offline learning and revision.</p>
+            <div class="feature-card" data-delay="0.4">
+                <div class="icon-wrapper">🌏</div>
+                <h3>Discover Chinese Culture</h3>
+                <p>Explore Chinese culture alongside the language through festivals, food, and traditions.</p>
+                <span class="card-sparkle">✨</span>
             </div>
         </div>
     </section>
 
     <!-- ========================================== -->
-    <!-- SUCCESS STORIES -->
+    <!-- YCT JOURNEY -->
     <!-- ========================================== -->
-    <section class="success-stories">
-        <h2 class="section-title">⭐ Success Stories</h2>
-        <p class="section-subtitle">Real families, real results. Hear from our community.</p>
-        <div class="testimonial-grid">
-            <div class="testimonial-card">
-                <div class="stars">⭐⭐⭐⭐⭐</div>
-                <blockquote>"My daughter went from knowing zero Mandarin to confidently introducing herself in Chinese within just 3 weeks. She loves the games!"</blockquote>
-                <div class="author">
-                    <div class="avatar">👩</div>
-                    <div>
-                        <div class="name">Sarah M.</div>
-                        <div class="role">Parent of 2 learners</div>
-                    </div>
+    <section class="yct-journey" id="yct-journey">
+        <h2 class="section-title">A Journey From Beginner to Confident Learner</h2>
+        <p class="section-subtitle">Structured progression aligned with YCT levels.</p>
+        <div class="yct-path" id="yctPath">
+            <div class="yct-step" data-delay="0">
+                <span class="icon">🌱</span>
+                <span class="level">YCT 1</span>
+                <span class="label">Beginner</span>
+            </div>
+            <span class="yct-arrow">→</span>
+            <div class="yct-step" data-delay="0.1">
+                <span class="icon">📖</span>
+                <span class="level">YCT 2</span>
+                <span class="label">Elementary</span>
+            </div>
+            <span class="yct-arrow">→</span>
+            <div class="yct-step" data-delay="0.2">
+                <span class="icon">🚀</span>
+                <span class="level">YCT 3</span>
+                <span class="label">Intermediate</span>
+            </div>
+            <span class="yct-arrow">→</span>
+            <div class="yct-step" data-delay="0.3">
+                <span class="icon">🏆</span>
+                <span class="level">YCT 4</span>
+                <span class="label">Advanced</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- PARENT SECTION -->
+    <!-- ========================================== -->
+    <section class="parent-section" id="parent-section">
+        <div class="parent-grid">
+            <div class="parent-visual">
+                <span class="icon">👨‍👩‍👦</span>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--han-text);">Made for Kids.<br>Built for Parents.</h3>
+                <p style="color: var(--han-muted); margin-top: 12px; font-size: 0.95rem; line-height: 1.7;">
+                    HanVerse is designed to keep children engaged while giving parents peace of mind.
+                </p>
+                <div style="margin-top: 16px; background: var(--han-cream); border-radius: var(--radius-sm); padding: 16px; border: 1px solid var(--han-border);">
+                    <span style="font-size: 0.85rem; color: var(--han-muted);">📊 Track progress, celebrate milestones, and watch your child grow.</span>
                 </div>
             </div>
-            <div class="testimonial-card">
-                <div class="stars">⭐⭐⭐⭐⭐</div>
-                <blockquote>"The AI tutor is a game-changer. My son practices every day without me having to remind him. His pronunciation has improved dramatically."</blockquote>
-                <div class="author">
-                    <div class="avatar">👨</div>
-                    <div>
-                        <div class="name">David K.</div>
-                        <div class="role">Parent, Nairobi</div>
+            <div class="parent-content">
+                <h2>Made for Kids.<br>Built for Parents.</h2>
+                <p class="sub">HanVerse is designed to keep children engaged while giving parents peace of mind.</p>
+                <div class="parent-benefits" id="parentBenefits">
+                    <div class="parent-benefit" data-delay="0">
+                        <span class="icon">📚</span>
+                        <div class="text">
+                            <h4>Structured Learning</h4>
+                            <p>YCT-aligned learning paths help children progress systematically.</p>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="stars">⭐⭐⭐⭐⭐</div>
-                <blockquote>"I was nervous about learning a new language, but HanVerse made it so much fun. I've already earned 5 badges and can't wait to unlock more!"</blockquote>
-                <div class="author">
-                    <div class="avatar">👧</div>
-                    <div>
-                        <div class="name">Aisha</div>
-                        <div class="role">Age 12, YCT 2</div>
+                    <div class="parent-benefit" data-delay="0.08">
+                        <span class="icon">🛡️</span>
+                        <div class="text">
+                            <h4>Kid-Friendly Environment</h4>
+                            <p>Designed specifically for young learners with safe, age-appropriate content.</p>
+                        </div>
+                    </div>
+                    <div class="parent-benefit" data-delay="0.16">
+                        <span class="icon">📈</span>
+                        <div class="text">
+                            <h4>Track Progress</h4>
+                            <p>Parents can see learning activity, progress, and achievements at a glance.</p>
+                        </div>
+                    </div>
+                    <div class="parent-benefit" data-delay="0.24">
+                        <span class="icon">🏆</span>
+                        <div class="text">
+                            <h4>Celebrate Milestones</h4>
+                            <p>XP, levels, streaks, and achievements help children stay motivated.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2032,43 +2238,44 @@
     <section class="pricing" id="pricing">
         <h2 class="section-title">Choose Your Plan 🎯</h2>
         <p class="section-subtitle">Start free and upgrade when you're ready. No hidden fees.</p>
-        <div class="pricing-grid">
-            <div class="pricing-card">
+        <div class="pricing-grid" id="pricingGrid">
+            <!-- Free -->
+            <div class="pricing-card" data-delay="0">
                 <div class="plan-name">Free</div>
                 <div class="plan-price">$0 <span>/month</span></div>
-                <div class="plan-desc">Perfect for beginners.</div>
+                <div class="plan-desc">For exploring HanVerse.</div>
                 <ul>
-                    <li><span class="check">✅</span> 10+ free lessons</li>
-                    <li><span class="check">✅</span> 5 interactive games</li>
-                    <li><span class="check">✅</span> Panda AI Tutor (limited)</li>
+                    <li><span class="check">✅</span> Selected lessons</li>
+                    <li><span class="check">✅</span> Selected practice</li>
                     <li><span class="check">✅</span> Basic progress tracking</li>
-                    <li><span class="check">✅</span> YCT 1 curriculum</li>
-                    <li><span class="cross">❌</span> Premium stories</li>
-                    <li><span class="cross">❌</span> Parent dashboard</li>
+                    <li><span class="check">✅</span> Han Panda experience</li>
+                    <li><span class="cross">❌</span> Full YCT course</li>
+                    <li><span class="cross">❌</span> Premium worksheets</li>
                 </ul>
                 <button class="btn btn-signup" onclick="navigateTo('signup.html')">Start Free</button>
             </div>
 
-            <div class="pricing-card popular">
+            <!-- Premium - Most Popular -->
+            <div class="pricing-card popular" data-delay="0.12">
                 <div class="plan-name">Premium</div>
-                <div class="plan-price">$9.99 <span>/month</span></div>
-                <div class="plan-desc">Full access to everything.</div>
+                <div class="plan-price">$4 <span>/month</span></div>
+                <div class="plan-desc">The recommended plan.</div>
                 <ul>
-                    <li><span class="check">✅</span> All 240+ lessons</li>
-                    <li><span class="check">✅</span> All 30+ games</li>
-                    <li><span class="check">✅</span> Unlimited AI Tutor</li>
-                    <li><span class="check">✅</span> Full progress tracking</li>
-                    <li><span class="check">✅</span> All YCT 1-4 curriculum</li>
-                    <li><span class="check">✅</span> Achievements & badges</li>
-                    <li><span class="check">✅</span> Parent dashboard</li>
-                    <li><span class="check">✅</span> Weekly progress emails</li>
+                    <li><span class="check">✅</span> Full YCT course access</li>
+                    <li><span class="check">✅</span> Full video lessons</li>
+                    <li><span class="check">✅</span> Premium worksheets</li>
+                    <li><span class="check">✅</span> Progress tracking</li>
+                    <li><span class="check">✅</span> Achievements & XP</li>
+                    <li><span class="check">✅</span> Premium learning activities</li>
+                    <li><span class="check">✅</span> Priority support</li>
                 </ul>
-                <button class="btn btn-premium-cta" onclick="navigateTo('signup.html?plan=premium')">Get Premium</button>
+                <button class="btn btn-signup" onclick="navigateTo('signup.html?plan=premium')">Start Learning</button>
             </div>
 
-            <div class="pricing-card">
+            <!-- Family -->
+            <div class="pricing-card" data-delay="0.24">
                 <div class="plan-name">Family</div>
-                <div class="plan-price">$19.99 <span>/month</span></div>
+                <div class="plan-price">$10 <span>/month</span></div>
                 <div class="plan-desc">For the whole family.</div>
                 <ul>
                     <li><span class="check">✅</span> Everything in Premium</li>
@@ -2076,24 +2283,57 @@
                     <li><span class="check">✅</span> Family progress dashboard</li>
                     <li><span class="check">✅</span> Individual learning paths</li>
                     <li><span class="check">✅</span> Parent controls</li>
-                    <li><span class="check">✅</span> Family certificates</li>
-                    <li><span class="check">✅</span> Priority support</li>
                     <li><span class="check">✅</span> Save 50% vs individual</li>
                 </ul>
-                <button class="btn btn-signup" onclick="navigateTo('signup.html?plan=family')">Start Family Trial</button>
+                <button class="btn btn-signup" onclick="navigateTo('signup.html?plan=family')">Choose Family</button>
             </div>
         </div>
     </section>
 
     <!-- ========================================== -->
-    <!-- CTA -->
+    <!-- WHY KIDS COME BACK -->
     <!-- ========================================== -->
-    <section class="cta-container">
+    <section class="why-kids" id="why-kids">
+        <h2 class="section-title">Why Kids Want to Come Back</h2>
+        <p class="section-subtitle" style="margin-bottom: 32px;">HanVerse makes learning feel like an adventure.</p>
+        <div class="why-grid" id="whyGrid">
+            <div class="why-card" data-delay="0">
+                <span class="icon">🎮</span>
+                <h3>Every lesson feels like a challenge.</h3>
+                <p>Interactive games and activities keep kids engaged and motivated.</p>
+            </div>
+            <div class="why-card" data-delay="0.08">
+                <span class="icon">🐼</span>
+                <h3>Han makes learning personal.</h3>
+                <p>Han Panda guides, encourages, and celebrates every achievement.</p>
+            </div>
+            <div class="why-card" data-delay="0.16">
+                <span class="icon">⭐</span>
+                <h3>Progress feels rewarding.</h3>
+                <p>XP, levels, streaks, and badges make every milestone worth celebrating.</p>
+            </div>
+            <div class="why-card" data-delay="0.24">
+                <span class="icon">🌏</span>
+                <h3>Chinese culture makes the world feel alive.</h3>
+                <p>Language learning comes to life through cultural exploration.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- FINAL CTA -->
+    <!-- ========================================== -->
+    <section class="cta-final" id="cta-final">
         <div class="cta-card">
-            <h2>Start Your Mandarin Adventure Today 🌟</h2>
-            <p>Join thousands of learners discovering Mandarin through stories, games, videos and AI.</p>
+            <span class="cta-stars">✨</span>
+            <span class="cta-stars">✨</span>
+            <span class="cta-stars">✨</span>
+            <h2>Ready to Enter the HanVerse?</h2>
+            <p>Start your child's Chinese-learning adventure today.</p>
             <div class="hero-buttons">
-                <button class="btn btn-signup" onclick="navigateTo('signup.html')">🚀 Create Free Account</button>
+                <button class="btn btn-signup" onclick="navigateTo('signup.html')">
+                    🐼 Start Learning Free <span class="arrow">→</span>
+                </button>
                 <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
             </div>
         </div>
@@ -2106,32 +2346,31 @@
         <div class="footer-grid">
             <div>
                 <div class="footer-brand">
-                    <img src="hanverse-logo.png" alt="Hanverse logo" width="40" height="40" />
+                    <img src="hanverse-logo.png" alt="Hanverse" width="40" height="40" />
                     <h2>Hanverse</h2>
                 </div>
-                <p>The most engaging way for African children to learn Mandarin through stories, games, AI tutors and structured YCT learning.</p>
-                <p style="margin-top: 12px; font-size: 0.8rem; color: #64748B;">Made with ❤️ for young learners</p>
+                <p>Learn Chinese through adventure. Stories, games, and AI designed for children.</p>
+                <p style="margin-top: 12px; font-size: 0.8rem; color: #6B7280;">Made with ❤️ for young learners</p>
             </div>
             <div>
-                <h3>Platform</h3>
+                <h3>Hanverse</h3>
                 <a href="index.html">Home</a><br>
                 <a href="learn.html">Learn</a><br>
+                <a href="#">Courses</a><br>
+                <a href="#">YCT Journey</a>
+            </div>
+            <div>
+                <h3>Parents</h3>
+                <a href="parents.html">Parent Dashboard</a><br>
                 <a href="pricing.html">Pricing</a><br>
-                <a href="about.html">About</a>
+                <a href="faq.html">FAQs</a>
             </div>
             <div>
-                <h3>Resources</h3>
-                <a href="parents.html">Parents</a><br>
-                <a href="worksheets.html">Worksheets</a><br>
-                <a href="success-stories.html">Success Stories</a><br>
-                <a href="faq.html">FAQ</a>
-            </div>
-            <div>
-                <h3>Connect</h3>
-                <a href="#">Instagram</a><br>
-                <a href="#">TikTok</a><br>
-                <a href="#">LinkedIn</a><br>
-                <a href="https://www.youtube.com/@Hanverse-chinese">YouTube</a>
+                <h3>Company</h3>
+                <a href="about.html">About</a><br>
+                <a href="#">Contact</a><br>
+                <a href="#">Privacy</a><br>
+                <a href="#">Terms</a>
             </div>
         </div>
         <hr>
@@ -2208,8 +2447,7 @@
             try {
                 const data = localStorage.getItem(SESSION_KEY);
                 if (!data) return null;
-                const parsed = JSON.parse(data);
-                return parsed;
+                return JSON.parse(data);
             } catch {
                 return null;
             }
@@ -2371,78 +2609,203 @@
         window.addEventListener('scroll', handleNavScroll, { passive: true });
 
         // ============================================================
-        // GSAP ANIMATIONS
+        // HERO PARALLAX (Desktop only)
         // ============================================================
-        window.addEventListener("load", () => {
-            // === PANDA ANIMATION ===
-            const panda = document.getElementById('pandaMascot');
-            if (panda) {
-                // Floating
-                gsap.to(panda, {
-                    y: -12,
-                    duration: 2,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut"
-                });
+        let heroParallaxEnabled = true;
 
-                // Wave effect - subtle rotation
-                gsap.to(panda, {
-                    rotation: 3,
-                    duration: 2.5,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut",
-                    delay: 0.5
-                });
-
-                // Hover interaction
-                panda.addEventListener("mouseenter", () => {
-                    gsap.to(panda, {
-                        scale: 1.1,
-                        rotation: -5,
-                        duration: 0.3,
-                        ease: "back.out(1.7)"
-                    });
-                });
-
-                panda.addEventListener("mouseleave", () => {
-                    gsap.to(panda, {
-                        scale: 1,
-                        rotation: 3,
-                        duration: 0.3,
-                        ease: "power2.out"
-                    });
-                });
+        function initHeroParallax() {
+            if (window.innerWidth < 768) {
+                heroParallaxEnabled = false;
+                return;
+            }
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                heroParallaxEnabled = false;
+                return;
             }
 
-            // === CARD ANIMATIONS ON SCROLL ===
-            const cards = document.querySelectorAll('.feature-card, .how-step, .pricing-card, .testimonial-card, .trust-item');
-            cards.forEach((card, index) => {
-                gsap.from(card, {
-                    opacity: 0,
-                    y: 40,
-                    duration: 0.6,
-                    delay: index * 0.08,
-                    scrollTrigger: {
-                        trigger: card,
-                        start: "top 85%",
-                        toggleActions: "play none none none"
-                    }
+            const hero = document.getElementById('hero');
+            const decorations = hero.querySelectorAll('.hero-deco');
+            const panda = document.getElementById('heroPanda');
+
+            document.addEventListener('mousemove', (e) => {
+                if (!heroParallaxEnabled) return;
+                const x = (e.clientX / window.innerWidth - 0.5) * 2;
+                const y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+                decorations.forEach((deco, i) => {
+                    const speed = 4 + (i % 3) * 2;
+                    const moveX = x * speed;
+                    const moveY = y * speed * 0.6;
+                    deco.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                });
+
+                if (panda) {
+                    const pandaX = x * 3;
+                    const pandaY = y * 2;
+                    panda.style.transform = `translate(${pandaX}px, ${pandaY}px)`;
+                }
+            });
+        }
+
+        // ============================================================
+        // PANDA INTERACTION
+        // ============================================================
+        function initPandaInteraction() {
+            const panda = document.getElementById('pandaMascot');
+            if (!panda) return;
+
+            // GSAP floating animation
+            gsap.to(panda, {
+                y: -10,
+                duration: 2.5,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+
+            gsap.to(panda, {
+                rotation: 2,
+                duration: 3,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                delay: 0.5
+            });
+
+            // Hover scale effect
+            panda.addEventListener('mouseenter', () => {
+                gsap.to(panda, {
+                    scale: 1.06,
+                    rotation: -3,
+                    duration: 0.3,
+                    ease: "back.out(1.7)"
                 });
             });
 
-            // === HERO CARD REVEAL ===
-            gsap.from('.hero-card', {
-                opacity: 0,
-                scale: 0.95,
-                duration: 1,
-                delay: 0.3,
-                ease: "power2.out"
+            panda.addEventListener('mouseleave', () => {
+                gsap.to(panda, {
+                    scale: 1,
+                    rotation: 2,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
             });
+        }
 
-            // === HERO CONTENT REVEAL ===
-            gsap.from('.hero-content', {
+        // ============================================================
+        // SCROLL REVEAL - Intersection Observer
+        // ============================================================
+        function initScrollReveal() {
+            // Value Strip
+            const valueItems = document.querySelectorAll('.value-item');
+            const valueObserver = new IntersectionObserver((entries) => {
+                entries.forEach((e, i) => {
+                    if (e.isIntersecting) {
+                        setTimeout(() => {
+                            e.target.classList.add('visible');
+                        }, i * 80);
+                    }
+                });
+            }, { threshold: 0.3 });
+            valueItems.forEach(item => valueObserver.observe(item));
+
+            // How Steps
+            const howSteps = document.querySelectorAll('.how-step');
+            const howObserver = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        const delay = parseFloat(e.target.dataset.delay) || 0;
+                        setTimeout(() => {
+                            e.target.classList.add('visible');
+                        }, delay * 1000);
+                    }
+                });
+            }, { threshold: 0.2 });
+            howSteps.forEach(step => howObserver.observe(step));
+
+            // Feature Cards
+            const featureCards = document.querySelectorAll('.feature-card');
+            const featureObserver = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        const delay = parseFloat(e.target.dataset.delay) || 0;
+                        setTimeout(() => {
+                            e.target.classList.add('visible');
+                        }, delay * 1000);
+                    }
+                });
+            }, { threshold: 0.15 });
+            featureCards.forEach(card => featureObserver.observe(card));
+
+            // Parent Benefits
+            const parentBenefits = document.querySelectorAll('.parent-benefit');
+            const parentObserver = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        const delay = parseFloat(e.target.dataset.delay) || 0;
+                        setTimeout(() => {
+                            e.target.classList.add('visible');
+                        }, delay * 1000);
+                    }
+                });
+            }, { threshold: 0.2 });
+            parentBenefits.forEach(benefit => parentObserver.observe(benefit));
+
+            // YCT Steps
+            const yctSteps = document.querySelectorAll('.yct-step');
+            const yctObserver = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        const delay = parseFloat(e.target.dataset.delay) || 0;
+                        setTimeout(() => {
+                            e.target.classList.add('visible');
+                        }, delay * 1000);
+                    }
+                });
+            }, { threshold: 0.2 });
+            yctSteps.forEach(step => yctObserver.observe(step));
+
+            // YCT Arrows
+            const yctArrows = document.querySelectorAll('.yct-arrow');
+            const arrowObserver = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.2 });
+            yctArrows.forEach(arrow => arrowObserver.observe(arrow));
+
+            // Pricing Cards
+            const pricingCards = document.querySelectorAll('.pricing-card');
+            const pricingObserver = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        const delay = parseFloat(e.target.dataset.delay) || 0;
+                        setTimeout(() => {
+                            e.target.classList.add('visible');
+                        }, delay * 1000);
+                    }
+                });
+            }, { threshold: 0.15 });
+            pricingCards.forEach(card => pricingObserver.observe(card));
+
+            // Why Kids Cards
+            const whyCards = document.querySelectorAll('.why-card');
+            const whyObserver = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        const delay = parseFloat(e.target.dataset.delay) || 0;
+                        setTimeout(() => {
+                            e.target.classList.add('visible');
+                        }, delay * 1000);
+                    }
+                });
+            }, { threshold: 0.2 });
+            whyCards.forEach(card => whyObserver.observe(card));
+
+            // Hero Content
+            gsap.from('#heroContent', {
                 opacity: 0,
                 y: 30,
                 duration: 0.8,
@@ -2450,27 +2813,15 @@
                 ease: "power2.out"
             });
 
-            // === STATS COUNTER ===
-            const stats = document.querySelectorAll('.stat-card h2');
-            stats.forEach(stat => {
-                const target = parseInt(stat.textContent);
-                if (target > 0) {
-                    gsap.from(stat, {
-                        textContent: 0,
-                        duration: 2,
-                        ease: "power2.out",
-                        scrollTrigger: {
-                            trigger: stat,
-                            start: "top 85%",
-                            toggleActions: "play none none none"
-                        },
-                        onUpdate: function() {
-                            stat.textContent = Math.round(this.targets()[0].textContent) + '+';
-                        }
-                    });
-                }
+            // Hero Panda
+            gsap.from('#heroPanda', {
+                opacity: 0,
+                scale: 0.95,
+                duration: 1,
+                delay: 0.3,
+                ease: "power2.out"
             });
-        });
+        }
 
         // ==========================================
         // PANDA CHAT
@@ -2592,14 +2943,19 @@
 
             updateNavbar();
 
+            // Init animations
+            initHeroParallax();
+            initPandaInteraction();
+            initScrollReveal();
+
             // Show welcome toast if logged in
             if (isLoggedIn()) {
                 const session = getSession();
                 const name = session?.full_name || session?.fullName || session?.username || 'Learner';
-                showToast('success', `Welcome back, ${name}! 🎉`);
+                showToast('success', `Welcome back to the HanVerse, ${name}! 🎉`);
             }
 
-            log('✅ Hanverse loaded successfully!');
+            log('✅ HanVerse loaded successfully!');
             hideLoading();
         });
 
