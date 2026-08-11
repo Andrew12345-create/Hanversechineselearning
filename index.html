@@ -2848,92 +2848,46 @@ function initHeroAnimation() {
         document.getElementById('heroPanda');
 
     /*
-       HARD VISIBILITY GUARANTEE
+       HERO VISIBILITY IS NOT ANIMATION-DEPENDENT.
 
-       We intentionally set opacity to 1
-       before doing anything else.
+       Make everything permanently visible.
     */
 
     if (heroContent) {
         heroContent.style.opacity = '1';
         heroContent.style.visibility = 'visible';
+        heroContent.style.transform = 'none';
+
+        if (typeof gsap !== 'undefined') {
+            gsap.killTweensOf(heroContent);
+            gsap.set(heroContent, {
+                opacity: 1,
+                visibility: 'visible',
+                y: 0,
+                x: 0,
+                scale: 1,
+                rotation: 0
+            });
+        }
     }
 
     if (heroPanda) {
         heroPanda.style.opacity = '1';
         heroPanda.style.visibility = 'visible';
-    }
 
-    /*
-       If GSAP isn't available,
-       STOP HERE.
-
-       The hero remains completely functional.
-    */
-
-    if (!GSAP_AVAILABLE) {
-        return;
-    }
-
-    /*
-       IMPORTANT:
-       Kill only animations currently attached
-       to these hero elements.
-
-       This prevents an old animation from
-       another script version from continuing.
-    */
-
-    if (heroContent) {
-        gsap.killTweensOf(heroContent);
-    }
-
-    if (heroPanda) {
-        gsap.killTweensOf(heroPanda);
-    }
-
-    /*
-       Set ONLY transform-related starting values.
-
-       NEVER set opacity to 0.
-    */
-
-    if (heroContent) {
-        gsap.fromTo(
-            heroContent,
-
-            {
-                y: 18
-            },
-
-            {
+        if (typeof gsap !== 'undefined') {
+            gsap.killTweensOf(heroPanda);
+            gsap.set(heroPanda, {
+                opacity: 1,
+                visibility: 'visible',
                 y: 0,
-                duration: 0.65,
-                ease: 'power2.out',
-                overwrite: 'auto'
-            }
-        );
-    }
-
-    if (heroPanda) {
-        gsap.fromTo(
-            heroPanda,
-
-            {
-                scale: 0.98
-            },
-
-            {
+                x: 0,
                 scale: 1,
-                duration: 0.75,
-                delay: 0.05,
-                ease: 'power2.out',
-                overwrite: 'auto'
-            }
-        );
+                rotation: 0
+            });
+        }
     }
 }
-
 
 /* ============================================================
    HERO PARALLAX
@@ -3314,62 +3268,7 @@ function revealElements(
    BELOW HERO ONLY
 ============================================================ */
 
-function initScrollReveal() {
 
-    /*
-       IMPORTANT:
-       There is deliberately NO reference to:
-
-       #hero
-       #heroContent
-       #heroPanda
-       .hero
-       .hero-content
-       .hero-panda
-
-       The hero has its own system.
-    */
-
-    revealElements(
-        '.value-item',
-        0.3
-    );
-
-    revealElements(
-        '.how-step',
-        0.2
-    );
-
-    revealElements(
-        '.feature-card',
-        0.15
-    );
-
-    revealElements(
-        '.parent-benefit',
-        0.2
-    );
-
-    revealElements(
-        '.yct-step',
-        0.2
-    );
-
-    revealElements(
-        '.yct-arrow',
-        0.2
-    );
-
-    revealElements(
-        '.pricing-card',
-        0.15
-    );
-
-    revealElements(
-        '.why-card',
-        0.2
-    );
-}
 
 
 /* ============================================================
