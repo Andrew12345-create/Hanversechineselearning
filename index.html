@@ -107,7 +107,9 @@
             color: white;
         }
 
-        /* ===== TOAST ===== */
+        /* ============================================
+           TOAST NOTIFICATIONS
+        ============================================ */
         .toast-container {
             position: fixed;
             top: 100px;
@@ -184,7 +186,9 @@
             animation: slideOutRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
-        /* ===== LOADING OVERLAY ===== */
+        /* ============================================
+           LOADING OVERLAY
+        ============================================ */
         #loading-overlay {
             display: none;
             position: fixed;
@@ -218,7 +222,9 @@
             color: var(--han-muted);
         }
 
-        /* ===== OFFLINE BANNER ===== */
+        /* ============================================
+           OFFLINE BANNER
+        ============================================ */
         #offline-banner {
             display: none;
             position: fixed;
@@ -241,7 +247,9 @@
             transform: translateY(0);
         }
 
-        /* ===== VERIFICATION BANNER ===== */
+        /* ============================================
+           VERIFICATION BANNER
+        ============================================ */
         #verification-banner {
             display: none;
             position: fixed;
@@ -562,7 +570,7 @@
         }
 
         /* ============================================
-           HERO SECTION
+           HERO SECTION - ALWAYS VISIBLE BY DEFAULT
         ============================================ */
         .hero {
             min-height: 85vh;
@@ -583,6 +591,7 @@
             pointer-events: none;
             z-index: 0;
             opacity: 0.06;
+            will-change: transform;
         }
         .hero-deco.lantern {
             font-size: 2.2rem;
@@ -640,6 +649,7 @@
             font-size: 4rem;
             opacity: 0.03;
             animation: floatCloud 30s linear infinite;
+            will-change: transform;
         }
         .hero-deco.cloud:nth-child(8) {
             top: 5%;
@@ -696,20 +706,12 @@
             }
         }
 
+        /* === HERO CONTENT - ALWAYS VISIBLE === */
         .hero-content {
-            animation: fadeUp 0.8s ease;
             z-index: 1;
             position: relative;
-        }
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            opacity: 1 !important; /* ✅ Always visible by default */
+            visibility: visible !important;
         }
 
         .hero-tag {
@@ -789,7 +791,7 @@
             flex-wrap: wrap;
         }
 
-        /* ===== Hero Panda ===== */
+        /* ===== Hero Panda - ALWAYS VISIBLE ===== */
         .hero-panda {
             background: var(--han-white);
             height: 420px;
@@ -801,9 +803,10 @@
             overflow: hidden;
             box-shadow: var(--shadow-lg);
             transition: var(--transition-smooth);
-            animation: fadeUp 0.8s ease 0.2s both;
             z-index: 1;
             border: 1px solid rgba(229, 231, 235, 0.3);
+            opacity: 1 !important; /* ✅ Always visible by default */
+            visibility: visible !important;
         }
         .hero-panda:hover {
             transform: translateY(-4px) scale(1.01);
@@ -822,7 +825,7 @@
             filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.04));
             cursor: pointer;
             user-select: none;
-            transition: transform 0.3s ease;
+            will-change: transform;
         }
         .panda-char {
             position: absolute;
@@ -843,7 +846,9 @@
             animation-delay: 6s;
         }
 
-        /* ===== Value Strip ===== */
+        /* ============================================
+           VALUE STRIP
+        ============================================ */
         .value-strip {
             padding: 20px 7%;
             max-width: 1400px;
@@ -2012,7 +2017,7 @@
     </nav>
 
     <!-- ========================================== -->
-    <!-- HERO SECTION -->
+    <!-- HERO SECTION - VISIBLE BY DEFAULT -->
     <!-- ========================================== -->
     <section class="hero" id="hero">
         <!-- Subtle Atmospheric Decorations -->
@@ -2026,6 +2031,7 @@
         <div class="hero-deco cloud">☁️</div>
         <div class="hero-deco cloud">☁️</div>
 
+        <!-- Hero Content - Always Visible -->
         <div class="hero-content" id="heroContent">
             <div class="hero-tag">
                 <span class="pulse"></span>
@@ -2053,6 +2059,7 @@
             </div>
         </div>
 
+        <!-- Hero Panda - Always Visible -->
         <div class="hero-panda" id="heroPanda">
             <div class="panda-char pc1">你</div>
             <div class="panda-char pc2">好</div>
@@ -2413,571 +2420,1649 @@
     <!-- JAVASCRIPT -->
     <!-- ========================================== -->
     <script>
-        // ============================================================
-        // REGISTER GSAP PLUGINS
-        // ============================================================
+/* ============================================================
+   HANVERSE INDEX.JS
+   Clean single animation architecture
+   IMPORTANT:
+   - Hero is ALWAYS visible.
+   - No hero opacity animation.
+   - No duplicate hero animations.
+   - Panda is NOT controlled by mouse parallax.
+   - Scroll reveal never touches the hero.
+============================================================ */
+
+/* ============================================================
+   CONFIGURATION
+============================================================ */
+
+const API_BASE = '/api';
+const SESSION_KEY = 'hanverse_user';
+const VERSION = '2.1.0';
+const DEBUG = false;
+
+function log(...args) {
+    if (DEBUG) console.log(...args);
+}
+
+function errorLog(...args) {
+    console.error(...args);
+}
+
+
+/* ============================================================
+   GSAP SAFETY
+============================================================ */
+
+const GSAP_AVAILABLE =
+    typeof window.gsap !== 'undefined';
+
+const SCROLL_TRIGGER_AVAILABLE =
+    GSAP_AVAILABLE &&
+    typeof window.ScrollTrigger !== 'undefined';
+
+if (GSAP_AVAILABLE && SCROLL_TRIGGER_AVAILABLE) {
+    try {
         gsap.registerPlugin(ScrollTrigger);
+    } catch (error) {
+        errorLog('GSAP plugin registration failed:', error);
+    }
+}
 
-        // ============================================================
-        // CONFIGURATION
-        // ============================================================
-        const API_BASE = '/api';
-        const SESSION_KEY = 'hanverse_user';
-        const VERSION = '2.0.0';
-        const DEBUG = false;
 
-        function log(...args) {
-            if (DEBUG) console.log(...args);
+/* ============================================================
+   UTILITY FUNCTIONS
+============================================================ */
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text ?? '';
+    return div.innerHTML;
+}
+
+function getSession() {
+    try {
+        const data = localStorage.getItem(SESSION_KEY);
+        return data ? JSON.parse(data) : null;
+    } catch (error) {
+        errorLog('Could not read session:', error);
+        return null;
+    }
+}
+
+function setSession(user) {
+    try {
+        localStorage.setItem(
+            SESSION_KEY,
+            JSON.stringify(user)
+        );
+    } catch (error) {
+        errorLog('Could not save session:', error);
+    }
+}
+
+function clearSession() {
+    try {
+        localStorage.removeItem(SESSION_KEY);
+    } catch (error) {
+        errorLog('Could not clear session:', error);
+    }
+}
+
+function getUserId() {
+    const session = getSession();
+    return session?.user_id || session?.id || null;
+}
+
+function isLoggedIn() {
+    return !!getUserId();
+}
+
+function isAdmin() {
+    const session = getSession();
+    return !!(
+        session?.is_admin ||
+        session?.isAdmin
+    );
+}
+
+function isParent() {
+    const session = getSession();
+    return session?.role === 'parent';
+}
+
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+
+function navigateTo(url) {
+    if (
+        (url === 'signup.html' || url === 'login.html') &&
+        isLoggedIn()
+    ) {
+        showToast(
+            'info',
+            'You are already logged in!'
+        );
+        return;
+    }
+
+    window.location.href = url;
+}
+
+function scrollToSection(id) {
+    const element = document.getElementById(id);
+
+    if (!element) return;
+
+    element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+
+/* ============================================================
+   TOAST SYSTEM
+============================================================ */
+
+function showToast(
+    type,
+    message,
+    duration = 4000
+) {
+    const container =
+        document.getElementById('toast-container');
+
+    if (!container) return;
+
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+
+    const toast =
+        document.createElement('div');
+
+    toast.className =
+        `toast toast-${type}`;
+
+    toast.innerHTML = `
+        <span class="toast-icon">
+            ${icons[type] || 'ℹ️'}
+        </span>
+
+        <span class="toast-message">
+            ${escapeHtml(message)}
+        </span>
+
+        <button
+            class="toast-close"
+            aria-label="Close notification"
+        >
+            ✕
+        </button>
+    `;
+
+    const closeButton =
+        toast.querySelector('.toast-close');
+
+    if (closeButton) {
+        closeButton.addEventListener(
+            'click',
+            () => removeToast(toast)
+        );
+    }
+
+    container.appendChild(toast);
+
+    const timer = setTimeout(
+        () => removeToast(toast),
+        duration
+    );
+
+    toast.dataset.timer = timer;
+}
+
+function removeToast(toast) {
+    if (!toast) return;
+
+    if (toast.classList.contains('removing')) {
+        return;
+    }
+
+    toast.classList.add('removing');
+
+    if (toast.dataset.timer) {
+        clearTimeout(
+            Number(toast.dataset.timer)
+        );
+    }
+
+    setTimeout(() => {
+        toast.remove();
+    }, 300);
+}
+
+
+/* ============================================================
+   NAVBAR
+============================================================ */
+
+function updateNavbar() {
+    const navButtons =
+        document.getElementById('navButtons');
+
+    if (!navButtons) return;
+
+    const session = getSession();
+
+    if (session && session.user_id) {
+
+        const displayName =
+            session.full_name ||
+            session.fullName ||
+            session.username ||
+            'Learner';
+
+        const premium =
+            session.premium ||
+            session.is_premium ||
+            false;
+
+        const xp =
+            session.xp || 0;
+
+        const avatar =
+            session.profile_picture ||
+            session.profilePicture ||
+            null;
+
+        let roleBadge = '🐼';
+
+        if (isParent()) {
+            roleBadge = '👨‍👩‍👦';
+        } else if (isAdmin()) {
+            roleBadge = '👑';
         }
 
-        function errorLog(...args) {
-            console.error(...args);
-        }
-
-        // ============================================================
-        // UTILITY FUNCTIONS
-        // ============================================================
-        function escapeHtml(text) {
-            const d = document.createElement('div');
-            d.textContent = text;
-            return d.innerHTML;
-        }
-
-        function getSession() {
-            try {
-                const data = localStorage.getItem(SESSION_KEY);
-                if (!data) return null;
-                return JSON.parse(data);
-            } catch {
-                return null;
-            }
-        }
-
-        function setSession(user) {
-            localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-        }
-
-        function clearSession() {
-            localStorage.removeItem(SESSION_KEY);
-        }
-
-        function getUserId() {
-            const session = getSession();
-            return session?.user_id || session?.id || null;
-        }
-
-        function isLoggedIn() {
-            return !!getUserId();
-        }
-
-        function isAdmin() {
-            const session = getSession();
-            return session?.is_admin || session?.isAdmin || false;
-        }
-
-        function isParent() {
-            const session = getSession();
-            return session?.role === 'parent';
-        }
-
-        // ============================================================
-        // NAVIGATION
-        // ============================================================
-        function navigateTo(url) {
-            if ((url === 'signup.html' || url === 'login.html') && isLoggedIn()) {
-                showToast('info', 'You are already logged in!');
-                return;
-            }
-            window.location.href = url;
-        }
-
-        function scrollToSection(id) {
-            const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        // ============================================================
-        // TOAST SYSTEM
-        // ============================================================
-        function showToast(type, message, duration = 4000) {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-
-            const icons = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️',
-                info: 'ℹ️'
-            };
-
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = `
-                        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
-                        <span class="toast-message">${message}</span>
-                        <button class="toast-close" aria-label="Close notification">✕</button>
-                    `;
-
-            toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
-            container.appendChild(toast);
-
-            const timer = setTimeout(() => removeToast(toast), duration);
-            toast.dataset.timer = timer;
-        }
-
-        function removeToast(toast) {
-            if (toast.classList.contains('removing')) return;
-            toast.classList.add('removing');
-            if (toast.dataset.timer) {
-                clearTimeout(parseInt(toast.dataset.timer));
-            }
-            setTimeout(() => toast.remove(), 300);
-        }
-
-        // ============================================================
-        // NAVBAR UPDATE
-        // ============================================================
-        function updateNavbar() {
-            const navButtons = document.getElementById('navButtons');
-            if (!navButtons) return;
-
-            const session = getSession();
-
-            if (session && session.user_id) {
-                const displayName = session.full_name || session.fullName || session.username || 'Learner';
-                const premium = session.premium || session.is_premium || false;
-                const xp = session.xp || 0;
-                const avatar = session.profile_picture || session.profilePicture || null;
-
-                let roleBadge = '';
-                if (isParent()) roleBadge = '👨‍👩‍👦';
-                else if (isAdmin()) roleBadge = '👑';
-                else roleBadge = '🐼';
-
-                navButtons.innerHTML = `
-                            <div class="user-chip" onclick="navigateTo('profile.html')">
-                                <div class="user-avatar">
-                                    ${avatar ? `<img src="${avatar}" alt="${displayName}">` : roleBadge}
-                                </div>
-                                <div class="user-info">
-                                    <div class="user-name">${escapeHtml(displayName)}</div>
-                                    <div class="user-status">
-                                        <span class="premium-dot" style="${premium ? '' : 'background:#94A3B8;'}"></span>
-                                        <span ${premium ? 'class="premium-text"' : ''}>${premium ? '⭐ Premium' : 'Free Member'}</span>
-                                        <span class="user-xp">⚡${xp} XP</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button class="btn btn-logout" onclick="logout()">Log Out</button>
-                        `;
-            } else {
-                navButtons.innerHTML = `
-                            <button class="btn btn-login" onclick="navigateTo('login.html')">Log In</button>
-                            <button class="btn btn-signup" onclick="navigateTo('signup.html')">Start Free</button>
-                        `;
-            }
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to log out?')) {
-                clearSession();
-                updateNavbar();
-                showToast('success', 'Logged out successfully');
-                window.location.reload();
-            }
-        }
-
-        // ============================================================
-        // NAVBAR SCROLL
-        // ============================================================
-        const nav = document.getElementById('topNav');
-        let ticking = false;
-
-        function handleNavScroll() {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    if (window.scrollY > 40) {
-                        nav.classList.add('shrunk');
-                    } else {
-                        nav.classList.remove('shrunk');
+        navButtons.innerHTML = `
+            <div
+                class="user-chip"
+                onclick="navigateTo('profile.html')"
+                role="button"
+                tabindex="0"
+            >
+                <div class="user-avatar">
+                    ${
+                        avatar
+                            ? `<img
+                                src="${escapeHtml(avatar)}"
+                                alt="${escapeHtml(displayName)}"
+                              >`
+                            : roleBadge
                     }
-                    ticking = false;
-                });
-                ticking = true;
-            }
+                </div>
+
+                <div class="user-info">
+                    <div class="user-name">
+                        ${escapeHtml(displayName)}
+                    </div>
+
+                    <div class="user-status">
+                        <span
+                            class="premium-dot"
+                            style="${
+                                premium
+                                    ? ''
+                                    : 'background:#94A3B8;'
+                            }"
+                        ></span>
+
+                        <span ${
+                            premium
+                                ? 'class="premium-text"'
+                                : ''
+                        }>
+                            ${
+                                premium
+                                    ? '⭐ Premium'
+                                    : 'Free Member'
+                            }
+                        </span>
+
+                        <span class="user-xp">
+                            ⚡${Number(xp)}
+                            XP
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <button
+                class="btn btn-logout"
+                onclick="logout()"
+            >
+                Log Out
+            </button>
+        `;
+
+        return;
+    }
+
+    navButtons.innerHTML = `
+        <button
+            class="btn btn-login"
+            onclick="navigateTo('login.html')"
+        >
+            Log In
+        </button>
+
+        <button
+            class="btn btn-signup"
+            onclick="navigateTo('signup.html')"
+        >
+            Start Free
+        </button>
+    `;
+}
+
+function logout() {
+    if (!confirm('Are you sure you want to log out?')) {
+        return;
+    }
+
+    clearSession();
+    updateNavbar();
+
+    showToast(
+        'success',
+        'Logged out successfully'
+    );
+
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+}
+
+
+/* ============================================================
+   NAVBAR SCROLL
+============================================================ */
+
+function initNavbarScroll() {
+    const nav =
+        document.getElementById('topNav');
+
+    if (!nav) return;
+
+    let ticking = false;
+
+    const update = () => {
+        if (window.scrollY > 40) {
+            nav.classList.add('shrunk');
+        } else {
+            nav.classList.remove('shrunk');
         }
-        window.addEventListener('scroll', handleNavScroll, { passive: true });
 
-        // ============================================================
-        // HERO PARALLAX (Desktop only)
-        // ============================================================
-        let heroParallaxEnabled = true;
+        ticking = false;
+    };
 
-        function initHeroParallax() {
-            if (window.innerWidth < 768) {
-                heroParallaxEnabled = false;
-                return;
+    window.addEventListener(
+        'scroll',
+        () => {
+            if (ticking) return;
+
+            ticking = true;
+            requestAnimationFrame(update);
+        },
+        { passive: true }
+    );
+
+    update();
+}
+
+
+/* ============================================================
+   HERO — CRITICAL
+============================================================ */
+
+/*
+   IMPORTANT:
+
+   This is the ONLY function that animates the hero.
+
+   It NEVER animates opacity.
+
+   The hero is already visible through CSS/HTML.
+*/
+
+function initHeroAnimation() {
+
+    const heroContent =
+        document.getElementById('heroContent');
+
+    const heroPanda =
+        document.getElementById('heroPanda');
+
+    /*
+       HARD VISIBILITY GUARANTEE
+
+       We intentionally set opacity to 1
+       before doing anything else.
+    */
+
+    if (heroContent) {
+        heroContent.style.opacity = '1';
+        heroContent.style.visibility = 'visible';
+    }
+
+    if (heroPanda) {
+        heroPanda.style.opacity = '1';
+        heroPanda.style.visibility = 'visible';
+    }
+
+    /*
+       If GSAP isn't available,
+       STOP HERE.
+
+       The hero remains completely functional.
+    */
+
+    if (!GSAP_AVAILABLE) {
+        return;
+    }
+
+    /*
+       IMPORTANT:
+       Kill only animations currently attached
+       to these hero elements.
+
+       This prevents an old animation from
+       another script version from continuing.
+    */
+
+    if (heroContent) {
+        gsap.killTweensOf(heroContent);
+    }
+
+    if (heroPanda) {
+        gsap.killTweensOf(heroPanda);
+    }
+
+    /*
+       Set ONLY transform-related starting values.
+
+       NEVER set opacity to 0.
+    */
+
+    if (heroContent) {
+        gsap.fromTo(
+            heroContent,
+
+            {
+                y: 18
+            },
+
+            {
+                y: 0,
+                duration: 0.65,
+                ease: 'power2.out',
+                overwrite: 'auto'
             }
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                heroParallaxEnabled = false;
-                return;
+        );
+    }
+
+    if (heroPanda) {
+        gsap.fromTo(
+            heroPanda,
+
+            {
+                scale: 0.98
+            },
+
+            {
+                scale: 1,
+                duration: 0.75,
+                delay: 0.05,
+                ease: 'power2.out',
+                overwrite: 'auto'
             }
+        );
+    }
+}
 
-            const hero = document.getElementById('hero');
-            const decorations = hero.querySelectorAll('.hero-deco');
-            const panda = document.getElementById('heroPanda');
 
-            document.addEventListener('mousemove', (e) => {
-                if (!heroParallaxEnabled) return;
-                const x = (e.clientX / window.innerWidth - 0.5) * 2;
-                const y = (e.clientY / window.innerHeight - 0.5) * 2;
+/* ============================================================
+   HERO PARALLAX
+============================================================ */
 
-                decorations.forEach((deco, i) => {
-                    const speed = 4 + (i % 3) * 2;
-                    const moveX = x * speed;
-                    const moveY = y * speed * 0.6;
-                    deco.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                });
+/*
+   Panda is deliberately EXCLUDED.
 
-                if (panda) {
-                    const pandaX = x * 3;
-                    const pandaY = y * 2;
-                    panda.style.transform = `translate(${pandaX}px, ${pandaY}px)`;
+   Only decorative elements move.
+*/
+
+function initHeroParallax() {
+
+    const hero =
+        document.getElementById('hero');
+
+    if (!hero) return;
+
+    if (
+        window.innerWidth < 768 ||
+        window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
+        ).matches
+    ) {
+        return;
+    }
+
+    const decorations =
+        hero.querySelectorAll('.hero-deco');
+
+    if (!decorations.length) return;
+
+    let targetX = 0;
+    let targetY = 0;
+
+    let currentX = 0;
+    let currentY = 0;
+
+    let animationFrame = null;
+
+    const update = () => {
+
+        currentX +=
+            (targetX - currentX) * 0.08;
+
+        currentY +=
+            (targetY - currentY) * 0.08;
+
+        decorations.forEach(
+            (decoration, index) => {
+
+                const speed =
+                    0.6 + (index % 4) * 0.35;
+
+                const x =
+                    currentX * speed;
+
+                const y =
+                    currentY * speed * 0.65;
+
+                /*
+                   Decorative elements only.
+                   Panda is never touched here.
+                */
+
+                decoration.style.transform =
+                    `translate3d(${x}px, ${y}px, 0)`;
+            }
+        );
+
+        animationFrame =
+            requestAnimationFrame(update);
+    };
+
+    const onMouseMove = (event) => {
+
+        const rect =
+            hero.getBoundingClientRect();
+
+        const centerX =
+            rect.left + rect.width / 2;
+
+        const centerY =
+            rect.top + rect.height / 2;
+
+        targetX =
+            Math.max(
+                -1,
+                Math.min(
+                    1,
+                    (event.clientX - centerX) /
+                    (rect.width / 2)
+                )
+            ) * 8;
+
+        targetY =
+            Math.max(
+                -1,
+                Math.min(
+                    1,
+                    (event.clientY - centerY) /
+                    (rect.height / 2)
+                )
+            ) * 6;
+    };
+
+    hero.addEventListener(
+        'mousemove',
+        onMouseMove,
+        { passive: true }
+    );
+
+    hero.addEventListener(
+        'mouseleave',
+        () => {
+            targetX = 0;
+            targetY = 0;
+        }
+    );
+
+    update();
+
+    /*
+       Clean up if page unloads.
+    */
+
+    window.addEventListener(
+        'beforeunload',
+        () => {
+            if (animationFrame) {
+                cancelAnimationFrame(
+                    animationFrame
+                );
+            }
+        },
+        { once: true }
+    );
+}
+
+
+/* ============================================================
+   PANDA INTERACTION
+============================================================ */
+
+function initPandaInteraction() {
+
+    const panda =
+        document.getElementById('pandaMascot');
+
+    if (!panda) return;
+
+    const speech =
+        document.getElementById('pandaSpeech');
+
+    /*
+       Speech interaction
+    */
+
+    let speechTimeout = null;
+
+    const messages = [
+        '🐼 你好!',
+        '🐼 Ready to learn?',
+        "🐼 Let's go!",
+        '🐼 加油!'
+    ];
+
+    if (speech) {
+
+        panda.addEventListener(
+            'mouseenter',
+            () => {
+                speech.classList.add('visible');
+
+                if (speechTimeout) {
+                    clearTimeout(speechTimeout);
                 }
+            }
+        );
+
+        panda.addEventListener(
+            'mouseleave',
+            () => {
+                speechTimeout =
+                    setTimeout(() => {
+                        speech.classList.remove(
+                            'visible'
+                        );
+                    }, 800);
+            }
+        );
+
+        panda.addEventListener(
+            'click',
+            () => {
+
+                const message =
+                    messages[
+                        Math.floor(
+                            Math.random() *
+                            messages.length
+                        )
+                    ];
+
+                speech.textContent = message;
+                speech.classList.add('visible');
+
+                if (speechTimeout) {
+                    clearTimeout(speechTimeout);
+                }
+
+                speechTimeout =
+                    setTimeout(() => {
+                        speech.classList.remove(
+                            'visible'
+                        );
+                    }, 2000);
+            }
+        );
+    }
+
+    /*
+       GSAP Panda animation.
+
+       IMPORTANT:
+       Only GSAP controls Panda transform.
+
+       The mouse-parallax system does NOT touch it.
+    */
+
+    if (!GSAP_AVAILABLE) return;
+
+    gsap.killTweensOf(panda);
+
+    /*
+       Floating movement.
+    */
+
+    gsap.to(panda, {
+        y: -10,
+        duration: 2.5,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut'
+    });
+
+    /*
+       Very subtle rotation.
+    */
+
+    gsap.to(panda, {
+        rotation: 2,
+        duration: 3.2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 0.3
+    });
+
+    /*
+       Hover.
+
+       overwrite:auto prevents competing tweens.
+    */
+
+    panda.addEventListener(
+        'mouseenter',
+        () => {
+
+            gsap.to(panda, {
+                scale: 1.05,
+                rotation: -2,
+                duration: 0.3,
+                ease: 'power2.out',
+                overwrite: 'auto'
             });
         }
+    );
 
-        // ============================================================
-        // PANDA INTERACTION
-        // ============================================================
-        function initPandaInteraction() {
-            const panda = document.getElementById('pandaMascot');
-            if (!panda) return;
-
-            // GSAP floating animation
-            gsap.to(panda, {
-                y: -10,
-                duration: 2.5,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut"
-            });
+    panda.addEventListener(
+        'mouseleave',
+        () => {
 
             gsap.to(panda, {
+                scale: 1,
                 rotation: 2,
-                duration: 3,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut",
-                delay: 0.5
-            });
-
-            // Hover scale effect
-            panda.addEventListener('mouseenter', () => {
-                gsap.to(panda, {
-                    scale: 1.06,
-                    rotation: -3,
-                    duration: 0.3,
-                    ease: "back.out(1.7)"
-                });
-            });
-
-            panda.addEventListener('mouseleave', () => {
-                gsap.to(panda, {
-                    scale: 1,
-                    rotation: 2,
-                    duration: 0.3,
-                    ease: "power2.out"
-                });
+                duration: 0.3,
+                ease: 'power2.out',
+                overwrite: 'auto'
             });
         }
+    );
+}
 
-        // ============================================================
-        // SCROLL REVEAL - Intersection Observer
-        // ============================================================
-        function initScrollReveal() {
-            // Value Strip
-            const valueItems = document.querySelectorAll('.value-item');
-            const valueObserver = new IntersectionObserver((entries) => {
-                entries.forEach((e, i) => {
-                    if (e.isIntersecting) {
-                        setTimeout(() => {
-                            e.target.classList.add('visible');
-                        }, i * 80);
+
+/* ============================================================
+   GENERIC SCROLL REVEAL
+============================================================ */
+
+function revealElements(
+    selector,
+    threshold = 0.2
+) {
+
+    const elements =
+        document.querySelectorAll(selector);
+
+    if (!elements.length) return;
+
+    /*
+       If IntersectionObserver isn't available,
+       show everything immediately.
+    */
+
+    if (!('IntersectionObserver' in window)) {
+
+        elements.forEach(
+            element => {
+                element.classList.add('visible');
+            }
+        );
+
+        return;
+    }
+
+    const observer =
+        new IntersectionObserver(
+            (entries, observerInstance) => {
+
+                entries.forEach(entry => {
+
+                    if (!entry.isIntersecting) {
+                        return;
                     }
+
+                    const element =
+                        entry.target;
+
+                    const delay =
+                        parseFloat(
+                            element.dataset.delay
+                        ) || 0;
+
+                    setTimeout(() => {
+
+                        element.classList.add(
+                            'visible'
+                        );
+
+                    }, delay * 1000);
+
+                    /*
+                       Observe only once.
+
+                       This prevents repeated animation
+                       state changes.
+                    */
+
+                    observerInstance.unobserve(
+                        element
+                    );
                 });
-            }, { threshold: 0.3 });
-            valueItems.forEach(item => valueObserver.observe(item));
 
-            // How Steps
-            const howSteps = document.querySelectorAll('.how-step');
-            const howObserver = new IntersectionObserver((entries) => {
-                entries.forEach((e) => {
-                    if (e.isIntersecting) {
-                        const delay = parseFloat(e.target.dataset.delay) || 0;
-                        setTimeout(() => {
-                            e.target.classList.add('visible');
-                        }, delay * 1000);
-                    }
-                });
-            }, { threshold: 0.2 });
-            howSteps.forEach(step => howObserver.observe(step));
+            },
+            {
+                threshold
+            }
+        );
 
-            // Feature Cards
-            const featureCards = document.querySelectorAll('.feature-card');
-            const featureObserver = new IntersectionObserver((entries) => {
-                entries.forEach((e) => {
-                    if (e.isIntersecting) {
-                        const delay = parseFloat(e.target.dataset.delay) || 0;
-                        setTimeout(() => {
-                            e.target.classList.add('visible');
-                        }, delay * 1000);
-                    }
-                });
-            }, { threshold: 0.15 });
-            featureCards.forEach(card => featureObserver.observe(card));
+    elements.forEach(
+        element => observer.observe(element)
+    );
+}
 
-            // Parent Benefits
-            const parentBenefits = document.querySelectorAll('.parent-benefit');
-            const parentObserver = new IntersectionObserver((entries) => {
-                entries.forEach((e) => {
-                    if (e.isIntersecting) {
-                        const delay = parseFloat(e.target.dataset.delay) || 0;
-                        setTimeout(() => {
-                            e.target.classList.add('visible');
-                        }, delay * 1000);
-                    }
-                });
-            }, { threshold: 0.2 });
-            parentBenefits.forEach(benefit => parentObserver.observe(benefit));
 
-            // YCT Steps
-            const yctSteps = document.querySelectorAll('.yct-step');
-            const yctObserver = new IntersectionObserver((entries) => {
-                entries.forEach((e) => {
-                    if (e.isIntersecting) {
-                        const delay = parseFloat(e.target.dataset.delay) || 0;
-                        setTimeout(() => {
-                            e.target.classList.add('visible');
-                        }, delay * 1000);
-                    }
-                });
-            }, { threshold: 0.2 });
-            yctSteps.forEach(step => yctObserver.observe(step));
+/* ============================================================
+   SCROLL REVEAL
+   BELOW HERO ONLY
+============================================================ */
 
-            // YCT Arrows
-            const yctArrows = document.querySelectorAll('.yct-arrow');
-            const arrowObserver = new IntersectionObserver((entries) => {
-                entries.forEach((e) => {
-                    if (e.isIntersecting) {
-                        e.target.classList.add('visible');
-                    }
-                });
-            }, { threshold: 0.2 });
-            yctArrows.forEach(arrow => arrowObserver.observe(arrow));
+function initScrollReveal() {
 
-            // Pricing Cards
-            const pricingCards = document.querySelectorAll('.pricing-card');
-            const pricingObserver = new IntersectionObserver((entries) => {
-                entries.forEach((e) => {
-                    if (e.isIntersecting) {
-                        const delay = parseFloat(e.target.dataset.delay) || 0;
-                        setTimeout(() => {
-                            e.target.classList.add('visible');
-                        }, delay * 1000);
-                    }
-                });
-            }, { threshold: 0.15 });
-            pricingCards.forEach(card => pricingObserver.observe(card));
+    /*
+       IMPORTANT:
+       There is deliberately NO reference to:
 
-            // Why Kids Cards
-            const whyCards = document.querySelectorAll('.why-card');
-            const whyObserver = new IntersectionObserver((entries) => {
-                entries.forEach((e) => {
-                    if (e.isIntersecting) {
-                        const delay = parseFloat(e.target.dataset.delay) || 0;
-                        setTimeout(() => {
-                            e.target.classList.add('visible');
-                        }, delay * 1000);
-                    }
-                });
-            }, { threshold: 0.2 });
-            whyCards.forEach(card => whyObserver.observe(card));
+       #hero
+       #heroContent
+       #heroPanda
+       .hero
+       .hero-content
+       .hero-panda
 
-            // Hero Content
-            gsap.from('#heroContent', {
-                opacity: 0,
-                y: 30,
-                duration: 0.8,
-                delay: 0.1,
-                ease: "power2.out"
-            });
+       The hero has its own system.
+    */
 
-            // Hero Panda
-            gsap.from('#heroPanda', {
-                opacity: 0,
-                scale: 0.95,
-                duration: 1,
-                delay: 0.3,
-                ease: "power2.out"
-            });
+    revealElements(
+        '.value-item',
+        0.3
+    );
+
+    revealElements(
+        '.how-step',
+        0.2
+    );
+
+    revealElements(
+        '.feature-card',
+        0.15
+    );
+
+    revealElements(
+        '.parent-benefit',
+        0.2
+    );
+
+    revealElements(
+        '.yct-step',
+        0.2
+    );
+
+    revealElements(
+        '.yct-arrow',
+        0.2
+    );
+
+    revealElements(
+        '.pricing-card',
+        0.15
+    );
+
+    revealElements(
+        '.why-card',
+        0.2
+    );
+}
+
+
+/* ============================================================
+   PANDA CHAT
+============================================================ */
+
+function initPandaChat() {
+
+    const pandaFab =
+        document.getElementById('pandaFab');
+
+    const pandaChat =
+        document.getElementById('pandaChat');
+
+    const pandaClose =
+        document.getElementById('pandaClose');
+
+    const pandaInput =
+        document.getElementById('pandaInput');
+
+    const pandaSend =
+        document.getElementById('pandaSend');
+
+    const pandaBody =
+        document.getElementById('pandaBody');
+
+    if (
+        !pandaFab ||
+        !pandaChat ||
+        !pandaClose ||
+        !pandaInput ||
+        !pandaSend ||
+        !pandaBody
+    ) {
+        return;
+    }
+
+    const chatFallbacks = [
+        "That's a great question! Let me help you with that. 🐼",
+        "Interesting! Would you like to practice more? 📚",
+        "Good job! Keep practicing and you'll improve quickly! 🌟",
+        "Let me explain that in a simple way... 🎯",
+        "You're doing amazing! Want to try a quiz? 🎮",
+        "That's a fun one! Let's learn together! 🤗",
+        "I love that question! Here's what I think... 💭",
+        "You're making great progress! Keep going! 🚀"
+    ];
+
+    function togglePandaChat() {
+
+        pandaChat.classList.toggle('open');
+
+        if (pandaChat.classList.contains('open')) {
+
+            setTimeout(
+                () => pandaInput.focus(),
+                100
+            );
         }
+    }
 
-        // ==========================================
-        // PANDA CHAT
-        // ==========================================
-        const pandaFab = document.getElementById('pandaFab');
-        const pandaChat = document.getElementById('pandaChat');
-        const pandaClose = document.getElementById('pandaClose');
-        const pandaInput = document.getElementById('pandaInput');
-        const pandaSend = document.getElementById('pandaSend');
-        const pandaBody = document.getElementById('pandaBody');
+    pandaFab.addEventListener(
+        'click',
+        togglePandaChat
+    );
 
-        const chatFallbacks = [
-            "That's a great question! Let me help you with that. 🐼",
-            "Interesting! Would you like to practice more? 📚",
-            "Good job! Keep practicing and you'll improve quickly! 🌟",
-            "Let me explain that in a simple way... 🎯",
-            "You're doing amazing! Want to try a quiz? 🎮",
-            "That's a fun one! Let's learn together! 🤗",
-            "I love that question! Here's what I think... 💭",
-            "You're making great progress! Keep going! 🚀"
-        ];
+    pandaClose.addEventListener(
+        'click',
+        togglePandaChat
+    );
 
-        function togglePanda() {
-            pandaChat.classList.toggle('open');
-            if (pandaChat.classList.contains('open')) {
-                setTimeout(() => pandaInput.focus(), 100);
+    document.addEventListener(
+        'keydown',
+        event => {
+
+            if (
+                event.key === 'Escape' &&
+                pandaChat.classList.contains('open')
+            ) {
+                togglePandaChat();
             }
         }
+    );
 
-        pandaFab.addEventListener('click', togglePanda);
-        pandaClose.addEventListener('click', togglePanda);
+    async function sendPandaMessage() {
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && pandaChat.classList.contains('open')) {
-                togglePanda();
+        const text =
+            pandaInput.value.trim();
+
+        if (!text) return;
+
+        /*
+           User message
+        */
+
+        const userRow =
+            document.createElement('div');
+
+        userRow.className =
+            'message-row user';
+
+        userRow.innerHTML = `
+            <div class="message user-message">
+                ${escapeHtml(text)}
+            </div>
+        `;
+
+        pandaBody.appendChild(userRow);
+
+        pandaInput.value = '';
+        pandaInput.style.height = 'auto';
+
+        pandaBody.scrollTop =
+            pandaBody.scrollHeight;
+
+        /*
+           Typing indicator
+        */
+
+        const typing =
+            document.createElement('div');
+
+        typing.className =
+            'message-row';
+
+        typing.id =
+            'typingIndicator';
+
+        typing.innerHTML = `
+            <div class="panda-avatar">🐼</div>
+
+            <div
+                class="message panda-message"
+                style="font-style:italic;opacity:0.7;"
+            >
+                🐼 Thinking...
+            </div>
+        `;
+
+        pandaBody.appendChild(typing);
+
+        pandaBody.scrollTop =
+            pandaBody.scrollHeight;
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/panda-chat`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: text
+                        })
+                    }
+                );
+
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP ${response.status}`
+                );
             }
-        });
 
-        async function sendPandaMessage() {
-            const input = document.getElementById('pandaInput');
-            const body = document.getElementById('pandaBody');
-            const text = input.value.trim();
+            const data =
+                await response.json();
 
-            if (!text) return;
+            const typingElement =
+                document.getElementById(
+                    'typingIndicator'
+                );
 
-            const userRow = document.createElement('div');
-            userRow.className = 'message-row user';
-            userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
-            body.appendChild(userRow);
-            input.value = '';
-            input.style.height = 'auto';
-            body.scrollTop = body.scrollHeight;
-
-            const typing = document.createElement('div');
-            typing.className = 'message-row';
-            typing.id = 'typingIndicator';
-            typing.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message" style="font-style:italic;opacity:0.7;">🐼 Thinking...</div>`;
-            body.appendChild(typing);
-            body.scrollTop = body.scrollHeight;
-
-            try {
-                const res = await fetch(`${API_BASE}/panda-chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text })
-                });
-
-                const data = await res.json();
-                const typingEl = document.getElementById('typingIndicator');
-                if (typingEl) typingEl.remove();
-
-                const aiRow = document.createElement('div');
-                aiRow.className = 'message-row';
-                const reply = data.reply || "🐼 I'm not sure about that one. Try something simpler!";
-                aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${escapeHtml(reply)}</div>`;
-                body.appendChild(aiRow);
-                body.scrollTop = body.scrollHeight;
-
-            } catch (error) {
-                const typingEl = document.getElementById('typingIndicator');
-                if (typingEl) typingEl.remove();
-
-                const fallback = chatFallbacks[Math.floor(Math.random() * chatFallbacks.length)];
-                const aiRow = document.createElement('div');
-                aiRow.className = 'message-row';
-                aiRow.innerHTML = `<div class="panda-avatar">🐼</div><div class="message panda-message">${fallback}</div>`;
-                body.appendChild(aiRow);
-                body.scrollTop = body.scrollHeight;
-                errorLog('Panda chat fallback:', error.message);
+            if (typingElement) {
+                typingElement.remove();
             }
+
+            const reply =
+                data.reply ||
+                "🐼 I'm not sure about that one. Try something simpler!";
+
+            const aiRow =
+                document.createElement('div');
+
+            aiRow.className =
+                'message-row';
+
+            aiRow.innerHTML = `
+                <div class="panda-avatar">🐼</div>
+
+                <div class="message panda-message">
+                    ${escapeHtml(reply)}
+                </div>
+            `;
+
+            pandaBody.appendChild(aiRow);
+
+            pandaBody.scrollTop =
+                pandaBody.scrollHeight;
+
+        } catch (error) {
+
+            const typingElement =
+                document.getElementById(
+                    'typingIndicator'
+                );
+
+            if (typingElement) {
+                typingElement.remove();
+            }
+
+            const fallback =
+                chatFallbacks[
+                    Math.floor(
+                        Math.random() *
+                        chatFallbacks.length
+                    )
+                ];
+
+            const aiRow =
+                document.createElement('div');
+
+            aiRow.className =
+                'message-row';
+
+            aiRow.innerHTML = `
+                <div class="panda-avatar">🐼</div>
+
+                <div class="message panda-message">
+                    ${fallback}
+                </div>
+            `;
+
+            pandaBody.appendChild(aiRow);
+
+            pandaBody.scrollTop =
+                pandaBody.scrollHeight;
+
+            errorLog(
+                'Panda chat fallback:',
+                error.message
+            );
         }
+    }
 
-        pandaSend.addEventListener('click', sendPandaMessage);
-        pandaInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
+    pandaSend.addEventListener(
+        'click',
+        sendPandaMessage
+    );
+
+    pandaInput.addEventListener(
+        'keydown',
+        event => {
+
+            if (
+                event.key === 'Enter' &&
+                !event.shiftKey
+            ) {
+                event.preventDefault();
                 sendPandaMessage();
             }
-        });
+        }
+    );
 
-        pandaInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-        });
+    pandaInput.addEventListener(
+        'input',
+        function () {
 
-        // ==========================================
-        // MOBILE LOGOUT
-        // ==========================================
-        document.getElementById('mobileLogoutBtn')?.addEventListener('click', function(e) {
-            e.preventDefault();
+            this.style.height =
+                'auto';
+
+            this.style.height =
+                Math.min(
+                    this.scrollHeight,
+                    80
+                ) + 'px';
+        }
+    );
+}
+
+
+/* ============================================================
+   MOBILE LOGOUT
+============================================================ */
+
+function initMobileLogout() {
+
+    const button =
+        document.getElementById(
+            'mobileLogoutBtn'
+        );
+
+    if (!button) return;
+
+    button.addEventListener(
+        'click',
+        event => {
+
+            event.preventDefault();
             logout();
-        });
+        }
+    );
+}
 
-        // ==========================================
-        // INIT
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', function() {
-            log('🐼 Hanverse v' + VERSION + ' initializing...');
 
-            updateNavbar();
+/* ============================================================
+   OFFLINE / ONLINE STATUS
+============================================================ */
 
-            // Init animations
-            initHeroParallax();
-            initPandaInteraction();
-            initScrollReveal();
+function initConnectionStatus() {
 
-            // Show welcome toast if logged in
-            if (isLoggedIn()) {
-                const session = getSession();
-                const name = session?.full_name || session?.fullName || session?.username || 'Learner';
-                showToast('success', `Welcome back to the HanVerse, ${name}! 🎉`);
+    const banner =
+        document.getElementById(
+            'offline-banner'
+        );
+
+    if (!banner) return;
+
+    function updateStatus() {
+
+        if (!navigator.onLine) {
+
+            banner.style.display =
+                'block';
+
+        } else {
+
+            banner.style.display =
+                'none';
+        }
+    }
+
+    window.addEventListener(
+        'online',
+        updateStatus
+    );
+
+    window.addEventListener(
+        'offline',
+        updateStatus
+    );
+
+    updateStatus();
+}
+
+
+/* ============================================================
+   VERIFICATION BANNER
+============================================================ */
+
+function initVerificationBanner() {
+
+    const banner =
+        document.getElementById(
+            'verification-banner'
+        );
+
+    const close =
+        document.getElementById(
+            'closeVerificationBanner'
+        );
+
+    if (!banner) return;
+
+    if (close) {
+
+        close.addEventListener(
+            'click',
+            () => {
+                banner.style.display =
+                    'none';
             }
+        );
+    }
 
-            log('✅ HanVerse loaded successfully!');
-            hideLoading();
-        });
+    /*
+       Keep the existing verification
+       banner behaviour without introducing
+       new authentication logic.
+    */
 
-        // ==========================================
-        // SERVICE WORKER (PWA)
-        // ==========================================
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(() => log('✅ Service Worker registered'))
-                .catch(() => log('ℹ️ Service Worker not available'));
+    const resend =
+        document.getElementById(
+            'resendVerificationLink'
+        );
+
+    if (resend) {
+
+        resend.addEventListener(
+            'click',
+            async () => {
+
+                const session =
+                    getSession();
+
+                const email =
+                    session?.email;
+
+                if (!email) {
+
+                    showToast(
+                        'warning',
+                        'Please log in again to resend verification.'
+                    );
+
+                    return;
+                }
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `${API_BASE}/resend-verification`,
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type':
+                                        'application/json'
+                                },
+                                body: JSON.stringify({
+                                    email
+                                })
+                            }
+                        );
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `HTTP ${response.status}`
+                        );
+                    }
+
+                    showToast(
+                        'success',
+                        'Verification email sent!'
+                    );
+
+                } catch (error) {
+
+                    errorLog(
+                        'Verification resend failed:',
+                        error
+                    );
+
+                    showToast(
+                        'error',
+                        'Unable to resend verification email right now.'
+                    );
+                }
+            }
+        );
+    }
+}
+
+
+/* ============================================================
+   LOADING OVERLAY
+============================================================ */
+
+function hideLoading() {
+
+    const overlay =
+        document.getElementById(
+            'loading-overlay'
+        );
+
+    if (!overlay) return;
+
+    /*
+       Do NOT use GSAP here.
+
+       We don't want the loading overlay
+       interacting with the hero animation.
+    */
+
+    overlay.classList.add('hidden');
+
+    setTimeout(() => {
+
+        overlay.style.display =
+            'none';
+
+    }, 450);
+}
+
+
+/* ============================================================
+   GLOBAL ERROR PROTECTION
+============================================================ */
+
+/*
+   If a non-critical animation throws an error,
+   it must NEVER hide the hero.
+*/
+
+window.addEventListener(
+    'error',
+    event => {
+
+        const heroContent =
+            document.getElementById(
+                'heroContent'
+            );
+
+        const heroPanda =
+            document.getElementById(
+                'heroPanda'
+            );
+
+        if (heroContent) {
+            heroContent.style.opacity =
+                '1';
+
+            heroContent.style.visibility =
+                'visible';
         }
 
-        // ==========================================
-        // EXPOSE GLOBALLY
-        // ==========================================
-        window.navigateTo = navigateTo;
-        window.scrollToSection = scrollToSection;
-        window.logout = logout;
-        window.showToast = showToast;
-        window.isLoggedIn = isLoggedIn;
-        window.getSession = getSession;
-    </script>
+        if (heroPanda) {
+            heroPanda.style.opacity =
+                '1';
+
+            heroPanda.style.visibility =
+                'visible';
+        }
+
+        errorLog(
+            'HanVerse runtime error:',
+            event.error || event.message
+        );
+    }
+);
+
+
+/* ============================================================
+   INITIALIZATION
+============================================================ */
+
+function initHanVerse() {
+
+    log(
+        `🐼 HanVerse v${VERSION} initializing...`
+    );
+
+    /*
+       1. Navbar
+    */
+
+    updateNavbar();
+    initNavbarScroll();
+
+    /*
+       2. HERO FIRST
+
+       This happens before any other
+       animation system.
+    */
+
+    initHeroAnimation();
+
+    /*
+       3. Other interactions
+    */
+
+    initHeroParallax();
+    initPandaInteraction();
+    initPandaChat();
+
+    /*
+       4. Sections below hero
+    */
+
+    initScrollReveal();
+
+    /*
+       5. Utility UI
+    */
+
+    initMobileLogout();
+    initConnectionStatus();
+    initVerificationBanner();
+
+    /*
+       6. Welcome message
+    */
+
+    if (isLoggedIn()) {
+
+        const session =
+            getSession();
+
+        const name =
+            session?.full_name ||
+            session?.fullName ||
+            session?.username ||
+            'Learner';
+
+        showToast(
+            'success',
+            `Welcome back to the HanVerse, ${name}! 🎉`
+        );
+    }
+
+    /*
+       7. Finish loading
+    */
+
+    log(
+        '✅ HanVerse loaded successfully!'
+    );
+
+    hideLoading();
+}
+
+
+/* ============================================================
+   DOM READY — ONE INITIALIZER ONLY
+============================================================ */
+
+if (
+    document.readyState === 'loading'
+) {
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        initHanVerse,
+        { once: true }
+    );
+
+} else {
+
+    initHanVerse();
+}
+
+
+/* ============================================================
+   SERVICE WORKER
+============================================================ */
+
+if ('serviceWorker' in navigator) {
+
+    window.addEventListener(
+        'load',
+        () => {
+
+            navigator.serviceWorker
+                .register('/sw.js')
+                .then(() => {
+                    log(
+                        '✅ Service Worker registered'
+                    );
+                })
+                .catch(() => {
+                    log(
+                        'ℹ️ Service Worker not available'
+                    );
+                });
+        },
+        { once: true }
+    );
+}
+
+
+/* ============================================================
+   GLOBAL API
+============================================================ */
+
+window.navigateTo =
+    navigateTo;
+
+window.scrollToSection =
+    scrollToSection;
+
+window.logout =
+    logout;
+
+window.showToast =
+    showToast;
+
+window.isLoggedIn =
+    isLoggedIn;
+
+window.getSession =
+    getSession;
+
+window.setSession =
+    setSession;
+
+window.clearSession =
+    clearSession;
+
+</script>
+    
 
 </body>
 </html>
