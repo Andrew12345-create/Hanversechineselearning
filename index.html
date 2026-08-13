@@ -1,1552 +1,333 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
-  <title>HanVerse · Learn Chinese through adventure</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
-  <link rel="apple-touch-icon" href="hanverse-logo.png" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="HanVerse — fun, interactive Chinese learning for young learners.">
+<meta name="theme-color" content="#FFFDF7">
+<title>HanVerse | Learn Chinese Through Adventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --cream:#FFFDF7;--white:#fff;--navy:#243047;--muted:#667085;
+  --red:#E63946;--red-dark:#C92F3C;--yellow:#F4D35E;--blue:#4EA8DE;--green:#74C69D;
+  --line:rgba(36,48,71,.09);--shadow:0 14px 42px rgba(36,48,71,.09);
+  --shadow-lg:0 28px 80px rgba(36,48,71,.13);--max:1180px;
+  --ease:cubic-bezier(.2,.8,.2,1)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:radial-gradient(circle at 8% 5%,rgba(244,211,94,.14),transparent 25rem),radial-gradient(circle at 95% 18%,rgba(78,168,222,.1),transparent 28rem),var(--cream);color:var(--navy);font-family:Nunito,system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
+a{color:inherit;text-decoration:none}button{font:inherit}
+:focus-visible{outline:3px solid rgba(78,168,222,.55);outline-offset:3px}
+.container{width:min(calc(100% - 40px),var(--max));margin:auto}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(244,211,94,.22);color:#806A13;font-size:.76rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--red)}
+.section{padding:105px 0}.section.alt{background:rgba(255,255,255,.42);border-block:1px solid rgba(36,48,71,.035)}
+.heading{max-width:700px;margin-bottom:46px}.heading h2{margin:14px 0 12px;font-family:Poppins,sans-serif;font-size:clamp(2rem,4vw,3.15rem);line-height:1.08;letter-spacing:-.045em}.heading p{margin:0;color:var(--muted);font-size:1.06rem}
 
-  <!-- GSAP + ScrollTrigger for advanced animations -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js" defer></script>
+/* NAV */
+.site-header{position:sticky;top:0;z-index:1000;padding:14px 0;transition:padding .25s var(--ease)}
+.navbar{width:min(calc(100% - 28px),1240px);min-height:72px;margin:auto;padding:9px 12px 9px 20px;display:flex;align-items:center;gap:18px;background:rgba(255,253,247,.92);border:1px solid var(--line);border-radius:22px;box-shadow:0 10px 35px rgba(36,48,71,.08);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.site-header.scrolled{padding:8px 0}.site-header.scrolled .navbar{box-shadow:0 14px 40px rgba(36,48,71,.12)}
+.brand{display:flex;align-items:center;gap:10px;flex:none;font-family:Poppins,sans-serif;font-weight:900;font-size:1.2rem;letter-spacing:-.045em}
+.brand-mark{width:39px;height:39px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#fff,#FFF2D8);border:1px solid var(--line);box-shadow:0 5px 15px rgba(36,48,71,.08);font-size:1.4rem}
+.brand span:last-child span{color:var(--red)}
+.desktop-nav{display:flex;align-items:center;justify-content:center;gap:3px;flex:1}
+.nav-link{padding:10px 13px;border-radius:12px;color:#4B5565;font-size:.9rem;font-weight:800;transition:.2s ease}
+.nav-link:hover{color:var(--navy);background:rgba(244,211,94,.18);transform:translateY(-1px)}
+.nav-link.active{color:var(--navy);background:rgba(244,211,94,.22)}
+.nav-link.parent:hover{background:rgba(116,198,157,.18)}.nav-link.admin:hover{background:rgba(78,168,222,.16)}
+.actions{display:flex;gap:7px;align-items:center;flex:none}
+.btn{min-height:44px;padding:11px 17px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:13px;cursor:pointer;font-weight:900;font-size:.88rem;transition:transform .22s var(--ease),box-shadow .22s var(--ease),background .22s}
+.btn:hover{transform:translateY(-2px)}.ghost{background:transparent}.ghost:hover{background:rgba(36,48,71,.05)}
+.primary{background:var(--red);color:white;box-shadow:0 9px 20px rgba(230,57,70,.22)}.primary:hover{background:var(--red-dark);box-shadow:0 13px 27px rgba(230,57,70,.28)}
+.secondary{background:white;border:1px solid var(--line);box-shadow:0 6px 20px rgba(36,48,71,.06)}
+.mobile-toggle{display:none;margin-left:auto;width:44px;height:44px;border:1px solid var(--line);border-radius:13px;background:white;color:var(--navy);cursor:pointer}
+.mobile-menu{display:none;width:min(calc(100% - 28px),1240px);margin:8px auto 0;padding:15px;background:rgba(255,253,247,.97);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.mobile-menu.open{display:grid;gap:4px}.mobile-menu a,.mobile-menu button{padding:13px;border:0;border-radius:12px;background:transparent;text-align:left;font-weight:800;color:var(--navy)}.mobile-menu a:hover,.mobile-menu button:hover{background:rgba(244,211,94,.18)}.mobile-menu .mobile-cta{background:var(--red);color:white;text-align:center;margin-top:5px}.divider{height:1px;background:var(--line);margin:7px 0}
 
-  <style>
-    /* ============================================================
-       ROOT VARIABLES
-    ============================================================ */
-    :root {
-      --red: #E63946;
-      --yellow: #F4D35E;
-      --blue: #4EA8DE;
-      --blue-dark: #3A8BBF;
-      --green: #74C69D;
-      --cream: #FFFDF7;
-      --white: #FFFFFF;
-      --text: #243047;
-      --muted: #667085;
-      --border: #E5E7EB;
-      --shadow-sm: 0 2px 12px rgba(0,0,0,0.04);
-      --shadow-md: 0 8px 28px rgba(0,0,0,0.06);
-      --shadow-lg: 0 16px 48px rgba(0,0,0,0.08);
-      --radius-sm: 12px;
-      --radius-md: 20px;
-      --radius-lg: 32px;
-      --radius-full: 9999px;
-      --nav-height: 72px;
-      --transition: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    }
+/* HERO */
+.hero{position:relative;padding:72px 0 92px;overflow:hidden}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:-1}
+.hero:before{width:500px;height:500px;left:-290px;top:20px;background:rgba(244,211,94,.12)}.hero:after{width:520px;height:520px;right:-300px;bottom:-180px;background:rgba(116,198,157,.12)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(420px,.92fr);gap:70px;align-items:center}
+.hero-content{opacity:1;visibility:visible;transform:none;max-width:650px}
+.hero h1{margin:19px 0 18px;font-family:Poppins,sans-serif;font-size:clamp(3rem,6vw,5.35rem);line-height:.98;letter-spacing:-.065em}
+.hero h1 .red{color:var(--red)}.underline{position:relative;display:inline-block}.underline:after{content:"";position:absolute;left:2px;right:8%;bottom:-7px;height:8px;border-radius:999px;background:var(--yellow);transform:rotate(-1.5deg);z-index:-1}
+.hero-copy{max-width:590px;margin:0 0 28px;color:var(--muted);font-size:clamp(1rem,1.5vw,1.17rem)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:11px;margin-bottom:21px}.large{min-height:53px;padding-inline:21px;border-radius:15px;font-size:.95rem}
+.trust{display:flex;flex-wrap:wrap;gap:9px 16px;color:#707B8C;font-size:.81rem;font-weight:800}.trust span:before{content:"✓";color:var(--green);margin-right:6px}
+.hero-visual{position:relative;min-height:500px;display:grid;place-items:center}.glow{position:absolute;width:430px;height:430px;border-radius:50%;background:radial-gradient(circle,rgba(78,168,222,.16),rgba(244,211,94,.1) 52%,transparent 70%)}
+.lesson{position:relative;width:min(100%,470px);padding:24px;border:1px solid var(--line);border-radius:31px;background:rgba(255,255,255,.94);box-shadow:var(--shadow-lg);transform:rotate(1deg)}
+.lesson-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.lesson-label{display:flex;gap:8px;align-items:center;color:#778194;font-size:.74rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(116,198,157,.13)}.pill{padding:7px 10px;border-radius:999px;background:#FFF6D8;color:#806A13;font-size:.75rem;font-weight:900}
+.character{position:relative;min-height:215px;display:grid;place-items:center;overflow:hidden;border-radius:23px;background:radial-gradient(circle at 50% 15%,rgba(244,211,94,.55),transparent 28%),linear-gradient(145deg,#EAF7FF,#F5FBF3);border:1px solid var(--line)}.character:before{content:"你好";position:absolute;right:20px;top:14px;color:rgba(36,48,71,.09);font-family:Poppins;font-size:3.6rem;font-weight:900}
+.panda{width:140px;height:140px;display:grid;place-items:center;border:7px solid var(--navy);border-radius:50%;background:white;box-shadow:0 18px 35px rgba(36,48,71,.14);font-size:5rem}
+.question{margin:17px 0 2px;font-family:Poppins;font-size:1.5rem;font-weight:900}.pinyin{color:var(--blue);font-size:.86rem;font-weight:900}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.answer{padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:white;color:#4C5768;font-size:.8rem;font-weight:800}.answer.correct{background:rgba(116,198,157,.15);border-color:rgba(116,198,157,.3);color:#39745A}
+.float{position:absolute;padding:11px 13px;border-radius:15px;background:white;border:1px solid var(--line);box-shadow:var(--shadow);font-size:.76rem;font-weight:900}.xp{top:45px;left:-20px;background:#FFF7D9;color:#806A13;transform:rotate(-5deg)}.streak{right:-20px;bottom:58px;background:#FFF0F1;color:#A32A34;transform:rotate(4deg)}
 
-    /* ============================================================
-       RESET & BASE
-    ============================================================ */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-    html {
-      scroll-behavior: smooth;
-      overflow-x: hidden;
-    }
-    body {
-      background: var(--cream);
-      color: var(--text);
-      overflow-x: hidden;
-      padding-top: calc(var(--nav-height) + 28px);
-    }
+/* CARDS */
+.value-grid,.feature-grid,.course-grid,.motivation-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.value{padding:20px;border:1px solid var(--line);border-radius:19px;background:rgba(255,255,255,.82);box-shadow:0 6px 22px rgba(36,48,71,.06)}.value-icon{width:36px;height:36px;display:grid;place-items:center;margin-bottom:11px;border-radius:11px;background:#F2F8FF}.value strong{display:block;font-family:Poppins;font-size:.95rem}.value small{color:var(--muted);font-size:.8rem;font-weight:700}
+.feature,.course,.motivation{padding:24px;border:1px solid var(--line);border-radius:24px;background:white;box-shadow:0 6px 22px rgba(36,48,71,.06);transition:transform .28s var(--ease),box-shadow .28s var(--ease)}.feature:hover,.course:hover,.motivation:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.feature{min-height:235px}.feature-icon{width:51px;height:51px;display:grid;place-items:center;margin-bottom:21px;border-radius:16px;background:#F3F9FF;font-size:1.4rem}.feature:nth-child(2) .feature-icon{background:#FFF7DF}.feature:nth-child(3) .feature-icon{background:#F0FBF5}.feature:nth-child(4) .feature-icon{background:#FFF0F1}.feature h3,.course h3,.motivation h3{margin:0 0 8px;font-family:Poppins;font-size:1.02rem}.feature p,.course p,.motivation p{margin:0;color:var(--muted);font-size:.86rem}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.step{padding:28px;border:1px solid var(--line);border-radius:24px;background:white;box-shadow:0 6px 22px rgba(36,48,71,.06)}.num{width:46px;height:46px;display:grid;place-items:center;margin-bottom:22px;border-radius:14px;background:var(--navy);color:white;font-family:Poppins;font-weight:900}.step:nth-child(2) .num{background:var(--blue)}.step:nth-child(3) .num{background:var(--green)}.step h3{margin:0 0 8px;font-family:Poppins}.step p{margin:0;color:var(--muted)}
+.course{padding:22px}.level{display:inline-flex;padding:6px 9px;border-radius:999px;background:#EFF8FF;color:#2D6C93;font-size:.71rem;font-weight:900}.course:nth-child(2) .level{background:#F0FBF5;color:#39745A}.course:nth-child(3) .level{background:#FFF7DF;color:#806A13}.course:nth-child(4) .level{background:#FFF0F1;color:#A32A34}.course h3{margin-top:16px}.course p{min-height:66px;margin-bottom:15px}.course a{color:var(--red);font-size:.82rem;font-weight:900}
+.motivation .big{display:block;font-size:2rem;margin-bottom:10px}
 
-    /* ============================================================
-       UTILITY
-    ============================================================ */
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 5%;
-    }
-    .section-title {
-      font-size: clamp(2rem, 4vw, 2.8rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
-    .section-sub {
-      text-align: center;
-      max-width: 600px;
-      margin: 0 auto 2.5rem;
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.7;
-    }
+/* PREVIEW */
+.preview{display:grid;grid-template-columns:.85fr 1.15fr;gap:70px;align-items:center}.preview h2{margin:14px 0;font-family:Poppins;font-size:clamp(2rem,4vw,3.1rem);line-height:1.08;letter-spacing:-.045em}.preview-copy>p{color:var(--muted);font-size:1rem}.checks{display:grid;gap:10px;padding:0;margin:22px 0 0;list-style:none}.checks li{font-weight:800}.checks li:before{content:"✓";display:inline-grid;place-items:center;width:23px;height:23px;margin-right:9px;border-radius:50%;background:rgba(116,198,157,.18);color:#39745A;font-size:.72rem}
+.dashboard{padding:17px;border-radius:30px;background:var(--navy);box-shadow:var(--shadow-lg)}.window{overflow:hidden;border-radius:19px;background:#F8FBFF}.bar{display:flex;justify-content:space-between;padding:12px 15px;background:white;border-bottom:1px solid var(--line)}.dots{display:flex;gap:5px}.dots i{width:7px;height:7px;border-radius:50%;background:#D6DCE5}.window small{color:#7B8594;font-weight:900}.dash-body{display:grid;grid-template-columns:1fr 1.2fr;gap:12px;padding:15px}.stat,.practice{padding:15px;border:1px solid var(--line);border-radius:16px;background:white}.stat+.stat{margin-top:9px}.label{color:#818B9A;font-size:.65rem;font-weight:900;text-transform:uppercase}.stat strong{display:block;margin-top:3px;font-family:Poppins;font-size:1.4rem}.progress{height:8px;margin-top:10px;border-radius:99px;background:#E9EEF4;overflow:hidden}.progress span{display:block;width:76%;height:100%;background:var(--green);border-radius:inherit}.practice{min-height:215px;display:flex;flex-direction:column;justify-content:space-between}.practice-top{display:flex;justify-content:space-between}.practice-title{font-family:Poppins;font-weight:900}.char{font-family:Poppins;font-size:3.3rem;font-weight:900;line-height:1}.practice small{color:var(--blue);font-weight:900}.practice button{width:100%;padding:10px;border:0;border-radius:11px;background:var(--red);color:white;font-weight:900}
 
-    /* ============================================================
-       NAVBAR – with glass morphism & hover glow
-    ============================================================ */
-    nav.top-nav {
-      position: fixed;
-      top: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: calc(100% - 36px);
-      max-width: 1200px;
-      height: var(--nav-height);
-      padding: 0 28px;
-      background: rgba(255, 253, 247, 0.78);
-      backdrop-filter: blur(20px) saturate(1.4);
-      -webkit-backdrop-filter: blur(20px) saturate(1.4);
-      border-radius: 28px;
-      border: 1px solid rgba(229, 231, 235, 0.2);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.02);
-      transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    nav.top-nav::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 28px;
-      padding: 1px;
-      background: linear-gradient(135deg, rgba(78,168,222,0.1), rgba(244,211,94,0.05), rgba(78,168,222,0.1));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      opacity: 0;
-    }
-    nav.top-nav:hover::before {
-      opacity: 1;
-    }
-    nav.top-nav.shrunk {
-      top: 12px;
-      height: 60px;
-      padding: 0 20px;
-      width: calc(100% - 48px);
-      border-radius: 20px;
-      background: rgba(255, 253, 247, 0.94);
-      box-shadow: 0 8px 40px rgba(0,0,0,0.06);
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      font-weight: 800;
-      font-size: 1.3rem;
-      color: var(--text);
-      position: relative;
-    }
-    .logo img {
-      width: 38px;
-      height: 38px;
-      object-fit: contain;
-      border-radius: 10px;
-      transition: all 0.4s ease;
-    }
-    .logo:hover img {
-      transform: rotate(-6deg) scale(1.05);
-    }
-    nav.top-nav.shrunk .logo img {
-      width: 32px;
-      height: 32px;
-    }
-    .logo-text {
-      background: linear-gradient(135deg, var(--text), var(--blue));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      transition: all 0.4s ease;
-    }
-    nav.top-nav.shrunk .logo-text {
-      opacity: 0;
-      width: 0;
-      overflow: hidden;
-      margin: 0;
-    }
+/* PRICING */
+.pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.price-card{position:relative;padding:30px;border:1px solid var(--line);border-radius:27px;background:white;box-shadow:0 6px 22px rgba(36,48,71,.06)}.price-card.featured{border:2px solid var(--red);box-shadow:0 22px 60px rgba(230,57,70,.13);transform:translateY(-8px)}.popular{position:absolute;top:-14px;left:24px;padding:6px 11px;border-radius:99px;background:var(--red);color:white;font-size:.68rem;font-weight:900;text-transform:uppercase}.price-card h3{margin:0 0 6px;font-family:Poppins}.desc{min-height:45px;margin:0;color:var(--muted);font-size:.82rem}.price{margin:20px 0;font-family:Poppins;font-size:2.6rem;font-weight:900;letter-spacing:-.055em}.price small{color:#7A8493;font-family:Nunito;font-size:.8rem;letter-spacing:0}.price-list{display:grid;gap:9px;padding:0;margin:0 0 23px;list-style:none}.price-list li{color:#4F5A6B;font-size:.82rem;font-weight:700}.price-list li:before{content:"✓";color:var(--green);font-weight:900;margin-right:8px}.full{width:100%}.price-card:not(.featured) .full{background:#F5F7FA;color:var(--navy)}
 
-    nav ul {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-      align-items: center;
-      margin: 0 16px;
-    }
-    nav ul a {
-      text-decoration: none;
-      font-weight: 600;
-      color: var(--muted);
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-      position: relative;
-      padding: 4px 0;
-    }
-    nav ul a::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 50%;
-      transform: translateX(-50%) scaleX(0);
-      width: 100%;
-      height: 2.5px;
-      background: var(--blue);
-      border-radius: 4px;
-      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    nav ul a:hover::after,
-    nav ul a.active::after {
-      transform: translateX(-50%) scaleX(1);
-    }
-    nav ul a:hover,
-    nav ul a.active {
-      color: var(--text);
-    }
+/* CTA/FOOTER */
+.cta{padding:95px 0}.cta-box{position:relative;overflow:hidden;padding:70px 30px;text-align:center;border-radius:36px;background:radial-gradient(circle at 15% 20%,rgba(244,211,94,.25),transparent 16rem),radial-gradient(circle at 85% 80%,rgba(78,168,222,.18),transparent 19rem),var(--navy);color:white;box-shadow:var(--shadow-lg)}.cta-box:before{content:"学";position:absolute;right:8%;top:-55px;color:rgba(255,255,255,.05);font-family:Poppins;font-size:13rem;font-weight:900}.cta-box h2{position:relative;margin:0 auto 12px;max-width:750px;font-family:Poppins;font-size:clamp(2rem,4vw,3.35rem);line-height:1.08;letter-spacing:-.05em}.cta-box p{position:relative;margin:0 auto 25px;max-width:570px;color:rgba(255,255,255,.74)}.cta-actions{position:relative;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.white{background:white;color:var(--navy)}.outline{background:transparent;color:white;border:1px solid rgba(255,255,255,.28)}
+footer{padding:65px 0 28px;border-top:1px solid rgba(36,48,71,.07);background:rgba(255,255,255,.48)}.footer-grid{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:35px}.footer-brand{display:flex;align-items:center;gap:9px;font-family:Poppins}.footer-brand h2{margin:0;font-size:1.2rem}.footer-main p{max-width:300px;color:var(--muted);font-size:.86rem}.footer-col h3{margin:0 0 12px;font-family:Poppins;font-size:.86rem}.footer-col a{display:block;width:max-content;margin:7px 0;color:#687486;font-size:.82rem;font-weight:700}.footer-col a:hover{color:var(--red)}.footer-bottom{display:flex;justify-content:space-between;gap:20px;margin-top:42px;padding-top:20px;border-top:1px solid var(--line);color:#8791A0;font-size:.75rem;font-weight:700}
 
-    .nav-buttons {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
+/* SAFE REVEALS: hero never participates */
+.reveal{opacity:1;transform:none}.js-ready .reveal[data-reveal]{opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease),transform .6s var(--ease)}.js-ready .reveal[data-reveal].visible{opacity:1;transform:none}
+.toast-region{position:fixed;right:18px;bottom:18px;z-index:2000;display:grid;gap:8px;width:min(360px,calc(100vw - 36px))}.toast{display:flex;align-items:center;gap:9px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:white;box-shadow:var(--shadow);font-size:.83rem;font-weight:800}.toast button{margin-left:auto;border:0;background:transparent;cursor:pointer}
 
-    /* ============================================================
-       BUTTONS – with hover lift & shimmer
-    ============================================================ */
-    .btn {
-      padding: 10px 22px;
-      border: none;
-      border-radius: var(--radius-full);
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      background: transparent;
-      color: var(--text);
-      position: relative;
-      overflow: hidden;
-    }
-    .btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: var(--radius-full);
-      background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      pointer-events: none;
-    }
-    .btn:hover::after {
-      opacity: 1;
-    }
-    .btn-primary {
-      background: var(--blue);
-      color: white;
-      box-shadow: 0 4px 20px rgba(78, 168, 222, 0.25);
-    }
-    .btn-primary:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 36px rgba(78, 168, 222, 0.4);
-    }
-    .btn-outline {
-      border: 1px solid var(--border);
-      background: white;
-    }
-    .btn-outline:hover {
-      border-color: var(--blue);
-      color: var(--blue);
-      transform: translateY(-3px);
-      box-shadow: 0 4px 20px rgba(78, 168, 222, 0.08);
-    }
-    .btn-ghost {
-      color: var(--muted);
-    }
-    .btn-ghost:hover {
-      color: var(--text);
-      transform: translateY(-2px);
-    }
-    .btn-red {
-      background: var(--red);
-      color: white;
-      box-shadow: 0 4px 20px rgba(230, 57, 70, 0.2);
-    }
-    .btn-red:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 36px rgba(230, 57, 70, 0.3);
-    }
-    .arrow {
-      display: inline-block;
-      transition: transform 0.35s ease;
-    }
-    .btn:hover .arrow {
-      transform: translateX(6px) scale(1.1);
-    }
-
-    /* ============================================================
-       HERO – fully visible, packed with CSS animations
-    ============================================================ */
-    .hero {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 40px;
-      align-items: center;
-      padding: 20px 5% 60px;
-      max-width: 1400px;
-      margin: 0 auto;
-      min-height: 70vh;
-      position: relative;
-    }
-    .hero-content {
-      z-index: 2;
-      opacity: 1 !important;
-      visibility: visible !important;
-      transform: none !important;
-    }
-
-    /* animated badge */
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(78, 168, 222, 0.08);
-      color: var(--blue);
-      padding: 6px 18px;
-      border-radius: var(--radius-full);
-      font-weight: 600;
-      font-size: 0.75rem;
-      margin-bottom: 18px;
-      animation: badgePulse 3s ease-in-out infinite;
-    }
-    @keyframes badgePulse {
-      0%, 100% { background: rgba(78, 168, 222, 0.08); transform: scale(1); }
-      50% { background: rgba(78, 168, 222, 0.18); transform: scale(1.02); }
-    }
-    .hero-badge .dot {
-      width: 6px;
-      height: 6px;
-      background: var(--blue);
-      border-radius: 50%;
-      animation: dotPulse 2s infinite;
-    }
-    @keyframes dotPulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.7); }
-    }
-
-    .hero h1 {
-      font-size: clamp(2.6rem, 5.5vw, 4.2rem);
-      font-weight: 900;
-      line-height: 1.08;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
-      animation: heroGlow 4s ease-in-out infinite;
-    }
-    @keyframes heroGlow {
-      0%, 100% { text-shadow: 0 0 0 rgba(78,168,222,0); }
-      50% { text-shadow: 0 0 40px rgba(78,168,222,0.06); }
-    }
-    .hero h1 .highlight {
-      color: var(--blue);
-      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero p {
-      font-size: 1.05rem;
-      color: var(--muted);
-      line-height: 1.8;
-      max-width: 480px;
-      margin-bottom: 24px;
-      animation: fadeSlideUp 1s ease 0.2s both;
-    }
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .hero-features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px 24px;
-      margin-bottom: 24px;
-    }
-    .hero-features span {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--muted);
-      animation: featureFloat 4s ease-in-out infinite;
-    }
-    .hero-features span:nth-child(2) { animation-delay: 0.3s; }
-    .hero-features span:nth-child(3) { animation-delay: 0.6s; }
-    @keyframes featureFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
-    }
-
-    .hero-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .hero-buttons .btn {
-      animation: btnAppear 0.8s ease 0.4s both;
-    }
-    .hero-buttons .btn:nth-child(2) { animation-delay: 0.6s; }
-    @keyframes btnAppear {
-      from { opacity: 0; transform: scale(0.9) translateY(10px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
-    }
-
-    /* ===== Hero Visual – with floating particles & glow ===== */
-    .hero-visual {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      min-height: 340px;
-      border: 1px solid rgba(229, 231, 235, 0.2);
-      transition: all 0.5s ease;
-      opacity: 1 !important;
-      visibility: visible !important;
-      overflow: hidden;
-    }
-    .hero-visual::before {
-      content: '';
-      position: absolute;
-      inset: -2px;
-      border-radius: var(--radius-lg);
-      background: conic-gradient(from 0deg, transparent, rgba(78,168,222,0.05), transparent, rgba(244,211,94,0.05), transparent);
-      animation: borderSpin 12s linear infinite;
-      pointer-events: none;
-    }
-    @keyframes borderSpin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .hero-visual:hover {
-      transform: translateY(-6px) scale(1.01);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .hero-visual .panda-static {
-      font-size: 120px;
-      filter: drop-shadow(0 8px 30px rgba(0,0,0,0.04));
-      user-select: none;
-      transition: all 0.4s ease;
-      position: relative;
-      z-index: 2;
-      animation: pandaBounce 4s ease-in-out infinite;
-    }
-    @keyframes pandaBounce {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      30% { transform: translateY(-12px) rotate(-2deg); }
-      60% { transform: translateY(-4px) rotate(1deg); }
-    }
-    .hero-visual .panda-static:hover {
-      transform: scale(1.08) rotate(-4deg);
-    }
-
-    .hero-visual .floating-char {
-      position: absolute;
-      font-size: 3rem;
-      font-weight: 800;
-      opacity: 0.05;
-      pointer-events: none;
-      animation: charFloat 8s ease-in-out infinite;
-    }
-    .floating-char.c1 { top: 16px; left: 20px; animation-delay: 0s; }
-    .floating-char.c2 { bottom: 16px; right: 20px; animation-delay: 2s; }
-    .floating-char.c3 { top: 40%; right: 12%; font-size: 2.2rem; animation-delay: 4s; }
-    @keyframes charFloat {
-      0%, 100% { transform: translate(0,0) rotate(0deg); opacity: 0.04; }
-      25% { transform: translate(8px,-12px) rotate(4deg); opacity: 0.08; }
-      75% { transform: translate(-6px,10px) rotate(-3deg); opacity: 0.06; }
-    }
-
-    /* floating sparkles */
-    .sparkle {
-      position: absolute;
-      font-size: 1.2rem;
-      pointer-events: none;
-      animation: sparkleFloat 6s ease-in-out infinite;
-      opacity: 0.12;
-    }
-    .sparkle.s1 { top: 10%; right: 15%; animation-delay: 0s; }
-    .sparkle.s2 { bottom: 20%; left: 10%; animation-delay: 2s; }
-    .sparkle.s3 { top: 50%; left: 5%; animation-delay: 4s; }
-    @keyframes sparkleFloat {
-      0%, 100% { transform: translate(0,0) scale(1); opacity: 0.08; }
-      50% { transform: translate(-10px,-20px) scale(1.4); opacity: 0.2; }
-    }
-
-    /* ============================================================
-       VALUE STRIP – animated on scroll
-    ============================================================ */
-    .value-strip {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 28px 48px;
-      padding: 18px 5%;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: var(--white);
-    }
-    .value-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 500;
-      color: var(--muted);
-      font-size: 0.9rem;
-      transition: all 0.4s ease;
-    }
-    .value-item .icon {
-      font-size: 1.2rem;
-      transition: transform 0.4s ease;
-    }
-    .value-item:hover .icon {
-      transform: rotate(-8deg) scale(1.2);
-    }
-    .value-item:hover {
-      color: var(--text);
-      transform: translateY(-2px);
-    }
-
-    /* ============================================================
-       HOW IT WORKS – with connecting dots animation
-    ============================================================ */
-    .how-section {
-      padding: 60px 5%;
-    }
-    .how-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      margin-top: 20px;
-      position: relative;
-    }
-    .how-grid::before {
-      content: '';
-      position: absolute;
-      top: 60px;
-      left: 33.33%;
-      right: 33.33%;
-      height: 2px;
-      background: var(--border);
-      z-index: 0;
-      animation: lineGrow 1.5s ease 0.5s both;
-    }
-    @keyframes lineGrow {
-      from { transform: scaleX(0); }
-      to { transform: scaleX(1); }
-    }
-    .how-card {
-      background: var(--white);
-      padding: 32px 20px;
-      border-radius: var(--radius-md);
-      text-align: center;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-      transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-      position: relative;
-      z-index: 1;
-      cursor: default;
-    }
-    .how-card:hover {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--blue);
-    }
-    .how-card .num {
-      display: inline-block;
-      width: 44px;
-      height: 44px;
-      line-height: 44px;
-      border-radius: 50%;
-      background: var(--blue);
-      color: white;
-      font-weight: 800;
-      font-size: 1rem;
-      margin-bottom: 14px;
-      transition: all 0.5s ease;
-    }
-    .how-card:hover .num {
-      transform: scale(1.1) rotate(-6deg);
-      background: var(--blue-dark);
-    }
-    .how-card .icon-lg {
-      font-size: 2.4rem;
-      display: block;
-      margin-bottom: 8px;
-      transition: transform 0.5s ease;
-    }
-    .how-card:hover .icon-lg {
-      transform: scale(1.15) rotate(-4deg);
-    }
-    .how-card h3 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .how-card p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.7;
-    }
-
-    /* ============================================================
-       FEATURES – with card hover glow
-    ============================================================ */
-    .features-section {
-      padding: 60px 5%;
-      background: var(--white);
-    }
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 24px;
-    }
-    .feature-card {
-      padding: 28px 22px;
-      border-radius: var(--radius-md);
-      background: var(--cream);
-      border: 1px solid var(--border);
-      transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-      position: relative;
-      overflow: hidden;
-      cursor: default;
-    }
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, rgba(78,168,222,0.05), rgba(244,211,94,0.02));
-      opacity: 0;
-      transition: opacity 0.6s ease;
-    }
-    .feature-card:hover::before {
-      opacity: 1;
-    }
-    .feature-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 12px 40px rgba(78,168,222,0.08);
-      border-color: var(--blue);
-    }
-    .feature-card .icon-wrap {
-      font-size: 2rem;
-      display: block;
-      margin-bottom: 10px;
-      transition: transform 0.5s ease;
-    }
-    .feature-card:hover .icon-wrap {
-      transform: scale(1.15) rotate(-6deg);
-    }
-    .feature-card h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .feature-card p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    /* ============================================================
-       YCT JOURNEY – with animated arrows
-    ============================================================ */
-    .yct-section {
-      padding: 60px 5%;
-    }
-    .yct-path {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px 16px;
-      max-width: 800px;
-      margin: 24px auto 0;
-    }
-    .yct-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 14px 24px;
-      background: var(--white);
-      border-radius: var(--radius-sm);
-      border: 2px solid var(--border);
-      min-width: 80px;
-      transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-      cursor: default;
-    }
-    .yct-step:hover {
-      border-color: var(--blue);
-      transform: translateY(-6px) scale(1.04);
-      box-shadow: 0 8px 30px rgba(78,168,222,0.08);
-    }
-    .yct-step .level {
-      font-weight: 800;
-      font-size: 1.2rem;
-      transition: color 0.3s ease;
-    }
-    .yct-step:hover .level {
-      color: var(--blue);
-    }
-    .yct-step .label {
-      font-size: 0.7rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
-    .yct-step .emoji {
-      font-size: 1.6rem;
-      transition: transform 0.5s ease;
-    }
-    .yct-step:hover .emoji {
-      transform: scale(1.2) rotate(-8deg);
-    }
-    .yct-arrow {
-      color: var(--muted);
-      opacity: 0.3;
-      font-size: 1.2rem;
-      animation: arrowPulse 2s ease-in-out infinite;
-    }
-    .yct-arrow:nth-child(4) { animation-delay: 0.2s; }
-    .yct-arrow:nth-child(6) { animation-delay: 0.4s; }
-    @keyframes arrowPulse {
-      0%, 100% { opacity: 0.3; transform: translateX(0); }
-      50% { opacity: 0.7; transform: translateX(4px); }
-    }
-
-    /* ============================================================
-       INTERACTIVE PREVIEW
-    ============================================================ */
-    .preview-section {
-      padding: 20px 5% 40px;
-      background: var(--white);
-    }
-    .preview-box {
-      max-width: 600px;
-      margin: 0 auto;
-      background: var(--cream);
-      border-radius: var(--radius-md);
-      padding: 24px 28px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-      transition: all 0.5s ease;
-    }
-    .preview-box:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-md);
-    }
-    .preview-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .preview-row .hanzi {
-      font-weight: 700;
-      font-size: 1.2rem;
-      animation: hanziGlow 3s ease-in-out infinite;
-    }
-    @keyframes hanziGlow {
-      0%, 100% { color: var(--text); }
-      50% { color: var(--blue); }
-    }
-    .preview-row .pinyin {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-    .preview-row .translation {
-      background: var(--green);
-      color: white;
-      padding: 2px 14px;
-      border-radius: var(--radius-full);
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .preview-tags {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-    .preview-tags span {
-      padding: 4px 14px;
-      border-radius: var(--radius-full);
-      font-size: 0.8rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      cursor: default;
-    }
-    .preview-tags span:hover {
-      transform: scale(1.05);
-    }
-    .preview-tags .listen { background: var(--blue); color: white; }
-    .preview-tags .practice { background: var(--yellow); }
-    .preview-tags .next { background: var(--border); }
-    .progress-wrap {
-      background: var(--white);
-      padding: 12px 16px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-    }
-    .progress-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-    .progress-bar {
-      height: 6px;
-      background: var(--border);
-      border-radius: 4px;
-      margin-top: 6px;
-      overflow: hidden;
-    }
-    .progress-bar .fill {
-      height: 100%;
-      width: 80%;
-      background: linear-gradient(90deg, var(--green), var(--blue));
-      border-radius: 4px;
-      animation: fillProgress 2s ease 0.5s both;
-    }
-    @keyframes fillProgress {
-      from { width: 0; }
-      to { width: 80%; }
-    }
-    .preview-stats {
-      display: flex;
-      gap: 16px;
-      margin-top: 14px;
-      justify-content: flex-end;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    .preview-stats span {
-      transition: all 0.3s ease;
-      cursor: default;
-    }
-    .preview-stats span:hover {
-      color: var(--text);
-      transform: scale(1.05);
-    }
-
-    /* ============================================================
-       PRICING – with card flip/glow
-    ============================================================ */
-    .pricing-section {
-      padding: 60px 5%;
-      background: var(--white);
-    }
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .pricing-card {
-      background: var(--cream);
-      border-radius: var(--radius-md);
-      padding: 32px 24px;
-      text-align: center;
-      border: 1px solid var(--border);
-      transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-      position: relative;
-      cursor: default;
-    }
-    .pricing-card:hover {
-      transform: translateY(-10px);
-      box-shadow: var(--shadow-lg);
-    }
-    .pricing-card.popular {
-      border-color: var(--blue);
-      background: white;
-      box-shadow: 0 8px 40px rgba(78, 168, 222, 0.08);
-    }
-    .pricing-card.popular::before {
-      content: '⭐ Most popular';
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--blue);
-      color: white;
-      padding: 4px 20px;
-      border-radius: var(--radius-full);
-      font-size: 0.7rem;
-      font-weight: 700;
-      animation: badgePop 2s ease-in-out infinite;
-    }
-    @keyframes badgePop {
-      0%, 100% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.05); }
-    }
-    .pricing-card .plan {
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-    .pricing-card .price {
-      font-size: 2.4rem;
-      font-weight: 900;
-      color: var(--text);
-      transition: color 0.3s ease;
-    }
-    .pricing-card:hover .price {
-      color: var(--blue);
-    }
-    .pricing-card .price span {
-      font-size: 1rem;
-      font-weight: 400;
-      color: var(--muted);
-    }
-    .pricing-card .desc {
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin: 6px 0 16px;
-    }
-    .pricing-card ul {
-      list-style: none;
-      text-align: left;
-      margin: 16px 0;
-    }
-    .pricing-card ul li {
-      padding: 4px 0;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-      transition: all 0.3s ease;
-    }
-    .pricing-card ul li:hover {
-      color: var(--text);
-      transform: translateX(4px);
-    }
-    .pricing-card ul li .check { color: var(--green); font-weight: 700; }
-    .pricing-card ul li .cross { color: var(--red); font-weight: 700; }
-    .pricing-card .btn { width: 100%; justify-content: center; margin-top: 8px; }
-
-    /* ============================================================
-       WHY KIDS – with icon bounce
-    ============================================================ */
-    .why-section {
-      padding: 60px 5%;
-    }
-    .why-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    .why-card {
-      background: var(--white);
-      padding: 28px 20px;
-      border-radius: var(--radius-md);
-      text-align: center;
-      border: 1px solid var(--border);
-      transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-      cursor: default;
-    }
-    .why-card:hover {
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-md);
-      border-color: var(--blue);
-    }
-    .why-card .icon {
-      font-size: 2.4rem;
-      display: block;
-      margin-bottom: 6px;
-      transition: transform 0.5s ease;
-    }
-    .why-card:hover .icon {
-      transform: scale(1.2) rotate(-6deg);
-    }
-    .why-card h4 {
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .why-card p {
-      color: var(--muted);
-      font-size: 0.85rem;
-      line-height: 1.6;
-    }
-
-    /* ============================================================
-       CTA FINAL – with floating particles
-    ============================================================ */
-    .cta-section {
-      padding: 20px 5% 60px;
-    }
-    .cta-box {
-      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-      padding: 48px 32px;
-      border-radius: var(--radius-lg);
-      text-align: center;
-      color: white;
-      box-shadow: 0 16px 48px rgba(78, 168, 222, 0.25);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.5s ease;
-    }
-    .cta-box:hover {
-      transform: scale(1.01);
-      box-shadow: 0 20px 60px rgba(78, 168, 222, 0.35);
-    }
-    .cta-box::before {
-      content: '';
-      position: absolute;
-      inset: -2px;
-      border-radius: var(--radius-lg);
-      background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.05), transparent, rgba(255,255,255,0.05), transparent);
-      animation: borderSpin 15s linear infinite;
-      pointer-events: none;
-    }
-    .cta-box .particle {
-      position: absolute;
-      font-size: 1.2rem;
-      pointer-events: none;
-      opacity: 0.15;
-      animation: ctaParticle 8s ease-in-out infinite;
-    }
-    .cta-box .particle.p1 { top: 10%; left: 8%; animation-delay: 0s; }
-    .cta-box .particle.p2 { bottom: 15%; right: 10%; animation-delay: 2.5s; }
-    .cta-box .particle.p3 { top: 50%; right: 5%; animation-delay: 5s; }
-    @keyframes ctaParticle {
-      0%, 100% { transform: translate(0,0) scale(1); opacity: 0.08; }
-      50% { transform: translate(-15px,-25px) scale(1.5); opacity: 0.2; }
-    }
-    .cta-box h2 {
-      font-size: clamp(2rem, 3.5vw, 2.8rem);
-      font-weight: 800;
-      margin-bottom: 10px;
-      position: relative;
-      z-index: 1;
-    }
-    .cta-box p {
-      max-width: 500px;
-      margin: 0 auto 24px;
-      opacity: 0.9;
-      font-size: 1rem;
-      position: relative;
-      z-index: 1;
-    }
-    .cta-box .btn-white {
-      background: white;
-      color: var(--blue);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      position: relative;
-      z-index: 1;
-    }
-    .cta-box .btn-white:hover {
-      transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 8px 36px rgba(0,0,0,0.12);
-    }
-    .cta-box .btn-outline-light {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-      color: white;
-      position: relative;
-      z-index: 1;
-    }
-    .cta-box .btn-outline-light:hover {
-      background: rgba(255,255,255,0.2);
-      transform: translateY(-3px);
-    }
-
-    /* ============================================================
-       FOOTER
-    ============================================================ */
-    footer {
-      background: var(--text);
-      color: white;
-      padding: 48px 5% 32px;
-    }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 40px;
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-    .footer-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-    .footer-brand img {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.04);
-      padding: 2px;
-      transition: transform 0.4s ease;
-    }
-    .footer-brand img:hover {
-      transform: rotate(-8deg) scale(1.05);
-    }
-    .footer-brand h2 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff, var(--yellow));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    footer p {
-      color: #9CA3AF;
-      line-height: 1.7;
-      font-size: 0.9rem;
-    }
-    footer h3 {
-      font-size: 1rem;
-      margin-bottom: 14px;
-      font-weight: 600;
-      color: #F9FAFB;
-    }
-    footer a {
-      color: #9CA3AF;
-      text-decoration: none;
-      font-size: 0.9rem;
-      display: inline-block;
-      margin-bottom: 6px;
-      transition: all 0.3s ease;
-    }
-    footer a:hover {
-      color: white;
-      transform: translateX(6px);
-    }
-    footer hr {
-      max-width: 1280px;
-      margin: 32px auto 20px;
-      border: none;
-      height: 1px;
-      background: rgba(255,255,255,0.06);
-    }
-    footer .copy {
-      text-align: center;
-      color: #6B7280;
-      font-size: 0.85rem;
-    }
-
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
-    @media (max-width: 1024px) {
-      .hero { grid-template-columns: 1fr; text-align: center; padding: 20px 5% 40px; }
-      .hero p { margin: 0 auto 20px; }
-      .hero-features { justify-content: center; }
-      .hero-buttons { justify-content: center; }
-      .hero-visual { min-height: 240px; max-width: 500px; margin: 0 auto; }
-      .hero-visual .panda-static { font-size: 90px; }
-      .how-grid::before { display: none; }
-      .how-grid { grid-template-columns: 1fr 1fr; }
-      .pricing-grid { grid-template-columns: 1fr 1fr; }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 768px) {
-      body { padding-top: calc(var(--nav-height) + 16px); }
-      nav.top-nav { top: 12px; padding: 0 16px; width: calc(100% - 24px); border-radius: 20px; height: 64px; }
-      nav.top-nav.shrunk { height: 54px; padding: 0 14px; width: calc(100% - 32px); }
-      nav ul { display: none; }
-      .logo img { width: 32px; height: 32px; }
-      .hero h1 { font-size: 2.2rem; }
-      .hero-visual { min-height: 180px; }
-      .hero-visual .panda-static { font-size: 70px; }
-      .how-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
-      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
-      .feature-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr; gap: 24px; }
-      .value-strip { gap: 12px 24px; }
-      .cta-box { padding: 32px 20px; }
-      .yct-path { gap: 6px; }
-      .yct-step { padding: 10px 16px; min-width: 60px; }
-    }
-    @media (max-width: 480px) {
-      .hero h1 { font-size: 1.8rem; }
-      .hero p { font-size: 0.95rem; }
-      .hero-visual .panda-static { font-size: 56px; }
-      .btn { padding: 8px 16px; font-size: 0.8rem; }
-      .hero-buttons .btn { flex: 1; justify-content: center; }
-    }
-
-    /* ============================================================
-       REDUCED MOTION
-    ============================================================ */
-    @media (prefers-reduced-motion: reduce) {
-      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-      .hero-visual .panda-static { animation: none !important; }
-      .hero h1 { animation: none !important; }
-      .hero-badge { animation: none !important; }
-    }
-
-    /* ============================================================
-       SCROLL REVEAL (initially hidden, revealed by GSAP)
-    ============================================================ */
-    .reveal {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  </style>
+/* RESPONSIVE */
+@media(max-width:1050px){.hero-grid{gap:40px}.value-grid,.feature-grid,.course-grid,.motivation-grid{grid-template-columns:repeat(2,1fr)}.nav-link{padding-inline:8px}}
+@media(max-width:860px){.desktop-nav,.actions{display:none}.mobile-toggle{display:grid;place-items:center}.hero-grid,.preview{grid-template-columns:1fr}.hero-content{text-align:center;margin:auto}.hero-copy{margin-inline:auto}.hero-actions,.trust{justify-content:center}.hero-visual{max-width:590px;width:100%;margin:auto}.steps,.pricing{grid-template-columns:1fr}.price-card.featured{transform:none}.preview-copy{text-align:center}.checks{max-width:440px;margin-inline:auto;text-align:left}.footer-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.container{width:min(calc(100% - 28px),var(--max))}.navbar{width:calc(100% - 18px);min-height:64px;border-radius:18px}.hero{padding:38px 0 68px}.hero h1{font-size:clamp(2.55rem,14vw,4rem)}.hero-actions{flex-direction:column}.hero-actions .btn{width:100%}.trust{flex-direction:column;align-items:center}.hero-visual{min-height:400px}.lesson{padding:18px;border-radius:25px}.xp{left:-4px}.streak{right:-4px}.value-grid,.feature-grid,.course-grid,.motivation-grid{grid-template-columns:1fr}.section{padding:76px 0}.heading{margin-bottom:32px}.heading h2,.preview h2{font-size:2rem}.dash-body{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr 1fr;gap:28px 18px}.footer-main{grid-column:1/-1}.footer-bottom{flex-direction:column;align-items:flex-start}.cta{padding:72px 0}.cta-box{padding:55px 18px;border-radius:28px}}
+@media(max-width:420px){.footer-grid{grid-template-columns:1fr}.footer-main{grid-column:auto}.answers{grid-template-columns:1fr}.hero-visual{min-height:385px}.float{font-size:.68rem;padding:9px 10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}.js-ready .reveal[data-reveal]{opacity:1;transform:none}}
+</style>
 </head>
+
 <body>
+<header class="site-header" id="siteHeader">
+  <nav class="navbar" aria-label="Primary navigation">
+    <a class="brand" href="index.html" aria-label="HanVerse home">
+      <span class="brand-mark" aria-hidden="true">🐼</span>
+      <span>Han<span style="color:var(--red)">Verse</span></span>
+    </a>
 
-<!-- ===== NAV ===== -->
-<nav class="top-nav" id="topNav">
-  <a href="#" class="logo">
-    <img src="hanverse-logo.png" alt="HanVerse logo" />
-    <span class="logo-text">HanVerse</span>
-  </a>
-  <ul>
-    <li><a href="#" class="active">Home</a></li>
-    <li><a href="#features">Learn</a></li>
-    <li><a href="#worksheets">Worksheets</a></li>
-    <li><a href="#about">Parents</a></li>
-  </ul>
-  <div class="nav-buttons">
-    <button class="btn btn-ghost" onclick="alert('Log in')">Log In</button>
-    <button class="btn btn-primary" onclick="alert('Start learning')">Start Free <span class="arrow">→</span></button>
-  </div>
-</nav>
-
-<!-- ===== HERO ===== -->
-<section class="hero" id="hero">
-  <div class="hero-content">
-    <div class="hero-badge"><span class="dot"></span> YCT-aligned · interactive</div>
-    <h1>Learn Chinese.<br><span class="highlight">Unlock a New World.</span></h1>
-    <p>HanVerse makes Chinese learning engaging, interactive, and accessible for children — from first words to confident conversations.</p>
-    <div class="hero-features">
-      <span>📚 YCT-focused</span>
-      <span>🎮 Interactive lessons</span>
-      <span>🌟 Learn at your pace</span>
+    <div class="desktop-nav">
+      <a class="nav-link active" href="index.html">Home</a>
+      <a class="nav-link" href="learn.html">Learn</a>
+      <a class="nav-link" href="worksheets.html">Worksheets</a>
+      <span id="roleNavItems" style="display:contents"></span>
     </div>
-    <div class="hero-buttons">
-      <button class="btn btn-primary" onclick="alert('Start learning')">Start Learning <span class="arrow">→</span></button>
-      <button class="btn btn-outline" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Explore Courses</button>
+
+    <div class="actions" id="authButtons">
+      <a class="btn ghost" href="login.html">Log In</a>
+      <a class="btn primary" href="signup.html">Start Learning →</a>
+    </div>
+
+    <button class="mobile-toggle" id="mobileToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation">☰</button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">Home</a>
+    <a href="learn.html">Learn</a>
+    <a href="worksheets.html">Worksheets</a>
+    <div id="mobileRoleItems"></div>
+    <div class="divider"></div>
+    <div id="mobileAuthButtons">
+      <a href="login.html">Log In</a>
+      <a class="mobile-cta" href="signup.html">Start Learning →</a>
     </div>
   </div>
-  <div class="hero-visual">
-    <span class="floating-char c1">汉</span>
-    <span class="floating-char c2">语</span>
-    <span class="floating-char c3">你</span>
-    <span class="sparkle s1">✨</span>
-    <span class="sparkle s2">✨</span>
-    <span class="sparkle s3">✨</span>
-    <span class="panda-static" id="pandaMascot">🐼</span>
-  </div>
-</section>
+</header>
 
-<!-- ===== VALUE STRIP ===== -->
-<div class="value-strip">
-  <span class="value-item"><span class="icon">📖</span> YCT 1–4</span>
-  <span class="value-item"><span class="icon">🎯</span> Interactive practice</span>
-  <span class="value-item"><span class="icon">🏆</span> XP & achievements</span>
-  <span class="value-item"><span class="icon">🐼</span> Learn with Han</span>
-</div>
-
-<!-- ===== HOW IT WORKS ===== -->
-<section class="how-section" id="about">
-  <h2 class="section-title">How HanVerse Works</h2>
-  <p class="section-sub">A simple path from beginner to confident Mandarin speaker.</p>
-  <div class="how-grid">
-    <div class="how-card reveal"><span class="num">01</span><span class="icon-lg">🌱</span><h3>Choose Your Level</h3><p>Start with the appropriate YCT level — from beginner to advanced.</p></div>
-    <div class="how-card reveal"><span class="num">02</span><span class="icon-lg">📚</span><h3>Learn & Practice</h3><p>Lessons, vocabulary, activities, and resources that adapt to you.</p></div>
-    <div class="how-card reveal"><span class="num">03</span><span class="icon-lg">📈</span><h3>Track Your Growth</h3><p>Earn XP, build progress, and celebrate every achievement.</p></div>
-  </div>
-</section>
-
-<!-- ===== FEATURES ===== -->
-<section class="features-section" id="features">
-  <h2 class="section-title">Why HanVerse?</h2>
-  <p class="section-sub">Built for young learners, designed for real progress.</p>
-  <div class="feature-grid">
-    <div class="feature-card reveal"><span class="icon-wrap">🎮</span><h3>Learn Through Adventure</h3><p>Learning Chinese feels exciting, not repetitive.</p></div>
-    <div class="feature-card reveal"><span class="icon-wrap">🧒</span><h3>Built for Young Learners</h3><p>Content designed around the needs and curiosity of children.</p></div>
-    <div class="feature-card reveal"><span class="icon-wrap">📊</span><h3>Track Your Progress</h3><p>XP, achievements, and streaks keep motivation high.</p></div>
-    <div class="feature-card reveal"><span class="icon-wrap">🌍</span><h3>Learn Anywhere</h3><p>Flexible lessons that support learning at home or on the go.</p></div>
-  </div>
-</section>
-
-<!-- ===== YCT JOURNEY ===== -->
-<section class="yct-section">
-  <h2 class="section-title">YCT Learning Path</h2>
-  <p class="section-sub">From first words to confident communication.</p>
-  <div class="yct-path">
-    <div class="yct-step reveal"><span class="emoji">🌱</span><span class="level">YCT 1</span><span class="label">Beginner</span></div>
-    <span class="yct-arrow">→</span>
-    <div class="yct-step reveal"><span class="emoji">📖</span><span class="level">YCT 2</span><span class="label">Elementary</span></div>
-    <span class="yct-arrow">→</span>
-    <div class="yct-step reveal"><span class="emoji">🚀</span><span class="level">YCT 3</span><span class="label">Intermediate</span></div>
-    <span class="yct-arrow">→</span>
-    <div class="yct-step reveal"><span class="emoji">🏆</span><span class="level">YCT 4</span><span class="label">Advanced</span></div>
-  </div>
-</section>
-
-<!-- ===== WORKSHEETS SECTION ===== -->
-<section class="features-section" id="worksheets" style="background:var(--cream);">
-  <h2 class="section-title">Worksheets & Practice</h2>
-  <p class="section-sub">Printable and interactive worksheets to reinforce learning.</p>
-  <div class="feature-grid">
-    <div class="feature-card reveal"><span class="icon-wrap">✍️</span><h3>Character Writing</h3><p>Practice stroke order with guided character worksheets.</p></div>
-    <div class="feature-card reveal"><span class="icon-wrap">📝</span><h3>Vocabulary Quizzes</h3><p>Reinforce new words with fun fill-in-the-blank activities.</p></div>
-    <div class="feature-card reveal"><span class="icon-wrap">🎨</span><h3>Coloring Pages</h3><p>Learn through creativity with Chinese-themed coloring sheets.</p></div>
-  </div>
-</section>
-
-<!-- ===== INTERACTIVE PREVIEW ===== -->
-<section class="preview-section">
-  <div class="preview-box">
-    <div class="preview-row">
-      <span class="hanzi">你好</span>
-      <span class="pinyin">nǐ hǎo</span>
-      <span class="translation">Hello</span>
+<main>
+<section class="hero" id="home">
+  <div class="container hero-grid">
+    <div class="hero-content" id="heroContent">
+      <span class="eyebrow">Chinese learning, reimagined</span>
+      <h1>Learn Chinese.<br><span class="red">Explore</span> a <span class="underline">New World.</span></h1>
+      <p class="hero-copy">HanVerse turns Chinese learning into an adventure — with engaging lessons, practice, progress tracking and challenges designed to help young learners build confidence one step at a time.</p>
+      <div class="hero-actions">
+        <a class="btn primary large" href="signup.html">Start Learning →</a>
+        <a class="btn secondary large" href="learn.html">Explore Learn</a>
+      </    div>
+      <div class="trust"><span>YCT-focused learning</span><span>Interactive practice</span><span>Progress & XP</span></div>
     </div>
-    <div class="preview-tags">
-      <span class="listen">🎧 Listen</span>
-      <span class="practice">✍️ Practice</span>
-      <span class="next">Next →</span>
-    </div>
-    <div class="progress-wrap">
-      <div class="progress-row"><span>XP +20</span><span>🌟 80%</span></div>
-      <div class="progress-bar"><div class="fill"></div></div>
-    </div>
-    <div class="preview-stats">
-      <span>🔥 streak 5</span>
-      <span>🏅 3 achievements</span>
+
+    <div class="hero-visual">
+      <div class="glow"></div><div class="float xp">⭐ +20 XP</div><div class="float streak">🔥 7 day streak</div>
+      <article class="lesson">
+        <div class="lesson-top"><div class="lesson-label"><span class="dot"></span>Today's lesson</div><span class="pill">Level 1 · YCT</span></div>
+        <div class="character"><div class="panda" aria-hidden="true">🐼</div></div>
+        <div class="question">你好</div><div class="pinyin">nǐ hǎo · What does this mean?</div>
+        <div class="answers"><div class="answer correct">Hello ✓</div><div class="answer">Goodbye</div><div class="answer">Thank you</div><div class="answer">Good night</div></div>
+      </article>
     </div>
   </div>
 </section>
 
-<!-- ===== PRICING ===== -->
-<section class="pricing-section" id="pricing">
-  <h2 class="section-title">Choose Your Plan</h2>
-  <p class="section-sub">Start free, upgrade when you're ready.</p>
-  <div class="pricing-grid">
-    <div class="pricing-card reveal">
-      <div class="plan">Free</div>
-      <div class="price">$0 <span>/month</span></div>
-      <div class="desc">Explore the basics</div>
-      <ul>
-        <li><span class="check">✅</span> Selected lessons</li>
-        <li><span class="check">✅</span> Basic practice</li>
-        <li><span class="check">✅</span> Progress tracking</li>
-        <li><span class="cross">❌</span> Full YCT course</li>
-        <li><span class="cross">❌</span> Premium worksheets</li>
-      </ul>
-      <button class="btn btn-outline" onclick="alert('Start free')">Start Free</button>
-    </div>
-    <div class="pricing-card popular reveal">
-      <div class="plan">YCT Course</div>
-      <div class="price">$4 <span>/month</span></div>
-      <div class="desc">Full YCT access</div>
-      <ul>
-        <li><span class="check">✅</span> YCT course access</li>
-        <li><span class="check">✅</span> Video lessons</li>
-        <li><span class="check">✅</span> Practice materials</li>
-        <li><span class="check">✅</span> Progress tracking</li>
-        <li><span class="check">✅</span> XP & achievements</li>
-      </ul>
-      <button class="btn btn-primary" onclick="alert('Start $4 plan')">Start Learning</button>
-    </div>
-    <div class="pricing-card reveal">
-      <div class="plan">Premium</div>
-      <div class="price">$10 <span>/month</span></div>
-      <div class="desc">Full access + extras</div>
-      <ul>
-        <li><span class="check">✅</span> All YCT levels</li>
-        <li><span class="check">✅</span> Premium worksheets</li>
-        <li><span class="check">✅</span> Full video library</li>
-        <li><span class="check">✅</span> Achievements & XP</li>
-        <li><span class="check">✅</span> Priority support</li>
-      </ul>
-      <button class="btn btn-outline" onclick="alert('Start $10 plan')">Choose Premium</button>
+<section class="value-strip" style="padding:0 0 75px">
+  <div class="container value-grid">
+    <div class="value"><div class="value-icon">📚</div><strong>Learn by doing</strong><small>Practice, don't just memorize.</small></div>
+    <div class="value"><div class="value-icon">🎯</div><strong>Built around YCT</strong><small>Structured learning for young learners.</small></div>
+    <div class="value"><div class="value-icon">⚡</div><strong>Stay motivated</strong><small>XP, streaks and achievements.</small></div>
+    <div class="value"><div class="value-icon">🌏</div><strong>Discover culture</strong><small>Language connected to a bigger world.</small></div>
+  </div>
+</section>
+
+<section class="section alt" id="features">
+  <div class="container">
+    <div class="heading reveal" data-reveal><span class="eyebrow">Why HanVerse?</span><h2>Learning should feel like an adventure.</h2><p>Everything is designed to make Chinese more engaging, practical and rewarding for young learners.</p></div>
+    <div class="feature-grid">
+      <article class="feature reveal" data-reveal><div class="feature-icon">🗺️</div><h3>Adventure-based learning</h3><p>Move through lessons and challenges instead of simply working through a textbook.</p></article>
+      <article class="feature reveal" data-reveal><div class="feature-icon">🎮</div><h3>Practice that feels fun</h3><p>Turn vocabulary and language practice into small, rewarding moments.</p></article>
+      <article class="feature reveal" data-reveal><div class="feature-icon">📈</div><h3>See your progress</h3><p>Track XP, streaks, completed lessons and achievements as you grow.</p></article>
+      <article class="feature reveal" data-reveal><div class="feature-icon">🏮</div><h3>Language + culture</h3><p>Discover Chinese language and culture together in a friendly environment.</p></article>
     </div>
   </div>
 </section>
 
-<!-- ===== WHY KIDS ===== -->
-<section class="why-section">
-  <h2 class="section-title">Progress & Gamification</h2>
-  <p class="section-sub">Motivation that keeps kids excited to learn.</p>
-  <div class="why-grid">
-    <div class="why-card reveal"><span class="icon">⭐</span><h4>XP & Levels</h4><p>Earn experience points and level up with every lesson.</p></div>
-    <div class="why-card reveal"><span class="icon">🔥</span><h4>Streaks</h4><p>Build daily habits and watch your streak grow.</p></div>
-    <div class="why-card reveal"><span class="icon">🏅</span><h4>Achievements</h4><p>Unlock badges for milestones and special accomplishments.</p></div>
-    <div class="why-card reveal"><span class="icon">📊</span><h4>Progress Bars</h4><p>See your improvement visually with clear progress indicators.</p></div>
-  </div>
-</section>
-
-<!-- ===== FINAL CTA ===== -->
-<section class="cta-section">
-  <div class="cta-box">
-    <span class="particle p1">✨</span>
-    <span class="particle p2">🌟</span>
-    <span class="particle p3">⭐</span>
-    <h2>Ready to Start Your Chinese Adventure?</h2>
-    <p>Make Chinese learning something your child looks forward to.</p>
-    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
-      <button class="btn btn-white" onclick="alert('Start learning')">Start Learning <span class="arrow">→</span></button>
-      <button class="btn btn-outline-light" onclick="alert('Learn more')">Explore Courses</button>
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="heading reveal" data-reveal><span class="eyebrow">How it works</span><h2>Three simple steps. One exciting journey.</h2></div>
+    <div class="steps">
+      <article class="step reveal" data-reveal><div class="num">01</div><h3>Choose your level</h3><p>Start where you are and build your Chinese foundation with a clear learning path.</p></article>
+      <article class="step reveal" data-reveal><div class="num">02</div><h3>Learn & practice</h3><p>Work through vocabulary, activities and interactive practice at your own pace.</p></article>
+      <article class="step reveal" data-reveal><div class="num">03</div><h3>Track your growth</h3><p>Earn XP, build streaks and celebrate milestones as your confidence grows.</p></article>
     </div>
   </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
+<section class="section alt" id="courses">
+  <div class="container">
+    <div class="heading reveal" data-reveal><span class="eyebrow">YCT pathway</span><h2>A clear path from beginner to confident learner.</h2><p>Explore the four YCT levels and keep moving forward.</p></div>
+    <div class="course-grid">
+      <article class="course reveal" data-reveal><span class="level">Beginner</span><h3>YCT 1</h3><p>Build your first foundation in everyday Chinese vocabulary and phrases.</p><a href="learn.html">Explore YCT 1 →</a></article>
+      <article class="course reveal" data-reveal><span class="level">Foundation</span><h3>YCT 2</h3><p>Expand vocabulary and start communicating with greater confidence.</p><a href="learn.html">Explore YCT 2 →</a></article>
+      <article class="course reveal" data-reveal><span class="level">Growing</span><h3>YCT 3</h3><p>Strengthen comprehension, vocabulary and practical communication skills.</p><a href="learn.html">Explore YCT 3 →</a></article>
+      <article class="course reveal" data-reveal><span class="level">Advanced</span><h3>YCT 4</h3><p>Challenge yourself with broader vocabulary and more complex language.</p><a href="learn.html">Explore YCT 4 →</a></article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="experience">
+  <div class="container preview">
+    <div class="preview-copy reveal" data-reveal><span class="eyebrow">Inside HanVerse</span><h2>Know where you are. Know where you're going.</h2><p>Learning becomes more motivating when progress is visible. HanVerse brings lessons, progress and goals together in one simple experience.</p>
+      <ul class="checks"><li>Track XP and learning progress</li><li>Build consistent learning streaks</li><li>Celebrate achievements and milestones</li><li>Keep your learning journey organized</li></ul>
+    </div>
+    <div class="dashboard reveal" data-reveal>
+      <div class="window"><div class="bar"><div class="dots"><i></i><i></i><i></i></div><small>HANVERSE · LEARNING JOURNEY</small></div>
+        <div class="dash-body"><div>
+          <div class="stat"><span class="label">Current level</span><strong>YCT 1</strong><div class="progress"><span></span></div></div>
+          <div class="stat"><span class="label">Learning streak</span><strong>7 🔥</strong></div>
+          <div class="stat"><span class="label">XP earned</span><strong>1,240</strong></div>
+        </div>
+        <div class="practice"><div class="practice-top"><span class="practice-title">Quick Practice</span><span class="pill">+20 XP</span></div><div><div class="char">学</div><small>xué · to learn / study</small></div><button type="button">Practice now</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="heading reveal" data-reveal><span class="eyebrow">Stay motivated</span><h2>Every small win counts.</h2><p>Simple feedback helps learners see that they're getting better.</p></div>
+    <div class="motivation-grid">
+      <article class="motivation reveal" data-reveal><span class="big">🔥</span><h3>Streaks</h3><p>Build a learning habit and keep your momentum going.</p></article>
+      <article class="motivation reveal" data-reveal><span class="big">⭐</span><h3>XP</h3><p>Earn experience as you complete lessons and activities.</p></article>
+      <article class="motivation reveal" data-reveal><span class="big">🏅</span><h3>Achievements</h3><p>Celebrate milestones and special accomplishments.</p></article>
+      <article class="motivation reveal" data-reveal><span class="big">📊</span><h3>Progress</h3><p>See your learning journey clearly and keep moving forward.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="heading reveal" data-reveal><span class="eyebrow">Simple pricing</span><h2>Start free. Grow when you're ready.</h2><p>Choose the level of access that fits your learning journey.</p></div>
+    <div class="pricing">
+      <article class="price-card reveal" data-reveal><h3>Free</h3><p class="desc">A simple way to explore HanVerse.</p><div class="price">$0 <small>forever</small></div><ul class="price-list"><li>Explore HanVerse</li><li>Access free learning resources</li><li>Start your Chinese journey</li></ul><a class="btn full" href="signup.html">Get Started</a></article>
+      <article class="price-card featured reveal" data-reveal><span class="popular">Most popular</span><h3>YCT Course</h3><p class="desc">Focused learning for learners following the YCT pathway.</p><div class="price">$4 <small>/ month</small></div><ul class="price-list"><li>YCT course access</li><li>Video lessons</li><li>Practice materials</li><li>Progress tracking</li><li>XP & achievements</li></ul><a class="btn primary full" href="signup.html">Start Learning →</a></article>
+      <article class="price-card reveal" data-reveal><h3>Premium</h3><p class="desc">The complete HanVerse learning experience.</p><div class="price">$10 <small>/ month</small></div><ul class="price-list"><li>All YCT levels</li><li>Premium worksheets</li><li>Full video library</li><li>Progress & achievements</li><li>Priority support</li></ul><a class="btn full" href="signup.html">Go Premium</a></article>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container"><div class="cta-box reveal" data-reveal><h2>Ready to start your Chinese adventure?</h2><p>Make Chinese learning something your child looks forward to.</p><div class="cta-actions"><a class="btn white large" href="signup.html">Start Learning →</a><a class="btn outline large" href="learn.html">Explore Courses</a></div></div></div>
+</section>
+</main>
+
 <footer>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-brand"><img src="hanverse-logo.png" alt="HanVerse" /><h2>HanVerse</h2></div>
-      <p>Learn Chinese. Explore the world.</p>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-main"><div class="footer-brand"><span class="brand-mark">🐼</span><h2>Han<span style="color:var(--red)">Verse</span></h2></div><p>Learn Chinese. Explore a new world.</p></div>
+      <div class="footer-col"><h3>Learn</h3><a href="learn.html">Learn</a><a href="worksheets.html">Worksheets</a><a href="#courses">YCT Pathway</a><a href="#pricing">Pricing</a></div>
+      <div class="footer-col"><h3>Explore</h3><a href="#features">Features</a><a href="#how-it-works">How It Works</a><a href="#experience">Experience</a><a href="signup.html">Get Started</a></div>
+      <div class="footer-col"><h3>Account</h3><a href="login.html">Log In</a><a href="signup.html">Sign Up</a><a href="profile.html">Profile</a></div>
     </div>
-    <div><h3>Learn</h3><a href="#">Courses</a><br><a href="#features">Features</a><br><a href="#pricing">Pricing</a></div>
-    <div><h3>Company</h3><a href="#">About</a><br><a href="#">Contact</a></div>
-    <div><h3>Legal</h3><a href="#">Privacy</a><br><a href="#">Terms</a></div>
+    <div class="footer-bottom"><span>© 2026 HanVerse. All rights reserved.</span><span>Learn Chinese. Live the adventure. 🌏</span></div>
   </div>
-  <hr />
-  <p class="copy">© 2026 HanVerse. All rights reserved.</p>
 </footer>
 
-<!-- ============================================================
-   SCRIPTS
-============================================================ -->
+<div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
 <script>
-  (function(){
-    'use strict';
+(function(){
+"use strict";
+const SESSION_KEY="hanverse_user";
 
-    // ---- navbar scroll ----
-    const nav = document.getElementById('topNav');
-    let ticking = false;
-    function updateNav() {
-      if (window.scrollY > 40) nav.classList.add('shrunk');
-      else nav.classList.remove('shrunk');
-      ticking = false;
-    }
-    window.addEventListener('scroll', ()=>{
-      if (!ticking) { requestAnimationFrame(updateNav); ticking = true; }
-    }, {passive:true});
-    updateNav();
+function getSession(){
+  try{const raw=localStorage.getItem(SESSION_KEY);return raw?JSON.parse(raw):null}catch{return null}
+}
+function loggedIn(){const s=getSession();return !!(s&&(s.user_id||s.id))}
+function admin(){const s=getSession();return !!(s&&(s.is_admin===true||s.isAdmin===true))}
+function parent(){const s=getSession();return !!(s&&(s.role==="parent"||s.isParent===true||s.parent===true))}
+function esc(v){const d=document.createElement("div");d.textContent=String(v);return d.innerHTML}
 
-    // ---- GSAP + ScrollTrigger for scroll reveals ----
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
-
-      // reveal all .reveal elements
-      gsap.utils.toArray('.reveal').forEach(el => {
-        gsap.fromTo(el, 
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse',
-              once: false
-            }
-          }
-        );
-      });
-
-      // extra sparkle for hero panda
-      const panda = document.getElementById('pandaMascot');
-      if (panda) {
-        gsap.to(panda, {
-          y: -12,
-          duration: 2.8,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
-        });
-        gsap.to(panda, {
-          rotation: 3,
-          duration: 3.6,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-          delay: 0.2
-        });
-        // hover
-        panda.addEventListener('mouseenter', ()=> {
-          gsap.to(panda, { scale: 1.08, rotation: -4, duration: 0.4, overwrite: 'auto' });
-        });
-        panda.addEventListener('mouseleave', ()=> {
-          gsap.to(panda, { scale: 1, rotation: 3, duration: 0.4, overwrite: 'auto' });
-        });
-      }
-
-      // animate value items on scroll
-      gsap.utils.toArray('.value-item').forEach((el, i) => {
-        gsap.fromTo(el,
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            delay: i * 0.1,
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 90%',
-              toggleActions: 'play none none reverse'
-            }
-          }
-        );
-      });
-
-    } else {
-      // fallback: show all reveals
-      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
-    }
-
-    // ---- toast helper ----
-    window.showToast = function(msg, type='info') {
-      const t = document.createElement('div');
-      t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#243047;color:white;padding:12px 24px;border-radius:12px;font-weight:500;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.15);max-width:90%;text-align:center;';
-      t.textContent = msg;
-      document.body.appendChild(t);
-      setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity 0.4s'; setTimeout(()=>t.remove(),500); }, 3000);
-    };
-
-    // ---- service worker (safe) ----
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(()=>{});
-    }
-
-    console.log('🐼 HanVerse loaded · animation-rich rebuild');
-  })();
+function renderRoles(){
+  const d=document.getElementById("roleNavItems"),m=document.getElementById("mobileRoleItems");
+  let dh="",mh="";
+  if(parent()){dh+='<a class="nav-link parent" href="parent.html">Parent</a>';mh+='<a href="parent.html">Parent</a>'}
+  if(admin()){dh+='<a class="nav-link admin" href="admin.html">Admin</a>';mh+='<a href="admin.html">Admin</a>'}
+  if(d)d.innerHTML=dh;if(m)m.innerHTML=mh;
+}
+function logout(){
+  try{localStorage.removeItem(SESSION_KEY)}catch{}
+  location.href="index.html";
+}
+function renderAuth(){
+  const d=document.getElementById("authButtons"),m=document.getElementById("mobileAuthButtons");
+  if(!loggedIn()){
+    d.innerHTML='<a class="btn ghost" href="login.html">Log In</a><a class="btn primary" href="signup.html">Start Learning →</a>';
+    m.innerHTML='<a href="login.html">Log In</a><a class="mobile-cta" href="signup.html">Start Learning →</a>';
+    return;
+  }
+  const s=getSession(),name=esc(s?.full_name||s?.fullName||s?.username||"Learner");
+  d.innerHTML='<a class="btn ghost" href="profile.html">'+name+'</a><button class="btn primary" id="logout">Log Out</button>';
+  m.innerHTML='<a href="profile.html">Profile</a><button class="mobile-cta" id="mlogout">Log Out</button>';
+  document.getElementById("logout").onclick=logout;
+  document.getElementById("mlogout").onclick=logout;
+}
+function initMenu(){
+  const b=document.getElementById("mobileToggle"),m=document.getElementById("mobileMenu");
+  b.onclick=()=>{const open=m.classList.toggle("open");b.setAttribute("aria-expanded",open);b.textContent=open?"✕":"☰"};
+  m.addEventListener("click",e=>{if(e.target.closest("a")){m.classList.remove("open");b.setAttribute("aria-expanded","false");b.textContent="☰"}});
+  document.addEventListener("click",e=>{if(m.classList.contains("open")&&!m.contains(e.target)&&!b.contains(e.target)){m.classList.remove("open");b.setAttribute("aria-expanded","false");b.textContent="☰"}});
+}
+function initScroll(){
+  const h=document.getElementById("siteHeader");
+  const update=()=>h.classList.toggle("scrolled",scrollY>30);
+  update();addEventListener("scroll",update,{passive:true});
+}
+function initReveal(){
+  document.documentElement.classList.add("js-ready");
+  const els=document.querySelectorAll("[data-reveal]");
+  if(!("IntersectionObserver" in window)||matchMedia("(prefers-reduced-motion: reduce)").matches){els.forEach(e=>e.classList.add("visible"));return}
+  const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("visible");io.unobserve(e.target)}}),{threshold:.12,rootMargin:"0px 0px -40px"});
+  els.forEach(e=>io.observe(e));
+}
+function init(){renderRoles();renderAuth();initMenu();initScroll();initReveal()}
+document.readyState==="loading"?addEventListener("DOMContentLoaded",init,{once:true}):init();
+})();
 </script>
 </body>
 </html>
