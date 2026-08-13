@@ -101,6 +101,427 @@ footer{padding:65px 0 28px;border-top:1px solid rgba(36,48,71,.07);background:rg
 @media(max-width:420px){.footer-grid{grid-template-columns:1fr}.footer-main{grid-column:auto}.answers{grid-template-columns:1fr}.hero-visual{min-height:385px}.float{font-size:.68rem;padding:9px 10px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}.js-ready .reveal[data-reveal]{opacity:1;transform:none}}
 </style>
+
+<style id="hanverse-responsive-upgrade">
+/* ============================================================
+   HANVERSE RESPONSIVE CSS UPGRADE
+   Fluid-first layout: phones → tablets → laptops → wide screens
+   ============================================================ */
+
+:root{
+  --page-gutter:clamp(14px,3vw,34px);
+  --content-max:1220px;
+  --section-space:clamp(68px,8vw,112px);
+  --card-radius:clamp(18px,2vw,28px);
+}
+
+/* Prevent accidental viewport overflow without masking real components */
+html,body{width:100%;max-width:100%;overflow-x:clip}
+body{-webkit-text-size-adjust:100%}
+img,svg,video,canvas{display:block;max-width:100%;height:auto}
+button,a{touch-action:manipulation}
+
+/* Better global container */
+.container{
+  width:min(calc(100% - (var(--page-gutter) * 2)),var(--content-max));
+  margin-inline:auto;
+}
+
+/* Fluid sections */
+.section{padding-block:var(--section-space)}
+.cta{padding-block:clamp(60px,7vw,96px)}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+.site-header{padding:clamp(7px,1.2vw,14px) 0}
+.navbar{
+  width:min(calc(100% - 18px),1280px);
+  min-height:clamp(62px,5vw,72px);
+  padding-inline:clamp(12px,2vw,20px);
+  gap:clamp(8px,1.5vw,18px);
+}
+.brand{font-size:clamp(1.02rem,1.6vw,1.2rem)}
+.brand-mark{width:clamp(36px,3.2vw,40px);height:clamp(36px,3.2vw,40px)}
+.desktop-nav{gap:clamp(1px,.4vw,5px)}
+.nav-link{padding:10px clamp(7px,1vw,13px);white-space:nowrap}
+.actions{gap:5px}
+.actions .btn{white-space:nowrap}
+
+@media (max-width:1020px) and (min-width:861px){
+  .navbar{padding-left:14px;padding-right:10px}
+  .brand{font-size:1rem}
+  .nav-link{font-size:.82rem;padding-inline:7px}
+  .actions .btn{padding-inline:12px;font-size:.78rem}
+}
+
+@media (max-width:860px){
+  .navbar{width:calc(100% - 14px)}
+}
+
+/* ============================================================
+   HERO — fluid and safe at every width
+   ============================================================ */
+.hero{
+  padding-block:clamp(42px,6vw,78px) clamp(66px,8vw,94px);
+}
+.hero-grid{
+  grid-template-columns:minmax(0,1.04fr) minmax(320px,.96fr);
+  gap:clamp(30px,6vw,76px);
+}
+.hero h1{
+  font-size:clamp(2.55rem,5.8vw,5.35rem);
+  overflow-wrap:normal;
+}
+.hero-copy{
+  font-size:clamp(.96rem,1.35vw,1.17rem);
+}
+.hero-visual{
+  min-height:clamp(390px,42vw,520px);
+}
+.lesson{
+  width:min(100%,470px);
+}
+.character{min-height:clamp(190px,20vw,215px)}
+.panda{
+  width:clamp(112px,12vw,140px);
+  height:clamp(112px,12vw,140px);
+  font-size:clamp(4rem,5vw,5rem);
+}
+.float{
+  max-width:max-content;
+  white-space:nowrap;
+}
+.xp{left:clamp(-22px,0vw,4px)}
+.streak{right:clamp(-22px,0vw,4px)}
+
+@media (max-width:980px) and (min-width:861px){
+  .hero-grid{gap:30px}
+  .hero h1{font-size:clamp(2.8rem,5.2vw,4.3rem)}
+  .lesson{padding:20px}
+}
+
+@media (max-width:860px){
+  .hero-grid{
+    grid-template-columns:1fr;
+    gap:38px;
+  }
+  .hero-content{
+    max-width:720px;
+    text-align:center;
+    margin-inline:auto;
+  }
+  .hero-copy{margin-inline:auto}
+  .hero-actions,.trust{justify-content:center}
+  .hero-visual{
+    width:min(100%,570px);
+    margin-inline:auto;
+  }
+}
+
+/* ============================================================
+   FLUID GRIDS
+   ============================================================ */
+.value-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(10px,1.5vw,16px);
+}
+.feature-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(12px,1.7vw,18px);
+}
+.course-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(12px,1.7vw,18px);
+}
+.motivation-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(12px,1.7vw,18px);
+}
+.steps{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(13px,2vw,22px);
+}
+.pricing{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(12px,2vw,20px);
+}
+
+.value,.feature,.course,.motivation,.step,.price-card{
+  min-width:0;
+}
+
+@media (max-width:1050px) and (min-width:861px){
+  .value-grid,.feature-grid,.course-grid,.motivation-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+/* ============================================================
+   HEADINGS + CARDS
+   ============================================================ */
+.heading{max-width:min(700px,100%);margin-bottom:clamp(30px,4vw,46px)}
+.heading h2{
+  font-size:clamp(2rem,4vw,3.15rem);
+}
+.heading p{font-size:clamp(.94rem,1.3vw,1.06rem)}
+
+.feature,.course,.motivation,.step,.price-card{
+  border-radius:var(--card-radius);
+}
+.feature{min-height:0}
+.course p{min-height:auto}
+.motivation .big{font-size:clamp(1.8rem,3vw,2.2rem)}
+
+/* ============================================================
+   EXPERIENCE / DASHBOARD
+   ============================================================ */
+.preview{
+  grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  gap:clamp(32px,6vw,72px);
+}
+.dashboard{min-width:0}
+.window,.dash-body,.practice,.stat{min-width:0}
+.practice{overflow:hidden}
+.char{font-size:clamp(2.6rem,5vw,3.3rem)}
+
+@media (max-width:860px){
+  .preview{
+    grid-template-columns:1fr;
+    gap:38px;
+  }
+  .preview-copy{text-align:center}
+  .checks{
+    width:min(100%,500px);
+    margin-inline:auto;
+    text-align:left;
+  }
+}
+
+/* ============================================================
+   PRICING
+   ============================================================ */
+.price{
+  font-size:clamp(2.25rem,4vw,2.65rem);
+}
+.price-card.featured{transform:translateY(-7px)}
+
+@media (max-width:860px){
+  .pricing{grid-template-columns:1fr}
+  .price-card,.price-card.featured{
+    transform:none;
+    max-width:620px;
+    width:100%;
+    margin-inline:auto;
+  }
+}
+
+/* ============================================================
+   CTA
+   ============================================================ */
+.cta-box{
+  padding:clamp(48px,7vw,72px) clamp(18px,5vw,40px);
+  border-radius:clamp(26px,3vw,36px);
+}
+.cta-box h2{
+  font-size:clamp(2rem,4.5vw,3.35rem);
+}
+.cta-box p{
+  font-size:clamp(.92rem,1.3vw,1rem);
+}
+.cta-box:before{font-size:clamp(8rem,14vw,13rem)}
+
+@media (max-width:520px){
+  .cta-actions{
+    flex-direction:column;
+    width:min(100%,360px);
+    margin-inline:auto;
+  }
+  .cta-actions .btn{width:100%}
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer-grid{
+  grid-template-columns:minmax(220px,1.5fr) repeat(3,minmax(100px,1fr));
+  gap:clamp(20px,4vw,40px);
+}
+.footer-bottom{flex-wrap:wrap}
+
+@media (max-width:760px){
+  .footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .footer-main{grid-column:1/-1}
+}
+@media (max-width:480px){
+  .footer-grid{grid-template-columns:1fr}
+  .footer-main{grid-column:auto}
+}
+
+/* ============================================================
+   SMALL PHONES — 320–430px
+   ============================================================ */
+@media (max-width:430px){
+  :root{--page-gutter:14px}
+
+  .navbar{
+    border-radius:17px;
+    min-height:60px;
+  }
+
+  .brand-mark{font-size:1.2rem}
+  .hero{padding-top:34px}
+  .hero h1{
+    font-size:clamp(2.45rem,13vw,3.5rem);
+    line-height:1.01;
+  }
+  .hero-copy{
+    font-size:.96rem;
+    line-height:1.65;
+  }
+
+  .hero-actions{gap:9px}
+  .hero-actions .btn{
+    width:100%;
+    min-height:50px;
+  }
+
+  .trust{
+    gap:7px;
+    font-size:.76rem;
+  }
+
+  .hero-visual{
+    min-height:365px;
+  }
+  .lesson{
+    padding:15px;
+    border-radius:22px;
+    transform:none;
+  }
+  .lesson-top{margin-bottom:14px}
+  .lesson-label{font-size:.65rem}
+  .pill{font-size:.65rem;padding:6px 8px}
+  .character{min-height:175px;border-radius:18px}
+  .panda{
+    width:105px;height:105px;
+    font-size:3.7rem;
+    border-width:6px;
+  }
+  .character:before{
+    font-size:2.7rem;
+    right:12px;
+    top:7px;
+  }
+  .question{font-size:1.3rem}
+  .answers{gap:6px}
+  .answer{padding:9px 8px;font-size:.75rem}
+  .float{
+    font-size:.65rem;
+    padding:8px 9px;
+  }
+  .xp{left:0;top:28px}
+  .streak{right:0;bottom:30px}
+
+  .section{padding-block:64px}
+  .heading h2,.preview h2{font-size:clamp(1.85rem,9vw,2.2rem)}
+  .heading p{font-size:.92rem}
+
+  .value,.feature,.course,.motivation,.step,.price-card{
+    padding:19px;
+  }
+
+  .dash-body{padding:10px}
+  .dashboard{padding:10px;border-radius:22px}
+  .window{border-radius:15px}
+  .bar{padding:10px}
+  .stat,.practice{padding:12px}
+}
+
+/* ============================================================
+   VERY SMALL PHONES — 320px safety
+   ============================================================ */
+@media (max-width:350px){
+  .navbar{width:calc(100% - 10px)}
+  .brand{gap:7px;font-size:.96rem}
+  .brand-mark{width:34px;height:34px;font-size:1.05rem}
+  .hero h1{font-size:2.3rem}
+  .hero-visual{min-height:350px}
+  .lesson-top{align-items:flex-start;gap:6px}
+  .lesson-label{font-size:.58rem}
+  .pill{font-size:.58rem}
+  .answers{grid-template-columns:1fr}
+  .answer{text-align:center}
+  .float{font-size:.58rem}
+  .xp{top:18px;left:-2px}
+  .streak{bottom:18px;right:-2px}
+}
+
+/* ============================================================
+   LARGE DESKTOP / ULTRAWIDE
+   ============================================================ */
+@media (min-width:1500px){
+  :root{--content-max:1280px}
+  .hero-grid{gap:90px}
+  .section{padding-block:120px}
+}
+@media (min-width:1900px){
+  :root{--content-max:1340px}
+  body{font-size:17px}
+}
+
+/* ============================================================
+   MOTION — tasteful, not essential to visibility
+   ============================================================ */
+@keyframes hvFloat{
+  0%,100%{transform:translateY(0) rotate(var(--r,0deg))}
+  50%{transform:translateY(-8px) rotate(var(--r,0deg))}
+}
+.xp{--r:-5deg;animation:hvFloat 4.5s ease-in-out infinite}
+.streak{--r:4deg;animation:hvFloat 5s ease-in-out .6s infinite}
+.lesson{animation:lessonFloat 7s ease-in-out infinite}
+@keyframes lessonFloat{
+  0%,100%{transform:rotate(1deg) translateY(0)}
+  50%{transform:rotate(1deg) translateY(-5px)}
+}
+@media (max-width:430px){
+  .lesson{animation:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .xp,.streak,.lesson{animation:none!important}
+}
+
+/* ============================================================
+   MOBILE MENU POLISH
+   ============================================================ */
+.mobile-menu{
+  max-height:calc(100vh - 86px);
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+.mobile-menu a,.mobile-menu button{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+}
+
+/* ============================================================
+   FINAL SAFETY: never let common flex/grid children overflow
+   ============================================================ */
+.hero-grid > *,
+.preview > *,
+.value-grid > *,
+.feature-grid > *,
+.course-grid > *,
+.motivation-grid > *,
+.steps > *,
+.pricing > *{
+  min-width:0;
+}
+
+h1,h2,h3,p{overflow-wrap:break-word}
+</style>
+
 </head>
 
 <body>
@@ -149,7 +570,7 @@ footer{padding:65px 0 28px;border-top:1px solid rgba(36,48,71,.07);background:rg
       <div class="hero-actions">
         <a class="btn primary large" href="signup.html">Start Learning →</a>
         <a class="btn secondary large" href="learn.html">Explore Learn</a>
-      </    div>
+      </div>
       <div class="trust"><span>YCT-focused learning</span><span>Interactive practice</span><span>Progress & XP</span></div>
     </div>
 
