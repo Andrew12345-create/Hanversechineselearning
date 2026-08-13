@@ -12,20 +12,23 @@
 [functions.esbuild]
   format = "esm"
 
-# Rule 1: Proxy clean api endpoints to the serverless function handler
+
+# ================================
+# API → Express serverless function
+# ================================
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/server/:splat"
   status = 200
   force = true
 
-# Rule 2: Single Page Application router fallback (checks for real files like reset.html first)
+
+# ================================
+# Clean page URLs
+# ================================
+
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false # <-- This is vital! It stops index.html from hijacking reset.html
-  [[redirects]]
   from = "/parents"
   to = "/parents.html"
   status = 200
@@ -55,7 +58,11 @@
   to = "/verify-email.html"
   status = 200
 
-# SPA fallback (optional)
+
+# ================================
+# SPA fallback
+# ================================
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

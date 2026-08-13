@@ -1,1145 +1,1356 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learn Chinese | HanVerse</title>
-<meta name="description" content="Explore HanVerse YCT 1–4 Chinese learning courses, interactive lessons, vocabulary practice and progress tracking.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFFDF7">
+<title>HanVerse | Learn</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --red:#E63946;
-  --red-soft:#FFE7EA;
-  --yellow:#F4D35E;
-  --yellow-soft:#FFF7D6;
-  --blue:#4EA8DE;
-  --blue-soft:#E8F5FC;
-  --green:#74C69D;
-  --green-soft:#EAF8F0;
-  --purple:#9B8AFB;
-  --purple-soft:#F0EDFF;
-  --cream:#FFFDF7;
-  --white:#fff;
-  --navy:#172033;
-  --muted:#667085;
-  --border:#E8EAF0;
-  --shadow:0 18px 50px rgba(23,32,51,.08);
-  --shadow-hover:0 24px 65px rgba(23,32,51,.13);
-  --radius:26px;
-  --container:1220px;
+ --cream:#FFFDF7;--white:#fff;--navy:#243047;--muted:#697386;--red:#E63946;
+ --blue:#4EA8DE;--green:#74C69D;--yellow:#F4D35E;--purple:#9B8AFB;
+ --line:rgba(36,48,71,.09);--soft:#F6F7F9;--max:1160px;
+ --shadow:0 14px 45px rgba(36,48,71,.075);--hover:0 22px 55px rgba(36,48,71,.12);
 }
-
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  font-family:Poppins,system-ui,sans-serif;
-  background:var(--cream);
-  color:var(--navy);
-  overflow-x:clip;
-  -webkit-font-smoothing:antialiased;
-}
-a{text-decoration:none;color:inherit}
-button{font:inherit}
-img{max-width:100%;display:block}
-.container{width:min(calc(100% - 32px),var(--container));margin:auto}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:
+ radial-gradient(circle at 5% 4%,rgba(244,211,94,.14),transparent 25rem),
+ radial-gradient(circle at 96% 28%,rgba(78,168,222,.10),transparent 28rem),var(--cream);
+ color:var(--navy);font-family:Nunito,system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
+a{text-decoration:none;color:inherit}button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid rgba(78,168,222,.5);outline-offset:3px}
+.container{width:min(calc(100% - 32px),var(--max));margin:auto}
 
 /* NAV */
-.site-header{
-  position:sticky;
-  top:12px;
-  z-index:1000;
-  padding:12px 0 0;
-}
-.navbar{
-  width:min(calc(100% - 20px),1280px);
-  min-height:68px;
-  margin:auto;
-  padding:10px 16px;
-  display:flex;
-  align-items:center;
-  gap:18px;
-  background:rgba(255,255,255,.94);
-  backdrop-filter:blur(18px);
-  border:1px solid rgba(232,234,240,.9);
-  border-radius:22px;
-  box-shadow:0 10px 35px rgba(23,32,51,.07);
-}
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:800;
-  font-size:1.12rem;
-  margin-right:auto;
-}
-.brand-mark{
-  width:40px;height:40px;
-  display:grid;place-items:center;
-  border-radius:13px;
-  background:var(--yellow-soft);
-  font-size:1.45rem;
-}
+.site-header{position:sticky;top:0;z-index:1000;padding:12px 0}
+.navbar{width:min(calc(100% - 20px),1240px);min-height:68px;margin:auto;padding:9px 14px;
+ display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);
+ border:1px solid var(--line);border-radius:21px;box-shadow:0 10px 35px rgba(36,48,71,.07)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:900;font-size:1.08rem;margin-right:auto}
+.brand-mark{width:40px;height:40px;border-radius:13px;background:#FFF7D6;display:grid;place-items:center;font-size:1.35rem}
 .brand span span{color:var(--red)}
-.desktop-nav{display:flex;align-items:center;gap:3px}
-.nav-link{
-  position:relative;
-  padding:10px 13px;
-  border-radius:12px;
-  font-size:.86rem;
-  font-weight:600;
-  color:#566074;
-  transition:.25s ease;
-}
-.nav-link:hover,.nav-link.active{
-  color:var(--navy);
-  background:#F6F7FA;
-}
-.nav-link.active:after{
-  content:"";
-  position:absolute;
-  left:13px;right:13px;bottom:5px;
-  height:2px;border-radius:4px;
-  background:var(--red);
-}
-.actions{display:flex;gap:8px;align-items:center}
-.btn{
-  min-height:44px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  padding:10px 17px;
-  border-radius:13px;
-  border:1px solid transparent;
-  cursor:pointer;
-  font-size:.84rem;
-  font-weight:700;
-  transition:transform .25s ease,box-shadow .25s ease,background .25s ease;
-}
+.desktop-nav{display:flex;align-items:center;gap:2px}
+.nav-link{padding:10px 12px;border-radius:12px;color:#596477;font-size:.83rem;font-weight:900}
+.nav-link:hover,.nav-link.active{background:#F5F6F8;color:var(--navy)}
+.nav-link.active{box-shadow:inset 0 -2px var(--red)}
+.actions{display:flex;gap:8px}
+.btn{min-height:44px;padding:10px 16px;border-radius:13px;border:1px solid transparent;
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:.8rem;font-weight:900;transition:.25s ease}
 .btn:hover{transform:translateY(-2px)}
-.btn.primary{
-  color:white;
-  background:var(--red);
-  box-shadow:0 9px 22px rgba(230,57,70,.18);
-}
-.btn.primary:hover{box-shadow:0 14px 30px rgba(230,57,70,.24)}
-.btn.ghost{background:white;border-color:var(--border);color:var(--navy)}
-.mobile-toggle{
-  display:none;
-  width:44px;height:44px;
-  border:0;border-radius:13px;
-  background:#F5F6F8;
-  cursor:pointer;
-  font-size:1.25rem;
-}
-.mobile-menu{
-  display:none;
-  width:min(calc(100% - 20px),1280px);
-  margin:8px auto 0;
-  padding:10px;
-  background:white;
-  border:1px solid var(--border);
-  border-radius:20px;
-  box-shadow:var(--shadow);
-}
-.mobile-menu.open{display:block;animation:menuIn .22s ease}
-.mobile-menu a{
-  display:flex;
-  min-height:48px;
-  align-items:center;
-  padding:0 14px;
-  border-radius:13px;
-  font-weight:600;
-  color:#4F596B;
-}
-.mobile-menu a:hover,.mobile-menu a.active{background:#F6F7FA;color:var(--navy)}
-.mobile-divider{height:1px;background:var(--border);margin:8px 0}
-@keyframes menuIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.btn.primary{background:var(--red);color:#fff;box-shadow:0 10px 25px rgba(230,57,70,.16)}
+.btn.ghost{background:#fff;border-color:var(--line)}
+.mobile-toggle{display:none;width:44px;height:44px;border:0;border-radius:13px;background:#F5F6F8;color:var(--navy)}
+.mobile-menu{display:none;width:min(calc(100% - 20px),1240px);margin:7px auto 0;padding:10px;background:#fff;border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow)}
+.mobile-menu.open{display:block}
+.mobile-menu a{display:flex;align-items:center;min-height:48px;padding:0 13px;border-radius:12px;font-weight:800;color:#596477}
+.mobile-menu a:hover,.mobile-menu a.active{background:#F5F6F8;color:var(--navy)}
+.divider{height:1px;background:var(--line);margin:8px 0}
 
-/* HERO */
-.hero{
-  position:relative;
-  padding:clamp(62px,8vw,108px) 0 70px;
-}
-.hero:before{
-  content:"";
-  position:absolute;
-  width:520px;height:520px;
-  right:-220px;top:-180px;
-  background:radial-gradient(circle,rgba(78,168,222,.15),transparent 67%);
-  pointer-events:none;
-}
-.hero-grid{
-  display:grid;
-  grid-template-columns:minmax(0,1.05fr) minmax(340px,.95fr);
-  gap:clamp(35px,7vw,90px);
-  align-items:center;
-}
-.eyebrow{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:7px 11px;
-  border-radius:999px;
-  background:var(--blue-soft);
-  color:#2478A8;
-  font-size:.72rem;
-  font-weight:800;
-  letter-spacing:.05em;
-  text-transform:uppercase;
-}
-.eyebrow:before{
-  content:"";
-  width:7px;height:7px;
-  border-radius:50%;
-  background:var(--blue);
-}
-.hero h1{
-  margin-top:20px;
-  font-size:clamp(2.7rem,6vw,5rem);
-  line-height:1.03;
-  letter-spacing:-.055em;
-}
-.hero h1 .accent{color:var(--red)}
-.hero-copy{
-  max-width:650px;
-  margin-top:22px;
-  color:var(--muted);
-  font-size:clamp(.98rem,1.35vw,1.08rem);
-  line-height:1.8;
-}
-.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:27px}
-.hero-actions .btn{min-height:50px;padding-inline:20px}
-.hero-points{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
-.hero-points span{
-  padding:7px 10px;
-  background:white;
-  border:1px solid var(--border);
-  border-radius:999px;
-  font-size:.72rem;
-  font-weight:600;
-  color:#606B7D;
-}
-.hero-art{
-  position:relative;
-  min-height:390px;
-  display:grid;
-  place-items:center;
-}
-.art-card{
-  position:relative;
-  width:min(100%,480px);
-  padding:20px;
-  border:1px solid rgba(232,234,240,.9);
-  border-radius:32px;
-  background:white;
-  box-shadow:var(--shadow);
-  transform:rotate(1deg);
-}
-.art-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}
-.live{display:flex;align-items:center;gap:7px;font-size:.7rem;font-weight:800;color:#687386}
-.live i{width:7px;height:7px;background:var(--green);border-radius:50%}
-.level-pill{padding:6px 9px;border-radius:9px;background:var(--yellow-soft);font-size:.67rem;font-weight:800}
-.art-scene{
-  min-height:205px;
-  border-radius:22px;
-  background:linear-gradient(145deg,#EAF8F0,#E8F5FC);
-  display:grid;
-  place-items:center;
-  position:relative;
-  overflow:hidden;
-}
-.art-scene:before,.art-scene:after{
-  content:"";
-  position:absolute;
-  border-radius:50%;
-  background:rgba(255,255,255,.55);
-}
-.art-scene:before{width:180px;height:180px;right:-40px;top:-65px}
-.art-scene:after{width:120px;height:120px;left:-35px;bottom:-55px}
-.big-character{font-size:clamp(5rem,9vw,7rem);filter:drop-shadow(0 12px 12px rgba(23,32,51,.1));animation:bob 4s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-7px) rotate(2deg)}}
-.art-question{text-align:center;padding:17px 4px 4px}
-.art-question strong{display:block;font-size:1.65rem;letter-spacing:.02em}
-.art-question small{color:var(--muted)}
-.answer-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
-.answer{
-  padding:10px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  text-align:center;
-  font-size:.73rem;
-  font-weight:600;
-}
-.answer.correct{background:var(--green-soft);border-color:#CBEBD8;color:#27754E}
-.float-badge{
-  position:absolute;
-  padding:9px 12px;
-  border-radius:14px;
-  background:white;
-  border:1px solid var(--border);
-  box-shadow:0 14px 35px rgba(23,32,51,.11);
-  font-size:.7rem;
-  font-weight:800;
-}
-.float-badge.xp{left:-20px;top:70px;transform:rotate(-5deg)}
-.float-badge.streak{right:-20px;bottom:65px;transform:rotate(5deg)}
+/* INTRO */
+main{padding-bottom:70px}
+.learn-intro{padding:54px 0 28px}
+.intro-grid{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:55px}
+.eyebrow{display:inline-flex;padding:7px 11px;border-radius:999px;background:#E8F5FC;color:#287BA9;
+ font-size:.67rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.intro h1{margin:13px 0 10px;font:900 clamp(2.35rem,5vw,4rem)/1.04 Poppins,sans-serif;letter-spacing:-.05em}
+.intro h1 .accent{color:var(--red)}
+.intro-copy{max-width:650px;color:var(--muted);font-size:clamp(.92rem,1.5vw,1.03rem)}
+.intro-note{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.note{padding:8px 11px;background:#fff;border:1px solid var(--line);border-radius:999px;color:#596477;font-size:.68rem;font-weight:900}
+.path-preview{position:relative;padding:24px;background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+.path-preview:before{content:"";position:absolute;inset:13px;border-radius:21px;border:1px dashed #DDE3E9;pointer-events:none}
+.preview-title{position:relative;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.preview-title strong{font-size:.86rem}.preview-title span{font-size:.65rem;color:var(--muted);font-weight:900}
+.mini-path{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:23px}
+.mini-level{padding:12px 7px;text-align:center;border-radius:17px;background:#F7F8FA;border:1px solid var(--line);transition:.25s}
+.mini-level:hover{transform:translateY(-4px);background:#fff;box-shadow:var(--shadow)}
+.mini-level .icon{font-size:1.4rem}.mini-level strong{display:block;margin-top:5px;font-size:.75rem}.mini-level small{display:block;color:var(--muted);font-size:.56rem;font-weight:800}
+.preview-footer{position:relative;margin-top:17px;padding:11px 13px;border-radius:14px;background:#F8FBFC;color:#587183;font-size:.67rem;font-weight:800}
 
-/* QUICK STATS */
-.quick-stats{padding:0 0 75px}
-.stats-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px;
-}
-.stat-card{
-  padding:20px;
-  border-radius:20px;
-  background:white;
-  border:1px solid var(--border);
-  box-shadow:0 10px 30px rgba(23,32,51,.045);
-  transition:.25s ease;
-}
-.stat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover)}
-.stat-icon{
-  width:40px;height:40px;
-  display:grid;place-items:center;
-  border-radius:12px;
-  background:var(--blue-soft);
-  font-size:1.2rem;
-  margin-bottom:13px;
-}
-.stat-card:nth-child(2) .stat-icon{background:var(--yellow-soft)}
-.stat-card:nth-child(3) .stat-icon{background:var(--green-soft)}
-.stat-card:nth-child(4) .stat-icon{background:var(--red-soft)}
-.stat-card strong{display:block;font-size:1.05rem}
-.stat-card small{display:block;margin-top:3px;color:var(--muted);font-size:.73rem}
+/* LIBRARY */
+.library-section{padding-top:30px}
+.library-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:20px}
+.section-label{color:var(--red);font-size:.67rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.library-head h2{margin:4px 0 3px;font:900 clamp(1.55rem,3vw,2.25rem)/1.1 Poppins,sans-serif;letter-spacing:-.035em}
+.library-head p{color:var(--muted);font-size:.78rem}
+.filters{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.filter{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#626D7F;font-size:.68rem;font-weight:900}
+.filter:hover,.filter.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.status{margin-bottom:16px;color:var(--muted);font-size:.72rem;font-weight:800}
+.level-section{margin-top:18px;padding:22px;background:#fff;border:1px solid var(--line);border-radius:25px;box-shadow:0 10px 34px rgba(36,48,71,.055)}
+.level-heading{display:flex;align-items:center;gap:13px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.level-icon{width:48px;height:48px;flex:0 0 48px;border-radius:15px;display:grid;place-items:center;font-size:1.4rem;background:#EAF8F0}
+.level-section:nth-child(2) .level-icon{background:#E8F5FC}
+.level-section:nth-child(3) .level-icon{background:#F0EDFF}
+.level-section:nth-child(4) .level-icon{background:#FFF7D6}
+.level-meta{min-width:0;flex:1}.level-meta h3{font-size:1.12rem}.level-meta p{margin:2px 0 0;color:var(--muted);font-size:.67rem}
+.level-percent{font-size:.7rem;font-weight:900;color:#596477}
+.course-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding-top:18px}
+.course-card{position:relative;min-width:0;padding:19px;border:1px solid var(--line);border-radius:20px;background:#FCFCFD;
+ transition:.27s ease;overflow:hidden}
+.course-card:hover{transform:translateY(-5px);background:#fff;box-shadow:var(--hover)}
+.course-card:after{content:"";position:absolute;left:0;bottom:0;width:100%;height:3px;background:linear-gradient(90deg,var(--green),var(--blue));transform:scaleX(0);transform-origin:left;transition:.3s}
+.course-card:hover:after{transform:scaleX(1)}
+.course-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:#fff;border:1px solid var(--line);font-size:1.25rem;margin-bottom:12px}
+.course-card h4{font-size:.94rem;line-height:1.35;margin:0}
+.course-card p{margin:7px 0 0;color:var(--muted);font-size:.7rem;line-height:1.6;min-height:45px}
+.course-badge{display:inline-block;margin-top:13px;padding:5px 8px;border-radius:999px;background:#E8F5FC;color:#287BA9;font-size:.58rem;font-weight:900}
+.progress{margin-top:13px}.progress-label{display:flex;justify-content:space-between;color:#7A8494;font-size:.59rem;font-weight:900}
+.track{height:6px;margin-top:6px;background:#EEF1F4;border-radius:999px;overflow:hidden}
+.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--blue))}
+.course-link{display:flex;align-items:center;justify-content:space-between;margin-top:15px;color:var(--navy);font-size:.7rem;font-weight:900}
+.course-link span{color:var(--red);transition:.2s}.course-card:hover .course-link span{transform:translateX(4px)}
+.empty{padding:38px 20px;text-align:center;border:1px dashed #D8DEE5;border-radius:20px;background:#FAFBFC;color:var(--muted);font-size:.76rem}
+.empty strong{display:block;color:var(--navy);margin-bottom:4px}
+.loading-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--blue);margin-left:4px;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
 
-/* COMMON SECTION */
-.section{padding:clamp(72px,9vw,115px) 0}
-.section.alt{background:#F8F9FC}
-.section-head{max-width:730px;margin-bottom:42px}
-.section-head.center{text-align:center;margin-inline:auto}
-.section-head .eyebrow{margin-bottom:14px}
-.section-head h2{
-  font-size:clamp(2rem,4vw,3.25rem);
-  line-height:1.08;
-  letter-spacing:-.045em;
-}
-.section-head p{margin-top:13px;color:var(--muted);line-height:1.75;font-size:.96rem}
+/* SMALL FOOTER CTA */
+.learning-tip{margin-top:25px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px;
+ background:linear-gradient(135deg,#FFF7D6,#EAF8F0);border:1px solid var(--line);border-radius:22px}
+.learning-tip h3{font-size:1rem}.learning-tip p{margin-top:3px;color:var(--muted);font-size:.7rem}
 
-/* PATH */
-.path{
-  position:relative;
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:16px;
-}
-.path:before{
-  content:"";
-  position:absolute;
-  top:76px;
-  left:10%;
-  right:10%;
-  height:3px;
-  background:linear-gradient(90deg,var(--green),var(--blue),var(--purple),var(--yellow));
-  border-radius:5px;
-  opacity:.4;
-}
-.level-card{
-  position:relative;
-  z-index:1;
-  padding:24px 20px;
-  background:white;
-  border:1px solid var(--border);
-  border-radius:25px;
-  box-shadow:0 12px 38px rgba(23,32,51,.06);
-  transition:.3s ease;
-}
-.level-card:hover{transform:translateY(-7px);box-shadow:var(--shadow-hover)}
-.level-bubble{
-  width:72px;height:72px;
-  margin:0 auto 18px;
-  display:grid;place-items:center;
-  border-radius:22px;
-  font-size:2rem;
-  background:var(--green-soft);
-  border:6px solid white;
-  box-shadow:0 0 0 1px var(--border);
-}
-.level-card:nth-child(2) .level-bubble{background:var(--blue-soft)}
-.level-card:nth-child(3) .level-bubble{background:var(--purple-soft)}
-.level-card:nth-child(4) .level-bubble{background:var(--yellow-soft)}
-.level-card{text-align:center}
-.level-card .tag{
-  display:inline-block;
-  padding:5px 9px;
-  border-radius:999px;
-  background:#F5F6F8;
-  color:#687386;
-  font-size:.65rem;
-  font-weight:800;
-}
-.level-card h3{margin-top:10px;font-size:1.25rem}
-.level-card p{margin-top:7px;color:var(--muted);font-size:.75rem;line-height:1.6}
-.level-card .level-link{
-  display:inline-flex;
-  margin-top:15px;
-  color:var(--red);
-  font-size:.76rem;
-  font-weight:800;
-}
-
-/* COURSES */
-.course-toolbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin-bottom:22px;
-}
-.course-toolbar p{color:var(--muted);font-size:.82rem}
-.filters{display:flex;gap:7px;flex-wrap:wrap}
-.filter{
-  border:1px solid var(--border);
-  background:white;
-  color:#626D7F;
-  border-radius:999px;
-  padding:8px 12px;
-  font-size:.7rem;
-  font-weight:700;
-  cursor:pointer;
-}
-.filter.active,.filter:hover{background:var(--navy);color:white;border-color:var(--navy)}
-.level-section{
-  margin-top:22px;
-  padding:25px;
-  background:white;
-  border:1px solid var(--border);
-  border-radius:28px;
-  box-shadow:0 13px 40px rgba(23,32,51,.055);
-}
-.level-heading{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  padding-bottom:18px;
-  border-bottom:1px solid var(--border);
-}
-.level-icon{
-  width:52px;height:52px;
-  flex:0 0 52px;
-  display:grid;place-items:center;
-  border-radius:16px;
-  background:var(--green-soft);
-  font-size:1.6rem;
-}
-.level-section:nth-child(2) .level-icon{background:var(--blue-soft)}
-.level-section:nth-child(3) .level-icon{background:var(--purple-soft)}
-.level-section:nth-child(4) .level-icon{background:var(--yellow-soft)}
-.level-meta{min-width:0;flex:1}
-.level-meta h3{font-size:1.25rem}
-.level-meta p{margin-top:2px;color:var(--muted);font-size:.72rem}
-.level-progress{
-  width:55px;height:55px;
-  border-radius:50%;
-  display:grid;place-items:center;
-  border:4px solid #E8EDF0;
-  font-size:.7rem;font-weight:800;
-  color:#557;
-}
-.course-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:13px;
-  padding-top:20px;
-}
-.course-card{
-  position:relative;
-  min-width:0;
-  padding:20px;
-  border:1px solid var(--border);
-  border-radius:21px;
-  background:#FCFCFD;
-  transition:.28s ease;
-  overflow:hidden;
-}
-.course-card:hover{
-  transform:translateY(-5px);
-  background:white;
-  box-shadow:var(--shadow-hover);
-}
-.course-icon{
-  width:42px;height:42px;
-  display:grid;place-items:center;
-  border-radius:13px;
-  background:white;
-  border:1px solid var(--border);
-  font-size:1.3rem;
-  margin-bottom:13px;
-}
-.course-card h4{font-size:.98rem;line-height:1.35}
-.course-card p{
-  margin-top:7px;
-  color:var(--muted);
-  font-size:.73rem;
-  line-height:1.6;
-}
-.course-badge{
-  display:inline-block;
-  margin-top:15px;
-  padding:5px 8px;
-  border-radius:999px;
-  background:var(--blue-soft);
-  color:#2478A8;
-  font-size:.61rem;
-  font-weight:800;
-}
-.course-progress{margin-top:14px}
-.progress-label{display:flex;justify-content:space-between;color:#778193;font-size:.62rem;font-weight:600}
-.progress-track{height:6px;margin-top:6px;background:#EEF0F4;border-radius:10px;overflow:hidden}
-.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:10px;transition:width 1s ease}
-.empty-state{
-  padding:35px 20px;
-  text-align:center;
-  color:var(--muted);
-  border:1px dashed #D9DDE5;
-  border-radius:20px;
-  background:#FAFBFC;
-}
-.empty-state strong{display:block;color:var(--navy);margin-bottom:5px}
-
-/* LOGGED OUT CTA */
-.join{
-  margin-top:24px;
-  padding:35px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:25px;
-  background:linear-gradient(135deg,#FFF7D6,#E8F5FC);
-  border:1px solid var(--border);
-  border-radius:28px;
-}
-.join h2{font-size:clamp(1.35rem,2.5vw,1.9rem)}
-.join p{margin-top:5px;color:var(--muted);font-size:.82rem}
-
-/* FEATURES */
-.feature-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:14px;
-}
-.feature{
-  position:relative;
-  padding:24px;
-  min-height:200px;
-  background:white;
-  border:1px solid var(--border);
-  border-radius:24px;
-  transition:.3s ease;
-  overflow:hidden;
-}
-.feature:hover{transform:translateY(-6px);box-shadow:var(--shadow-hover)}
-.feature-icon{
-  width:48px;height:48px;
-  display:grid;place-items:center;
-  border-radius:15px;
-  background:var(--blue-soft);
-  font-size:1.4rem;
-  margin-bottom:18px;
-  transition:.3s ease;
-}
-.feature:nth-child(2) .feature-icon{background:var(--yellow-soft)}
-.feature:nth-child(3) .feature-icon{background:var(--green-soft)}
-.feature:nth-child(4) .feature-icon{background:var(--red-soft)}
-.feature:hover .feature-icon{transform:translateY(-3px) rotate(-3deg) scale(1.05)}
-.feature h3{font-size:.96rem}
-.feature p{margin-top:7px;color:var(--muted);font-size:.73rem;line-height:1.65}
-
-/* GAMIFICATION */
-.motivation-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:14px;
-}
-.motivation{
-  padding:25px;
-  border-radius:24px;
-  border:1px solid var(--border);
-  background:white;
-  transition:.3s ease;
-}
-.motivation:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover)}
-.motivation .big{font-size:2rem}
-.motivation h3{margin-top:13px;font-size:1rem}
-.motivation p{margin-top:6px;color:var(--muted);font-size:.74rem;line-height:1.65}
-
-/* CTA + FOOTER */
-.final-cta{padding:70px 0}
-.cta-box{
-  position:relative;
-  overflow:hidden;
-  text-align:center;
-  padding:clamp(48px,7vw,75px) 25px;
-  border-radius:34px;
-  background:linear-gradient(135deg,#E8F5FC 0%,#FFF7D6 100%);
-  border:1px solid var(--border);
-}
-.cta-box:before{
-  content:"汉";
-  position:absolute;
-  right:4%;top:-30%;
-  font-size:14rem;
-  font-weight:800;
-  color:rgba(230,57,70,.06);
-}
-.cta-box h2{position:relative;font-size:clamp(2rem,4vw,3.2rem);letter-spacing:-.045em}
-.cta-box p{position:relative;margin:12px auto 25px;color:var(--muted);font-size:.92rem}
-.cta-actions{position:relative;display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
-footer{padding:50px 0 25px;background:#172033;color:white}
-.footer-grid{
-  display:grid;
-  grid-template-columns:1.6fr repeat(3,1fr);
-  gap:35px;
-}
-.footer-brand{display:flex;align-items:center;gap:9px}
-.footer-brand .brand-mark{background:rgba(255,255,255,.1)}
-.footer-main p{margin-top:10px;color:#AEB7C6;font-size:.76rem}
-.footer-col h4{font-size:.76rem;margin-bottom:12px;color:white}
-.footer-col a{display:block;color:#AEB7C6;font-size:.72rem;margin:8px 0}
-.footer-col a:hover{color:white}
-.footer-bottom{
-  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
-  margin-top:35px;padding-top:18px;
-  border-top:1px solid rgba(255,255,255,.1);
-  color:#8E98AA;font-size:.66rem;
-}
-
-/* REVEALS */
-.reveal{
-  opacity:1;
-  transform:none;
-}
-.js-motion .reveal{
-  opacity:0;
-  transform:translateY(20px);
-  transition:opacity .65s ease,transform .65s ease;
-}
-.js-motion .reveal.visible{opacity:1;transform:none}
+/* FOOTER */
+footer{padding:45px 0 25px;background:#243047;color:#fff}
+.footer-grid{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:30px}
+.footer-brand{font-size:1.1rem;font-weight:900}.footer-main p{margin-top:8px;color:#AAB3C1;font-size:.72rem}
+.footer-col h4{font-size:.75rem}.footer-col a{display:block;margin-top:7px;color:#AAB3C1;font-size:.68rem}.footer-col a:hover{color:#fff}
+.footer-bottom{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-top:30px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);color:#8994A6;font-size:.62rem}
 
 /* RESPONSIVE */
-@media(max-width:1080px){
-  .desktop-nav{gap:0}
-  .nav-link{padding-inline:8px;font-size:.8rem}
-  .actions .btn{padding-inline:12px;font-size:.78rem}
-  .hero-grid{gap:40px}
-  .course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .feature-grid,.motivation-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.desktop-nav,.actions{display:none}.mobile-toggle{display:block}.intro-grid{grid-template-columns:1fr;gap:28px}.intro{text-align:center}.intro-copy{margin:auto}.intro-note{justify-content:center}.library-head{display:block}.filters{justify-content:flex-start;margin-top:13px}.course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.container{width:calc(100% - 24px)}.learn-intro{padding-top:35px}.intro h1{font-size:clamp(2.2rem,12vw,3.15rem)}.path-preview{padding:19px}.mini-path{gap:5px}.mini-level{padding:10px 4px}.mini-level .icon{font-size:1.2rem}.mini-level strong{font-size:.68rem}.course-grid{grid-template-columns:1fr}.level-section{padding:16px;border-radius:22px}.course-card p{min-height:0}.learning-tip{display:block}.learning-tip .btn{width:100%;margin-top:13px}.footer-grid{grid-template-columns:1fr}.footer-bottom{flex-direction:column}}
+@media(max-width:360px){.navbar{width:calc(100% - 10px)}.brand{font-size:1rem}.brand-mark{width:36px;height:36px}.mini-level small{display:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}html{scroll-behavior:auto}}
+
+/* ===== DATABASE LESSON ROADMAP UPGRADE ===== */
+.library-section{background:#fffdf8}
+.level-section{margin-top:42px}
+.level-heading{
+ display:flex;align-items:center;gap:16px;
+ padding:18px 20px;margin-bottom:18px;
+ background:linear-gradient(135deg,#fff 0%,#fffaf0 100%);
+ border:1px solid rgba(31,41,55,.08);border-radius:22px;
+ box-shadow:0 8px 30px rgba(31,41,55,.05)
 }
-@media(max-width:850px){
-  .desktop-nav,.actions{display:none}
-  .mobile-toggle{display:block}
-  .hero-grid{grid-template-columns:1fr}
-  .hero-content{text-align:center}
-  .hero-copy{margin-inline:auto}
-  .hero-actions,.hero-points{justify-content:center}
-  .hero-art{width:min(100%,570px);margin:auto}
-  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .path{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .path:before{display:none}
-  .join{flex-direction:column;align-items:flex-start}
-  .footer-grid{grid-template-columns:repeat(2,1fr)}
+.level-icon{
+ width:54px;height:54px;display:grid;place-items:center;
+ border-radius:16px;background:#f4d35e;font-size:27px;
+ flex:none
 }
-@media(max-width:560px){
-  .container{width:min(calc(100% - 24px),var(--container))}
-  .hero{padding-top:48px}
-  .hero h1{font-size:clamp(2.45rem,12.5vw,3.4rem)}
-  .hero-actions{flex-direction:column}
-  .hero-actions .btn{width:100%}
-  .hero-art{min-height:350px}
-  .art-card{padding:15px;border-radius:25px}
-  .float-badge.xp{left:-4px;top:40px}
-  .float-badge.streak{right:-4px;bottom:35px}
-  .stats-grid,.path,.course-grid,.feature-grid,.motivation-grid{grid-template-columns:1fr}
-  .level-section{padding:17px;border-radius:23px}
-  .course-toolbar{align-items:flex-start;flex-direction:column}
-  .join{padding:25px}
-  .footer-grid{grid-template-columns:1fr}
-  .footer-bottom{flex-direction:column;gap:6px}
+.level-meta{flex:1;min-width:0}
+.level-kicker{font-size:.68rem;font-weight:900;letter-spacing:.13em;color:#e05a47;margin-bottom:2px}
+.level-meta h3{margin:0;font-size:1.45rem;color:#202938}
+.level-meta p{margin:3px 0 0;color:#778195;font-size:.88rem}
+.level-progress-pill{
+ display:flex;align-items:center;gap:7px;
+ padding:8px 12px;border-radius:999px;background:#f3f7f4;
+ color:#607064;font-size:.74rem;font-weight:800;white-space:nowrap
 }
-@media(max-width:360px){
-  .navbar{width:calc(100% - 10px);padding-inline:10px}
-  .brand{font-size:1rem}
-  .brand-mark{width:36px;height:36px}
-  .hero h1{font-size:2.3rem}
-  .answer-row{grid-template-columns:1fr}
+.level-progress-dot{width:7px;height:7px;border-radius:50%;background:#74c69d}
+.course-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.course-card{
+ position:relative;overflow:hidden;
+ display:flex;flex-direction:column;
+ min-height:350px;background:#fff;
+ border:1px solid rgba(31,41,55,.08);border-radius:24px;
+ box-shadow:0 10px 35px rgba(31,41,55,.06);
+ transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease
 }
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}
-  .js-motion .reveal{opacity:1!important;transform:none!important}
+.course-card:hover{
+ transform:translateY(-6px);
+ box-shadow:0 18px 42px rgba(31,41,55,.12);
+ border-color:rgba(78,168,222,.28)
 }
+.course-card:after{
+ content:"";position:absolute;inset:auto 0 0;height:4px;
+ background:linear-gradient(90deg,#74c69d,#4ea8de,#f4d35e)
+}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 20px 0}
+.course-icon{
+ width:58px;height:58px;display:grid;place-items:center;
+ border-radius:18px;background:#f7f4ec;font-size:29px;
+ box-shadow:inset 0 0 0 1px rgba(31,41,55,.05)
+}
+.lesson-number{font-size:.72rem;font-weight:900;color:#a1a8b5;letter-spacing:.08em}
+.card-content{display:flex;flex-direction:column;flex:1;padding:15px 20px 21px}
+.course-badges{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.course-badge,.premium-badge,.free-badge{
+ display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;
+ font-size:.65rem;font-weight:900;letter-spacing:.04em
+}
+.course-badge{background:#eef5fb;color:#4a7699}
+.premium-badge{background:#fff3d8;color:#9b6a00}
+.free-badge{background:#edf8f1;color:#3e8060}
+.course-card h4{font-size:1.12rem;line-height:1.3;margin:0 0 7px;color:#202938}
+.course-card p{font-size:.86rem;line-height:1.55;color:#6e7889;margin:0 0 16px}
+.card-meta{
+ display:flex;gap:12px;flex-wrap:wrap;
+ font-size:.73rem;font-weight:800;color:#7c8798;
+ margin-bottom:auto;padding-bottom:15px
+}
+.progress-wrap{margin-bottom:16px}
+.progress-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:.68rem;color:#8a93a1}
+.progress-label strong{color:#475264}
+.track{height:6px;border-radius:999px;background:#edf0f2;overflow:hidden}
+.fill{
+ height:100%;width:0;border-radius:999px;
+ background:linear-gradient(90deg,#74c69d,#4ea8de);
+ transition:width .7s ease
+}
+.course-link{
+ display:flex;align-items:center;justify-content:space-between;
+ text-decoration:none;padding:11px 13px;border-radius:12px;
+ background:#f6f8fa;color:#263241;font-size:.82rem;font-weight:900;
+ transition:background .2s ease,transform .2s ease
+}
+.course-link:hover{background:#edf4f8;transform:translateX(2px)}
+.course-link .arrow{font-size:1.05rem}
+.course-card.premium-card .course-link{background:#fff8e8}
+.course-card.premium-card .course-link:hover{background:#fff1d0}
+.course-card.completed .course-link:before{content:"✓";margin-right:5px;color:#4f9c75;font-weight:900}
+.empty{
+ padding:45px 24px;text-align:center;background:#fff;border:1px dashed #d7dce2;
+ border-radius:22px;color:#7a8493
+}
+@media(max-width:1050px){
+ .course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .level-heading{align-items:flex-start}
+ .level-progress-pill{display:none}
+ .course-grid{grid-template-columns:1fr}
+ .course-card{min-height:0}
+}
+@media(max-width:430px){
+ .level-heading{padding:15px;border-radius:18px;gap:12px}
+ .level-icon{width:46px;height:46px;font-size:23px;border-radius:14px}
+ .level-meta h3{font-size:1.2rem}
+ .level-meta p{font-size:.78rem}
+ .card-top{padding:17px 17px 0}
+ .card-content{padding:13px 17px 18px}
+}
+
+
+.lesson-loading .track{position:relative}
+.lesson-loading .pct{opacity:.55}
+
 </style>
 </head>
-
 <body>
 <header class="site-header">
-  <nav class="navbar" aria-label="Primary navigation">
-    <a class="brand" href="index.html" aria-label="HanVerse home">
-      <span class="brand-mark">🐼</span>
-      <span>Han<span>Verse</span></span>
-    </a>
-
-    <div class="desktop-nav">
-      <a class="nav-link" href="index.html">Home</a>
-      <a class="nav-link active" href="learn.html">Learn</a>
-      <a class="nav-link" href="worksheets.html">Worksheets</a>
-      <span id="roleNav"></span>
-    </div>
-
-    <div class="actions" id="authNav">
-      <a class="btn ghost" href="login.html">Log In</a>
-      <a class="btn primary" href="signup.html">Start Learning →</a>
-    </div>
-
-    <button class="mobile-toggle" id="mobileToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation">☰</button>
-  </nav>
-
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="index.html">Home</a>
-    <a class="active" href="learn.html">Learn</a>
-    <a href="worksheets.html">Worksheets</a>
-    <div id="mobileRoleNav"></div>
-    <div class="mobile-divider"></div>
-    <div id="mobileAuthNav">
-      <a href="login.html">Log In</a>
-      <a href="signup.html">Start Learning →</a>
-    </div>
-  </div>
+<nav class="navbar" aria-label="Primary navigation">
+ <a class="brand" href="index.html"><span class="brand-mark">🐼</span><span>Han<span>Verse</span></span></a>
+ <div class="desktop-nav">
+  <a class="nav-link" href="index.html">Home</a><a class="nav-link active" href="learn.html">Learn</a><a class="nav-link" href="worksheets.html">Worksheets</a>
+  <span id="roleNav"></span>
+ </div>
+ <div class="actions" id="authNav"><a class="btn ghost" href="login.html">Log In</a><a class="btn primary" href="signup.html">Start Learning →</a></div>
+ <button class="mobile-toggle" id="mobileToggle" aria-expanded="false" aria-controls="mobileMenu">☰</button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+ <a href="index.html">Home</a><a class="active" href="learn.html">Learn</a><a href="worksheets.html">Worksheets</a>
+ <div id="mobileRoleNav"></div><div class="divider"></div><div id="mobileAuthNav"><a href="login.html">Log In</a><a href="signup.html">Start Learning →</a></div>
+</div>
 </header>
 
 <main>
-<section class="hero">
-  <div class="container hero-grid">
-    <div class="hero-content">
-      <span class="eyebrow">Your learning journey</span>
-      <h1>Explore. Learn.<br><span class="accent">Master Chinese.</span></h1>
-      <p class="hero-copy">
-        Discover structured Mandarin learning built around the YCT pathway.
-        Choose your level, explore lessons, practise what you learn and keep
-        moving forward with HanVerse.
-      </p>
-      <div class="hero-actions">
-        <a class="btn primary" href="signup.html">Start Learning →</a>
-        <a class="btn ghost" href="#courses">Explore Courses</a>
-      </div>
-      <div class="hero-points">
-        <span>📚 YCT 1–4</span>
-        <span>🎮 Interactive practice</span>
-        <span>⭐ XP & achievements</span>
-      </div>
-    </div>
-
-    <div class="hero-art" aria-hidden="true">
-      <div class="float-badge xp">⭐ +20 XP</div>
-      <div class="float-badge streak">🔥 Keep your streak</div>
-      <article class="art-card">
-        <div class="art-top">
-          <span class="live"><i></i> Today's practice</span>
-          <span class="level-pill">YCT 1 · Beginner</span>
-        </div>
-        <div class="art-scene">
-          <div class="big-character">🐼</div>
-        </div>
-        <div class="art-question">
-          <strong>你好</strong>
-          <small>nǐ hǎo · What does this mean?</small>
-        </div>
-        <div class="answer-row">
-          <div class="answer correct">Hello ✓</div>
-          <div class="answer">Goodbye</div>
-          <div class="answer">Thank you</div>
-          <div class="answer">Good night</div>
-        </div>
-      </article>
-    </div>
+<section class="learn-intro">
+ <div class="container intro-grid">
+  <div class="intro">
+   <span class="eyebrow">Your learning roadmap</span>
+   <h1>Learn. Practise.<br><span class="accent">Keep moving.</span></h1>
+   <p class="intro-copy">Follow the YCT pathway, choose a lesson and jump straight into the learning experience. Your lessons live in the HanVerse database, so this page always shows the current learning library.</p>
+   <div class="intro-note"><span class="note">📚 YCT 1–4</span><span class="note">🎮 Interactive lessons</span><span class="note">⭐ XP & progress</span></div>
   </div>
+  <div class="path-preview">
+   <div class="preview-title"><strong>The YCT roadmap</strong><span>Choose your level</span></div>
+   <div class="mini-path">
+    <div class="mini-level"><div class="icon">🌱</div><strong>YCT 1</strong><small>Beginner</small></div>
+    <div class="mini-level"><div class="icon">📖</div><strong>YCT 2</strong><small>Foundation</small></div>
+    <div class="mini-level"><div class="icon">🚀</div><strong>YCT 3</strong><small>Growing</small></div>
+    <div class="mini-level"><div class="icon">🏆</div><strong>YCT 4</strong><small>Advanced</small></div>
+   </div>
+   <div class="preview-footer">Start with your level, complete lessons and build your confidence one step at a time.</div>
+  </div>
+ </div>
 </section>
 
-<section class="quick-stats">
-  <div class="container stats-grid">
-    <article class="stat-card"><div class="stat-icon">🌱</div><strong>YCT 1–4</strong><small>Structured learning path</small></article>
-    <article class="stat-card"><div class="stat-icon">🎮</div><strong>Interactive</strong><small>Learn through practice</small></article>
-    <article class="stat-card"><div class="stat-icon">📈</div><strong>Progress</strong><small>See how far you've come</small></article>
-    <article class="stat-card"><div class="stat-icon">🏆</div><strong>Achievements</strong><small>Celebrate every milestone</small></article>
+<section class="library-section" id="courses">
+ <div class="container">
+  <div class="library-head">
+   <div><div class="section-label">Course library</div><h2>Choose your next lesson.</h2><p>Lessons currently available in HanVerse.</p></div>
+   <div class="filters" id="filters">
+    <button class="filter active" data-filter="all">All</button><button class="filter" data-filter="1">YCT 1</button>
+    <button class="filter" data-filter="2">YCT 2</button><button class="filter" data-filter="3">YCT 3</button><button class="filter" data-filter="4">YCT 4</button>
+   </div>
   </div>
-</section>
-
-<section class="section" id="path">
-  <div class="container">
-    <div class="section-head center">
-      <span class="eyebrow">The YCT pathway</span>
-      <h2>One journey. Four levels.</h2>
-      <p>Start with the foundations and build your confidence step by step.</p>
-    </div>
-
-    <div class="path">
-      <article class="level-card reveal">
-        <div class="level-bubble">🌱</div><span class="tag">Beginner</span>
-        <h3>YCT 1</h3><p>Build your first Chinese vocabulary and everyday phrases.</p>
-        <a class="level-link" href="#courses">Explore →</a>
-      </article>
-      <article class="level-card reveal">
-        <div class="level-bubble">📖</div><span class="tag">Foundation</span>
-        <h3>YCT 2</h3><p>Expand your vocabulary and communicate with greater confidence.</p>
-        <a class="level-link" href="#courses">Explore →</a>
-      </article>
-      <article class="level-card reveal">
-        <div class="level-bubble">🚀</div><span class="tag">Growing</span>
-        <h3>YCT 3</h3><p>Strengthen comprehension and practical communication skills.</p>
-        <a class="level-link" href="#courses">Explore →</a>
-      </article>
-      <article class="level-card reveal">
-        <div class="level-bubble">🏆</div><span class="tag">Advanced</span>
-        <h3>YCT 4</h3><p>Challenge yourself with broader vocabulary and richer language.</p>
-        <a class="level-link" href="#courses">Explore →</a>
-      </article>
-    </div>
+  <div class="status" id="courseStatus">Loading lessons<span class="loading-dot"></span></div>
+  <div id="courseLibrary"><div class="empty"><strong>Preparing your learning path…</strong>Connecting to HanVerse lessons.</div></div>
+  <div class="learning-tip">
+   <div><h3>💡 Learn a little, often.</h3><p>Complete one lesson at a time and let your progress build naturally.</p></div>
+   <a class="btn primary" href="worksheets.html">Practice with Worksheets →</a>
   </div>
-</section>
-
-<section class="section alt" id="courses">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Course library</span>
-      <h2>Choose your next lesson.</h2>
-      <p>Explore the HanVerse course library. Your learning progress is connected to your account when you are signed in.</p>
-    </div>
-
-    <div class="course-toolbar">
-      <p id="courseSummary">Loading your learning path…</p>
-      <div class="filters" id="filters">
-        <button class="filter active" data-filter="all">All levels</button>
-        <button class="filter" data-filter="1">YCT 1</button>
-        <button class="filter" data-filter="2">YCT 2</button>
-        <button class="filter" data-filter="3">YCT 3</button>
-        <button class="filter" data-filter="4">YCT 4</button>
-      </div>
-    </div>
-
-    <div id="courseLibrary">
-      <div class="empty-state"><strong>Preparing your courses…</strong>Please wait a moment.</div>
-    </div>
-
-    <section class="join" id="joinCTA">
-      <div>
-        <h2>Ready to make progress?</h2>
-        <p>Create an account to save your learning journey and continue where you stopped.</p>
-      </div>
-      <a class="btn primary" href="signup.html">Create Free Account →</a>
-    </section>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container">
-    <div class="section-head center">
-      <span class="eyebrow">Why learn with HanVerse?</span>
-      <h2>More than memorising words.</h2>
-      <p>Build real confidence through a learning experience designed to keep young learners engaged.</p>
-    </div>
-    <div class="feature-grid">
-      <article class="feature reveal"><div class="feature-icon">🎮</div><h3>Learn through practice</h3><p>Turn vocabulary and language skills into small, rewarding learning moments.</p></article>
-      <article class="feature reveal"><div class="feature-icon">🗣️</div><h3>Build communication</h3><p>Develop useful Chinese vocabulary, phrases, listening and speaking confidence.</p></article>
-      <article class="feature reveal"><div class="feature-icon">✍️</div><h3>Master characters</h3><p>Grow recognition and writing confidence as your Chinese foundation develops.</p></article>
-      <article class="feature reveal"><div class="feature-icon">🌏</div><h3>Discover culture</h3><p>Connect language learning with Chinese culture, stories and the world around you.</p></article>
-    </div>
-  </div>
-</section>
-
-<section class="section alt">
-  <div class="container">
-    <div class="section-head center">
-      <span class="eyebrow">Stay motivated</span>
-      <h2>Every small win counts.</h2>
-      <p>HanVerse makes progress visible so learners can see themselves getting better.</p>
-    </div>
-    <div class="motivation-grid">
-      <article class="motivation reveal"><span class="big">🔥</span><h3>Streaks</h3><p>Build a learning habit and keep your momentum going.</p></article>
-      <article class="motivation reveal"><span class="big">⭐</span><h3>XP</h3><p>Earn experience as you complete lessons and activities.</p></article>
-      <article class="motivation reveal"><span class="big">🏅</span><h3>Achievements</h3><p>Celebrate milestones and special accomplishments.</p></article>
-      <article class="motivation reveal"><span class="big">📊</span><h3>Progress</h3><p>See your learning journey clearly and keep moving forward.</p></article>
-    </div>
-  </div>
-</section>
-
-<section class="final-cta">
-  <div class="container">
-    <div class="cta-box">
-      <h2>Ready to start learning?</h2>
-      <p>Your Chinese adventure starts with one lesson.</p>
-      <div class="cta-actions">
-        <a class="btn primary" href="signup.html">Start Learning →</a>
-        <a class="btn ghost" href="worksheets.html">Explore Worksheets</a>
-      </div>
-    </div>
-  </div>
+ </div>
 </section>
 </main>
 
 <footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-main">
-        <div class="footer-brand"><span class="brand-mark">🐼</span><strong>HanVerse</strong></div>
-        <p>Learn Chinese. Explore a new world.</p>
-      </div>
-      <div class="footer-col"><h4>Learn</h4><a href="learn.html">Courses</a><a href="worksheets.html">Worksheets</a></div>
-      <div class="footer-col"><h4>Explore</h4><a href="index.html">Home</a><a href="#path">YCT Pathway</a></div>
-      <div class="footer-col"><h4>Account</h4><a href="login.html">Log In</a><a href="signup.html">Sign Up</a><a href="profile.html">Profile</a></div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 HanVerse. All rights reserved.</span>
-      <span>Learn Chinese. Live the adventure. 🌏</span>
-    </div>
-  </div>
+<div class="container">
+ <div class="footer-grid">
+  <div class="footer-main"><div class="footer-brand">🐼 HanVerse</div><p>Learn Chinese. Explore a new world.</p></div>
+  <div class="footer-col"><h4>Learn</h4><a href="learn.html">Lessons</a><a href="worksheets.html">Worksheets</a></div>
+  <div class="footer-col"><h4>Explore</h4><a href="index.html">Home</a><a href="#courses">YCT Roadmap</a></div>
+  <div class="footer-col"><h4>Account</h4><a href="login.html">Log In</a><a href="signup.html">Sign Up</a><a href="profile.html">Profile</a></div>
+ </div>
+ <div class="footer-bottom"><span>© 2026 HanVerse. All rights reserved.</span><span>Learn Chinese. Live the adventure. 🌏</span></div>
+</div>
 </footer>
 
 <script>
-(function(){
-"use strict";
+/* ============================================================
+   HANVERSE LEARN PAGE
+   Database-driven learning roadmap
+   ============================================================ */
 
-const SESSION_KEY = "hanverse_user";
-let allCourses = [];
-let activeFilter = "all";
+(() => {
+    "use strict";
 
-function session(){
-  try{
-    const raw = localStorage.getItem(SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
-  }catch(e){ return null; }
-}
-function loggedIn(){
-  const s = session();
-  return !!(s && (s.user_id || s.id || s.userId));
-}
-function isParent(){
-  const s=session();
-  return !!(s && (s.role==="parent" || s.isParent===true || s.parent===true));
-}
-function isAdmin(){
-  const s=session();
-  return !!(s && (s.role==="admin" || s.is_admin===true || s.isAdmin===true));
-}
-function esc(value){
-  const d=document.createElement("div");
-  d.textContent=String(value ?? "");
-  return d.innerHTML;
-}
+    /* ============================================================
+       CONFIG
+       ============================================================ */
 
-function renderRoleNav(){
-  const desktop=document.getElementById("roleNav");
-  const mobile=document.getElementById("mobileRoleNav");
-  let d="",m="";
-  if(isParent()){
-    d += '<a class="nav-link" href="parent.html">Parent</a>';
-    m += '<a href="parent.html">Parent</a>';
-  }
-  if(isAdmin()){
-    d += '<a class="nav-link" href="admin.html">Admin</a>';
-    m += '<a href="admin.html">Admin</a>';
-  }
-  desktop.innerHTML=d;
-  mobile.innerHTML=m;
-}
+    const CONFIG = {
+        API_BASE: "/api",
+        LESSON_PAGE: "lesson.html"
+    };
 
-function renderAuth(){
-  const d=document.getElementById("authNav");
-  const m=document.getElementById("mobileAuthNav");
+    /* ============================================================
+       DOM
+       ============================================================ */
 
-  if(!loggedIn()){
-    d.innerHTML='<a class="btn ghost" href="login.html">Log In</a><a class="btn primary" href="signup.html">Start Learning →</a>';
-    m.innerHTML='<a href="login.html">Log In</a><a href="signup.html">Start Learning →</a>';
-    document.getElementById("joinCTA").style.display="";
-    return;
-  }
+    const els = {
+        mobileToggle: document.getElementById("mobileToggle"),
+        mobileMenu: document.getElementById("mobileMenu"),
+        courseLibrary: document.getElementById("courseLibrary"),
+        filters: document.getElementById("filters"),
+        loading: document.getElementById("loading"),
+        error: document.getElementById("error"),
+        retryLessons: document.getElementById("retryLessons")
+    };
 
-  const s=session();
-  const name=esc(s?.full_name || s?.fullName || s?.username || "Learner");
+    /* ============================================================
+       STATE
+       ============================================================ */
 
-  d.innerHTML='<a class="btn ghost" href="profile.html">'+name+'</a>';
-  m.innerHTML='<a href="profile.html">My Profile</a><a href="login.html">Log Out</a>';
-  document.getElementById("joinCTA").style.display="none";
+    let allLessons = [];
+    let activeFilter = "all";
 
-  m.querySelector('a[href="login.html"]').addEventListener("click",function(){
-    localStorage.removeItem(SESSION_KEY);
-  });
-}
+    /* ============================================================
+       LEVEL INFORMATION
+       ============================================================ */
 
-async function loadCourses(){
-  const summary=document.getElementById("courseSummary");
-  const library=document.getElementById("courseLibrary");
+    const LEVELS = {
+        1: {
+            emoji: "🌱",
+            name: "YCT 1 · Beginner"
+        },
+        2: {
+            emoji: "🌿",
+            name: "YCT 2 · Elementary"
+        },
+        3: {
+            emoji: "🌳",
+            name: "YCT 3 · Intermediate"
+        },
+        4: {
+            emoji: "🏆",
+            name: "YCT 4 · Advanced"
+        }
+    };
 
-  if(!loggedIn()){
-    allCourses=[
-      {yct_level:1,title:"Greetings & Introductions",description:"Learn essential greetings, introductions and polite expressions.",icon:"👋",progress_pct:0},
-      {yct_level:1,title:"Numbers & Counting",description:"Build confidence with numbers and everyday counting.",icon:"🔢",progress_pct:0},
-      {yct_level:1,title:"Family & Friends",description:"Talk about the people around you using simple Chinese.",icon:"👨‍👩‍👧",progress_pct:0},
-      {yct_level:1,title:"School & Classroom",description:"Learn useful words for school objects and daily routines.",icon:"🎒",progress_pct:0}
-    ];
-    summary.textContent="Explore sample lessons. Sign in to see your personalised course library.";
-    renderCourses();
-    return;
-  }
+    /* ============================================================
+       API HELPERS
+       ============================================================ */
 
-  const s=session();
-  const userId=s.user_id || s.userId || s.id;
+    function apiPath(path) {
+        const clean = String(path || "").replace(/^\/+/, "");
 
-  try{
-    const response=await fetch("/api/courses?student_id="+encodeURIComponent(userId),{
-      headers:{Accept:"application/json"},
-      credentials:"same-origin"
-    });
-    if(!response.ok) throw new Error("Course request failed");
-    const data=await response.json();
-    allCourses=Array.isArray(data) ? data : (Array.isArray(data.courses) ? data.courses : []);
-    summary.textContent=allCourses.length
-      ? allCourses.length+" course"+(allCourses.length===1?"":"s")+" in your learning path."
-      : "Your course library is ready.";
-    renderCourses();
-  }catch(error){
-    console.warn("HanVerse course load:",error);
-    allCourses=[
-      {yct_level:1,title:"Greetings & Introductions",description:"Learn essential greetings and everyday Mandarin phrases.",icon:"👋",progress_pct:0},
-      {yct_level:1,title:"Numbers & Counting",description:"Build confidence with numbers and simple counting.",icon:"🔢",progress_pct:0}
-    ];
-    summary.textContent="Showing starter lessons while your course library reconnects.";
-    renderCourses();
-  }
-}
+        return (
+            CONFIG.API_BASE.replace(/\/+$/, "") +
+            "/" +
+            clean
+        );
+    }
 
-const LEVELS={
-  1:{emoji:"🌱",color:"green",words:80,name:"Beginner"},
-  2:{emoji:"📖",color:"blue",words:150,name:"Foundation"},
-  3:{emoji:"🚀",color:"purple",words:150,name:"Growing"},
-  4:{emoji:"🏆",color:"yellow",words:150,name:"Advanced"}
-};
+    async function getJSON(path, options = {}) {
+        const response = await fetch(apiPath(path), {
+            method: options.method || "GET",
 
-function renderCourses(){
-  const library=document.getElementById("courseLibrary");
-  library.innerHTML="";
+            headers: {
+                Accept: "application/json",
+                ...(options.headers || {})
+            },
 
-  const filtered=activeFilter==="all"
-    ? allCourses
-    : allCourses.filter(c=>Number(c.yct_level ?? c.level)===Number(activeFilter));
+            credentials: "same-origin",
 
-  if(!filtered.length){
-    library.innerHTML='<div class="empty-state"><strong>No courses in this level yet.</strong>More HanVerse lessons will appear here as they are added.</div>';
-    return;
-  }
+            cache: options.cache || "no-store",
 
-  [1,2,3,4].forEach(level=>{
-    const items=filtered.filter(c=>Number(c.yct_level ?? c.level)===level);
-    if(!items.length)return;
+            body: options.body
+        });
 
-    const meta=LEVELS[level];
-    const section=document.createElement("section");
-    section.className="level-section reveal";
+        const contentType =
+            response.headers.get("content-type") || "";
 
-    const totalProgress=items.reduce((sum,c)=>{
-      return sum + Number(c.progress_pct ?? c.completed_pct ?? 0);
-    },0);
-    const pct=Math.round(totalProgress/items.length);
+        let data;
 
-    section.innerHTML=
-      '<div class="level-heading">'+
-        '<div class="level-icon">'+meta.emoji+'</div>'+
-        '<div class="level-meta"><h3>YCT '+level+'</h3><p>'+meta.name+' · '+items.length+' course'+(items.length===1?"":"s")+'</p></div>'+
-        '<div class="level-progress">'+pct+'%</div>'+
-      '</div>'+
-      '<div class="course-grid"></div>';
+        if (contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
 
-    const grid=section.querySelector(".course-grid");
+            throw new Error(
+                text ||
+                `Server returned HTTP ${response.status}`
+            );
+        }
 
-    items.forEach(course=>{
-      const progress=Math.max(0,Math.min(100,Number(course.progress_pct ?? course.completed_pct ?? 0)));
-      const title=course.title || course.name || "Course";
-      const desc=course.description || course.summary || "Build your Chinese skills through guided practice.";
-      const icon=course.icon || course.emoji || meta.emoji;
+        if (!response.ok) {
+            throw new Error(
+                data?.error ||
+                data?.message ||
+                `Request failed with HTTP ${response.status}`
+            );
+        }
 
-      const card=document.createElement("article");
-      card.className="course-card";
-      card.innerHTML=
-        '<div class="course-icon">'+esc(icon)+'</div>'+
-        '<h4>'+esc(title)+'</h4>'+
-        '<p>'+esc(desc)+'</p>'+
-        '<span class="course-badge">YCT '+level+'</span>'+
-        '<div class="course-progress">'+
-          '<div class="progress-label"><span>Progress</span><span>'+progress+'%</span></div>'+
-          '<div class="progress-track"><div class="progress-fill" style="width:'+progress+'%"></div></div>'+
-        '</div>';
+        return data;
+    }
 
-      grid.appendChild(card);
-    });
+    /* ============================================================
+       LESSON HELPERS
+       ============================================================ */
 
-    library.appendChild(section);
-  });
+    function lessonLevel(lesson) {
+        const raw =
+            lesson?.level ??
+            lesson?.yct_level ??
+            lesson?.yctLevel ??
+            1;
 
-  observeReveals();
-}
+        const level = Number(raw);
 
-function observeReveals(){
-  const items=document.querySelectorAll(".reveal");
-  if(!("IntersectionObserver" in window)){
-    items.forEach(el=>el.classList.add("visible"));
-    return;
-  }
-  const observer=new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.classList.add("visible");
-        observer.unobserve(entry.target);
-      }
-    });
-  },{threshold:.12});
-  items.forEach(el=>observer.observe(el));
-}
+        if (
+            Number.isFinite(level) &&
+            level >= 1 &&
+            level <= 4
+        ) {
+            return level;
+        }
 
-/* Make essential content visible first. Motion is progressive enhancement. */
-document.documentElement.classList.add("js-motion");
-setTimeout(observeReveals,20);
+        return 1;
+    }
 
-/* Mobile navigation */
-const toggle=document.getElementById("mobileToggle");
-const menu=document.getElementById("mobileMenu");
-toggle.addEventListener("click",()=>{
-  const open=menu.classList.toggle("open");
-  toggle.setAttribute("aria-expanded",String(open));
-  toggle.textContent=open?"✕":"☰";
-});
-menu.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{
-  menu.classList.remove("open");
-  toggle.setAttribute("aria-expanded","false");
-  toggle.textContent="☰";
-}));
+    function lessonId(lesson) {
+        return (
+            lesson?.id ??
+            lesson?._id ??
+            lesson?.lessonId ??
+            lesson?.lesson_id ??
+            null
+        );
+    }
 
-/* Filters */
-document.getElementById("filters").addEventListener("click",e=>{
-  const button=e.target.closest(".filter");
-  if(!button)return;
-  document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));
-  button.classList.add("active");
-  activeFilter=button.dataset.filter;
-  renderCourses();
-});
+    function lessonTitle(lesson) {
+        return (
+            lesson?.title ||
+            lesson?.name ||
+            "Untitled Lesson"
+        );
+    }
 
-renderRoleNav();
-renderAuth();
-loadCourses();
+    function lessonDescription(lesson) {
+        return (
+            lesson?.description ||
+            "Build your Mandarin Chinese skills with HanVerse."
+        );
+    }
+
+    function lessonIcon(lesson, level) {
+        return (
+            lesson?.icon ||
+            LEVELS[level]?.emoji ||
+            "📚"
+        );
+    }
+
+    function lessonXP(lesson) {
+        const xp = Number(lesson?.xp);
+
+        return Number.isFinite(xp)
+            ? xp
+            : 0;
+    }
+
+    function isPremiumLesson(lesson) {
+        return (
+            lesson?.premium === true ||
+            lesson?.is_premium === true ||
+            lesson?.isPremium === true
+        );
+    }
+
+    /* ============================================================
+       SAFE HTML
+       ============================================================ */
+
+    function escapeHTML(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    /* ============================================================
+       AUTH HELPERS
+       ============================================================ */
+
+    function session() {
+        try {
+            if (typeof window.getSession === "function") {
+                return window.getSession() || {};
+            }
+
+            const possibleKeys = [
+                "hanverse_session",
+                "hanverseSession",
+                "session",
+                "user"
+            ];
+
+            for (const key of possibleKeys) {
+                const raw = localStorage.getItem(key);
+
+                if (!raw) continue;
+
+                try {
+                    return JSON.parse(raw) || {};
+                } catch {
+                    return {};
+                }
+            }
+        } catch (error) {
+            console.warn(
+                "HanVerse session lookup failed:",
+                error
+            );
+        }
+
+        return {};
+    }
+
+    function loggedIn() {
+        try {
+            if (typeof window.isLoggedIn === "function") {
+                return Boolean(window.isLoggedIn());
+            }
+
+            const s = session();
+
+            return Boolean(
+                s?.user_id ||
+                s?.userId ||
+                s?.id ||
+                s?.email
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    /* ============================================================
+       ROLE DETECTION
+       ============================================================ */
+
+    function isParent() {
+        try {
+            if (typeof window.isParent === "function") {
+                return Boolean(window.isParent());
+            }
+
+            const s = session();
+
+            return (
+                s?.role === "parent" ||
+                s?.user_type === "parent" ||
+                s?.account_type === "parent"
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    function isAdmin() {
+        try {
+            if (typeof window.isAdmin === "function") {
+                return Boolean(window.isAdmin());
+            }
+
+            const s = session();
+
+            return (
+                s?.role === "admin" ||
+                s?.is_admin === true ||
+                s?.isAdmin === true
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    /* ============================================================
+       NAVIGATION
+       ============================================================ */
+
+    function setupMobileMenu() {
+        const button = els.mobileToggle;
+        const menu = els.mobileMenu;
+
+        if (!button || !menu) {
+            return;
+        }
+
+        button.addEventListener("click", () => {
+            const open =
+                menu.classList.toggle("open");
+
+            button.setAttribute(
+                "aria-expanded",
+                String(open)
+            );
+
+            button.textContent =
+                open ? "✕" : "☰";
+        });
+
+        menu.addEventListener("click", event => {
+            const link =
+                event.target.closest("a");
+
+            if (!link) return;
+
+            menu.classList.remove("open");
+
+            button.textContent = "☰";
+
+            button.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+        });
+    }
+
+    function setupActiveNavigation() {
+        const links =
+            document.querySelectorAll(
+                '.nav-link[href="learn.html"],' +
+                '.nav-link[href="/learn"]'
+            );
+
+        links.forEach(link => {
+            link.setAttribute(
+                "aria-current",
+                "page"
+            );
+        });
+    }
+
+    /* ============================================================
+       PROGRESS
+       ============================================================ */
+
+    async function getProgress(id) {
+        if (!loggedIn() || !id) {
+            return 0;
+        }
+
+        try {
+            const s = session();
+
+            const uid =
+                s?.user_id ??
+                s?.userId ??
+                s?.id;
+
+            if (!uid) {
+                return 0;
+            }
+
+            const data = await getJSON(
+                `progress/${encodeURIComponent(uid)}/${encodeURIComponent(id)}`
+            );
+
+            const progress =
+                data?.progress ?? data;
+
+            if (!progress) {
+                return 0;
+            }
+
+            if (
+                typeof progress.progress_pct !==
+                "undefined"
+            ) {
+                return Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        Number(progress.progress_pct) || 0
+                    )
+                );
+            }
+
+            if (
+                typeof progress.completed_pct !==
+                "undefined"
+            ) {
+                return Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        Number(progress.completed_pct) || 0
+                    )
+                );
+            }
+
+            if (progress.completed === true) {
+                return 100;
+            }
+
+            return 0;
+
+        } catch (error) {
+            console.warn(
+                "HanVerse progress loading failed:",
+                id,
+                error
+            );
+
+            return 0;
+        }
+    }
+
+    /* ============================================================
+       LESSON LOADING
+       ============================================================ */
+
+    async function loadLessons() {
+
+        showLoading();
+
+        try {
+
+            const data =
+                await getJSON("lessons");
+
+            if (
+                !data ||
+                data.success !== true
+            ) {
+                throw new Error(
+                    data?.error ||
+                    "The lessons API did not return success."
+                );
+            }
+
+            if (!Array.isArray(data.lessons)) {
+                throw new Error(
+                    "The lessons API returned an invalid lesson list."
+                );
+            }
+
+            allLessons =
+                data.lessons.filter(
+                    lesson => lesson && lessonId(lesson)
+                );
+
+            hideLoading();
+
+            hideError();
+
+            renderLessons();
+
+        } catch (error) {
+
+            console.error(
+                "HanVerse lesson loading error:",
+                error
+            );
+
+            hideLoading();
+
+            showError(
+                error?.message ||
+                "We couldn't load your lessons right now."
+            );
+        }
+    }
+
+    /* ============================================================
+       UI STATES
+       ============================================================ */
+
+    function showLoading() {
+        if (els.loading) {
+            els.loading.style.display = "";
+        }
+
+        if (els.error) {
+            els.error.style.display = "none";
+        }
+
+        if (els.courseLibrary) {
+            els.courseLibrary.style.display = "none";
+        }
+    }
+
+    function hideLoading() {
+        if (els.loading) {
+            els.loading.style.display = "none";
+        }
+
+        if (els.courseLibrary) {
+            els.courseLibrary.style.display = "";
+        }
+    }
+
+    function showError(message) {
+
+        if (!els.error) {
+            return;
+        }
+
+        els.error.style.display = "";
+
+        const messageEl =
+            els.error.querySelector(
+                ".error-message"
+            );
+
+        if (messageEl) {
+            messageEl.textContent = message;
+        }
+
+        if (els.courseLibrary) {
+            els.courseLibrary.style.display =
+                "none";
+        }
+    }
+
+    function hideError() {
+        if (els.error) {
+            els.error.style.display = "none";
+        }
+    }
+
+    /* ============================================================
+       LESSON CARD
+       ============================================================ */
+
+    function createLessonCard(
+        lesson,
+        level,
+        index
+    ) {
+
+        const id = lessonId(lesson);
+
+        const title =
+            lessonTitle(lesson);
+
+        const description =
+            lessonDescription(lesson);
+
+        const icon =
+            lessonIcon(lesson, level);
+
+        const premium =
+            isPremiumLesson(lesson);
+
+        const xp =
+            lessonXP(lesson);
+
+        const vocabulary =
+            Array.isArray(lesson?.vocabulary)
+                ? lesson.vocabulary.length
+                : 0;
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "course-card" +
+            (premium
+                ? " premium-card"
+                : "");
+
+        card.dataset.lessonId = id;
+
+        card.innerHTML = `
+            <div class="card-top">
+
+                <div class="course-icon">
+                    ${escapeHTML(icon)}
+                </div>
+
+                <div class="lesson-number">
+                    ${String(index + 1).padStart(2, "0")}
+                </div>
+
+            </div>
+
+            <div class="card-content">
+
+                <div class="course-badges">
+
+                    <span class="course-badge">
+                        YCT ${level}
+                    </span>
+
+                    ${
+                        premium
+                            ? `
+                                <span class="premium-badge">
+                                    🔒 Premium
+                                </span>
+                              `
+                            : `
+                                <span class="free-badge">
+                                    FREE
+                                </span>
+                              `
+                    }
+
+                </div>
+
+                <h4>
+                    ${escapeHTML(title)}
+                </h4>
+
+                <p>
+                    ${escapeHTML(description)}
+                </p>
+
+                <div class="card-meta">
+
+                    <span>
+                        ⭐ ${xp} XP
+                    </span>
+
+                    <span>
+                        📖 ${vocabulary} words
+                    </span>
+
+                </div>
+
+                <div class="progress-wrap">
+
+                    <div class="progress-label">
+
+                        <span>
+                            Your progress
+                        </span>
+
+                        <strong class="pct">
+                            ${loggedIn()
+                                ? "Loading…"
+                                : "—"}
+                        </strong>
+
+                    </div>
+
+                    <div class="track">
+                        <div
+                            class="fill"
+                            style="width:0%"
+                        ></div>
+                    </div>
+
+                </div>
+
+                <a
+                    class="course-link"
+                    href="${CONFIG.LESSON_PAGE}?id=${encodeURIComponent(id)}"
+                    aria-label="${escapeHTML(
+                        premium
+                            ? `Open ${title}`
+                            : `Start ${title}`
+                    )}"
+                >
+
+                    <span>
+                        ${
+                            premium
+                                ? "View lesson"
+                                : "Start lesson"
+                        }
+                    </span>
+
+                    <span class="arrow">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+        `;
+
+        updateCardProgress(
+            card,
+            id
+        );
+
+        return card;
+    }
+
+    /* ============================================================
+       CARD PROGRESS
+       ============================================================ */
+
+    async function updateCardProgress(
+        card,
+        id
+    ) {
+
+        try {
+
+            const percentage =
+                await getProgress(id);
+
+            const safePercentage =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        Number(percentage) || 0
+                    )
+                );
+
+            const percentageElement =
+                card.querySelector(".pct");
+
+            const fill =
+                card.querySelector(".fill");
+
+            if (percentageElement) {
+                percentageElement.textContent =
+                    loggedIn()
+                        ? `${safePercentage}%`
+                        : "—";
+            }
+
+            if (fill) {
+                fill.style.width =
+                    `${safePercentage}%`;
+            }
+
+            if (
+                safePercentage >= 100
+            ) {
+                card.classList.add(
+                    "completed"
+                );
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "HanVerse card progress update failed:",
+                id,
+                error
+            );
+
+        }
+    }
+
+    /* ============================================================
+       RENDER ROADMAP
+       ============================================================ */
+
+    function renderLessons() {
+
+        if (!els.courseLibrary) {
+            console.error(
+                "HanVerse: #courseLibrary was not found."
+            );
+
+            return;
+        }
+
+        els.courseLibrary.innerHTML = "";
+
+        const selectedLessons =
+            activeFilter === "all"
+                ? allLessons
+                : allLessons.filter(
+                    lesson =>
+                        lessonLevel(lesson) ===
+                        Number(activeFilter)
+                );
+
+        if (!selectedLessons.length) {
+
+            els.courseLibrary.innerHTML = `
+                <div class="empty">
+
+                    <strong>
+                        No lessons in this level yet.
+                    </strong>
+
+                    <span
+                        style="
+                            display:block;
+                            margin-top:6px;
+                        "
+                    >
+                        New HanVerse lessons will
+                        appear here as they are added.
+                    </span>
+
+                </div>
+            `;
+
+            return;
+        }
+
+        const levelsToRender =
+            activeFilter === "all"
+                ? [1, 2, 3, 4]
+                : [Number(activeFilter)];
+
+        levelsToRender.forEach(level => {
+
+            const lessons =
+                selectedLessons.filter(
+                    lesson =>
+                        lessonLevel(lesson) ===
+                        level
+                );
+
+            if (!lessons.length) {
+                return;
+            }
+
+            const meta =
+                LEVELS[level] ||
+                {
+                    emoji: "📚",
+                    name: `YCT ${level}`
+                };
+
+            const freeCount =
+                lessons.filter(
+                    lesson =>
+                        !isPremiumLesson(lesson)
+                ).length;
+
+            const premiumCount =
+                lessons.length -
+                freeCount;
+
+            const section =
+                document.createElement(
+                    "section"
+                );
+
+            section.className =
+                "level-section";
+
+            section.dataset.level =
+                level;
+
+            section.innerHTML = `
+
+                <div class="level-heading">
+
+                    <div class="level-icon">
+                        ${meta.emoji}
+                    </div>
+
+                    <div class="level-meta">
+
+                        <div class="level-kicker">
+                            YCT LEVEL ${level}
+                        </div>
+
+                        <h3>
+                            ${escapeHTML(meta.name)}
+                        </h3>
+
+                        <p>
+                            ${lessons.length}
+                            lesson${lessons.length === 1 ? "" : "s"}
+
+                            ${
+                                freeCount
+                                    ? ` · ${freeCount} free`
+                                    : ""
+                            }
+
+                            ${
+                                premiumCount
+                                    ? ` · ${premiumCount} premium`
+                                    : ""
+                            }
+                        </p>
+
+                    </div>
+
+                    <div class="level-progress-pill">
+
+                        <span class="level-progress-dot">
+                        </span>
+
+                        Your pathway
+
+                    </div>
+
+                </div>
+
+                <div class="course-grid">
+                </div>
+            `;
+
+            const grid =
+                section.querySelector(
+                    ".course-grid"
+                );
+
+            lessons.forEach(
+                (lesson, index) => {
+
+                    const card =
+                        createLessonCard(
+                            lesson,
+                            level,
+                            index
+                        );
+
+                    grid.appendChild(card);
+                }
+            );
+
+            els.courseLibrary.appendChild(
+                section
+            );
+        });
+    }
+
+    /* ============================================================
+       FILTERS
+       ============================================================ */
+
+    function setupFilters() {
+
+        if (!els.filters) {
+            return;
+        }
+
+        els.filters.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest(
+                        "[data-filter]"
+                    );
+
+                if (!button) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                activeFilter =
+                    button.dataset.filter ||
+                    "all";
+
+                els.filters
+                    .querySelectorAll(
+                        "[data-filter]"
+                    )
+                    .forEach(
+                        item =>
+                            item.classList.toggle(
+                                "active",
+                                item === button
+                            )
+                    );
+
+                renderLessons();
+            }
+        );
+    }
+
+    /* ============================================================
+       RETRY
+       ============================================================ */
+
+    function setupRetry() {
+
+        if (
+            els.retryLessons
+        ) {
+
+            els.retryLessons.addEventListener(
+                "click",
+                loadLessons
+            );
+        }
+    }
+
+    /* ============================================================
+       INITIALIZATION
+       ============================================================ */
+
+    function init() {
+
+        setupMobileMenu();
+
+        setupActiveNavigation();
+
+        setupFilters();
+
+        setupRetry();
+
+        loadLessons();
+    }
+
+    /* ============================================================
+       START
+       ============================================================ */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            init,
+            {
+                once: true
+            }
+        );
+
+    } else {
+
+        init();
+    }
 
 })();
 </script>
