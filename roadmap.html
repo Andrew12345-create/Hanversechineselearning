@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fffdf7">
+<title>My Learning Roadmap | HanVerse</title>
+<link rel="icon" type="image/png" href="hanverse-logo2.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --red:#e63946;--red2:#c92f3b;--yellow:#f4d35e;--blue:#4ea8de;--green:#74c69d;
+  --cream:#fffdf7;--ink:#263143;--muted:#707989;--white:#fff;--line:#e8e3d8;
+  --shadow:0 18px 50px rgba(38,49,67,.10);--soft:0 8px 25px rgba(38,49,67,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Poppins,system-ui,sans-serif;color:var(--ink);background:
+  radial-gradient(circle at 8% 10%,rgba(244,211,94,.18),transparent 25%),
+  radial-gradient(circle at 92% 16%,rgba(78,168,222,.12),transparent 25%),var(--cream);
+  min-height:100vh;overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}button{font:inherit}
+.container{width:min(1180px,calc(100% - 34px));margin:auto}
+
+/* NAV */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(255,253,247,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.nav-inner{height:74px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;white-space:nowrap}
+.brand-mark{width:40px;height:40px;border-radius:13px;background:var(--red);color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px rgba(230,57,70,.18)}
+.nav-links{display:flex;gap:4px;flex:1;justify-content:center}
+.nav-link{padding:10px 13px;border-radius:12px;font-size:.88rem;font-weight:600;color:#5d6675}
+.nav-link:hover,.nav-link.active{background:#f5f0e7;color:var(--red)}
+.nav-actions{display:flex;gap:8px}
+.nav-profile{display:none;padding:10px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;font-weight:700;font-size:.82rem}
+.mobile-toggle{display:none;margin-left:auto;width:43px;height:43px;border:1px solid var(--line);background:#fff;border-radius:12px}
+.mobile-menu{display:none;padding:0 17px 16px}
+.mobile-menu.open{display:block}
+.mobile-menu a{display:block;padding:12px;border-radius:11px;font-weight:600;color:#5d6675}
+.mobile-menu a:hover{background:#f5f0e7;color:var(--red)}
+
+/* PAGE HEADER */
+.page{padding:42px 0 80px}
+.top-grid{display:grid;grid-template-columns:1fr 330px;gap:22px;align-items:stretch}
+.hero-card,.stats-card{background:#fff;border:1px solid var(--line);border-radius:25px;box-shadow:var(--soft)}
+.hero-card{padding:30px 32px;position:relative;overflow:hidden}
+.hero-card:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%;right:-105px;top:-120px;background:rgba(244,211,94,.22)}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;color:var(--red);font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.dot{width:7px;height:7px;background:var(--green);border-radius:50%}
+.hero-card h1{font-size:clamp(2rem,4vw,3.25rem);line-height:1.08;letter-spacing:-1.8px;margin-top:10px}
+.hero-card p{color:var(--muted);font-size:.9rem;line-height:1.75;max-width:700px;margin-top:11px}
+.progress-row{display:flex;justify-content:space-between;align-items:center;margin-top:23px;font-size:.76rem;font-weight:700}
+.progress-track{height:11px;background:#f0ede6;border-radius:999px;overflow:hidden;margin-top:9px}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),#f16b73);border-radius:999px;transition:width .8s ease}
+.stats-card{padding:24px;display:flex;flex-direction:column;justify-content:center}
+.stat-big{font-size:2.45rem;font-weight:800;line-height:1}
+.stat-label{color:var(--muted);font-size:.76rem;margin-top:6px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:21px}
+.stat{background:#faf8f2;border-radius:15px;padding:14px}.stat strong{display:block;font-size:1.1rem}.stat span{font-size:.67rem;color:var(--muted)}
+
+/* ROADMAP */
+.roadmap-section{margin-top:30px}
+.section-title{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:22px}
+.section-title h2{font-size:1.5rem;letter-spacing:-.5px}.section-title p{color:var(--muted);font-size:.75rem;margin-top:4px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.68rem;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:5px}.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}.i-done{background:var(--green)}.i-current{background:var(--red)}.i-locked{background:#cfd3d9}
+
+/* ROAD */
+.roadmap{position:relative;padding:25px 10px 65px;min-height:500px}
+.path{position:absolute;top:15px;bottom:35px;left:50%;width:8px;transform:translateX(-50%);background:repeating-linear-gradient(to bottom,#ddd8ce 0 13px,transparent 13px 24px);border-radius:999px;z-index:0}
+.level-block{position:relative;z-index:1;margin-bottom:35px}
+.level-banner{display:flex;align-items:center;justify-content:center;margin:0 auto 23px;width:min(420px,90%);background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px 18px;box-shadow:var(--soft)}
+.level-badge{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;background:#fff4d3;margin-right:10px}
+.level-banner strong{font-size:.86rem}.level-banner span{display:block;color:var(--muted);font-size:.65rem;margin-top:2px}
+.lesson-row{display:flex;align-items:center;justify-content:center;min-height:120px;position:relative}
+.lesson-row:nth-child(even) .lesson-card{transform:translateX(250px)}
+.lesson-row:nth-child(odd) .lesson-card{transform:translateX(-250px)}
+.lesson-row.center .lesson-card{transform:none}
+.node{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;
+  display:grid;place-items:center;border:5px solid #fff;font-size:1.35rem;z-index:3;
+  box-shadow:0 9px 25px rgba(38,49,67,.16);background:var(--red);color:#fff;
+}
+.node.done{background:var(--green)}.node.current{background:var(--red);animation:pulse 2s infinite}.node.locked{background:#cfd3d9;box-shadow:none;filter:grayscale(.2)}
+.node:after{content:"";position:absolute;inset:-8px;border:2px solid transparent;border-radius:50%}
+.node.current:after{border-color:rgba(230,57,70,.25)}
+@keyframes pulse{50%{box-shadow:0 0 0 11px rgba(230,57,70,.10),0 9px 25px rgba(38,49,67,.16)}}
+.lesson-card{
+  width:280px;background:#fff;border:1px solid var(--line);border-radius:19px;padding:15px 17px;
+  box-shadow:var(--soft);transition:.22s;cursor:pointer;position:relative;
+}
+.lesson-card:hover{transform:scale(1.025)!important;box-shadow:var(--shadow)}
+.lesson-card.disabled{cursor:not-allowed;opacity:.72}.lesson-card.disabled:hover{transform:none!important}
+.card-head{display:flex;gap:10px;align-items:center}.lesson-icon{font-size:1.35rem;width:38px;height:38px;border-radius:12px;background:#f8f4ea;display:grid;place-items:center}
+.lesson-title{font-size:.82rem;font-weight:800;line-height:1.25}.lesson-meta{font-size:.62rem;color:var(--muted);margin-top:3px}
+.lesson-desc{font-size:.65rem;color:var(--muted);line-height:1.5;margin-top:10px}
+.card-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:11px}
+.xp{font-size:.62rem;font-weight:800;color:#987600;background:#fff5d2;padding:5px 8px;border-radius:999px}
+.status{font-size:.61rem;font-weight:800;color:var(--green)}.status.lock{color:#a1a6af}.status.current{color:var(--red)}
+.mini-progress{height:5px;background:#efede7;border-radius:99px;margin-top:10px;overflow:hidden}.mini-progress span{display:block;height:100%;background:var(--green);width:0;border-radius:99px}
+
+/* EMPTY / ERROR / LOADING */
+.state{background:#fff;border:1px solid var(--line);border-radius:22px;padding:45px;text-align:center;box-shadow:var(--soft);display:none}
+.state.show{display:block}.state h3{font-size:1rem}.state p{font-size:.75rem;color:var(--muted);margin:7px 0 18px}
+.retry{border:0;background:var(--red);color:#fff;padding:10px 17px;border-radius:12px;font-weight:800;cursor:pointer}
+.skeleton{height:105px;background:linear-gradient(90deg,#f3f0e9,#fff,#f3f0e9);background-size:200% 100%;animation:shine 1.2s infinite;border-radius:18px;margin:12px auto;width:min(420px,90%)}
+@keyframes shine{to{background-position:-200% 0}}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(38,49,67,.38);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;z-index:300}
+.modal.open{display:flex}.modal-card{width:min(430px,100%);background:#fff;border-radius:25px;padding:28px;box-shadow:var(--shadow);position:relative}
+.close{position:absolute;right:15px;top:15px;border:0;background:#f4f1ea;width:34px;height:34px;border-radius:50%;cursor:pointer}
+.modal-icon{font-size:2.5rem}.modal h3{font-size:1.35rem;margin-top:10px}.modal p{font-size:.8rem;line-height:1.7;color:var(--muted);margin-top:7px}
+.modal-actions{display:flex;gap:9px;margin-top:21px}.modal-btn{flex:1;padding:12px;border-radius:13px;font-weight:800;border:1px solid var(--line);cursor:pointer}.modal-primary{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .nav-links{display:none}.mobile-toggle{display:block}.top-grid{grid-template-columns:1fr}.stats-card{min-height:auto}
+  .lesson-row:nth-child(even) .lesson-card{transform:translateX(190px)}
+  .lesson-row:nth-child(odd) .lesson-card{transform:translateX(-190px)}
+}
+@media(max-width:650px){
+  .container{width:min(100% - 26px,1180px)}.nav-inner{height:68px}.brand{font-size:1.05rem}
+  .page{padding-top:24px}.hero-card{padding:24px}.stats-card{padding:21px}
+  .section-title{display:block}.legend{margin-top:12px}
+  .roadmap{padding-left:0;padding-right:0}.path{left:34px;transform:none}
+  .level-banner{margin-left:0;width:calc(100% - 8px);justify-content:flex-start}
+  .lesson-row{justify-content:flex-start;min-height:138px;padding-left:0}
+  .node{left:34px}
+  .lesson-row .lesson-card,.lesson-row:nth-child(even) .lesson-card,.lesson-row:nth-child(odd) .lesson-card{transform:translateX(75px);width:calc(100% - 95px)}
+  .lesson-card{padding:14px}.lesson-desc{display:none}
+  .modal-actions{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-inner container">
+    <a class="brand" href="index.html"><span class="brand-mark">汉</span><span>HanVerse</span></a>
+    <nav class="nav-links" id="desktopNav" aria-label="Main navigation"></nav>
+    <div class="nav-actions"><a class="nav-profile" id="navProfile" href="profile.html"></a></div>
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Open menu" aria-expanded="false">☰</button>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu"></nav>
+</header>
+
+<main class="page">
+  <div class="container">
+    <section class="top-grid">
+      <div class="hero-card">
+        <div class="eyebrow"><span class="dot"></span>Your Mandarin journey</div>
+        <h1 id="pageTitle">Your Learning Roadmap</h1>
+        <p id="pageSubtitle">Follow the path, complete lessons and build your Chinese skills one step at a time.</p>
+        <div class="progress-row"><span>Overall progress</span><strong id="progressPercent">0%</strong></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <aside class="stats-card">
+        <div class="stat-big" id="completedCount">0</div>
+        <div class="stat-label">lessons completed</div>
+        <div class="stat-grid">
+          <div class="stat"><strong id="totalCount">0</strong><span>total lessons</span></div>
+          <div class="stat"><strong id="xpCount">0</strong><span>XP earned</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="roadmap-section">
+      <div class="section-title">
+        <div><h2>Your path</h2><p>Complete a lesson to unlock the next step.</p></div>
+        <div class="legend">
+          <span><i class="i-done"></i>Completed</span><span><i class="i-current"></i>Current</span><span><i class="i-locked"></i>Locked</span>
+        </div>
+      </div>
+
+      <div id="loadingState">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+      <div class="state" id="errorState"><h3>We couldn't load your roadmap.</h3><p id="errorText">Please check your connection and try again.</p><button class="retry" id="retryBtn">Try Again</button></div>
+      <div class="state" id="emptyState"><h3>No lessons yet.</h3><p>Your learning roadmap is ready for lessons as soon as they are added to HanVerse.</p></div>
+
+      <div class="roadmap" id="roadmap" hidden>
+        <div class="path"></div>
+        <div id="roadmapContent"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="modal" id="lessonModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <button class="close" id="modalClose" aria-label="Close">✕</button>
+    <div class="modal-icon" id="modalIcon">🔒</div>
+    <h3 id="modalTitle">Lesson</h3>
+    <p id="modalText"></p>
+    <div class="modal-actions">
+      <button class="modal-btn" id="modalCancel">Close</button>
+      <button class="modal-btn modal-primary" id="modalAction">Open Lesson</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var API_BASE = "/api";
+  var LESSONS_ENDPOINT = API_BASE + "/lessons";
+  var SESSION_KEY = "hanverse_user";
+
+  var state = {
+    lessons: [],
+    progress: {},
+    user: null,
+    role: "guest"
+  };
+
+  function $(id){ return document.getElementById(id); }
+
+  function session(){
+    try{
+      var raw = localStorage.getItem(SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){
+      console.warn("HanVerse session error:", e);
+      return null;
+    }
+  }
+
+  function userId(user){
+    if(!user) return null;
+    return user.user_id || user.userId || user.id || user._id || null;
+  }
+
+  function roleOf(user){
+    if(!user) return "guest";
+    var role = String(user.role || user.user_role || user.account_type || "").toLowerCase();
+    if(user.is_admin === true || user.isAdmin === true || role === "admin" || role === "administrator") return "admin";
+    if(role === "parent" || role === "guardian") return "parent";
+    return "student";
+  }
+
+  function displayName(user){
+    if(!user) return "Learner";
+    if(user.full_name) return user.full_name;
+    if(user.fullName) return user.fullName;
+    if(user.first_name && user.last_name) return user.first_name + " " + user.last_name;
+    return user.first_name || user.firstName || user.name || user.username || "Learner";
+  }
+
+  function lessonId(lesson){
+    return String(lesson.id || lesson._id || lesson.lessonId || lesson.lesson_id || "");
+  }
+
+  function lessonLevel(lesson){
+    var n = Number(lesson.level);
+    return Number.isFinite(n) && n > 0 ? n : 1;
+  }
+
+  function lessonXP(lesson){
+    var n = Number(lesson.xp);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  async function getJSON(url, options){
+    var response = await fetch(url, Object.assign({
+      credentials:"include",
+      cache:"no-store",
+      headers:{Accept:"application/json"}
+    }, options || {}));
+
+    var contentType = response.headers.get("content-type") || "";
+    if(!contentType.includes("application/json")){
+      throw new Error("Server returned a non-JSON response.");
+    }
+
+    var data = await response.json();
+    if(!response.ok) throw new Error(data.error || data.message || ("HTTP " + response.status));
+    return data;
+  }
+
+  async function loadLessons(){
+    showLoading();
+
+    try{
+      var data = await getJSON(LESSONS_ENDPOINT);
+      var lessons = Array.isArray(data) ? data : (Array.isArray(data.lessons) ? data.lessons : []);
+
+      state.lessons = lessons.filter(function(l){ return lessonId(l); });
+
+      if(!state.lessons.length){
+        showEmpty();
+        return;
+      }
+
+      await loadProgress();
+      render();
+    }catch(error){
+      console.error("HanVerse roadmap loading error:", error);
+      showError(error.message || "Unable to load lessons.");
+    }
+  }
+
+  async function loadProgress(){
+    state.progress = {};
+
+    var user = state.user || session();
+    var uid = userId(user);
+    if(!uid) return;
+
+    var endpoints = [
+      API_BASE + "/progress/" + encodeURIComponent(uid),
+      API_BASE + "/progress?user_id=" + encodeURIComponent(uid),
+      API_BASE + "/user-progress/" + encodeURIComponent(uid)
+    ];
+
+    for(var i=0;i<endpoints.length;i++){
+      try{
+        var data = await getJSON(endpoints[i]);
+        var list = data.progress || data.lessons || data.data || data;
+
+        if(Array.isArray(list)){
+          list.forEach(function(item){
+            var id = String(item.lesson_id || item.lessonId || item.id || item._id || "");
+            if(id) state.progress[id] = normaliseProgress(item);
+          });
+          return;
+        }
+
+        if(list && typeof list === "object"){
+          Object.keys(list).forEach(function(id){
+            state.progress[String(id)] = normaliseProgress(list[id]);
+          });
+          return;
+        }
+      }catch(error){
+        // Try the next known endpoint. A missing progress endpoint should not break the roadmap.
+      }
+    }
+  }
+
+  function normaliseProgress(item){
+    if(typeof item === "number") return Math.max(0,Math.min(100,item));
+    if(!item) return 0;
+    if(item.completed === true || item.is_completed === true || item.status === "completed") return 100;
+
+    var value = item.progress_pct;
+    if(value == null) value = item.completed_pct;
+    if(value == null) value = item.progress;
+    if(value == null && item.percent != null) value = item.percent;
+
+    var n = Number(value);
+    return Number.isFinite(n) ? Math.max(0,Math.min(100,n)) : 0;
+  }
+
+  function completed(lesson){
+    return (state.progress[lessonId(lesson)] || 0) >= 100;
+  }
+
+  function overallProgress(){
+    if(!state.lessons.length) return 0;
+    var total = state.lessons.reduce(function(sum,l){ return sum + (state.progress[lessonId(l)] || 0); },0);
+    return Math.round(total / state.lessons.length);
+  }
+
+  function currentIndex(){
+    for(var i=0;i<state.lessons.length;i++){
+      if(!completed(state.lessons[i])) return i;
+    }
+    return state.lessons.length;
+  }
+
+  function isUnlocked(index){
+    if(index === 0) return true;
+    return completed(state.lessons[index-1]);
+  }
+
+  function levelName(level){
+    return "YCT " + level;
+  }
+
+  function levelDescription(level){
+    var descriptions = {
+      1:"Build your Mandarin foundations",
+      2:"Grow your everyday vocabulary",
+      3:"Communicate with greater confidence",
+      4:"Strengthen your exam-ready skills"
+    };
+    return descriptions[level] || "Keep building your Mandarin skills";
+  }
+
+  function render(){
+    hideStates();
+    $("roadmap").hidden = false;
+
+    var percent = overallProgress();
+    var doneCount = state.lessons.filter(completed).length;
+    var xp = state.lessons.reduce(function(sum,l){
+      return sum + (completed(l) ? lessonXP(l) : 0);
+    },0);
+
+    $("progressPercent").textContent = percent + "%";
+    $("progressFill").style.width = percent + "%";
+    $("completedCount").textContent = doneCount;
+    $("totalCount").textContent = state.lessons.length;
+    $("xpCount").textContent = xp;
+
+    var current = currentIndex();
+    if(state.user){
+      $("pageTitle").textContent = displayName(state.user) + "'s Learning Roadmap";
+      $("pageSubtitle").textContent = "Keep going — your next lesson is waiting for you.";
+    }
+
+    var groups = {};
+    state.lessons.forEach(function(lesson){
+      var level = lessonLevel(lesson);
+      if(!groups[level]) groups[level] = [];
+      groups[level].push(lesson);
+    });
+
+    var levels = Object.keys(groups).map(Number).sort(function(a,b){return a-b;});
+    var html = "";
+
+    levels.forEach(function(level){
+      html += '<div class="level-block">';
+      html += '<div class="level-banner"><div class="level-badge">' + (level===1?"🌱":level===2?"🌿":level===3?"🌳":"🏆") + '</div>';
+      html += '<div><strong>' + levelName(level) + '</strong><span>' + levelDescription(level) + '</span></div></div>';
+
+      groups[level].forEach(function(lesson){
+        var index = state.lessons.indexOf(lesson);
+        var id = lessonId(lesson);
+        var progress = state.progress[id] || 0;
+        var done = completed(lesson);
+        var unlocked = isUnlocked(index);
+        var current = index === current;
+        var icon = lesson.icon || "📚";
+        var premium = lesson.premium === true;
+
+        var nodeClass = done ? "done" : current ? "current" : unlocked ? "" : "locked";
+        var status = done ? "Completed" : current ? "Continue" : unlocked ? "Start" : "Locked";
+
+        html += '<div class="lesson-row ' + (current ? "center" : "") + '">';
+        html += '<div class="node ' + nodeClass + '" data-lesson="' + escapeAttr(id) + '" title="' + escapeAttr(status) + '">' + (done ? "✓" : icon) + '</div>';
+        html += '<article class="lesson-card ' + (!unlocked ? "disabled" : "") + '" data-lesson="' + escapeAttr(id) + '" data-unlocked="' + unlocked + '">';
+        html += '<div class="card-head"><div class="lesson-icon">' + escapeHTML(icon) + '</div><div><div class="lesson-title">' + escapeHTML(lesson.title || "Lesson") + '</div>';
+        html += '<div class="lesson-meta">Lesson ' + (index+1) + (premium ? " · ⭐ Premium" : " · Free") + '</div></div></div>';
+        if(lesson.description) html += '<div class="lesson-desc">' + escapeHTML(lesson.description) + '</div>';
+        html += '<div class="mini-progress"><span style="width:' + progress + '%"></span></div>';
+        html += '<div class="card-bottom"><span class="xp">+' + lessonXP(lesson) + ' XP</span><span class="status ' + (done?"":"") + '">' + status + '</span></div>';
+        html += '</article></div>';
+      });
+
+      html += '</div>';
+    });
+
+    $("roadmapContent").innerHTML = html;
+    bindLessons();
+  }
+
+  function bindLessons(){
+    document.querySelectorAll("[data-lesson]").forEach(function(el){
+      el.addEventListener("click",function(){
+        var id = el.getAttribute("data-lesson");
+        var lesson = state.lessons.find(function(l){return lessonId(l) === id;});
+        if(!lesson) return;
+
+        var index = state.lessons.indexOf(lesson);
+        if(isUnlocked(index)){
+          window.location.href = "lesson.html?id=" + encodeURIComponent(id);
+        }else{
+          openModal(lesson,"locked");
+        }
+      });
+    });
+  }
+
+  function openModal(lesson, mode){
+    $("modalIcon").textContent = mode === "locked" ? "🔒" : (lesson.icon || "📚");
+    $("modalTitle").textContent = lesson.title || "Lesson";
+    $("modalText").textContent = mode === "locked"
+      ? "Complete the previous lesson to unlock this step on your HanVerse journey."
+      : (lesson.description || "Continue your HanVerse lesson.");
+    $("modalAction").textContent = mode === "locked" ? "Keep Learning" : "Open Lesson";
+    $("modalAction").onclick = function(){ closeModal(); };
+    $("lessonModal").classList.add("open");
+  }
+
+  function closeModal(){ $("lessonModal").classList.remove("open"); }
+
+  function showLoading(){
+    $("loadingState").style.display="block";
+    $("roadmap").hidden=true;
+    $("errorState").classList.remove("show");
+    $("emptyState").classList.remove("show");
+  }
+  function hideStates(){ $("loadingState").style.display="none";$("errorState").classList.remove("show");$("emptyState").classList.remove("show"); }
+  function showError(message){ $("loadingState").style.display="none";$("roadmap").hidden=true;$("errorText").textContent=message;$("errorState").classList.add("show"); }
+  function showEmpty(){ $("loadingState").style.display="none";$("roadmap").hidden=true;$("emptyState").classList.add("show"); }
+
+  function escapeHTML(value){
+    return String(value == null ? "" : value).replace(/[&<>"']/g,function(ch){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];
+    });
+  }
+  function escapeAttr(value){ return escapeHTML(value); }
+
+  function renderNavbar(){
+    var desktop = $("desktopNav");
+    var mobile = $("mobileMenu");
+    var user = state.user;
+    var role = state.role;
+
+    var links = [
+      ["Home","index.html"],
+      ["Learn","learn.html"],
+      ["Worksheets","worksheets.html"],
+      ["Roadmap","roadmap.html"]
+    ];
+
+    desktop.innerHTML="";
+    mobile.innerHTML="";
+
+    links.forEach(function(item){
+      var a=document.createElement("a");
+      a.className="nav-link" + (item[0]==="Roadmap" ? " active" : "");
+      a.href=item[1];a.textContent=item[0];desktop.appendChild(a);
+
+      var m=document.createElement("a");
+      m.href=item[1];m.textContent=item[0];mobile.appendChild(m);
+    });
+
+    if(role==="parent"){
+      var p=document.createElement("a");p.className="nav-link";p.href="parent.html";p.textContent="Parent";desktop.appendChild(p);
+      var pm=document.createElement("a");pm.href="parent.html";pm.textContent="Parent";mobile.appendChild(pm);
+    }
+    if(role==="admin"){
+      var ad=document.createElement("a");ad.className="nav-link";ad.href="admin.html";ad.textContent="Admin";desktop.appendChild(ad);
+      var adm=document.createElement("a");adm.href="admin.html";adm.textContent="Admin";mobile.appendChild(adm);
+    }
+
+    if(user){
+      $("navProfile").style.display="block";
+      $("navProfile").textContent=displayName(user);
+      $("navProfile").href=role==="parent"?"parent.html":role==="admin"?"admin.html":"profile.html";
+
+      var mp=document.createElement("a");mp.href=$("navProfile").href;mp.textContent=displayName(user);mobile.appendChild(mp);
+    }else{
+      $("navProfile").style.display="none";
+      var login=document.createElement("a");login.href="login.html";login.textContent="Log In";mobile.appendChild(login);
+      var signup=document.createElement("a");signup.href="signup.html";signup.textContent="Start Learning";mobile.appendChild(signup);
+    }
+  }
+
+  function setup(){
+    state.user=session();
+    state.role=roleOf(state.user);
+
+    renderNavbar();
+
+    var toggle=$("mobileToggle");
+    var menu=$("mobileMenu");
+    toggle.addEventListener("click",function(){
+      var open=menu.classList.toggle("open");
+      toggle.setAttribute("aria-expanded",String(open));
+      toggle.textContent=open?"✕":"☰";
+    });
+    menu.addEventListener("click",function(e){
+      if(e.target.closest("a")){
+        menu.classList.remove("open");
+        toggle.textContent="☰";
+        toggle.setAttribute("aria-expanded","false");
+      }
+    });
+
+    $("retryBtn").addEventListener("click",loadLessons);
+    $("modalClose").addEventListener("click",closeModal);
+    $("modalCancel").addEventListener("click",closeModal);
+    $("lessonModal").addEventListener("click",function(e){
+      if(e.target === $("lessonModal")) closeModal();
+    });
+
+    loadLessons();
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",setup,{once:true});
+  }else{
+    setup();
+  }
+})();
+</script>
+</body>
+</html>
