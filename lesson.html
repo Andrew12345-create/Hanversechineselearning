@@ -1,590 +1,710 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#FFFDF7">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>HanVerse | Lesson</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
-
+<meta name="description" content="Learn Mandarin with HanVerse.">
 <style>
 :root{
-  --cream:#FFFDF7;--white:#fff;--navy:#243047;--muted:#667085;
-  --red:#E63946;--red-dark:#C92F3C;--yellow:#F4D35E;
-  --blue:#4EA8DE;--green:#74C69D;--purple:#9B8AFB;
-  --line:rgba(36,48,71,.09);
-  --shadow:0 14px 42px rgba(36,48,71,.08);
-  --shadow-lg:0 28px 80px rgba(36,48,71,.12);
-  --max:1080px;--nav-max:1240px;--ease:cubic-bezier(.2,.8,.2,1);
+  --red:#e63946;--yellow:#f4d35e;--blue:#4ea8de;--green:#74c69d;
+  --cream:#fffdf7;--ink:#172033;--muted:#687083;--line:#e9e5dc;
+  --white:#fff;--shadow:0 18px 50px rgba(31,38,55,.10);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  margin:0;background:
-  radial-gradient(circle at 8% 5%,rgba(244,211,94,.14),transparent 25rem),
-  radial-gradient(circle at 95% 20%,rgba(78,168,222,.10),transparent 28rem),
-  var(--cream);
-  color:var(--navy);font-family:Nunito,system-ui,sans-serif;
-  line-height:1.6;overflow-x:hidden;min-height:100vh;
-}
-a{text-decoration:none;color:inherit}button,input{font:inherit}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,a{font:inherit}
 button{cursor:pointer}
-:focus-visible{outline:3px solid rgba(78,168,222,.55);outline-offset:3px}
-.container{width:min(calc(100% - 32px),var(--max));margin:auto}
-
-/* NAV */
-.site-header{position:sticky;top:0;z-index:1000;padding:12px 0}
-.navbar{
-  width:min(calc(100% - 20px),var(--nav-max));min-height:68px;margin:auto;
-  padding:9px 14px;display:flex;align-items:center;gap:18px;
-  background:rgba(255,255,255,.94);backdrop-filter:blur(18px);
-  border:1px solid var(--line);border-radius:21px;box-shadow:0 10px 35px rgba(36,48,71,.07);
-}
-.brand{display:flex;align-items:center;gap:9px;font-weight:900;font-size:1.08rem;margin-right:auto}
-.brand-mark{width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:#FFF7D6;font-size:1.35rem}
-.brand span span{color:var(--red)}
-.desktop-nav{display:flex;align-items:center;gap:2px}
-.nav-link{padding:10px 12px;border-radius:12px;color:#566074;font-size:.83rem;font-weight:800}
-.nav-link:hover,.nav-link.active{background:#F5F6F8;color:var(--navy)}
-.nav-link.active{box-shadow:inset 0 -2px var(--red)}
-.actions{display:flex;gap:8px}
-.btn{
-  min-height:44px;padding:10px 16px;border-radius:13px;border:1px solid transparent;
-  display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  font-size:.82rem;font-weight:900;transition:.25s ease;
-}
-.btn:hover{transform:translateY(-2px)}
-.btn.primary{background:var(--red);color:#fff;box-shadow:0 10px 25px rgba(230,57,70,.17)}
-.btn.ghost{background:#fff;border-color:var(--line)}
-.mobile-toggle{display:none;width:44px;height:44px;border:0;border-radius:13px;background:#F5F6F8;color:var(--navy)}
-.mobile-menu{
-  display:none;width:min(calc(100% - 20px),var(--nav-max));margin:7px auto 0;
-  padding:10px;background:#fff;border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow);
-}
-.mobile-menu.open{display:block}
-.mobile-menu a{display:flex;align-items:center;min-height:48px;padding:0 13px;border-radius:12px;font-weight:800;color:#596476}
-.mobile-menu a:hover,.mobile-menu a.active{background:#F5F6F8;color:var(--navy)}
-.mobile-divider{height:1px;background:var(--line);margin:8px 0}
-
-/* TOP STATUS */
-.lesson-shell{padding:24px 0 70px}
-.lesson-header{
-  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:18px;
-}
-.kicker{
-  display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;
-  background:#E8F5FC;color:#2478A8;font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em
-}
-.kicker:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue)}
-.lesson-title{margin:10px 0 0;font:900 clamp(1.65rem,4vw,2.55rem)/1.05 Poppins,sans-serif;letter-spacing:-.04em}
-.lesson-subtitle{margin:6px 0 0;color:var(--muted);font-size:.86rem}
-.xp-chip{
-  display:flex;align-items:center;gap:7px;white-space:nowrap;padding:10px 13px;
-  background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 7px 22px rgba(36,48,71,.05);
-  font-size:.76rem;font-weight:900;
-}
-.xp-chip strong{color:#9B7611}
-
-/* PROGRESS */
-.progress-card{
-  background:#fff;border:1px solid var(--line);border-radius:24px;padding:17px 19px;
-  box-shadow:0 10px 30px rgba(36,48,71,.055);margin-bottom:18px;
-}
-.progress-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:.7rem;font-weight:800}
-.progress-meta strong{color:var(--navy)}
-.progress-track{height:8px;background:#EEF1F4;border-radius:999px;margin-top:10px;overflow:hidden}
-.progress-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .45s var(--ease)}
-.progress-steps{display:flex;align-items:center;gap:7px;margin-top:15px}
-.progress-step{
-  width:30px;height:30px;flex:0 0 30px;border-radius:50%;display:grid;place-items:center;
-  border:2px solid #E1E5EA;background:#FAFBFC;color:#8A94A4;font-size:.65rem;font-weight:900;
-  transition:.25s ease;
-}
-.progress-step.active{border-color:var(--blue);background:#E8F5FC;color:#2478A8;box-shadow:0 0 0 4px rgba(78,168,222,.12)}
-.progress-step.completed{border-color:var(--green);background:#EAF8F0;color:#27754E}
-.progress-step.completed::after{content:"✓"}
-.progress-connector{height:3px;flex:1;min-width:8px;background:#E8EBEF;border-radius:9px;overflow:hidden}
-.progress-connector .fill{width:0;height:100%;background:var(--green);transition:.4s ease}
-.progress-connector.completed .fill{width:100%}
-
-/* SLIDE STAGE */
-.stage{
-  background:#fff;border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow);
-  overflow:hidden;
-}
+a{text-decoration:none;color:inherit}
+.navbar{position:sticky;top:0;z-index:50;background:rgba(255,253,247,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1180px;margin:auto;min-height:72px;padding:0 22px;display:flex;align-items:center;gap:28px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.3rem}
+.logo-mark{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--red);color:#fff;font-size:1.35rem;box-shadow:0 7px 18px rgba(230,57,70,.22)}
+.nav-links{display:flex;align-items:center;gap:6px;margin-left:auto}
+.nav-link{padding:10px 13px;border-radius:11px;color:#4f586a;font-weight:700;font-size:.94rem}
+.nav-link:hover,.nav-link.active{background:#fff;color:var(--red)}
+.nav-actions{display:flex;align-items:center;gap:9px}
+.btn{border:0;border-radius:13px;padding:11px 17px;font-weight:800;transition:.18s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.48;cursor:not-allowed}
+.btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn-primary{background:var(--red);color:#fff;box-shadow:0 8px 20px rgba(230,57,70,.18)}
+.btn-success{background:var(--green);color:#123b2b}
+.mobile-toggle{display:none;border:0;background:#fff;border:1px solid var(--line);border-radius:11px;width:42px;height:42px;font-size:1.2rem}
+.mobile-menu{display:none}
+.page{max-width:1050px;margin:0 auto;padding:38px 20px 70px}
+.lesson-header{display:flex;justify-content:space-between;gap:25px;align-items:flex-start;margin-bottom:25px}
+.eyebrow{color:var(--red);font-weight:900;text-transform:uppercase;letter-spacing:.09em;font-size:.76rem}
+h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.05;margin:8px 0 10px;letter-spacing:-.04em}
+.subtitle{color:var(--muted);font-size:1.05rem;line-height:1.6;max-width:700px;margin:0}
+.lesson-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:.83rem;font-weight:800}
+.progress-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:17px;min-width:230px;box-shadow:var(--shadow)}
+.progress-top{display:flex;justify-content:space-between;font-size:.82rem;font-weight:800;margin-bottom:10px}
+.progress-track{height:9px;background:#eeeae1;border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--yellow));border-radius:999px;transition:.3s}
+.lesson-shell{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+.stepper{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;overflow-x:auto}
+.step{width:34px;height:34px;border-radius:50%;background:#eeeae1;color:#777;display:grid;place-items:center;flex:0 0 auto;font-size:.82rem;font-weight:900}
+.step.active{background:var(--red);color:#fff}
+.step.completed{background:var(--green);color:#123b2b}
+.connector{height:3px;background:#eeeae1;min-width:24px;flex:1}
+.connector.completed{background:var(--green)}
 .slide-viewport{overflow:hidden}
-.slide-wrapper{display:flex;transition:transform .48s var(--ease);will-change:transform}
-.slide{
-  min-width:100%;padding:clamp(30px,6vw,65px) clamp(20px,6vw,65px);
-  min-height:clamp(440px,58vh,590px);display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;
-}
-.slide-content{width:min(100%,720px)}
-.slide-eyebrow{
-  display:inline-flex;padding:6px 10px;border-radius:999px;background:#F5F6F8;color:#667085;
-  font-size:.66rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase
-}
-.slide h2{margin:15px 0 7px;font:900 clamp(1.65rem,4vw,2.65rem)/1.1 Poppins,sans-serif;letter-spacing:-.035em}
-.slide p{margin:0;color:var(--muted);font-size:clamp(.86rem,1.4vw,.98rem);line-height:1.75}
-.emoji-large{font-size:clamp(4rem,10vw,6.5rem);line-height:1;filter:drop-shadow(0 12px 14px rgba(36,48,71,.10));animation:bob 3.8s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-8px) rotate(2deg)}}
-
-/* WORD */
-.word-card{width:min(100%,500px);margin:22px auto 0;padding:25px 20px;border-radius:25px;background:linear-gradient(145deg,#E8F5FC,#F3FBF6);border:1px solid #DDEEF5}
-.word-character{font:900 clamp(4rem,11vw,6.2rem)/1 Poppins,sans-serif;color:var(--navy)}
-.pinyin{margin-top:6px;color:#4E7C9B;font-size:1rem;font-weight:800}
-.meaning{margin-top:3px;color:var(--muted);font-size:.9rem}
-.word-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:18px}
-.btn.small{min-height:38px;padding:8px 12px;font-size:.72rem}
-.btn.secondary{background:#fff;border-color:var(--line)}
-.example{
-  margin:18px auto 0;padding:12px 15px;border-radius:14px;background:#fff;border:1px solid var(--line);
-  font-size:.78rem;color:#596476;max-width:520px;
-}
-.example strong{color:var(--navy)}
-
-/* STORY */
-.story-grid{width:min(100%,760px);display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:25px}
-.story-panel{padding:19px 14px;border:1px solid var(--line);border-radius:21px;background:#FCFCFD;transition:.25s ease}
-.story-panel:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
-.story-icon{font-size:2rem}
-.story-panel h3{margin-top:9px;font-size:.88rem}
-.story-panel p{margin-top:5px;font-size:.72rem;line-height:1.6}
-
-/* CHALLENGE */
-.challenge-card{width:min(100%,620px);margin-top:22px;padding:24px;border-radius:25px;background:#FCFCFD;border:1px solid var(--line)}
-.question-number{font-size:.67rem;color:var(--muted);font-weight:900;text-transform:uppercase}
-.question-text{margin-top:8px;font:900 clamp(1.25rem,3vw,1.65rem)/1.25 Poppins,sans-serif}
-.challenge-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
-.challenge-option{
-  border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 11px;
-  color:#475569;font-weight:800;font-size:.78rem;transition:.2s ease;
-}
-.challenge-option:hover:not(.disabled){border-color:var(--blue);background:#F5FBFE;transform:translateY(-2px)}
-.challenge-option.correct{background:#EAF8F0;border-color:#9ED7B9;color:#27754E}
-.challenge-option.wrong{background:#FFECEF;border-color:#F3B4BB;color:#A52E3A}
-.challenge-option.disabled{cursor:default}
-.challenge-feedback{min-height:24px;margin-top:12px;font-size:.78rem;font-weight:900}
-.challenge-feedback.good{color:#27754E}.challenge-feedback.bad{color:#A52E3A}
-
-/* CELEBRATION */
-.celebration-card{width:min(100%,650px);padding:10px}
-.reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px auto;width:min(100%,540px)}
-.reward{padding:14px;border:1px solid var(--line);border-radius:17px;background:#FCFCFD}
-.reward strong{display:block;font-size:1.05rem}
-.reward span{display:block;margin-top:2px;color:var(--muted);font-size:.65rem;font-weight:800}
-.stars{font-size:1.35rem;letter-spacing:2px}
-
-/* NAVIGATION */
-.slide-nav{
-  display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 17px;
-  border-top:1px solid var(--line);background:#FCFCFD;
-}
-.slide-counter{color:#7A8494;font-size:.68rem;font-weight:900}
-.slide-nav .btn{min-width:115px}
-.btn.success{background:var(--green);color:#173A2A}
-.btn.disabled-look{opacity:.58;cursor:not-allowed;transform:none!important}
-
-/* OFFLINE / TOAST / LOADING */
-.offline{
-  display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:3000;
-  padding:9px 13px;border-radius:999px;background:#243047;color:white;font-size:.7rem;font-weight:900;
-  box-shadow:var(--shadow)
-}
-.offline.show{display:block}
-.toast-region{position:fixed;right:18px;bottom:18px;z-index:3000;display:grid;gap:8px;max-width:min(360px,calc(100% - 36px))}
-.toast{padding:12px 14px;background:#243047;color:white;border-radius:14px;box-shadow:var(--shadow-lg);font-size:.73rem;font-weight:800;animation:toastIn .25s ease}
-.toast.success{border-left:4px solid var(--green)}.toast.error{border-left:4px solid var(--red)}.toast.info{border-left:4px solid var(--blue)}
-@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.loading{
-  position:fixed;inset:0;background:rgba(255,253,247,.92);backdrop-filter:blur(10px);z-index:2500;
-  display:grid;place-items:center;text-align:center;transition:.25s ease
-}
-.loading.hidden{opacity:0;pointer-events:none}
-.loader-card{padding:25px;background:white;border:1px solid var(--line);border-radius:23px;box-shadow:var(--shadow)}
-.spinner{width:38px;height:38px;margin:auto;border:4px solid #E9EDF1;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
-.loader-card p{margin-top:12px;font-size:.78rem;font-weight:900;color:#596476}
+.slide-wrapper{display:flex;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.slide{min-width:100%;padding:38px clamp(22px,6vw,70px) 44px;min-height:430px}
+.slide h2{font-size:clamp(1.55rem,3vw,2.3rem);margin:0 0 12px}
+.slide-intro{color:var(--muted);line-height:1.65;margin:0 0 25px}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.vocab-card{background:#fffdf8;border:1px solid var(--line);border-radius:18px;padding:20px;position:relative}
+.vocab-card .hanzi{font-size:2rem;font-weight:900}
+.vocab-card .pinyin{font-weight:800;color:var(--red);margin:5px 0}
+.vocab-card .english{color:var(--muted)}
+.speak{position:absolute;right:12px;top:12px;border:0;background:#fff;border:1px solid var(--line);width:34px;height:34px;border-radius:10px}
+.challenge{max-width:760px;margin:auto}
+.question{font-size:1.35rem;font-weight:900;margin:0 0 20px}
+.options{display:grid;gap:11px}
+.option{border:2px solid var(--line);background:#fff;border-radius:15px;padding:15px;text-align:left;font-weight:750}
+.option:hover:not(:disabled){border-color:var(--blue);background:#f8fcff}
+.option.correct{border-color:var(--green);background:#effbf5}
+.option.wrong{border-color:var(--red);background:#fff2f3}
+.feedback{margin-top:16px;padding:13px 15px;border-radius:13px;font-weight:750;display:none}
+.feedback.show{display:block}
+.feedback.good{background:#effbf5;color:#246548}
+.feedback.bad{background:#fff2f3;color:#a3222e}
+.nav-footer{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:18px 24px;border-top:1px solid var(--line);background:#fff}
+.slide-counter{font-size:.86rem;color:var(--muted);font-weight:800}
+.complete-panel{text-align:center;padding:35px 15px}
+.complete-icon{font-size:4rem}
+.complete-panel h2{margin:10px 0}
+.complete-panel p{color:var(--muted)}
+.notice{margin:15px 0;padding:13px 15px;border-radius:14px;font-size:.9rem;display:none}
+.notice.show{display:block}
+.notice.error{background:#fff2f3;color:#a3222e}
+.notice.info{background:#eef8ff;color:#245b7d}
+.loading{padding:70px 20px;text-align:center;color:var(--muted)}
+.spinner{width:38px;height:38px;border:4px solid #eeeae1;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 15px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* CONFETTI */
-.confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:2900;overflow:hidden}
-.confetti{position:absolute;top:-20px;width:8px;height:13px;animation:fall 1.6s ease-in forwards}
-@keyframes fall{to{transform:translate3d(var(--x),110vh,0) rotate(600deg);opacity:0}}
-
-/* RESPONSIVE */
-@media(max-width:900px){
-  .desktop-nav,.actions{display:none}.mobile-toggle{display:block}
-  .lesson-header{align-items:flex-start}
+@media(max-width:820px){
+  .nav-links,.nav-actions{display:none}.mobile-toggle{display:block;margin-left:auto}
+  .mobile-menu{display:none;padding:8px 20px 18px;border-top:1px solid var(--line);background:var(--cream)}
+  .mobile-menu.open{display:grid}.mobile-menu a{padding:13px;border-radius:10px;font-weight:800}
+  .mobile-menu a:hover{background:#fff}
+  .lesson-header{flex-direction:column}.progress-card{width:100%}
 }
-@media(max-width:650px){
-  .lesson-shell{padding-top:16px}
-  .lesson-header{display:block}
-  .xp-chip{margin-top:13px;width:max-content}
-  .progress-card{padding:14px}
-  .progress-step{width:27px;height:27px;flex-basis:27px;font-size:.58rem}
-  .slide{min-height:500px;padding:30px 16px}
-  .stage{border-radius:23px}
-  .story-grid{grid-template-columns:1fr}
-  .story-panel{display:grid;grid-template-columns:48px 1fr;text-align:left;align-items:center;gap:10px}
-  .story-panel p{grid-column:2}
-  .challenge-options{grid-template-columns:1fr}
-  .reward-grid{grid-template-columns:1fr}
-  .slide-nav{padding:11px}
-  .slide-nav .btn{min-width:0;flex:1}
-  .slide-counter{display:none}
-}
-@media(max-width:380px){
-  .container{width:calc(100% - 22px)}
-  .navbar{width:calc(100% - 10px);border-radius:17px}
-  .brand{font-size:1rem}
-  .brand-mark{width:36px;height:36px}
-  .progress-meta{font-size:.63rem}
-  .slide{min-height:520px}
-  .slide h2{font-size:1.55rem}
-}
-@media(min-width:1500px){
-  .lesson-shell{padding-top:35px}
-  .stage{box-shadow:var(--shadow-lg)}
-}
-@media(prefers-reduced-motion:reduce){
-  *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}
-  html{scroll-behavior:auto}
+@media(max-width:560px){
+  .nav-inner{min-height:64px;padding:0 15px}.page{padding:25px 12px 45px}
+  .lesson-shell{border-radius:20px}.stepper{padding:14px}.slide{padding:28px 18px 32px;min-height:400px}
+  .nav-footer{padding:14px;flex-wrap:wrap}.nav-footer .btn{flex:1}
+  .nav-footer .slide-counter{width:100%;text-align:center;order:-1}
+  .vocab-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
-
 <body>
-<div class="offline" id="offlineBanner">🔴 You're offline. Progress will sync when you're back online.</div>
-<div class="loading" id="loadingOverlay">
-  <div class="loader-card"><div class="spinner"></div><p>🐼 Loading your lesson…</p></div>
-</div>
-<div class="toast-region" id="toastRegion" aria-live="polite"></div>
-<div class="confetti-layer" id="confettiLayer"></div>
-
-<header class="site-header">
-<nav class="navbar" aria-label="Primary navigation">
-  <a class="brand" href="index.html"><span class="brand-mark">🐼</span><span>Han<span>Verse</span></span></a>
-  <div class="desktop-nav">
-    <a class="nav-link" href="index.html">Home</a>
-    <a class="nav-link active" href="learn.html">Learn</a>
-    <a class="nav-link" href="worksheets.html">Worksheets</a>
-    <span id="roleNav"></span>
+<header class="navbar">
+  <div class="nav-inner">
+    <a class="logo" href="index.html"><span class="logo-mark">🐼</span><span>HanVerse</span></a>
+    <nav class="nav-links" id="desktopNav"></nav>
+    <div class="nav-actions" id="desktopActions"></div>
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Open menu" aria-expanded="false">☰</button>
   </div>
-  <div class="actions" id="authNav">
-    <a class="btn ghost" href="login.html">Log In</a>
-    <a class="btn primary" href="signup.html">Start Learning →</a>
-  </div>
-  <button class="mobile-toggle" id="mobileToggle" aria-expanded="false" aria-controls="mobileMenu">☰</button>
-</nav>
-<div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">Home</a><a class="active" href="learn.html">Learn</a><a href="worksheets.html">Worksheets</a>
-  <div id="mobileRoleNav"></div><div class="mobile-divider"></div><div id="mobileAuthNav">
-    <a href="login.html">Log In</a><a href="signup.html">Start Learning →</a>
-  </div>
-</div>
+  <div class="mobile-menu" id="mobileMenu"></div>
 </header>
 
-<main class="lesson-shell">
-<div class="container">
-  <div class="lesson-header">
+<main class="page">
+  <div id="topNotice" class="notice"></div>
+  <section class="lesson-header" id="lessonHeader">
     <div>
-      <span class="kicker">HanVerse lesson</span>
-      <h1 class="lesson-title" id="lessonTitle">Loading lesson…</h1>
-      <p class="lesson-subtitle" id="lessonSubtitle">Your next step in the Chinese adventure.</p>
+      <div class="eyebrow">HanVerse Lesson</div>
+      <h1 id="lessonTitle">Loading lesson…</h1>
+      <p class="subtitle" id="lessonDescription">Getting your lesson ready.</p>
+      <div class="lesson-meta" id="lessonMeta"></div>
     </div>
-    <div class="xp-chip">⭐ <strong id="xpDisplay">0</strong> XP</div>
-  </div>
-
-  <section class="progress-card" aria-label="Lesson progress">
-    <div class="progress-meta">
-      <span id="lessonMeta">Lesson 1 · YCT 1</span>
-      <strong id="slideProgressText">1 / 1</strong>
-    </div>
-    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="progress-steps" id="progressSteps"></div>
+    <aside class="progress-card">
+      <div class="progress-top"><span>Lesson progress</span><span id="progressPercent">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="headerProgress"></div></div>
+      <div style="margin-top:10px;font-size:.8rem;color:var(--muted)" id="saveStatus">Ready to learn</div>
+    </aside>
   </section>
 
-  <section class="stage">
-    <div class="slide-viewport">
+  <section class="lesson-shell" id="lessonShell">
+    <div class="stepper" id="stepper"></div>
+    <div id="loadingState" class="loading"><div class="spinner"></div>Loading your lesson…</div>
+    <div class="slide-viewport" id="slideViewport" style="display:none">
       <div class="slide-wrapper" id="slideWrapper"></div>
     </div>
-    <div class="slide-nav">
-      <button class="btn secondary" id="prevSlideBtn">← Back</button>
-      <span class="slide-counter" id="slideCounter">1 / 1</span>
-      <button class="btn primary" id="nextSlideBtn">Next →</button>
+    <div class="nav-footer" id="lessonNav" style="display:none">
+      <button class="btn btn-outline" id="prevBtn">← Back</button>
+      <div class="slide-counter" id="slideCounter">1 / 1</div>
+      <button class="btn btn-primary" id="nextBtn">Next →</button>
     </div>
   </section>
-</div>
 </main>
 
 <script>
-(function(){
-"use strict";
+(() => {
+  "use strict";
 
-const SESSION_KEY="hanverse_user";
-let currentSlide=0,totalSlides=0,lessonCompleted=false,currentLesson=null,challengeState={};
-
-function getSession(){
-  try{const raw=localStorage.getItem(SESSION_KEY);return raw?JSON.parse(raw):null}catch{return null}
-}
-function setSession(value){try{localStorage.setItem(SESSION_KEY,JSON.stringify(value))}catch{}}
-function loggedIn(){const s=getSession();return !!(s&&(s.user_id||s.id||s.userId))}
-function isParent(){const s=getSession();return !!(s&&(s.role==="parent"||s.isParent===true||s.parent===true))}
-function isAdmin(){const s=getSession();return !!(s&&(s.role==="admin"||s.is_admin===true||s.isAdmin===true))}
-function esc(v){const d=document.createElement("div");d.textContent=String(v??"");return d.innerHTML}
-function param(name){return new URLSearchParams(location.search).get(name)}
-function toast(type,msg){
-  const el=document.createElement("div");el.className="toast "+type;el.textContent=msg;
-  document.getElementById("toastRegion").appendChild(el);setTimeout(()=>el.remove(),3200);
-}
-function renderRoles(){
-  let d="",m="";
-  if(isParent()){d+='<a class="nav-link" href="parent.html">Parent</a>';m+='<a href="parent.html">Parent</a>'}
-  if(isAdmin()){d+='<a class="nav-link" href="admin.html">Admin</a>';m+='<a href="admin.html">Admin</a>'}
-  document.getElementById("roleNav").innerHTML=d;
-  document.getElementById("mobileRoleNav").innerHTML=m;
-}
-function logout(){localStorage.removeItem(SESSION_KEY);location.href="index.html"}
-function renderAuth(){
-  const d=document.getElementById("authNav"),m=document.getElementById("mobileAuthNav");
-  if(!loggedIn()){
-    d.innerHTML='<a class="btn ghost" href="login.html">Log In</a><a class="btn primary" href="signup.html">Start Learning →</a>';
-    m.innerHTML='<a href="login.html">Log In</a><a href="signup.html">Start Learning →</a>';return;
-  }
-  const s=getSession(),name=esc(s?.full_name||s?.fullName||s?.username||"Learner");
-  d.innerHTML='<a class="btn ghost" href="profile.html">'+name+'</a><button class="btn primary" id="logoutBtn">Log Out</button>';
-  m.innerHTML='<a href="profile.html">My Profile</a><a href="#" id="mobileLogout">Log Out</a>';
-  document.getElementById("logoutBtn").onclick=logout;
-  document.getElementById("mobileLogout").onclick=e=>{e.preventDefault();logout()};
-}
-
-/* Keep API integration flexible: use the existing lesson endpoint first, then common alternatives. */
-async function getJSON(url){
-  const r=await fetch(url,{headers:{Accept:"application/json"},credentials:"same-origin"});
-  if(!r.ok)throw new Error("HTTP "+r.status);
-  return r.json();
-}
-async function fetchLesson(id){
-  const candidates=[
-    "/api/lessons/"+encodeURIComponent(id),
-    "/api/lesson/"+encodeURIComponent(id),
-    "/api/lessons?id="+encodeURIComponent(id)
-  ];
-  for(const url of candidates){
-    try{
-      const data=await getJSON(url);
-      const lesson=data?.lesson||data?.data||data;
-      if(lesson && (lesson.id||lesson.title||lesson.story||lesson.quiz||lesson.word)) return lesson;
-    }catch(e){}
-  }
-  return null;
-}
-async function fetchUser(id){
-  if(!id)return null;
-  for(const url of ["/api/user/"+encodeURIComponent(id),"/api/users/"+encodeURIComponent(id)]){
-    try{const data=await getJSON(url);return data?.user||data?.data||data}catch(e){}
-  }
-  return null;
-}
-
-/* Local fallback keeps the lesson interface useful if the API is temporarily unavailable. */
-function fallbackLesson(){
-  return {
-    id:param("id")||"lesson_1",title:"Greetings & Introductions",level:1,premium:false,xp:30,
-    intro:{emoji:"👋",title:"你好!",subtitle:"Let's learn how to greet someone in Mandarin.",buttonText:"Start Adventure →"},
-    word:{chinese:"你好",pinyin:"nǐ hǎo",meaning:"hello / hi",emoji:"👋",example:"你好！我是小明。"},
-    story:[
-      {icon:"🏮",title:"You meet someone",text:"You want to greet a new friend."},
-      {icon:"👋",title:"Say 你好",text:"Use 你好 when you want to say hello."},
-      {icon:"😊",title:"Keep going",text:"Now try using it yourself!"}
-    ],
-    quiz:[
-      {question:"What does 你好 mean?",options:["Hello","Goodbye","Thank you","Good night"],answer:0}
-    ]
+  const API_BASE = "/api";
+  const state = {
+    lesson: null,
+    slides: [],
+    currentSlide: 0,
+    totalSlides: 0,
+    quizAnswered: {},
+    savedProgress: null,
+    completed: false,
+    saving: false
   };
-}
-function generateSlides(lesson){
-  const slides=[];
-  const intro=lesson.intro||lesson.welcome||{
-    emoji:lesson.icon||"🐼",title:"Ready for your lesson?",subtitle:lesson.description||"Let's learn something new!",buttonText:"Start Adventure →"
-  };
-  slides.push({type:"welcome",data:intro});
-  if(lesson.word || lesson.vocabulary || lesson.chinese){
-    const w=lesson.word||lesson.vocabulary||lesson;
-    slides.push({type:"word",data:{
-      chinese:w.chinese||w.character||w.word||"你好",
-      pinyin:w.pinyin||"",
-      meaning:w.meaning||w.translation||"hello",
-      emoji:w.emoji||lesson.icon||"📖",
-      example:w.example||w.example_sentence||""
-    }});
+
+  const $ = id => document.getElementById(id);
+
+  function session() {
+    const keys = ["hanverseUser","user","userData","currentUser","authUser","session"];
+    for (const key of keys) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const value = JSON.parse(raw);
+        if (value && typeof value === "object") return value.user || value.data || value;
+      } catch {}
+    }
+    return null;
   }
-  if(Array.isArray(lesson.story)&&lesson.story.length)slides.push({type:"story",data:{panels:lesson.story}});
-  if(Array.isArray(lesson.quiz)&&lesson.quiz.length)slides.push({type:"challenge",data:{questions:lesson.quiz}});
-  slides.push({type:"celebration",data:{title:"🌟 Mission Complete!",subtitle:"You did an amazing job!",xpEarned:lesson.xp||30}});
-  return slides;
-}
-function renderSlides(slides){
-  const wrapper=document.getElementById("slideWrapper");
-  const steps=document.getElementById("progressSteps");
-  const labels=slides.map((s,i)=>i===0?"Start":i===slides.length-1?"Finish":({word:"Word",story:"Story",challenge:"Challenge"}[s.type]||"Step"));
-  steps.innerHTML=labels.map((label,i)=>{
-    const connector=i<labels.length-1?'<div class="progress-connector"><div class="fill"></div></div>':"";
-    return '<div class="progress-step '+(i===0?"active":"")+'" title="'+esc(label)+'">'+(i+1)+'</div>'+connector;
-  }).join("");
-  wrapper.innerHTML=slides.map((s,i)=>'<article class="slide slide-'+s.type+'"><div class="slide-content">'+renderSlide(s,i)+'</div></article>').join("");
-  totalSlides=slides.length;currentSlide=0;updateUI();
-}
-function renderSlide(slide,index){
-  if(slide.type==="welcome"){
-    return '<div class="emoji-large">'+esc(slide.data.emoji||"🐼")+'</div>'+
-      '<span class="slide-eyebrow">Ready?</span><h2>'+esc(slide.data.title||"Let's begin!")+'</h2>'+
-      '<p>'+esc(slide.data.subtitle||"")+'</p>'+
-      '<button class="btn primary" style="margin-top:22px" onclick="nextSlide()"> '+esc(slide.data.buttonText||"Start Adventure →")+'</button>';
+
+  function getUser() {
+    const s = session();
+    if (!s) return null;
+    return s;
   }
-  if(slide.type==="word"){
-    return '<span class="slide-eyebrow">New word</span>'+
-      '<div class="word-card"><div class="word-character">'+esc(slide.data.chinese)+'</div>'+
-      '<div class="pinyin">'+esc(slide.data.pinyin)+'</div><div class="meaning">'+esc(slide.data.meaning)+'</div>'+
-      '<div class="word-actions"><button class="btn small secondary" onclick="speakWord()">🔊 Hear it</button></div>'+
-      (slide.data.example?'<div class="example"><strong>Example:</strong> '+esc(slide.data.example)+'</div>':"")+
-      '</div><button class="btn primary" style="margin-top:20px" onclick="nextSlide()">Got it →</button>';
+
+  function userId() {
+    const u = getUser();
+    return u?.user_id || u?.userId || u?.id || u?._id || null;
   }
-  if(slide.type==="story"){
-    const panels=slide.data.panels||[];
-    return '<span class="slide-eyebrow">Mini story</span><h2>Put it into context.</h2><p>See how the language works in a simple situation.</p>'+
-      '<div class="story-grid">'+panels.map(p=>'<article class="story-panel"><div class="story-icon">'+esc(p.icon||p.emoji||"📖")+'</div><div><h3>'+esc(p.title||"Story")+'</h3><p>'+esc(p.text||p.description||"")+'</p></div></article>').join("")+'</div>'+
-      '<button class="btn primary" style="margin-top:22px" onclick="nextSlide()">Continue →</button>';
+
+  function userName() {
+    const u = getUser();
+    return u?.full_name || u?.fullName || u?.name ||
+      [u?.first_name,u?.last_name].filter(Boolean).join(" ") || u?.username || "";
   }
-  if(slide.type==="challenge"){
-    const q=(slide.data.questions||[])[challengeState.question||0]||{};
-    const opts=q.options||q.choices||[];
-    return '<span class="slide-eyebrow">Challenge</span><h2>Show what you know.</h2>'+
-      '<div class="challenge-card"><div class="question-number">Question '+((challengeState.question||0)+1)+' of '+(slide.data.questions||[]).length+'</div>'+
-      '<div class="question-text">'+esc(q.question||q.prompt||"Choose the correct answer.")+'</div>'+
-      '<div class="challenge-options">'+opts.map((o,i)=>'<button class="challenge-option" onclick="checkChallengeAnswer(this,'+i+')">'+esc(typeof o==="object"?(o.text||o.label||""):o)+'</button>').join("")+'</div>'+
-      '<div class="challenge-feedback" id="challengeFeedback"></div></div>';
+
+  function role() {
+    const u = getUser();
+    return String(u?.role || (u?.is_admin ? "admin" : "") || "").toLowerCase();
   }
-  if(slide.type==="celebration"){
-    return '<div class="emoji-large">🎉</div><span class="slide-eyebrow">Complete</span><h2>'+esc(slide.data.title)+'</h2><p>'+esc(slide.data.subtitle)+'</p>'+
-      '<div class="stars">⭐ ⭐ ⭐ ⭐ ⭐</div><div class="reward-grid">'+
-      '<div class="reward"><strong>+'+Number(slide.data.xpEarned||30)+'</strong><span>XP earned</span></div>'+
-      '<div class="reward"><strong>+3</strong><span>Stars</span></div><div class="reward"><strong>🔥</strong><span>Streak progress</span></div></div>'+
-      '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><a class="btn primary" href="learn.html">📚 More Lessons</a><button class="btn ghost" onclick="shareProgress()">📤 Share</button></div>';
+
+  function apiUrl(path) {
+    return `${API_BASE}/${String(path).replace(/^\\/+/, "")}`;
   }
-  return "";
-}
-function updateUI(){
-  const wrapper=document.getElementById("slideWrapper");
-  wrapper.style.transform="translateX(-"+(currentSlide*100)+"%)";
-  document.querySelectorAll(".progress-step").forEach((el,i)=>{
-    el.classList.toggle("active",i===currentSlide);el.classList.toggle("completed",i<currentSlide);
-  });
-  document.querySelectorAll(".progress-connector").forEach((el,i)=>el.classList.toggle("completed",i<currentSlide));
-  document.getElementById("slideProgressText").textContent=(currentSlide+1)+" / "+totalSlides;
-  document.getElementById("slideCounter").textContent=(currentSlide+1)+" / "+totalSlides;
-  document.getElementById("progressFill").style.width=(totalSlides?((currentSlide+1)/totalSlides*100):0)+"%";
-  const prev=document.getElementById("prevSlideBtn"),next=document.getElementById("nextSlideBtn");
-  prev.disabled=currentSlide===0;
-  prev.classList.toggle("disabled-look",currentSlide===0);
-  next.disabled=false;
-  if(currentSlide===totalSlides-1){next.textContent="🎉 Done!";next.className="btn success"}
-  else if(document.querySelector(".slide-challenge") && currentSlide===[...document.querySelectorAll(".slide")].findIndex(x=>x.classList.contains("slide-challenge")) && !document.getElementById("challengeFeedback")?.textContent){
-    next.textContent="Answer first!";next.className="btn primary disabled-look";next.disabled=true;
-  }else{next.textContent="Next →";next.className="btn primary"}
-}
-function nextSlide(){
-  if(currentSlide>=totalSlides-1){
-    completeLesson();return;
+
+  async function getJSON(path) {
+    const response = await fetch(apiUrl(path), {
+      method:"GET",
+      headers:{Accept:"application/json"},
+      credentials:"include",
+      cache:"no-store"
+    });
+    const text = await response.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch {}
+    if (!response.ok) {
+      throw new Error((data && (data.error || data.message)) || `HTTP ${response.status}`);
+    }
+    return data;
   }
-  const challengeIndex=[...document.querySelectorAll(".slide")].findIndex(x=>x.classList.contains("slide-challenge"));
-  if(currentSlide===challengeIndex && !document.getElementById("challengeFeedback")?.textContent)return;
-  currentSlide++;challengeState={};renderCurrentChallengeIfNeeded();updateUI();
-  if(currentSlide===totalSlides-1)completeLesson();
-}
-function prevSlide(){if(currentSlide>0){currentSlide--;challengeState={};renderCurrentChallengeIfNeeded();updateUI()}}
-function renderCurrentChallengeIfNeeded(){
-  const slide=document.querySelectorAll(".slide")[currentSlide];
-  if(!slide)return;
-  if(slide.classList.contains("slide-challenge")){
-    const idx=[...document.querySelectorAll(".slide")].findIndex(x=>x===slide);
-    slide.querySelector(".slide-content").innerHTML=renderSlide(currentLessonSlides[idx],idx);
+
+  async function postJSON(path, body) {
+    const response = await fetch(apiUrl(path), {
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      credentials:"include",
+      body:JSON.stringify(body)
+    });
+    const text = await response.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch {}
+    if (!response.ok) {
+      throw new Error((data && (data.error || data.message)) || `HTTP ${response.status}`);
+    }
+    return data;
   }
-}
-let currentLessonSlides=[];
-function checkChallengeAnswer(button,index){
-  const slide=currentLessonSlides[currentSlide],questions=slide?.data?.questions||[];
-  const q=questions[challengeState.question||0]||{};
-  const correct=Number(q.answer??q.correctAnswer??q.correct??0);
-  const opts=document.querySelectorAll(".challenge-option");
-  opts.forEach(b=>b.classList.add("disabled"));
-  const feedback=document.getElementById("challengeFeedback");
-  if(index===correct){button.classList.add("correct");feedback.className="challenge-feedback good";feedback.textContent="🎉 Correct! Amazing job!";toast("success","Correct! +10 XP")}
-  else{button.classList.add("wrong");if(opts[correct])opts[correct].classList.add("correct");feedback.className="challenge-feedback bad";feedback.textContent="Almost! The correct answer is highlighted."}
-  updateUI();
-}
-function speakWord(){
-  const slide=currentLessonSlides[currentSlide],text=slide?.data?.chinese||"你好";
-  if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=.78;speechSynthesis.speak(u)}
-}
-function shareProgress(){
-  const text="I just completed a Chinese lesson on HanVerse! 🐼📚";
-  if(navigator.share)navigator.share({title:"HanVerse",text,url:location.href}).catch(()=>{});
-  else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>toast("success","Progress message copied!"));
-}
-function fireConfetti(){
-  const layer=document.getElementById("confettiLayer");
-  for(let i=0;i<55;i++){
-    const c=document.createElement("i");c.className="confetti";
-    c.style.left=Math.random()*100+"%";c.style.background=["#E63946","#F4D35E","#4EA8DE","#74C69D","#9B8AFB"][i%5];
-    c.style.setProperty("--x",(Math.random()*240-120)+"px");c.style.animationDelay=(Math.random()*.25)+"s";
-    layer.appendChild(c);setTimeout(()=>c.remove(),1900);
+
+  function lessonIdFromURL() {
+    return new URLSearchParams(location.search).get("id") || "lesson_1";
   }
-}
-function completeLesson(){
-  if(lessonCompleted)return;
-  lessonCompleted=true;
-  const id=param("id")||"lesson_1";
-  localStorage.setItem("lesson_"+id+"_completed","true");
-  fireConfetti();toast("success","🎉 Adventure completed! +"+Number(currentLesson?.xp||30)+" XP");
-}
-async function init(){
-  renderRoles();renderAuth();
-  if(!loggedIn()){location.href="login.html";return}
-  const overlay=document.getElementById("loadingOverlay");
-  const session=getSession();
-  const user=await fetchUser(session?.user_id||session?.id);
-  if(user){setSession({...session,...user});document.getElementById("xpDisplay").textContent=user.xp||0}
-  let lesson=await fetchLesson(param("id")||"lesson_1");
-  if(!lesson){lesson=fallbackLesson();toast("info","Using the lesson saved for this learning path.");}
-  currentLesson=lesson;
-  document.getElementById("lessonTitle").textContent=lesson.title||"Chinese Adventure";
-  document.getElementById("lessonSubtitle").textContent=lesson.description||"Learn, practise and keep moving forward.";
-  document.getElementById("lessonMeta").textContent="Lesson "+String(lesson.id||"lesson_1").replace("lesson_","")+" · YCT "+(lesson.level||1);
-  if(localStorage.getItem("lesson_"+(lesson.id||param("id")||"lesson_1")+"_completed")==="true")toast("info","You've completed this lesson before.");
-  currentLessonSlides=generateSlides(lesson);
-  renderSlides(currentLessonSlides);
-  overlay.classList.add("hidden");setTimeout(()=>overlay.style.display="none",300);
-}
-document.getElementById("prevSlideBtn").onclick=prevSlide;
-document.getElementById("nextSlideBtn").onclick=nextSlide;
-document.getElementById("mobileToggle").onclick=()=>{
-  const b=document.getElementById("mobileToggle"),m=document.getElementById("mobileMenu"),open=m.classList.toggle("open");
-  b.setAttribute("aria-expanded",open);b.textContent=open?"✕":"☰";
-};
-document.getElementById("mobileMenu").addEventListener("click",e=>{
-  if(e.target.closest("a")){document.getElementById("mobileMenu").classList.remove("open");document.getElementById("mobileToggle").textContent="☰"}
-});
-document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowRight")nextSlide();if(e.key==="ArrowLeft")prevSlide();
-});
-window.addEventListener("online",()=>document.getElementById("offlineBanner").classList.remove("show"));
-window.addEventListener("offline",()=>document.getElementById("offlineBanner").classList.add("show"));
-if(!navigator.onLine)document.getElementById("offlineBanner").classList.add("show");
-window.nextSlide=nextSlide;window.prevSlide=prevSlide;window.checkChallengeAnswer=checkChallengeAnswer;window.speakWord=speakWord;window.shareProgress=shareProgress;
-init().catch(err=>{console.error(err);toast("error","We couldn't load the lesson. Please try again.");document.getElementById("loadingOverlay").classList.add("hidden")});
+
+  function normalizeLesson(raw) {
+    const l = raw?.lesson || raw?.data || raw;
+    if (!l || typeof l !== "object") throw new Error("Invalid lesson returned by server.");
+    return {
+      id: l.id || l._id || l.lessonId || l.lesson_id || lessonIdFromURL(),
+      title: l.title || "Untitled Lesson",
+      description: l.description || "",
+      level: Number(l.level ?? 1),
+      premium: Boolean(l.premium),
+      xp: Number(l.xp ?? 10),
+      icon: l.icon || "📚",
+      vocabulary: Array.isArray(l.vocabulary) ? l.vocabulary : [],
+      quiz: Array.isArray(l.quiz) ? l.quiz : []
+    };
+  }
+
+  function showNotice(message, type="info") {
+    const el = $("topNotice");
+    el.textContent = message;
+    el.className = `notice show ${type}`;
+  }
+
+  function clearNotice() {
+    $("topNotice").className = "notice";
+    $("topNotice").textContent = "";
+  }
+
+  function renderNavbar() {
+    const u = getUser();
+    const logged = !!u;
+    const r = role();
+
+    let links = `
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="learn.html" aria-current="page">Learn</a>
+      <a class="nav-link" href="worksheets.html">Worksheets</a>
+    `;
+    if (r === "parent" || u?.is_parent) links += `<a class="nav-link" href="parent.html">Parent</a>`;
+    if (r === "admin" || u?.is_admin) links += `<a class="nav-link" href="admin.html">Admin</a>`;
+    $("desktopNav").innerHTML = links;
+
+    $("desktopActions").innerHTML = logged
+      ? `<a class="btn btn-outline" href="profile.html">👤 ${escapeHTML(userName() || "Profile")}</a>`
+      : `<a class="btn btn-outline" href="login.html">Log in</a><a class="btn btn-primary" href="signup.html">Start learning</a>`;
+
+    $("mobileMenu").innerHTML = links +
+      (logged
+        ? `<a href="profile.html">👤 ${escapeHTML(userName() || "Profile")}</a>`
+        : `<a href="login.html">Log in</a><a href="signup.html">Start learning</a>`);
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
+  }
+
+  function buildSlides(lesson) {
+    const slides = [{
+      type:"intro",
+      title:lesson.title,
+      description:lesson.description,
+      icon:lesson.icon
+    }];
+
+    if (lesson.vocabulary.length) {
+      slides.push({
+        type:"vocab",
+        title:"Learn the vocabulary",
+        description:"Study each word, its pronunciation, and its meaning.",
+        items:lesson.vocabulary
+      });
+    }
+
+    lesson.quiz.forEach((q, i) => {
+      slides.push({
+        type:"quiz",
+        title:`Quick challenge ${i + 1}`,
+        question:q.question,
+        options:Array.isArray(q.options) ? q.options : [],
+        correct:Number(q.correct ?? 0)
+      });
+    });
+
+    slides.push({
+      type:"complete",
+      title:"Lesson complete!",
+      description:"Great work. Your progress will be saved so your roadmap knows you've finished this lesson."
+    });
+
+    return slides;
+  }
+
+  function renderHeader() {
+    const l = state.lesson;
+    $("lessonTitle").textContent = `${l.icon} ${l.title}`;
+    $("lessonDescription").textContent = l.description;
+    $("lessonMeta").innerHTML =
+      `<span class="pill">Level ${l.level}</span>` +
+      `<span class="pill">⭐ ${l.xp} XP</span>` +
+      (l.premium ? `<span class="pill">Premium</span>` : `<span class="pill">Free</span>`);
+  }
+
+  function renderStepper() {
+    const stepper = $("stepper");
+    stepper.innerHTML = "";
+    state.slides.forEach((_, i) => {
+      const step = document.createElement("div");
+      step.className = "step";
+      step.textContent = i + 1;
+      step.dataset.index = i;
+      stepper.appendChild(step);
+      if (i < state.slides.length - 1) {
+        const connector = document.createElement("div");
+        connector.className = "connector";
+        connector.dataset.connector = i;
+        stepper.appendChild(connector);
+      }
+    });
+  }
+
+  function vocabHTML(items) {
+    return `<div class="vocab-grid">${items.map((v,i) => `
+      <article class="vocab-card">
+        <button class="speak" type="button" data-speak="${escapeHTML(v.pinyin || v.chinese || "")}" aria-label="Play pronunciation">🔊</button>
+        <div class="hanzi">${escapeHTML(v.chinese || "")}</div>
+        <div class="pinyin">${escapeHTML(v.pinyin || "")}</div>
+        <div class="english">${escapeHTML(v.english || "")}</div>
+      </article>
+    `).join("")}</div>`;
+  }
+
+  function slideHTML(slide, index) {
+    if (slide.type === "intro") return `
+      <div class="slide">
+        <div style="font-size:4rem;margin-bottom:12px">${escapeHTML(slide.icon)}</div>
+        <h2>Ready? Let's learn.</h2>
+        <p class="slide-intro">${escapeHTML(slide.description)}</p>
+        <div class="vocab-card" style="max-width:620px">
+          <strong>What you'll do</strong>
+          <p style="color:var(--muted);line-height:1.6;margin-bottom:0">
+            Learn new Mandarin vocabulary, test yourself with short challenges, and finish the lesson to save your progress.
+          </p>
+        </div>
+      </div>`;
+
+    if (slide.type === "vocab") return `
+      <div class="slide">
+        <h2>📚 ${escapeHTML(slide.title)}</h2>
+        <p class="slide-intro">${escapeHTML(slide.description)}</p>
+        ${vocabHTML(slide.items)}
+      </div>`;
+
+    if (slide.type === "quiz") return `
+      <div class="slide">
+        <div class="challenge">
+          <div class="eyebrow">Challenge</div>
+          <h2>${escapeHTML(slide.title)}</h2>
+          <p class="question">${escapeHTML(slide.question)}</p>
+          <div class="options">
+            ${slide.options.map((option, i) =>
+              `<button type="button" class="option" data-option="${i}">${escapeHTML(option)}</button>`
+            ).join("")}
+          </div>
+          <div class="feedback" id="feedback-${index}"></div>
+        </div>
+      </div>`;
+
+    return `
+      <div class="slide">
+        <div class="complete-panel">
+          <div class="complete-icon">🎉</div>
+          <h2>${escapeHTML(slide.title)}</h2>
+          <p>${escapeHTML(slide.description)}</p>
+          <div class="vocab-card" style="max-width:430px;margin:25px auto">
+            <strong>⭐ ${state.lesson.xp} XP</strong>
+            <p style="margin:7px 0 0;color:var(--muted)">Your progress is saved when you finish.</p>
+          </div>
+          <button class="btn btn-success" id="finishBtn" type="button">✓ Complete & save lesson</button>
+        </div>
+      </div>`;
+  }
+
+  function renderSlides() {
+    state.totalSlides = state.slides.length;
+    state.currentSlide = Math.min(
+      Math.max(0, state.currentSlide),
+      Math.max(0, state.totalSlides - 1)
+    );
+
+    $("slideWrapper").innerHTML = state.slides.map(slideHTML).join("");
+    renderStepper();
+
+    $("loadingState").style.display = "none";
+    $("slideViewport").style.display = "block";
+    $("lessonNav").style.display = "flex";
+
+    bindSlideEvents();
+    updateUI();
+  }
+
+  function bindSlideEvents() {
+    document.querySelectorAll("[data-speak]").forEach(btn => {
+      btn.addEventListener("click", () => speak(btn.dataset.speak));
+    });
+
+    document.querySelectorAll(".slide").forEach((slideEl, slideIndex) => {
+      const slide = state.slides[slideIndex];
+      if (slide.type !== "quiz") return;
+
+      slideEl.querySelectorAll("[data-option]").forEach(btn => {
+        btn.addEventListener("click", () => answerQuiz(slideIndex, Number(btn.dataset.option)));
+      });
+    });
+
+    const finish = $("finishBtn");
+    if (finish) finish.addEventListener("click", completeLesson);
+  }
+
+  function speak(text) {
+    if (!("speechSynthesis" in window) || !text) return;
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "zh-CN";
+    utterance.rate = .82;
+    speechSynthesis.speak(utterance);
+  }
+
+  function answerQuiz(slideIndex, selected) {
+    const slide = state.slides[slideIndex];
+    if (!slide || slide.type !== "quiz") return;
+
+    state.quizAnswered[slideIndex] = selected;
+
+    const slideEl = document.querySelectorAll(".slide")[slideIndex];
+    slideEl.querySelectorAll(".option").forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === slide.correct) btn.classList.add("correct");
+      if (i === selected && selected !== slide.correct) btn.classList.add("wrong");
+    });
+
+    const feedback = slideEl.querySelector(".feedback");
+    const correct = selected === slide.correct;
+    feedback.className = `feedback show ${correct ? "good" : "bad"}`;
+    feedback.textContent = correct ? "✓ Correct! Great job." : `Not quite. The correct answer is ${slide.options[slide.correct]}.`;
+
+    updateUI();
+  }
+
+  function quizPassed() {
+    return state.slides.every((slide, i) =>
+      slide.type !== "quiz" || state.quizAnswered[i] === slide.correct
+    );
+  }
+
+  function updateUI() {
+    const total = state.totalSlides;
+
+    if (!total) return;
+
+    const percent = Math.round(((state.currentSlide + 1) / total) * 100);
+    $("slideWrapper").style.transform = `translateX(-${state.currentSlide * 100}%)`;
+    $("progressPercent").textContent = `${state.completed ? 100 : percent}%`;
+    $("headerProgress").style.width = `${state.completed ? 100 : percent}%`;
+    $("slideCounter").textContent = `${state.currentSlide + 1} / ${total}`;
+
+    document.querySelectorAll(".step").forEach((el, i) => {
+      el.classList.toggle("active", i === state.currentSlide);
+      el.classList.toggle("completed", i < state.currentSlide || state.completed);
+    });
+    document.querySelectorAll(".connector").forEach((el, i) => {
+      el.classList.toggle("completed", i < state.currentSlide || state.completed);
+    });
+
+    const last = state.currentSlide === total - 1;
+    $("prevBtn").disabled = state.currentSlide === 0;
+    $("nextBtn").disabled = last || (
+      state.slides[state.currentSlide]?.type === "quiz" &&
+      state.quizAnswered[state.currentSlide] === undefined
+    );
+
+    $("nextBtn").textContent = last ? "Completed" : "Next →";
+  }
+
+  function nextSlide() {
+    if (state.currentSlide >= state.totalSlides - 1) return;
+    state.currentSlide++;
+    updateUI();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function prevSlide() {
+    if (state.currentSlide <= 0) return;
+    state.currentSlide--;
+    updateUI();
+  }
+
+  function normalizeProgress(raw) {
+    const p = raw?.progress ?? raw?.lessonProgress ?? raw?.data ?? raw;
+    if (!p || typeof p !== "object") return null;
+
+    const completed =
+      p.completed === true ||
+      p.is_completed === true ||
+      p.status === "completed";
+
+    let percent = Number(
+      p.progress_pct ?? p.completed_pct ?? p.progressPercent ?? p.percentage ?? 0
+    );
+
+    if (!Number.isFinite(percent)) percent = 0;
+    percent = Math.max(0, Math.min(100, percent));
+
+    return {
+      ...p,
+      completed,
+      percent
+    };
+  }
+
+  async function fetchSavedProgress() {
+    const uid = userId();
+    const lid = state.lesson.id;
+
+    if (!uid || !lid) {
+      $("saveStatus").textContent = "Not signed in — progress won't be saved.";
+      return null;
+    }
+
+    try {
+      const raw = await getJSON(
+        `progress/${encodeURIComponent(uid)}/${encodeURIComponent(lid)}`
+      );
+      const progress = normalizeProgress(raw);
+
+      if (progress?.completed) state.completed = true;
+
+      if (progress) {
+        $("saveStatus").textContent = progress.completed
+          ? "✓ Already completed"
+          : `${progress.percent}% saved`;
+      }
+
+      return progress;
+    } catch (error) {
+      console.warn("HanVerse saved progress lookup failed:", error);
+      $("saveStatus").textContent = "Progress unavailable — lesson still works.";
+      return null;
+    }
+  }
+
+  async function saveProgress(completed) {
+    const uid = userId();
+    if (!uid) {
+      showNotice("You're learning as a guest. Sign in to save your progress.", "info");
+      return false;
+    }
+
+    state.saving = true;
+    $("saveStatus").textContent = completed ? "Saving completion…" : "Saving progress…";
+
+    try {
+      const body = {
+        user_id: uid,
+        lesson_id: state.lesson.id,
+        progress_pct: completed ? 100 : Math.round(
+          ((state.currentSlide + 1) / Math.max(1, state.totalSlides)) * 100
+        ),
+        completed: Boolean(completed),
+        xp_earned: completed ? state.lesson.xp : 0
+      };
+
+      await postJSON("progress", body);
+
+      state.completed = completed || state.completed;
+      $("saveStatus").textContent = state.completed ? "✓ Progress saved" : "✓ Progress saved";
+      return true;
+    } catch (error) {
+      console.error("HanVerse progress save failed:", error);
+      $("saveStatus").textContent = "Could not save progress.";
+      showNotice(`Your lesson loaded, but progress could not be saved: ${error.message}`, "error");
+      return false;
+    } finally {
+      state.saving = false;
+    }
+  }
+
+  async function completeLesson() {
+    if (state.saving) return;
+
+    if (!quizPassed()) {
+      showNotice("Please answer the challenges correctly before completing the lesson.", "info");
+      return;
+    }
+
+    const saved = await saveProgress(true);
+    if (saved) {
+      state.completed = true;
+      updateUI();
+      $("progressPercent").textContent = "100%";
+      $("headerProgress").style.width = "100%";
+
+      const finish = $("finishBtn");
+      if (finish) {
+        finish.textContent = "✓ Lesson saved";
+        finish.disabled = true;
+      }
+
+      showNotice("🎉 Lesson completed! Your roadmap has been updated.", "info");
+    }
+  }
+
+  async function loadLesson() {
+    const id = lessonIdFromURL();
+    clearNotice();
+
+    try {
+      const raw = await getJSON(`lessons/${encodeURIComponent(id)}`);
+      state.lesson = normalizeLesson(raw);
+      state.slides = buildSlides(state.lesson);
+      renderHeader();
+
+      // Progress is deliberately independent from lesson loading.
+      state.savedProgress = await fetchSavedProgress();
+
+      if (state.savedProgress?.completed) {
+        state.completed = true;
+      }
+
+      renderSlides();
+    } catch (error) {
+      console.error("HanVerse lesson initialization failed:", error);
+      $("loadingState").innerHTML = `
+        <div style="font-size:3rem">😕</div>
+        <h2>We couldn't load this lesson</h2>
+        <p>${escapeHTML(error.message || "Unknown error")}</p>
+        <button class="btn btn-primary" id="retryBtn">Try again</button>
+      `;
+      $("retryBtn").addEventListener("click", () => location.reload());
+    }
+  }
+
+  function init() {
+    renderNavbar();
+
+    const toggleButton = $("mobileToggle");
+    const mobileMenu = $("mobileMenu");
+
+    toggleButton.addEventListener("click", () => {
+      const open = mobileMenu.classList.toggle("open");
+      toggleButton.setAttribute("aria-expanded", String(open));
+      toggleButton.textContent = open ? "✕" : "☰";
+    });
+
+    mobileMenu.addEventListener("click", e => {
+      if (e.target.closest("a")) {
+        mobileMenu.classList.remove("open");
+        toggleButton.textContent = "☰";
+        toggleButton.setAttribute("aria-expanded","false");
+      }
+    });
+
+    $("prevBtn").addEventListener("click", prevSlide);
+    $("nextBtn").addEventListener("click", nextSlide);
+
+    loadLesson();
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
 </body>
