@@ -1,85 +1,323 @@
-// sw.js - HanVerse Service Worker for Netlify
-const CACHE_NAME = 'hanverse-v1';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/offline.html',
-  '/css/styles.css',
-  '/js/app.js',
-  '/js/auth.js',
-  '/js/offline-manager.js',
-  '/images/logo.png',
-  '/images/panda-icon.png',
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap'
+// ============================================================
+// HanVerse Service Worker
+// Designed for Netlify + Offline Support
+// ============================================================
+
+const CACHE_NAME = 'hanverse-v2';
+
+const STATIC_ASSETS = [
+    '/offline.html',
+
+    // CSS
+    '/css/styles.css',
+
+    // JavaScript
+    '/js/app.js',
+    '/js/auth.js',
+    '/js/offline-manager.js',
+
+    // Images
+    '/images/logo.png',
+    '/images/panda-icon.png'
 ];
 
-// Install - cache critical assets
+
+// ============================================================
+// INSTALL
+// ============================================================
+
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('📦 Caching HanVerse assets...');
-        return cache.addAll(ASSETS).catch(err => {
-          console.warn('Some assets failed to cache:', err);
-        });
-      })
-      .then(() => self.skipWaiting())
-  );
+    console.log('[HanVerse SW] Installing...');
+
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                console.log('[HanVerse SW] Caching static assets...');
+
+                return cache.addAll(STATIC_ASSETS);
+            })
+            .then(() => {
+                console.log('[HanVerse SW] Installation complete.');
+
+                // Activate the new service worker immediately
+                return self.skipWaiting();
+            })
+            .catch(error => {
+                console.error(
+                    '[HanVerse SW] Installation failed:',
+                    error
+                );
+            })
+    );
 });
 
-// Activate - clean old caches
+
+// ============================================================
+// ACTIVATE
+// ============================================================
+
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
-      );
-    }).then(() => self.clients.claim())
-  );
+    console.log('[HanVerse SW] Activating...');
+
+    event.waitUntil(
+        caches.keys()
+            .then(cacheNames => {
+
+                return Promise.all(
+                    cacheNames
+                        .filter(cacheName => {
+                            return cacheName !== CACHE_NAME;
+                        })
+                        .map(cacheName => {
+                            console.log(
+                                '[HanVerse SW] Removing old cache:',
+                                cacheName
+                            );
+
+                            return caches.delete(cacheName);
+                        })
+                );
+            })
+            .then(() => {
+
+                console.log(
+                    '[HanVerse SW] Old caches removed.'
+                );
+
+                // Take control of open pages immediately
+                return self.clients.claim();
+            })
+    );
 });
 
-// Fetch - serve from cache, fallback to network
+
+// ============================================================
+// FETCH
+// ============================================================
+
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  
-  // Skip API calls - they need network
-  if (url.pathname.startsWith('/api/')) {
-    return;
-  }
 
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') {
-    return;
-  }
+    const request = event.request;
+    const url = new URL(request.url);
 
-  event.respondWith(
-    caches.match(event.request)
-      .then(cached => {
-        if (cached) {
-          return cached;
-        }
-        return fetch(event.request)
-          .then(response => {
-            // Cache new assets dynamically (except API)
-            if (response.status === 200) {
-              const clone = response.clone();
-              caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, clone);
-              });
-            }
-            return response;
-          })
-          .catch(() => {
-            // Offline fallback
-            if (url.pathname.endsWith('.html') || url.pathname === '/') {
-              return caches.match('/offline.html');
-            }
-            return new Response('Offline - Please connect to the internet', {
-              status: 503,
-              statusText: 'Service Unavailable'
-            });
-          });
-      })
-  );
+
+    // --------------------------------------------------------
+    // Only handle GET requests
+    // --------------------------------------------------------
+
+    if (request.method !== 'GET') {
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Never cache API requests
+    // --------------------------------------------------------
+
+    if (url.pathname.startsWith('/api/')) {
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // External resources
+    // --------------------------------------------------------
+
+    // Let external resources such as Google Fonts
+    // be handled normally by the browser.
+    if (url.origin !== self.location.origin) {
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // HTML / Navigation
+    // NETWORK FIRST
+    // --------------------------------------------------------
+
+    //
+    // This is the important part.
+    //
+    // Always try to get the newest HTML from Netlify first.
+    //
+    // Only use the cached page when the user is offline.
+    //
+
+    if (
+        request.mode === 'navigate' ||
+        url.pathname === '/' ||
+        url.pathname.endsWith('.html')
+    ) {
+
+        event.respondWith(
+            fetch(request)
+                .then(response => {
+
+                    if (
+                        response &&
+                        response.status === 200 &&
+                        response.type === 'basic'
+                    ) {
+
+                        const responseClone =
+                            response.clone();
+
+                        caches.open(CACHE_NAME)
+                            .then(cache => {
+                                cache.put(
+                                    request,
+                                    responseClone
+                                );
+                            });
+                    }
+
+                    return response;
+                })
+                .catch(() => {
+
+                    console.log(
+                        '[HanVerse SW] Network unavailable. ' +
+                        'Using cached HTML.'
+                    );
+
+                    return caches.match(request)
+                        .then(cachedResponse => {
+
+                            if (cachedResponse) {
+                                return cachedResponse;
+                            }
+
+                            return caches.match(
+                                '/offline.html'
+                            );
+                        });
+                })
+        );
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // STATIC ASSETS
+    // CACHE FIRST
+    // --------------------------------------------------------
+
+    //
+    // CSS, JS and images can safely use the cache-first
+    // strategy because they are not the main HTML document.
+    //
+
+    event.respondWith(
+
+        caches.match(request)
+            .then(cachedResponse => {
+
+                if (cachedResponse) {
+
+                    // Return cached asset immediately
+                    // while checking for an updated version.
+                    fetch(request)
+                        .then(networkResponse => {
+
+                            if (
+                                networkResponse &&
+                                networkResponse.status === 200 &&
+                                networkResponse.type === 'basic'
+                            ) {
+
+                                const responseClone =
+                                    networkResponse.clone();
+
+                                caches.open(CACHE_NAME)
+                                    .then(cache => {
+
+                                        cache.put(
+                                            request,
+                                            responseClone
+                                        );
+                                    });
+                            }
+                        })
+                        .catch(() => {
+                            // Network unavailable.
+                            // Cached version is already available.
+                        });
+
+                    return cachedResponse;
+                }
+
+
+                // ------------------------------------------------
+                // Asset isn't cached yet
+                // ------------------------------------------------
+
+                return fetch(request)
+                    .then(networkResponse => {
+
+                        if (
+                            networkResponse &&
+                            networkResponse.status === 200 &&
+                            networkResponse.type === 'basic'
+                        ) {
+
+                            const responseClone =
+                                networkResponse.clone();
+
+                            caches.open(CACHE_NAME)
+                                .then(cache => {
+
+                                    cache.put(
+                                        request,
+                                        responseClone
+                                    );
+                                });
+                        }
+
+                        return networkResponse;
+                    })
+                    .catch(() => {
+
+                        return new Response(
+                            'HanVerse is currently offline.',
+                            {
+                                status: 503,
+                                statusText: 'Offline'
+                            }
+                        );
+                    });
+            })
+    );
 });
+
+
+// ============================================================
+// MESSAGE HANDLER
+// ============================================================
+
+self.addEventListener('message', event => {
+
+    if (!event.data) {
+        return;
+    }
+
+    // Allow the website to force an immediate update
+    if (event.data.type === 'SKIP_WAITING') {
+
+        console.log(
+            '[HanVerse SW] Skip waiting requested.'
+        );
+
+        self.skipWaiting();
+    }
+});
+
+
+// ============================================================
+// DEBUG
+// ============================================================
+
+console.log(
+    '[HanVerse SW] Loaded:',
+    CACHE_NAME
+);
