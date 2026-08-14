@@ -3,1188 +3,309 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#fffdf7">
-<meta name="description" content="HanVerse Mandarin learning roadmap">
-<title>Roadmap | HanVerse</title>
-<link rel="icon" type="image/png" href="hanverse-logo2.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+<title>HanVerse | Roadmap</title>
 <style>
-:root{
-  --red:#e63946;--red-dark:#c92f3b;--yellow:#f4d35e;--blue:#4ea8de;
-  --green:#74c69d;--purple:#8b7cf6;--ink:#263247;--muted:#7b8493;
-  --cream:#fffdf7;--white:#fff;--line:#e9e4da;--soft:#f7f3eb;
-  --shadow:0 22px 70px rgba(38,50,71,.10);--small-shadow:0 10px 32px rgba(38,50,71,.08);
-  --max:1120px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  min-height:100vh;background:
-  radial-gradient(circle at 7% 5%,rgba(244,211,94,.17),transparent 24%),
-  radial-gradient(circle at 96% 17%,rgba(78,168,222,.13),transparent 25%),
-  var(--cream);color:var(--ink);font-family:Poppins,system-ui,sans-serif;
-  overflow-x:hidden;
-}
-a{text-decoration:none;color:inherit}
-button{font:inherit}
-button:focus-visible,a:focus-visible{outline:3px solid rgba(78,168,222,.45);outline-offset:3px}
+:root{--red:#E63946;--yellow:#F4D35E;--green:#74C69D;--blue:#4EA8DE;--ink:#18212b;--muted:#697586;--cream:#FFFDF7;--line:#e8ebef;--shadow:0 18px 50px rgba(24,33,43,.09)}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(#fffdf7,#f7fbff);min-height:100vh}a{text-decoration:none;color:inherit}button{font:inherit}
+.container{width:min(1120px,calc(100% - 30px));margin:auto}
+.nav{position:sticky;top:0;z-index:20;background:rgba(255,253,247,.94);backdrop-filter:blur(15px);border-bottom:1px solid var(--line)}.navin{height:70px;display:flex;align-items:center;gap:25px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:900;font-size:1.25rem}.mark{width:40px;height:40px;border-radius:13px;background:var(--red);display:grid;place-items:center;color:#fff;font-size:1.35rem}
+.links{margin-left:auto;display:flex;gap:4px}.links a,.profile{padding:10px 13px;border-radius:11px;font-weight:750;color:#637080;font-size:.9rem}.links a:hover,.links a.active{background:#fff;color:var(--red)}
+.actions{display:flex;gap:8px}.btn{border:0;border-radius:12px;padding:10px 15px;font-weight:850;cursor:pointer}.ghost{background:#fff;border:1px solid var(--line)}.primary{background:var(--red);color:#fff;box-shadow:0 8px 18px #e6394625}.profile{display:none;background:var(--red);color:#fff!important;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toggle{display:none;margin-left:auto;width:43px;height:41px;border:1px solid var(--line);background:#fff;border-radius:11px}.mobile{display:none;padding:10px 15px 16px;border-top:1px solid var(--line)}.mobile.open{display:grid;gap:3px}.mobile a{padding:12px;border-radius:10px;font-weight:800}.mobile a:hover{background:#fff}
 
-/* NAV */
-.header{
-  position:sticky;top:0;z-index:1000;background:rgba(255,253,247,.94);
-  backdrop-filter:blur(16px);border-bottom:1px solid var(--line)
-}
-.nav{height:72px;width:min(calc(100% - 30px),1180px);margin:auto;display:flex;align-items:center;gap:18px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;white-space:nowrap}
-.brand-icon{
-  width:42px;height:42px;border-radius:14px;display:grid;place-items:center;
-  background:linear-gradient(135deg,var(--red),#f2747b);color:#fff;
-  box-shadow:0 8px 20px rgba(230,57,70,.20)
-}
-.navlinks{display:flex;align-items:center;gap:3px;flex:1}
-.navlink{padding:9px 12px;border-radius:11px;color:#657080;font-size:.77rem;font-weight:800}
-.navlink:hover,.navlink.active{background:#f2eee6;color:var(--red)}
-.nav-actions{display:flex;align-items:center;gap:8px}
-.btn{
-  border:0;border-radius:12px;padding:10px 15px;display:inline-flex;
-  align-items:center;justify-content:center;gap:7px;font-size:.72rem;
-  font-weight:900;cursor:pointer;transition:.2s
-}
-.btn.primary{background:var(--red);color:#fff}
-.btn.primary:hover{background:var(--red-dark);transform:translateY(-1px)}
-.btn.secondary{background:#f1eee7;color:var(--ink)}
-.btn.secondary:hover{background:#e8e3da}
-.mobile-toggle{
-  display:none;margin-left:auto;width:43px;height:43px;border:1px solid var(--line);
-  border-radius:12px;background:#fff;cursor:pointer
-}
-.mobile-menu{display:none;padding:0 15px 15px}
-.mobile-menu.open{display:block}
-.mobile-menu a{
-  display:block;padding:12px;border-radius:11px;color:#606b7a;font-size:.82rem;font-weight:800
-}
-.mobile-menu a:hover{background:#f2eee6;color:var(--red)}
+.hero{padding:45px 0 25px}.hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.panel{background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.hero-copy{padding:30px;position:relative;overflow:hidden}.hero-copy:after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:#f4d35e25;right:-70px;top:-75px}
+.eyebrow{font-size:.7rem;font-weight:900;letter-spacing:1.4px;color:var(--red)}h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1;letter-spacing:-.05em;margin:12px 0}.hero p{color:var(--muted);line-height:1.7;max-width:680px}.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.stats{padding:25px}.statnum{font-size:2.7rem;font-weight:950}.label{font-size:.7rem;color:var(--muted);font-weight:800}.track{height:11px;background:#edf0f2;border-radius:99px;overflow:hidden;margin:15px 0 9px}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),#f37a65);transition:.6s}.statline{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;font-weight:800}.xp{margin-top:18px;background:#fff9df;padding:12px 14px;border-radius:13px;font-weight:850}
 
-/* PAGE */
-.page{width:min(calc(100% - 30px),var(--max));margin:auto;padding:34px 0 75px}
-.hero{display:grid;grid-template-columns:1fr 370px;gap:18px}
-.hero-card,.stats-card,.roadmap-panel{
-  background:#fff;border:1px solid var(--line);border-radius:25px;box-shadow:var(--shadow)
-}
-.hero-card{padding:31px 32px;position:relative;overflow:hidden}
-.hero-card:after{
-  content:"";position:absolute;width:190px;height:190px;border-radius:50%;
-  right:-75px;top:-85px;background:rgba(244,211,94,.17)
-}
-.eyebrow{
-  display:inline-flex;align-items:center;gap:7px;color:var(--red);font-size:.65rem;
-  font-weight:900;text-transform:uppercase;letter-spacing:1.3px
-}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(116,198,157,.14)}
-.hero h1{font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.08;letter-spacing:-1.4px;margin-top:9px;max-width:720px}
-.hero-copy{color:var(--muted);font-size:.76rem;line-height:1.7;max-width:690px;margin-top:9px}
-.continue-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:21px}
-.progress-line{margin-top:23px}
-.progress-label{display:flex;justify-content:space-between;color:#687385;font-size:.66rem;font-weight:900}
-.progress-track{height:10px;background:#eeeae2;border-radius:99px;overflow:hidden;margin-top:8px}
-.progress-fill{
-  width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--red),#f16d76);
-  transition:width .7s cubic-bezier(.22,1,.36,1)
-}
-.stats-card{padding:25px;display:flex;flex-direction:column;justify-content:center}
-.stat-top{display:flex;align-items:flex-start;justify-content:space-between}
-.stat-number{font-size:2.45rem;font-weight:900;line-height:1}
-.stat-label{font-size:.65rem;color:var(--muted);font-weight:800;margin-top:5px}
-.trophy{font-size:2rem}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:19px}
-.stat{padding:14px;border-radius:16px;background:#faf8f3;border:1px solid #eee9df}
-.stat strong{font-size:1.05rem}.stat span{display:block;color:var(--muted);font-size:.59rem;font-weight:700;margin-top:2px}
+main{padding:15px 0 75px}.heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:20px 0 25px}.heading h2{margin:0;font-size:1.55rem}.heading p{margin:5px 0 0;color:var(--muted);font-size:.85rem}
+.level{margin-bottom:45px}.level-head{display:flex;align-items:center;gap:13px;margin-bottom:22px}.level-icon{width:53px;height:53px;border-radius:16px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:1.5rem;box-shadow:0 7px 18px #18212b0c}.level-head h3{margin:0;font-size:1.15rem}.level-head p{margin:4px 0 0;color:var(--muted);font-size:.78rem}.count{margin-left:auto;color:var(--muted);font-size:.72rem;font-weight:900;background:#fff;border:1px solid var(--line);padding:7px 10px;border-radius:999px}
+.path{position:relative}.path:before{content:"";position:absolute;top:26px;bottom:26px;left:50%;width:5px;transform:translateX(-50%);background:#e7eaed;border-radius:99px}.row{display:flex;position:relative;margin-bottom:18px}.row:nth-child(odd){justify-content:flex-end;padding-right:50%}.row:nth-child(even){justify-content:flex-start;padding-left:50%}.card{width:min(410px,calc(100% - 25px));padding:16px;background:#fff;border:1px solid var(--line);border-radius:19px;box-shadow:0 9px 25px #18212b0b;position:relative;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-3px);box-shadow:0 15px 30px #18212b14}.node{position:absolute;top:18px;width:53px;height:53px;border-radius:50%;background:#fff;border:5px solid #dfe4e8;display:grid;place-items:center;z-index:2;box-shadow:0 6px 16px #18212b15;font-size:1.25rem}.row:nth-child(odd) .node{right:-26px}.row:nth-child(even) .node{left:-26px}.card.done{border-color:#bce4cf}.card.done .node{border-color:var(--green)}.card.current{border:2px solid var(--red)}.card.current .node{border-color:var(--red)}.card.locked{opacity:.68;filter:saturate(.7)}
+.title{font-weight:900}.desc{font-size:.82rem;color:var(--muted);line-height:1.5;margin:5px 0 11px}.meta{display:flex;gap:6px;flex-wrap:wrap}.pill{font-size:.68rem;font-weight:850;padding:5px 8px;border-radius:99px;background:#f3f5f6;color:#667085}.pill.done{background:#eaf8f0;color:#23734d}.pill.current{background:#fff0f1;color:#b21f2d}.pill.premium{background:#fff6d2;color:#886300}.mini{height:5px;background:#eef1f3;border-radius:99px;overflow:hidden;margin-top:12px}.mini span{display:block;height:100%;background:var(--green);width:0}
+.state{background:#fff;border:1px solid var(--line);border-radius:22px;padding:45px;text-align:center;box-shadow:var(--shadow)}.state .icon{font-size:2.4rem}.state h3{margin:10px 0 6px}.state p{color:var(--muted);line-height:1.6;max-width:520px;margin:0 auto 17px}
+.modal{display:none;position:fixed;inset:0;background:#18212b66;backdrop-filter:blur(5px);z-index:50;place-items:center;padding:20px}.modal.open{display:grid}.modal-box{width:min(430px,100%);background:#fff;border-radius:24px;padding:28px;text-align:center;box-shadow:0 30px 80px #0003}.modal-icon{font-size:2.4rem}.modal-box h3{margin:10px 0 5px}.modal-box p{color:var(--muted);line-height:1.6}.modal-actions{display:flex;gap:8px;justify-content:center;margin-top:18px}
+footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.75rem}.foot{display:flex;justify-content:space-between;gap:15px}
 
-/* ROADMAP */
-.roadmap-panel{margin-top:18px;padding:26px 25px 38px}
-.roadmap-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin-bottom:24px}
-.roadmap-heading h2{font-size:1.2rem;letter-spacing:-.4px}
-.roadmap-heading p{color:var(--muted);font-size:.68rem;margin-top:3px}
-.legend{display:flex;gap:13px;flex-wrap:wrap;justify-content:flex-end}
-.legend span{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:.6rem;font-weight:800}
-.legend i{width:10px;height:10px;border-radius:50%}
-.legend .done{background:var(--green)}.legend .current{background:var(--red)}.legend .locked{background:#cdd1d7}
-
-/* LEVELS */
-.level{position:relative;margin-top:29px}
-.level:first-child{margin-top:0}
-.level-header{
-  display:flex;align-items:center;gap:12px;padding:13px 15px;
-  border:1px solid var(--line);background:#fcfaf6;border-radius:17px;margin-bottom:13px
+@media(max-width:800px){
+ .links,.actions{display:none}.toggle{display:block}.hero-grid{grid-template-columns:1fr}.path:before{left:25px;transform:none}.row,.row:nth-child(odd),.row:nth-child(even){padding:0 0 0 65px;justify-content:flex-start}.row .node,.row:nth-child(odd) .node,.row:nth-child(even) .node{left:0;right:auto}
+ .card{width:100%}.foot{flex-direction:column}
 }
-.level-icon{
-  width:43px;height:43px;border-radius:14px;background:#fff;border:1px solid var(--line);
-  display:grid;place-items:center;font-size:1.35rem;flex:0 0 43px
-}
-.level-header strong{display:block;font-size:.82rem}
-.level-header small{display:block;color:var(--muted);font-size:.61rem;margin-top:2px}
-.level-percent{
-  margin-left:auto;padding:7px 10px;border:1px solid var(--line);border-radius:99px;
-  background:#fff;color:var(--red);font-size:.7rem;font-weight:900
-}
-
-/* ZIGZAG */
-.path{position:relative;padding:18px 0 25px}
-.path-line{
-  position:absolute;left:50%;top:22px;bottom:28px;width:7px;
-  transform:translateX(-50%);background:#e7e3db;border-radius:99px
-}
-.path-progress{
-  position:absolute;left:50%;top:22px;width:7px;transform:translateX(-50%);
-  height:0;background:var(--green);border-radius:99px;transition:height .8s ease
-}
-.lesson-row{
-  position:relative;z-index:2;min-height:190px;display:flex;align-items:center;
-  justify-content:flex-start;padding-right:calc(50% + 48px)
-}
-.lesson-row:nth-child(even){justify-content:flex-end;padding-right:0;padding-left:calc(50% + 48px)}
-.node{
-  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:72px;height:72px;border-radius:50%;border:6px solid #fff;z-index:5;
-  display:grid;place-items:center;font-size:1.4rem;color:#fff;
-  box-shadow:0 10px 25px rgba(38,50,71,.15);cursor:pointer;transition:.2s
-}
-.node:hover{transform:translate(-50%,-50%) scale(1.06)}
-.node.done{background:var(--green)}
-.node.current{background:var(--red);animation:pulse 2s infinite}
-.node.unlocked{background:var(--blue)}
-.node.locked{background:#cdd2d9;cursor:not-allowed}
-@keyframes pulse{
-  50%{box-shadow:0 0 0 11px rgba(230,57,70,.10),0 10px 25px rgba(38,50,71,.15)}
-}
-.lesson-card{
-  width:min(390px,100%);background:#fff;border:1px solid var(--line);
-  border-radius:20px;padding:16px;box-shadow:var(--small-shadow);
-  cursor:pointer;transition:.22s
-}
-.lesson-card:hover{transform:translateY(-3px);box-shadow:0 17px 38px rgba(38,50,71,.12)}
-.lesson-card.locked{opacity:.72;cursor:not-allowed}
-.lesson-card.locked:hover{transform:none}
-.card-head{display:flex;gap:10px;align-items:center}
-.lesson-icon{
-  width:42px;height:42px;flex:0 0 42px;border-radius:13px;background:#f7f3ea;
-  display:grid;place-items:center;font-size:1.25rem
-}
-.lesson-title{font-size:.82rem;font-weight:900;line-height:1.25}
-.lesson-meta{font-size:.59rem;color:var(--muted);font-weight:700;margin-top:3px}
-.lesson-desc{font-size:.63rem;color:var(--muted);line-height:1.55;margin-top:10px}
-.mini-progress{height:6px;background:#efede8;border-radius:99px;overflow:hidden;margin-top:12px}
-.mini-progress span{display:block;width:0;height:100%;background:var(--green);border-radius:99px;transition:width .6s}
-.card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:11px}
-.xp{font-size:.58rem;font-weight:900;background:#fff5d3;color:#876d00;padding:5px 8px;border-radius:99px}
-.status{font-size:.6rem;font-weight:900;color:var(--muted)}
-.status.current{color:var(--red)}.status.done{color:#3a966d}
-
-/* STATES */
-.hidden{display:none!important}
-.state{
-  background:#fff;border:1px solid var(--line);border-radius:21px;padding:45px;
-  text-align:center;box-shadow:var(--small-shadow)
-}
-.state-icon{font-size:2.2rem}
-.state h3{font-size:1rem;margin-top:8px}
-.state p{max-width:510px;margin:6px auto 17px;color:var(--muted);font-size:.72rem;line-height:1.65}
-.skeletons{display:grid;gap:13px}
-.skeleton{
-  height:110px;border-radius:18px;
-  background:linear-gradient(90deg,#efebe2 25%,#faf8f3 50%,#efebe2 75%);
-  background-size:200% 100%;animation:shine 1.2s infinite
-}
-@keyframes shine{to{background-position:-200% 0}}
-
-/* MODAL */
-.modal-backdrop{
-  position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;
-  padding:20px;background:rgba(38,50,71,.42);backdrop-filter:blur(7px)
-}
-.modal-backdrop.open{display:flex}
-.modal{
-  width:min(430px,100%);padding:27px;border-radius:24px;background:#fff;
-  border:1px solid var(--line);box-shadow:0 25px 80px rgba(38,50,71,.22);position:relative
-}
-.close{
-  position:absolute;right:15px;top:15px;width:34px;height:34px;border:0;
-  border-radius:10px;background:#f3f0e9;cursor:pointer
-}
-.modal-icon{width:58px;height:58px;border-radius:18px;background:#fff3f4;display:grid;place-items:center;font-size:1.7rem}
-.modal h3{font-size:1.25rem;margin-top:15px}
-.modal p{font-size:.73rem;line-height:1.7;color:var(--muted);margin-top:6px}
-.modal-actions{display:flex;gap:9px;margin-top:20px}
-.modal-action{flex:1;border:0;border-radius:12px;padding:11px;background:#f1eee7;font-size:.7rem;font-weight:900;cursor:pointer;text-align:center}
-.modal-action.primary{background:var(--red);color:#fff}
-
-/* RESPONSIVE */
-@media(max-width:850px){
-  .navlinks,.nav-actions{display:none}
-  .mobile-toggle{display:block}
-  .hero{grid-template-columns:1fr}
-  .lesson-row,.lesson-row:nth-child(even){
-    min-height:150px;padding:0 0 0 78px;justify-content:flex-start
-  }
-  .path-line,.path-progress{left:36px}
-  .node{left:36px;width:63px;height:63px}
-  .lesson-card{width:100%;max-width:none}
-}
-@media(max-width:600px){
-  .page{width:calc(100% - 20px);padding-top:19px}
-  .hero-card{padding:24px 20px}
-  .hero h1{font-size:1.75rem}
-  .roadmap-panel{padding:20px 12px 28px;border-radius:20px}
-  .roadmap-heading{display:block}
-  .legend{justify-content:flex-start;margin-top:12px}
-  .level-header{padding:11px}
-  .level-percent{font-size:.62rem}
-  .lesson-row,.lesson-row:nth-child(even){min-height:143px;padding-left:70px}
-  .path-line,.path-progress{left:31px;width:6px}
-  .node{left:31px;width:57px;height:57px;font-size:1.15rem;border-width:5px}
-  .lesson-card{padding:13px}
-  .lesson-desc{font-size:.61rem}
-}
-@media(max-width:380px){
-  .stats-grid{grid-template-columns:1fr}
-  .continue-row .btn{width:100%}
-}
-@media(prefers-reduced-motion:reduce){
-  *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(max-width:500px){
+ .container{width:calc(100% - 22px)}.hero{padding-top:28px}.hero-copy{padding:24px}.stats{padding:21px}.hero-actions .btn{width:100%}.heading{display:block}.count{display:inline-block;margin:9px 0 0}.row{padding-left:58px!important}.path:before{left:22px}.row .node{width:47px;height:47px}.card{padding:14px}
 }
 </style>
 </head>
-
 <body>
-<header class="header">
-<nav class="nav" aria-label="Primary navigation">
-  <a class="brand" href="index.html"><span class="brand-icon">🐼</span><span>HanVerse</span></a>
-  <div class="navlinks" id="navLinks"></div>
-  <div class="nav-actions">
-    <a class="btn secondary" id="profileBtn" href="profile.html" style="display:none"></a>
-    <a class="btn secondary" id="loginBtn" href="login.html">Log In</a>
-    <a class="btn primary" id="startBtn" href="signup.html">Start Learning</a>
+<header class="nav">
+ <div class="container navin">
+  <a class="brand" href="index.html"><span class="mark">🐼</span>HanVerse</a>
+  <nav class="links" id="links"></nav>
+  <div class="actions">
+   <a id="login" class="btn ghost" href="login.html">Log In</a>
+   <a id="start" class="btn primary" href="signup.html">Start Learning</a>
+   <a id="profile" class="profile" href="profile.html"></a>
   </div>
-  <button class="mobile-toggle" id="mobileToggle" type="button" aria-expanded="false" aria-controls="mobileMenu">☰</button>
-</nav>
-<div class="mobile-menu" id="mobileMenu"></div>
+  <button id="toggle" class="toggle" aria-expanded="false">☰</button>
+ </div>
+ <nav id="mobile" class="mobile"></nav>
 </header>
 
-<main class="page">
 <section class="hero">
-  <div class="hero-card">
-    <span class="eyebrow"><i class="dot"></i>Your Mandarin journey</span>
-    <h1 id="heroTitle">Your Learning Roadmap</h1>
-    <p class="hero-copy" id="heroCopy">Complete lessons, unlock new steps and build your Chinese skills one adventure at a time.</p>
-    <div class="continue-row">
-      <a class="btn primary" id="continueBtn" href="#">Continue learning →</a>
-      <button class="btn secondary" id="refreshBtn" type="button">↻ Refresh progress</button>
-    </div>
-    <div class="progress-line">
-      <div class="progress-label"><span>Overall progress</span><strong id="overallPercent">0%</strong></div>
-      <div class="progress-track"><div class="progress-fill" id="overallFill"></div></div>
-    </div>
+ <div class="container hero-grid">
+  <div class="panel hero-copy">
+   <div class="eyebrow">YOUR MANDARIN JOURNEY</div>
+   <h1 id="headline">Your learning roadmap.</h1>
+   <p>Follow the path, complete each lesson and watch your HanVerse progress grow. Completed lessons are read directly from your saved database progress.</p>
+   <div class="hero-actions"><a id="continue" class="btn primary" href="#roadmap">Continue Learning →</a><button id="refresh" class="btn ghost">↻ Refresh</button></div>
   </div>
-
-  <aside class="stats-card">
-    <div class="stat-top">
-      <div><div class="stat-number" id="completedCount">0</div><div class="stat-label">lessons completed</div></div>
-      <div class="trophy">🏆</div>
-    </div>
-    <div class="stats-grid">
-      <div class="stat"><strong id="totalCount">0</strong><span>Total lessons</span></div>
-      <div class="stat"><strong id="xpCount">0</strong><span>XP earned</span></div>
-    </div>
-  </aside>
+  <div class="panel stats">
+   <div class="label">OVERALL PROGRESS</div><div id="percent" class="statnum">0%</div>
+   <div class="track"><div id="fill" class="fill"></div></div>
+   <div class="statline"><span><b id="done">0</b> completed</span><span><b id="total">0</b> lessons</span></div>
+   <div class="xp">⚡ <span id="xp">0</span> XP earned</div>
+  </div>
+ </div>
 </section>
 
-<section class="roadmap-panel">
-  <div class="roadmap-heading">
-    <div>
-      <h2>Your learning path</h2>
-      <p>Complete each lesson to unlock the next step.</p>
-    </div>
-    <div class="legend">
-      <span><i class="done"></i>Completed</span>
-      <span><i class="current"></i>Current</span>
-      <span><i class="locked"></i>Locked</span>
-    </div>
-  </div>
-
-  <div id="loadingState" class="skeletons">
-    <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
-  </div>
-
-  <div id="errorState" class="state hidden">
-    <div class="state-icon">😕</div>
-    <h3>We couldn't load your roadmap.</h3>
-    <p id="errorText">Please check your connection and try again.</p>
-    <button class="btn primary" id="retryBtn" type="button">Try Again</button>
-  </div>
-
-  <div id="emptyState" class="state hidden">
-    <div class="state-icon">📚</div>
-    <h3>Your roadmap is waiting.</h3>
-    <p>No lessons are available in the HanVerse database yet.</p>
-  </div>
-
-  <div id="roadmap" class="hidden"></div>
-</section>
+<main id="roadmap">
+ <div class="container">
+  <div class="heading"><div><h2>Learning Roadmap</h2><p>Finish a lesson to unlock the next step.</p></div></div>
+  <div id="state"></div>
+  <div id="content"></div>
+ </div>
 </main>
 
-<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal">
-    <button class="close" id="modalClose" type="button" aria-label="Close">✕</button>
-    <div class="modal-icon" id="modalIcon">🔒</div>
-    <h3 id="modalTitle">Keep going!</h3>
-    <p id="modalText"></p>
-    <div class="modal-actions">
-      <button class="modal-action" id="modalCancel" type="button">Close</button>
-      <a class="modal-action primary" id="modalAction" href="#" style="display:none">Open lesson →</a>
-    </div>
-  </div>
+<footer><div class="container foot"><span>© 2026 HanVerse. Learn Chinese. Explore more.</span><span>Made for curious learners. 🐼</span></div></footer>
+
+<div id="modal" class="modal">
+ <div class="modal-box"><div id="mi" class="modal-icon">🔒</div><h3 id="mt">Lesson locked</h3><p id="mp">Complete the previous lesson first.</p><div class="modal-actions"><button id="close" class="btn ghost">Close</button><button id="open" class="btn primary" style="display:none">Open Lesson</button></div></div>
 </div>
 
 <script>
-(function(){
+(() => {
 "use strict";
 
-const CONFIG = {
-  apiBase: "/api",
-  lessonsEndpoint: "/lessons",
-  sessionKey: "hanverse_user"
-};
+/*
+  REAL HANVERSE SERVER ROUTES:
+  GET  /api/user/:userId
+  GET  /api/lessons
+  GET  /api/progress/:userId/:lessonId
 
-const appState = {
-  user: null,
-  lessons: [],
-  progress: {},
-  currentIndex: -1
-};
+  IMPORTANT:
+  user_progress.lesson_id is INTEGER, while lessons.lesson_id is
+  currently returned as values such as "lesson_1". Therefore:
+  lesson_1 -> 1 is used ONLY for the progress lookup.
+*/
 
-const $ = id => document.getElementById(id);
+const API="/api";
+const SESSION_KEYS=["hanverse_user","hanverseUser","hanverse_session","hanverseSession","user","currentUser","authUser"];
+const state={user:null,lessons:[],progress:{},current:-1};
 
-function escapeHTML(value){
-  return String(value == null ? "" : value).replace(/[&<>"']/g, char => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[char]));
+const $=id=>document.getElementById(id);
+
+function apiPath(path){return API+"/"+String(path||"").replace(/^\/+/,"");}
+
+async function request(path,options={}){
+ const r=await fetch(apiPath(path),{
+  credentials:"include",cache:"no-store",...options,
+  headers:{Accept:"application/json",...(options.headers||{})}
+ });
+ const text=await r.text();let data=null;
+ try{data=text?JSON.parse(text):null}catch{throw new Error("Invalid JSON from "+path+" (HTTP "+r.status+")");}
+ if(!r.ok)throw new Error(data?.error||data?.message||("HTTP "+r.status));
+ return data;
 }
 
-function apiURL(path){
-  return CONFIG.apiBase + "/" + String(path || "").replace(/^\/+/,"");
-}
-
-function readLocalSession(){
+function localSession(){
+ for(const key of SESSION_KEYS){
   try{
-    const raw = localStorage.getItem(CONFIG.sessionKey);
-    return raw ? JSON.parse(raw) : null;
-  }catch(error){
-    console.warn("Could not read HanVerse session:", error);
-    return null;
-  }
+   const raw=localStorage.getItem(key);
+   if(!raw)continue;
+   const parsed=JSON.parse(raw);
+   const user=parsed?.user||parsed?.data||parsed;
+   if(user&&typeof user==="object")return user;
+  }catch{}
+ }
+ return null;
 }
 
-function getUserId(user){
-  return user?.user_id || user?.userId || user?.id || user?._id || null;
+function uid(u){return String(u?.user_id??u?.userId??u?.id??u?._id??"");}
+function displayName(u){return u?.full_name||u?.fullName||[u?.first_name,u?.last_name].filter(Boolean).join(" ")||u?.name||u?.username||"Learner";}
+function role(u){
+ const r=String(u?.role??u?.user_role??u?.account_type??u?.user_type??"").toLowerCase();
+ if(u?.is_admin===true||u?.isAdmin===true||r==="admin"||r==="administrator")return"admin";
+ if(u?.is_parent===true||u?.isParent===true||r==="parent"||r==="guardian")return"parent";
+ return"student";
 }
 
-function getUserName(user){
-  if(!user) return "Learner";
-  if(user.full_name) return user.full_name;
-  if(user.fullName) return user.fullName;
-  if(user.first_name && user.last_name) return user.first_name + " " + user.last_name;
-  return user.first_name || user.firstName || user.name || user.username || "Learner";
-}
-
-function getRole(user){
-  if(!user) return "guest";
-  const role = String(user.role || user.user_role || user.account_type || user.user_type || "").toLowerCase();
-
-  if(user.is_admin === true || user.isAdmin === true || role === "admin" || role === "administrator"){
-    return "admin";
-  }
-  if(role === "parent" || role === "guardian") return "parent";
-  return "student";
-}
-
-async function getJSON(path){
-  const response = await fetch(apiURL(path),{
-    method:"GET",
-    credentials:"include",
-    cache:"no-store",
-    headers:{Accept:"application/json"}
-  });
-
-  const contentType = response.headers.get("content-type") || "";
-  if(!contentType.includes("application/json")){
-    throw new Error("The server returned a non-JSON response for " + path);
-  }
-
-  const data = await response.json();
-
-  if(!response.ok){
-    throw new Error(data?.error || data?.message || ("HTTP " + response.status));
-  }
-
-  return data;
-}
-
+/* NO auth/me, me, or user/me probing. */
 async function getCurrentUser(){
-  const localUser = readLocalSession();
-  const token = localUser?.token || localUser?.accessToken || localUser?.jwt;
+ const local=localSession();
+ const id=uid(local);
+ if(!id)return null;
 
-  const endpoints = ["auth/me","me","user/me"];
-
-  for(const endpoint of endpoints){
-    try{
-      const headers = {Accept:"application/json"};
-
-      if(token){
-        headers.Authorization = "Bearer " + token;
-      }
-
-      const response = await fetch(apiURL(endpoint),{
-        method:"GET",
-        credentials:"include",
-        cache:"no-store",
-        headers
-      });
-
-      if(!response.ok) continue;
-
-      const contentType = response.headers.get("content-type") || "";
-      if(!contentType.includes("application/json")) continue;
-
-      const data = await response.json();
-      const user = data?.user || data?.account || data?.data?.user || data?.data || data;
-
-      if(getUserId(user)) return user;
-    }catch(error){
-      /* Try the next supported endpoint. */
-    }
-  }
-
-  return getUserId(localUser) ? localUser : null;
+ try{
+  const data=await request("user/"+encodeURIComponent(id));
+  const user=data?.user||data?.data||data;
+  return uid(user)?user:local;
+ }catch(error){
+  console.warn("Database user verification failed; using saved session:",error.message);
+  return local;
+ }
 }
 
-/* NAVIGATION */
-function desktopLink(label,href,isActive){
-  const link = document.createElement("a");
-  link.className = "navlink";
-  link.href = href;
-  link.textContent = label;
+function renderNav(){
+ const links=$("links"),mobile=$("mobile"),u=state.user,r=role(u);
+ links.innerHTML="";mobile.innerHTML="";
+ const base=[["Home","index.html"],["Learn","learn.html"],["Worksheets","worksheets.html"],["Roadmap","roadmap.html"]];
+ base.forEach(([t,h])=>{const a=document.createElement("a");a.href=h;a.textContent=t;if(t==="Roadmap")a.className="active";links.appendChild(a);});
+ base.forEach(([t,h])=>{const a=document.createElement("a");a.href=h;a.textContent=t;if(t==="Roadmap")a.style.color="var(--red)";mobile.appendChild(a);});
+ if(r==="parent"){links.appendChild(makeNav("Parent","parent.html"));mobile.appendChild(makeNav("Parent","parent.html"))}
+ if(r==="admin"){links.appendChild(makeNav("Admin","admin.html"));mobile.appendChild(makeNav("Admin","admin.html"))}
+ if(u){
+  $("login").style.display="none";$("start").style.display="none";$("profile").style.display="block";$("profile").textContent=displayName(u);
+  $("profile").href=r==="parent"?"parent.html":r==="admin"?"admin.html":"profile.html";
+  mobile.appendChild(makeNav(displayName(u),$("profile").href));
+ }else{
+  $("login").style.display="";$("start").style.display="";$("profile").style.display="none";
+  mobile.appendChild(makeNav("Log In","login.html"));mobile.appendChild(makeNav("Start Learning","signup.html"));
+ }
+}
+function makeNav(t,h){const a=document.createElement("a");a.href=h;a.textContent=t;return a;}
 
-  if(isActive) link.setAttribute("aria-current","page");
+function lid(l){return String(l?.id??l?._id??l?.lessonId??l?.lesson_id??"");}
+function dbLid(l){
+ const id=lid(l),m=id.match(/^lesson_(\d+)$/i);
+ return m?m[1]:id;
+}
+function lvl(l){const n=Number(l?.level??l?.yct_level??l?.yctLevel??1);return Number.isFinite(n)?n:1;}
+function ltitle(l){return l?.title||l?.name||"Untitled lesson";}
+function ldesc(l){return l?.description||"Continue building your Mandarin skills.";}
+function lxp(l){const n=Number(l?.xp??10);return Number.isFinite(n)?n:10;}
+function lic(l){return l?.icon||"📚";}
+function prem(l){return l?.premium===true||l?.is_premium===true||l?.isPremium===true;}
 
-  return link;
+function progressPercent(p){
+ if(!p)return 0;
+ if(p.completed===true||p.is_completed===true)return 100;
+ const n=Number(p.progress_pct??p.completed_pct??p.progress??p.percent??0);
+ return Number.isFinite(n)?Math.max(0,Math.min(100,n)):0;
 }
 
-function mobileLink(label,href,isActive){
-  const link = document.createElement("a");
-  link.href = href;
-  link.textContent = label;
-
-  if(isActive) link.setAttribute("aria-current","page");
-
-  return link;
+async function loadLessons(){
+ const data=await request("lessons");
+ const list=Array.isArray(data?.lessons)?data.lessons:Array.isArray(data)?data:[];
+ state.lessons=list.filter(l=>lid(l));
+ if(!state.lessons.length)throw new Error("No published lessons were returned.");
 }
 
-function renderNavbar(){
-  const desktop = $("navLinks");
-  const mobile = $("mobileMenu");
-  const user = appState.user;
-  const role = getRole(user);
-
-  desktop.innerHTML = "";
-  mobile.innerHTML = "";
-
-  desktop.append(
-    desktopLink("Home","index.html",false),
-    desktopLink("Learn","learn.html",false),
-    desktopLink("Worksheets","worksheets.html",false),
-    desktopLink("Roadmap","roadmap.html",true)
-  );
-
-  mobile.append(
-    mobileLink("Home","index.html",false),
-    mobileLink("Learn","learn.html",false),
-    mobileLink("Worksheets","worksheets.html",false),
-    mobileLink("Roadmap","roadmap.html",true)
-  );
-
-  if(role === "parent"){
-    desktop.append(desktopLink("Parent","parent.html",false));
-    mobile.append(mobileLink("Parent","parent.html",false));
-  }
-
-  if(role === "admin"){
-    desktop.append(desktopLink("Admin","admin.html",false));
-    mobile.append(mobileLink("Admin","admin.html",false));
-  }
-
-  if(user){
-    $("loginBtn").style.display = "none";
-    $("startBtn").style.display = "none";
-    $("profileBtn").style.display = "";
-    $("profileBtn").textContent = getUserName(user);
-
-    const profileURL =
-      role === "parent" ? "parent.html" :
-      role === "admin" ? "admin.html" :
-      "profile.html";
-
-    $("profileBtn").href = profileURL;
-    mobile.append(mobileLink(getUserName(user),profileURL,false));
-  }else{
-    $("loginBtn").style.display = "";
-    $("startBtn").style.display = "";
-    $("profileBtn").style.display = "none";
-
-    mobile.append(
-      mobileLink("Log In","login.html",false),
-      mobileLink("Start Learning","signup.html",false)
-    );
-  }
-}
-
-/* LESSON NORMALISATION */
-function getLessonId(lesson){
-  return String(
-    lesson?.id ||
-    lesson?._id ||
-    lesson?.lessonId ||
-    lesson?.lesson_id ||
-    ""
-  );
-}
-
-function getLessonLevel(lesson){
-  const value = Number(
-    lesson?.level ??
-    lesson?.yct_level ??
-    lesson?.yctLevel ??
-    1
-  );
-
-  return Number.isFinite(value) ? value : 1;
-}
-
-function getLessonTitle(lesson){
-  return lesson?.title || lesson?.name || "Untitled lesson";
-}
-
-function getLessonDescription(lesson){
-  return lesson?.description || "Continue building your Mandarin skills.";
-}
-
-function getLessonIcon(lesson){
-  return lesson?.icon || lesson?.emoji || "📚";
-}
-
-function getLessonXP(lesson){
-  const value = Number(lesson?.xp);
-  return Number.isFinite(value) ? value : 10;
-}
-
-function isPremiumLesson(lesson){
-  return lesson?.premium === true ||
-         lesson?.is_premium === true ||
-         lesson?.isPremium === true;
-}
-
-/* PROGRESS */
-function normaliseProgress(value){
-  if(typeof value === "number"){
-    return Math.max(0,Math.min(100,value));
-  }
-
-  if(typeof value === "boolean"){
-    return value ? 100 : 0;
-  }
-
-  if(value && typeof value === "object"){
-    if(
-      value.completed === true ||
-      value.is_completed === true ||
-      value.completed_at
-    ){
-      return 100;
-    }
-
-    const keys = [
-      "progress_pct",
-      "progress",
-      "progressPercent",
-      "completed_pct",
-      "completedPercent",
-      "percentage",
-      "percent"
-    ];
-
-    for(const key of keys){
-      if(value[key] !== undefined && value[key] !== null){
-        const number = Number(value[key]);
-
-        if(Number.isFinite(number)){
-          return Math.max(0,Math.min(100,number));
-        }
-      }
-    }
-  }
-
-  return 0;
-}
-
-async function loadProgressFromDatabase(){
-  appState.progress = {};
-
-  const studentId = getUserId(appState.user);
-
-  if(!studentId) return;
-
-  /*
-   * Try aggregate endpoints first. If the installed server does not expose
-   * one, we fall back to checking each lesson individually.
-   */
-  const aggregateEndpoints = [
-    "progress/" + encodeURIComponent(studentId),
-    "user-progress/" + encodeURIComponent(studentId),
-    "progress"
-  ];
-
-  for(const endpoint of aggregateEndpoints){
-    try{
-      const data = await getJSON(endpoint);
-      const collection = data?.progress ?? data?.lessons ?? data?.data ?? data;
-
-      if(Array.isArray(collection)){
-        let count = 0;
-
-        collection.forEach(item => {
-          const id = String(
-            item?.lesson_id ||
-            item?.lessonId ||
-            item?.lessonID ||
-            item?.id ||
-            item?._id ||
-            ""
-          );
-
-          if(id){
-            appState.progress[id] = normaliseProgress(item);
-            count++;
-          }
-        });
-
-        if(count > 0) return;
-      }
-
-      if(collection && typeof collection === "object" && !Array.isArray(collection)){
-        let count = 0;
-
-        Object.entries(collection).forEach(([id,item]) => {
-          appState.progress[String(id)] = normaliseProgress(item);
-          count++;
-        });
-
-        if(count > 0) return;
-      }
-    }catch(error){
-      /* Continue to the next strategy. */
-    }
-  }
-
-  /*
-   * Reliable fallback: ask the server for the current student's progress
-   * for every lesson.
-   */
-  const results = await Promise.all(
-    appState.lessons.map(async lesson => {
-      const id = getLessonId(lesson);
-
-      if(!id) return ["",0];
-
-      const endpoints = [
-        "progress/" + encodeURIComponent(studentId) + "/" + encodeURIComponent(id),
-        "progress/" + encodeURIComponent(id)
-      ];
-
-      for(const endpoint of endpoints){
-        try{
-          const data = await getJSON(endpoint);
-          const value = data?.progress ?? data?.lessonProgress ?? data?.data ?? data;
-          const percentage = normaliseProgress(value);
-
-          if(
-            percentage > 0 ||
-            value?.completed === true ||
-            value?.is_completed === true ||
-            data?.completed === true
-          ){
-            return [id,percentage];
-          }
-        }catch(error){
-          /* Try the next progress endpoint. */
-        }
-      }
-
-      return [id,0];
-    })
-  );
-
-  results.forEach(([id,percentage]) => {
-    if(id) appState.progress[id] = percentage;
-  });
-}
-
-function getLessonProgress(lesson){
-  return Number(appState.progress[getLessonId(lesson)] || 0);
-}
-
-function isLessonComplete(lesson){
-  return getLessonProgress(lesson) >= 100;
-}
-
-function isLessonUnlocked(index){
-  if(index <= 0) return true;
-  return isLessonComplete(appState.lessons[index - 1]);
-}
-
-function findCurrentLessonIndex(){
-  return appState.lessons.findIndex(lesson => !isLessonComplete(lesson));
-}
-
-function getOverallProgress(){
-  if(!appState.lessons.length) return 0;
-
-  const total = appState.lessons.reduce(
-    (sum,lesson) => sum + getLessonProgress(lesson),
-    0
-  );
-
-  return Math.round(total / appState.lessons.length);
-}
-
-function getLevelMeta(level){
-  const levels = {
-    1:{icon:"🌱",name:"Beginner",description:"Build your Mandarin foundations."},
-    2:{icon:"🌿",name:"Foundation",description:"Talk about familiar people and everyday life."},
-    3:{icon:"🌳",name:"Growing",description:"Expand your vocabulary and confidence."},
-    4:{icon:"🏆",name:"Exam Ready",description:"Strengthen your skills and exam readiness."}
-  };
-
-  return levels[level] || {
-    icon:"📚",
-    name:"Learning",
-    description:"Keep building your Mandarin skills."
-  };
-}
-
-/* RENDER */
-function renderRoadmap(){
-  const totalLessons = appState.lessons.length;
-  const completedLessons = appState.lessons.filter(isLessonComplete).length;
-  const overallPercentage = getOverallProgress();
-
-  const currentLessonIndex = findCurrentLessonIndex();
-  appState.currentIndex = currentLessonIndex;
-
-  $("overallPercent").textContent = overallPercentage + "%";
-  $("overallFill").style.width = overallPercentage + "%";
-  $("completedCount").textContent = completedLessons;
-  $("totalCount").textContent = totalLessons;
-
-  const earnedXP = appState.lessons.reduce(
-    (sum,lesson) => sum + (isLessonComplete(lesson) ? getLessonXP(lesson) : 0),
-    0
-  );
-
-  $("xpCount").textContent = earnedXP;
-
-  if(appState.user){
-    $("heroTitle").textContent = getUserName(appState.user) + "'s Learning Roadmap";
-
-    $("heroCopy").textContent =
-      overallPercentage >= 100
-        ? "Amazing work! You completed the current HanVerse learning path. 🎉"
-        : "Follow your path, complete each lesson and keep building your Mandarin skills.";
-  }
-
-  if(totalLessons > 0){
-    const nextLesson =
-      currentLessonIndex >= 0
-        ? appState.lessons[currentLessonIndex]
-        : appState.lessons[totalLessons - 1];
-
-    $("continueBtn").style.display = "";
-    $("continueBtn").href =
-      "lesson.html?id=" + encodeURIComponent(getLessonId(nextLesson));
-
-    $("continueBtn").textContent =
-      currentLessonIndex >= 0
-        ? "Continue learning →"
-        : "Review your final lesson →";
-  }else{
-    $("continueBtn").style.display = "none";
-  }
-
-  const groups = new Map();
-
-  appState.lessons.forEach(lesson => {
-    const level = getLessonLevel(lesson);
-
-    if(!groups.has(level)){
-      groups.set(level,[]);
-    }
-
-    groups.get(level).push(lesson);
-  });
-
-  const sortedLevels = [...groups.keys()].sort((a,b) => a-b);
-  const roadmap = $("roadmap");
-
-  roadmap.innerHTML = "";
-
-  sortedLevels.forEach(levelNumber => {
-    const lessons = groups.get(levelNumber);
-    const meta = getLevelMeta(levelNumber);
-
-    const levelSection = document.createElement("section");
-    levelSection.className = "level";
-
-    const levelPercentage = lessons.length
-      ? Math.round(
-          lessons.reduce(
-            (sum,lesson) => sum + getLessonProgress(lesson),
-            0
-          ) / lessons.length
-        )
-      : 0;
-
-    const levelHeader = document.createElement("div");
-    levelHeader.className = "level-header";
-
-    levelHeader.innerHTML =
-      '<div class="level-icon">' + escapeHTML(meta.icon) + '</div>' +
-      '<div>' +
-        '<strong>YCT ' + escapeHTML(levelNumber) + ' · ' + escapeHTML(meta.name) + '</strong>' +
-        '<small>' + escapeHTML(meta.description) + '</small>' +
-      '</div>' +
-      '<div class="level-percent">' + levelPercentage + '%</div>';
-
-    levelSection.appendChild(levelHeader);
-
-    const path = document.createElement("div");
-    path.className = "path";
-
-    const line = document.createElement("div");
-    line.className = "path-line";
-    path.appendChild(line);
-
-    /*
-     * This is deliberately calculated from the lessons in this level.
-     * It does not use the variable name "current", avoiding the previous
-     * temporal-dead-zone bug entirely.
-     */
-    const completedCountInLevel = lessons.filter(isLessonComplete).length;
-    const pathFraction = lessons.length <= 1
-      ? (completedCountInLevel ? 1 : 0)
-      : Math.min(
-          1,
-          completedCountInLevel / Math.max(1,lessons.length - 1)
-        );
-
-    const pathProgress = document.createElement("div");
-    pathProgress.className = "path-progress";
-    pathProgress.style.height = (pathFraction * 100) + "%";
-    path.appendChild(pathProgress);
-
-    lessons.forEach((lesson,localIndex) => {
-      const globalIndex = appState.lessons.indexOf(lesson);
-      const lessonID = getLessonId(lesson);
-      const lessonPercentage = getLessonProgress(lesson);
-      const completed = isLessonComplete(lesson);
-      const unlocked = isLessonUnlocked(globalIndex);
-
-      /*
-       * IMPORTANT:
-       * This is called isCurrentLesson, not "current".
-       * That completely eliminates the collision that caused:
-       * Cannot access 'current' before initialization
-       */
-      const isCurrentLesson =
-        globalIndex === appState.currentIndex;
-
-      const row = document.createElement("div");
-      row.className = "lesson-row";
-
-      const node = document.createElement("button");
-      node.type = "button";
-
-      node.className =
-        "node " +
-        (
-          completed
-            ? "done"
-            : isCurrentLesson
-              ? "current"
-              : unlocked
-                ? "unlocked"
-                : "locked"
-        );
-
-      node.textContent =
-        completed
-          ? "✓"
-          : unlocked
-            ? getLessonIcon(lesson)
-            : "🔒";
-
-      node.setAttribute(
-        "aria-label",
-        completed
-          ? "Completed: " + getLessonTitle(lesson)
-          : unlocked
-            ? "Open: " + getLessonTitle(lesson)
-            : "Locked: " + getLessonTitle(lesson)
-      );
-
-      const card = document.createElement("article");
-      card.className =
-        "lesson-card" + (unlocked ? "" : " locked");
-
-      if(unlocked){
-        card.tabIndex = 0;
-      }
-
-      const statusClass =
-        completed
-          ? "done"
-          : isCurrentLesson
-            ? "current"
-            : "";
-
-      const statusText =
-        completed
-          ? "Completed"
-          : isCurrentLesson
-            ? "Continue"
-            : unlocked
-              ? "Start"
-              : "Locked";
-
-      card.innerHTML =
-        '<div class="card-head">' +
-          '<div class="lesson-icon">' + escapeHTML(getLessonIcon(lesson)) + '</div>' +
-          '<div>' +
-            '<div class="lesson-title">' + escapeHTML(getLessonTitle(lesson)) + '</div>' +
-            '<div class="lesson-meta">' +
-              'Lesson ' + (globalIndex + 1) +
-              (isPremiumLesson(lesson) ? " · ⭐ Premium" : " · Free") +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="lesson-desc">' +
-          escapeHTML(getLessonDescription(lesson)) +
-        '</div>' +
-        '<div class="mini-progress">' +
-          '<span style="width:' + lessonPercentage + '%"></span>' +
-        '</div>' +
-        '<div class="card-bottom">' +
-          '<span class="xp">+' + getLessonXP(lesson) + ' XP</span>' +
-          '<span class="status ' + statusClass + '">' + statusText + '</span>' +
-        '</div>';
-
-      const openLesson = () => {
-        handleLessonClick(lesson,unlocked);
-      };
-
-      node.addEventListener("click",openLesson);
-      card.addEventListener("click",openLesson);
-
-      card.addEventListener("keydown",event => {
-        if(
-          unlocked &&
-          (event.key === "Enter" || event.key === " ")
-        ){
-          event.preventDefault();
-          openLesson();
-        }
-      });
-
-      row.appendChild(node);
-      row.appendChild(card);
-      path.appendChild(row);
-    });
-
-    levelSection.appendChild(path);
-    roadmap.appendChild(levelSection);
-  });
-}
-
-function handleLessonClick(lesson,unlocked){
-  if(unlocked){
-    location.href =
-      "lesson.html?id=" +
-      encodeURIComponent(getLessonId(lesson));
-
-    return;
-  }
-
-  $("modalIcon").textContent =
-    isPremiumLesson(lesson) ? "👑" : "🔒";
-
-  $("modalTitle").textContent =
-    isPremiumLesson(lesson)
-      ? "Premium lesson"
-      : "Keep going!";
-
-  $("modalText").textContent =
-    isPremiumLesson(lesson)
-      ? getLessonTitle(lesson) + " is part of the premium HanVerse journey."
-      : "Complete the lesson before " +
-        getLessonTitle(lesson) +
-        " to unlock this step.";
-
-  const action = $("modalAction");
-
-  if(isPremiumLesson(lesson)){
-    action.style.display = "inline-flex";
-    action.href = "signup.html";
-  }else{
-    action.style.display = "none";
-  }
-
-  $("modalBackdrop").classList.add("open");
-}
-
-/* UI STATES */
-function showState(type,message){
-  $("loadingState").classList.add("hidden");
-  $("errorState").classList.add("hidden");
-  $("emptyState").classList.add("hidden");
-  $("roadmap").classList.add("hidden");
-
-  if(type === "error"){
-    $("errorText").textContent = message;
-    $("errorState").classList.remove("hidden");
-  }
-
-  if(type === "empty"){
-    $("emptyState").classList.remove("hidden");
-  }
-
-  if(type === "roadmap"){
-    $("roadmap").classList.remove("hidden");
-  }
-}
-
-async function loadRoadmap(){
-  $("loadingState").classList.remove("hidden");
-  $("errorState").classList.add("hidden");
-  $("emptyState").classList.add("hidden");
-  $("roadmap").classList.add("hidden");
-
+async function loadProgress(){
+ state.progress={};
+ const id=uid(state.user);
+ if(!id)return;
+
+ await Promise.all(state.lessons.map(async l=>{
+  const key=lid(l), dbId=dbLid(l);
   try{
-    appState.user = await getCurrentUser();
-
-    if(!appState.user){
-      location.replace("login.html");
-      return;
-    }
-
-    renderNavbar();
-
-    const lessonResponse = await getJSON(CONFIG.lessonsEndpoint);
-
-    const lessons =
-      Array.isArray(lessonResponse)
-        ? lessonResponse
-        : lessonResponse?.lessons ||
-          lessonResponse?.data ||
-          [];
-
-    appState.lessons = lessons.filter(
-      lesson => Boolean(getLessonId(lesson))
-    );
-
-    if(!appState.lessons.length){
-      showState("empty");
-      return;
-    }
-
-    await loadProgressFromDatabase();
-
-    renderRoadmap();
-    showState("roadmap");
-
+   const data=await request("progress/"+encodeURIComponent(id)+"/"+encodeURIComponent(dbId));
+   const p=data?.progress||data?.data||null;
+   state.progress[key]=progressPercent(p);
   }catch(error){
-    console.error("HanVerse roadmap loading error:",error);
-
-    showState(
-      "error",
-      "Please check your connection and try again. Your saved lesson progress has not been deleted."
-    );
+   /* One missing progress record must NEVER create 404 spam or break the roadmap. */
+   console.warn("No saved progress for "+key+":",error.message);
+   state.progress[key]=0;
   }
+ }));
 }
 
-/* EVENTS */
-$("refreshBtn").addEventListener("click",loadRoadmap);
-$("retryBtn").addEventListener("click",loadRoadmap);
+function done(l){return (state.progress[lid(l)]||0)>=100;}
+function unlocked(i){return i===0||done(state.lessons[i-1]);}
+function overall(){return state.lessons.length?Math.round(state.lessons.reduce((s,l)=>s+(state.progress[lid(l)]||0),0)/state.lessons.length):0;}
 
-$("mobileToggle").addEventListener("click",() => {
-  const button = $("mobileToggle");
-  const menu = $("mobileMenu");
-  const isOpen = menu.classList.toggle("open");
-
-  button.setAttribute("aria-expanded",String(isOpen));
-  button.textContent = isOpen ? "✕" : "☰";
-});
-
-$("mobileMenu").addEventListener("click",event => {
-  if(event.target.closest("a")){
-    $("mobileMenu").classList.remove("open");
-    $("mobileToggle").setAttribute("aria-expanded","false");
-    $("mobileToggle").textContent = "☰";
-  }
-});
-
-function closeModal(){
-  $("modalBackdrop").classList.remove("open");
+function levelMeta(n){
+ return ({1:["🌱","YCT 1 · Beginner","Build your Mandarin foundations."],2:["🌿","YCT 2 · Elementary","Talk about familiar people and everyday life."],3:["🌳","YCT 3 · Intermediate","Expand vocabulary and communicate with confidence."],4:["🏆","YCT 4 · Advanced","Strengthen your skills and prepare for exams."]})[n]||["📚","Learning Path","Keep building your Mandarin skills."];
 }
 
-$("modalClose").addEventListener("click",closeModal);
-$("modalCancel").addEventListener("click",closeModal);
+function render(){
+ const pct=overall(),completed=state.lessons.filter(done).length;
+ state.current=state.lessons.findIndex(l=>!done(l));
+ if(state.current<0)state.current=state.lessons.length;
 
-$("modalBackdrop").addEventListener("click",event => {
-  if(event.target === $("modalBackdrop")){
-    closeModal();
-  }
-});
+ $("percent").textContent=pct+"%";$("fill").style.width=pct+"%";
+ $("done").textContent=completed;$("total").textContent=state.lessons.length;
+ $("xp").textContent=state.lessons.reduce((s,l)=>s+(done(l)?lxp(l):0),0);
+ $("headline").textContent=state.user?displayName(state.user)+"'s learning roadmap.":"Your learning roadmap.";
 
-document.addEventListener("keydown",event => {
-  if(event.key === "Escape"){
-    closeModal();
-  }
-});
+ const groups={};
+ state.lessons.forEach((l,i)=>{const n=lvl(l);(groups[n]??=[]).push([l,i]);});
+ const content=$("content");content.innerHTML="";
 
-window.addEventListener("storage",event => {
-  if(event.key === CONFIG.sessionKey){
-    loadRoadmap();
-  }
-});
+ Object.keys(groups).map(Number).sort((a,b)=>a-b).forEach(n=>{
+  const [emoji,title,description]=levelMeta(n),items=groups[n];
+  const section=document.createElement("section");section.className="level";
+  const head=document.createElement("div");head.className="level-head";
+  const icon=document.createElement("div");icon.className="level-icon";icon.textContent=emoji;
+  const text=document.createElement("div");text.innerHTML="<h3></h3><p></p>";text.querySelector("h3").textContent=title;text.querySelector("p").textContent=description;
+  const count=document.createElement("span");count.className="count";count.textContent=items.filter(x=>done(x[0])).length+" / "+items.length+" complete";
+  head.append(icon,text,count);
 
-window.addEventListener("focus",() => {
-  if(appState.user){
-    loadRoadmap();
-  }
-});
+  const path=document.createElement("div");path.className="path";
+  items.forEach(([l,i])=>{
+   const row=document.createElement("div");row.className="row";
+   const card=document.createElement("article");card.className="card"+(done(l)?" done":"")+(i===state.current&&!done(l)?" current":"")+(!unlocked(i)?" locked":"");
+   const node=document.createElement("div");node.className="node";node.textContent=done(l)?"✓":unlocked(i)?lic(l):"🔒";
+   const body=document.createElement("div");
+   body.innerHTML="<div class='title'></div><div class='desc'></div><div class='meta'></div><div class='mini'><span></span></div>";
+   body.querySelector(".title").textContent=ltitle(l);body.querySelector(".desc").textContent=ldesc(l);
+   const meta=body.querySelector(".meta");
+   addPill(meta,done(l)?"Completed":i===state.current?"Continue":unlocked(i)?"Start":"Locked",done(l)?"done":i===state.current?"current":"");
+   addPill(meta,"⚡ "+lxp(l)+" XP","");
+   if(prem(l))addPill(meta,"👑 Premium","premium");
+   body.querySelector(".mini span").style.width=(state.progress[lid(l)]||0)+"%";
+   card.appendChild(body);row.append(node,card);path.appendChild(row);
 
-loadRoadmap();
+   const open=()=>openLesson(l,i);
+   card.onclick=open;card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};
+   card.tabIndex=0;
+  });
+  section.append(head,path);content.appendChild(section);
+ });
+}
+function addPill(parent,text,cls){const p=document.createElement("span");p.className="pill "+cls;p.textContent=text;parent.appendChild(p);}
 
+function openLesson(l,i){
+ if(!unlocked(i)){
+  $("mi").textContent=prem(l)?"👑":"🔒";$("mt").textContent=prem(l)?"Premium lesson":"Lesson locked";
+  $("mp").textContent=prem(l)?"This lesson is part of the premium HanVerse journey.":"Complete the previous lesson first to unlock "+ltitle(l)+".";
+  $("open").style.display=prem(l)?"inline-block":"none";$("open").onclick=()=>location.href="signup.html";$("modal").classList.add("open");return;
+ }
+ location.href="lesson.html?id="+encodeURIComponent(lid(l));
+}
+
+async function load(){
+ $("state").innerHTML='<div class="state"><div class="icon">🐼</div><h3>Loading your roadmap…</h3><p>Fetching lessons and your saved progress.</p></div>';
+ $("content").innerHTML="";
+ try{
+  state.user=await getCurrentUser();
+  if(!state.user){location.replace("login.html");return;}
+  if(role(state.user)!=="student"){renderNav();}else{renderNav();}
+  await loadLessons();
+  await loadProgress();
+  render();
+  $("state").innerHTML="";
+ }catch(error){
+  console.error("HanVerse roadmap loading error:",error);
+  $("state").innerHTML='<div class="state"><div class="icon">⚠️</div><h3>We couldn’t load your roadmap</h3><p>'+escapeHTML(error.message||"Please try again.")+'</p><button id="retry" class="btn primary">Try Again</button></div>';
+  $("retry").onclick=load;
+ }
+}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+$("toggle").onclick=()=>{const open=$("mobile").classList.toggle("open");$("toggle").textContent=open?"✕":"☰";$("toggle").setAttribute("aria-expanded",String(open));};
+$("mobile").onclick=e=>{if(e.target.closest("a")){$("mobile").classList.remove("open");$("toggle").textContent="☰";$("toggle").setAttribute("aria-expanded","false")}};
+$("refresh").onclick=load;$("close").onclick=()=>$("modal").classList.remove("open");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("open")};
+load();
 })();
 </script>
 </body>

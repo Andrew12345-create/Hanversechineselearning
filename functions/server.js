@@ -1590,7 +1590,7 @@ router.post('/login', async (req, res) => {
 // ==========================================
 // GET USER PROFILE
 // ==========================================
-router.get('/user/:userId', async (req, res) => {
+router.get('/user/me', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
