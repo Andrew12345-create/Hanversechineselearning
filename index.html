@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="HanVerse — fun, interactive Chinese learning for young learners.">
-<meta name="theme-color" content="#FFFDF7">
+<meta name="theme-color" content="#F8FBFF">
 <title>HanVerse | Learn Chinese Through Adventure</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -520,6 +520,643 @@ button,a{touch-action:manipulation}
 }
 
 h1,h2,h3,p{overflow-wrap:break-word}
+</style>
+
+
+<style id="hanverse-blue-design">
+/* ============================================================
+   HANVERSE — BLUE-FORWARD FAMILY DESIGN
+   Child-friendly without looking childish.
+   Adult-friendly without looking corporate.
+   Visual/CSS layer only — existing HTML + JavaScript preserved.
+   ============================================================ */
+
+:root{
+  --cream:#F8FBFF;
+  --white:#FFFFFF;
+  --navy:#18324D;
+  --muted:#64778A;
+
+  /* Blue is now the main HanVerse colour. */
+  --blue:#4EA8DE;
+  --blue-dark:#347FAF;
+  --blue-deep:#245B82;
+  --blue-soft:#EAF6FD;
+  --blue-pale:#F3FAFE;
+
+  /* Existing brand colours remain supporting accents. */
+  --red:#E63946;
+  --red-dark:#C92F3C;
+  --yellow:#F4D35E;
+  --green:#74C69D;
+
+  --line:rgba(24,50,77,.10);
+  --shadow:0 14px 42px rgba(24,50,77,.085);
+  --shadow-lg:0 28px 80px rgba(24,50,77,.12);
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+
+/* ---------- GLOBAL ---------- */
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:100px;
+}
+
+body{
+  background:
+    radial-gradient(circle at 4% 3%,rgba(78,168,222,.14),transparent 25rem),
+    radial-gradient(circle at 94% 18%,rgba(244,211,94,.10),transparent 24rem),
+    radial-gradient(circle at 86% 88%,rgba(116,198,157,.09),transparent 25rem),
+    var(--cream);
+  color:var(--navy);
+}
+
+:focus-visible{
+  outline:3px solid rgba(78,168,222,.42);
+  outline-offset:3px;
+}
+
+/* ---------- EYEBROWS ---------- */
+.eyebrow{
+  background:var(--blue-soft);
+  color:var(--blue-deep);
+  border:1px solid rgba(78,168,222,.13);
+}
+
+.eyebrow:before{
+  background:var(--blue);
+}
+
+/* ---------- HEADER ---------- */
+.navbar{
+  background:rgba(255,255,255,.91);
+  border:1px solid rgba(24,50,77,.09);
+  box-shadow:0 10px 35px rgba(24,50,77,.075);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+
+.site-header.scrolled .navbar{
+  box-shadow:0 14px 40px rgba(24,50,77,.11);
+}
+
+.brand{
+  color:var(--navy);
+}
+
+.brand-mark{
+  background:linear-gradient(145deg,#FFFFFF,#EDF8FE);
+  border:1px solid rgba(78,168,222,.14);
+  box-shadow:0 5px 15px rgba(24,50,77,.07);
+}
+
+.brand span:last-child span{
+  color:var(--blue-deep) !important;
+}
+
+.nav-link{
+  color:#526679;
+}
+
+.nav-link:hover{
+  color:var(--navy);
+  background:var(--blue-soft);
+}
+
+.nav-link.active{
+  color:var(--blue-deep);
+  background:var(--blue-soft);
+}
+
+.nav-link.parent:hover{
+  background:rgba(116,198,157,.13);
+}
+
+.nav-link.admin:hover{
+  background:rgba(78,168,222,.13);
+}
+
+.ghost:hover{
+  background:var(--blue-soft);
+}
+
+.primary{
+  background:var(--blue);
+  color:#fff;
+  box-shadow:0 9px 20px rgba(78,168,222,.23);
+}
+
+.primary:hover{
+  background:var(--blue-dark);
+  box-shadow:0 13px 27px rgba(78,168,222,.28);
+}
+
+.secondary{
+  background:#fff;
+  border:1px solid rgba(24,50,77,.10);
+  color:var(--navy);
+  box-shadow:0 6px 20px rgba(24,50,77,.055);
+}
+
+.mobile-toggle{
+  background:#fff;
+  border-color:rgba(24,50,77,.10);
+}
+
+.mobile-menu{
+  background:rgba(255,255,255,.97);
+  border-color:rgba(24,50,77,.09);
+}
+
+.mobile-menu a:hover,
+.mobile-menu button:hover{
+  background:var(--blue-soft);
+}
+
+.mobile-menu .mobile-cta{
+  background:var(--blue);
+}
+
+/* ---------- HERO ---------- */
+.hero{
+  padding-top:clamp(62px,7vw,90px);
+}
+
+.hero:before{
+  background:rgba(78,168,222,.08);
+}
+
+.hero:after{
+  background:rgba(116,198,157,.08);
+}
+
+.hero h1{
+  color:var(--navy);
+}
+
+.hero h1 .red{
+  color:var(--blue-deep);
+}
+
+/* Yellow remains playful but is no longer competing with the blue. */
+.underline:after{
+  background:rgba(244,211,94,.72);
+  height:7px;
+}
+
+.hero-copy{
+  color:#64778A;
+}
+
+.trust span:before{
+  color:var(--green);
+}
+
+.hero-visual .glow{
+  background:
+    radial-gradient(circle,
+      rgba(78,168,222,.19),
+      rgba(78,168,222,.08) 43%,
+      rgba(244,211,94,.07) 58%,
+      transparent 72%);
+}
+
+.lesson{
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(24,50,77,.10);
+  box-shadow:var(--shadow-lg);
+}
+
+.lesson-label{
+  color:#718195;
+}
+
+.dot{
+  background:var(--green);
+  box-shadow:0 0 0 5px rgba(116,198,157,.13);
+}
+
+.pill{
+  background:var(--blue-soft);
+  color:var(--blue-deep);
+  border:1px solid rgba(78,168,222,.10);
+}
+
+.character{
+  background:
+    radial-gradient(circle at 50% 12%,rgba(244,211,94,.33),transparent 29%),
+    linear-gradient(145deg,#EAF7FF,#F4FBF7);
+  border-color:rgba(24,50,77,.08);
+}
+
+.character:before{
+  color:rgba(36,48,71,.065);
+}
+
+.panda{
+  border-color:var(--navy);
+  box-shadow:0 18px 35px rgba(24,50,77,.12);
+}
+
+.question{
+  color:var(--navy);
+}
+
+.pinyin{
+  color:var(--blue-deep);
+}
+
+.answer{
+  border-color:rgba(24,50,77,.09);
+  color:#526679;
+}
+
+.answer:hover{
+  border-color:rgba(78,168,222,.30);
+  background:var(--blue-pale);
+}
+
+.answer.correct{
+  background:rgba(116,198,157,.14);
+  border-color:rgba(116,198,157,.28);
+  color:#39745A;
+}
+
+.float.xp{
+  background:var(--blue-soft);
+  color:var(--blue-deep);
+  border-color:rgba(78,168,222,.12);
+}
+
+.float.streak{
+  background:#FFF7DE;
+  color:#796514;
+  border-color:rgba(244,211,94,.18);
+}
+
+/* ---------- VALUE STRIP ---------- */
+.value{
+  background:rgba(255,255,255,.86);
+  border-color:rgba(24,50,77,.08);
+  box-shadow:0 6px 22px rgba(24,50,77,.055);
+}
+
+.value-icon{
+  background:var(--blue-soft);
+}
+
+.value:nth-child(2) .value-icon{
+  background:#F0F7FC;
+}
+
+.value:nth-child(3) .value-icon{
+  background:#F0FBF5;
+}
+
+.value:nth-child(4) .value-icon{
+  background:#FFF8E5;
+}
+
+.value strong{
+  color:var(--navy);
+}
+
+.value small{
+  color:#718195;
+}
+
+/* ---------- SECTIONS ---------- */
+.section.alt{
+  background:rgba(255,255,255,.48);
+  border-block-color:rgba(24,50,77,.045);
+}
+
+.heading h2{
+  color:var(--navy);
+}
+
+.heading p{
+  color:#66788B;
+}
+
+/* ---------- FEATURE CARDS ---------- */
+.feature,
+.course,
+.motivation,
+.step{
+  background:#fff;
+  border-color:rgba(24,50,77,.085);
+  box-shadow:0 7px 24px rgba(24,50,77,.055);
+}
+
+.feature:hover,
+.course:hover,
+.motivation:hover{
+  box-shadow:0 18px 42px rgba(24,50,77,.10);
+}
+
+.feature-icon{
+  background:var(--blue-soft);
+}
+
+.feature:nth-child(2) .feature-icon{
+  background:#FFF8E5;
+}
+
+.feature:nth-child(3) .feature-icon{
+  background:#F0FBF5;
+}
+
+.feature:nth-child(4) .feature-icon{
+  background:#FFF1F2;
+}
+
+.feature h3,
+.course h3,
+.motivation h3,
+.step h3{
+  color:var(--navy);
+}
+
+.feature p,
+.course p,
+.motivation p,
+.step p{
+  color:#6B7D90;
+}
+
+.num{
+  background:var(--blue-deep);
+}
+
+.step:nth-child(2) .num{
+  background:var(--blue);
+}
+
+.step:nth-child(3) .num{
+  background:var(--green);
+}
+
+/* ---------- YCT PATHWAY ---------- */
+.level{
+  background:var(--blue-soft);
+  color:var(--blue-deep);
+}
+
+.course:nth-child(2) .level{
+  background:#F0FBF5;
+  color:#39745A;
+}
+
+.course:nth-child(3) .level{
+  background:#FFF8E5;
+  color:#806A13;
+}
+
+.course:nth-child(4) .level{
+  background:#FFF1F2;
+  color:#A32A34;
+}
+
+.course a{
+  color:var(--blue-deep);
+}
+
+.course a:hover{
+  color:var(--blue-dark);
+}
+
+/* ---------- LEARNING EXPERIENCE ---------- */
+.preview h2{
+  color:var(--navy);
+}
+
+.preview-copy>p{
+  color:#66788B;
+}
+
+.checks li{
+  color:#40566B;
+}
+
+.checks li:before{
+  background:rgba(116,198,157,.16);
+  color:#39745A;
+}
+
+.dashboard{
+  background:linear-gradient(145deg,#18324D,#204B6B);
+  box-shadow:var(--shadow-lg);
+}
+
+.window{
+  background:#F5FAFE;
+}
+
+.bar{
+  background:#fff;
+  border-bottom-color:rgba(24,50,77,.08);
+}
+
+.stat,
+.practice{
+  background:#fff;
+  border-color:rgba(24,50,77,.08);
+}
+
+.label{
+  color:#7B8B9C;
+}
+
+.stat strong{
+  color:var(--navy);
+}
+
+.progress{
+  background:#E7EEF4;
+}
+
+.progress span{
+  background:var(--green);
+}
+
+.practice-title{
+  color:var(--navy);
+}
+
+.char{
+  color:var(--navy);
+}
+
+.practice small{
+  color:var(--blue-deep);
+}
+
+.practice button{
+  background:var(--blue);
+}
+
+.practice button:hover{
+  background:var(--blue-dark);
+}
+
+/* ---------- MOTIVATION ---------- */
+.motivation .big{
+  color:var(--blue-deep);
+}
+
+/* ---------- PRICING ---------- */
+.price-card{
+  background:#fff;
+  border-color:rgba(24,50,77,.085);
+}
+
+.price-card.featured{
+  border-color:rgba(78,168,222,.62);
+  box-shadow:0 22px 60px rgba(78,168,222,.13);
+}
+
+.popular{
+  background:var(--blue);
+}
+
+.price-card h3{
+  color:var(--navy);
+}
+
+.desc{
+  color:#6B7D90;
+}
+
+.price{
+  color:var(--navy);
+}
+
+.price-list li{
+  color:#526679;
+}
+
+.price-list li:before{
+  color:var(--green);
+}
+
+.price-card:not(.featured) .full{
+  background:var(--blue-pale);
+  color:var(--blue-deep);
+  border:1px solid rgba(78,168,222,.12);
+}
+
+.price-card:not(.featured) .full:hover{
+  background:var(--blue-soft);
+}
+
+.price-card .primary{
+  background:var(--blue);
+}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:
+    radial-gradient(circle at 13% 18%,rgba(244,211,94,.22),transparent 16rem),
+    radial-gradient(circle at 88% 80%,rgba(78,168,222,.30),transparent 19rem),
+    linear-gradient(145deg,#18324D,#245B82);
+}
+
+.cta-box h2{
+  color:#fff;
+}
+
+.cta-box p{
+  color:rgba(255,255,255,.78);
+}
+
+.white{
+  background:#fff;
+  color:var(--blue-deep);
+}
+
+.white:hover{
+  background:#F3FAFE;
+}
+
+.outline{
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border-color:rgba(255,255,255,.28);
+}
+
+.outline:hover{
+  background:rgba(255,255,255,.11);
+}
+
+/* ---------- FOOTER ---------- */
+footer{
+  background:rgba(255,255,255,.62);
+  border-top-color:rgba(24,50,77,.065);
+}
+
+.footer-brand h2{
+  color:var(--navy);
+}
+
+.footer-brand h2 span{
+  color:var(--blue-deep) !important;
+}
+
+.footer-main p,
+.footer-col a{
+  color:#6B7D90;
+}
+
+.footer-col a:hover{
+  color:var(--blue-deep);
+}
+
+.footer-bottom{
+  border-top-color:rgba(24,50,77,.08);
+  color:#8795A4;
+}
+
+/* ---------- NOTIFICATIONS ---------- */
+.toast{
+  background:#fff;
+  border-color:rgba(24,50,77,.09);
+  box-shadow:0 16px 42px rgba(24,50,77,.12);
+}
+
+.toast button{
+  color:var(--muted);
+}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:620px){
+  body{
+    background:
+      radial-gradient(circle at 10% 2%,rgba(78,168,222,.11),transparent 18rem),
+      var(--cream);
+  }
+
+  .hero{
+    padding-top:42px;
+  }
+
+  .hero h1{
+    letter-spacing:-.055em;
+  }
+
+  .lesson{
+    box-shadow:0 20px 50px rgba(24,50,77,.10);
+  }
+}
+
+/* ---------- ACCESSIBILITY ---------- */
+@media(prefers-reduced-motion:reduce){
+  .xp,
+  .streak,
+  .lesson{
+    animation:none !important;
+  }
+}
 </style>
 
 </head>

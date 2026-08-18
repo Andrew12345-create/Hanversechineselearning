@@ -1356,6 +1356,430 @@
             }
         }
     </style>
+
+<style id="hanverse-profile-blue-theme">
+/* ============================================================
+   HANVERSE PROFILE — BLUE-FORWARD MASTER THEME
+   Matches the new HanVerse index/login/signup visual system.
+   Visual layer only: existing HTML + JavaScript preserved.
+   ============================================================ */
+
+:root {
+    --primary: #4EA8DE;
+    --primary-dark: #347FAF;
+    --primary-deep: #245B82;
+    --primary-light: #EAF6FD;
+    --secondary: #74C69D;
+    --secondary-light: #EEF9F3;
+    --accent: #F4D35E;
+    --accent-light: #FFF8E5;
+    --dark: #18324D;
+    --text: #40566B;
+    --text-secondary: #60758A;
+    --muted: #7A8A9A;
+    --bg: #F8FBFF;
+    --white: #FFFFFF;
+    --success: #74C69D;
+    --danger: #E63946;
+    --warning: #F4D35E;
+    --border: #E1EAF1;
+    --shadow-sm: 0 3px 12px rgba(24,50,77,.055);
+    --shadow-md: 0 8px 26px rgba(24,50,77,.075);
+    --shadow-lg: 0 16px 45px rgba(24,50,77,.10);
+    --shadow-xl: 0 24px 65px rgba(24,50,77,.13);
+}
+
+/* ===== BASE ===== */
+body {
+    background:
+        radial-gradient(circle at 5% 3%, rgba(78,168,222,.13), transparent 25rem),
+        radial-gradient(circle at 94% 18%, rgba(244,211,94,.08), transparent 23rem),
+        radial-gradient(circle at 85% 92%, rgba(116,198,157,.08), transparent 25rem),
+        var(--bg);
+    color: var(--dark);
+}
+
+::selection {
+    background: var(--primary);
+    color: #fff;
+}
+
+/* ===== NOTIFICATIONS ===== */
+.toast {
+    background: rgba(255,255,255,.98);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    box-shadow: var(--shadow-lg);
+}
+
+.toast-success { border-left-color: var(--secondary); }
+.toast-error { border-left-color: var(--danger); }
+.toast-warning { border-left-color: var(--accent); }
+.toast-info { border-left-color: var(--primary); }
+
+.toast-message {
+    color: var(--dark);
+}
+
+.toast-close {
+    color: var(--muted);
+}
+
+/* ===== TOP NAV ===== */
+nav.top-nav {
+    background: rgba(255,255,255,.91);
+    border: 1px solid rgba(24,50,77,.09);
+    box-shadow: 0 6px 28px rgba(24,50,77,.07);
+}
+
+nav.top-nav.shrunk {
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 10px 38px rgba(24,50,77,.09);
+}
+
+nav.top-nav:hover {
+    box-shadow: 0 9px 38px rgba(78,168,222,.10);
+}
+
+.logo {
+    color: var(--dark);
+}
+
+.logo-text {
+    background: linear-gradient(135deg, var(--dark), var(--primary-deep));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
+}
+
+.nav-links a::after {
+    background: var(--primary);
+}
+
+.nav-links a.active,
+.nav-links a:hover {
+    color: var(--primary-deep);
+}
+
+.logout-btn {
+    background: rgba(230,57,70,.055);
+    color: var(--danger);
+    border-color: rgba(230,57,70,.12);
+}
+
+.logout-btn:hover {
+    background: rgba(230,57,70,.10);
+}
+
+/* ===== PROFILE HERO =====
+   Deep blue is used for maturity; sky blue and green soften it.
+   Red/yellow are kept as tiny accents only. */
+.profile-hero {
+    background:
+        radial-gradient(circle at 15% 25%, rgba(78,168,222,.34), transparent 30%),
+        radial-gradient(circle at 86% 75%, rgba(116,198,157,.18), transparent 28%),
+        linear-gradient(135deg, #18324D 0%, #245B82 56%, #347FAF 100%);
+    box-shadow: 0 20px 55px rgba(24,50,77,.16);
+}
+
+.profile-hero::after {
+    background:
+        radial-gradient(circle at 38% 35%, rgba(255,255,255,.10), transparent 55%);
+}
+
+.profile-hero::before {
+    color: rgba(255,255,255,.05);
+}
+
+.avatar {
+    background: rgba(255,255,255,.14);
+    border-color: rgba(255,255,255,.28);
+    box-shadow: 0 10px 30px rgba(0,0,0,.14);
+}
+
+.profile-info h1 {
+    color: #fff;
+}
+
+.profile-info > p {
+    color: rgba(255,255,255,.78);
+}
+
+.badge {
+    background: rgba(255,255,255,.13);
+    border-color: rgba(255,255,255,.15);
+}
+
+.badge-premium {
+    background: rgba(244,211,94,.20);
+    border-color: rgba(244,211,94,.20);
+}
+
+.badge-admin {
+    background: rgba(230,57,70,.16);
+    border-color: rgba(230,57,70,.15);
+}
+
+.hero-stat {
+    background: rgba(255,255,255,.10);
+    border-color: rgba(255,255,255,.10);
+}
+
+/* ===== QUICK STATS ===== */
+.quick-card {
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(24,50,77,.075);
+    box-shadow: var(--shadow-sm);
+}
+
+.quick-card:hover {
+    border-color: rgba(78,168,222,.22);
+    box-shadow: var(--shadow-md);
+}
+
+.quick-card h3 {
+    background: linear-gradient(135deg, var(--primary-deep), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.quick-card p {
+    color: var(--muted);
+}
+
+/* ===== CONTENT CARDS ===== */
+.content-card {
+    background: rgba(255,255,255,.94);
+    border: 1px solid rgba(24,50,77,.075);
+    box-shadow: var(--shadow-sm);
+}
+
+.content-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.content-card h2 {
+    color: var(--dark);
+}
+
+.content-card > p {
+    color: var(--muted);
+}
+
+/* ===== PROGRESS ===== */
+.progress-track {
+    background: #E8F0F5;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, var(--primary), #73C3E9);
+}
+
+/* ===== HEATMAP ===== */
+.heat {
+    background: #E9F0F5;
+}
+
+.heat.active {
+    background: linear-gradient(135deg, var(--primary), #73C3E9);
+}
+
+.heat.high {
+    background: linear-gradient(135deg, #F4D35E, #EBC85A);
+}
+
+.heat.low {
+    background: linear-gradient(135deg, #DDF1FB, #DDF3E8);
+}
+
+/* ===== CERTIFICATES / ACHIEVEMENTS / AI ===== */
+.certificate-card,
+.achievement-card,
+.ai-card {
+    background: #F7FBFE;
+    border-color: var(--border);
+}
+
+.certificate-card:hover,
+.achievement-card:hover,
+.ai-card:hover {
+    border-color: rgba(78,168,222,.25);
+    box-shadow: var(--shadow-sm);
+}
+
+.certificate-card,
+.achievement-card {
+    color: var(--text);
+}
+
+.ai-card h3 {
+    background: linear-gradient(135deg, var(--primary-deep), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ai-card p {
+    color: var(--muted);
+}
+
+/* ===== ACTIVITY ===== */
+.activity-item {
+    border-bottom-color: var(--border);
+    color: var(--text);
+}
+
+.activity-item:hover {
+    background: #F5FAFD;
+}
+
+.activity-item .act-time {
+    color: var(--muted);
+}
+
+/* ===== MEMBERSHIP ===== */
+.membership-premium {
+    background:
+        radial-gradient(circle at 85% 20%, rgba(244,211,94,.18), transparent 25%),
+        linear-gradient(135deg, #18324D, #347FAF);
+    box-shadow: var(--shadow-md);
+}
+
+.membership-free {
+    background: #F6FAFD;
+    border-color: #D9E6EF;
+}
+
+.membership-free:hover {
+    border-color: rgba(78,168,222,.35);
+}
+
+.membership-free .upgrade-btn {
+    background: var(--primary);
+    box-shadow: 0 5px 18px rgba(78,168,222,.22);
+}
+
+.membership-free .upgrade-btn:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 8px 24px rgba(78,168,222,.28);
+}
+
+/* ===== ADMIN ===== */
+.admin-btn {
+    background: var(--primary);
+    box-shadow: 0 5px 18px rgba(78,168,222,.22);
+}
+
+.admin-btn:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 8px 24px rgba(78,168,222,.28);
+}
+
+/* ===== PANDA FAB ===== */
+.panda-fab {
+    background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 10px 30px rgba(78,168,222,.28);
+}
+
+.panda-fab:hover {
+    box-shadow: 0 13px 38px rgba(78,168,222,.34);
+}
+
+/* ===== PANDA CHAT ===== */
+.panda-chat {
+    background: #fff;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-xl);
+}
+
+.panda-header {
+    background: linear-gradient(135deg, #18324D, #347FAF);
+}
+
+.panda-body {
+    background: #F6FAFD;
+}
+
+.panda-avatar {
+    background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+}
+
+.panda-message {
+    background: #fff;
+    color: var(--dark);
+}
+
+.user-message {
+    background: var(--primary);
+}
+
+.panda-input {
+    border-top-color: var(--border);
+}
+
+.panda-input textarea {
+    background: #F8FBFD;
+    border-color: var(--border);
+}
+
+.panda-input textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(78,168,222,.10);
+}
+
+.panda-send {
+    background: var(--primary);
+    box-shadow: 0 5px 15px rgba(78,168,222,.20);
+}
+
+.panda-send:hover {
+    box-shadow: 0 7px 20px rgba(78,168,222,.28);
+}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav {
+    background: rgba(255,255,255,.96);
+    border-top-color: rgba(24,50,77,.07);
+    box-shadow: 0 -5px 25px rgba(24,50,77,.06);
+}
+
+.bottom-nav a {
+    color: var(--muted);
+}
+
+.bottom-nav a.active,
+.bottom-nav a:hover {
+    color: var(--primary-deep);
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 900px) {
+    .profile-hero {
+        background:
+            radial-gradient(circle at 15% 20%, rgba(78,168,222,.30), transparent 35%),
+            linear-gradient(145deg, #18324D, #347FAF);
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-hero {
+        box-shadow: 0 15px 38px rgba(24,50,77,.13);
+    }
+}
+
+/* Keep reduced-motion accessibility intact. */
+@media (prefers-reduced-motion: reduce) {
+    .avatar {
+        animation: none !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -1605,14 +2029,13 @@
         const SESSION_KEY = 'hanverse_user';
         const VERSION = '1.0.1';
 
-        const getBaseURL = () => {
-            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                return "http://localhost:8888/.netlify/functions/server";
-            }
-            return "/api";
-        };
-
-        const API_URL = getBaseURL();
+        // ============================================================
+        // API BASE
+        // ============================================================
+        // HanVerse exposes the Express router through /api in both
+        // local Netlify development and production. Using /api here
+        // avoids bypassing Netlify's local function/redirect layer.
+        const API_URL = "/api";
 
         console.log(`🐼 Hanverse Profile v${VERSION} loaded`);
 
@@ -1824,15 +2247,54 @@
                     return;
                 }
 
-                console.log(`📡 Fetching user data: ${API_URL}/user/${session.user_id}`);
+                const userId = encodeURIComponent(session.user_id);
+                const profileEndpoint = `${API_URL}/user/${userId}`;
 
-                const response = await fetch(`${API_URL}/user/${session.user_id}`);
+                console.log(`📡 Fetching user data: ${profileEndpoint}`);
 
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status} (${response.statusText})`);
+                let response = await fetch(profileEndpoint, {
+                    method: "GET",
+                    credentials: "same-origin",
+                    cache: "no-store",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
+
+                /*
+                 * Fallback: the same server also exposes /auth/refresh.
+                 * This helps older local Netlify function builds while
+                 * keeping the normal profile endpoint as the primary path.
+                 */
+                if (!response.ok && response.status === 404) {
+                    console.warn("⚠️ /api/user/:id returned 404. Trying /api/auth/refresh...");
+                    response = await fetch(`${API_URL}/auth/refresh`, {
+                        method: "POST",
+                        credentials: "same-origin",
+                        cache: "no-store",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        body: JSON.stringify({ userId: session.user_id })
+                    });
                 }
 
-                const data = await response.json();
+                const contentType = response.headers.get("content-type") || "";
+                let data = null;
+
+                if (contentType.includes("application/json")) {
+                    data = await response.json();
+                } else {
+                    const raw = await response.text().catch(() => "");
+                    console.error("❌ Profile API returned non-JSON:", raw.slice(0, 300));
+                }
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Server error: ${response.status} (${response.statusText})`
+                    );
+                }
 
                 if (!data || !data.user) {
                     throw new Error("Invalid user data received.");

@@ -1,746 +1,2309 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>HanVerse | Your Learning Profile</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
+    <link rel="apple-touch-icon" href="hanverse-logo2.png" />
 
-<title>Hanverse Premium</title>
+    <!-- ===== GSAP + SCROLLTRIGGER ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-<style>
+    <style>
+        /* ============================================
+           ROOT VARIABLES
+        ============================================ */
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #DBEAFE;
+            --secondary: #14B8A6;
+            --secondary-light: #99F6E4;
+            --accent: #F59E0B;
+            --accent-light: #FDE68A;
+            --dark: #0F172A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --muted: #64748B;
+            --bg: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --border: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 9999px;
+            --nav-height: 72px;
+            --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
 
+        /* ============================================
+           RESET & BASE
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--dark);
+            overflow-x: hidden;
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+            padding-top: calc(var(--nav-height) + 28px);
+            min-height: 100vh;
+        }
+
+        /* Background Orbs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            z-index: -1;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        body::before {
+            width: 500px;
+            height: 500px;
+            top: -100px;
+            right: -100px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 70%);
+        }
+
+        body::after {
+            width: 400px;
+            height: 400px;
+            bottom: -50px;
+            left: -50px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.10), transparent 70%);
+        }
+
+        /* ===== SELECTION ===== */
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        ::-moz-selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ============================================
+           TOAST NOTIFICATIONS
+        ============================================ */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: calc(100% - 48px);
+        }
+
+        .toast {
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            background: white;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary);
+            animation: slideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+
+        .toast-success {
+            border-left-color: #22C55E;
+        }
+        .toast-error {
+            border-left-color: #EF4444;
+        }
+        .toast-warning {
+            border-left-color: var(--accent);
+        }
+        .toast-info {
+            border-left-color: var(--primary);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .toast-message {
+            flex: 1;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+        }
+
+        .toast.removing {
+            animation: slideOutRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* ============================================
+           FLOATING NAVBAR with logo image
+        ============================================ */
+        nav.top-nav {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 28px;
+            width: calc(100% - 36px);
+            max-width: 1200px;
+            height: var(--nav-height);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+            will-change: transform, height, border-radius, padding, box-shadow, top, background;
+        }
+
+        nav.top-nav.shrunk {
+            top: 14px;
+            height: 58px;
+            padding: 0 20px;
+            width: calc(100% - 48px);
+            max-width: 900px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(28px) saturate(1.5);
+            -webkit-backdrop-filter: blur(28px) saturate(1.5);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+        }
+
+        nav.top-nav:hover {
+            box-shadow: 0 8px 40px rgba(37, 99, 235, 0.08), 0 0 0 1px rgba(37, 99, 235, 0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            border-radius: 10px;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        nav.top-nav.shrunk .logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        nav.top-nav.shrunk .logo {
+            gap: 0;
+        }
+
+        .logo-text {
+            transition: var(--transition-smooth);
+            background: linear-gradient(135deg, var(--dark), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav.top-nav.shrunk .logo-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+            margin: 0 16px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+            font-size: 0.9rem;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 100%;
+            height: 2.5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        nav.top-nav.shrunk .nav-links {
+            gap: 20px;
+        }
+
+        nav.top-nav.shrunk .nav-links a {
+            font-size: 0.8rem;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+            transition: var(--transition-smooth);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            flex-shrink: 0;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            transform: translateY(-2px);
+        }
+
+        nav.top-nav.shrunk .logout-btn {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+        }
+
+        /* ============================================
+           PROFILE HERO
+        ============================================ */
+        .profile-hero {
+            margin: 0 5% 30px;
+            padding: 36px 28px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 24px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeUp 0.8s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-hero::before {
+            content: '你';
+            position: absolute;
+            font-size: 120px;
+            font-weight: 900;
+            opacity: .06;
+            top: -20px;
+            right: -10px;
+            pointer-events: none;
+        }
+
+        .profile-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.08), transparent 60%);
+            pointer-events: none;
+        }
+
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 56px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-info h1 {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .profile-info>p {
+            opacity: .85;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 700;
+            font-size: .75rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .badge:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge-premium {
+            background: rgba(245, 158, 11, 0.3);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-admin {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.15);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.12);
+            font-weight: 600;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: transform 0.2s ease;
+        }
+
+        .hero-stat:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ============================================
+           QUICK STATS
+        ============================================ */
+        .quick-grid {
+            margin: 0 5% 30px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .quick-card {
+            background: white;
+            padding: 20px 16px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+        }
+
+        .quick-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+
+        .quick-icon {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .quick-card h3 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2px;
+            font-weight: 800;
+        }
+
+        .quick-card p {
+            font-size: .75rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        /* ============================================
+           CONTENT SECTIONS
+        ============================================ */
+        .content-card {
+            background: white;
+            padding: 24px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin: 0 5% 20px;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 1;
+        }
+
+        .content-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .content-card h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--dark);
+        }
+
+        .content-card>p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        /* ============================================
+           PROGRESS BARS
+        ============================================ */
+        .progress-track {
+            height: 10px;
+            background: #F1F5F9;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-full);
+            transition: none;
+        }
+
+        /* ============================================
+           HEATMAP
+        ============================================ */
+        .heatmap-container {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 38px);
+            gap: 8px;
+            margin-top: 14px;
+            width: max-content;
+        }
+
+        .heat {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            background: #F1F5F9;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .heat:hover {
+            transform: scale(1.1);
+        }
+
+        .heat.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .heat.high {
+            background: linear-gradient(135deg, var(--accent), var(--warning));
+        }
+
+        .heat.low {
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+        }
+
+        /* ============================================
+           GRIDS
+        ============================================ */
+        .certificate-grid,
+        .achievement-grid,
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .certificate-card,
+        .achievement-card,
+        .ai-card {
+            background: var(--bg);
+            padding: 16px 12px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: var(--transition-smooth);
+        }
+
+        .certificate-card:hover,
+        .achievement-card:hover,
+        .ai-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .certificate-card,
+        .achievement-card {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .certificate-card .cert-icon,
+        .achievement-card .ach-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .ai-card h3 {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2px;
+            font-weight: 800;
+        }
+
+        .ai-card p {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        /* ============================================
+           ACTIVITY FEED
+        ============================================ */
+        .activity-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            transition: background 0.2s ease;
+            border-radius: var(--radius-sm);
+            padding: 12px 8px;
+        }
+
+        .activity-item:hover {
+            background: var(--bg);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item .act-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .activity-item .act-time {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* ============================================
+           MEMBERSHIP
+        ============================================ */
+        .membership-premium {
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease;
+        }
+
+        .membership-premium:hover {
+            transform: translateY(-2px);
+        }
+
+        .membership-free {
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            border: 2px dashed var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .membership-free:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-light);
+        }
+
+        .membership-premium h3,
+        .membership-free h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .membership-premium p,
+        .membership-free p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .membership-premium .upgrade-btn,
+        .membership-free .upgrade-btn {
+            margin-top: 12px;
+            padding: 10px 24px;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .membership-premium .upgrade-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .membership-premium .upgrade-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .membership-free .upgrade-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+        }
+
+        .membership-free .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
+        }
+
+        /* ============================================
+           ADMIN SECTION
+        ============================================ */
+        .admin-btn {
+            display: block;
+            text-align: center;
+            padding: 14px 24px;
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            margin-top: 12px;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+            transition: var(--transition-smooth);
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
+        }
+
+        /* ============================================
+           PANDA CHAT
+        ============================================ */
+        .panda-fab {
+            position: fixed;
+            bottom: calc(90px + env(safe-area-inset-bottom));
+            right: 24px;
+            z-index: 998;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 28px;
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            color: white;
+        }
+
+        .panda-fab:hover {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.4);
+        }
+
+        .panda-fab:active {
+            transform: scale(0.92);
+        }
+
+        .panda-chat {
+            display: none;
+            position: fixed;
+            bottom: calc(100px + env(safe-area-inset-bottom));
+            right: 24px;
+            width: 360px;
+            max-width: calc(100vw - 48px);
+            height: 440px;
+            max-height: 65vh;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xl);
+            z-index: 999;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .panda-chat.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .panda-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .panda-title {
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panda-close {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .panda-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+
+        .panda-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #F8FAFC;
+        }
+
+        .panda-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panda-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .panda-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .message-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .message-row.user {
+            flex-direction: row-reverse;
+        }
+
+        .panda-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .panda-message {
+            background: white;
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .panda-input {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .panda-input textarea {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            font-size: 14px;
+            resize: none;
+            font-family: 'Poppins', sans-serif;
+            min-height: 40px;
+            max-height: 80px;
+            outline: none;
+            transition: var(--transition-smooth);
+            background: var(--bg);
+        }
+
+        .panda-input textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .panda-send {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .panda-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .panda-send:active {
+            transform: scale(0.92);
+        }
+
+        /* ============================================
+           BOTTOM NAV
+        ============================================ */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            justify-content: space-around;
+            padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+            z-index: 999;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .bottom-nav a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .65rem;
+            font-weight: 500;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 0;
+            transition: var(--transition-smooth);
+            border-radius: var(--radius-sm);
+        }
+
+        .bottom-nav a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .bottom-nav a:hover {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (min-width: 901px) {
+            .bottom-nav {
+                display: none !important;
+            }
+
+            .profile-hero {
+                flex-direction: row;
+                text-align: left;
+                padding: 44px 40px;
+                gap: 40px;
+            }
+
+            .profile-info>p {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .profile-badges {
+                justify-content: flex-start;
+            }
+
+            .hero-stats {
+                justify-content: flex-start;
+            }
+
+            .quick-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+
+            .certificate-grid,
+            .achievement-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .ai-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding-top: calc(var(--nav-height) + 20px);
+            }
+
+            nav.top-nav {
+                top: 12px;
+                padding: 0 16px;
+                width: calc(100% - 24px);
+                border-radius: 18px;
+                height: 64px;
+            }
+
+            nav.top-nav.shrunk {
+                top: 10px;
+                height: 54px;
+                padding: 0 14px;
+                width: calc(100% - 32px);
+                border-radius: 14px;
+            }
+
+            .logo {
+                font-size: 18px;
+                gap: 8px;
+            }
+
+            .logo img {
+                width: 34px;
+                height: 34px;
+            }
+
+            nav.top-nav.shrunk .logo img {
+                width: 28px;
+                height: 28px;
+            }
+
+            nav.top-nav .nav-links {
+                display: none;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .profile-hero {
+                padding: 28px 20px;
+                margin: 0 4% 20px;
+                gap: 16px;
+            }
+
+            .avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 40px;
+            }
+
+            .profile-info h1 {
+                font-size: 1.4rem;
+            }
+
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin: 0 4% 20px;
+            }
+
+            .quick-card {
+                padding: 16px 12px;
+            }
+
+            .quick-card h3 {
+                font-size: 1.4rem;
+            }
+
+            .content-card {
+                padding: 20px 16px;
+                margin: 0 4% 16px;
+            }
+
+            .certificate-grid,
+            .achievement-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ai-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .panda-fab {
+                right: 16px;
+                bottom: calc(85px + env(safe-area-inset-bottom));
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+
+            .panda-chat {
+                width: calc(100vw - 32px);
+                right: 16px;
+                bottom: calc(95px + env(safe-area-inset-bottom));
+                height: 380px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .certificate-grid,
+            .achievement-grid,
+            .ai-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .profile-hero {
+                padding: 20px 16px;
+            }
+
+            .avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 34px;
+            }
+
+            .profile-info h1 {
+                font-size: 1.2rem;
+            }
+
+            .hero-stats {
+                gap: 8px;
+            }
+
+            .hero-stat {
+                padding: 4px 12px;
+                font-size: 0.7rem;
+            }
+
+            .badge {
+                font-size: 0.65rem;
+                padding: 4px 12px;
+            }
+
+            .content-card {
+                padding: 16px 14px;
+            }
+
+            .content-card h2 {
+                font-size: 1rem;
+            }
+
+            .toast-container {
+                top: 80px;
+                right: 12px;
+                max-width: calc(100% - 24px);
+            }
+
+            .toast {
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .certificate-grid,
+            .achievement-grid,
+            .ai-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+
+<style id="hanverse-payment-v2">
 :root{
-
---red:#E63946;
---yellow:#F4D35E;
---blue:#4EA8DE;
---green:#74C69D;
-
---bg:#FFFDF7;
---surface:#FFFFFF;
-
---text:#1F2937;
---muted:#6B7280;
-
---border:#E5E7EB;
-
---shadow:
-0 20px 50px rgba(0,0,0,.08);
-
+  --blue:#4EA8DE;
+  --blue-dark:#347FAF;
+  --blue-deep:#245B82;
+  --blue-soft:#EAF6FD;
+  --cream:#F8FBFF;
+  --white:#FFFFFF;
+  --navy:#18324D;
+  --text:#40566B;
+  --muted:#728397;
+  --green:#74C69D;
+  --green-soft:#EEF9F3;
+  --yellow:#F4D35E;
+  --yellow-soft:#FFF8E5;
+  --red:#E63946;
+  --border:#DFE9F0;
+  --shadow:0 24px 70px rgba(24,50,77,.11);
+  --soft-shadow:0 8px 25px rgba(24,50,77,.06);
 }
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-}
-
+html{scroll-behavior:smooth}
 body{
-
-background:var(--bg);
-
-min-height:100vh;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-padding:30px;
-
+  background:
+    radial-gradient(circle at 5% 5%,rgba(78,168,222,.14),transparent 24rem),
+    radial-gradient(circle at 95% 15%,rgba(244,211,94,.10),transparent 22rem),
+    radial-gradient(circle at 80% 92%,rgba(116,198,157,.09),transparent 24rem),
+    var(--cream);
+  color:var(--navy);
+  align-items:flex-start;
+  padding:32px 20px;
 }
-
 .payment-container{
-
-width:100%;
-max-width:1100px;
-
-display:grid;
-grid-template-columns:1fr 1fr;
-
-background:white;
-
-border-radius:40px;
-
-overflow:hidden;
-
-box-shadow:var(--shadow);
-
+  max-width:1180px;
+  grid-template-columns:1.04fr .96fr;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  border-radius:34px;
+  margin:auto;
 }
-
-/* LEFT SIDE */
-
 .left{
-
-padding:60px;
-
-background:
-linear-gradient(
-135deg,
-var(--blue),
-#7BC7F4
-);
-
-color:white;
-
+  padding:54px 52px;
+  background:
+    radial-gradient(circle at 15% 18%,rgba(255,255,255,.16),transparent 17rem),
+    radial-gradient(circle at 90% 85%,rgba(116,198,157,.16),transparent 18rem),
+    linear-gradient(145deg,#18324D 0%,#245B82 58%,#347FAF 100%);
 }
-
 .left h1{
-
-font-size:56px;
-margin-bottom:15px;
-
+  font-size:clamp(38px,4vw,56px);
+  line-height:1.08;
+  letter-spacing:-1.5px;
 }
-
 .left p{
-
-line-height:1.9;
-margin-bottom:30px;
-
+  max-width:520px;
+  color:rgba(255,255,255,.82);
 }
-
-.benefits{
-
-display:flex;
-flex-direction:column;
-gap:18px;
-
+.premium-kicker{
+  display:inline-flex;
+  padding:7px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.15);
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:20px;
 }
-
+.benefits{gap:12px}
 .benefit{
-
-background:
-rgba(255,255,255,.15);
-
-padding:15px 18px;
-
-border-radius:16px;
-
-font-weight:600;
-
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.10);
+  padding:14px 16px;
+  border-radius:17px;
+  transition:.25s ease;
 }
-
-/* RIGHT SIDE */
-
+.benefit:hover{
+  transform:translateX(4px);
+  background:rgba(255,255,255,.14);
+}
+.left-note{
+  margin-top:26px;
+  padding:15px 17px;
+  border-radius:18px;
+  background:rgba(244,211,94,.13);
+  border:1px solid rgba(244,211,94,.18);
+  color:rgba(255,255,255,.84);
+  font-size:13px;
+  line-height:1.65;
+}
 .right{
-
-padding:60px;
-
-display:flex;
-flex-direction:column;
-justify-content:center;
-
+  padding:50px 46px;
+  background:#fff;
 }
-
+.right-header{
+  margin-bottom:18px;
+}
+.right-header h2{
+  color:var(--navy);
+  font-size:28px;
+}
+.right-header p{
+  color:var(--muted);
+  margin-top:5px;
+  font-size:14px;
+}
 .price{
-
-font-size:64px;
-font-weight:800;
-
-color:var(--red);
-
-line-height:1;
-
+  color:var(--blue-deep);
+  font-size:62px;
 }
-
-.price span{
-
-font-size:18px;
-font-weight:500;
-
-color:var(--muted);
-
+.price span{color:var(--muted)}
+.price-note{
+  display:inline-block;
+  margin-top:7px;
+  padding:5px 10px;
+  border-radius:999px;
+  background:var(--blue-soft);
+  color:var(--blue-deep);
+  font-size:12px;
+  font-weight:700;
 }
-
 .user-box{
-
-margin:25px 0;
-
-padding:18px;
-
-background:#F8FAFC;
-
-border-radius:16px;
-
+  margin:22px 0;
+  background:#F7FBFE;
+  border:1px solid var(--border);
+  padding:16px 18px;
+  border-radius:17px;
 }
-
 .payment-card{
-
-border:2px solid var(--border);
-
-border-radius:24px;
-
-padding:25px;
-
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:24px;
+  box-shadow:var(--soft-shadow);
 }
-
 .payment-card h3{
-
-margin-bottom:20px;
-
+  color:var(--navy);
+  font-size:17px;
 }
-
+.summary-row{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  padding:10px 0;
+  color:var(--text);
+  font-size:14px;
+  border-bottom:1px solid #EEF3F6;
+}
+.summary-row:last-of-type{border-bottom:0}
+.summary-row strong{color:var(--navy)}
+.total-row{
+  margin-top:8px;
+  padding-top:15px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  font-size:18px;
+  font-weight:800;
+  color:var(--navy);
+}
 .btn{
-
-width:100%;
-
-padding:16px;
-
-border:none;
-
-border-radius:999px;
-
-cursor:pointer;
-
-font-size:16px;
-font-weight:700;
-
-background:
-linear-gradient(
-135deg,
-var(--red),
-var(--blue)
-);
-
-color:white;
-
-margin-top:20px;
-
-transition:.25s;
-
+  background:var(--blue);
+  box-shadow:0 9px 22px rgba(78,168,222,.22);
 }
-
 .btn:hover{
-
-transform:translateY(-3px);
-
+  background:var(--blue-dark);
+  box-shadow:0 12px 28px rgba(78,168,222,.28);
 }
-
+.btn:disabled{opacity:.65;cursor:not-allowed;transform:none}
 .secure{
-
-text-align:center;
-
-font-size:14px;
-
-color:var(--muted);
-
-margin-top:15px;
-
+  color:var(--muted);
 }
-
-.success-modal{
-
-position:fixed;
-
-inset:0;
-
-background:
-rgba(0,0,0,.7);
-
-display:none;
-
-justify-content:center;
-align-items:center;
-
-z-index:9999;
-
+.payment-trust{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-top:13px;
 }
-
+.trust-item{
+  padding:10px 6px;
+  text-align:center;
+  background:#FAFCFD;
+  border:1px solid var(--border);
+  border-radius:13px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.45;
+}
+.trust-item strong{display:block;color:var(--navy);font-size:12px}
+.faq{
+  max-width:1180px;
+  margin:22px auto 0;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.faq-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:19px;
+  padding:18px;
+  box-shadow:var(--soft-shadow);
+}
+.faq-card h3{font-size:14px;color:var(--navy);margin-bottom:5px}
+.faq-card p{font-size:12px;line-height:1.65;color:var(--muted)}
+.success-modal{background:rgba(24,50,77,.72);backdrop-filter:blur(6px)}
 .success-card{
-
-background:white;
-
-padding:40px;
-
-border-radius:30px;
-
-width:90%;
-max-width:500px;
-
-text-align:center;
-
+  border:1px solid var(--border);
+  box-shadow:0 25px 80px rgba(0,0,0,.20);
 }
-
-.success-card h2{
-
-color:var(--green);
-
-margin-bottom:15px;
-
-}
-
-.success-btn{
-
-margin-top:20px;
-
-background:var(--red);
-
-color:white;
-
-border:none;
-
-padding:14px 24px;
-
-border-radius:999px;
-
-cursor:pointer;
-
-font-weight:700;
-
-}
-
+.success-card h2{color:#4D9B73}
+.success-btn{background:var(--blue)}
+.success-btn:hover{background:var(--blue-dark)}
 @media(max-width:900px){
-
-.payment-container{
-
-grid-template-columns:1fr;
-
+  body{padding:16px}
+  .payment-container{grid-template-columns:1fr;border-radius:27px}
+  .left,.right{padding:34px 25px}
+  .faq{grid-template-columns:1fr}
 }
-
-.left,
-.right{
-
-padding:35px;
-
+@media(max-width:520px){
+  .price{font-size:52px}
+  .payment-trust{grid-template-columns:1fr}
+  .payment-card{padding:18px}
 }
-
-.left h1{
-
-font-size:40px;
-
-}
-
-}
-
 </style>
 
 </head>
 
 <body>
 
-<div class="payment-container">
-
-<div class="left">
-
-<h1>
-🐼 Hanverse Premium
-</h1>
-
-<p>
-Unlock the complete Hanverse learning experience and accelerate your Mandarin journey.
-</p>
-
-<div class="benefits">
-
-<div class="benefit">
-📖 Full Course Access
-</div>
-
-<div class="benefit">
-🎥 All Video Lessons
-</div>
-
-<div class="benefit">
-⭐ Paid Member Tag
-</div>
-
-<div class="benefit">
-🏆 XP Bonuses & Achievements
-</div>
-
-<div class="benefit">
-📝 Premium Worksheets
-</div>
-
-<div class="benefit">
-🚀 Future Course Updates
-</div>
-
-</div>
-
-</div>
-
-<div class="right">
-
-<h2>
-Premium Membership
-</h2>
-
-<div class="price">
-
-$4
-
-<span>
-/ month
-</span>
-
-</div>
-
-<div
-class="user-box"
-id="userBox">
-
-Loading account...
-
-</div>
-
-<div class="payment-card">
-
-<h3>
-Payment Summary
-</h3>
-
-<p>
-Hanverse Premium Membership
-</p>
-
-<p style="margin-top:10px;">
-Recurring Monthly Subscription
-</p>
-
-<p style="
-margin-top:20px;
-font-weight:700;
-font-size:20px;
-">
-
-Total:
-$4/month
-
-</p>
-
-<button
-class="btn"
-onclick="startPayment()">
-
-Continue to Payment
-
-</button>
-
-<div class="secure">
-
-🔒 Secure Payment Processing
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<!-- SUCCESS MODAL -->
-
-<div
-id="successModal"
-class="success-modal">
-
-<div class="success-card">
-
-<h2>
-🎉 Payment Successful
-</h2>
-
-<p style="
-line-height:1.8;
-margin-top:10px;
-">
-
-Welcome to Hanverse Premium.
-
-<br><br>
-
-Your Premium Membership has been activated.
-
-<br><br>
-
-✅ Full Course Access
-
-<br>
-
-✅ All Video Lessons
-
-<br>
-
-✅ Paid Member Tag
-
-<br>
-
-✅ Premium Worksheets
-
-<br>
-
-✅ Progress Tracking
-
-<br>
-
-✅ XP Bonuses
-
-<br>
-
-✅ Achievements
-
-</p>
-
-<button
-class="success-btn"
-onclick="window.location.href='learn.html'">
-
-Start Learning
-
-</button>
-
-</div>
-
-</div>
-
-<script>
-
-/* ==========================================
-   USER SESSION
-========================================== */
-
-const stored =
-localStorage.getItem(
-'hanverse_user'
-);
-
-let currentUser = null;
-
-if(stored){
-
-    currentUser =
-    JSON.parse(stored);
-
-    document
-    .getElementById(
-    'userBox'
-    )
-    .innerHTML = `
-
-    <strong>
-    ${currentUser.fullName || currentUser.username}
-    </strong>
-
-    <br>
-
-    ${currentUser.email}
-
-    `;
-
-}
-else{
-
-    document
-    .getElementById(
-    'userBox'
-    )
-    .innerHTML = `
-
-    <strong>
-    Guest User
-    </strong>
-
-    <br>
-
-    Please log in first.
-
-    `;
-
-}
-
-/* ==========================================
-   START PAYMENT
-========================================== */
-
-async function startPayment(){
-
-    if(!currentUser){
-
-        alert(
-        'Please log in first.'
-        );
-
-        window.location.href =
-        'login.html';
-
-        return;
-
-    }
-
-    const button =
-    document.querySelector('.btn');
-
-    button.disabled = true;
-
-    button.innerHTML =
-    'Processing...';
-
-    try{
-
-        const response =
-        await fetch(
-        '/.netlify/functions/create-checkout-session',
-
-
-        {
-
-            method:'POST',
-
-            headers:{
-                'Content-Type':
-                'application/json'
-            },
-
-            body:JSON.stringify({
-
-                userId:
-                currentUser.user_id,
-
-                email:
-                currentUser.email,
-
-                plan:
-                'premium'
-
-            })
-
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ===== FLOATING NAVBAR with logo image ===== -->
+    <nav class="top-nav" id="topNav">
+        <a href="index.html" class="logo">
+            <img src="hanverse-logo.png" alt="Hanverse" width="38" height="38" />
+            <span class="logo-text">Hanverse</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="learn.html">Learn</a></li>
+            <li><a href="profile.html" class="active">Profile</a></li>
+        </ul>
+        <button class="logout-btn" id="logoutBtn">Log Out</button>
+    </nav>
+
+    <!-- ===== PROFILE HERO ===== -->
+    <section class="profile-hero">
+        <div class="avatar" id="avatar">🐼</div>
+        <div class="profile-info">
+            <h1 id="profileName">Loading...</h1>
+            <p>Track your progress, achievements, learning streaks and Chinese proficiency.</p>
+
+            <div class="profile-badges">
+                <div id="premiumBadge" class="badge badge-premium" style="display:none;">⭐ Premium</div>
+                <div id="adminBadge" class="badge badge-admin" style="display:none;">👑 Admin</div>
+                <div id="yctBadge" class="badge">🏮 YCT 1</div>
+                <div id="hskBadge" class="badge">🐉 HSK 0</div>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">🔥 <span id="heroStreak">0</span> Day Streak</div>
+                <div class="hero-stat">⭐ <span id="heroXP">0</span> XP</div>
+                <div class="hero-stat">🏆 <span id="heroLevel">1</span> Level</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== QUICK STATS ===== -->
+    <div class="quick-grid">
+        <div class="quick-card">
+            <span class="quick-icon">🔥</span>
+            <h3 id="quickStreak">0</h3>
+            <p>Current Streak</p>
+        </div>
+        <div class="quick-card">
+            <span class="quick-icon">⭐</span>
+            <h3 id="quickXP">0</h3>
+            <p>Total XP</p>
+        </div>
+        <div class="quick-card">
+            <span class="quick-icon">🏆</span>
+            <h3 id="quickLevel">1</h3>
+            <p>Current Level</p>
+        </div>
+        <div class="quick-card">
+            <span class="quick-icon">📚</span>
+            <h3 id="quickLessons">0</h3>
+            <p>Lessons Completed</p>
+        </div>
+    </div>
+
+    <!-- ===== PROGRESS SECTION ===== -->
+    <section class="content-card">
+        <h2>🏮 YCT Progress</h2>
+        <p id="yctProgressText">Loading...</p>
+        <div class="progress-track">
+            <div id="yctProgressBar" class="progress-fill"></div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>🐉 HSK Progress</h2>
+        <p id="hskProgressText">Loading...</p>
+        <div class="progress-track">
+            <div id="hskProgressBar" class="progress-fill"></div>
+        </div>
+    </section>
+
+    <!-- ===== HEATMAP ===== -->
+    <section class="content-card">
+        <h2>🔥 Learning Heatmap</h2>
+        <p>Your activity over the last 35 days</p>
+        <div class="heatmap-container">
+            <div id="heatmapGrid" class="heatmap-grid"></div>
+        </div>
+    </section>
+
+    <!-- ===== CERTIFICATES ===== -->
+    <section class="content-card">
+        <h2>📜 Certificates</h2>
+        <div id="certificateGrid" class="certificate-grid"></div>
+    </section>
+
+    <!-- ===== ACHIEVEMENTS ===== -->
+    <section class="content-card">
+        <h2>🏆 Achievements</h2>
+        <div id="achievementGrid" class="achievement-grid"></div>
+    </section>
+
+    <!-- ===== AI USAGE ===== -->
+    <section class="content-card">
+        <h2>🤖 Panda AI Usage</h2>
+        <div class="ai-grid">
+            <div class="ai-card">
+                <h3 id="aiQuestions">0</h3>
+                <p>Questions Asked</p>
+            </div>
+            <div class="ai-card">
+                <h3 id="aiSessions">0</h3>
+                <p>Practice Sessions</p>
+            </div>
+            <div class="ai-card">
+                <h3 id="aiHours">0</h3>
+                <p>Hours Learned</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ACTIVITY FEED ===== -->
+    <section class="content-card">
+        <h2>📈 Recent Activity</h2>
+        <div id="activityFeed">Loading...</div>
+    </section>
+
+    <!-- ===== MEMBERSHIP ===== -->
+    <section id="premiumSection" class="content-card">
+        <h2>⭐ Membership</h2>
+        <div id="membershipCard">Loading...</div>
+    </section>
+
+    <!-- ===== ADMIN SECTION ===== -->
+    <section id="adminSection" class="content-card" style="display:none;">
+        <h2>👑 Administrator Panel</h2>
+        <p style="color: var(--muted); margin-bottom: 16px;">Access the admin dashboard to manage users, content, and system settings.</p>
+        <a href="admin.html" class="admin-btn">⚙️ Open Admin Dashboard</a>
+    </section>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav">
+        <a href="index.html">
+            <span class="nav-icon">🏠</span>
+            Home
+        </a>
+        <a href="learn.html">
+            <span class="nav-icon">📚</span>
+            Learn
+        </a>
+        <a href="profile.html" class="active">
+            <span class="nav-icon">👤</span>
+            Profile
+        </a>
+        <a href="settings.html">
+            <span class="nav-icon">⚙️</span>
+            Settings
+        </a>
+    </nav>
+
+    <!-- ===== PANDA FAB ===== -->
+    <button class="panda-fab" onclick="togglePanda()">🐼</button>
+
+    <!-- ===== PANDA CHAT ===== -->
+    <div id="pandaChat" class="panda-chat">
+        <div class="panda-header">
+            <div class="panda-title">🐼 Panda AI Tutor</div>
+            <button class="panda-close" onclick="togglePanda()">✕</button>
+        </div>
+        <div id="pandaBody" class="panda-body">
+            <div class="message-row">
+                <div class="panda-avatar">🐼</div>
+                <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
+            </div>
+        </div>
+        <div class="panda-input">
+            <textarea id="pandaInput" placeholder="Ask Panda..." rows="1"></textarea>
+            <button class="panda-send" onclick="sendPandaMessage()">➤</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // REGISTER SCROLLTRIGGER PLUGIN
+        // ============================================================
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ============================================================
+        // TOAST NOTIFICATIONS
+        // ============================================================
+        function showToast(type, message, duration = 4000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                        <span class="toast-message">${message}</span>
+                        <button class="toast-close" aria-label="Close notification">✕</button>
+                    `;
+
+            toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
+            container.appendChild(toast);
+
+            const timer = setTimeout(() => removeToast(toast), duration);
+            toast.dataset.timer = timer;
+        }
+
+        function removeToast(toast) {
+            if (toast.classList.contains('removing')) return;
+            toast.classList.add('removing');
+            if (toast.dataset.timer) {
+                clearTimeout(parseInt(toast.dataset.timer));
+            }
+            setTimeout(() => toast.remove(), 300);
+        }
+
+        // ============================================================
+        // FORCE CLEAR SERVICE WORKER CACHE
+        // ============================================================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('✅ Service Worker unregistered');
+                }
+            });
+        }
+
+        // ============================================================
+        // CONSTANTS
+        // ============================================================
+        const SESSION_KEY = 'hanverse_user';
+        const VERSION = '1.0.1';
+
+        const getBaseURL = () => {
+            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+                return "http://localhost:8888/.netlify/functions/server";
+            }
+            return "/api";
+        };
+
+        const API_URL = getBaseURL();
+
+        console.log(`🐼 Hanverse Profile v${VERSION} loaded`);
+
+        // ============================================================
+        // FLOATING NAVBAR - SCROLL EFFECT
+        // ============================================================
+        const nav = document.getElementById('topNav');
+        let lastScrollY = 0;
+        let ticking = false;
+
+        function handleNavScroll() {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollY = window.scrollY;
+
+                    if (scrollY > 40) {
+                        nav.classList.add('shrunk');
+                    } else {
+                        nav.classList.remove('shrunk');
+                    }
+
+                    lastScrollY = scrollY;
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', handleNavScroll, { passive: true });
+
+        // ============================================================
+        // PANDA CHAT
+        // ============================================================
+        function togglePanda() {
+            const chat = document.getElementById('pandaChat');
+            chat.classList.toggle('active');
+            if (chat.classList.contains('active')) {
+                setTimeout(() => document.getElementById('pandaInput').focus(), 100);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function sendPandaMessage() {
+            const input = document.getElementById('pandaInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const body = document.getElementById('pandaBody');
+
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
+            body.appendChild(userRow);
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+
+            setTimeout(() => {
+                const responses = [
+                    "That's a great question! Let me help you with that. 🐼",
+                    "Interesting! Would you like to practice more? 📚",
+                    "Good job! Keep practicing and you'll improve quickly! 🌟",
+                    "Let me explain that in a simple way... 🎯",
+                    "You're doing amazing! Want to try a quiz? 🎮",
+                    "That's a fun one! Let's learn together! 🤗",
+                    "I love that question! Here's what I think... 💭",
+                    "You're making great progress! Keep going! 🚀"
+                ];
+                const reply = responses[Math.floor(Math.random() * responses.length)];
+
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                aiRow.innerHTML = `
+                            <div class="panda-avatar">🐼</div>
+                            <div class="message panda-message">${reply}</div>
+                        `;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+            }, 600 + Math.random() * 400);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('pandaInput');
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendPandaMessage();
+                    }
+                });
+                input.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+                });
+            }
         });
 
-        const text =
-await response.text();
+        // ============================================================
+        // GSAP ANIMATIONS
+        // ============================================================
+        window.addEventListener("load", () => {
+            // === AVATAR FLOATING ===
+            const avatar = document.querySelector('.avatar');
+            if (avatar) {
+                gsap.to(avatar, {
+                    y: -6,
+                    rotation: 2,
+                    duration: 2,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
 
-console.log(text);
+                // Hover interactions
+                avatar.addEventListener("mouseenter", () => {
+                    gsap.to(avatar, {
+                        scale: 1.08,
+                        duration: 0.25,
+                        ease: "power2.out"
+                    });
+                });
 
-const data =
-JSON.parse(text);
+                avatar.addEventListener("mouseleave", () => {
+                    gsap.to(avatar, {
+                        scale: 1,
+                        duration: 0.25,
+                        ease: "power2.out"
+                    });
+                });
+            }
 
-        if(!data.success){
+            // === ANIMATE CARDS ON SCROLL ===
+            const cards = document.querySelectorAll('.quick-card, .content-card');
+            cards.forEach((card, index) => {
+                gsap.from(card, {
+                    opacity: 0,
+                    y: 30,
+                    duration: 0.6,
+                    delay: index * 0.08,
+                    scrollTrigger: {
+                        trigger: card,
+                        start: "top 85%",
+                        toggleActions: "play none none none"
+                    }
+                });
+            });
 
-            throw new Error(
-            data.error ||
-            'Unable to create checkout session.'
+            // === PROGRESS BARS - Animate after data loads ===
+            // These will be triggered by the loadProfile function
+        });
+
+        // ============================================================
+        // ANIMATE PROGRESS BARS (called after data loads)
+        // ============================================================
+        function animateProgressBars(yctPct, hskPct) {
+            // YCT Progress Bar
+            gsap.fromTo(
+                "#yctProgressBar", { width: "0%" }, {
+                    width: yctPct + "%",
+                    duration: 1.2,
+                    ease: "power2.out",
+                    delay: 0.2
+                }
             );
 
+            // HSK Progress Bar
+            gsap.fromTo(
+                "#hskProgressBar", { width: "0%" }, {
+                    width: hskPct + "%",
+                    duration: 1.2,
+                    ease: "power2.out",
+                    delay: 0.4
+                }
+            );
         }
 
-        window.location.href =
-        data.url;
+        // ============================================================
+        // LOAD PROFILE
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            generateHeatmap();
 
-    }
-    catch(error){
-
-        console.error(error);
-
-        alert(
-        'Unable to start payment.'
-        );
-
-        button.disabled = false;
-
-        button.innerHTML =
-        'Continue to Payment';
-
-    }
-
-}
-
-/* ==========================================
-   PREMIUM STATUS
-========================================== */
-
-async function checkPremiumStatus(){
-
-    if(!currentUser){
-
-        return;
-
-    }
-
-    try{
-
-        const response =
-        await fetch(
-        '/.netlify/functions/check-premium',
-        {
-
-            method:'POST',
-
-            headers:{
-                'Content-Type':
-                'application/json'
-            },
-
-            body:JSON.stringify({
-
-                userId:
-                currentUser.user_id
-
-            })
-
+            document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                if (confirm('Are you sure you want to log out?')) {
+                    localStorage.removeItem(SESSION_KEY);
+                    window.location.href = 'login.html';
+                }
+            });
         });
 
-        const text =
-await response.text();
+        async function loadProfile() {
+            try {
+                const sessionData = localStorage.getItem(SESSION_KEY);
+                if (!sessionData) {
+                    console.warn("No session found.");
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-console.log('check-premium response:', text);
+                const session = JSON.parse(sessionData);
+                if (!session || !session.user_id) {
+                    console.error("Invalid session data.");
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-const data =
-JSON.parse(text);
+                console.log(`📡 Fetching user data: ${API_URL}/user/${session.user_id}`);
 
-        if(data.premium){
+                const response = await fetch(`${API_URL}/user/${session.user_id}`);
 
-            const button =
-            document.querySelector('.btn');
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} (${response.statusText})`);
+                }
 
-            button.innerHTML =
-            'Premium Active ✅';
+                const data = await response.json();
 
-            button.disabled = true;
+                if (!data || !data.user) {
+                    throw new Error("Invalid user data received.");
+                }
 
+                const user = data.user;
+
+                if (user.is_banned) {
+                    window.location.href = 'banned.html';
+                    return;
+                }
+
+                // ============================================================
+                // ADMIN CHECK - Shows admin panel if user is admin
+                // ============================================================
+                const isAdmin = user.is_admin === true ||
+                    user.is_admin === 1 ||
+                    user.is_admin === "true" ||
+                    user.isAdmin === true;
+
+                if (isAdmin) {
+                    document.getElementById('adminBadge').style.display = 'inline-block';
+                    const adminSection = document.getElementById('adminSection');
+                    if (adminSection) {
+                        adminSection.style.display = 'block';
+                        console.log('👑 Admin panel activated');
+                    }
+                } else {
+                    const adminSection = document.getElementById('adminSection');
+                    if (adminSection) {
+                        adminSection.style.display = 'none';
+                    }
+                }
+
+                // Profile name
+                document.getElementById('profileName').textContent = user.full_name || user.username || 'Learner';
+
+                // Avatar
+                if (user.profile_picture) {
+                    document.getElementById('avatar').innerHTML = `<img src="${user.profile_picture}" alt="Profile picture">`;
+                }
+
+                // Premium badge
+                if (user.premium || user.premium_until) {
+                    document.getElementById('premiumBadge').style.display = 'inline-block';
+                }
+
+                // YCT & HSK badges
+                document.getElementById('yctBadge').textContent = `🏮 YCT ${user.current_yct || 1}`;
+                document.getElementById('hskBadge').textContent = `🐉 HSK ${user.current_hsk || 0}`;
+
+                // Hero stats
+                document.getElementById('heroXP').textContent = user.xp || 0;
+                document.getElementById('heroStreak').textContent = user.streak_days || 0;
+                document.getElementById('heroLevel').textContent = user.level || 1;
+
+                // Quick stats
+                document.getElementById('quickXP').textContent = user.xp || 0;
+                document.getElementById('quickStreak').textContent = user.streak_days || 0;
+                document.getElementById('quickLevel').textContent = user.level || 1;
+                document.getElementById('quickLessons').textContent = user.lessons_completed || 0;
+
+                // Render all sections
+                renderProfileExtras(user, data);
+
+                // === ANIMATE PROGRESS BARS AFTER DATA LOADS ===
+                const yct = parseInt(user.current_yct) || 1;
+                const yctPct = Math.min((yct / 4) * 100, 100);
+                const hsk = parseInt(user.current_hsk) || 0;
+                const hskPct = Math.min((hsk / 6) * 100, 100);
+                animateProgressBars(yctPct, hskPct);
+
+                console.log('✅ Profile loaded successfully');
+
+                showToast('success', `Welcome back, ${user.full_name || user.username || 'Learner'}! 🎉`);
+
+            } catch (error) {
+                console.error('❌ Profile load error:', error);
+                showToast('error', 'Failed to load profile. Please refresh the page.');
+            }
         }
 
-    }
-    catch(error){
+        // ============================================================
+        // RENDER PROFILE EXTRAS
+        // ============================================================
+        function renderProfileExtras(user, data) {
+            // Membership
+            const membership = document.getElementById('membershipCard');
+            if (user.premium || user.premium_until) {
+                membership.innerHTML = `
+                            <div class="membership-premium">
+                                <h3>⭐ Premium Active</h3>
+                                <p>Valid until: ${user.premium_until ? new Date(user.premium_until).toLocaleDateString() : 'Lifetime'}</p>
+                                <button class="upgrade-btn" onclick="window.location.href='payment.html'">Manage Subscription</button>
+                            </div>
+                        `;
+            } else {
+                membership.innerHTML = `
+                            <div class="membership-free">
+                                <h3>🆓 Free Account</h3>
+                                <p>Upgrade to unlock premium lessons, AI features, and more.</p>
+                                <button class="upgrade-btn" onclick="window.location.href='payment.html'">🚀 Upgrade Now</button>
+                            </div>
+                        `;
+            }
 
-        console.error(
-        'Premium check failed:',
-        error
-        );
+            // YCT Progress
+            const yct = parseInt(user.current_yct) || 1;
+            const yctPct = Math.min((yct / 4) * 100, 100);
+            document.getElementById('yctProgressText').textContent = `YCT ${yct} - ${Math.round(yctPct)}% complete`;
 
-    }
+            // HSK Progress
+            const hsk = parseInt(user.current_hsk) || 0;
+            const hskPct = Math.min((hsk / 6) * 100, 100);
+            document.getElementById('hskProgressText').textContent = `HSK ${hsk} - ${Math.round(hskPct)}% complete`;
 
-}
+            // Certificates
+            const certGrid = document.getElementById('certificateGrid');
+            if (data.certificates && data.certificates.length > 0) {
+                certGrid.innerHTML = data.certificates.map(cert => `
+                            <div class="certificate-card">
+                                <span class="cert-icon">📜</span>
+                                ${cert}
+                            </div>
+                        `).join('');
+            } else {
+                certGrid.innerHTML = `
+                            <div class="certificate-card">
+                                <span class="cert-icon">📜</span>
+                                YCT Certificate
+                            </div>
+                            <div class="certificate-card">
+                                <span class="cert-icon">🏆</span>
+                                Vocabulary Champion
+                            </div>
+                            <div class="certificate-card">
+                                <span class="cert-icon">🌟</span>
+                                Hanverse Explorer
+                            </div>
+                        `;
+            }
 
-checkPremiumStatus();
+            // Achievements
+            const achGrid = document.getElementById('achievementGrid');
+            if (data.achievements && data.achievements.length > 0) {
+                achGrid.innerHTML = data.achievements.map(ach => `
+                            <div class="achievement-card">
+                                <span class="ach-icon">🏆</span>
+                                ${ach}
+                            </div>
+                        `).join('');
+            } else {
+                achGrid.innerHTML = `
+                            <div class="achievement-card">
+                                <span class="ach-icon">🔥</span>
+                                7 Day Streak
+                            </div>
+                            <div class="achievement-card">
+                                <span class="ach-icon">📚</span>
+                                50 Lessons
+                            </div>
+                            <div class="achievement-card">
+                                <span class="ach-icon">🎯</span>
+                                First Quiz
+                            </div>
+                        `;
+            }
 
-/* ==========================================
-   PAYMENT SUCCESS
-========================================== */
+            // AI Usage
+            document.getElementById('aiQuestions').textContent = data.ai_questions || 0;
+            document.getElementById('aiSessions').textContent = data.ai_sessions || 0;
+            document.getElementById('aiHours').textContent = data.ai_hours || 0;
 
-const params =
-new URLSearchParams(
-window.location.search
-);
+            // Activity Feed
+            const feed = document.getElementById('activityFeed');
+            if (data.activities && data.activities.length > 0) {
+                feed.innerHTML = data.activities.map(act => `
+                            <div class="activity-item">
+                                <span class="act-icon">📌</span>
+                                ${act}
+                                <span class="act-time">just now</span>
+                            </div>
+                        `).join('');
+            } else {
+                feed.innerHTML = `
+                            <div class="activity-item">
+                                <span class="act-icon">🌟</span>
+                                Welcome to Hanverse! Start your first lesson.
+                                <span class="act-time">today</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="act-icon">📚</span>
+                                Complete your profile setup.
+                                <span class="act-time">today</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="act-icon">🐼</span>
+                                Try the Panda AI tutor for practice.
+                                <span class="act-time">today</span>
+                            </div>
+                        `;
+            }
+        }
 
-if(
-params.get('payment')
-=== 'success'
-){
+        // ============================================================
+        // GENERATE HEATMAP
+        // ============================================================
+        function generateHeatmap() {
+            const grid = document.getElementById('heatmapGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
 
-    document
-    .getElementById(
-    'successModal'
-    )
-    .style.display =
-    'flex';
+            for (let i = 0; i < 35; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'heat';
 
-}
+                const rand = Math.random();
+                if (rand > 0.7) {
+                    cell.classList.add('high');
+                } else if (rand > 0.4) {
+                    cell.classList.add('active');
+                } else if (rand > 0.2) {
+                    cell.classList.add('low');
+                }
 
-</script>
+                const day = i + 1;
+                const activity = ['✨', '🔥', '📚', '⭐', '🎯', '🌟', '💪'][Math.floor(Math.random() * 7)];
+                cell.title = `Day ${day}: ${activity} ${Math.floor(Math.random() * 50 + 10)} XP`;
+
+                // Animate heat cells with GSAP
+                gsap.from(cell, {
+                    scale: 0,
+                    duration: 0.3,
+                    delay: i * 0.02,
+                    ease: "back.out(1.7)"
+                });
+
+                grid.appendChild(cell);
+            }
+        }
+
+        // ============================================================
+        // EXPOSE FUNCTIONS GLOBALLY
+        // ============================================================
+        window.togglePanda = togglePanda;
+        window.sendPandaMessage = sendPandaMessage;
+        window.showToast = showToast;
+    </script>
 
 </body>
 

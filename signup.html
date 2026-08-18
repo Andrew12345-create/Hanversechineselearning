@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Hanverse Sign Up</title>
+    <title>HanVerse | Create Your Account</title>
 
     <!-- ===== FAVICON ===== -->
     <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
@@ -1657,6 +1657,327 @@
             outline: none;
         }
     </style>
+
+<style id="hanverse-blue-family-theme">
+/* ============================================================
+   HANVERSE BLUE FAMILY DESIGN SYSTEM
+   Matches the current index.html:
+   blue-forward, polished, child-friendly + adult-friendly.
+   VISUAL LAYER ONLY — existing JS/animations preserved.
+   ============================================================ */
+:root{
+  --hv-bg:#F8FBFF;
+  --hv-white:#FFFFFF;
+  --hv-navy:#18324D;
+  --hv-blue:#4EA8DE;
+  --hv-blue-dark:#347FAF;
+  --hv-blue-deep:#245B82;
+  --hv-blue-soft:#EAF6FD;
+  --hv-blue-pale:#F3FAFE;
+  --hv-red:#E63946;
+  --hv-red-soft:#FFF1F2;
+  --hv-yellow:#F4D35E;
+  --hv-yellow-soft:#FFF8E5;
+  --hv-green:#74C69D;
+  --hv-green-soft:#F0FBF5;
+  --hv-muted:#66788B;
+  --hv-line:rgba(24,50,77,.10);
+  --hv-line-soft:rgba(24,50,77,.065);
+  --hv-shadow:0 18px 55px rgba(24,50,77,.10);
+  --hv-shadow-soft:0 7px 24px rgba(24,50,77,.055);
+}
+
+/* Page */
+body{
+  background:
+    radial-gradient(circle at 5% 5%,rgba(78,168,222,.13),transparent 25rem),
+    radial-gradient(circle at 94% 88%,rgba(244,211,94,.09),transparent 23rem),
+    var(--hv-bg) !important;
+  color:var(--hv-navy) !important;
+}
+
+::selection{
+  background:rgba(78,168,222,.25);
+  color:var(--hv-navy);
+}
+
+/* Loading */
+#loading-overlay{
+  background:rgba(248,251,255,.94) !important;
+}
+.loader{
+  border-color:#DCEBF4 !important;
+  border-top-color:var(--hv-blue) !important;
+}
+.loader-text{color:var(--hv-navy) !important}
+
+/* Main card */
+.container{
+  background:rgba(255,255,255,.97) !important;
+  border:1px solid var(--hv-line) !important;
+  box-shadow:var(--hv-shadow) !important;
+}
+
+/* Welcome panel */
+.left{
+  background:
+    radial-gradient(circle at 82% 12%,rgba(244,211,94,.18),transparent 27%),
+    linear-gradient(145deg,#EDF8FE 0%,#F8FBFF 62%,#F2FAF6 100%) !important;
+  color:var(--hv-navy) !important;
+  border-right:1px solid var(--hv-line-soft) !important;
+}
+
+.left h1{
+  color:var(--hv-blue-deep) !important;
+}
+.welcome-label,.tagline{
+  color:var(--hv-muted) !important;
+}
+.pattern-char{
+  color:rgba(78,168,222,.065) !important;
+}
+.star-deco{
+  opacity:.55 !important;
+}
+.trust-item{
+  background:rgba(255,255,255,.78) !important;
+  border:1px solid var(--hv-line-soft) !important;
+  color:var(--hv-navy) !important;
+  box-shadow:var(--hv-shadow-soft) !important;
+  backdrop-filter:blur(7px);
+}
+.trust-item .icon{
+  background:var(--hv-blue-soft) !important;
+  color:var(--hv-blue-deep) !important;
+}
+
+/* Panda stays animated */
+.panda-mascot{
+  filter:drop-shadow(0 12px 20px rgba(24,50,77,.11));
+}
+
+/* Form panel */
+.right{
+  background:var(--hv-white) !important;
+}
+.brand-logo{
+  color:var(--hv-blue-deep) !important;
+}
+.brand-sub{
+  color:var(--hv-muted) !important;
+}
+.login-header h2,
+.signup-header h2{
+  color:var(--hv-navy) !important;
+}
+.login-header p,
+.signup-header p{
+  color:var(--hv-muted) !important;
+}
+
+/* Role selector */
+.role-selector{gap:11px !important}
+.role-option{
+  background:#FFFEFC !important;
+  border:1.5px solid var(--hv-line) !important;
+  border-radius:18px !important;
+  box-shadow:none !important;
+}
+.role-option:hover{
+  background:var(--hv-blue-pale) !important;
+  border-color:rgba(78,168,222,.30) !important;
+  transform:translateY(-2px);
+}
+.role-option.selected{
+  background:var(--hv-blue-soft) !important;
+  border-color:rgba(78,168,222,.62) !important;
+  box-shadow:0 8px 22px rgba(78,168,222,.09) !important;
+}
+.role-icon{
+  background:var(--hv-blue-soft) !important;
+}
+.role-label{color:var(--hv-navy) !important}
+.role-desc{color:var(--hv-muted) !important}
+
+/* Inputs */
+.input-label{
+  color:var(--hv-navy) !important;
+}
+.input-wrapper input{
+  background:#FFFEFC !important;
+  border:1.5px solid var(--hv-line) !important;
+  color:var(--hv-navy) !important;
+  border-radius:14px !important;
+}
+.input-wrapper input::placeholder{
+  color:#9AA8B5 !important;
+}
+.input-wrapper input:focus{
+  background:#fff !important;
+  border-color:rgba(78,168,222,.68) !important;
+  box-shadow:0 0 0 4px rgba(78,168,222,.10) !important;
+}
+.input-success{
+  border-color:rgba(116,198,157,.85) !important;
+}
+.input-error{
+  border-color:rgba(230,57,70,.72) !important;
+}
+.field-hint{
+  color:#39745A !important;
+}
+.field-error{
+  color:var(--hv-red) !important;
+}
+.eye-btn{
+  color:var(--hv-muted) !important;
+}
+
+/* Password strength */
+.strength-bar{
+  background:#E8EEF3 !important;
+}
+
+/* Links */
+.checkbox-group,
+.bottom{
+  color:var(--hv-muted) !important;
+}
+.checkbox-group a,
+.bottom a{
+  color:var(--hv-blue-deep) !important;
+  font-weight:800;
+}
+.checkbox-group input{
+  accent-color:var(--hv-blue) !important;
+}
+
+/* Primary form actions */
+.btn-login,
+.btn-signup{
+  background:var(--hv-blue) !important;
+  color:#fff !important;
+  border:0 !important;
+  box-shadow:0 10px 23px rgba(78,168,222,.21) !important;
+}
+.btn-login:hover,
+.btn-signup:hover{
+  background:var(--hv-blue-dark) !important;
+  box-shadow:0 13px 29px rgba(78,168,222,.26) !important;
+}
+
+/* Google remains neutral so it doesn't introduce another competing blue */
+.btn-google{
+  background:#fff !important;
+  color:var(--hv-navy) !important;
+  border:1.5px solid var(--hv-line) !important;
+  box-shadow:var(--hv-shadow-soft) !important;
+}
+.btn-google:hover{
+  background:var(--hv-blue-pale) !important;
+  border-color:rgba(78,168,222,.22) !important;
+  transform:translateY(-2px);
+}
+
+.divider{
+  color:#8A98A7 !important;
+}
+.divider::before,
+.divider::after{
+  background:var(--hv-line-soft) !important;
+}
+
+/* Verification banner */
+#verification-banner{
+  background:var(--hv-yellow-soft) !important;
+  color:#675619 !important;
+  border-color:rgba(244,211,94,.55) !important;
+}
+
+/* Notifications — functionality untouched */
+.toast-container .toast{
+  background:#fff !important;
+  border:1px solid var(--hv-line) !important;
+  border-left-color:var(--hv-blue) !important;
+  box-shadow:0 16px 42px rgba(24,50,77,.12) !important;
+  border-radius:16px !important;
+}
+.toast-success{border-left-color:var(--hv-green) !important}
+.toast-error{border-left-color:var(--hv-red) !important}
+.toast-warning{border-left-color:var(--hv-yellow) !important}
+.toast-info{border-left-color:var(--hv-blue) !important}
+
+/* Bottom navigation */
+.bottom-nav{
+  background:rgba(255,255,255,.95) !important;
+  border:1px solid var(--hv-line) !important;
+  box-shadow:0 13px 36px rgba(24,50,77,.09) !important;
+  backdrop-filter:blur(14px);
+}
+.nav-item{
+  color:#7A8998 !important;
+}
+.nav-item.active,
+.nav-item:hover{
+  color:var(--hv-blue-deep) !important;
+}
+.nav-icon{
+  color:inherit !important;
+}
+
+/* Panda AI — same personality, new palette */
+.panda-fab{
+  background:#fff !important;
+  border:2px solid rgba(78,168,222,.58) !important;
+  box-shadow:0 12px 30px rgba(24,50,77,.13) !important;
+}
+.panda-chat{
+  background:#fff !important;
+  border:1px solid var(--hv-line) !important;
+  box-shadow:0 22px 58px rgba(24,50,77,.14) !important;
+}
+.panda-header{
+  background:var(--hv-blue-deep) !important;
+  color:#fff !important;
+}
+.panda-title,
+.panda-close{
+  color:#fff !important;
+}
+.panda-body{
+  background:var(--hv-bg) !important;
+}
+.panda-message{
+  background:#fff !important;
+  border:1px solid var(--hv-line-soft) !important;
+}
+.panda-input{
+  background:#fff !important;
+  border-top:1px solid var(--hv-line-soft) !important;
+}
+.panda-input textarea{
+  background:#FFFEFC !important;
+  border-color:var(--hv-line) !important;
+}
+.panda-send{
+  background:var(--hv-blue) !important;
+}
+.panda-send:hover{
+  background:var(--hv-blue-dark) !important;
+}
+
+/* Mobile */
+@media(max-width:900px){
+  .left{
+    border-right:0 !important;
+    border-bottom:1px solid var(--hv-line) !important;
+  }
+}
+@media(max-width:600px){
+  body{background:var(--hv-bg) !important}
+  .container{border-radius:22px !important}
+}
+</style>
 </head>
 <body>
 
