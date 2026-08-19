@@ -3120,10 +3120,10 @@
       }
 
       const existing = await pool.query(`
-        SELECT id FROM user_progress 
+        SELECT FROM user_progress 
         WHERE user_id = $1 AND lesson_id = $2
       `, [userId, lessonId]);
-
+ 
       let result;
 
       if (existing.rows.length) {

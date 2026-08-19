@@ -436,6 +436,12 @@ h1{margin:7px 0 7px;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.055em;line
     );
   }
 
+  function numericLessonId(value){
+    const raw = String(value ?? "").trim();
+    const match = raw.match(/(?:lesson[_-])?(\d+)$/i);
+    return match ? Number(match[1]) : Number(raw);
+  }
+
   function lessonLevel(lesson){
     const n = Number(
       lesson?.level ??
@@ -536,575 +542,112 @@ h1{margin:7px 0 7px;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.055em;line
   }
 
   async function fetchSavedProgress(uid,lid){
-    if(!uid || !lid) return null;
+    const userId = Number(uid);
+    const lessonId = numericLessonId(lid);
 
-    const candidates = [
-      "progress/" + encodeURIComponent(uid) + "/" + encodeURIComponent(lid),
-      "progress/" + encodeURIComponent(lid)
-    ];
+    if(!Number.isFinite(userId) || !Number.isFinite(lessonId)) return null;
 
-    for(const path of candidates){
-      try{
-        const data = await getJSON(path);
-        const progress = data?.progress || data?.lessonProgress || data?.data || data;
-
-        if(progress && typeof progress === "object"){
-          return progress;
+    try{
+      const response = await fetch(
+        API + "progress/" + encodeURIComponent(userId) + "/" + encodeURIComponent(lessonId),
+        {
+          method:"GET",
+          credentials:"include",
+          headers:{Accept:"application/json"}
         }
-      }catch(error){
-        console.warn("HanVerse progress lookup failed:",path,error);
-      }
-    }
+      );
 
-    return null;
-  }
+      if(response.status === 404) return null;
 
-  function progressPercent(progress){
-    if(!progress) return 0;
-
-    if(progress.completed === true || progress.is_completed === true){
-      return 100;
-    }
-
-    const raw =
-      progress.progress_pct ??
-      progress.progressPercent ??
-      progress.completed_pct ??
-      progress.completedPercent ??
-      progress.progress ??
-      progress.percent ??
-      0;
-
-    const n = Number(raw);
-    return Number.isFinite(n) ? Math.max(0,Math.min(100,n)) : 0;
-  }
-
-  function isSavedCompleted(){
-    return Boolean(
-      state.savedProgress &&
-      (
-        state.savedProgress.completed === true ||
-        state.savedProgress.is_completed === true ||
-        progressPercent(state.savedProgress) >= 100
-      )
-    );
-  }
-
-  function buildSlides(lesson){
-    const slides = [];
-
-    slides.push({
-      type:"welcome",
-      data:{
-        emoji:lesson.icon,
-        title:"Ready for " + lesson.title + "?",
-        subtitle:lesson.description,
-        buttonText:"Start Adventure →"
-      }
-    });
-
-    if(lesson.vocabulary.length){
-      slides.push({
-        type:"vocabulary",
-        data:{items:lesson.vocabulary}
-      });
-    }
-
-    if(lesson.story.length){
-      slides.push({
-        type:"story",
-        data:{items:lesson.story}
-      });
-    }
-
-    if(lesson.quiz.length){
-      slides.push({
-        type:"quiz",
-        data:{questions:lesson.quiz}
-      });
-    }
-
-    slides.push({
-      type:"complete",
-      data:{
-        title:"🌟 Mission Complete!",
-        subtitle:"Amazing work! Your progress is ready to be saved.",
-        xp:lessonXP(lesson)
-      }
-    });
-
-    return slides;
-  }
-
-  function renderNavbar(){
-    const desktop = $("desktopNav");
-    const actions = $("desktopActions");
-    const mobile = $("mobileMenu");
-    const user = state.user;
-    const role = roleOf(user);
-
-    desktop.innerHTML = "";
-    actions.innerHTML = "";
-    mobile.innerHTML = "";
-
-    const links = [
-      ["Home","index.html"],
-      ["Learn","learn.html"],
-      ["Worksheets","worksheets.html"]
-    ];
-
-    if(role === "parent") links.push(["Parent","parent.html"]);
-    if(role === "admin") links.push(["Admin","admin.html"]);
-
-    links.forEach(([label,href]) => {
-      const a = document.createElement("a");
-      a.className = "nav-link";
-      a.href = href;
-      a.textContent = label;
-      desktop.appendChild(a);
-
-      const m = document.createElement("a");
-      m.href = href;
-      m.textContent = label;
-      mobile.appendChild(m);
-    });
-
-    if(user){
-      const profileHref =
-        role === "parent" ? "parent.html" :
-        role === "admin" ? "admin.html" :
-        "profile.html";
-
-      const profile = document.createElement("a");
-      profile.className = "btn btn-outline";
-      profile.href = profileHref;
-      profile.textContent = "👤 " + userName(user);
-      actions.appendChild(profile);
-
-      const mobileProfile = document.createElement("a");
-      mobileProfile.href = profileHref;
-      mobileProfile.textContent = "👤 " + userName(user);
-      mobile.appendChild(mobileProfile);
-    }else{
-      const login = document.createElement("a");
-      login.className = "btn btn-outline";
-      login.href = "login.html";
-      login.textContent = "Log in";
-
-      const signup = document.createElement("a");
-      signup.className = "btn btn-primary";
-      signup.href = "signup.html";
-      signup.textContent = "Start learning";
-
-      actions.append(login,signup);
-
-      const mobileLogin = document.createElement("a");
-      mobileLogin.href = "login.html";
-      mobileLogin.textContent = "Log in";
-
-      const mobileSignup = document.createElement("a");
-      mobileSignup.href = "signup.html";
-      mobileSignup.textContent = "Start learning";
-
-      mobile.append(mobileLogin,mobileSignup);
-    }
-  }
-
-  function renderProgress(){
-    const total = state.slides.length;
-    const current = state.currentSlide + 1;
-
-    $("progressText").textContent = current + " / " + total;
-    $("slideCounter").textContent = current + " / " + total;
-
-    const percent = total
-      ? Math.round((current / total) * 100)
-      : 0;
-
-    $("progressFill").style.width = percent + "%";
-
-    const steps = $("progressSteps");
-    steps.innerHTML = "";
-
-    state.slides.forEach((slide,index) => {
-      const step = document.createElement("span");
-      step.className = "progress-step";
-
-      if(index < state.currentSlide) step.classList.add("completed");
-      if(index === state.currentSlide) step.classList.add("active");
-
-      step.textContent = index + 1;
-      steps.appendChild(step);
-
-      if(index < state.slides.length - 1){
-        const connector = document.createElement("i");
-        connector.className = "progress-connector";
-        if(index < state.currentSlide) connector.classList.add("completed");
-        steps.appendChild(connector);
-      }
-    });
-  }
-
-  function renderWelcome(data){
-    return `
-      <div class="slide-content">
-        <div class="hero-icon">${esc(data.emoji || "🐼")}</div>
-        <span class="slide-kicker">Your next adventure</span>
-        <h2>${esc(data.title)}</h2>
-        <p>${esc(data.subtitle)}</p>
-        <div class="panda-tip">🐼 Take your time, practise the words, and have fun!</div>
-      </div>
-    `;
-  }
-
-  function renderVocabulary(data){
-    const items = data.items || [];
-
-    return `
-      <div class="slide-content">
-        <span class="slide-kicker">Vocabulary</span>
-        <h2>Learn these words</h2>
-        <p>Study the Chinese, pronunciation and meaning.</p>
-        <div class="vocab-grid">
-          ${items.map((word,index) => `
-            <article class="word-card">
-              <div class="word-chinese">${esc(word.chinese || word.character || word.word || "")}</div>
-              <div class="word-pinyin">${esc(word.pinyin || "")}</div>
-              <div class="word-english">${esc(word.english || word.meaning || word.translation || "")}</div>
-              <button class="speak" type="button" data-speak-index="${index}">🔊 Hear it</button>
-            </article>
-          `).join("")}
-        </div>
-      </div>
-    `;
-  }
-
-  function renderStory(data){
-    return `
-      <div class="slide-content">
-        <span class="slide-kicker">Story</span>
-        <h2>Put it into context</h2>
-        <p>See how your new Mandarin words work in a real situation.</p>
-        <div class="story-list">
-          ${(data.items || []).map(item => `
-            <article class="story-card">
-              <div class="story-icon">${esc(item.icon || item.emoji || "📖")}</div>
-              <div>
-                <h3>${esc(item.title || "Story moment")}</h3>
-                <p>${esc(item.text || item.description || "")}</p>
-              </div>
-            </article>
-          `).join("")}
-        </div>
-      </div>
-    `;
-  }
-
-  function renderQuiz(data){
-    const questions = data.questions || [];
-    const index = Math.max(0,Math.min(state.quizIndex,questions.length - 1));
-    const q = questions[index] || {};
-    const selected = state.answers[index];
-    const answered = selected !== undefined;
-    const correct = Number(q.correct ?? q.answer ?? q.correctAnswer ?? 0);
-    const options = Array.isArray(q.options) ? q.options : [];
-
-    return `
-      <div class="slide-content">
-        <span class="slide-kicker">Quick challenge</span>
-        <div class="quiz-card">
-          <div class="question-count">Question ${index + 1} of ${questions.length}</div>
-          <div class="question">${esc(q.question || "Choose the correct answer.")}</div>
-
-          <div class="options">
-            ${options.map((option,i) => {
-              let cls = "option";
-
-              if(answered){
-                if(i === correct) cls += " correct";
-                if(i === selected && selected !== correct) cls += " wrong";
-                if(i === selected) cls += " selected";
-              }
-
-              return `
-                <button
-                  type="button"
-                  class="${cls}"
-                  data-answer="${i}"
-                  ${answered ? "disabled" : ""}
-                >${esc(option)}</button>
-              `;
-            }).join("")}
-          </div>
-
-          <div class="feedback ${answered ? (selected === correct ? "good" : "bad") : ""}">
-            ${
-              !answered ? "Choose an answer." :
-              selected === correct ? "Correct! 🎉" :
-              "Not quite — review the correct answer and keep going."
-            }
-          </div>
-
-          ${
-            answered && index < questions.length - 1
-            ? `<button class="btn btn-primary" id="nextQuestionBtn" type="button">Next question →</button>`
-            : ""
-          }
-        </div>
-      </div>
-    `;
-  }
-
-  function renderComplete(data){
-    const saved = state.completed || isSavedCompleted();
-
-    return `
-      <div class="slide-content">
-        <div class="complete-icon">🎉</div>
-        <span class="slide-kicker">Complete</span>
-        <h2>${esc(data.title)}</h2>
-        <p>${esc(data.subtitle)}</p>
-
-        <div class="reward-grid">
-          <div class="reward"><strong>+${lessonXP(state.lesson)}</strong><span>XP earned</span></div>
-          <div class="reward"><strong>✓</strong><span>Lesson complete</span></div>
-          <div class="reward"><strong>🔥</strong><span>Keep learning</span></div>
-        </div>
-
-        <div class="save-status ${saved ? "success" : ""}" id="saveStatus">
-          ${saved ? "✓ Progress saved to HanVerse!" : "Ready to save your progress."}
-        </div>
-
-        <div class="actions">
-          <a class="btn btn-primary" href="roadmap.html">🗺️ Back to Roadmap</a>
-          <a class="btn btn-outline" href="learn.html">📚 Learning Area</a>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderSlide(slide){
-    if(slide.type === "welcome") return renderWelcome(slide.data);
-    if(slide.type === "vocabulary") return renderVocabulary(slide.data);
-    if(slide.type === "story") return renderStory(slide.data);
-    if(slide.type === "quiz") return renderQuiz(slide.data);
-    if(slide.type === "complete") return renderComplete(slide.data);
-    return `<div class="slide-content"><h2>Lesson step</h2></div>`;
-  }
-
-  function renderSlides(){
-    const wrapper = $("slideWrapper");
-    wrapper.innerHTML = "";
-
-    state.slides.forEach(slide => {
-      const article = document.createElement("article");
-      article.className = "slide";
-      article.innerHTML = renderSlide(slide);
-      wrapper.appendChild(article);
-    });
-
-    bindDynamicSlideEvents();
-    updateSlideUI();
-  }
-
-  function updateSlideUI(){
-    $("slideWrapper").style.transform =
-      "translateX(-" + (state.currentSlide * 100) + "%)";
-
-    renderProgress();
-
-    const previous = $("prevBtn");
-    const next = $("nextBtn");
-    const current = state.slides[state.currentSlide];
-
-    previous.disabled = state.currentSlide === 0;
-
-    if(state.currentSlide === state.slides.length - 1){
-      next.textContent = state.completed ? "✓ Completed" : "Save lesson";
-      next.disabled = !state.completed;
-      next.className = "btn " + (state.completed ? "btn-primary" : "btn-outline");
-    }else if(current?.type === "quiz"){
-      const questions = current.data.questions || [];
-      const allAnswered = questions.every((_,i) => state.answers[i] !== undefined);
-
-      if(state.quizIndex < questions.length - 1){
-        next.textContent = "Next →";
-        next.disabled = false;
-      }else{
-        next.textContent = allAnswered ? "Finish challenge →" : "Answer first";
-        next.disabled = !allAnswered;
+      const data = await response.json().catch(()=>null);
+      if(!response.ok){
+        console.warn("Progress lookup failed:",response.status,data);
+        return null;
       }
 
-      next.className = "btn btn-primary";
-    }else{
-      next.textContent = "Next →";
-      next.disabled = false;
-      next.className = "btn btn-primary";
+      return data?.progress ?? data?.data ?? data ?? null;
+    }catch(error){
+      console.warn("Progress lookup unavailable:",error);
+      return null;
     }
-  }
-
-  function bindDynamicSlideEvents(){
-    document.querySelectorAll("[data-speak-index]").forEach(button => {
-      button.addEventListener("click",() => {
-        const index = Number(button.getAttribute("data-speak-index"));
-        const word = state.lesson?.vocabulary?.[index];
-        const text = word?.chinese || word?.character || "";
-
-        if("speechSynthesis" in window && text){
-          speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "zh-CN";
-          utterance.rate = .8;
-          speechSynthesis.speak(utterance);
-        }
-      });
-    });
-
-    document.querySelectorAll("[data-answer]").forEach(button => {
-      button.addEventListener("click",() => {
-        const index = Number(button.getAttribute("data-answer"));
-        answerQuiz(index);
-      });
-    });
-
-    const nextQuestionButton = $("nextQuestionBtn");
-
-    if(nextQuestionButton){
-      nextQuestionButton.addEventListener("click",() => {
-        state.quizIndex += 1;
-        renderCurrentSlide();
-      });
-    }
-  }
-
-  function renderCurrentSlide(){
-    const currentArticle = $("slideWrapper").children[state.currentSlide];
-
-    if(currentArticle){
-      currentArticle.innerHTML = renderSlide(state.slides[state.currentSlide]);
-    }
-
-    bindDynamicSlideEvents();
-    updateSlideUI();
-  }
-
-  function answerQuiz(index){
-    const slide = state.slides[state.currentSlide];
-
-    if(!slide || slide.type !== "quiz") return;
-
-    state.answers[state.quizIndex] = index;
-    renderCurrentSlide();
   }
 
   async function saveProgress(){
-    if(state.saving) return false;
+    if(state.saving || state.completed) return false;
 
-    const uid = userId(state.user);
-    const lid = lessonId(state.lesson);
+    const userId = Number(uid());
+    const lessonId = numericLessonId(state.lesson?.id ?? getLessonId());
 
-    if(!uid){
-      showToast("error","We couldn't identify the logged-in student.");
-      return false;
-    }
-
-    if(!lid){
-      showToast("error","This lesson has no valid ID.");
+    if(!Number.isFinite(userId) || !Number.isFinite(lessonId)){
+      showToast("error","We couldn't identify your lesson. Please log in again.");
       return false;
     }
 
     state.saving = true;
 
-    const quizSlide = state.slides.find(slide => slide.type === "quiz");
-    const questions = quizSlide?.data?.questions || [];
-
-    let correct = 0;
-
-    questions.forEach((question,index) => {
-      const expected = Number(
-        question.correct ??
-        question.answer ??
-        question.correctAnswer ??
-        0
-      );
-
-      if(Number(state.answers[index]) === expected){
-        correct += 1;
-      }
-    });
-
-    const quizScore = questions.length ? correct : 0;
-    const score = questions.length
-      ? Math.round((correct / questions.length) * 100)
-      : 100;
-
-    const payload = {
-      user_id: Number(uid),
-      userId: Number(uid),
-
-      lesson_id: lid,
-      lessonId: lid,
-
-      course_type: "YCT",
-      courseType: "YCT",
-
-      course_level: lessonLevel(state.lesson),
-      courseLevel: lessonLevel(state.lesson),
-
-      completed: true,
-      score: score,
-
-      xp_earned: lessonXP(state.lesson),
-      xpEarned: lessonXP(state.lesson),
-
-      time_spent: Math.max(
-        1,
-        Math.round((Date.now() - state.startedAt) / 1000)
-      ),
-      timeSpent: Math.max(
-        1,
-        Math.round((Date.now() - state.startedAt) / 1000)
-      ),
-
-      attempts: 1,
-
-      quiz_answers: state.answers,
-      quizAnswers: state.answers,
-
-      quiz_score: quizScore,
-      quizScore: quizScore,
-
-      completed_at: new Date().toISOString(),
-      started_at: new Date(state.startedAt).toISOString()
-    };
-
     const status = $("saveStatus");
+    const next = $("nextBtn");
 
     if(status){
       status.className = "save-status";
       status.textContent = "Saving your progress…";
     }
 
+    if(next){
+      next.disabled = true;
+      next.textContent = "Saving…";
+    }
+
     try{
-      /*
-       * The primary API is POST /api/progress.
-       * We deliberately use one canonical endpoint here.
-       */
-      const result = await postJSON("progress",payload);
+      const payload = {
+        userId,
+        lessonId,
+        completed:true,
+        score:Number(state.score || 0),
+        xpEarned:Number(state.lesson?.xp ?? state.lesson?.xpEarned ?? 0),
+        timeSpent:Math.max(0,Math.round((Date.now()-state.startedAt)/1000)),
+        quizAnswers:state.quizAnswers || {},
+        quizScore:Number(state.score || 0)
+      };
 
-      state.savedProgress =
-        result?.progress ||
-        result?.data ||
-        result;
+      const response = await fetch(API + "progress",{
+        method:"POST",
+        credentials:"include",
+        headers:{
+          "Content-Type":"application/json",
+          "Accept":"application/json"
+        },
+        body:JSON.stringify(payload)
+      });
 
+      const data = await response.json().catch(()=>null);
+
+      if(!response.ok || data?.success === false){
+        const message = data?.error || data?.message || `Save failed (${response.status})`;
+        throw new Error(message);
+      }
+
+      // Confirm the API write can be read back.
+      const saved = await fetchSavedProgress(userId,lessonId);
+      if(!saved){
+        throw new Error("The server accepted the save, but the saved progress could not be read back.");
+      }
+
+      state.savedProgress = saved;
       state.completed = true;
 
       if(status){
         status.className = "save-status success";
-        status.textContent = "✓ Progress saved to HanVerse!";
+        status.textContent = "✓ Progress saved to HanVerse";
       }
 
-      showToast("success","🎉 Lesson completed! Your progress has been saved.");
+      if(next){
+        next.disabled = true;
+        next.textContent = "✓ Completed";
+        next.className = "btn btn-primary";
+      }
+
+      showToast("success","Lesson progress saved!");
       return true;
 
     }catch(error){
@@ -1112,10 +655,16 @@ h1{margin:7px 0 7px;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.055em;line
 
       if(status){
         status.className = "save-status error";
-        status.textContent = "⚠ We couldn't save your progress. Please try again.";
+        status.textContent = "Could not save progress.";
       }
 
-      showToast("error","Your lesson wasn't saved: " + error.message);
+      if(next){
+        next.disabled = false;
+        next.textContent = "Save lesson";
+        next.className = "btn btn-primary";
+      }
+
+      showToast("error",error.message || "We couldn't save your progress.");
       return false;
 
     }finally{
@@ -1124,38 +673,13 @@ h1{margin:7px 0 7px;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.055em;line
   }
 
   async function completeLesson(){
-    if(state.completed) return true;
-
-    const quizSlide = state.slides.find(slide => slide.type === "quiz");
-    const questions = quizSlide?.data?.questions || [];
-
-    if(questions.length){
-      const unanswered = questions.some((_,index) => state.answers[index] === undefined);
-
-      if(unanswered){
-        showToast("error","Please answer every challenge before completing the lesson.");
-        return false;
-      }
-    }
-
-    const saved = await saveProgress();
-
-    if(saved){
-      state.completed = true;
-
-      const finalIndex = state.slides.length - 1;
-      state.currentSlide = finalIndex;
-
-      renderCurrentSlide();
-    }
-
-    return saved;
+    return saveProgress();
   }
 
   function nextSlide(){
     if(state.currentSlide >= state.slides.length - 1){
-      if(state.completed) return;
-      completeLesson();
+      if(state.completed || state.saving) return;
+      saveProgress();
       return;
     }
 
