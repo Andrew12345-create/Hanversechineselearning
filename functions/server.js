@@ -1,12 +1,14 @@
 import express from 'express';
 import pkg from 'pg';
 import cors from 'cors';
+import helmet from 'helmet';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import OpenAI from 'openai';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -15,7 +17,6 @@ const openai = new OpenAI({
 });
 
 const { Pool } = pkg;
-const jwt = require('jsonwebtoken');
 
 /* ==========================================
   APP / ROUTER CONFIGURATION ⚙️
@@ -23,7 +24,19 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const router = express.Router();
 
-app.use(cors());
+// Security middleware
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false
+}));
+
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['https://hanverse.netlify.app', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-parent-id']
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -33,6 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 console.log('✅ OpenAI key exists:', !!process.env.OPENAI_API_KEY);
 console.log('✅ Brevo key exists:', !!process.env.BREVO_SMTP_KEY);
 console.log('✅ Database URL exists:', !!(process.env.DATABASE_URL || process.env.NEON_DATABASE_URL));
+console.log('✅ JWT_SECRET exists:', !!process.env.JWT_SECRET);
 
 /* ==========================================
   DATABASE SERVICES CONFIGURATION 🗄️
@@ -57,7 +71,10 @@ if (databaseUrl) {
       connectionString: databaseUrl,
       ssl: {
         rejectUnauthorized: false
-      }
+      },
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 15000
     });
 
     pool.query('SELECT 1')
@@ -159,20 +176,30 @@ function safeUser(user) {
   };
 }
 
-function generateToken(length = 32, payload = {}) {
-    const secret = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY;
+function generateToken(payload = {}, expiresIn = '8h') {
+  const secret = process.env.JWT_SECRET;
+  
+  if (!secret) {
+    throw new Error('JWT_SECRET is not configured.');
+  }
+  
+  return jwt.sign(payload, secret, { expiresIn });
+}
 
-    if (!secret) {
-        throw new Error('JWT_SECRET is not configured.');
-    }
+function generateSecureToken(length = 32) {
+  return crypto.randomBytes(length).toString('hex');
+}
 
-    return jwt.sign(
-        payload,
-        secret,
-        {
-            expiresIn: '8h'
-        }
-    );
+function verifyJWTToken(token) {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not configured.');
+  }
+  try {
+    return jwt.verify(token, secret);
+  } catch (error) {
+    return null;
+  }
 }
 
 function getFrontendBaseUrl() {
@@ -182,993 +209,747 @@ function getFrontendBaseUrl() {
 }
 
 /* ==========================================
+  UNIFIED EMAIL SEND FUNCTION ✉️
+========================================== */
+async function sendEmail({ to, subject, html, text = null }) {
+  if (!mailer) {
+    console.warn('⚠️ Mailer not available, skipping email send');
+    return { success: false, error: 'Mailer not available' };
+  }
+
+  if (!to) {
+    console.warn('⚠️ No recipient specified');
+    return { success: false, error: 'No recipient specified' };
+  }
+
+  try {
+    const result = await mailer.sendMail({
+      from: EMAIL_FROM,
+      to,
+      subject,
+      html,
+      text: text || undefined
+    });
+    console.log(`✅ Email sent to ${to}`);
+    return { success: true, result };
+  } catch (error) {
+    console.error(`❌ Email send failed to ${to}:`, error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+/* ==========================================
   EMAIL TEMPLATES 🐼
 ========================================== */
 function getVerificationEmailHTML({ username, fullName, verifyLink }) {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to HanVerse! 🐼</title>
-      <style>
-        body {
-          font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif;
-          background: #F0F7FF;
-          margin: 0;
-          padding: 20px;
-          -webkit-font-smoothing: antialiased;
-        }
-        .container {
-          max-width: 580px;
-          margin: 0 auto;
-          background: #FFFFFF;
-          border-radius: 30px;
-          padding: 40px 35px;
-          box-shadow: 0 10px 40px rgba(37, 99, 235, 0.10);
-          border: 2px solid #E0EEFF;
-        }
-        .header {
-          text-align: center;
-          margin-bottom: 25px;
-        }
-        .logo-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          margin-bottom: 4px;
-        }
-        .logo {
-          font-size: 48px;
-          background: #F0F7FF;
-          padding: 10px;
-          border-radius: 50%;
-        }
-        .brand {
-          font-size: 32px;
-          font-weight: 900;
-          background: linear-gradient(135deg, #2563EB, #14B8A6);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          letter-spacing: -1px;
-        }
-        .panda-badge {
-          display: inline-block;
-          background: #FEF3C7;
-          padding: 4px 16px;
-          border-radius: 20px;
-          font-size: 14px;
-          color: #D97706;
-          font-weight: 700;
-          margin-top: 4px;
-        }
-        .title {
-          font-size: 28px;
-          font-weight: 800;
-          color: #1E293B;
-          text-align: center;
-          margin: 16px 0 10px;
-          line-height: 1.2;
-        }
-        .title .highlight {
-          color: #2563EB;
-        }
-        .subtitle {
-          color: #475569;
-          text-align: center;
-          line-height: 1.8;
-          font-size: 16px;
-          margin-bottom: 24px;
-        }
-        .subtitle strong {
-          color: #1E293B;
-        }
-        .button-container {
-          text-align: center;
-          margin: 28px 0 24px;
-        }
-        .button {
-          display: inline-block;
-          padding: 18px 48px;
-          background: linear-gradient(135deg, #2563EB, #14B8A6);
-          color: white !important;
-          text-decoration: none;
-          border-radius: 50px;
-          font-weight: 700;
-          font-size: 18px;
-          transition: all 0.3s ease;
-          box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25);
-          letter-spacing: 0.5px;
-        }
-        .button:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 35px rgba(37, 99, 235, 0.35);
-        }
-        .expiry {
-          text-align: center;
-          color: #64748B;
-          font-size: 14px;
-          margin-top: 8px;
-        }
-        .expiry strong {
-          color: #F59E0B;
-        }
-        .divider {
-          border: none;
-          height: 2px;
-          background: linear-gradient(to right, transparent, #DBEAFE, transparent);
-          margin: 28px 0;
-        }
-        .features-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 12px;
-          margin: 16px 0 24px;
-        }
-        .feature-item {
-          text-align: center;
-          padding: 14px 8px;
-          background: #F8FAFC;
-          border-radius: 16px;
-          border: 1px solid #E2E8F0;
-        }
-        .feature-item .icon {
-          font-size: 28px;
-          display: block;
-          margin-bottom: 4px;
-        }
-        .feature-item .label {
-          font-size: 12px;
-          font-weight: 600;
-          color: #1E293B;
-        }
-        .info-box {
-          background: #F0F7FF;
-          border-radius: 16px;
-          padding: 16px 20px;
-          margin: 16px 0;
-          border-left: 4px solid #2563EB;
-        }
-        .info-box p {
-          margin: 4px 0;
-          color: #1E293B;
-          font-size: 14px;
-        }
-        .info-box .emoji {
-          font-size: 18px;
-        }
-        .footer {
-          text-align: center;
-          color: #94A3B8;
-          font-size: 13px;
-          margin-top: 28px;
-          padding-top: 24px;
-          border-top: 2px solid #F1F5F9;
-          line-height: 1.8;
-        }
-        .footer a {
-          color: #2563EB;
-          text-decoration: none;
-          font-weight: 600;
-        }
-        .footer a:hover {
-          text-decoration: underline;
-        }
-        .footer .social {
-          font-size: 20px;
-          margin: 8px 0;
-          letter-spacing: 8px;
-        }
-        .footer .tagline {
-          color: #94A3B8;
-          font-size: 12px;
-          font-style: italic;
-        }
-        @media (max-width: 480px) {
-          .container { padding: 24px 18px; }
-          .title { font-size: 22px; }
-          .button { padding: 14px 32px; font-size: 16px; }
-          .features-grid { grid-template-columns: 1fr 1fr; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="logo-wrapper">
-            <span class="logo">🐼</span>
-            <span class="brand">HanVerse</span>
-          </div>
-          <div class="panda-badge">✨ Your Mandarin Adventure Starts Here!</div>
-        </div>
-        <div class="title">
-          Welcome to <span class="highlight">HanVerse</span>, ${fullName || username || 'Friend'}! 🎉
-        </div>
-        <div class="subtitle">
-          You're just one click away from unlocking <strong>stories, games, and your AI Panda tutor</strong>!<br>
-          Let's make learning Mandarin fun and exciting!
-        </div>
-        <div class="features-grid">
-          <div class="feature-item">
-            <span class="icon">📚</span>
-            <span class="label">Stories</span>
-          </div>
-          <div class="feature-item">
-            <span class="icon">🎮</span>
-            <span class="label">Games</span>
-          </div>
-          <div class="feature-item">
-            <span class="icon">🤖</span>
-            <span class="label">AI Tutor</span>
-          </div>
-        </div>
-        <div class="button-container">
-          <a href="${verifyLink}" class="button">✅ Verify My Email</a>
-        </div>
-        <div class="expiry">
-          ⏰ This link expires in <strong>24 hours</strong>
-        </div>
-        <hr class="divider">
-        <div class="info-box">
-          <p><span class="emoji">📧</span> <strong>${username || 'Your username'}</strong></p>
-          <p><span class="emoji">🎯</span> Start at <strong>YCT 1</strong> and work your way up!</p>
-          <p><span class="emoji">🏆</span> Earn <strong>XP</strong> and unlock achievements!</p>
-        </div>
-        <div class="footer">
-          <p>Didn't create a HanVerse account? No worries — just ignore this email.</p>
-          <p>💬 Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
-          <div class="social">🐼 🎋 🏮 🎐</div>
-          <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
-        </div>
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to HanVerse! 🐼</title>
+  <style>
+    body { font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif; background: #F0F7FF; margin: 0; padding: 20px; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 580px; margin: 0 auto; background: #FFFFFF; border-radius: 30px; padding: 40px 35px; box-shadow: 0 10px 40px rgba(37, 99, 235, 0.10); border: 2px solid #E0EEFF; }
+    .header { text-align: center; margin-bottom: 25px; }
+    .logo-wrapper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 4px; }
+    .logo { font-size: 48px; background: #F0F7FF; padding: 10px; border-radius: 50%; }
+    .brand { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #2563EB, #14B8A6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -1px; }
+    .panda-badge { display: inline-block; background: #FEF3C7; padding: 4px 16px; border-radius: 20px; font-size: 14px; color: #D97706; font-weight: 700; margin-top: 4px; }
+    .title { font-size: 28px; font-weight: 800; color: #1E293B; text-align: center; margin: 16px 0 10px; line-height: 1.2; }
+    .title .highlight { color: #2563EB; }
+    .subtitle { color: #475569; text-align: center; line-height: 1.8; font-size: 16px; margin-bottom: 24px; }
+    .subtitle strong { color: #1E293B; }
+    .button-container { text-align: center; margin: 28px 0 24px; }
+    .button { display: inline-block; padding: 18px 48px; background: linear-gradient(135deg, #2563EB, #14B8A6); color: white !important; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 18px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25); letter-spacing: 0.5px; }
+    .button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(37, 99, 235, 0.35); }
+    .expiry { text-align: center; color: #64748B; font-size: 14px; margin-top: 8px; }
+    .expiry strong { color: #F59E0B; }
+    .divider { border: none; height: 2px; background: linear-gradient(to right, transparent, #DBEAFE, transparent); margin: 28px 0; }
+    .features-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0 24px; }
+    .feature-item { text-align: center; padding: 14px 8px; background: #F8FAFC; border-radius: 16px; border: 1px solid #E2E8F0; }
+    .feature-item .icon { font-size: 28px; display: block; margin-bottom: 4px; }
+    .feature-item .label { font-size: 12px; font-weight: 600; color: #1E293B; }
+    .info-box { background: #F0F7FF; border-radius: 16px; padding: 16px 20px; margin: 16px 0; border-left: 4px solid #2563EB; }
+    .info-box p { margin: 4px 0; color: #1E293B; font-size: 14px; }
+    .info-box .emoji { font-size: 18px; }
+    .footer { text-align: center; color: #94A3B8; font-size: 13px; margin-top: 28px; padding-top: 24px; border-top: 2px solid #F1F5F9; line-height: 1.8; }
+    .footer a { color: #2563EB; text-decoration: none; font-weight: 600; }
+    .footer a:hover { text-decoration: underline; }
+    .footer .social { font-size: 20px; margin: 8px 0; letter-spacing: 8px; }
+    .footer .tagline { color: #94A3B8; font-size: 12px; font-style: italic; }
+    @media (max-width: 480px) { .container { padding: 24px 18px; } .title { font-size: 22px; } .button { padding: 14px 32px; font-size: 16px; } .features-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-wrapper">
+        <span class="logo">🐼</span>
+        <span class="brand">HanVerse</span>
       </div>
-    </body>
-    </html>
-  `;
+      <div class="panda-badge">✨ Your Mandarin Adventure Starts Here!</div>
+    </div>
+    <div class="title">
+      Welcome to <span class="highlight">HanVerse</span>, ${fullName || username || 'Friend'}! 🎉
+    </div>
+    <div class="subtitle">
+      You're just one click away from unlocking <strong>stories, games, and your AI Panda tutor</strong>!<br>
+      Let's make learning Mandarin fun and exciting!
+    </div>
+    <div class="features-grid">
+      <div class="feature-item"><span class="icon">📚</span><span class="label">Stories</span></div>
+      <div class="feature-item"><span class="icon">🎮</span><span class="label">Games</span></div>
+      <div class="feature-item"><span class="icon">🤖</span><span class="label">AI Tutor</span></div>
+    </div>
+    <div class="button-container">
+      <a href="${verifyLink}" class="button">✅ Verify My Email</a>
+    </div>
+    <div class="expiry">
+      ⏰ This link expires in <strong>24 hours</strong>
+    </div>
+    <hr class="divider">
+    <div class="info-box">
+      <p><span class="emoji">📧</span> <strong>${username || 'Your username'}</strong></p>
+      <p><span class="emoji">🎯</span> Start at <strong>YCT 1</strong> and work your way up!</p>
+      <p><span class="emoji">🏆</span> Earn <strong>XP</strong> and unlock achievements!</p>
+    </div>
+    <div class="footer">
+      <p>Didn't create a HanVerse account? No worries — just ignore this email.</p>
+      <p>💬 Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+      <div class="social">🐼 🎋 🏮 🎐</div>
+      <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 
 function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Reset Your HanVerse Password 🔐</title>
-      <style>
-        body {
-          font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif;
-          background: #FFF7ED;
-          margin: 0;
-          padding: 20px;
-          -webkit-font-smoothing: antialiased;
-        }
-        .container {
-          max-width: 560px;
-          margin: 0 auto;
-          background: #FFFFFF;
-          border-radius: 30px;
-          padding: 40px 35px;
-          box-shadow: 0 10px 40px rgba(245, 158, 11, 0.10);
-          border: 2px solid #FED7AA;
-        }
-        .header {
-          text-align: center;
-          margin-bottom: 20px;
-        }
-        .logo-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          margin-bottom: 4px;
-        }
-        .logo {
-          font-size: 48px;
-          background: #FFF7ED;
-          padding: 10px;
-          border-radius: 50%;
-        }
-        .brand {
-          font-size: 32px;
-          font-weight: 900;
-          background: linear-gradient(135deg, #2563EB, #14B8A6);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          letter-spacing: -1px;
-        }
-        .security-badge {
-          display: inline-block;
-          background: #FEF3C7;
-          padding: 4px 16px;
-          border-radius: 20px;
-          font-size: 14px;
-          color: #D97706;
-          font-weight: 700;
-          margin-top: 4px;
-        }
-        .title {
-          font-size: 26px;
-          font-weight: 800;
-          color: #1E293B;
-          text-align: center;
-          margin: 12px 0 8px;
-          line-height: 1.2;
-        }
-        .title .highlight {
-          color: #F59E0B;
-        }
-        .subtitle {
-          color: #475569;
-          text-align: center;
-          line-height: 1.8;
-          font-size: 16px;
-          margin-bottom: 20px;
-        }
-        .subtitle strong {
-          color: #1E293B;
-        }
-        .button-container {
-          text-align: center;
-          margin: 24px 0 16px;
-        }
-        .button {
-          display: inline-block;
-          padding: 18px 48px;
-          background: linear-gradient(135deg, #F59E0B, #D97706);
-          color: white !important;
-          text-decoration: none;
-          border-radius: 50px;
-          font-weight: 700;
-          font-size: 18px;
-          transition: all 0.3s ease;
-          box-shadow: 0 8px 25px rgba(245, 158, 11, 0.25);
-          letter-spacing: 0.5px;
-        }
-        .button:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 35px rgba(245, 158, 11, 0.35);
-        }
-        .expiry {
-          text-align: center;
-          color: #64748B;
-          font-size: 14px;
-          margin-top: 8px;
-        }
-        .expiry strong {
-          color: #EF4444;
-        }
-        .security-box {
-          background: #FEF2F2;
-          border-radius: 16px;
-          padding: 16px 20px;
-          margin: 16px 0;
-          border: 2px solid #FECACA;
-          border-left: 4px solid #EF4444;
-        }
-        .security-box p {
-          margin: 4px 0;
-          color: #991B1B;
-          font-size: 14px;
-          font-weight: 500;
-        }
-        .security-box .icon {
-          font-size: 18px;
-        }
-        .divider {
-          border: none;
-          height: 2px;
-          background: linear-gradient(to right, transparent, #FED7AA, transparent);
-          margin: 24px 0;
-        }
-        .footer {
-          text-align: center;
-          color: #94A3B8;
-          font-size: 13px;
-          margin-top: 24px;
-          padding-top: 20px;
-          border-top: 2px solid #F1F5F9;
-          line-height: 1.8;
-        }
-        .footer a {
-          color: #2563EB;
-          text-decoration: none;
-          font-weight: 600;
-        }
-        .footer a:hover {
-          text-decoration: underline;
-        }
-        .footer .social {
-          font-size: 20px;
-          margin: 8px 0;
-          letter-spacing: 8px;
-        }
-        .footer .tagline {
-          color: #94A3B8;
-          font-size: 12px;
-          font-style: italic;
-        }
-        @media (max-width: 480px) {
-          .container { padding: 24px 18px; }
-          .title { font-size: 22px; }
-          .button { padding: 14px 32px; font-size: 16px; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="logo-wrapper">
-            <span class="logo">🐼</span>
-            <span class="brand">HanVerse</span>
-          </div>
-          <div class="security-badge">🔒 Account Security</div>
-        </div>
-        <div class="title">
-          Reset Your <span class="highlight">Password</span> 🔐
-        </div>
-        <div class="subtitle">
-          Hi <strong>${fullName || username || 'Learner'}</strong>!<br>
-          We received a request to reset your HanVerse password.
-        </div>
-        <div class="button-container">
-          <a href="${resetLink}" class="button">🔄 Reset Password</a>
-        </div>
-        <div class="expiry">
-          ⏰ This link expires in <strong>1 hour</strong>
-        </div>
-        <div class="security-box">
-          <p><span class="icon">🛡️</span> <strong>Security Notice:</strong></p>
-          <p style="font-weight: 400; color: #991B1B;">
-            If you didn't request a password reset, just ignore this email.<br>
-            Your account is safe and secure!
-          </p>
-        </div>
-        <hr class="divider">
-        <div class="footer">
-          <p>💬 Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
-          <div class="social">🐼 🎋 🏮 🎐</div>
-          <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
-        </div>
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Your HanVerse Password 🔐</title>
+  <style>
+    body { font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif; background: #FFF7ED; margin: 0; padding: 20px; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 560px; margin: 0 auto; background: #FFFFFF; border-radius: 30px; padding: 40px 35px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.10); border: 2px solid #FED7AA; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .logo-wrapper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 4px; }
+    .logo { font-size: 48px; background: #FFF7ED; padding: 10px; border-radius: 50%; }
+    .brand { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #2563EB, #14B8A6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -1px; }
+    .security-badge { display: inline-block; background: #FEF3C7; padding: 4px 16px; border-radius: 20px; font-size: 14px; color: #D97706; font-weight: 700; margin-top: 4px; }
+    .title { font-size: 26px; font-weight: 800; color: #1E293B; text-align: center; margin: 12px 0 8px; line-height: 1.2; }
+    .title .highlight { color: #F59E0B; }
+    .subtitle { color: #475569; text-align: center; line-height: 1.8; font-size: 16px; margin-bottom: 20px; }
+    .subtitle strong { color: #1E293B; }
+    .button-container { text-align: center; margin: 24px 0 16px; }
+    .button { display: inline-block; padding: 18px 48px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white !important; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 18px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.25); letter-spacing: 0.5px; }
+    .button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(245, 158, 11, 0.35); }
+    .expiry { text-align: center; color: #64748B; font-size: 14px; margin-top: 8px; }
+    .expiry strong { color: #EF4444; }
+    .security-box { background: #FEF2F2; border-radius: 16px; padding: 16px 20px; margin: 16px 0; border: 2px solid #FECACA; border-left: 4px solid #EF4444; }
+    .security-box p { margin: 4px 0; color: #991B1B; font-size: 14px; font-weight: 500; }
+    .security-box .icon { font-size: 18px; }
+    .divider { border: none; height: 2px; background: linear-gradient(to right, transparent, #FED7AA, transparent); margin: 24px 0; }
+    .footer { text-align: center; color: #94A3B8; font-size: 13px; margin-top: 24px; padding-top: 20px; border-top: 2px solid #F1F5F9; line-height: 1.8; }
+    .footer a { color: #2563EB; text-decoration: none; font-weight: 600; }
+    .footer a:hover { text-decoration: underline; }
+    .footer .social { font-size: 20px; margin: 8px 0; letter-spacing: 8px; }
+    .footer .tagline { color: #94A3B8; font-size: 12px; font-style: italic; }
+    @media (max-width: 480px) { .container { padding: 24px 18px; } .title { font-size: 22px; } .button { padding: 14px 32px; font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-wrapper">
+        <span class="logo">🐼</span>
+        <span class="brand">HanVerse</span>
       </div>
-    </body>
-    </html>
-  `;
+      <div class="security-badge">🔒 Account Security</div>
+    </div>
+    <div class="title">
+      Reset Your <span class="highlight">Password</span> 🔐
+    </div>
+    <div class="subtitle">
+      Hi <strong>${fullName || username || 'Learner'}</strong>!<br>
+      We received a request to reset your HanVerse password.
+    </div>
+    <div class="button-container">
+      <a href="${resetLink}" class="button">🔄 Reset Password</a>
+    </div>
+    <div class="expiry">
+      ⏰ This link expires in <strong>1 hour</strong>
+    </div>
+    <div class="security-box">
+      <p><span class="icon">🛡️</span> <strong>Security Notice:</strong></p>
+      <p style="font-weight: 400; color: #991B1B;">
+        If you didn't request a password reset, just ignore this email.<br>
+        Your account is safe and secure!
+      </p>
+    </div>
+    <hr class="divider">
+    <div class="footer">
+      <p>💬 Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+      <div class="social">🐼 🎋 🏮 🎐</div>
+      <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 
 function getWelcomeEmailHTML({ username, fullName }) {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to HanVerse! 🐼</title>
-      <style>
-        body {
-          font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif;
-          background: #F0FDF4;
-          margin: 0;
-          padding: 20px;
-          -webkit-font-smoothing: antialiased;
-        }
-        .container {
-          max-width: 580px;
-          margin: 0 auto;
-          background: #FFFFFF;
-          border-radius: 30px;
-          padding: 40px 35px;
-          box-shadow: 0 10px 40px rgba(20, 184, 166, 0.10);
-          border: 2px solid #D1FAE5;
-        }
-        .header {
-          text-align: center;
-          margin-bottom: 20px;
-        }
-        .logo-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          margin-bottom: 4px;
-        }
-        .logo {
-          font-size: 48px;
-          background: #F0FDF4;
-          padding: 10px;
-          border-radius: 50%;
-        }
-        .brand {
-          font-size: 32px;
-          font-weight: 900;
-          background: linear-gradient(135deg, #2563EB, #14B8A6);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          letter-spacing: -1px;
-        }
-        .welcome-badge {
-          display: inline-block;
-          background: #FEF3C7;
-          padding: 4px 16px;
-          border-radius: 20px;
-          font-size: 14px;
-          color: #D97706;
-          font-weight: 700;
-          margin-top: 4px;
-        }
-        .title {
-          font-size: 30px;
-          font-weight: 800;
-          color: #1E293B;
-          text-align: center;
-          margin: 12px 0 8px;
-          line-height: 1.2;
-        }
-        .title .highlight {
-          color: #14B8A6;
-        }
-        .subtitle {
-          color: #475569;
-          text-align: center;
-          line-height: 1.8;
-          font-size: 16px;
-          margin-bottom: 20px;
-        }
-        .subtitle strong {
-          color: #1E293B;
-        }
-        .welcome-message {
-          background: #F0FDF4;
-          border-radius: 16px;
-          padding: 20px 24px;
-          margin: 16px 0;
-          border: 2px solid #D1FAE5;
-          text-align: center;
-        }
-        .welcome-message .big-emoji {
-          font-size: 36px;
-          display: block;
-          margin-bottom: 4px;
-        }
-        .welcome-message p {
-          margin: 4px 0;
-          color: #065F46;
-          font-size: 15px;
-          font-weight: 500;
-        }
-        .steps-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          margin: 20px 0;
-        }
-        .step-item {
-          background: #F8FAFC;
-          border-radius: 16px;
-          padding: 16px 12px;
-          text-align: center;
-          border: 1px solid #E2E8F0;
-          transition: all 0.2s ease;
-        }
-        .step-item .step-icon {
-          font-size: 32px;
-          display: block;
-          margin-bottom: 6px;
-        }
-        .step-item .step-number {
-          display: inline-block;
-          background: #2563EB;
-          color: white;
-          font-size: 11px;
-          font-weight: 700;
-          padding: 1px 10px;
-          border-radius: 10px;
-          margin-bottom: 6px;
-        }
-        .step-item .step-text {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1E293B;
-        }
-        .step-item .step-desc {
-          font-size: 11px;
-          color: #64748B;
-          margin-top: 2px;
-        }
-        .button-container {
-          text-align: center;
-          margin: 24px 0 16px;
-        }
-        .button {
-          display: inline-block;
-          padding: 18px 48px;
-          background: linear-gradient(135deg, #14B8A6, #2563EB);
-          color: white !important;
-          text-decoration: none;
-          border-radius: 50px;
-          font-weight: 700;
-          font-size: 18px;
-          transition: all 0.3s ease;
-          box-shadow: 0 8px 25px rgba(20, 184, 166, 0.25);
-          letter-spacing: 0.5px;
-        }
-        .button:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 35px rgba(20, 184, 166, 0.35);
-        }
-        .bonus-box {
-          text-align: center;
-          background: #FEF3C7;
-          border-radius: 16px;
-          padding: 12px 20px;
-          margin: 12px 0;
-          border: 2px solid #FDE68A;
-        }
-        .bonus-box .bonus-text {
-          font-weight: 700;
-          color: #D97706;
-          font-size: 15px;
-        }
-        .bonus-box .bonus-emoji {
-          font-size: 20px;
-        }
-        .divider {
-          border: none;
-          height: 2px;
-          background: linear-gradient(to right, transparent, #D1FAE5, transparent);
-          margin: 24px 0;
-        }
-        .footer {
-          text-align: center;
-          color: #94A3B8;
-          font-size: 13px;
-          margin-top: 24px;
-          padding-top: 20px;
-          border-top: 2px solid #F1F5F9;
-          line-height: 1.8;
-        }
-        .footer a {
-          color: #2563EB;
-          text-decoration: none;
-          font-weight: 600;
-        }
-        .footer a:hover {
-          text-decoration: underline;
-        }
-        .footer .social {
-          font-size: 20px;
-          margin: 8px 0;
-          letter-spacing: 8px;
-        }
-        .footer .tagline {
-          color: #94A3B8;
-          font-size: 12px;
-          font-style: italic;
-        }
-        @media (max-width: 480px) {
-          .container { padding: 24px 18px; }
-          .title { font-size: 24px; }
-          .button { padding: 14px 32px; font-size: 16px; }
-          .steps-grid { grid-template-columns: 1fr; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="logo-wrapper">
-            <span class="logo">🐼</span>
-            <span class="brand">HanVerse</span>
-          </div>
-          <div class="welcome-badge">🎉 Welcome to the Family!</div>
-        </div>
-        <div class="title">
-          Hey <span class="highlight">${fullName || username || 'Learner'}</span>! 👋
-        </div>
-        <div class="subtitle">
-          You've joined a <strong>magical world</strong> where learning Mandarin is<br>
-          fun, easy, and full of <strong>adventures</strong>! 🚀
-        </div>
-        <div class="welcome-message">
-          <span class="big-emoji">🌟</span>
-          <p><strong>Welcome to HanVerse!</strong></p>
-          <p style="font-size: 14px; color: #065F46; font-weight: 400;">
-            Get ready for an exciting journey of learning Mandarin through stories, games, and AI!
-          </p>
-        </div>
-        <div class="steps-grid">
-          <div class="step-item">
-            <span class="step-icon">📝</span>
-            <span class="step-number">STEP 1</span>
-            <div class="step-text">Complete Your Profile</div>
-            <div class="step-desc">Tell us about yourself</div>
-          </div>
-          <div class="step-item">
-            <span class="step-icon">🎯</span>
-            <span class="step-number">STEP 2</span>
-            <div class="step-text">Take Placement Test</div>
-            <div class="step-desc">Find your perfect level</div>
-          </div>
-          <div class="step-item">
-            <span class="step-icon">📚</span>
-            <span class="step-number">STEP 3</span>
-            <div class="step-text">Start Your First Lesson</div>
-            <div class="step-desc">Earn XP and level up!</div>
-          </div>
-          <div class="step-item">
-            <span class="step-icon">🤖</span>
-            <span class="step-number">STEP 4</span>
-            <div class="step-text">Chat with Panda AI</div>
-            <div class="step-desc">Your personal tutor!</div>
-          </div>
-        </div>
-        <div class="bonus-box">
-          <span class="bonus-emoji">🎁</span>
-          <span class="bonus-text">Complete your first lesson today and earn 50 BONUS XP! ⚡</span>
-        </div>
-        <div class="button-container">
-          <a href="${getFrontendBaseUrl()}/learn.html" class="button">🚀 Start Learning Now</a>
-        </div>
-        <hr class="divider">
-        <div class="footer">
-          <p>💬 Questions? We're here to help! <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
-          <div class="social">🐼 🎋 🏮 🎐</div>
-          <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
-        </div>
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to HanVerse! 🐼</title>
+  <style>
+    body { font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif; background: #F0FDF4; margin: 0; padding: 20px; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 580px; margin: 0 auto; background: #FFFFFF; border-radius: 30px; padding: 40px 35px; box-shadow: 0 10px 40px rgba(20, 184, 166, 0.10); border: 2px solid #D1FAE5; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .logo-wrapper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 4px; }
+    .logo { font-size: 48px; background: #F0FDF4; padding: 10px; border-radius: 50%; }
+    .brand { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #2563EB, #14B8A6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -1px; }
+    .welcome-badge { display: inline-block; background: #FEF3C7; padding: 4px 16px; border-radius: 20px; font-size: 14px; color: #D97706; font-weight: 700; margin-top: 4px; }
+    .title { font-size: 30px; font-weight: 800; color: #1E293B; text-align: center; margin: 12px 0 8px; line-height: 1.2; }
+    .title .highlight { color: #14B8A6; }
+    .subtitle { color: #475569; text-align: center; line-height: 1.8; font-size: 16px; margin-bottom: 20px; }
+    .subtitle strong { color: #1E293B; }
+    .welcome-message { background: #F0FDF4; border-radius: 16px; padding: 20px 24px; margin: 16px 0; border: 2px solid #D1FAE5; text-align: center; }
+    .welcome-message .big-emoji { font-size: 36px; display: block; margin-bottom: 4px; }
+    .welcome-message p { margin: 4px 0; color: #065F46; font-size: 15px; font-weight: 500; }
+    .steps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .step-item { background: #F8FAFC; border-radius: 16px; padding: 16px 12px; text-align: center; border: 1px solid #E2E8F0; transition: all 0.2s ease; }
+    .step-item .step-icon { font-size: 32px; display: block; margin-bottom: 6px; }
+    .step-item .step-number { display: inline-block; background: #2563EB; color: white; font-size: 11px; font-weight: 700; padding: 1px 10px; border-radius: 10px; margin-bottom: 6px; }
+    .step-item .step-text { font-size: 13px; font-weight: 600; color: #1E293B; }
+    .step-item .step-desc { font-size: 11px; color: #64748B; margin-top: 2px; }
+    .button-container { text-align: center; margin: 24px 0 16px; }
+    .button { display: inline-block; padding: 18px 48px; background: linear-gradient(135deg, #14B8A6, #2563EB); color: white !important; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 18px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(20, 184, 166, 0.25); letter-spacing: 0.5px; }
+    .button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(20, 184, 166, 0.35); }
+    .bonus-box { text-align: center; background: #FEF3C7; border-radius: 16px; padding: 12px 20px; margin: 12px 0; border: 2px solid #FDE68A; }
+    .bonus-box .bonus-text { font-weight: 700; color: #D97706; font-size: 15px; }
+    .bonus-box .bonus-emoji { font-size: 20px; }
+    .divider { border: none; height: 2px; background: linear-gradient(to right, transparent, #D1FAE5, transparent); margin: 24px 0; }
+    .footer { text-align: center; color: #94A3B8; font-size: 13px; margin-top: 24px; padding-top: 20px; border-top: 2px solid #F1F5F9; line-height: 1.8; }
+    .footer a { color: #2563EB; text-decoration: none; font-weight: 600; }
+    .footer a:hover { text-decoration: underline; }
+    .footer .social { font-size: 20px; margin: 8px 0; letter-spacing: 8px; }
+    .footer .tagline { color: #94A3B8; font-size: 12px; font-style: italic; }
+    @media (max-width: 480px) { .container { padding: 24px 18px; } .title { font-size: 24px; } .button { padding: 14px 32px; font-size: 16px; } .steps-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-wrapper">
+        <span class="logo">🐼</span>
+        <span class="brand">HanVerse</span>
       </div>
-    </body>
-    </html>
-  `;
+      <div class="welcome-badge">🎉 Welcome to the Family!</div>
+    </div>
+    <div class="title">
+      Hey <span class="highlight">${fullName || username || 'Learner'}</span>! 👋
+    </div>
+    <div class="subtitle">
+      You've joined a <strong>magical world</strong> where learning Mandarin is<br>
+      fun, easy, and full of <strong>adventures</strong>! 🚀
+    </div>
+    <div class="welcome-message">
+      <span class="big-emoji">🌟</span>
+      <p><strong>Welcome to HanVerse!</strong></p>
+      <p style="font-size: 14px; color: #065F46; font-weight: 400;">
+        Get ready for an exciting journey of learning Mandarin through stories, games, and AI!
+      </p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item">
+        <span class="step-icon">📝</span>
+        <span class="step-number">STEP 1</span>
+        <div class="step-text">Complete Your Profile</div>
+        <div class="step-desc">Tell us about yourself</div>
+      </div>
+      <div class="step-item">
+        <span class="step-icon">🎯</span>
+        <span class="step-number">STEP 2</span>
+        <div class="step-text">Take Placement Test</div>
+        <div class="step-desc">Find your perfect level</div>
+      </div>
+      <div class="step-item">
+        <span class="step-icon">📚</span>
+        <span class="step-number">STEP 3</span>
+        <div class="step-text">Start Your First Lesson</div>
+        <div class="step-desc">Earn XP and level up!</div>
+      </div>
+      <div class="step-item">
+        <span class="step-icon">🤖</span>
+        <span class="step-number">STEP 4</span>
+        <div class="step-text">Chat with Panda AI</div>
+        <div class="step-desc">Your personal tutor!</div>
+      </div>
+    </div>
+    <div class="bonus-box">
+      <span class="bonus-emoji">🎁</span>
+      <span class="bonus-text">Complete your first lesson today and earn 50 BONUS XP! ⚡</span>
+    </div>
+    <div class="button-container">
+      <a href="${getFrontendBaseUrl()}/learn.html" class="button">🚀 Start Learning Now</a>
+    </div>
+    <hr class="divider">
+    <div class="footer">
+      <p>💬 Questions? We're here to help! <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+      <div class="social">🐼 🎋 🏮 🎐</div>
+      <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 
 function getInviteEmailHTML({ inviterName, customMessage, signupLink }) {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>You're Invited to HanVerse! 🐼</title>
-      <style>
-        body {
-          font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif;
-          background: #F5F3FF;
-          margin: 0;
-          padding: 20px;
-          -webkit-font-smoothing: antialiased;
-        }
-        .container {
-          max-width: 580px;
-          margin: 0 auto;
-          background: #FFFFFF;
-          border-radius: 30px;
-          padding: 40px 35px;
-          box-shadow: 0 10px 40px rgba(139, 92, 246, 0.10);
-          border: 2px solid #DDD6FE;
-        }
-        .header {
-          text-align: center;
-          margin-bottom: 20px;
-        }
-        .logo-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          margin-bottom: 4px;
-        }
-        .logo {
-          font-size: 48px;
-          background: #F5F3FF;
-          padding: 10px;
-          border-radius: 50%;
-        }
-        .brand {
-          font-size: 32px;
-          font-weight: 900;
-          background: linear-gradient(135deg, #8B5CF6, #6D28D9);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          letter-spacing: -1px;
-        }
-        .invite-badge {
-          display: inline-block;
-          background: #FEF3C7;
-          padding: 4px 16px;
-          border-radius: 20px;
-          font-size: 14px;
-          color: #D97706;
-          font-weight: 700;
-          margin-top: 4px;
-        }
-        .title {
-          font-size: 28px;
-          font-weight: 800;
-          color: #1E293B;
-          text-align: center;
-          margin: 12px 0 8px;
-          line-height: 1.2;
-        }
-        .title .highlight {
-          color: #8B5CF6;
-        }
-        .subtitle {
-          color: #475569;
-          text-align: center;
-          line-height: 1.8;
-          font-size: 16px;
-          margin-bottom: 16px;
-        }
-        .subtitle strong {
-          color: #1E293B;
-        }
-        .invite-message {
-          background: #F5F3FF;
-          border-radius: 16px;
-          padding: 16px 20px;
-          margin: 12px 0;
-          border-left: 4px solid #8B5CF6;
-          font-style: italic;
-          color: #4C1D95;
-          font-size: 15px;
-        }
-        .perks-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          margin: 16px 0 20px;
-        }
-        .perk-item {
-          text-align: center;
-          padding: 14px 12px;
-          background: #F8FAFC;
-          border-radius: 16px;
-          border: 1px solid #E2E8F0;
-        }
-        .perk-item .icon {
-          font-size: 32px;
-          display: block;
-          margin-bottom: 4px;
-        }
-        .perk-item .label {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1E293B;
-        }
-        .bonus-box {
-          text-align: center;
-          background: #FEF3C7;
-          border-radius: 16px;
-          padding: 12px 20px;
-          margin: 12px 0;
-          border: 2px solid #FDE68A;
-        }
-        .bonus-box .bonus-text {
-          font-weight: 700;
-          color: #D97706;
-          font-size: 15px;
-        }
-        .button-container {
-          text-align: center;
-          margin: 24px 0 16px;
-        }
-        .button {
-          display: inline-block;
-          padding: 18px 48px;
-          background: linear-gradient(135deg, #8B5CF6, #6D28D9);
-          color: white !important;
-          text-decoration: none;
-          border-radius: 50px;
-          font-weight: 700;
-          font-size: 18px;
-          transition: all 0.3s ease;
-          box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25);
-          letter-spacing: 0.5px;
-        }
-        .button:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 35px rgba(139, 92, 246, 0.35);
-        }
-        .divider {
-          border: none;
-          height: 2px;
-          background: linear-gradient(to right, transparent, #DDD6FE, transparent);
-          margin: 24px 0;
-        }
-        .footer {
-          text-align: center;
-          color: #94A3B8;
-          font-size: 13px;
-          margin-top: 24px;
-          padding-top: 20px;
-          border-top: 2px solid #F1F5F9;
-          line-height: 1.8;
-        }
-        .footer a {
-          color: #8B5CF6;
-          text-decoration: none;
-          font-weight: 600;
-        }
-        .footer a:hover {
-          text-decoration: underline;
-        }
-        .footer .social {
-          font-size: 20px;
-          margin: 8px 0;
-          letter-spacing: 8px;
-        }
-        .footer .tagline {
-          color: #94A3B8;
-          font-size: 12px;
-          font-style: italic;
-        }
-        @media (max-width: 480px) {
-          .container { padding: 24px 18px; }
-          .title { font-size: 22px; }
-          .button { padding: 14px 32px; font-size: 16px; }
-          .perks-grid { grid-template-columns: 1fr; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="logo-wrapper">
-            <span class="logo">🐼</span>
-            <span class="brand">HanVerse</span>
-          </div>
-          <div class="invite-badge">✨ You're Invited!</div>
-        </div>
-        <div class="title">
-          <span class="highlight">${inviterName}</span> Invited You! 🎉
-        </div>
-        <div class="subtitle">
-          Join the fun way to learn Mandarin through <strong>stories, games, and AI</strong>!<br>
-          Your adventure starts here! 🚀
-        </div>
-        ${customMessage ? `<div class="invite-message">"${customMessage}"</div>` : ''}
-        <div class="perks-grid">
-          <div class="perk-item">
-            <span class="icon">📚</span>
-            <span class="label">Interactive Stories</span>
-          </div>
-          <div class="perk-item">
-            <span class="icon">🎮</span>
-            <span class="label">Fun Games</span>
-          </div>
-          <div class="perk-item">
-            <span class="icon">🤖</span>
-            <span class="label">AI Panda Tutor</span>
-          </div>
-          <div class="perk-item">
-            <span class="icon">🏆</span>
-            <span class="label">Achievements</span>
-          </div>
-        </div>
-        <div class="bonus-box">
-          <span class="bonus-text">🎁 Bonus: You'll both get <strong>50 XP</strong> when you sign up!</span>
-        </div>
-        <div class="button-container">
-          <a href="${signupLink}" class="button">🎯 Join HanVerse Now</a>
-        </div>
-        <hr class="divider">
-        <div class="footer">
-          <p>Start your Mandarin adventure today! 🐼</p>
-          <p style="font-size: 12px; color: #94A3B8;">
-            This invitation was sent by a HanVerse member.
-          </p>
-          <div class="social">🐼 🎋 🏮 🎐</div>
-          <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
-        </div>
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're Invited to HanVerse! 🐼</title>
+  <style>
+    body { font-family: 'Comic Sans MS', 'Poppins', 'Segoe UI', Arial, sans-serif; background: #F5F3FF; margin: 0; padding: 20px; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 580px; margin: 0 auto; background: #FFFFFF; border-radius: 30px; padding: 40px 35px; box-shadow: 0 10px 40px rgba(139, 92, 246, 0.10); border: 2px solid #DDD6FE; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .logo-wrapper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 4px; }
+    .logo { font-size: 48px; background: #F5F3FF; padding: 10px; border-radius: 50%; }
+    .brand { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #8B5CF6, #6D28D9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -1px; }
+    .invite-badge { display: inline-block; background: #FEF3C7; padding: 4px 16px; border-radius: 20px; font-size: 14px; color: #D97706; font-weight: 700; margin-top: 4px; }
+    .title { font-size: 28px; font-weight: 800; color: #1E293B; text-align: center; margin: 12px 0 8px; line-height: 1.2; }
+    .title .highlight { color: #8B5CF6; }
+    .subtitle { color: #475569; text-align: center; line-height: 1.8; font-size: 16px; margin-bottom: 16px; }
+    .subtitle strong { color: #1E293B; }
+    .invite-message { background: #F5F3FF; border-radius: 16px; padding: 16px 20px; margin: 12px 0; border-left: 4px solid #8B5CF6; font-style: italic; color: #4C1D95; font-size: 15px; }
+    .perks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 20px; }
+    .perk-item { text-align: center; padding: 14px 12px; background: #F8FAFC; border-radius: 16px; border: 1px solid #E2E8F0; }
+    .perk-item .icon { font-size: 32px; display: block; margin-bottom: 4px; }
+    .perk-item .label { font-size: 13px; font-weight: 600; color: #1E293B; }
+    .bonus-box { text-align: center; background: #FEF3C7; border-radius: 16px; padding: 12px 20px; margin: 12px 0; border: 2px solid #FDE68A; }
+    .bonus-box .bonus-text { font-weight: 700; color: #D97706; font-size: 15px; }
+    .button-container { text-align: center; margin: 24px 0 16px; }
+    .button { display: inline-block; padding: 18px 48px; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white !important; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 18px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25); letter-spacing: 0.5px; }
+    .button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(139, 92, 246, 0.35); }
+    .divider { border: none; height: 2px; background: linear-gradient(to right, transparent, #DDD6FE, transparent); margin: 24px 0; }
+    .footer { text-align: center; color: #94A3B8; font-size: 13px; margin-top: 24px; padding-top: 20px; border-top: 2px solid #F1F5F9; line-height: 1.8; }
+    .footer a { color: #8B5CF6; text-decoration: none; font-weight: 600; }
+    .footer a:hover { text-decoration: underline; }
+    .footer .social { font-size: 20px; margin: 8px 0; letter-spacing: 8px; }
+    .footer .tagline { color: #94A3B8; font-size: 12px; font-style: italic; }
+    @media (max-width: 480px) { .container { padding: 24px 18px; } .title { font-size: 22px; } .button { padding: 14px 32px; font-size: 16px; } .perks-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-wrapper">
+        <span class="logo">🐼</span>
+        <span class="brand">HanVerse</span>
       </div>
-    </body>
-    </html>
-  `;
+      <div class="invite-badge">✨ You're Invited!</div>
+    </div>
+    <div class="title">
+      <span class="highlight">${inviterName}</span> Invited You! 🎉
+    </div>
+    <div class="subtitle">
+      Join the fun way to learn Mandarin through <strong>stories, games, and AI</strong>!<br>
+      Your adventure starts here! 🚀
+    </div>
+    ${customMessage ? `<div class="invite-message">"${customMessage}"</div>` : ''}
+    <div class="perks-grid">
+      <div class="perk-item"><span class="icon">📚</span><span class="label">Interactive Stories</span></div>
+      <div class="perk-item"><span class="icon">🎮</span><span class="label">Fun Games</span></div>
+      <div class="perk-item"><span class="icon">🤖</span><span class="label">AI Panda Tutor</span></div>
+      <div class="perk-item"><span class="icon">🏆</span><span class="label">Achievements</span></div>
+    </div>
+    <div class="bonus-box">
+      <span class="bonus-text">🎁 Bonus: You'll both get <strong>50 XP</strong> when you sign up!</span>
+    </div>
+    <div class="button-container">
+      <a href="${signupLink}" class="button">🎯 Join HanVerse Now</a>
+    </div>
+    <hr class="divider">
+    <div class="footer">
+      <p>Start your Mandarin adventure today! 🐼</p>
+      <p style="font-size: 12px; color: #94A3B8;">
+        This invitation was sent by a HanVerse member.
+      </p>
+      <div class="social">🐼 🎋 🏮 🎐</div>
+      <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+/* ==========================================
+   HANVERSE MASTER EMAIL TEMPLATE 🐼
+   Used for broadcasts, personal emails,
+   announcements and future email types.
+========================================== */
+
+function getHanVerseEmailHTML({
+  subject,
+  message,
+  recipientName = 'HanVerse Friend',
+  senderName = 'HanVerse Team',
+  preheader = 'A message from HanVerse 🐼'
+}) {
+
+  // Convert normal line breaks into HTML paragraphs
+  const formattedMessage = String(message || '')
+    .trim()
+    .split(/\n\s*\n/)
+    .map(paragraph => {
+      const safeParagraph = paragraph
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+      
+      return `
+        <p style="
+          margin:0 0 18px;
+          color:#333333;
+          font-size:16px;
+          line-height:1.75;
+        ">
+          ${safeParagraph}
+        </p>
+      `;
+    })
+    .join('');
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>${subject}</title>
+
+  <style>
+    body {
+      margin:0;
+      padding:0;
+      background:#FFFDF7;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+      color:#333333;
+    }
+
+    table {
+      border-collapse:collapse;
+    }
+
+    .email-wrapper {
+      width:100%;
+      background:#FFFDF7;
+      padding:40px 15px;
+    }
+
+    .container {
+      width:100%;
+      max-width:620px;
+      margin:0 auto;
+      background:#ffffff;
+      border-radius:28px;
+      overflow:hidden;
+      border:1px solid #F1EDE4;
+      box-shadow:0 8px 30px rgba(0,0,0,0.06);
+    }
+
+    .top-bar {
+      height:7px;
+      background:#E63946;
+    }
+
+    .content {
+      padding:40px 42px 35px;
+    }
+
+    .header {
+      text-align:center;
+      margin-bottom:30px;
+    }
+
+    .logo {
+      font-size:58px;
+      line-height:1;
+      margin-bottom:8px;
+    }
+
+    .brand {
+      color:#E63946;
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:-0.5px;
+    }
+
+    .tagline {
+      margin-top:7px;
+      color:#777777;
+      font-size:13px;
+    }
+
+    .badge {
+      display:inline-block;
+      margin-top:18px;
+      padding:8px 16px;
+      border-radius:50px;
+      background:#FFF4C7;
+      color:#6B5600;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .greeting {
+      margin:0 0 12px;
+      color:#333333;
+      font-size:18px;
+      font-weight:600;
+    }
+
+    .title {
+      margin:0 0 25px;
+      color:#E63946;
+      font-size:30px;
+      line-height:1.25;
+      font-weight:800;
+    }
+
+    .message-card {
+      background:#FFFDF7;
+      border:1px solid #F1EDE4;
+      border-radius:20px;
+      padding:25px 24px;
+      margin:25px 0;
+    }
+
+    .message-card p:last-child {
+      margin-bottom:0 !important;
+    }
+
+    .panda-note {
+      background:#EAF6FF;
+      border-left:5px solid #4EA8DE;
+      border-radius:12px;
+      padding:16px 18px;
+      margin:25px 0;
+      color:#334155;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .signature {
+      margin-top:30px;
+      color:#333333;
+      font-size:15px;
+      line-height:1.6;
+    }
+
+    .signature-name {
+      color:#E63946;
+      font-weight:800;
+    }
+
+    .divider {
+      border:0;
+      border-top:1px solid #EEEEEE;
+      margin:32px 0 25px;
+    }
+
+    .footer {
+      text-align:center;
+      color:#94A3B8;
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .footer .social {
+      font-size:22px;
+      margin:12px 0;
+      letter-spacing:7px;
+    }
+
+    .footer .brand-footer {
+      color:#E63946;
+      font-size:14px;
+      font-weight:800;
+    }
+
+    .footer .tagline-footer {
+      color:#94A3B8;
+      font-size:12px;
+      margin-top:4px;
+    }
+
+    .footer a {
+      color:#E63946;
+      text-decoration:none;
+      font-weight:600;
+    }
+
+    @media only screen and (max-width:600px) {
+
+      .email-wrapper {
+        padding:20px 10px;
+      }
+
+      .content {
+        padding:30px 22px;
+      }
+
+      .title {
+        font-size:25px;
+      }
+
+      .message-card {
+        padding:20px 18px;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Preheader -->
+  <div style="
+    display:none;
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    color:transparent;
+  ">
+    ${preheader}
+  </div>
+
+  <div class="email-wrapper">
+
+    <div class="container">
+
+      <div class="top-bar"></div>
+
+      <div class="content">
+
+        <!-- HEADER -->
+        <div class="header">
+
+          <div class="logo">
+            🐼
+          </div>
+
+          <div class="brand">
+            HanVerse
+          </div>
+
+          <div class="tagline">
+            Learn Mandarin Through Stories, Games &amp; AI
+          </div>
+
+          <div class="badge">
+            ✨ Your Mandarin Adventure
+          </div>
+
+        </div>
+
+        <!-- GREETING -->
+        <p class="greeting">
+          Hello ${recipientName}!
+        </p>
+
+        <!-- SUBJECT -->
+        <h1 class="title">
+          ${subject}
+        </h1>
+
+        <!-- MESSAGE -->
+        <div class="message-card">
+
+          ${formattedMessage}
+
+        </div>
+
+        <!-- PANDA NOTE -->
+        <div class="panda-note">
+
+          🐼 <strong>A little HanVerse reminder:</strong><br>
+
+          Keep learning, keep exploring, and keep having fun with
+          Mandarin!
+
+        </div>
+
+        <!-- SIGNATURE -->
+        <div class="signature">
+
+          Warmly,<br>
+
+          <span class="signature-name">
+            ${senderName}
+          </span><br>
+
+          HanVerse
+
+        </div>
+
+        <!-- DIVIDER -->
+        <hr class="divider">
+
+        <!-- FOOTER -->
+        <div class="footer">
+
+          <div class="social">
+            🐼 🎋 🏮 🎐
+          </div>
+
+          <div class="brand-footer">
+            HanVerse
+          </div>
+
+          <div class="tagline-footer">
+            Learn Mandarin Through Stories, Games &amp; AI
+          </div>
+
+          <p>
+            Need help?
+            <a href="mailto:support@hanverse.com">
+              support@hanverse.com
+            </a>
+          </p>
+
+          <p style="font-size:11px;color:#B0B8C4;">
+            You received this email because you have an account
+            or relationship with HanVerse.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
+`;
 }
 
 /* ==========================================
@@ -1183,17 +964,11 @@ async function sendVerificationEmail({ to, username, fullName, token }) {
     verifyLink
   });
 
-  if (mailer) {
-    await mailer.sendMail({
-      from: EMAIL_FROM,
-      to,
-      subject: '🐼 Welcome to HanVerse! Verify Your Email',
-      html
-    });
-    console.log(`✅ Verification email sent to ${to}`);
-  } else {
-    console.warn('⚠️ Mailer not available, skipping email send');
-  }
+  return sendEmail({
+    to,
+    subject: '🐼 Welcome to HanVerse! Verify Your Email',
+    html
+  });
 }
 
 async function sendWelcomeEmail({ to, username, fullName }) {
@@ -1202,17 +977,11 @@ async function sendWelcomeEmail({ to, username, fullName }) {
     fullName: fullName || username
   });
 
-  if (mailer) {
-    await mailer.sendMail({
-      from: EMAIL_FROM,
-      to,
-      subject: '🎉 Welcome to HanVerse! Your Mandarin Adventure Begins!',
-      html
-    });
-    console.log(`✅ Welcome email sent to ${to}`);
-  } else {
-    console.warn('⚠️ Mailer not available, skipping welcome email');
-  }
+  return sendEmail({
+    to,
+    subject: '🎉 Welcome to HanVerse! Your Mandarin Adventure Begins!',
+    html
+  });
 }
 
 async function sendPasswordResetEmail({ to, username, fullName, token }) {
@@ -1225,21 +994,15 @@ async function sendPasswordResetEmail({ to, username, fullName, token }) {
     resetLink
   });
 
-  if (mailer) {
-    await mailer.sendMail({
-      from: EMAIL_FROM,
-      to,
-      subject: '🔒 Reset Your HanVerse Password',
-      html
-    });
-    console.log(`✅ Password reset email sent to ${to}`);
-  } else {
-    console.warn('⚠️ Mailer not available, skipping email send');
-  }
+  return sendEmail({
+    to,
+    subject: '🔒 Reset Your HanVerse Password',
+    html
+  });
 }
 
 /* ==========================================
-  MIDDLEWARE: Admin Auth Check
+  MIDDLEWARE: Admin Auth Check 🔐
 ========================================== */
 async function verifyAdminToken(req, res, next) {
   try {
@@ -1253,30 +1016,49 @@ async function verifyAdminToken(req, res, next) {
       return res.status(401).json({ success: false, error: 'Invalid token format.' });
     }
 
-    const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const parts = decoded.split(':');
-    
-    if (parts.length !== 2) {
-      return res.status(401).json({ success: false, error: 'Invalid token format.' });
+    // Properly verify the JWT
+    const decoded = verifyJWTToken(token);
+    if (!decoded) {
+      return res.status(401).json({ success: false, error: 'Invalid or expired token.' });
     }
-    
-    const [userId, timestamp] = parts;
-    const ts = parseInt(timestamp);
-    
-    if (isNaN(ts) || Date.now() - ts > 3600000) {
-      return res.status(401).json({ success: false, error: 'Admin token expired or invalid.' });
-    }
-    
-    const userResult = await pool.query(
-      'SELECT is_admin FROM users WHERE user_id = $1',
-      [userId]
-    );
-    
-    if (!userResult.rows.length || !userResult.rows[0].is_admin) {
+
+    // Check that the token contains admin claims
+    if (!decoded.is_admin && !decoded.role === 'admin') {
       return res.status(403).json({ success: false, error: 'Access denied. Admin privileges required.' });
     }
-    
-    req.adminUserId = userId;
+
+    const userId = decoded.user_id || decoded.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Invalid token payload.' });
+    }
+
+    // Verify the user still exists and is an admin
+    const userResult = await pool.query(
+      'SELECT user_id, is_admin, is_banned FROM users WHERE user_id = $1',
+      [userId]
+    );
+
+    if (!userResult.rows.length) {
+      return res.status(401).json({ success: false, error: 'User not found.' });
+    }
+
+    const user = userResult.rows[0];
+    if (!user.is_admin) {
+      return res.status(403).json({ success: false, error: 'Access denied. Admin privileges required.' });
+    }
+
+    if (user.is_banned) {
+      return res.status(403).json({ success: false, error: 'Account is banned.' });
+    }
+
+    // Attach user info to request
+    req.user = {
+      user_id: user.user_id,
+      is_admin: user.is_admin
+    };
+    req.userId = user.user_id;
+    req.adminUserId = user.user_id;
+
     next();
   } catch (error) {
     console.error('❌ Admin auth error:', error);
@@ -1356,7 +1138,7 @@ router.post('/signup', async (req, res) => {
     }
 
     const password_hash = await bcrypt.hash(cleanPassword, 10);
-    const verificationToken = generateToken(24);
+    const verificationToken = generateSecureToken(32);
 
     let hasRoleColumn = false;
     try {
@@ -1422,8 +1204,8 @@ router.post('/signup', async (req, res) => {
     
     try {
       await pool.query(
-        `INSERT INTO email_verifications (user_id, token, created_at, expires_at)
-        VALUES ($1, $2, NOW(), NOW() + INTERVAL '24 hours')`,
+        `INSERT INTO email_verifications (user_id, token, expires_at, created_at)
+        VALUES ($1, $2, NOW() + INTERVAL '24 hours', NOW())`,
         [newUser.user_id, verificationToken]
       );
       console.log('✅ Verification token stored');
@@ -1490,6 +1272,7 @@ router.post('/login', async (req, res) => {
     );
 
     if (!result.rows.length) {
+      // Use same response for security (prevent user enumeration)
       return res.status(401).json({
         success: false,
         error: 'Invalid email or password.'
@@ -1527,8 +1310,17 @@ router.post('/login', async (req, res) => {
       [user.user_id]
     );
 
+    // Generate JWT for the user
+    const token = generateToken({
+      user_id: user.user_id,
+      email: user.email,
+      role: user.role || 'student',
+      is_admin: user.is_admin || false
+    });
+
     return res.json({
       success: true,
+      token,
       user: safeUser(user)
     });
 
@@ -1606,9 +1398,18 @@ router.post('/auth/refresh', async (req, res) => {
       `UPDATE users SET last_active = NOW(), updated_at = NOW() WHERE user_id = $1`,
       [userId]
     );
+
+    // Generate fresh token
+    const token = generateToken({
+      user_id: result.rows[0].user_id,
+      email: result.rows[0].email,
+      role: result.rows[0].role || 'student',
+      is_admin: result.rows[0].is_admin || false
+    });
     
     return res.json({ 
-      success: true, 
+      success: true,
+      token,
       user: safeUser(result.rows[0]) 
     });
   } catch (error) {
@@ -1694,7 +1495,7 @@ router.post('/auth/send-verification', async (req, res) => {
       });
     }
 
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationToken = generateSecureToken(32);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     try {
@@ -1702,7 +1503,6 @@ router.post('/auth/send-verification', async (req, res) => {
         CREATE TABLE IF NOT EXISTS email_verifications (
           id SERIAL PRIMARY KEY,
           user_id INTEGER NOT NULL,
-          email VARCHAR(255) NOT NULL,
           token VARCHAR(64) NOT NULL UNIQUE,
           expires_at TIMESTAMP NOT NULL,
           created_at TIMESTAMP DEFAULT NOW()
@@ -1713,11 +1513,11 @@ router.post('/auth/send-verification', async (req, res) => {
     }
 
     await pool.query(
-      `INSERT INTO email_verifications (user_id, email, token, expires_at, created_at)
-      VALUES ($1, $2, $3, $4, NOW())
+      `INSERT INTO email_verifications (user_id, token, expires_at, created_at)
+      VALUES ($1, $2, $3, NOW())
       ON CONFLICT (user_id) DO UPDATE 
-      SET token = $3, email = $2, expires_at = $4, created_at = NOW()`,
-      [userId, user.email, verificationToken, expiresAt]
+      SET token = $2, expires_at = $3, created_at = NOW()`,
+      [userId, verificationToken, expiresAt]
     );
 
     await sendVerificationEmail({
@@ -1783,13 +1583,13 @@ router.post('/auth/resend-verification', async (req, res) => {
       [userId]
     );
 
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationToken = generateSecureToken(32);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     await pool.query(
-      `INSERT INTO email_verifications (user_id, email, token, expires_at, created_at)
-      VALUES ($1, $2, $3, $4, NOW())`,
-      [userId, user.email, verificationToken, expiresAt]
+      `INSERT INTO email_verifications (user_id, token, expires_at, created_at)
+      VALUES ($1, $2, $3, NOW())`,
+      [userId, verificationToken, expiresAt]
     );
 
     await sendVerificationEmail({
@@ -1825,10 +1625,10 @@ router.get('/verify-email', async (req, res) => {
     }
 
     const tokenResult = await pool.query(
-      `SELECT user_id, email, expires_at 
+      `SELECT user_id, expires_at 
       FROM email_verifications 
-      WHERE token = $1 AND email = $2`,
-      [token, email]
+      WHERE token = $1`,
+      [token]
     );
 
     if (!tokenResult.rows.length) {
@@ -1989,7 +1789,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     const user = userResult.rows[0];
-    const resetToken = generateToken(32);
+    const resetToken = generateSecureToken(32);
 
     try {
       await pool.query(`DELETE FROM password_resets WHERE user_id = $1`, [user.user_id]);
@@ -1998,8 +1798,8 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     await pool.query(
-      `INSERT INTO password_resets (user_id, token, created_at, expires_at)
-      VALUES ($1, $2, NOW(), NOW() + INTERVAL '1 hour')`,
+      `INSERT INTO password_resets (user_id, token, expires_at, created_at)
+      VALUES ($1, $2, NOW() + INTERVAL '1 hour', NOW())`,
       [user.user_id, resetToken]
     );
 
@@ -3538,9 +3338,7 @@ router.post('/admin/verify-password', async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT *
-       FROM users
-       WHERE user_id = $1`,
+      `SELECT * FROM users WHERE user_id = $1`,
       [userId]
     );
 
@@ -3560,10 +3358,7 @@ router.post('/admin/verify-password', async (req, res) => {
       });
     }
 
-    const valid = await bcrypt.compare(
-      adminPassword,
-      user.password_hash
-    );
+    const valid = await bcrypt.compare(adminPassword, user.password_hash);
 
     if (!valid) {
       return res.status(401).json({
@@ -3572,12 +3367,13 @@ router.post('/admin/verify-password', async (req, res) => {
       });
     }
 
-const adminToken = generateToken(32, {
-    user_id: user.user_id,
-    email: user.email,
-    role: 'admin',
-    is_admin: true
-});    
+    // Generate proper JWT for admin
+    const adminToken = generateToken({
+      user_id: user.user_id,
+      email: user.email,
+      role: 'admin',
+      is_admin: true
+    }, '8h');
 
     return res.json({
       success: true,
@@ -3586,14 +3382,12 @@ const adminToken = generateToken(32, {
 
   } catch (error) {
     console.error('❌ Admin verification error:', error);
-
     return res.status(500).json({
       success: false,
       error: 'Admin validation failed.'
     });
   }
 });
-
 
 /* =========================================================
    ADMIN OVERVIEW / USERS
@@ -3604,9 +3398,7 @@ router.get('/admin/overview', verifyAdminToken, async (req, res) => {
     if (!ensurePool(res)) return;
 
     const result = await pool.query(`
-      SELECT *
-      FROM users
-      ORDER BY created_at DESC
+      SELECT * FROM users ORDER BY created_at DESC
     `);
 
     return res.json({
@@ -3616,14 +3408,12 @@ router.get('/admin/overview', verifyAdminToken, async (req, res) => {
 
   } catch (error) {
     console.error('❌ Admin overview error:', error);
-
     return res.status(500).json({
       success: false,
       error: 'Failed to load admin data.'
     });
   }
 });
-
 
 /* =========================================================
    ADMIN EMAIL BROADCAST
@@ -3657,60 +3447,29 @@ router.post('/admin/email-all', verifyAdminToken, async (req, res) => {
 
     for (const user of result.rows) {
       try {
-        const html = `
-          <div style="
-            font-family:Arial,sans-serif;
-            max-width:600px;
-            margin:auto;
-            padding:24px;
-            color:#333;
-          ">
-            <div style="text-align:center;">
-              <div style="font-size:48px;">🐼</div>
-              <h2 style="color:#E63946;">
-                ${subject}
-              </h2>
-            </div>
+const html = getHanVerseEmailHTML({
+  subject: campaign.subject,
+  message: campaign.message,
+  recipientName: recipient.recipient_name || 'HanVerse Friend',
+  senderName: campaign.sender_name || 'HanVerse Team',
+  preheader: campaign.subject
+});
 
-            <div style="
-              margin-top:20px;
-              line-height:1.7;
-              white-space:pre-wrap;
-            ">
-              ${message}
-            </div>
-
-            <hr style="
-              margin:28px 0;
-              border:0;
-              border-top:1px solid #eee;
-            ">
-
-            <p style="
-              color:#777;
-              font-size:13px;
-              text-align:center;
-            ">
-              HanVerse — Learn Chinese. Have Fun. 🐼
-            </p>
-          </div>
-        `;
-
-        await sendEmail({
+        const emailResult = await sendEmail({
           to: user.email,
           subject,
           html
         });
 
-        sent++;
+        if (emailResult.success) {
+          sent++;
+        } else {
+          failed++;
+        }
 
       } catch (emailError) {
         failed++;
-
-        console.error(
-          `❌ Broadcast failed for ${user.email}:`,
-          emailError
-        );
+        console.error(`❌ Broadcast failed for ${user.email}:`, emailError);
       }
     }
 
@@ -3723,1909 +3482,1359 @@ router.post('/admin/email-all', verifyAdminToken, async (req, res) => {
 
   } catch (error) {
     console.error('❌ Broadcast error:', error);
-
     return res.status(500).json({
       success: false,
       error: 'Failed to send broadcast.'
     });
   }
 });
+
 /* =========================================================
    EMAIL CAMPAIGNS 📧
-   Broadcast + scheduled + authenticated email sending
 ========================================================= */
 
+// GET CAMPAIGNS
+router.get('/admin/email/campaigns', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-/* ---------------------------------------------------------
-   GET CAMPAIGNS
-   GET /api/admin/email/campaigns
---------------------------------------------------------- */
+    const { status } = req.query;
+    const values = [];
+    let where = '';
 
-router.get(
-  '/admin/email/campaigns',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+    if (status) {
+      values.push(status);
+      where = `WHERE ec.status = $1`;
+    }
 
-      const { status } = req.query;
+    const result = await pool.query(`
+      SELECT
+        ec.campaign_id,
+        ec.campaign_type,
+        ec.subject,
+        ec.audience_type,
+        ec.scheduled_for,
+        ec.timezone,
+        ec.status,
+        ec.total_recipients,
+        ec.sent_count,
+        ec.failed_count,
+        ec.created_at,
+        ec.updated_at,
+        ec.sent_at,
+        sender.full_name AS sender_name,
+        sender.username AS sender_username,
+        sender.email AS sender_email,
+        creator.full_name AS creator_name,
+        creator.username AS creator_username
+      FROM email_campaigns ec
+      LEFT JOIN users sender ON sender.user_id = ec.sender_user_id
+      LEFT JOIN users creator ON creator.user_id = ec.created_by
+      ${where}
+      ORDER BY ec.created_at DESC
+      LIMIT 200
+    `, values);
 
-      const values = [];
-      let where = '';
+    return res.json({
+      success: true,
+      campaigns: result.rows
+    });
 
-      if (status) {
-        values.push(status);
-        where = `WHERE ec.status = $1`;
-      }
+  } catch (error) {
+    console.error('❌ Get email campaigns error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load email campaigns.'
+    });
+  }
+});
 
-      const result = await pool.query(
-        `
-        SELECT
-          ec.campaign_id,
-          ec.campaign_type,
-          ec.subject,
-          ec.audience_type,
-          ec.scheduled_for,
-          ec.timezone,
-          ec.status,
-          ec.total_recipients,
-          ec.sent_count,
-          ec.failed_count,
-          ec.created_at,
-          ec.updated_at,
-          ec.sent_at,
+// CREATE CAMPAIGN
+router.post('/admin/email/campaigns', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-          sender.full_name AS sender_name,
-          sender.username AS sender_username,
-          sender.email AS sender_email,
+    const {
+      campaign_type = 'broadcast',
+      audience_type = 'verified',
+      subject,
+      message,
+      timing = 'now',
+      scheduled_for = null,
+      timezone = 'Africa/Nairobi',
+      adminPassword
+    } = req.body || {};
 
-          creator.full_name AS creator_name,
-          creator.username AS creator_username
-
-        FROM email_campaigns ec
-
-        LEFT JOIN users sender
-          ON sender.user_id = ec.sender_user_id
-
-        LEFT JOIN users creator
-          ON creator.user_id = ec.created_by
-
-        ${where}
-
-        ORDER BY ec.created_at DESC
-        LIMIT 200
-        `,
-        values
-      );
-
-      return res.json({
-        success: true,
-        campaigns: result.rows
-      });
-
-    } catch (error) {
-      console.error(
-        '❌ Get email campaigns error:',
-        error
-      );
-
-      return res.status(500).json({
+    // Basic validation
+    if (!subject || !String(subject).trim()) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to load email campaigns.'
+        error: 'Email subject is required.'
       });
     }
-  }
-);
 
+    if (!message || !String(message).trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email message is required.'
+      });
+    }
 
-/* ---------------------------------------------------------
-   CREATE CAMPAIGN
-   POST /api/admin/email/campaigns
---------------------------------------------------------- */
+    if (!adminPassword) {
+      return res.status(401).json({
+        success: false,
+        error: 'Administrator password is required.'
+      });
+    }
 
-router.post(
-  '/admin/email/campaigns',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+    if (!['broadcast', 'personal'].includes(campaign_type)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid campaign type.'
+      });
+    }
 
-      const {
-        campaign_type = 'broadcast',
-        audience_type = 'verified',
-        subject,
-        message,
-        timing = 'now',
-        scheduled_for = null,
-        timezone = 'Africa/Nairobi',
-        adminPassword
-      } = req.body || {};
+    const adminUserId = req.user?.user_id || req.user?.id || req.userId;
 
-      /* ---------------------------------------------
-         BASIC VALIDATION
-      --------------------------------------------- */
+    if (!adminUserId) {
+      return res.status(401).json({
+        success: false,
+        error: 'Administrator identity could not be determined.'
+      });
+    }
 
-      if (!subject || !String(subject).trim()) {
+    const adminResult = await pool.query(`
+      SELECT user_id, username, email, full_name, password_hash, is_admin, is_banned
+      FROM users WHERE user_id = $1 LIMIT 1
+    `, [adminUserId]);
+
+    if (!adminResult.rows.length) {
+      return res.status(401).json({
+        success: false,
+        error: 'Administrator account not found.'
+      });
+    }
+
+    const admin = adminResult.rows[0];
+
+    if (!admin.is_admin) {
+      return res.status(403).json({
+        success: false,
+        error: 'Administrator permissions are required.'
+      });
+    }
+
+    if (admin.is_banned) {
+      return res.status(403).json({
+        success: false,
+        error: 'This administrator account is banned.'
+      });
+    }
+
+    const passwordValid = await bcrypt.compare(String(adminPassword), admin.password_hash);
+
+    if (!passwordValid) {
+      return res.status(401).json({
+        success: false,
+        error: 'Incorrect administrator password.'
+      });
+    }
+
+    const senderUserId = admin.user_id;
+
+    // Determine recipients
+    let recipientQuery = '';
+    let recipientParams = [];
+
+    switch (audience_type) {
+      case 'all':
+        recipientQuery = `
+          SELECT user_id, email, full_name, username
+          FROM users
+          WHERE email IS NOT NULL AND email <> '' AND COALESCE(is_banned, false) = false
+        `;
+        break;
+      case 'verified':
+        recipientQuery = `
+          SELECT user_id, email, full_name, username
+          FROM users
+          WHERE email IS NOT NULL AND email <> ''
+            AND COALESCE(is_verified, false) = true
+            AND COALESCE(is_banned, false) = false
+        `;
+        break;
+      case 'students':
+        recipientQuery = `
+          SELECT user_id, email, full_name, username
+          FROM users
+          WHERE email IS NOT NULL AND email <> ''
+            AND COALESCE(role, 'student') = 'student'
+            AND COALESCE(is_banned, false) = false
+        `;
+        break;
+      case 'parents':
+        recipientQuery = `
+          SELECT user_id, email, full_name, username
+          FROM users
+          WHERE email IS NOT NULL AND email <> ''
+            AND COALESCE(role, '') = 'parent'
+            AND COALESCE(is_banned, false) = false
+        `;
+        break;
+      case 'premium':
+        recipientQuery = `
+          SELECT user_id, email, full_name, username
+          FROM users
+          WHERE email IS NOT NULL AND email <> ''
+            AND COALESCE(premium, false) = true
+            AND COALESCE(is_banned, false) = false
+        `;
+        break;
+      case 'non_premium':
+        recipientQuery = `
+          SELECT user_id, email, full_name, username
+          FROM users
+          WHERE email IS NOT NULL AND email <> ''
+            AND COALESCE(premium, false) = false
+            AND COALESCE(is_banned, false) = false
+        `;
+        break;
+      default:
         return res.status(400).json({
           success: false,
-          error: 'Email subject is required.'
+          error: 'This audience type is not yet supported.'
         });
-      }
+    }
 
-      if (!message || !String(message).trim()) {
+    const recipientsResult = await pool.query(recipientQuery, recipientParams);
+    const recipients = recipientsResult.rows;
+
+    if (!recipients.length) {
+      return res.status(400).json({
+        success: false,
+        error: 'No eligible recipients were found.'
+      });
+    }
+
+    // Determine send time
+    let scheduledDate;
+
+    if (timing === 'now') {
+      scheduledDate = new Date();
+    } else if (timing === 'scheduled') {
+      if (!scheduled_for) {
         return res.status(400).json({
           success: false,
-          error: 'Email message is required.'
+          error: 'scheduled_for is required when scheduling an email.'
         });
       }
-
-      if (!adminPassword) {
-        return res.status(401).json({
-          success: false,
-          error: 'Administrator password is required.'
-        });
-      }
-
-      if (
-        !['broadcast', 'personal'].includes(
-          campaign_type
-        )
-      ) {
+      scheduledDate = new Date(scheduled_for);
+      if (Number.isNaN(scheduledDate.getTime())) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid campaign type.'
+          error: 'Invalid scheduled date/time.'
         });
       }
-
-      if (
-        ![
-          'all',
-          'verified',
-          'students',
-          'parents',
-          'premium',
-          'non_premium',
-          'custom',
-          'personal'
-        ].includes(audience_type)
-      ) {
+      if (scheduledDate.getTime() <= Date.now()) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid audience type.'
+          error: 'Scheduled time must be in the future.'
         });
       }
-
-      /* ---------------------------------------------
-         VERIFY ADMIN ACCOUNT PASSWORD
-      --------------------------------------------- */
-
-      /*
-       * verifyAdminToken should already have attached
-       * the authenticated administrator to req.user.
-       *
-       * We also support req.userId as a fallback for
-       * older versions of the authentication middleware.
-       */
-
-      const adminUserId =
-        req.user?.user_id ||
-        req.user?.id ||
-        req.userId;
-
-      if (!adminUserId) {
-        return res.status(401).json({
-          success: false,
-          error: 'Administrator identity could not be determined.'
-        });
-      }
-
-      const adminResult = await pool.query(
-        `
-        SELECT
-          user_id,
-          username,
-          email,
-          full_name,
-          password_hash,
-          is_admin,
-          is_banned
-        FROM users
-        WHERE user_id = $1
-        LIMIT 1
-        `,
-        [adminUserId]
-      );
-
-      if (!adminResult.rows.length) {
-        return res.status(401).json({
-          success: false,
-          error: 'Administrator account not found.'
-        });
-      }
-
-      const admin = adminResult.rows[0];
-
-      if (!admin.is_admin) {
-        return res.status(403).json({
-          success: false,
-          error: 'Administrator permissions are required.'
-        });
-      }
-
-      if (admin.is_banned) {
-        return res.status(403).json({
-          success: false,
-          error: 'This administrator account is banned.'
-        });
-      }
-
-      const passwordValid =
-        await bcrypt.compare(
-          String(adminPassword),
-          admin.password_hash
-        );
-
-      if (!passwordValid) {
-        return res.status(401).json({
-          success: false,
-          error: 'Incorrect administrator password.'
-        });
-      }
-
-      /* ---------------------------------------------
-         DETERMINE SENDER
-      --------------------------------------------- */
-
-      const senderUserId = admin.user_id;
-
-      /* ---------------------------------------------
-         DETERMINE RECIPIENTS
-      --------------------------------------------- */
-
-      let recipientQuery = '';
-      let recipientParams = [];
-
-      switch (audience_type) {
-
-        case 'all':
-
-          recipientQuery = `
-            SELECT
-              user_id,
-              email,
-              full_name,
-              username
-            FROM users
-            WHERE email IS NOT NULL
-              AND email <> ''
-              AND COALESCE(is_banned, false) = false
-          `;
-
-          break;
-
-
-        case 'verified':
-
-          recipientQuery = `
-            SELECT
-              user_id,
-              email,
-              full_name,
-              username
-            FROM users
-            WHERE email IS NOT NULL
-              AND email <> ''
-              AND COALESCE(is_verified, false) = true
-              AND COALESCE(is_banned, false) = false
-          `;
-
-          break;
-
-
-        case 'students':
-
-          recipientQuery = `
-            SELECT
-              user_id,
-              email,
-              full_name,
-              username
-            FROM users
-            WHERE email IS NOT NULL
-              AND email <> ''
-              AND COALESCE(role, 'student') = 'student'
-              AND COALESCE(is_banned, false) = false
-          `;
-
-          break;
-
-
-        case 'parents':
-
-          recipientQuery = `
-            SELECT
-              user_id,
-              email,
-              full_name,
-              username
-            FROM users
-            WHERE email IS NOT NULL
-              AND email <> ''
-              AND COALESCE(role, '') = 'parent'
-              AND COALESCE(is_banned, false) = false
-          `;
-
-          break;
-
-
-        case 'premium':
-
-          recipientQuery = `
-            SELECT
-              user_id,
-              email,
-              full_name,
-              username
-            FROM users
-            WHERE email IS NOT NULL
-              AND email <> ''
-              AND COALESCE(premium, false) = true
-              AND COALESCE(is_banned, false) = false
-          `;
-
-          break;
-
-
-        case 'non_premium':
-
-          recipientQuery = `
-            SELECT
-              user_id,
-              email,
-              full_name,
-              username
-            FROM users
-            WHERE email IS NOT NULL
-              AND email <> ''
-              AND COALESCE(premium, false) = false
-              AND COALESCE(is_banned, false) = false
-          `;
-
-          break;
-
-
-        default:
-
-          return res.status(400).json({
-            success: false,
-            error: 'This audience type is not yet supported.'
-          });
-      }
-
-
-      const recipientsResult =
-        await pool.query(
-          recipientQuery,
-          recipientParams
-        );
-
-      const recipients =
-        recipientsResult.rows;
-
-
-      if (!recipients.length) {
-        return res.status(400).json({
-          success: false,
-          error: 'No eligible recipients were found.'
-        });
-      }
-
-
-      /* ---------------------------------------------
-         DETERMINE SEND TIME
-      --------------------------------------------- */
-
-      let scheduledDate;
-
-      if (timing === 'now') {
-
-        scheduledDate = new Date();
-
-      } else if (timing === 'scheduled') {
-
-        if (!scheduled_for) {
-          return res.status(400).json({
-            success: false,
-            error:
-              'scheduled_for is required when scheduling an email.'
-          });
-        }
-
-        scheduledDate =
-          new Date(scheduled_for);
-
-        if (
-          Number.isNaN(
-            scheduledDate.getTime()
-          )
-        ) {
-          return res.status(400).json({
-            success: false,
-            error: 'Invalid scheduled date/time.'
-          });
-        }
-
-        if (
-          scheduledDate.getTime() <=
-          Date.now()
-        ) {
-          return res.status(400).json({
-            success: false,
-            error:
-              'Scheduled time must be in the future.'
-          });
-        }
-
-      } else {
-
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid timing option.'
-        });
-      }
-
-
-      /* ---------------------------------------------
-         CREATE CAMPAIGN
-      --------------------------------------------- */
-
-      await pool.query('BEGIN');
-
-      const campaignResult =
-        await pool.query(
-          `
-          INSERT INTO email_campaigns (
-            campaign_type,
-            subject,
-            message,
-            audience_type,
-            sender_user_id,
-            created_by,
-            authorised_by,
-            authorised_at,
-            scheduled_for,
-            timezone,
-            status,
-            total_recipients
-          )
-          VALUES (
-            $1,$2,$3,$4,$5,$6,$7,NOW(),
-            $8,$9,$10,$11
-          )
-          RETURNING *
-          `,
-          [
-            campaign_type,
-            String(subject).trim(),
-            String(message).trim(),
-            audience_type,
-            senderUserId,
-            adminUserId,
-            adminUserId,
-            scheduledDate,
-            timezone,
-            timing === 'now'
-              ? 'processing'
-              : 'scheduled',
-            recipients.length
-          ]
-        );
-
-
-      const campaign =
-        campaignResult.rows[0];
-
-
-      /* ---------------------------------------------
-         INSERT RECIPIENTS
-      --------------------------------------------- */
-
-      for (const recipient of recipients) {
-
-        await pool.query(
-          `
-          INSERT INTO email_campaign_recipients (
-            campaign_id,
-            user_id,
-            email,
-            recipient_name,
-            status
-          )
-          VALUES ($1,$2,$3,$4,'pending')
-          `,
-          [
-            campaign.campaign_id,
-            recipient.user_id,
-            recipient.email,
-            recipient.full_name ||
-              recipient.username ||
-              null
-          ]
-        );
-      }
-
-
-      await pool.query('COMMIT');
-
-
-      /* ---------------------------------------------
-         SEND IMMEDIATELY
-      --------------------------------------------- */
-
-      if (timing === 'now') {
-
-        /*
-         * Do not keep the HTTP request waiting for
-         * hundreds of emails.
-         *
-         * The campaign is already safely stored.
-         * The scheduler/processor can pick it up.
-         */
-
-        return res.status(201).json({
-          success: true,
-          campaign,
-          message:
-            `Email campaign authorised and queued for ${recipients.length} recipient(s).`
-        });
-      }
-
-
-      /* ---------------------------------------------
-         SCHEDULED RESPONSE
-      --------------------------------------------- */
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid timing option.'
+      });
+    }
+
+    // Create campaign
+    await pool.query('BEGIN');
+
+    const campaignResult = await pool.query(`
+      INSERT INTO email_campaigns (
+        campaign_type, subject, message, audience_type,
+        sender_user_id, created_by, authorised_by, authorised_at,
+        scheduled_for, timezone, status, total_recipients
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW(),$8,$9,$10,$11)
+      RETURNING *
+    `, [
+      campaign_type,
+      String(subject).trim(),
+      String(message).trim(),
+      audience_type,
+      senderUserId,
+      adminUserId,
+      adminUserId,
+      scheduledDate,
+      timezone,
+      timing === 'now' ? 'processing' : 'scheduled',
+      recipients.length
+    ]);
+
+    const campaign = campaignResult.rows[0];
+
+    // Insert recipients
+    for (const recipient of recipients) {
+      await pool.query(`
+        INSERT INTO email_campaign_recipients (
+          campaign_id, user_id, email, recipient_name, status
+        ) VALUES ($1,$2,$3,$4,'pending')
+      `, [
+        campaign.campaign_id,
+        recipient.user_id,
+        recipient.email,
+        recipient.full_name || recipient.username || null
+      ]);
+    }
+
+    await pool.query('COMMIT');
+
+    // If immediate send, process in background
+    if (timing === 'now') {
+      // Start async processing
+      processCampaign(campaign.campaign_id).catch(err => {
+        console.error(`❌ Campaign ${campaign.campaign_id} processing error:`, err);
+      });
 
       return res.status(201).json({
         success: true,
         campaign,
-        message:
-          `Campaign scheduled for ${scheduledDate.toISOString()}.`
+        message: `Email campaign authorised and processing for ${recipients.length} recipient(s).`
       });
+    }
 
-    } catch (error) {
+    return res.status(201).json({
+      success: true,
+      campaign,
+      message: `Campaign scheduled for ${scheduledDate.toISOString()}.`
+    });
 
+  } catch (error) {
+    try { await pool.query('ROLLBACK'); } catch (_) {}
+    console.error('❌ Create email campaign error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to create email campaign.'
+    });
+  }
+});
+
+// CAMPAIGN PROCESSING FUNCTION
+async function processCampaign(campaignId) {
+  try {
+    if (!pool) {
+      console.error(`❌ Cannot process campaign ${campaignId}: Database pool not available`);
+      return;
+    }
+
+    // Get campaign details
+    const campaignResult = await pool.query(
+      `SELECT * FROM email_campaigns WHERE campaign_id = $1`,
+      [campaignId]
+    );
+
+    if (!campaignResult.rows.length) {
+      console.error(`❌ Campaign ${campaignId} not found`);
+      return;
+    }
+
+    const campaign = campaignResult.rows[0];
+
+    // Get recipients
+    const recipientsResult = await pool.query(
+      `SELECT * FROM email_campaign_recipients WHERE campaign_id = $1 AND status = 'pending'`,
+      [campaignId]
+    );
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const recipient of recipientsResult.rows) {
       try {
-        await pool.query('ROLLBACK');
-      } catch (_) {}
+        const html = `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;color:#333;">
+            <div style="text-align:center;">
+              <div style="font-size:48px;">🐼</div>
+              <h2 style="color:#E63946;">${campaign.subject}</h2>
+            </div>
+            <div style="margin-top:20px;line-height:1.7;white-space:pre-wrap;">${campaign.message}</div>
+            <hr style="margin:28px 0;border:0;border-top:1px solid #eee;">
+            <p style="color:#777;font-size:13px;text-align:center;">HanVerse — Learn Chinese. Have Fun. 🐼</p>
+          </div>
+        `;
 
-      console.error(
-        '❌ Create email campaign error:',
-        error
-      );
-
-      return res.status(500).json({
-        success: false,
-        error:
-          'Failed to create email campaign.'
-      });
-    }
-  }
-);
-
-
-/* ---------------------------------------------------------
-   CANCEL CAMPAIGN
-   POST /api/admin/email/campaigns/:id/cancel
---------------------------------------------------------- */
-
-router.post(
-  '/admin/email/campaigns/:id/cancel',
-  verifyAdminToken,
-  async (req, res) => {
-
-    try {
-
-      if (!ensurePool(res)) return;
-
-      const campaignId =
-        Number(req.params.id);
-
-      if (!Number.isInteger(campaignId)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid campaign ID.'
+        const emailResult = await sendEmail({
+          to: recipient.email,
+          subject: campaign.subject,
+          html
         });
-      }
 
-      const result =
+        if (emailResult.success) {
+          await pool.query(
+            `UPDATE email_campaign_recipients SET status = 'sent', sent_at = NOW() WHERE recipient_id = $1`,
+            [recipient.recipient_id]
+          );
+          sent++;
+        } else {
+          await pool.query(
+            `UPDATE email_campaign_recipients SET status = 'failed', error_message = $1 WHERE recipient_id = $2`,
+            [emailResult.error, recipient.recipient_id]
+          );
+          failed++;
+        }
+      } catch (error) {
+        failed++;
+        console.error(`❌ Failed to send to ${recipient.email}:`, error);
         await pool.query(
-          `
-          UPDATE email_campaigns
-          SET
-            status = 'cancelled',
-            updated_at = NOW()
-          WHERE campaign_id = $1
-            AND status = 'scheduled'
-          RETURNING *
-          `,
-          [campaignId]
+          `UPDATE email_campaign_recipients SET status = 'failed', error_message = $1 WHERE recipient_id = $2`,
+          [error.message, recipient.recipient_id]
         );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error:
-            'Campaign not found or can no longer be cancelled.'
-        });
       }
+    }
 
-      return res.json({
-        success: true,
-        campaign: result.rows[0],
-        message: 'Campaign cancelled.'
-      });
+    // Update campaign status
+    await pool.query(
+      `UPDATE email_campaigns
+       SET status = 'completed', sent_count = $1, failed_count = $2, sent_at = NOW(), updated_at = NOW()
+       WHERE campaign_id = $3`,
+      [sent, failed, campaignId]
+    );
 
-    } catch (error) {
+    console.log(`✅ Campaign ${campaignId} completed: ${sent} sent, ${failed} failed`);
 
-      console.error(
-        '❌ Cancel campaign error:',
-        error
+  } catch (error) {
+    console.error(`❌ Campaign ${campaignId} processing error:`, error);
+    try {
+      await pool.query(
+        `UPDATE email_campaigns SET status = 'failed', updated_at = NOW() WHERE campaign_id = $1`,
+        [campaignId]
       );
+    } catch (_) {}
+  }
+}
 
-      return res.status(500).json({
+// CANCEL CAMPAIGN
+router.post('/admin/email/campaigns/:id/cancel', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const campaignId = Number(req.params.id);
+
+    if (!Number.isInteger(campaignId)) {
+      return res.status(400).json({
         success: false,
-        error:
-          'Failed to cancel campaign.'
+        error: 'Invalid campaign ID.'
       });
     }
+
+    const result = await pool.query(`
+      UPDATE email_campaigns
+      SET status = 'cancelled', updated_at = NOW()
+      WHERE campaign_id = $1 AND status = 'scheduled'
+      RETURNING *
+    `, [campaignId]);
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Campaign not found or can no longer be cancelled.'
+      });
+    }
+
+    return res.json({
+      success: true,
+      campaign: result.rows[0],
+      message: 'Campaign cancelled.'
+    });
+
+  } catch (error) {
+    console.error('❌ Cancel campaign error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to cancel campaign.'
+    });
   }
-);
+});
 
 /* =========================================================
    ADMIN EMAIL INDIVIDUAL USER
 ========================================================= */
 
-router.post(
-  '/admin/users/email/:id',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-      const userId = Number(req.params.id);
-      const { subject, message } = req.body || {};
+    const userId = Number(req.params.id);
+    const { subject, message } = req.body || {};
 
-      if (!Number.isInteger(userId)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid user ID.'
-        });
-      }
-
-      if (!subject || !message) {
-        return res.status(400).json({
-          success: false,
-          error: 'Subject and message are required.'
-        });
-      }
-
-      const result = await pool.query(
-        `SELECT email, username
-         FROM users
-         WHERE user_id = $1`,
-        [userId]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'User not found.'
-        });
-      }
-
-      const user = result.rows[0];
-
-      const html = `
-        <div style="
-          font-family:Arial,sans-serif;
-          max-width:600px;
-          margin:auto;
-          padding:24px;
-        ">
-          <div style="text-align:center;">
-            <div style="font-size:48px;">🐼</div>
-            <h2 style="color:#E63946;">
-              ${subject}
-            </h2>
-          </div>
-
-          <div style="
-            margin-top:20px;
-            line-height:1.7;
-            white-space:pre-wrap;
-          ">
-            ${message}
-          </div>
-
-          <p style="
-            margin-top:30px;
-            text-align:center;
-            color:#777;
-            font-size:13px;
-          ">
-            HanVerse
-          </p>
-        </div>
-      `;
-
-      await sendEmail({
-        to: user.email,
-        subject,
-        html
-      });
-
-      return res.json({
-        success: true,
-        message: 'Email sent successfully.'
-      });
-
-    } catch (error) {
-      console.error('❌ Individual admin email error:', error);
-
-      return res.status(500).json({
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to send email.'
+        error: 'Invalid user ID.'
       });
     }
-  }
-);
 
+    if (!subject || !message) {
+      return res.status(400).json({
+        success: false,
+        error: 'Subject and message are required.'
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT email, username, full_name FROM users WHERE user_id = $1`,
+      [userId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    const user = result.rows[0];
+    const fullName = user.full_name || user.username || 'User';
+
+   const html = getHanVerseEmailHTML({
+  subject: String(subject).trim(),
+  message: String(message).trim(),
+  recipientName: user.full_name || user.username || 'HanVerse Friend',
+  senderName: admin.full_name || admin.username || 'HanVerse Team',
+  preheader: String(subject).trim()
+});
+
+    const emailResult = await sendEmail({
+      to: user.email,
+      subject,
+      html
+    });
+
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        error: emailResult.error || 'Failed to send email.'
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Email sent successfully.'
+    });
+
+  } catch (error) {
+    console.error('❌ Individual admin email error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to send email.'
+    });
+  }
+});
 
 /* =========================================================
    ADMIN USER UPDATE
 ========================================================= */
 
-router.post(
-  '/admin/users/update/:id',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-      const userId = Number(req.params.id);
+    const userId = Number(req.params.id);
 
-      if (!Number.isInteger(userId)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid user ID.'
-        });
-      }
-
-      const {
-        full_name,
-        username,
-        email,
-        level,
-        xp,
-        role,
-        is_banned,
-        premium,
-        is_verified,
-        password
-      } = req.body || {};
-
-      const existing = await pool.query(
-        `SELECT *
-         FROM users
-         WHERE user_id = $1`,
-        [userId]
-      );
-
-      if (!existing.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'User not found.'
-        });
-      }
-
-      const fields = [];
-      const values = [];
-      let index = 1;
-
-      const addField = (name, value) => {
-        fields.push(`${name} = $${index}`);
-        values.push(value);
-        index++;
-      };
-
-      if (full_name !== undefined) addField('full_name', full_name);
-      if (username !== undefined) addField('username', username);
-      if (email !== undefined) addField('email', email);
-      if (level !== undefined) addField('level', Number(level) || 1);
-      if (xp !== undefined) addField('xp', Number(xp) || 0);
-      if (role !== undefined) addField('role', role);
-      if (is_banned !== undefined) addField('is_banned', Boolean(is_banned));
-      if (premium !== undefined) addField('premium', Boolean(premium));
-      if (is_verified !== undefined) addField('is_verified', Boolean(is_verified));
-
-      if (password && String(password).trim()) {
-        const passwordHash = await bcrypt.hash(
-          String(password),
-          12
-        );
-
-        addField('password_hash', passwordHash);
-      }
-
-      if (!fields.length) {
-        return res.status(400).json({
-          success: false,
-          error: 'No changes supplied.'
-        });
-      }
-
-      fields.push('updated_at = NOW()');
-
-      values.push(userId);
-
-      const result = await pool.query(
-        `UPDATE users
-         SET ${fields.join(', ')}
-         WHERE user_id = $${index}
-         RETURNING *`,
-        values
-      );
-
-      return res.json({
-        success: true,
-        user: safeUser(result.rows[0])
-      });
-
-    } catch (error) {
-      console.error('❌ Admin user update error:', error);
-
-      return res.status(500).json({
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to update user.'
+        error: 'Invalid user ID.'
       });
     }
-  }
-);
 
+    const {
+      full_name, username, email, level, xp, role,
+      is_banned, premium, is_verified, password
+    } = req.body || {};
+
+    const existing = await pool.query(`SELECT * FROM users WHERE user_id = $1`, [userId]);
+
+    if (!existing.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    const fields = [];
+    const values = [];
+    let index = 1;
+
+    const addField = (name, value) => {
+      fields.push(`${name} = $${index}`);
+      values.push(value);
+      index++;
+    };
+
+    if (full_name !== undefined) addField('full_name', full_name);
+    if (username !== undefined) addField('username', username);
+    if (email !== undefined) addField('email', email);
+    if (level !== undefined) addField('level', Number(level) || 1);
+    if (xp !== undefined) addField('xp', Number(xp) || 0);
+    if (role !== undefined) addField('role', role);
+    if (is_banned !== undefined) addField('is_banned', Boolean(is_banned));
+    if (premium !== undefined) addField('premium', Boolean(premium));
+    if (is_verified !== undefined) addField('is_verified', Boolean(is_verified));
+
+    if (password && String(password).trim()) {
+      const passwordHash = await bcrypt.hash(String(password), 12);
+      addField('password_hash', passwordHash);
+    }
+
+    if (!fields.length) {
+      return res.status(400).json({
+        success: false,
+        error: 'No changes supplied.'
+      });
+    }
+
+    fields.push('updated_at = NOW()');
+    values.push(userId);
+
+    const result = await pool.query(
+      `UPDATE users SET ${fields.join(', ')} WHERE user_id = $${index} RETURNING *`,
+      values
+    );
+
+    return res.json({
+      success: true,
+      user: safeUser(result.rows[0])
+    });
+
+  } catch (error) {
+    console.error('❌ Admin user update error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update user.'
+    });
+  }
+});
 
 /* =========================================================
    ADMIN BAN / UNBAN USER
 ========================================================= */
 
-router.post(
-  '/admin/users/ban/:id',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+router.post('/admin/users/ban/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-      const userId = Number(req.params.id);
-      const { banned = true, reason = null } = req.body || {};
+    const userId = Number(req.params.id);
+    const { banned = true, reason = null } = req.body || {};
 
-      if (!Number.isInteger(userId)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid user ID.'
-        });
-      }
-
-      const result = await pool.query(
-        `UPDATE users
-         SET
-           is_banned = $1,
-           banned_reason = $2,
-           updated_at = NOW()
-         WHERE user_id = $3
-         RETURNING *`,
-        [Boolean(banned), reason, userId]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'User not found.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        user: safeUser(result.rows[0])
-      });
-
-    } catch (error) {
-      console.error('❌ Admin ban error:', error);
-
-      return res.status(500).json({
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to update ban status.'
+        error: 'Invalid user ID.'
       });
     }
-  }
-);
 
+    const result = await pool.query(`
+      UPDATE users
+      SET is_banned = $1, banned_reason = $2, updated_at = NOW()
+      WHERE user_id = $3
+      RETURNING *
+    `, [Boolean(banned), reason, userId]);
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: safeUser(result.rows[0])
+    });
+
+  } catch (error) {
+    console.error('❌ Admin ban error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update ban status.'
+    });
+  }
+});
 
 /* =========================================================
    ADMIN DELETE USER
 ========================================================= */
 
-router.delete(
-  '/admin/users/delete/:id',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+router.delete('/admin/users/delete/:id', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-      const userId = Number(req.params.id);
+    const userId = Number(req.params.id);
 
-      if (!Number.isInteger(userId)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid user ID.'
-        });
-      }
-
-      const result = await pool.query(
-        `DELETE FROM users
-         WHERE user_id = $1
-         RETURNING user_id`,
-        [userId]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'User not found.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        message: 'User deleted successfully.'
-      });
-
-    } catch (error) {
-      console.error('❌ Admin delete user error:', error);
-
-      return res.status(500).json({
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to delete user.'
+        error: 'Invalid user ID.'
       });
     }
-  }
-);
 
+    const result = await pool.query(
+      `DELETE FROM users WHERE user_id = $1 RETURNING user_id`,
+      [userId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'User deleted successfully.'
+    });
+
+  } catch (error) {
+    console.error('❌ Admin delete user error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to delete user.'
+    });
+  }
+});
 
 /* =========================================================
    ADMIN TOGGLE VERIFICATION
 ========================================================= */
 
-router.post(
-  '/admin/toggle-verification/:userId',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+router.post('/admin/toggle-verification/:userId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-      const userId = Number(req.params.userId);
+    const userId = Number(req.params.userId);
 
-      if (!Number.isInteger(userId)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid user ID.'
-        });
-      }
-
-      const requested =
-        req.body?.verified !== undefined
-          ? Boolean(req.body.verified)
-          : null;
-
-      let query;
-      let params;
-
-      if (requested === null) {
-        query = `
-          UPDATE users
-          SET
-            is_verified = NOT COALESCE(is_verified, false),
-            verified_at =
-              CASE
-                WHEN NOT COALESCE(is_verified, false)
-                THEN NOW()
-                ELSE NULL
-              END,
-            updated_at = NOW()
-          WHERE user_id = $1
-          RETURNING *
-        `;
-
-        params = [userId];
-
-      } else {
-        query = `
-          UPDATE users
-          SET
-            is_verified = $1,
-            verified_at =
-              CASE
-                WHEN $1 = true
-                THEN COALESCE(verified_at, NOW())
-                ELSE NULL
-              END,
-            updated_at = NOW()
-          WHERE user_id = $2
-          RETURNING *
-        `;
-
-        params = [requested, userId];
-      }
-
-      const result = await pool.query(query, params);
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'User not found.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        user: safeUser(result.rows[0])
-      });
-
-    } catch (error) {
-      console.error('❌ Verification toggle error:', error);
-
-      return res.status(500).json({
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to update verification status.'
+        error: 'Invalid user ID.'
       });
     }
-  }
-);
 
+    const requested = req.body?.verified !== undefined ? Boolean(req.body.verified) : null;
+
+    let query;
+    let params;
+
+    if (requested === null) {
+      query = `
+        UPDATE users
+        SET is_verified = NOT COALESCE(is_verified, false),
+            verified_at = CASE WHEN NOT COALESCE(is_verified, false) THEN NOW() ELSE NULL END,
+            updated_at = NOW()
+        WHERE user_id = $1
+        RETURNING *
+      `;
+      params = [userId];
+    } else {
+      query = `
+        UPDATE users
+        SET is_verified = $1,
+            verified_at = CASE WHEN $1 = true THEN COALESCE(verified_at, NOW()) ELSE NULL END,
+            updated_at = NOW()
+        WHERE user_id = $2
+        RETURNING *
+      `;
+      params = [requested, userId];
+    }
+
+    const result = await pool.query(query, params);
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: safeUser(result.rows[0])
+    });
+
+  } catch (error) {
+    console.error('❌ Verification toggle error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update verification status.'
+    });
+  }
+});
 
 /* =========================================================
    ADMIN PARENTS
 ========================================================= */
 
-router.get(
-  '/admin/parents',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+router.get('/admin/parents', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-      const result = await pool.query(`
-        SELECT
-          p.*,
-          u.username,
-          u.email AS user_email,
-          u.profile_picture,
-          u.is_admin,
-          (
-            SELECT COUNT(*)
-            FROM users c
-            WHERE c.parent_id = p.parent_id
-              AND c.role = 'student'
-          ) AS actual_children_count
-        FROM parents p
-        LEFT JOIN users u
-          ON u.user_id = p.user_id
-        ORDER BY p.created_at DESC
-      `);
+    const result = await pool.query(`
+      SELECT
+        p.*,
+        u.username,
+        u.email AS user_email,
+        u.profile_picture,
+        u.is_admin,
+        (SELECT COUNT(*) FROM users c WHERE c.parent_id = p.parent_id AND c.role = 'student') AS actual_children_count
+      FROM parents p
+      LEFT JOIN users u ON u.user_id = p.user_id
+      ORDER BY p.created_at DESC
+    `);
 
-      return res.json({
-        success: true,
-        parents: result.rows
-      });
+    return res.json({
+      success: true,
+      parents: result.rows
+    });
 
-    } catch (error) {
-      console.error('❌ Admin parents error:', error);
+  } catch (error) {
+    console.error('❌ Admin parents error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch parents.'
+    });
+  }
+});
 
-      return res.status(500).json({
+router.get('/admin/parents/pending', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const result = await pool.query(`
+      SELECT p.*, u.username, u.email
+      FROM parents p
+      LEFT JOIN users u ON u.user_id = p.user_id
+      WHERE COALESCE(p.is_verified, false) = false AND COALESCE(p.is_active, true) = true
+      ORDER BY p.created_at DESC
+    `);
+
+    return res.json({
+      success: true,
+      pendingParents: result.rows
+    });
+
+  } catch (error) {
+    console.error('❌ Pending parents error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch pending parents.'
+    });
+  }
+});
+
+router.post('/admin/parents/verify/:parentId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const parentId = Number(req.params.parentId);
+
+    const result = await pool.query(`
+      UPDATE parents
+      SET is_verified = true, verified_at = NOW(), is_active = true
+      WHERE parent_id = $1
+      RETURNING *
+    `, [parentId]);
+
+    if (!result.rows.length) {
+      return res.status(404).json({
         success: false,
-        error: 'Failed to fetch parents.'
+        error: 'Parent not found.'
       });
     }
+
+    return res.json({
+      success: true,
+      parent: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Parent verification error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to verify parent.'
+    });
   }
-);
+});
 
+router.post('/admin/parents/deny/:parentId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-router.get(
-  '/admin/parents/pending',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+    const parentId = Number(req.params.parentId);
 
-      const result = await pool.query(`
-        SELECT
-          p.*,
-          u.username,
-          u.email
-        FROM parents p
-        LEFT JOIN users u
-          ON u.user_id = p.user_id
-        WHERE COALESCE(p.is_verified, false) = false
-          AND COALESCE(p.is_active, true) = true
-        ORDER BY p.created_at DESC
-      `);
+    const result = await pool.query(`
+      UPDATE parents
+      SET is_verified = false, is_active = false
+      WHERE parent_id = $1
+      RETURNING *
+    `, [parentId]);
 
-      return res.json({
-        success: true,
-        pendingParents: result.rows
-      });
-
-    } catch (error) {
-      console.error('❌ Pending parents error:', error);
-
-      return res.status(500).json({
+    if (!result.rows.length) {
+      return res.status(404).json({
         success: false,
-        error: 'Failed to fetch pending parents.'
+        error: 'Parent not found.'
       });
     }
+
+    return res.json({
+      success: true,
+      parent: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Parent denial error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to deny parent.'
+    });
   }
-);
-
-
-router.post(
-  '/admin/parents/verify/:parentId',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
-
-      const parentId = Number(req.params.parentId);
-
-      const result = await pool.query(
-        `UPDATE parents
-         SET
-           is_verified = true,
-           verified_at = NOW(),
-           is_active = true
-         WHERE parent_id = $1
-         RETURNING *`,
-        [parentId]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'Parent not found.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        parent: result.rows[0]
-      });
-
-    } catch (error) {
-      console.error('❌ Parent verification error:', error);
-
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to verify parent.'
-      });
-    }
-  }
-);
-
-
-router.post(
-  '/admin/parents/deny/:parentId',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
-
-      const parentId = Number(req.params.parentId);
-
-      const result = await pool.query(
-        `UPDATE parents
-         SET
-           is_verified = false,
-           is_active = false
-         WHERE parent_id = $1
-         RETURNING *`,
-        [parentId]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'Parent not found.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        parent: result.rows[0]
-      });
-
-    } catch (error) {
-      console.error('❌ Parent denial error:', error);
-
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to deny parent.'
-      });
-    }
-  }
-);
-
+});
 
 /* =========================================================
-   =========================================================
    📚 ADMIN LESSON MANAGEMENT
-   =========================================================
-   ========================================================= */
+========================================================= */
 
-/*
-  IMPORTANT:
+// GET ALL LESSONS
+router.get('/admin/lessons', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-  These routes use the existing `lessons` table.
+    const result = await pool.query(`
+      SELECT
+        l.*,
+        (SELECT COUNT(*) FROM lesson_media lm WHERE lm.lesson_id = l.lesson_id) AS media_count
+      FROM lessons l
+      ORDER BY l.level ASC, l.order_index ASC, l.lesson_id ASC
+    `);
 
-  Expected columns:
+    return res.json({
+      success: true,
+      lessons: result.rows
+    });
 
-    lesson_id
-    title
-    description
-    content
-    level
-    premium
-    xp
-    icon
-    order_index
-    vocabulary
-    quiz
-    learning_objectives
-    is_published
+  } catch (error) {
+    console.error('❌ Admin lessons list error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load lessons.'
+    });
+  }
+});
 
-  Media is supported through `lesson_media`.
-*/
+// GET ONE LESSON + ALL MEDIA
+router.get('/admin/lessons/:lessonId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
+    const lessonId = String(req.params.lessonId).trim();
 
-/* ---------------------------------------------------------
-   GET ALL LESSONS
-   /api/admin/lessons
---------------------------------------------------------- */
+    const lessonResult = await pool.query(`SELECT * FROM lessons WHERE lesson_id = $1`, [lessonId]);
 
-router.get(
-  '/admin/lessons',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
-
-      const result = await pool.query(`
-        SELECT
-          l.*,
-
-          (
-            SELECT COUNT(*)
-            FROM lesson_media lm
-            WHERE lm.lesson_id = l.lesson_id
-          ) AS media_count
-
-        FROM lessons l
-
-        ORDER BY
-          l.level ASC,
-          l.order_index ASC,
-          l.lesson_id ASC
-      `);
-
-      return res.json({
-        success: true,
-        lessons: result.rows
-      });
-
-    } catch (error) {
-      console.error('❌ Admin lessons list error:', error);
-
-      return res.status(500).json({
+    if (!lessonResult.rows.length) {
+      return res.status(404).json({
         success: false,
-        error: 'Failed to load lessons.'
+        error: 'Lesson not found.'
       });
     }
+
+    const mediaResult = await pool.query(
+      `SELECT * FROM lesson_media WHERE lesson_id = $1 ORDER BY order_index ASC, media_id ASC`,
+      [lessonId]
+    );
+
+    return res.json({
+      success: true,
+      lesson: lessonResult.rows[0],
+      media: mediaResult.rows
+    });
+
+  } catch (error) {
+    console.error('❌ Admin lesson detail error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load lesson.'
+    });
   }
-);
+});
 
+// CREATE LESSON
+router.post('/admin/lessons', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-/* ---------------------------------------------------------
-   GET ONE LESSON + ALL MEDIA
-   /api/admin/lessons/:lessonId
---------------------------------------------------------- */
+    const {
+      lesson_id, title, description = '', content = '',
+      level = 1, premium = false, xp = 0, icon = '🐼',
+      order_index = 1, vocabulary = [], quiz = [],
+      learning_objectives = [], is_published = false
+    } = req.body || {};
 
-router.get(
-  '/admin/lessons/:lessonId',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
-
-      const lessonId = String(req.params.lessonId).trim();
-
-      const lessonResult = await pool.query(
-        `SELECT *
-         FROM lessons
-         WHERE lesson_id = $1`,
-        [lessonId]
-      );
-
-      if (!lessonResult.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'Lesson not found.'
-        });
-      }
-
-      const mediaResult = await pool.query(
-        `SELECT *
-         FROM lesson_media
-         WHERE lesson_id = $1
-         ORDER BY order_index ASC, media_id ASC`,
-        [lessonId]
-      );
-
-      return res.json({
-        success: true,
-        lesson: lessonResult.rows[0],
-        media: mediaResult.rows
-      });
-
-    } catch (error) {
-      console.error('❌ Admin lesson detail error:', error);
-
-      return res.status(500).json({
+    if (!lesson_id || !title) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to load lesson.'
+        error: 'lesson_id and title are required.'
       });
     }
-  }
-);
 
+    const result = await pool.query(`
+      INSERT INTO lessons (
+        lesson_id, title, description, content, level, premium, xp, icon,
+        order_index, vocabulary, quiz, learning_objectives, is_published
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+      RETURNING *
+    `, [
+      String(lesson_id).trim(),
+      String(title).trim(),
+      description,
+      content,
+      Number(level) || 1,
+      Boolean(premium),
+      Number(xp) || 0,
+      icon || '🐼',
+      Number(order_index) || 1,
+      JSON.stringify(vocabulary || []),
+      JSON.stringify(quiz || []),
+      JSON.stringify(learning_objectives || []),
+      Boolean(is_published)
+    ]);
 
-/* ---------------------------------------------------------
-   CREATE LESSON
-   /api/admin/lessons
---------------------------------------------------------- */
+    return res.status(201).json({
+      success: true,
+      lesson: result.rows[0]
+    });
 
-router.post(
-  '/admin/lessons',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
-
-      const {
-        lesson_id,
-        title,
-        description = '',
-        content = '',
-        level = 1,
-        premium = false,
-        xp = 0,
-        icon = '🐼',
-        order_index = 1,
-        vocabulary = [],
-        quiz = [],
-        learning_objectives = [],
-        is_published = false
-      } = req.body || {};
-
-      if (!lesson_id || !title) {
-        return res.status(400).json({
-          success: false,
-          error: 'lesson_id and title are required.'
-        });
-      }
-
-      const result = await pool.query(
-        `INSERT INTO lessons (
-          lesson_id,
-          title,
-          description,
-          content,
-          level,
-          premium,
-          xp,
-          icon,
-          order_index,
-          vocabulary,
-          quiz,
-          learning_objectives,
-          is_published
-        )
-        VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
-        )
-        RETURNING *`,
-        [
-          String(lesson_id).trim(),
-          String(title).trim(),
-          description,
-          content,
-          Number(level) || 1,
-          Boolean(premium),
-          Number(xp) || 0,
-          icon || '🐼',
-          Number(order_index) || 1,
-          JSON.stringify(vocabulary || []),
-          JSON.stringify(quiz || []),
-          JSON.stringify(learning_objectives || []),
-          Boolean(is_published)
-        ]
-      );
-
-      return res.status(201).json({
-        success: true,
-        lesson: result.rows[0]
-      });
-
-    } catch (error) {
-      console.error('❌ Create lesson error:', error);
-
-      if (error.code === '23505') {
-        return res.status(409).json({
-          success: false,
-          error: 'A lesson with that lesson ID already exists.'
-        });
-      }
-
-      return res.status(500).json({
+  } catch (error) {
+    console.error('❌ Create lesson error:', error);
+    if (error.code === '23505') {
+      return res.status(409).json({
         success: false,
-        error: 'Failed to create lesson.'
+        error: 'A lesson with that lesson ID already exists.'
       });
     }
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to create lesson.'
+    });
   }
-);
+});
 
+// UPDATE LESSON
+router.put('/admin/lessons/:lessonId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-/* ---------------------------------------------------------
-   UPDATE LESSON
-   /api/admin/lessons/:lessonId
---------------------------------------------------------- */
+    const lessonId = String(req.params.lessonId).trim();
 
-router.put(
-  '/admin/lessons/:lessonId',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+    const {
+      title, description, content, level, premium, xp, icon,
+      order_index, vocabulary, quiz, learning_objectives, is_published
+    } = req.body || {};
 
-      const lessonId = String(req.params.lessonId).trim();
+    const result = await pool.query(`
+      UPDATE lessons
+      SET
+        title = COALESCE($1, title),
+        description = COALESCE($2, description),
+        content = COALESCE($3, content),
+        level = COALESCE($4, level),
+        premium = COALESCE($5, premium),
+        xp = COALESCE($6, xp),
+        icon = COALESCE($7, icon),
+        order_index = COALESCE($8, order_index),
+        vocabulary = COALESCE($9, vocabulary),
+        quiz = COALESCE($10, quiz),
+        learning_objectives = COALESCE($11, learning_objectives),
+        is_published = COALESCE($12, is_published)
+      WHERE lesson_id = $13
+      RETURNING *
+    `, [
+      title ?? null,
+      description ?? null,
+      content ?? null,
+      level !== undefined ? Number(level) : null,
+      premium !== undefined ? Boolean(premium) : null,
+      xp !== undefined ? Number(xp) : null,
+      icon ?? null,
+      order_index !== undefined ? Number(order_index) : null,
+      vocabulary !== undefined ? JSON.stringify(vocabulary) : null,
+      quiz !== undefined ? JSON.stringify(quiz) : null,
+      learning_objectives !== undefined ? JSON.stringify(learning_objectives) : null,
+      is_published !== undefined ? Boolean(is_published) : null,
+      lessonId
+    ]);
 
-      const {
-        title,
-        description,
-        content,
-        level,
-        premium,
-        xp,
-        icon,
-        order_index,
-        vocabulary,
-        quiz,
-        learning_objectives,
-        is_published
-      } = req.body || {};
-
-      const result = await pool.query(
-        `UPDATE lessons
-         SET
-           title = COALESCE($1, title),
-           description = COALESCE($2, description),
-           content = COALESCE($3, content),
-           level = COALESCE($4, level),
-           premium = COALESCE($5, premium),
-           xp = COALESCE($6, xp),
-           icon = COALESCE($7, icon),
-           order_index = COALESCE($8, order_index),
-           vocabulary = COALESCE($9, vocabulary),
-           quiz = COALESCE($10, quiz),
-           learning_objectives = COALESCE($11, learning_objectives),
-           is_published = COALESCE($12, is_published)
-         WHERE lesson_id = $13
-         RETURNING *`,
-        [
-          title ?? null,
-          description ?? null,
-          content ?? null,
-          level !== undefined ? Number(level) : null,
-          premium !== undefined ? Boolean(premium) : null,
-          xp !== undefined ? Number(xp) : null,
-          icon ?? null,
-          order_index !== undefined ? Number(order_index) : null,
-          vocabulary !== undefined
-            ? JSON.stringify(vocabulary)
-            : null,
-          quiz !== undefined
-            ? JSON.stringify(quiz)
-            : null,
-          learning_objectives !== undefined
-            ? JSON.stringify(learning_objectives)
-            : null,
-          is_published !== undefined
-            ? Boolean(is_published)
-            : null,
-          lessonId
-        ]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'Lesson not found.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        lesson: result.rows[0]
-      });
-
-    } catch (error) {
-      console.error('❌ Update lesson error:', error);
-
-      return res.status(500).json({
+    if (!result.rows.length) {
+      return res.status(404).json({
         success: false,
-        error: 'Failed to update lesson.'
+        error: 'Lesson not found.'
       });
     }
+
+    return res.json({
+      success: true,
+      lesson: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Update lesson error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update lesson.'
+    });
   }
-);
+});
 
+// DELETE LESSON
+router.delete('/admin/lessons/:lessonId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-/* ---------------------------------------------------------
-   DELETE LESSON
-   /api/admin/lessons/:lessonId
---------------------------------------------------------- */
+    const lessonId = String(req.params.lessonId).trim();
 
-router.delete(
-  '/admin/lessons/:lessonId',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+    await pool.query('BEGIN');
 
-      const lessonId = String(req.params.lessonId).trim();
+    await pool.query(`DELETE FROM lesson_media WHERE lesson_id = $1`, [lessonId]);
 
-      await pool.query('BEGIN');
+    const result = await pool.query(
+      `DELETE FROM lessons WHERE lesson_id = $1 RETURNING lesson_id`,
+      [lessonId]
+    );
 
-      await pool.query(
-        `DELETE FROM lesson_media
-         WHERE lesson_id = $1`,
-        [lessonId]
-      );
-
-      const result = await pool.query(
-        `DELETE FROM lessons
-         WHERE lesson_id = $1
-         RETURNING lesson_id`,
-        [lessonId]
-      );
-
-      if (!result.rows.length) {
-        await pool.query('ROLLBACK');
-
-        return res.status(404).json({
-          success: false,
-          error: 'Lesson not found.'
-        });
-      }
-
-      await pool.query('COMMIT');
-
-      return res.json({
-        success: true,
-        message: 'Lesson deleted successfully.'
-      });
-
-    } catch (error) {
-      try {
-        await pool.query('ROLLBACK');
-      } catch (_) {}
-
-      console.error('❌ Delete lesson error:', error);
-
-      return res.status(500).json({
+    if (!result.rows.length) {
+      await pool.query('ROLLBACK');
+      return res.status(404).json({
         success: false,
-        error: 'Failed to delete lesson.'
+        error: 'Lesson not found.'
       });
     }
-  }
-);
 
+    await pool.query('COMMIT');
+
+    return res.json({
+      success: true,
+      message: 'Lesson deleted successfully.'
+    });
+
+  } catch (error) {
+    try { await pool.query('ROLLBACK'); } catch (_) {}
+    console.error('❌ Delete lesson error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to delete lesson.'
+    });
+  }
+});
 
 /* =========================================================
    LESSON MEDIA
 ========================================================= */
 
+// GET MEDIA
+router.get('/admin/lessons/:lessonId/media', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-/* ---------------------------------------------------------
-   GET MEDIA
-   /api/admin/lessons/:lessonId/media
---------------------------------------------------------- */
+    const lessonId = String(req.params.lessonId).trim();
 
-router.get(
-  '/admin/lessons/:lessonId/media',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+    const result = await pool.query(
+      `SELECT * FROM lesson_media WHERE lesson_id = $1 ORDER BY order_index ASC, media_id ASC`,
+      [lessonId]
+    );
 
-      const lessonId = String(req.params.lessonId).trim();
+    return res.json({
+      success: true,
+      media: result.rows
+    });
 
-      const result = await pool.query(
-        `SELECT *
-         FROM lesson_media
-         WHERE lesson_id = $1
-         ORDER BY order_index ASC, media_id ASC`,
-        [lessonId]
-      );
+  } catch (error) {
+    console.error('❌ Get lesson media error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load lesson media.'
+    });
+  }
+});
 
-      return res.json({
-        success: true,
-        media: result.rows
-      });
+// ADD MEDIA
+router.post('/admin/lessons/:lessonId/media', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-    } catch (error) {
-      console.error('❌ Get lesson media error:', error);
+    const lessonId = String(req.params.lessonId).trim();
 
-      return res.status(500).json({
+    const {
+      media_type, media_url, title = '', caption = '',
+      alt_text = '', poster_url = null, duration_seconds = null,
+      order_index = 1, is_published = true
+    } = req.body || {};
+
+    if (!media_url) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to load lesson media.'
+        error: 'media_url is required.'
       });
     }
-  }
-);
 
-
-/* ---------------------------------------------------------
-   ADD MEDIA
-   /api/admin/lessons/:lessonId/media
---------------------------------------------------------- */
-
-router.post(
-  '/admin/lessons/:lessonId/media',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
-
-      const lessonId = String(req.params.lessonId).trim();
-
-      const {
-        media_type,
-        media_url,
-        title = '',
-        caption = '',
-        alt_text = '',
-        poster_url = null,
-        duration_seconds = null,
-        order_index = 1,
-        is_published = true
-      } = req.body || {};
-
-      if (!media_url) {
-        return res.status(400).json({
-          success: false,
-          error: 'media_url is required.'
-        });
-      }
-
-      if (!['image', 'video', 'audio'].includes(media_type)) {
-        return res.status(400).json({
-          success: false,
-          error: 'media_type must be image, video or audio.'
-        });
-      }
-
-      const lessonCheck = await pool.query(
-        `SELECT lesson_id
-         FROM lessons
-         WHERE lesson_id = $1`,
-        [lessonId]
-      );
-
-      if (!lessonCheck.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'Lesson not found.'
-        });
-      }
-
-      const result = await pool.query(
-        `INSERT INTO lesson_media (
-          lesson_id,
-          media_type,
-          media_url,
-          title,
-          caption,
-          alt_text,
-          poster_url,
-          duration_seconds,
-          order_index,
-          is_published
-        )
-        VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
-        )
-        RETURNING *`,
-        [
-          lessonId,
-          media_type,
-          media_url,
-          title,
-          caption,
-          alt_text,
-          poster_url,
-          duration_seconds !== null
-            ? Number(duration_seconds)
-            : null,
-          Number(order_index) || 1,
-          Boolean(is_published)
-        ]
-      );
-
-      return res.status(201).json({
-        success: true,
-        media: result.rows[0]
-      });
-
-    } catch (error) {
-      console.error('❌ Add lesson media error:', error);
-
-      return res.status(500).json({
+    if (!['image', 'video', 'audio'].includes(media_type)) {
+      return res.status(400).json({
         success: false,
-        error: 'Failed to add lesson media.'
+        error: 'media_type must be image, video or audio.'
       });
     }
-  }
-);
 
+    const lessonCheck = await pool.query(
+      `SELECT lesson_id FROM lessons WHERE lesson_id = $1`,
+      [lessonId]
+    );
 
-/* ---------------------------------------------------------
-   UPDATE MEDIA
---------------------------------------------------------- */
-
-router.put(
-  '/admin/lessons/:lessonId/media/:mediaId',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
-
-      const lessonId = String(req.params.lessonId).trim();
-      const mediaId = Number(req.params.mediaId);
-
-      const {
-        media_type,
-        media_url,
-        title,
-        caption,
-        alt_text,
-        poster_url,
-        duration_seconds,
-        order_index,
-        is_published
-      } = req.body || {};
-
-      const result = await pool.query(
-        `UPDATE lesson_media
-         SET
-           media_type = COALESCE($1, media_type),
-           media_url = COALESCE($2, media_url),
-           title = COALESCE($3, title),
-           caption = COALESCE($4, caption),
-           alt_text = COALESCE($5, alt_text),
-           poster_url = COALESCE($6, poster_url),
-           duration_seconds = COALESCE($7, duration_seconds),
-           order_index = COALESCE($8, order_index),
-           is_published = COALESCE($9, is_published),
-           updated_at = NOW()
-         WHERE media_id = $10
-           AND lesson_id = $11
-         RETURNING *`,
-        [
-          media_type ?? null,
-          media_url ?? null,
-          title ?? null,
-          caption ?? null,
-          alt_text ?? null,
-          poster_url ?? null,
-          duration_seconds !== undefined
-            ? Number(duration_seconds)
-            : null,
-          order_index !== undefined
-            ? Number(order_index)
-            : null,
-          is_published !== undefined
-            ? Boolean(is_published)
-            : null,
-          mediaId,
-          lessonId
-        ]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'Media item not found.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        media: result.rows[0]
-      });
-
-    } catch (error) {
-      console.error('❌ Update media error:', error);
-
-      return res.status(500).json({
+    if (!lessonCheck.rows.length) {
+      return res.status(404).json({
         success: false,
-        error: 'Failed to update media.'
+        error: 'Lesson not found.'
       });
     }
+
+    const result = await pool.query(`
+      INSERT INTO lesson_media (
+        lesson_id, media_type, media_url, title, caption, alt_text,
+        poster_url, duration_seconds, order_index, is_published
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      RETURNING *
+    `, [
+      lessonId,
+      media_type,
+      media_url,
+      title,
+      caption,
+      alt_text,
+      poster_url,
+      duration_seconds !== null ? Number(duration_seconds) : null,
+      Number(order_index) || 1,
+      Boolean(is_published)
+    ]);
+
+    return res.status(201).json({
+      success: true,
+      media: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Add lesson media error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to add lesson media.'
+    });
   }
-);
+});
 
+// UPDATE MEDIA
+router.put('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
 
-/* ---------------------------------------------------------
-   DELETE MEDIA
---------------------------------------------------------- */
+    const lessonId = String(req.params.lessonId).trim();
+    const mediaId = Number(req.params.mediaId);
 
-router.delete(
-  '/admin/lessons/:lessonId/media/:mediaId',
-  verifyAdminToken,
-  async (req, res) => {
-    try {
-      if (!ensurePool(res)) return;
+    const {
+      media_type, media_url, title, caption, alt_text,
+      poster_url, duration_seconds, order_index, is_published
+    } = req.body || {};
 
-      const lessonId = String(req.params.lessonId).trim();
-      const mediaId = Number(req.params.mediaId);
+    const result = await pool.query(`
+      UPDATE lesson_media
+      SET
+        media_type = COALESCE($1, media_type),
+        media_url = COALESCE($2, media_url),
+        title = COALESCE($3, title),
+        caption = COALESCE($4, caption),
+        alt_text = COALESCE($5, alt_text),
+        poster_url = COALESCE($6, poster_url),
+        duration_seconds = COALESCE($7, duration_seconds),
+        order_index = COALESCE($8, order_index),
+        is_published = COALESCE($9, is_published),
+        updated_at = NOW()
+      WHERE media_id = $10 AND lesson_id = $11
+      RETURNING *
+    `, [
+      media_type ?? null,
+      media_url ?? null,
+      title ?? null,
+      caption ?? null,
+      alt_text ?? null,
+      poster_url ?? null,
+      duration_seconds !== undefined ? Number(duration_seconds) : null,
+      order_index !== undefined ? Number(order_index) : null,
+      is_published !== undefined ? Boolean(is_published) : null,
+      mediaId,
+      lessonId
+    ]);
 
-      const result = await pool.query(
-        `DELETE FROM lesson_media
-         WHERE media_id = $1
-           AND lesson_id = $2
-         RETURNING media_id`,
-        [mediaId, lessonId]
-      );
-
-      if (!result.rows.length) {
-        return res.status(404).json({
-          success: false,
-          error: 'Media item not found.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        message: 'Media deleted successfully.'
-      });
-
-    } catch (error) {
-      console.error('❌ Delete media error:', error);
-
-      return res.status(500).json({
+    if (!result.rows.length) {
+      return res.status(404).json({
         success: false,
-        error: 'Failed to delete media.'
+        error: 'Media item not found.'
       });
     }
-  }
-);
 
+    return res.json({
+      success: true,
+      media: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Update media error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update media.'
+    });
+  }
+});
+
+// DELETE MEDIA
+router.delete('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const lessonId = String(req.params.lessonId).trim();
+    const mediaId = Number(req.params.mediaId);
+
+    const result = await pool.query(
+      `DELETE FROM lesson_media WHERE media_id = $1 AND lesson_id = $2 RETURNING media_id`,
+      [mediaId, lessonId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Media item not found.'
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Media deleted successfully.'
+    });
+
+  } catch (error) {
+    console.error('❌ Delete media error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to delete media.'
+    });
+  }
+});
 
 /* =========================================================
    ADMIN ROUTE STATUS
@@ -5647,8 +4856,10 @@ app.use('/.netlify/functions/server', router);
 const handler = serverless(app);
 export { handler };
 
-console.log('✅ HanVerse API v2.0.0 ready! 🐼');
+console.log('✅ HanVerse API v2.0.1 ready! 🐼');
 console.log('📧 Email templates updated with HanVerse branding');
 console.log('🔄 Session refresh, logout, and user-by-email endpoints added');
 console.log('👪 Parent/Children endpoints fully functional');
 console.log('✅ All admin routes protected with verifyAdminToken middleware');
+console.log('🔐 JWT authentication properly implemented');
+console.log('📧 Unified sendEmail() function created');
