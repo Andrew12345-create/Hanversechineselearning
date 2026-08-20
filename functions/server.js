@@ -15,6 +15,7 @@ const openai = new OpenAI({
 });
 
 const { Pool } = pkg;
+const jwt = require('jsonwebtoken');
 
 /* ==========================================
   APP / ROUTER CONFIGURATION ⚙️
@@ -158,8 +159,20 @@ function safeUser(user) {
   };
 }
 
-function generateToken(length = 32) {
-  return crypto.randomBytes(length).toString('hex');
+function generateToken(length = 32, payload = {}) {
+    const secret = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY;
+
+    if (!secret) {
+        throw new Error('JWT_SECRET is not configured.');
+    }
+
+    return jwt.sign(
+        payload,
+        secret,
+        {
+            expiresIn: '8h'
+        }
+    );
 }
 
 function getFrontendBaseUrl() {
@@ -3503,10 +3516,14 @@ router.post('/sync/streak', async (req, res) => {
 });
 
 /* ==========================================
-  ADMIN ENDPOINTS 🔐
+   ADMIN ENDPOINTS 🔐
+   USERS + PARENTS + LESSONS + MEDIA
 ========================================== */
 
-// Verify Admin Password
+/* =========================================================
+   ADMIN AUTHENTICATION
+========================================================= */
+
 router.post('/admin/verify-password', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -3520,30 +3537,47 @@ router.post('/admin/verify-password', async (req, res) => {
       });
     }
 
-    const userResult = await pool.query(
-      `SELECT * FROM users WHERE user_id = $1`,
+    const result = await pool.query(
+      `SELECT *
+       FROM users
+       WHERE user_id = $1`,
       [userId]
     );
 
-    if (!userResult.rows.length) {
-      return res.status(404).json({ success: false, error: 'User not found.' });
-    }
-
-    const user = userResult.rows[0];
-
-    if (!user.is_admin) {
-      return res.status(403).json({ 
-        success: false, 
-        error: 'Access denied. You do not have administrator permissions.' 
+    if (!result.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
       });
     }
 
-    const valid = await bcrypt.compare(adminPassword, user.password_hash);
-    if (!valid) {
-      return res.status(401).json({ success: false, error: 'Invalid admin password.' });
+    const user = result.rows[0];
+
+    if (!user.is_admin) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. Administrator permissions are required.'
+      });
     }
 
-    const adminToken = Buffer.from(`${userId}:${Date.now()}`).toString('base64');
+    const valid = await bcrypt.compare(
+      adminPassword,
+      user.password_hash
+    );
+
+    if (!valid) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid admin password.'
+      });
+    }
+
+const adminToken = generateToken(32, {
+    user_id: user.user_id,
+    email: user.email,
+    role: 'admin',
+    is_admin: true
+});    
 
     return res.json({
       success: true,
@@ -3552,712 +3586,2056 @@ router.post('/admin/verify-password', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Admin verification error:', error);
-    return res.status(500).json({ success: false, error: 'Admin validation failed.' });
+
+    return res.status(500).json({
+      success: false,
+      error: 'Admin validation failed.'
+    });
   }
 });
 
-// Admin Overview - Get all users
+
+/* =========================================================
+   ADMIN OVERVIEW / USERS
+========================================================= */
+
 router.get('/admin/overview', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const usersQuery = await pool.query(
-      `SELECT * FROM users ORDER BY created_at DESC`
-    );
+    const result = await pool.query(`
+      SELECT *
+      FROM users
+      ORDER BY created_at DESC
+    `);
 
     return res.json({
       success: true,
-      users: usersQuery.rows.map(u => safeUser(u)),
+      users: result.rows.map(user => safeUser(user))
     });
 
   } catch (error) {
     console.error('❌ Admin overview error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to load admin data' });
-  }
-});
 
-// Get all parents (admin)
-router.get('/admin/parents', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const result = await pool.query(`
-      SELECT 
-        p.parent_id,
-        p.user_id,
-        p.full_name,
-        p.email,
-        p.phone,
-        p.is_verified,
-        p.verified_at,
-        p.is_active,
-        p.is_banned,
-        p.max_children,
-        p.children_count,
-        p.created_at,
-        p.last_login,
-        u.username,
-        u.profile_picture,
-        u.is_admin,
-        (
-          SELECT COUNT(*) 
-          FROM children c
-          WHERE c.parent_id = p.parent_id
-        ) as actual_children_count
-      FROM parents p
-      LEFT JOIN users u ON p.user_id = u.user_id
-      ORDER BY p.created_at DESC
-    `);
-
-    return res.json({
-      success: true,
-      parents: result.rows
-    });
-
-  } catch (error) {
-    console.error('❌ Error fetching parents:', error);
     return res.status(500).json({
       success: false,
-      error: 'Failed to fetch parents'
+      error: 'Failed to load admin data.'
     });
   }
 });
 
-// Get pending parents (admin)
-router.get('/admin/parents/pending', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
 
-    const result = await pool.query(`
-      SELECT 
-        p.parent_id,
-        p.user_id,
-        p.full_name,
-        p.email,
-        p.phone,
-        p.created_at,
-        u.username
-      FROM parents p
-      LEFT JOIN users u ON p.user_id = u.user_id
-      WHERE p.is_verified = false AND p.is_active = true
-      ORDER BY p.created_at DESC
-    `);
+/* =========================================================
+   ADMIN EMAIL BROADCAST
+========================================================= */
 
-    return res.json({
-      success: true,
-      pendingParents: result.rows
-    });
-
-  } catch (error) {
-    console.error('❌ Error fetching pending parents:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to fetch pending parents'
-    });
-  }
-});
-
-// Verify a parent (admin)
-router.post('/admin/parents/verify/:parentId', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const { parentId } = req.params;
-    const adminUserId = req.adminUserId || null;
-
-    const parentResult = await pool.query(`
-      SELECT p.*, u.email, u.username 
-      FROM parents p
-      JOIN users u ON p.user_id = u.user_id
-      WHERE p.parent_id = $1
-    `, [parentId]);
-
-    if (!parentResult.rows.length) {
-      return res.status(404).json({
-        success: false,
-        error: 'Parent not found'
-      });
-    }
-
-    const parent = parentResult.rows[0];
-
-    await pool.query(`
-      UPDATE parents 
-      SET is_verified = true,
-          verified_at = NOW(),
-          verified_by = $1,
-          updated_at = NOW()
-      WHERE parent_id = $2
-    `, [adminUserId, parentId]);
-
-    await pool.query(`
-      UPDATE users 
-      SET is_verified = true, verified_at = NOW() 
-      WHERE user_id = $1
-    `, [parent.user_id]);
-
-    await pool.query(`
-      INSERT INTO parent_logs (parent_id, action, details, performed_by)
-      VALUES ($1, 'verify', 'Parent account verified by admin', $2)
-    `, [parentId, adminUserId]);
-
-    try {
-      if (mailer) {
-        await sendVerificationEmail({
-          to: parent.email,
-          username: parent.username,
-          fullName: parent.full_name,
-          token: 'verified_by_admin'
-        });
-      }
-    } catch (mailErr) {
-      console.warn('⚠️ Verification email failed:', mailErr.message);
-    }
-
-    return res.json({
-      success: true,
-      message: 'Parent verified successfully',
-      parent: {
-        parent_id: parent.parent_id,
-        full_name: parent.full_name,
-        email: parent.email,
-        is_verified: true,
-        verified_at: new Date().toISOString()
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ Error verifying parent:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to verify parent'
-    });
-  }
-});
-
-// Deny a parent (admin)
-router.post('/admin/parents/deny/:parentId', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const { parentId } = req.params;
-    const { reason } = req.body || {};
-    const adminUserId = req.adminUserId || null;
-
-    const parentResult = await pool.query(`
-      SELECT p.*, u.email, u.username 
-      FROM parents p
-      JOIN users u ON p.user_id = u.user_id
-      WHERE p.parent_id = $1
-    `, [parentId]);
-
-    if (!parentResult.rows.length) {
-      return res.status(404).json({
-        success: false,
-        error: 'Parent not found'
-      });
-    }
-
-    const parent = parentResult.rows[0];
-
-    await pool.query(`
-      UPDATE parents 
-      SET is_active = false,
-          is_verified = false,
-          updated_at = NOW()
-      WHERE parent_id = $1
-    `, [parentId]);
-
-    await pool.query(`
-      UPDATE users 
-      SET role = 'student',
-          is_verified = false
-      WHERE user_id = $1
-    `, [parent.user_id]);
-
-    await pool.query(`
-      INSERT INTO parent_logs (parent_id, action, details, performed_by)
-      VALUES ($1, 'deny', $2, $3)
-    `, [parentId, `Parent access denied. Reason: ${reason || 'Not specified'}`, adminUserId]);
-
-    return res.json({
-      success: true,
-      message: 'Parent access denied',
-      parent: {
-        parent_id: parent.parent_id,
-        full_name: parent.full_name,
-        email: parent.email,
-        is_verified: false,
-        is_active: false
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ Error denying parent:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to deny parent'
-    });
-  }
-});
-
-// Admin: Email Broadcast
 router.post('/admin/email-all', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
     const { subject, message } = req.body || {};
+
     if (!subject || !message) {
-      return res.status(400).json({ success: false, error: 'Subject and message body are required.' });
+      return res.status(400).json({
+        success: false,
+        error: 'Subject and message are required.'
+      });
     }
 
-    const usersResult = await pool.query(
-      `SELECT email, username FROM users WHERE is_verified = true AND is_banned = false AND email IS NOT NULL AND email != ''`
-    );
+    const result = await pool.query(`
+      SELECT email, username
+      FROM users
+      WHERE is_verified = true
+        AND is_banned = false
+        AND email IS NOT NULL
+        AND email <> ''
+      ORDER BY user_id
+    `);
 
-    const users = usersResult.rows;
-    if (users.length === 0) {
-      return res.json({ success: true, message: 'No verified, active users found to email.', sent: 0 });
-    }
+    let sent = 0;
+    let failed = 0;
 
-    let sendCount = 0;
-    for (const user of users) {
+    for (const user of result.rows) {
       try {
         const html = `
-          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <span style="font-size: 3rem;">🐼</span>
-              <h2 style="color: #ff416c; margin: 10px 0 0 0;">HanVerse Announcement</h2>
+          <div style="
+            font-family:Arial,sans-serif;
+            max-width:600px;
+            margin:auto;
+            padding:24px;
+            color:#333;
+          ">
+            <div style="text-align:center;">
+              <div style="font-size:48px;">🐼</div>
+              <h2 style="color:#E63946;">
+                ${subject}
+              </h2>
             </div>
-            <p>Hi ${user.username || 'Learner'},</p>
-            <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff416c;">
-              ${message.replace(/\n/g, '<br>')}
+
+            <div style="
+              margin-top:20px;
+              line-height:1.7;
+              white-space:pre-wrap;
+            ">
+              ${message}
             </div>
-            <p style="font-size: 0.85rem; color: #6b7280; text-align: center; margin-top: 30px;">
-              You received this email because you are a verified member of HanVerse.<br>
-              🐼 Happy Learning!
+
+            <hr style="
+              margin:28px 0;
+              border:0;
+              border-top:1px solid #eee;
+            ">
+
+            <p style="
+              color:#777;
+              font-size:13px;
+              text-align:center;
+            ">
+              HanVerse — Learn Chinese. Have Fun. 🐼
             </p>
           </div>
         `;
 
-        if (mailer) {
-          await mailer.sendMail({
-            from: EMAIL_FROM,
-            to: user.email,
-            subject: subject,
-            html: html
-          });
-          sendCount++;
-        }
-      } catch (mailErr) {
-        console.warn(`⚠️ Failed sending bulk announcement to ${user.email}:`, mailErr.message);
+        await sendEmail({
+          to: user.email,
+          subject,
+          html
+        });
+
+        sent++;
+
+      } catch (emailError) {
+        failed++;
+
+        console.error(
+          `❌ Broadcast failed for ${user.email}:`,
+          emailError
+        );
       }
     }
 
     return res.json({
       success: true,
-      message: `Successfully dispatched announcements to ${sendCount} active users.`,
-      sent: sendCount
+      sent,
+      failed,
+      total: result.rows.length
     });
 
   } catch (error) {
-    console.error('❌ Bulk announcement failure:', error);
-    return res.status(500).json({ success: false, error: 'Bulk email system failed.' });
-  }
-});
+    console.error('❌ Broadcast error:', error);
 
-// Admin: Single Email
-router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const targetUserId = req.params.id;
-    const { subject, message } = req.body || {};
-
-    if (!subject || !message) {
-      return res.status(400).json({ success: false, error: 'Subject and message body fields are required.' });
-    }
-
-    const userResult = await pool.query(
-      `SELECT email, username FROM users WHERE user_id = $1`,
-      [targetUserId]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Target user could not be found.' });
-    }
-
-    const targetUser = userResult.rows[0];
-
-    const html = `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <span style="font-size: 3rem;">🐼</span>
-          <h2 style="color: #ff416c; margin: 10px 0 0 0;">HanVerse Account Notice</h2>
-        </div>
-        <p>Hi ${targetUser.username || 'Learner'},</p>
-        <p>An administrator has sent you a direct message regarding your account status or milestone achievement:</p>
-        <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff416c;">
-          ${message.replace(/\n/g, '<br>')}
-        </div>
-        <p style="font-size: 0.85rem; color: #6b7280; text-align: center; margin-top: 30px;">
-          Please do not reply directly to this automated system address.<br>
-          🐼 Happy Learning!
-        </p>
-      </div>
-    `;
-
-    if (mailer) {
-      await mailer.sendMail({
-        from: EMAIL_FROM,
-        to: targetUser.email,
-        subject: subject,
-        html: html
-      });
-    } else {
-      return res.status(500).json({ success: false, error: 'Email service not available.' });
-    }
-
-    return res.json({
-      success: true,
-      message: `Direct communication sent successfully to ${targetUser.email}`
-    });
-
-  } catch (error) {
-    console.error('❌ Individual direct email pipeline failure:', error);
-    return res.status(500).json({ success: false, error: 'Internal mail transport error.' });
-  }
-});
-
-// Admin: Update User
-router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const targetUserId = req.params.id;
-    const { full_name, username, email, level, xp, is_admin, is_banned, premium, is_verified, password, role } = req.body || {};
-
-    if (!full_name || !username || !email) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Full name, username, and email are required.' 
-      });
-    }
-
-    const oldUserRes = await pool.query(
-      `SELECT email, username, is_admin, premium, xp, level, is_banned, is_verified, role FROM users WHERE user_id = $1`, 
-      [targetUserId]
-    );
-    
-    if (oldUserRes.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'User not found.' });
-    }
-    
-    const oldUser = oldUserRes.rows[0];
-
-    let query = `UPDATE users SET 
-      full_name = $1, 
-      username = $2, 
-      email = $3, 
-      level = $4, 
-      xp = $5, 
-      is_admin = $6, 
-      is_banned = $7, 
-      premium = $8, 
-      is_verified = $9,
-      updated_at = NOW()`;
-    
-    let params = [full_name, username, email, level, xp, is_admin, is_banned, premium, is_verified];
-
-    let paramIndex = 10;
-    if (role) {
-      query += `, role = $${paramIndex}`;
-      params.push(role);
-      paramIndex++;
-    }
-
-    if (password && password.trim().length >= 6) {
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(password, salt);
-      query += `, password_hash = $${paramIndex}`;
-      params.push(hash);
-      paramIndex++;
-    }
-
-    query += ` WHERE user_id = $${paramIndex}`;
-    params.push(targetUserId);
-
-    await pool.query(query, params);
-
-    return res.json({ 
-      success: true, 
-      message: 'User updated successfully.'
-    });
-
-  } catch (error) {
-    console.error('❌ Update error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to update user.' });
-  }
-});
-
-// Admin: Ban/Unban user
-router.post('/admin/users/ban/:id', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const targetUserId = req.params.id;
-    const { is_banned, banned_reason } = req.body;
-
-    if (typeof is_banned !== 'boolean') {
-      return res.status(400).json({ success: false, error: 'is_banned must be a boolean value.' });
-    }
-
-    await pool.query(
-      `UPDATE users SET is_banned = $1, banned_reason = $2, updated_at = NOW() WHERE user_id = $3`, 
-      [is_banned, banned_reason || null, targetUserId]
-    );
-
-    return res.json({ 
-      success: true, 
-      message: `User ${is_banned ? 'banned' : 'unbanned'} successfully.`
-    });
-
-  } catch (error) {
-    console.error('❌ Ban error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to update ban status.' });
-  }
-});
-
-// Admin: Delete user
-router.delete('/admin/users/delete/:id', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const targetUserId = req.params.id;
-
-    await pool.query(`DELETE FROM user_progress WHERE user_id = $1`, [targetUserId]);
-    await pool.query(`DELETE FROM user_achievements WHERE user_id = $1`, [targetUserId]);
-    await pool.query(`DELETE FROM email_verifications WHERE user_id = $1`, [targetUserId]);
-    await pool.query(`DELETE FROM password_resets WHERE user_id = $1`, [targetUserId]);
-    await pool.query(`DELETE FROM children WHERE user_id = $1`, [targetUserId]);
-    await pool.query(`DELETE FROM parents WHERE user_id = $1`, [targetUserId]);
-    await pool.query(`DELETE FROM users WHERE user_id = $1`, [targetUserId]);
-
-    return res.json({ 
-      success: true, 
-      message: 'User permanently deleted.' 
-    });
-
-  } catch (error) {
-    console.error('❌ Deletion error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to delete user.' });
-  }
-});
-
-// Admin: Toggle verification
-router.post('/admin/toggle-verification/:userId', verifyAdminToken, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    
-    const { userId } = req.params;
-    const { verified } = req.body;
-    
-    const userResult = await pool.query(
-      `SELECT is_verified FROM users WHERE user_id = $1`,
-      [userId]
-    );
-    
-    if (!userResult.rows.length) {
-      return res.status(404).json({ success: false, error: 'User not found' });
-    }
-    
-    const newStatus = verified !== undefined ? verified : !userResult.rows[0].is_verified;
-    
-    await pool.query(
-      `UPDATE users 
-      SET is_verified = $1, 
-          verified_at = CASE WHEN $1 = true THEN NOW() ELSE NULL END,
-          email_confirmed = $1,
-          updated_at = NOW()
-      WHERE user_id = $2`,
-      [newStatus, userId]
-    );
-    
-    return res.json({
-      success: true,
-      message: `User verification set to ${newStatus}`,
-      is_verified: newStatus
-    });
-    
-  } catch (error) {
-    console.error('❌ Toggle verification error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to toggle verification' });
-  }
-});
-
-/* ==========================================
-  SEND INVITATION EMAIL 📨
-========================================== */
-router.post('/send-invite', async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const { inviterId, inviteeEmail, inviteeName, customMessage } = req.body || {};
-
-    if (!inviterId || !inviteeEmail) {
-      return res.status(400).json({
-        success: false,
-        error: 'Inviter ID and invitee email are required.'
-      });
-    }
-
-    const inviterResult = await pool.query(
-      `SELECT username, full_name FROM users WHERE user_id = $1`,
-      [inviterId]
-    );
-
-    if (!inviterResult.rows.length) {
-      return res.status(404).json({
-        success: false,
-        error: 'Inviter not found.'
-      });
-    }
-
-    const inviter = inviterResult.rows[0];
-    const inviterName = inviter.full_name || inviter.username;
-    const signupLink = `${getFrontendBaseUrl()}/signup.html?ref=${inviter.username}`;
-
-    const inviteHTML = getInviteEmailHTML({
-      inviterName: inviterName,
-      customMessage: customMessage || null,
-      signupLink: signupLink
-    });
-
-    if (mailer) {
-      await mailer.sendMail({
-        from: EMAIL_FROM,
-        to: inviteeEmail,
-        subject: `🌟 ${inviterName} invited you to HanVerse!`,
-        html: inviteHTML
-      });
-    } else {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Email service not available.' 
-      });
-    }
-
-    try {
-      await pool.query(`
-        INSERT INTO invitations (inviter_id, invitee_email, invitee_name, custom_message, sent_at)
-        VALUES ($1, $2, $3, $4, NOW())
-      `, [inviterId, inviteeEmail, inviteeName || null, customMessage || null]);
-    } catch (logError) {
-      console.warn('⚠️ Could not log invitation:', logError.message);
-    }
-
-    return res.json({
-      success: true,
-      message: `Invitation sent to ${inviteeEmail}!`
-    });
-
-  } catch (error) {
-    console.error('❌ Invite error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Failed to send invitation.'
+      error: 'Failed to send broadcast.'
     });
   }
 });
+/* =========================================================
+   EMAIL CAMPAIGNS 📧
+   Broadcast + scheduled + authenticated email sending
+========================================================= */
 
-/* ==========================================
-  HEALTH & ROUTES 🩺
-========================================== */
-router.get('/health', (req, res) => {
-  return res.json({
-    ok: true,
-    app: 'HanVerse',
-    status: 'Running',
-    version: '2.0.0',
-    database: pool ? 'connected' : 'disconnected',
-    email: mailer ? 'configured' : 'not configured'
-  });
-});
 
-router.get('/routes', (req, res) => {
-  return res.json({
-    routes: [
-      { method: 'GET', path: '/' },
-      { method: 'GET', path: '/health' },
-      { method: 'GET', path: '/routes' },
-      { method: 'POST', path: '/signup' },
-      { method: 'POST', path: '/login' },
-      { method: 'GET', path: '/user/:userId' },
-      { method: 'POST', path: '/auth/refresh' },
-      { method: 'POST', path: '/auth/logout' },
-      { method: 'POST', path: '/auth/send-verification' },
-      { method: 'POST', path: '/auth/resend-verification' },
-      { method: 'GET', path: '/auth/verification-status/:userId' },
-      { method: 'GET', path: '/verify-email' },
-      { method: 'POST', path: '/verify-email' },
-      { method: 'POST', path: '/forgot-password' },
-      { method: 'POST', path: '/reset-password' },
-      { method: 'POST', path: '/verify-parent-password' },
-      { method: 'GET', path: '/parents/children/:parentId' },
-      { method: 'GET', path: '/parents/child/:childId' },
-      { method: 'POST', path: '/parents/children' },
-      { method: 'PUT', path: '/parents/child/:childId' },
-      { method: 'PUT', path: '/parents/child/:childId/progress' },
-      { method: 'GET', path: '/parents/child/:childId/activities' },
-      { method: 'GET', path: '/parents/activity/:parentId' },
-      { method: 'POST', path: '/panda-chat' },
-      { method: 'GET', path: '/lessons' },
-      { method: 'GET', path: '/lessons/:lessonId' },
-      { method: 'GET', path: '/progress/:userId/:lessonId' },
-      { method: 'POST', path: '/progress' },
-      { method: 'GET', path: '/worksheets' },
-      { method: 'GET', path: '/worksheets/download/:id' },
-      { method: 'GET', path: '/stats' },
-      { method: 'POST', path: '/placement' },
-      { method: 'POST', path: '/sync/quizzes' },
-      { method: 'POST', path: '/sync/progress' },
-      { method: 'POST', path: '/sync/xp' },
-      { method: 'POST', path: '/sync/achievements' },
-      { method: 'POST', path: '/sync/streak' },
-      { method: 'POST', path: '/admin/verify-password' },
-      { method: 'GET', path: '/admin/overview' },
-      { method: 'GET', path: '/admin/parents' },
-      { method: 'GET', path: '/admin/parents/pending' },
-      { method: 'POST', path: '/admin/parents/verify/:parentId' },
-      { method: 'POST', path: '/admin/parents/deny/:parentId' },
-      { method: 'POST', path: '/admin/email-all' },
-      { method: 'POST', path: '/admin/users/email/:id' },
-      { method: 'POST', path: '/admin/users/update/:id' },
-      { method: 'POST', path: '/admin/users/ban/:id' },
-      { method: 'DELETE', path: '/admin/users/delete/:id' },
-      { method: 'POST', path: '/admin/toggle-verification/:userId' },
-      { method: 'POST', path: '/send-invite' }
-    ]
-  });
-});
+/* ---------------------------------------------------------
+   GET CAMPAIGNS
+   GET /api/admin/email/campaigns
+--------------------------------------------------------- */
 
-router.get('/', (req, res) => {
-  return res.json({
-    ok: true,
-    message: 'HanVerse API',
-    version: '2.0.0',
-    endpoints: [
-      { method: 'GET', path: '/' },
-      { method: 'GET', path: '/health' },
-      { method: 'GET', path: '/routes' },
-      { method: 'POST', path: '/signup' },
-      { method: 'POST', path: '/login' },
-      { method: 'GET', path: '/user/:userId' },
-      { method: 'POST', path: '/panda-chat' }
-    ]
-  });
-});
+router.get(
+  '/admin/email/campaigns',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
 
+      const { status } = req.query;
+
+      const values = [];
+      let where = '';
+
+      if (status) {
+        values.push(status);
+        where = `WHERE ec.status = $1`;
+      }
+
+      const result = await pool.query(
+        `
+        SELECT
+          ec.campaign_id,
+          ec.campaign_type,
+          ec.subject,
+          ec.audience_type,
+          ec.scheduled_for,
+          ec.timezone,
+          ec.status,
+          ec.total_recipients,
+          ec.sent_count,
+          ec.failed_count,
+          ec.created_at,
+          ec.updated_at,
+          ec.sent_at,
+
+          sender.full_name AS sender_name,
+          sender.username AS sender_username,
+          sender.email AS sender_email,
+
+          creator.full_name AS creator_name,
+          creator.username AS creator_username
+
+        FROM email_campaigns ec
+
+        LEFT JOIN users sender
+          ON sender.user_id = ec.sender_user_id
+
+        LEFT JOIN users creator
+          ON creator.user_id = ec.created_by
+
+        ${where}
+
+        ORDER BY ec.created_at DESC
+        LIMIT 200
+        `,
+        values
+      );
+
+      return res.json({
+        success: true,
+        campaigns: result.rows
+      });
+
+    } catch (error) {
+      console.error(
+        '❌ Get email campaigns error:',
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to load email campaigns.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   CREATE CAMPAIGN
+   POST /api/admin/email/campaigns
+--------------------------------------------------------- */
+
+router.post(
+  '/admin/email/campaigns',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const {
+        campaign_type = 'broadcast',
+        audience_type = 'verified',
+        subject,
+        message,
+        timing = 'now',
+        scheduled_for = null,
+        timezone = 'Africa/Nairobi',
+        adminPassword
+      } = req.body || {};
+
+      /* ---------------------------------------------
+         BASIC VALIDATION
+      --------------------------------------------- */
+
+      if (!subject || !String(subject).trim()) {
+        return res.status(400).json({
+          success: false,
+          error: 'Email subject is required.'
+        });
+      }
+
+      if (!message || !String(message).trim()) {
+        return res.status(400).json({
+          success: false,
+          error: 'Email message is required.'
+        });
+      }
+
+      if (!adminPassword) {
+        return res.status(401).json({
+          success: false,
+          error: 'Administrator password is required.'
+        });
+      }
+
+      if (
+        !['broadcast', 'personal'].includes(
+          campaign_type
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid campaign type.'
+        });
+      }
+
+      if (
+        ![
+          'all',
+          'verified',
+          'students',
+          'parents',
+          'premium',
+          'non_premium',
+          'custom',
+          'personal'
+        ].includes(audience_type)
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid audience type.'
+        });
+      }
+
+      /* ---------------------------------------------
+         VERIFY ADMIN ACCOUNT PASSWORD
+      --------------------------------------------- */
+
+      /*
+       * verifyAdminToken should already have attached
+       * the authenticated administrator to req.user.
+       *
+       * We also support req.userId as a fallback for
+       * older versions of the authentication middleware.
+       */
+
+      const adminUserId =
+        req.user?.user_id ||
+        req.user?.id ||
+        req.userId;
+
+      if (!adminUserId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Administrator identity could not be determined.'
+        });
+      }
+
+      const adminResult = await pool.query(
+        `
+        SELECT
+          user_id,
+          username,
+          email,
+          full_name,
+          password_hash,
+          is_admin,
+          is_banned
+        FROM users
+        WHERE user_id = $1
+        LIMIT 1
+        `,
+        [adminUserId]
+      );
+
+      if (!adminResult.rows.length) {
+        return res.status(401).json({
+          success: false,
+          error: 'Administrator account not found.'
+        });
+      }
+
+      const admin = adminResult.rows[0];
+
+      if (!admin.is_admin) {
+        return res.status(403).json({
+          success: false,
+          error: 'Administrator permissions are required.'
+        });
+      }
+
+      if (admin.is_banned) {
+        return res.status(403).json({
+          success: false,
+          error: 'This administrator account is banned.'
+        });
+      }
+
+      const passwordValid =
+        await bcrypt.compare(
+          String(adminPassword),
+          admin.password_hash
+        );
+
+      if (!passwordValid) {
+        return res.status(401).json({
+          success: false,
+          error: 'Incorrect administrator password.'
+        });
+      }
+
+      /* ---------------------------------------------
+         DETERMINE SENDER
+      --------------------------------------------- */
+
+      const senderUserId = admin.user_id;
+
+      /* ---------------------------------------------
+         DETERMINE RECIPIENTS
+      --------------------------------------------- */
+
+      let recipientQuery = '';
+      let recipientParams = [];
+
+      switch (audience_type) {
+
+        case 'all':
+
+          recipientQuery = `
+            SELECT
+              user_id,
+              email,
+              full_name,
+              username
+            FROM users
+            WHERE email IS NOT NULL
+              AND email <> ''
+              AND COALESCE(is_banned, false) = false
+          `;
+
+          break;
+
+
+        case 'verified':
+
+          recipientQuery = `
+            SELECT
+              user_id,
+              email,
+              full_name,
+              username
+            FROM users
+            WHERE email IS NOT NULL
+              AND email <> ''
+              AND COALESCE(is_verified, false) = true
+              AND COALESCE(is_banned, false) = false
+          `;
+
+          break;
+
+
+        case 'students':
+
+          recipientQuery = `
+            SELECT
+              user_id,
+              email,
+              full_name,
+              username
+            FROM users
+            WHERE email IS NOT NULL
+              AND email <> ''
+              AND COALESCE(role, 'student') = 'student'
+              AND COALESCE(is_banned, false) = false
+          `;
+
+          break;
+
+
+        case 'parents':
+
+          recipientQuery = `
+            SELECT
+              user_id,
+              email,
+              full_name,
+              username
+            FROM users
+            WHERE email IS NOT NULL
+              AND email <> ''
+              AND COALESCE(role, '') = 'parent'
+              AND COALESCE(is_banned, false) = false
+          `;
+
+          break;
+
+
+        case 'premium':
+
+          recipientQuery = `
+            SELECT
+              user_id,
+              email,
+              full_name,
+              username
+            FROM users
+            WHERE email IS NOT NULL
+              AND email <> ''
+              AND COALESCE(premium, false) = true
+              AND COALESCE(is_banned, false) = false
+          `;
+
+          break;
+
+
+        case 'non_premium':
+
+          recipientQuery = `
+            SELECT
+              user_id,
+              email,
+              full_name,
+              username
+            FROM users
+            WHERE email IS NOT NULL
+              AND email <> ''
+              AND COALESCE(premium, false) = false
+              AND COALESCE(is_banned, false) = false
+          `;
+
+          break;
+
+
+        default:
+
+          return res.status(400).json({
+            success: false,
+            error: 'This audience type is not yet supported.'
+          });
+      }
+
+
+      const recipientsResult =
+        await pool.query(
+          recipientQuery,
+          recipientParams
+        );
+
+      const recipients =
+        recipientsResult.rows;
+
+
+      if (!recipients.length) {
+        return res.status(400).json({
+          success: false,
+          error: 'No eligible recipients were found.'
+        });
+      }
+
+
+      /* ---------------------------------------------
+         DETERMINE SEND TIME
+      --------------------------------------------- */
+
+      let scheduledDate;
+
+      if (timing === 'now') {
+
+        scheduledDate = new Date();
+
+      } else if (timing === 'scheduled') {
+
+        if (!scheduled_for) {
+          return res.status(400).json({
+            success: false,
+            error:
+              'scheduled_for is required when scheduling an email.'
+          });
+        }
+
+        scheduledDate =
+          new Date(scheduled_for);
+
+        if (
+          Number.isNaN(
+            scheduledDate.getTime()
+          )
+        ) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid scheduled date/time.'
+          });
+        }
+
+        if (
+          scheduledDate.getTime() <=
+          Date.now()
+        ) {
+          return res.status(400).json({
+            success: false,
+            error:
+              'Scheduled time must be in the future.'
+          });
+        }
+
+      } else {
+
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid timing option.'
+        });
+      }
+
+
+      /* ---------------------------------------------
+         CREATE CAMPAIGN
+      --------------------------------------------- */
+
+      await pool.query('BEGIN');
+
+      const campaignResult =
+        await pool.query(
+          `
+          INSERT INTO email_campaigns (
+            campaign_type,
+            subject,
+            message,
+            audience_type,
+            sender_user_id,
+            created_by,
+            authorised_by,
+            authorised_at,
+            scheduled_for,
+            timezone,
+            status,
+            total_recipients
+          )
+          VALUES (
+            $1,$2,$3,$4,$5,$6,$7,NOW(),
+            $8,$9,$10,$11
+          )
+          RETURNING *
+          `,
+          [
+            campaign_type,
+            String(subject).trim(),
+            String(message).trim(),
+            audience_type,
+            senderUserId,
+            adminUserId,
+            adminUserId,
+            scheduledDate,
+            timezone,
+            timing === 'now'
+              ? 'processing'
+              : 'scheduled',
+            recipients.length
+          ]
+        );
+
+
+      const campaign =
+        campaignResult.rows[0];
+
+
+      /* ---------------------------------------------
+         INSERT RECIPIENTS
+      --------------------------------------------- */
+
+      for (const recipient of recipients) {
+
+        await pool.query(
+          `
+          INSERT INTO email_campaign_recipients (
+            campaign_id,
+            user_id,
+            email,
+            recipient_name,
+            status
+          )
+          VALUES ($1,$2,$3,$4,'pending')
+          `,
+          [
+            campaign.campaign_id,
+            recipient.user_id,
+            recipient.email,
+            recipient.full_name ||
+              recipient.username ||
+              null
+          ]
+        );
+      }
+
+
+      await pool.query('COMMIT');
+
+
+      /* ---------------------------------------------
+         SEND IMMEDIATELY
+      --------------------------------------------- */
+
+      if (timing === 'now') {
+
+        /*
+         * Do not keep the HTTP request waiting for
+         * hundreds of emails.
+         *
+         * The campaign is already safely stored.
+         * The scheduler/processor can pick it up.
+         */
+
+        return res.status(201).json({
+          success: true,
+          campaign,
+          message:
+            `Email campaign authorised and queued for ${recipients.length} recipient(s).`
+        });
+      }
+
+
+      /* ---------------------------------------------
+         SCHEDULED RESPONSE
+      --------------------------------------------- */
+
+      return res.status(201).json({
+        success: true,
+        campaign,
+        message:
+          `Campaign scheduled for ${scheduledDate.toISOString()}.`
+      });
+
+    } catch (error) {
+
+      try {
+        await pool.query('ROLLBACK');
+      } catch (_) {}
+
+      console.error(
+        '❌ Create email campaign error:',
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        error:
+          'Failed to create email campaign.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   CANCEL CAMPAIGN
+   POST /api/admin/email/campaigns/:id/cancel
+--------------------------------------------------------- */
+
+router.post(
+  '/admin/email/campaigns/:id/cancel',
+  verifyAdminToken,
+  async (req, res) => {
+
+    try {
+
+      if (!ensurePool(res)) return;
+
+      const campaignId =
+        Number(req.params.id);
+
+      if (!Number.isInteger(campaignId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid campaign ID.'
+        });
+      }
+
+      const result =
+        await pool.query(
+          `
+          UPDATE email_campaigns
+          SET
+            status = 'cancelled',
+            updated_at = NOW()
+          WHERE campaign_id = $1
+            AND status = 'scheduled'
+          RETURNING *
+          `,
+          [campaignId]
+        );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error:
+            'Campaign not found or can no longer be cancelled.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        campaign: result.rows[0],
+        message: 'Campaign cancelled.'
+      });
+
+    } catch (error) {
+
+      console.error(
+        '❌ Cancel campaign error:',
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        error:
+          'Failed to cancel campaign.'
+      });
+    }
+  }
+);
+
+/* =========================================================
+   ADMIN EMAIL INDIVIDUAL USER
+========================================================= */
+
+router.post(
+  '/admin/users/email/:id',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const userId = Number(req.params.id);
+      const { subject, message } = req.body || {};
+
+      if (!Number.isInteger(userId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid user ID.'
+        });
+      }
+
+      if (!subject || !message) {
+        return res.status(400).json({
+          success: false,
+          error: 'Subject and message are required.'
+        });
+      }
+
+      const result = await pool.query(
+        `SELECT email, username
+         FROM users
+         WHERE user_id = $1`,
+        [userId]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found.'
+        });
+      }
+
+      const user = result.rows[0];
+
+      const html = `
+        <div style="
+          font-family:Arial,sans-serif;
+          max-width:600px;
+          margin:auto;
+          padding:24px;
+        ">
+          <div style="text-align:center;">
+            <div style="font-size:48px;">🐼</div>
+            <h2 style="color:#E63946;">
+              ${subject}
+            </h2>
+          </div>
+
+          <div style="
+            margin-top:20px;
+            line-height:1.7;
+            white-space:pre-wrap;
+          ">
+            ${message}
+          </div>
+
+          <p style="
+            margin-top:30px;
+            text-align:center;
+            color:#777;
+            font-size:13px;
+          ">
+            HanVerse
+          </p>
+        </div>
+      `;
+
+      await sendEmail({
+        to: user.email,
+        subject,
+        html
+      });
+
+      return res.json({
+        success: true,
+        message: 'Email sent successfully.'
+      });
+
+    } catch (error) {
+      console.error('❌ Individual admin email error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to send email.'
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   ADMIN USER UPDATE
+========================================================= */
+
+router.post(
+  '/admin/users/update/:id',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const userId = Number(req.params.id);
+
+      if (!Number.isInteger(userId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid user ID.'
+        });
+      }
+
+      const {
+        full_name,
+        username,
+        email,
+        level,
+        xp,
+        role,
+        is_banned,
+        premium,
+        is_verified,
+        password
+      } = req.body || {};
+
+      const existing = await pool.query(
+        `SELECT *
+         FROM users
+         WHERE user_id = $1`,
+        [userId]
+      );
+
+      if (!existing.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found.'
+        });
+      }
+
+      const fields = [];
+      const values = [];
+      let index = 1;
+
+      const addField = (name, value) => {
+        fields.push(`${name} = $${index}`);
+        values.push(value);
+        index++;
+      };
+
+      if (full_name !== undefined) addField('full_name', full_name);
+      if (username !== undefined) addField('username', username);
+      if (email !== undefined) addField('email', email);
+      if (level !== undefined) addField('level', Number(level) || 1);
+      if (xp !== undefined) addField('xp', Number(xp) || 0);
+      if (role !== undefined) addField('role', role);
+      if (is_banned !== undefined) addField('is_banned', Boolean(is_banned));
+      if (premium !== undefined) addField('premium', Boolean(premium));
+      if (is_verified !== undefined) addField('is_verified', Boolean(is_verified));
+
+      if (password && String(password).trim()) {
+        const passwordHash = await bcrypt.hash(
+          String(password),
+          12
+        );
+
+        addField('password_hash', passwordHash);
+      }
+
+      if (!fields.length) {
+        return res.status(400).json({
+          success: false,
+          error: 'No changes supplied.'
+        });
+      }
+
+      fields.push('updated_at = NOW()');
+
+      values.push(userId);
+
+      const result = await pool.query(
+        `UPDATE users
+         SET ${fields.join(', ')}
+         WHERE user_id = $${index}
+         RETURNING *`,
+        values
+      );
+
+      return res.json({
+        success: true,
+        user: safeUser(result.rows[0])
+      });
+
+    } catch (error) {
+      console.error('❌ Admin user update error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update user.'
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   ADMIN BAN / UNBAN USER
+========================================================= */
+
+router.post(
+  '/admin/users/ban/:id',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const userId = Number(req.params.id);
+      const { banned = true, reason = null } = req.body || {};
+
+      if (!Number.isInteger(userId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid user ID.'
+        });
+      }
+
+      const result = await pool.query(
+        `UPDATE users
+         SET
+           is_banned = $1,
+           banned_reason = $2,
+           updated_at = NOW()
+         WHERE user_id = $3
+         RETURNING *`,
+        [Boolean(banned), reason, userId]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        user: safeUser(result.rows[0])
+      });
+
+    } catch (error) {
+      console.error('❌ Admin ban error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update ban status.'
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   ADMIN DELETE USER
+========================================================= */
+
+router.delete(
+  '/admin/users/delete/:id',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const userId = Number(req.params.id);
+
+      if (!Number.isInteger(userId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid user ID.'
+        });
+      }
+
+      const result = await pool.query(
+        `DELETE FROM users
+         WHERE user_id = $1
+         RETURNING user_id`,
+        [userId]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: 'User deleted successfully.'
+      });
+
+    } catch (error) {
+      console.error('❌ Admin delete user error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to delete user.'
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   ADMIN TOGGLE VERIFICATION
+========================================================= */
+
+router.post(
+  '/admin/toggle-verification/:userId',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const userId = Number(req.params.userId);
+
+      if (!Number.isInteger(userId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid user ID.'
+        });
+      }
+
+      const requested =
+        req.body?.verified !== undefined
+          ? Boolean(req.body.verified)
+          : null;
+
+      let query;
+      let params;
+
+      if (requested === null) {
+        query = `
+          UPDATE users
+          SET
+            is_verified = NOT COALESCE(is_verified, false),
+            verified_at =
+              CASE
+                WHEN NOT COALESCE(is_verified, false)
+                THEN NOW()
+                ELSE NULL
+              END,
+            updated_at = NOW()
+          WHERE user_id = $1
+          RETURNING *
+        `;
+
+        params = [userId];
+
+      } else {
+        query = `
+          UPDATE users
+          SET
+            is_verified = $1,
+            verified_at =
+              CASE
+                WHEN $1 = true
+                THEN COALESCE(verified_at, NOW())
+                ELSE NULL
+              END,
+            updated_at = NOW()
+          WHERE user_id = $2
+          RETURNING *
+        `;
+
+        params = [requested, userId];
+      }
+
+      const result = await pool.query(query, params);
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        user: safeUser(result.rows[0])
+      });
+
+    } catch (error) {
+      console.error('❌ Verification toggle error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update verification status.'
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   ADMIN PARENTS
+========================================================= */
+
+router.get(
+  '/admin/parents',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const result = await pool.query(`
+        SELECT
+          p.*,
+          u.username,
+          u.email AS user_email,
+          u.profile_picture,
+          u.is_admin,
+          (
+            SELECT COUNT(*)
+            FROM users c
+            WHERE c.parent_id = p.parent_id
+              AND c.role = 'student'
+          ) AS actual_children_count
+        FROM parents p
+        LEFT JOIN users u
+          ON u.user_id = p.user_id
+        ORDER BY p.created_at DESC
+      `);
+
+      return res.json({
+        success: true,
+        parents: result.rows
+      });
+
+    } catch (error) {
+      console.error('❌ Admin parents error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to fetch parents.'
+      });
+    }
+  }
+);
+
+
+router.get(
+  '/admin/parents/pending',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const result = await pool.query(`
+        SELECT
+          p.*,
+          u.username,
+          u.email
+        FROM parents p
+        LEFT JOIN users u
+          ON u.user_id = p.user_id
+        WHERE COALESCE(p.is_verified, false) = false
+          AND COALESCE(p.is_active, true) = true
+        ORDER BY p.created_at DESC
+      `);
+
+      return res.json({
+        success: true,
+        pendingParents: result.rows
+      });
+
+    } catch (error) {
+      console.error('❌ Pending parents error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to fetch pending parents.'
+      });
+    }
+  }
+);
+
+
+router.post(
+  '/admin/parents/verify/:parentId',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const parentId = Number(req.params.parentId);
+
+      const result = await pool.query(
+        `UPDATE parents
+         SET
+           is_verified = true,
+           verified_at = NOW(),
+           is_active = true
+         WHERE parent_id = $1
+         RETURNING *`,
+        [parentId]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'Parent not found.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        parent: result.rows[0]
+      });
+
+    } catch (error) {
+      console.error('❌ Parent verification error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to verify parent.'
+      });
+    }
+  }
+);
+
+
+router.post(
+  '/admin/parents/deny/:parentId',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const parentId = Number(req.params.parentId);
+
+      const result = await pool.query(
+        `UPDATE parents
+         SET
+           is_verified = false,
+           is_active = false
+         WHERE parent_id = $1
+         RETURNING *`,
+        [parentId]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'Parent not found.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        parent: result.rows[0]
+      });
+
+    } catch (error) {
+      console.error('❌ Parent denial error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to deny parent.'
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   =========================================================
+   📚 ADMIN LESSON MANAGEMENT
+   =========================================================
+   ========================================================= */
+
+/*
+  IMPORTANT:
+
+  These routes use the existing `lessons` table.
+
+  Expected columns:
+
+    lesson_id
+    title
+    description
+    content
+    level
+    premium
+    xp
+    icon
+    order_index
+    vocabulary
+    quiz
+    learning_objectives
+    is_published
+
+  Media is supported through `lesson_media`.
+*/
+
+
+/* ---------------------------------------------------------
+   GET ALL LESSONS
+   /api/admin/lessons
+--------------------------------------------------------- */
+
+router.get(
+  '/admin/lessons',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const result = await pool.query(`
+        SELECT
+          l.*,
+
+          (
+            SELECT COUNT(*)
+            FROM lesson_media lm
+            WHERE lm.lesson_id = l.lesson_id
+          ) AS media_count
+
+        FROM lessons l
+
+        ORDER BY
+          l.level ASC,
+          l.order_index ASC,
+          l.lesson_id ASC
+      `);
+
+      return res.json({
+        success: true,
+        lessons: result.rows
+      });
+
+    } catch (error) {
+      console.error('❌ Admin lessons list error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to load lessons.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   GET ONE LESSON + ALL MEDIA
+   /api/admin/lessons/:lessonId
+--------------------------------------------------------- */
+
+router.get(
+  '/admin/lessons/:lessonId',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const lessonId = String(req.params.lessonId).trim();
+
+      const lessonResult = await pool.query(
+        `SELECT *
+         FROM lessons
+         WHERE lesson_id = $1`,
+        [lessonId]
+      );
+
+      if (!lessonResult.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'Lesson not found.'
+        });
+      }
+
+      const mediaResult = await pool.query(
+        `SELECT *
+         FROM lesson_media
+         WHERE lesson_id = $1
+         ORDER BY order_index ASC, media_id ASC`,
+        [lessonId]
+      );
+
+      return res.json({
+        success: true,
+        lesson: lessonResult.rows[0],
+        media: mediaResult.rows
+      });
+
+    } catch (error) {
+      console.error('❌ Admin lesson detail error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to load lesson.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   CREATE LESSON
+   /api/admin/lessons
+--------------------------------------------------------- */
+
+router.post(
+  '/admin/lessons',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const {
+        lesson_id,
+        title,
+        description = '',
+        content = '',
+        level = 1,
+        premium = false,
+        xp = 0,
+        icon = '🐼',
+        order_index = 1,
+        vocabulary = [],
+        quiz = [],
+        learning_objectives = [],
+        is_published = false
+      } = req.body || {};
+
+      if (!lesson_id || !title) {
+        return res.status(400).json({
+          success: false,
+          error: 'lesson_id and title are required.'
+        });
+      }
+
+      const result = await pool.query(
+        `INSERT INTO lessons (
+          lesson_id,
+          title,
+          description,
+          content,
+          level,
+          premium,
+          xp,
+          icon,
+          order_index,
+          vocabulary,
+          quiz,
+          learning_objectives,
+          is_published
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+        )
+        RETURNING *`,
+        [
+          String(lesson_id).trim(),
+          String(title).trim(),
+          description,
+          content,
+          Number(level) || 1,
+          Boolean(premium),
+          Number(xp) || 0,
+          icon || '🐼',
+          Number(order_index) || 1,
+          JSON.stringify(vocabulary || []),
+          JSON.stringify(quiz || []),
+          JSON.stringify(learning_objectives || []),
+          Boolean(is_published)
+        ]
+      );
+
+      return res.status(201).json({
+        success: true,
+        lesson: result.rows[0]
+      });
+
+    } catch (error) {
+      console.error('❌ Create lesson error:', error);
+
+      if (error.code === '23505') {
+        return res.status(409).json({
+          success: false,
+          error: 'A lesson with that lesson ID already exists.'
+        });
+      }
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to create lesson.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   UPDATE LESSON
+   /api/admin/lessons/:lessonId
+--------------------------------------------------------- */
+
+router.put(
+  '/admin/lessons/:lessonId',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const lessonId = String(req.params.lessonId).trim();
+
+      const {
+        title,
+        description,
+        content,
+        level,
+        premium,
+        xp,
+        icon,
+        order_index,
+        vocabulary,
+        quiz,
+        learning_objectives,
+        is_published
+      } = req.body || {};
+
+      const result = await pool.query(
+        `UPDATE lessons
+         SET
+           title = COALESCE($1, title),
+           description = COALESCE($2, description),
+           content = COALESCE($3, content),
+           level = COALESCE($4, level),
+           premium = COALESCE($5, premium),
+           xp = COALESCE($6, xp),
+           icon = COALESCE($7, icon),
+           order_index = COALESCE($8, order_index),
+           vocabulary = COALESCE($9, vocabulary),
+           quiz = COALESCE($10, quiz),
+           learning_objectives = COALESCE($11, learning_objectives),
+           is_published = COALESCE($12, is_published)
+         WHERE lesson_id = $13
+         RETURNING *`,
+        [
+          title ?? null,
+          description ?? null,
+          content ?? null,
+          level !== undefined ? Number(level) : null,
+          premium !== undefined ? Boolean(premium) : null,
+          xp !== undefined ? Number(xp) : null,
+          icon ?? null,
+          order_index !== undefined ? Number(order_index) : null,
+          vocabulary !== undefined
+            ? JSON.stringify(vocabulary)
+            : null,
+          quiz !== undefined
+            ? JSON.stringify(quiz)
+            : null,
+          learning_objectives !== undefined
+            ? JSON.stringify(learning_objectives)
+            : null,
+          is_published !== undefined
+            ? Boolean(is_published)
+            : null,
+          lessonId
+        ]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'Lesson not found.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        lesson: result.rows[0]
+      });
+
+    } catch (error) {
+      console.error('❌ Update lesson error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update lesson.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   DELETE LESSON
+   /api/admin/lessons/:lessonId
+--------------------------------------------------------- */
+
+router.delete(
+  '/admin/lessons/:lessonId',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const lessonId = String(req.params.lessonId).trim();
+
+      await pool.query('BEGIN');
+
+      await pool.query(
+        `DELETE FROM lesson_media
+         WHERE lesson_id = $1`,
+        [lessonId]
+      );
+
+      const result = await pool.query(
+        `DELETE FROM lessons
+         WHERE lesson_id = $1
+         RETURNING lesson_id`,
+        [lessonId]
+      );
+
+      if (!result.rows.length) {
+        await pool.query('ROLLBACK');
+
+        return res.status(404).json({
+          success: false,
+          error: 'Lesson not found.'
+        });
+      }
+
+      await pool.query('COMMIT');
+
+      return res.json({
+        success: true,
+        message: 'Lesson deleted successfully.'
+      });
+
+    } catch (error) {
+      try {
+        await pool.query('ROLLBACK');
+      } catch (_) {}
+
+      console.error('❌ Delete lesson error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to delete lesson.'
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   LESSON MEDIA
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   GET MEDIA
+   /api/admin/lessons/:lessonId/media
+--------------------------------------------------------- */
+
+router.get(
+  '/admin/lessons/:lessonId/media',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const lessonId = String(req.params.lessonId).trim();
+
+      const result = await pool.query(
+        `SELECT *
+         FROM lesson_media
+         WHERE lesson_id = $1
+         ORDER BY order_index ASC, media_id ASC`,
+        [lessonId]
+      );
+
+      return res.json({
+        success: true,
+        media: result.rows
+      });
+
+    } catch (error) {
+      console.error('❌ Get lesson media error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to load lesson media.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   ADD MEDIA
+   /api/admin/lessons/:lessonId/media
+--------------------------------------------------------- */
+
+router.post(
+  '/admin/lessons/:lessonId/media',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const lessonId = String(req.params.lessonId).trim();
+
+      const {
+        media_type,
+        media_url,
+        title = '',
+        caption = '',
+        alt_text = '',
+        poster_url = null,
+        duration_seconds = null,
+        order_index = 1,
+        is_published = true
+      } = req.body || {};
+
+      if (!media_url) {
+        return res.status(400).json({
+          success: false,
+          error: 'media_url is required.'
+        });
+      }
+
+      if (!['image', 'video', 'audio'].includes(media_type)) {
+        return res.status(400).json({
+          success: false,
+          error: 'media_type must be image, video or audio.'
+        });
+      }
+
+      const lessonCheck = await pool.query(
+        `SELECT lesson_id
+         FROM lessons
+         WHERE lesson_id = $1`,
+        [lessonId]
+      );
+
+      if (!lessonCheck.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'Lesson not found.'
+        });
+      }
+
+      const result = await pool.query(
+        `INSERT INTO lesson_media (
+          lesson_id,
+          media_type,
+          media_url,
+          title,
+          caption,
+          alt_text,
+          poster_url,
+          duration_seconds,
+          order_index,
+          is_published
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
+        )
+        RETURNING *`,
+        [
+          lessonId,
+          media_type,
+          media_url,
+          title,
+          caption,
+          alt_text,
+          poster_url,
+          duration_seconds !== null
+            ? Number(duration_seconds)
+            : null,
+          Number(order_index) || 1,
+          Boolean(is_published)
+        ]
+      );
+
+      return res.status(201).json({
+        success: true,
+        media: result.rows[0]
+      });
+
+    } catch (error) {
+      console.error('❌ Add lesson media error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to add lesson media.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   UPDATE MEDIA
+--------------------------------------------------------- */
+
+router.put(
+  '/admin/lessons/:lessonId/media/:mediaId',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const lessonId = String(req.params.lessonId).trim();
+      const mediaId = Number(req.params.mediaId);
+
+      const {
+        media_type,
+        media_url,
+        title,
+        caption,
+        alt_text,
+        poster_url,
+        duration_seconds,
+        order_index,
+        is_published
+      } = req.body || {};
+
+      const result = await pool.query(
+        `UPDATE lesson_media
+         SET
+           media_type = COALESCE($1, media_type),
+           media_url = COALESCE($2, media_url),
+           title = COALESCE($3, title),
+           caption = COALESCE($4, caption),
+           alt_text = COALESCE($5, alt_text),
+           poster_url = COALESCE($6, poster_url),
+           duration_seconds = COALESCE($7, duration_seconds),
+           order_index = COALESCE($8, order_index),
+           is_published = COALESCE($9, is_published),
+           updated_at = NOW()
+         WHERE media_id = $10
+           AND lesson_id = $11
+         RETURNING *`,
+        [
+          media_type ?? null,
+          media_url ?? null,
+          title ?? null,
+          caption ?? null,
+          alt_text ?? null,
+          poster_url ?? null,
+          duration_seconds !== undefined
+            ? Number(duration_seconds)
+            : null,
+          order_index !== undefined
+            ? Number(order_index)
+            : null,
+          is_published !== undefined
+            ? Boolean(is_published)
+            : null,
+          mediaId,
+          lessonId
+        ]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'Media item not found.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        media: result.rows[0]
+      });
+
+    } catch (error) {
+      console.error('❌ Update media error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update media.'
+      });
+    }
+  }
+);
+
+
+/* ---------------------------------------------------------
+   DELETE MEDIA
+--------------------------------------------------------- */
+
+router.delete(
+  '/admin/lessons/:lessonId/media/:mediaId',
+  verifyAdminToken,
+  async (req, res) => {
+    try {
+      if (!ensurePool(res)) return;
+
+      const lessonId = String(req.params.lessonId).trim();
+      const mediaId = Number(req.params.mediaId);
+
+      const result = await pool.query(
+        `DELETE FROM lesson_media
+         WHERE media_id = $1
+           AND lesson_id = $2
+         RETURNING media_id`,
+        [mediaId, lessonId]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          error: 'Media item not found.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: 'Media deleted successfully.'
+      });
+
+    } catch (error) {
+      console.error('❌ Delete media error:', error);
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to delete media.'
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   ADMIN ROUTE STATUS
+========================================================= */
+
+console.log('✅ Admin authentication routes registered');
+console.log('✅ Admin user management routes registered');
+console.log('✅ Admin parent management routes registered');
+console.log('✅ Admin lesson management routes registered');
+console.log('✅ Admin lesson media routes registered');
 console.log('✅ Admin routes registered successfully!');
 
 /* ==========================================

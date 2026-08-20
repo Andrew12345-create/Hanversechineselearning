@@ -1,2416 +1,4435 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#E63946">
-<meta name="description" content="HanVerse interactive Chinese lesson">
-<title>HanVerse · Lesson</title>
+    <meta charset="UTF-8">
 
-<style>
-:root{
-  --red:#E63946;
-  --red-dark:#C92F3B;
-  --yellow:#F4D35E;
-  --blue:#4EA8DE;
-  --green:#74C69D;
-  --cream:#FFFDF7;
-  --ink:#263238;
-  --muted:#718096;
-  --line:#E8E4DB;
-  --white:#fff;
-  --shadow:0 18px 50px rgba(38,50,56,.10);
-  --shadow-soft:0 8px 24px rgba(38,50,56,.08);
-  --radius:22px;
-  --safe-bottom:env(safe-area-inset-bottom,0px);
-}
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
 
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  background:
-    radial-gradient(circle at 10% 0%,rgba(244,211,94,.18),transparent 22rem),
-    radial-gradient(circle at 95% 20%,rgba(78,168,222,.12),transparent 24rem),
-    var(--cream);
-  color:var(--ink);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  min-height:100vh;
-  -webkit-font-smoothing:antialiased;
-}
-button,a{font:inherit}
-button{cursor:pointer}
-button:disabled{cursor:not-allowed}
-a{color:inherit;text-decoration:none}
+    <meta
+        name="theme-color"
+        content="#E63946"
+    >
 
-.container{
-  width:min(100% - 32px,1080px);
-  margin:auto;
-}
+    <title>HanVerse Lesson</title>
 
-/* NAV */
-.nav-wrap{
-  position:sticky;
-  top:0;
-  z-index:100;
-  background:rgba(255,253,247,.90);
-  backdrop-filter:blur(18px);
-  border-bottom:1px solid rgba(232,228,219,.8);
-}
-.nav{
-  min-height:66px;
-  display:flex;
-  align-items:center;
-  gap:22px;
-}
-.brand{
-  display:inline-flex;
-  align-items:center;
-  gap:9px;
-  font-size:1.12rem;
-  font-weight:950;
-  letter-spacing:-.04em;
-  white-space:nowrap;
-}
-.brand span:last-child{color:var(--red)}
-.brand-mark{
-  width:38px;height:38px;
-  display:grid;place-items:center;
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:13px;
-  box-shadow:var(--shadow-soft);
-}
-.nav-links{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  flex:1;
-}
-.nav-link{
-  padding:9px 12px;
-  border-radius:11px;
-  color:var(--muted);
-  font-size:.82rem;
-  font-weight:800;
-}
-.nav-link:hover,.nav-link.active{
-  color:var(--ink);
-  background:#F4F0E8;
-}
-.nav-actions{display:flex;gap:8px;align-items:center}
-.mobile-toggle{
-  display:none;
-  margin-left:auto;
-  width:42px;height:42px;
-  border:1px solid var(--line);
-  border-radius:13px;
-  background:#fff;
-  font-size:1.2rem;
-}
-.mobile-menu{
-  display:none;
-  padding:10px 16px 16px;
-  border-top:1px solid var(--line);
-  background:rgba(255,253,247,.98);
-}
-.mobile-menu.open{display:grid;gap:4px}
-.mobile-menu a{
-  padding:13px 14px;
-  border-radius:13px;
-  font-weight:800;
-}
-.mobile-menu a:hover{background:#F4F0E8}
+    <style>
+        :root {
+            --red: #E63946;
+            --red-dark: #C92F3B;
+            --yellow: #F4D35E;
+            --blue: #4EA8DE;
+            --green: #74C69D;
 
-/* BUTTONS */
-.btn{
-  border:0;
-  border-radius:14px;
-  min-height:44px;
-  padding:0 17px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  font-weight:900;
-  font-size:.82rem;
-  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
-}
-.btn:hover:not(:disabled){transform:translateY(-2px)}
-.btn-primary{
-  color:#fff;
-  background:var(--red);
-  box-shadow:0 7px 18px rgba(230,57,70,.22);
-}
-.btn-primary:hover:not(:disabled){background:var(--red-dark)}
-.btn-outline{
-  background:#fff;
-  color:var(--ink);
-  border:1px solid var(--line);
-}
-.btn-ghost{
-  background:transparent;
-  color:var(--muted);
-}
+            --cream: #FFFDF7;
+            --white: #FFFFFF;
+            --text: #263238;
+            --muted: #718096;
+            --border: #E8E4DB;
 
-/* PAGE HEADER */
-.lesson-page{padding:30px 0 130px}
-.lesson-head{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:24px;
-  align-items:end;
-  margin-bottom:20px;
-}
-.eyebrow{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  color:var(--red);
-  font-size:.70rem;
-  font-weight:950;
-  text-transform:uppercase;
-  letter-spacing:.12em;
-}
-.lesson-head h1{
-  margin:7px 0 6px;
-  font-size:clamp(1.8rem,4vw,2.65rem);
-  line-height:1.04;
-  letter-spacing:-.05em;
-}
-.subtitle{
-  margin:0;
-  max-width:650px;
-  color:var(--muted);
-  line-height:1.6;
-  font-size:.92rem;
-}
-.xp-chip{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:999px;
-  padding:10px 15px;
-  font-size:.82rem;
-  font-weight:950;
-  white-space:nowrap;
-  box-shadow:var(--shadow-soft);
-}
+            --radius: 22px;
+            --shadow:
+                0 14px 40px rgba(38, 50, 56, 0.09);
 
-/* DUOLINGO-STYLE PROGRESS */
-.progress-shell{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:14px 16px;
-  box-shadow:var(--shadow-soft);
-  margin-bottom:16px;
-}
-.progress-row{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.progress-track{
-  height:11px;
-  flex:1;
-  background:#EEEAE1;
-  border-radius:999px;
-  overflow:hidden;
-}
-.progress-fill{
-  width:0;
-  height:100%;
-  background:linear-gradient(90deg,var(--red),#F06A74);
-  border-radius:inherit;
-  transition:width .55s cubic-bezier(.22,.8,.25,1);
-}
-.progress-percent{
-  min-width:42px;
-  text-align:right;
-  font-size:.76rem;
-  font-weight:950;
-}
-.lesson-meta-row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:10px;
-}
-.meta-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  padding:5px 9px;
-  border-radius:999px;
-  background:#F7F4ED;
-  color:var(--muted);
-  font-size:.68rem;
-  font-weight:900;
-}
+            --safe-bottom:
+                env(safe-area-inset-bottom, 0px);
+        }
 
-/* MAIN CARD */
-.lesson-card{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:28px;
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
-.lesson-stage{
-  min-height:590px;
-  display:grid;
-  place-items:center;
-  padding:42px 32px 30px;
-  position:relative;
-}
-.slide{
-  width:min(100%,700px);
-  animation:slideIn .35s ease both;
-}
-@keyframes slideIn{
-  from{opacity:0;transform:translateY(12px) scale(.985)}
-  to{opacity:1;transform:none}
-}
-.slide-center{text-align:center}
-.kicker{
-  color:var(--red);
-  font-size:.70rem;
-  text-transform:uppercase;
-  letter-spacing:.12em;
-  font-weight:950;
-}
-.slide h2{
-  margin:10px 0 10px;
-  font-size:clamp(1.6rem,4vw,2.35rem);
-  letter-spacing:-.045em;
-}
-.slide-copy{
-  color:var(--muted);
-  line-height:1.65;
-  max-width:600px;
-  margin:0 auto;
-}
-.panda-hero{
-  width:118px;height:118px;
-  margin:0 auto 20px;
-  display:grid;place-items:center;
-  background:linear-gradient(145deg,#FFF8DF,#fff);
-  border:2px solid #F2E5B2;
-  border-radius:36px;
-  font-size:4rem;
-  box-shadow:0 14px 30px rgba(244,211,94,.22);
-  animation:float 3s ease-in-out infinite;
-}
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-7px)}
-}
+        * {
+            box-sizing: border-box;
+        }
 
-/* OBJECTIVES */
-.objectives{
-  display:grid;
-  gap:10px;
-  margin:26px auto 0;
-  max-width:560px;
-  text-align:left;
-}
-.objective{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:13px 15px;
-  border:1px solid var(--line);
-  border-radius:15px;
-  background:#FFFEFB;
-}
-.objective-icon{
-  width:34px;height:34px;
-  flex:0 0 34px;
-  display:grid;place-items:center;
-  border-radius:11px;
-  background:#EEF8F2;
-}
-.objective span:last-child{font-weight:800;font-size:.84rem}
+        html {
+            scroll-behavior: smooth;
+        }
 
-/* VOCAB */
-.vocab-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-  margin-top:22px;
-}
-.word-card{
-  text-align:left;
-  padding:18px;
-  border:1px solid var(--line);
-  border-radius:20px;
-  background:#FFFEFB;
-  position:relative;
-  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
-}
-.word-card:hover{
-  transform:translateY(-3px);
-  box-shadow:var(--shadow-soft);
-  border-color:#D9D2C4;
-}
-.word-emoji{font-size:1.25rem}
-.word-chinese{
-  margin-top:6px;
-  font-size:2rem;
-  font-weight:950;
-  line-height:1.1;
-  font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
-}
-.word-pinyin{
-  margin-top:5px;
-  color:var(--red);
-  font-weight:900;
-  font-size:.82rem;
-}
-.word-english{
-  margin-top:4px;
-  color:var(--muted);
-  font-size:.76rem;
-}
-.speak-btn{
-  margin-top:12px;
-  min-height:34px;
-  padding:0 11px;
-  border:1px solid var(--line);
-  border-radius:10px;
-  background:#fff;
-  font-size:.72rem;
-  font-weight:900;
-}
-.speak-btn:hover{background:#F5F2EB}
+        body {
+            margin: 0;
+            min-height: 100vh;
 
-/* CONTENT / EXAMPLES */
-.content-block{
-  margin-top:22px;
-  padding:19px;
-  border:1px solid var(--line);
-  border-radius:19px;
-  background:#FFFEFB;
-}
-.content-block h3{
-  margin:0 0 8px;
-  font-size:1rem;
-}
-.content-block p{
-  margin:0;
-  color:var(--muted);
-  line-height:1.7;
-}
-.example-list{display:grid;gap:12px;margin-top:18px}
-.example{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  gap:13px;
-  padding:16px;
-  border-radius:18px;
-  background:#F8FBFE;
-  border:1px solid #E3EEF5;
-}
-.example-avatar{
-  width:42px;height:42px;
-  display:grid;place-items:center;
-  border-radius:14px;
-  background:#fff;
-  border:1px solid var(--line);
-  font-size:1.35rem;
-}
-.example-chinese{
-  font-size:1.35rem;
-  font-weight:950;
-  font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
-}
-.example-pinyin{color:var(--red);font-size:.76rem;font-weight:850;margin-top:3px}
-.example-english{color:var(--muted);font-size:.76rem;margin-top:3px}
+            background:
+                radial-gradient(
+                    circle at 5% 0%,
+                    rgba(244, 211, 94, .18),
+                    transparent 350px
+                ),
+                radial-gradient(
+                    circle at 100% 20%,
+                    rgba(78, 168, 222, .12),
+                    transparent 380px
+                ),
+                var(--cream);
 
-/* QUIZ */
-.quiz-card{
-  max-width:620px;
-  margin:0 auto;
-}
-.quiz-top{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  color:var(--muted);
-  font-size:.72rem;
-  font-weight:900;
-}
-.quiz-question{
-  margin:22px 0;
-  text-align:center;
-  font-size:clamp(1.25rem,3.5vw,1.75rem);
-  font-weight:950;
-  line-height:1.3;
-}
-.quiz-options{display:grid;gap:10px}
-.option{
-  width:100%;
-  text-align:left;
-  padding:15px 17px;
-  border:2px solid #E8E4DB;
-  border-radius:16px;
-  background:#fff;
-  font-weight:850;
-  transition:.18s ease;
-}
-.option:hover:not(:disabled){
-  border-color:#CFC6B5;
-  transform:translateY(-1px);
-}
-.option.selected{border-color:var(--blue);background:#F1F9FE}
-.option.correct{border-color:var(--green);background:#EEF9F3}
-.option.wrong{border-color:#E88D96;background:#FFF2F3}
-.option:disabled{opacity:1}
-.feedback{
-  min-height:44px;
-  margin-top:13px;
-  border-radius:13px;
-  padding:11px 13px;
-  display:none;
-  font-size:.78rem;
-  font-weight:850;
-}
-.feedback.show{display:block}
-.feedback.good{background:#EEF9F3;color:#27724E}
-.feedback.bad{background:#FFF1F2;color:#A8323D}
+            color: var(--text);
 
-/* COMPLETE */
-.complete-card{text-align:center}
-.complete-icon{
-  width:110px;height:110px;
-  margin:0 auto 18px;
-  display:grid;place-items:center;
-  background:#FFF8DF;
-  border:2px solid #F2E5B2;
-  border-radius:34px;
-  font-size:4rem;
-  animation:pop .55s cubic-bezier(.17,.89,.32,1.3);
-}
-@keyframes pop{
-  from{transform:scale(.65);opacity:0}
-  to{transform:scale(1);opacity:1}
-}
-.rewards{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin:25px 0;
-}
-.reward{
-  padding:16px 10px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:#FFFEFB;
-}
-.reward strong{display:block;font-size:1.15rem}
-.reward span{display:block;color:var(--muted);font-size:.68rem;margin-top:4px;font-weight:800}
-.save-status{
-  margin:0 auto 16px;
-  padding:11px 14px;
-  border-radius:13px;
-  background:#F7F4ED;
-  color:var(--muted);
-  font-size:.75rem;
-  font-weight:850;
-  max-width:480px;
-}
-.save-status.success{background:#EEF9F3;color:#27724E}
-.save-status.error{background:#FFF1F2;color:#A8323D}
-.complete-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
 
-/* BOTTOM CONTROLS */
-.lesson-controls{
-  position:sticky;
-  bottom:0;
-  z-index:30;
-  display:grid;
-  grid-template-columns:auto 1fr auto;
-  align-items:center;
-  gap:14px;
-  padding:15px 20px calc(15px + var(--safe-bottom));
-  background:rgba(255,255,255,.96);
-  border-top:1px solid var(--line);
-  backdrop-filter:blur(16px);
-}
-.control-counter{
-  text-align:center;
-  color:var(--muted);
-  font-size:.72rem;
-  font-weight:950;
-}
+            -webkit-font-smoothing: antialiased;
+        }
 
-/* LOADING / ERROR */
-.state{
-  min-height:470px;
-  display:grid;
-  place-items:center;
-  align-content:center;
-  gap:12px;
-  text-align:center;
-  color:var(--muted);
-}
-.spinner{
-  width:40px;height:40px;
-  border:4px solid #EEEAE1;
-  border-top-color:var(--red);
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.error-icon{font-size:3rem}
-.hidden{display:none!important}
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
 
-/* TOAST */
-.toast-region{
-  position:fixed;
-  right:18px;
-  bottom:calc(84px + var(--safe-bottom));
-  z-index:300;
-  display:grid;
-  gap:9px;
-  width:min(360px,calc(100% - 36px));
-}
-.toast{
-  background:#263238;
-  color:#fff;
-  padding:13px 15px;
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  font-size:.76rem;
-  font-weight:850;
-  animation:toastIn .25s ease both;
-}
-.toast.success{background:#267A56}
-.toast.error{background:#B63441}
-@keyframes toastIn{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:none}
-}
-.offline{
-  display:none;
-  background:#263238;
-  color:#fff;
-  text-align:center;
-  padding:8px 12px;
-  font-size:.70rem;
-  font-weight:850;
-}
-.offline.show{display:block}
+        button {
+            cursor: pointer;
+        }
 
-/* RESPONSIVE */
-@media(max-width:800px){
-  .nav-links,.nav-actions{display:none}
-  .mobile-toggle{display:block}
-  .lesson-head{grid-template-columns:1fr;align-items:start}
-  .xp-chip{justify-self:start}
-}
-@media(max-width:640px){
-  .container{width:min(100% - 20px,1080px)}
-  .lesson-page{padding-top:20px}
-  .lesson-head h1{font-size:1.75rem}
-  .lesson-stage{min-height:560px;padding:30px 16px 22px}
-  .lesson-card{border-radius:22px}
-  .vocab-grid{grid-template-columns:1fr}
-  .rewards{grid-template-columns:1fr 1fr}
-  .rewards .reward:last-child{grid-column:1/-1}
-  .lesson-controls{
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    padding-left:12px;
-    padding-right:12px;
-  }
-  .control-counter{display:none}
-  .lesson-controls .btn{width:100%}
-}
-@media(max-width:380px){
-  .lesson-stage{padding:25px 12px 18px}
-  .slide h2{font-size:1.45rem}
-  .word-chinese{font-size:1.8rem}
-  .rewards{grid-template-columns:1fr}
-  .rewards .reward:last-child{grid-column:auto}
-}
-@media(prefers-reduced-motion:reduce){
-  *,*:before,*:after{
-    animation:none!important;
-    transition:none!important;
-    scroll-behavior:auto!important;
-  }
-}
-</style>
+        button:disabled {
+            cursor: not-allowed;
+        }
+
+        img,
+        video {
+            max-width: 100%;
+        }
+
+        /* =====================================================
+           NAVIGATION
+        ===================================================== */
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            background:
+                rgba(255, 253, 247, .92);
+
+            backdrop-filter: blur(18px);
+
+            border-bottom:
+                1px solid rgba(232, 228, 219, .8);
+        }
+
+        .nav-inner {
+            width:
+                min(calc(100% - 28px), 1120px);
+
+            min-height: 66px;
+
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            font-weight: 950;
+            letter-spacing: -.04em;
+
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 13px;
+
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            box-shadow:
+                0 5px 18px rgba(0,0,0,.06);
+        }
+
+        .brand-name span {
+            color: var(--red);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .nav-link {
+            padding: 9px 12px;
+
+            border-radius: 11px;
+
+            text-decoration: none;
+
+            color: var(--muted);
+
+            font-size: .8rem;
+            font-weight: 850;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #F4F0E8;
+            color: var(--text);
+        }
+
+        .nav-profile {
+            padding: 9px 13px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            background: white;
+
+            font-size: .76rem;
+            font-weight: 850;
+
+            text-decoration: none;
+        }
+
+        .mobile-menu-button {
+            display: none;
+
+            margin-left: auto;
+
+            width: 42px;
+            height: 42px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 13px;
+
+            background: white;
+        }
+
+        .mobile-menu {
+            display: none;
+
+            padding:
+                10px
+                14px
+                16px;
+
+            border-top:
+                1px solid var(--border);
+        }
+
+        .mobile-menu.open {
+            display: grid;
+            gap: 5px;
+        }
+
+        .mobile-menu a {
+            padding: 13px;
+
+            border-radius: 13px;
+
+            text-decoration: none;
+
+            font-weight: 850;
+        }
+
+        .mobile-menu a:hover {
+            background: #F4F0E8;
+        }
+
+        /* =====================================================
+           PAGE
+        ===================================================== */
+
+        .page {
+            width:
+                min(calc(100% - 28px), 1050px);
+
+            margin: auto;
+
+            padding:
+                28px
+                0
+                calc(130px + var(--safe-bottom));
+        }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+
+            gap: 20px;
+
+            margin-bottom: 18px;
+        }
+
+        .eyebrow {
+            color: var(--red);
+
+            font-size: .68rem;
+            font-weight: 950;
+
+            text-transform: uppercase;
+            letter-spacing: .13em;
+        }
+
+        #lessonTitle {
+            margin: 7px 0;
+
+            font-size:
+                clamp(1.75rem, 5vw, 2.7rem);
+
+            line-height: 1.05;
+
+            letter-spacing: -.055em;
+        }
+
+        #lessonDescription {
+            margin: 0;
+
+            max-width: 680px;
+
+            color: var(--muted);
+
+            font-size: .9rem;
+
+            line-height: 1.65;
+        }
+
+        .xp-badge {
+            flex-shrink: 0;
+
+            padding: 10px 15px;
+
+            border-radius: 999px;
+
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            box-shadow:
+                0 6px 20px rgba(0,0,0,.05);
+
+            font-size: .8rem;
+            font-weight: 950;
+        }
+
+        /* =====================================================
+           PROGRESS
+        ===================================================== */
+
+        .progress-card {
+            padding: 14px 16px;
+
+            margin-bottom: 16px;
+
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 6px 22px rgba(0,0,0,.05);
+        }
+
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-track {
+            flex: 1;
+
+            height: 10px;
+
+            overflow: hidden;
+
+            border-radius: 999px;
+
+            background: #EEEAE1;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+
+            border-radius: inherit;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--red),
+                    #F06A74
+                );
+
+            transition:
+                width .45s cubic-bezier(.22,.8,.25,1);
+        }
+
+        .progress-number {
+            min-width: 42px;
+
+            text-align: right;
+
+            font-size: .72rem;
+            font-weight: 950;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+
+            margin-top: 9px;
+        }
+
+        .meta span {
+            padding: 5px 9px;
+
+            border-radius: 999px;
+
+            background: #F7F4ED;
+
+            color: var(--muted);
+
+            font-size: .65rem;
+            font-weight: 900;
+        }
+
+        /* =====================================================
+           LESSON CONTAINER
+        ===================================================== */
+
+        .lesson-container {
+            overflow: hidden;
+
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 27px;
+
+            box-shadow: var(--shadow);
+        }
+
+        .lesson-stage {
+            min-height: 580px;
+
+            padding:
+                42px
+                32px
+                35px;
+
+            display: grid;
+            place-items: center;
+        }
+
+        .lesson-content {
+            width: min(100%, 760px);
+
+            animation:
+                enter .35s ease both;
+        }
+
+        @keyframes enter {
+            from {
+                opacity: 0;
+                transform:
+                    translateY(12px)
+                    scale(.985);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* =====================================================
+           GENERIC CONTENT
+        ===================================================== */
+
+        .section-kicker {
+            color: var(--red);
+
+            font-size: .68rem;
+            font-weight: 950;
+
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        .section-title {
+            margin:
+                8px
+                0
+                9px;
+
+            font-size:
+                clamp(1.55rem, 4vw, 2.25rem);
+
+            letter-spacing: -.045em;
+        }
+
+        .section-description {
+            color: var(--muted);
+
+            line-height: 1.65;
+        }
+
+        /* =====================================================
+           WELCOME
+        ===================================================== */
+
+        .welcome {
+            text-align: center;
+        }
+
+        .mascot {
+            width: 120px;
+            height: 120px;
+
+            margin:
+                0
+                auto
+                20px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 35px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #FFF8DF,
+                    white
+                );
+
+            border:
+                2px solid #F2E5B2;
+
+            font-size: 4rem;
+
+            box-shadow:
+                0 15px 35px rgba(244,211,94,.22);
+
+            animation:
+                float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%,100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-7px);
+            }
+        }
+
+        /* =====================================================
+           OBJECTIVES
+        ===================================================== */
+
+        .objectives {
+            display: grid;
+            gap: 10px;
+
+            margin-top: 25px;
+        }
+
+        .objective {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 14px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 16px;
+
+            background: #FFFEFB;
+        }
+
+        .objective-icon {
+            width: 36px;
+            height: 36px;
+
+            flex: 0 0 36px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 12px;
+
+            background: #EEF8F2;
+        }
+
+        .objective-text {
+            font-size: .82rem;
+            font-weight: 800;
+        }
+
+        /* =====================================================
+           VOCABULARY
+        ===================================================== */
+
+        .vocabulary-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(220px, 1fr)
+                );
+
+            gap: 12px;
+
+            margin-top: 24px;
+        }
+
+        .vocabulary-card {
+            padding: 19px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 20px;
+
+            background: #FFFEFB;
+
+            transition:
+                transform .18s ease,
+                box-shadow .18s ease;
+        }
+
+        .vocabulary-card:hover {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 10px 25px rgba(0,0,0,.07);
+        }
+
+        .hanzi {
+            margin-top: 7px;
+
+            font-family:
+                "Noto Sans CJK SC",
+                "PingFang SC",
+                "Microsoft YaHei",
+                sans-serif;
+
+            font-size: 2.2rem;
+            font-weight: 950;
+        }
+
+        .pinyin {
+            margin-top: 5px;
+
+            color: var(--red);
+
+            font-size: .82rem;
+            font-weight: 900;
+        }
+
+        .meaning {
+            margin-top: 4px;
+
+            color: var(--muted);
+
+            font-size: .76rem;
+        }
+
+        .listen-button {
+            margin-top: 12px;
+
+            min-height: 36px;
+
+            padding:
+                0
+                12px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 11px;
+
+            background: white;
+
+            font-size: .72rem;
+            font-weight: 900;
+        }
+
+        /* =====================================================
+           MEDIA
+        ===================================================== */
+
+        .media-card {
+            margin-top: 20px;
+
+            overflow: hidden;
+
+            border-radius: 19px;
+
+            border:
+                1px solid var(--border);
+
+            background: #F7F4ED;
+        }
+
+        .media-card img,
+        .media-card video {
+            display: block;
+
+            width: 100%;
+            height: auto;
+        }
+
+        .media-caption {
+            padding: 12px 14px;
+
+            color: var(--muted);
+
+            font-size: .74rem;
+        }
+
+        audio {
+            width: 100%;
+        }
+
+        /* =====================================================
+           CONTENT BLOCKS
+        ===================================================== */
+
+        .content-block {
+            margin-top: 13px;
+
+            padding: 19px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 18px;
+
+            background: #FFFEFB;
+        }
+
+        .content-block h3 {
+            margin:
+                0
+                0
+                8px;
+
+            font-size: 1rem;
+        }
+
+        .content-block p {
+            margin: 0;
+
+            color: var(--muted);
+
+            line-height: 1.7;
+        }
+
+        /* =====================================================
+           EXAMPLES
+        ===================================================== */
+
+        .examples {
+            display: grid;
+            gap: 11px;
+
+            margin-top: 22px;
+        }
+
+        .example {
+            display: grid;
+
+            grid-template-columns:
+                auto
+                1fr;
+
+            gap: 13px;
+
+            padding: 16px;
+
+            border-radius: 18px;
+
+            background: #F8FBFE;
+
+            border:
+                1px solid #E3EEF5;
+        }
+
+        .speaker {
+            width: 42px;
+            height: 42px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 14px;
+
+            background: white;
+
+            border:
+                1px solid var(--border);
+        }
+
+        .example-chinese {
+            font-family:
+                "Noto Sans CJK SC",
+                "PingFang SC",
+                "Microsoft YaHei",
+                sans-serif;
+
+            font-size: 1.35rem;
+            font-weight: 950;
+        }
+
+        .example-pinyin {
+            margin-top: 3px;
+
+            color: var(--red);
+
+            font-size: .76rem;
+            font-weight: 850;
+        }
+
+        .example-english {
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: .76rem;
+        }
+
+        /* =====================================================
+           QUIZ
+        ===================================================== */
+
+        .quiz {
+            width: min(100%, 650px);
+
+            margin: auto;
+        }
+
+        .quiz-top {
+            display: flex;
+            justify-content: space-between;
+
+            color: var(--muted);
+
+            font-size: .72rem;
+            font-weight: 900;
+        }
+
+        .question {
+            margin:
+                23px
+                0;
+
+            text-align: center;
+
+            font-size:
+                clamp(1.3rem, 4vw, 1.8rem);
+
+            line-height: 1.35;
+
+            font-weight: 950;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option {
+            width: 100%;
+
+            padding: 16px;
+
+            text-align: left;
+
+            border:
+                2px solid var(--border);
+
+            border-radius: 16px;
+
+            background: white;
+
+            font-weight: 850;
+
+            transition:
+                transform .15s ease,
+                border-color .15s ease;
+        }
+
+        .option:hover:not(:disabled) {
+            transform: translateY(-1px);
+            border-color: #CFC6B5;
+        }
+
+        .option.correct {
+            border-color: var(--green);
+            background: #EEF9F3;
+        }
+
+        .option.wrong {
+            border-color: #E88D96;
+            background: #FFF2F3;
+        }
+
+        .feedback {
+            margin-top: 12px;
+
+            padding: 12px;
+
+            border-radius: 13px;
+
+            font-size: .77rem;
+            font-weight: 850;
+        }
+
+        .feedback.good {
+            background: #EEF9F3;
+            color: #27724E;
+        }
+
+        .feedback.bad {
+            background: #FFF1F2;
+            color: #A8323D;
+        }
+
+        /* =====================================================
+           COMPLETE
+        ===================================================== */
+
+        .complete {
+            text-align: center;
+        }
+
+        .complete-icon {
+            width: 110px;
+            height: 110px;
+
+            margin:
+                0
+                auto
+                18px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 34px;
+
+            background: #FFF8DF;
+
+            border:
+                2px solid #F2E5B2;
+
+            font-size: 4rem;
+
+            animation:
+                pop .55s cubic-bezier(.17,.89,.32,1.3);
+        }
+
+        @keyframes pop {
+            from {
+                opacity: 0;
+                transform: scale(.65);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .rewards {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 10px;
+
+            margin:
+                24px
+                0;
+        }
+
+        .reward {
+            padding: 16px 10px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 16px;
+
+            background: #FFFEFB;
+        }
+
+        .reward strong {
+            display: block;
+            font-size: 1.15rem;
+        }
+
+        .reward span {
+            display: block;
+
+            margin-top: 4px;
+
+            color: var(--muted);
+
+            font-size: .67rem;
+            font-weight: 800;
+        }
+
+        /* =====================================================
+           CONTROLS
+        ===================================================== */
+
+        .controls {
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+
+            display: grid;
+
+            grid-template-columns:
+                auto
+                1fr
+                auto;
+
+            align-items: center;
+
+            gap: 14px;
+
+            padding:
+                14px
+                20px
+                calc(14px + var(--safe-bottom));
+
+            background:
+                rgba(255,255,255,.96);
+
+            backdrop-filter: blur(15px);
+
+            border-top:
+                1px solid var(--border);
+        }
+
+        .button {
+            min-height: 45px;
+
+            padding:
+                0
+                17px;
+
+            border-radius: 14px;
+
+            border: 0;
+
+            font-size: .8rem;
+            font-weight: 900;
+
+            transition:
+                transform .15s ease,
+                background .15s ease;
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .button.primary {
+            background: var(--red);
+            color: white;
+
+            box-shadow:
+                0 7px 18px rgba(230,57,70,.2);
+        }
+
+        .button.primary:hover:not(:disabled) {
+            background: var(--red-dark);
+        }
+
+        .button.secondary {
+            background: white;
+            color: var(--text);
+
+            border:
+                1px solid var(--border);
+        }
+
+        .counter {
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: .7rem;
+            font-weight: 900;
+        }
+
+        /* =====================================================
+           STATES
+        ===================================================== */
+
+        .state {
+            min-height: 460px;
+
+            display: grid;
+
+            place-items: center;
+
+            align-content: center;
+
+            gap: 11px;
+
+            text-align: center;
+
+            color: var(--muted);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+
+            border:
+                4px solid #EEEAE1;
+
+            border-top-color:
+                var(--red);
+
+            border-radius: 50%;
+
+            animation:
+                spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error-icon {
+            font-size: 3rem;
+        }
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        .toast-area {
+            position: fixed;
+
+            right: 16px;
+            bottom:
+                calc(
+                    82px +
+                    var(--safe-bottom)
+                );
+
+            z-index: 500;
+
+            width:
+                min(
+                    360px,
+                    calc(100% - 32px)
+                );
+        }
+
+        .toast {
+            margin-top: 8px;
+
+            padding: 13px 15px;
+
+            border-radius: 14px;
+
+            background: #263238;
+
+            color: white;
+
+            font-size: .75rem;
+            font-weight: 850;
+
+            box-shadow: var(--shadow);
+
+            animation:
+                toastIn .25s ease both;
+        }
+
+        .toast.success {
+            background: #267A56;
+        }
+
+        .toast.error {
+            background: #B63441;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 800px) {
+            .nav-links,
+            .nav-profile {
+                display: none;
+            }
+
+            .mobile-menu-button {
+                display: block;
+            }
+
+            .lesson-header {
+                align-items: start;
+
+                flex-direction: column;
+            }
+
+            .xp-badge {
+                align-self: flex-start;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                width:
+                    min(
+                        calc(100% - 18px),
+                        1050px
+                    );
+
+                padding-top: 19px;
+            }
+
+            .lesson-stage {
+                min-height: 560px;
+
+                padding:
+                    28px
+                    14px
+                    22px;
+            }
+
+            .lesson-container {
+                border-radius: 22px;
+            }
+
+            .rewards {
+                grid-template-columns:
+                    1fr
+                    1fr;
+            }
+
+            .reward:last-child {
+                grid-column: 1 / -1;
+            }
+
+            .controls {
+                grid-template-columns:
+                    1fr
+                    1fr;
+
+                padding-left: 11px;
+                padding-right: 11px;
+            }
+
+            .counter {
+                display: none;
+            }
+
+            .controls .button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .lesson-stage {
+                padding-left: 11px;
+                padding-right: 11px;
+            }
+
+            .rewards {
+                grid-template-columns: 1fr;
+            }
+
+            .reward:last-child {
+                grid-column: auto;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
-<div class="offline" id="offlineBanner">You're offline. You can continue viewing the lesson, but progress needs a connection to save.</div>
 
-<header class="nav-wrap">
-  <nav class="nav container">
-    <a class="brand" href="index.html">
-      <span class="brand-mark">🐼</span>
-      Han<span>Verse</span>
-    </a>
-    <div class="nav-links" id="desktopNav"></div>
-    <div class="nav-actions" id="desktopActions"></div>
-    <button class="mobile-toggle" id="mobileToggle" type="button" aria-expanded="false" aria-controls="mobileMenu">☰</button>
-  </nav>
-  <div class="mobile-menu" id="mobileMenu"></div>
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+<header class="navbar">
+
+    <nav class="nav-inner">
+
+        <a
+            href="index.html"
+            class="brand"
+        >
+            <span class="brand-logo">🐼</span>
+
+            <span class="brand-name">
+                Han<span>Verse</span>
+            </span>
+        </a>
+
+        <div
+            class="nav-links"
+            id="navLinks"
+        ></div>
+
+        <a
+            id="profileLink"
+            class="nav-profile"
+            href="profile.html"
+        >
+            👤 Profile
+        </a>
+
+        <button
+            id="mobileMenuButton"
+            class="mobile-menu-button"
+            type="button"
+            aria-label="Open menu"
+        >
+            ☰
+        </button>
+
+    </nav>
+
+    <div
+        id="mobileMenu"
+        class="mobile-menu"
+    ></div>
+
 </header>
 
-<main class="lesson-page">
-  <div class="container">
 
-    <section class="lesson-head">
-      <div>
-        <span class="eyebrow">🐼 HanVerse lesson</span>
-        <h1 id="lessonTitle">Loading lesson…</h1>
-        <p class="subtitle" id="lessonSubtitle">Preparing your Mandarin adventure.</p>
-      </div>
-      <div class="xp-chip">⭐ <span id="xpDisplay">0</span> XP</div>
-    </section>
+<!-- =========================================================
+     PAGE
+========================================================= -->
 
-    <section class="progress-shell" aria-label="Lesson progress">
-      <div class="progress-row">
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <span class="progress-percent" id="progressPercent">0%</span>
-      </div>
-      <div class="lesson-meta-row">
-        <span class="meta-pill" id="lessonMeta">YCT 1 · Lesson</span>
-        <span class="meta-pill" id="activityMeta">Getting ready…</span>
-      </div>
-    </section>
+<main class="page">
 
-    <section class="lesson-card">
-      <div class="lesson-stage" id="lessonStage">
+    <section class="lesson-header">
 
-        <div class="state" id="loadingState">
-          <div class="spinner" aria-hidden="true"></div>
-          <strong>Loading your lesson…</strong>
-          <span>Getting your learning adventure ready.</span>
+        <div>
+
+            <div class="eyebrow">
+                🐼 HanVerse Learning
+            </div>
+
+            <h1 id="lessonTitle">
+                Loading…
+            </h1>
+
+            <p id="lessonDescription">
+                Getting your lesson ready.
+            </p>
+
         </div>
 
-        <div class="state hidden" id="errorState">
-          <div class="error-icon">😕</div>
-          <strong id="errorTitle">We couldn't load this lesson.</strong>
-          <span id="errorMessage">Please try again.</span>
-          <button class="btn btn-primary" id="retryBtn" type="button">Try again</button>
+        <div class="xp-badge">
+            ⭐ <span id="lessonXP">0</span> XP
         </div>
 
-        <div class="slide hidden" id="slide"></div>
-      </div>
-
-      <div class="lesson-controls hidden" id="lessonControls">
-        <button class="btn btn-outline" id="prevBtn" type="button">← Back</button>
-        <div class="control-counter" id="slideCounter">1 / 1</div>
-        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
-      </div>
     </section>
 
-  </div>
+
+    <!-- =====================================================
+         PROGRESS
+    ===================================================== -->
+
+    <section class="progress-card">
+
+        <div class="progress-row">
+
+            <div class="progress-track">
+
+                <div
+                    id="progressBar"
+                    class="progress-bar"
+                ></div>
+
+            </div>
+
+            <span
+                id="progressNumber"
+                class="progress-number"
+            >
+                0%
+            </span>
+
+        </div>
+
+        <div class="meta">
+
+            <span id="lessonLevel">
+                Loading level…
+            </span>
+
+            <span id="activityName">
+                Preparing…
+            </span>
+
+            <span>
+                ☁️ Database content
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         LESSON
+    ===================================================== -->
+
+    <section class="lesson-container">
+
+        <div
+            id="lessonStage"
+            class="lesson-stage"
+        >
+
+            <div
+                id="loadingState"
+                class="state"
+            >
+
+                <div class="spinner"></div>
+
+                <strong>
+                    Loading your lesson…
+                </strong>
+
+                <span>
+                    Han is getting everything ready.
+                </span>
+
+            </div>
+
+
+            <div
+                id="errorState"
+                class="state hidden"
+            >
+
+                <div class="error-icon">
+                    😕
+                </div>
+
+                <strong id="errorTitle">
+                    We couldn't load this lesson.
+                </strong>
+
+                <span id="errorMessage">
+                    Please try again.
+                </span>
+
+                <button
+                    id="retryButton"
+                    class="button primary"
+                    type="button"
+                >
+                    Try again
+                </button>
+
+            </div>
+
+
+            <div
+                id="lessonContent"
+                class="lesson-content hidden"
+            ></div>
+
+        </div>
+
+
+        <!-- =================================================
+             CONTROLS
+        ================================================= -->
+
+        <div
+            id="controls"
+            class="controls hidden"
+        >
+
+            <button
+                id="backButton"
+                class="button secondary"
+                type="button"
+            >
+                ← Back
+            </button>
+
+            <div
+                id="slideCounter"
+                class="counter"
+            >
+                1 / 1
+            </div>
+
+            <button
+                id="continueButton"
+                class="button primary"
+                type="button"
+            >
+                Continue →
+            </button>
+
+        </div>
+
+    </section>
+
 </main>
 
-<div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
+<div
+    id="toastArea"
+    class="toast-area"
+    aria-live="polite"
+></div>
+
 
 <script>
-(() => {
 "use strict";
 
 /*
- * HANVERSE LESSON ENGINE
- *
- * Database is the source of truth.
- *
- * Content expected from:
- * GET /api/lessons/:lessonId
- *
- * The lesson endpoint uses the string lesson ID:
- *   lesson_1
- *
- * Progress uses the INTEGER user_progress.lesson_id:
- *   lesson_1 -> 1
- *
- * This distinction is intentional because the current database schema
- * uses a string lesson_id in lessons and an integer lesson_id in progress.
- */
+================================================================
+HANVERSE DATABASE-DRIVEN LESSON ENGINE
+================================================================
 
-const API_BASE = "/api";
-const SESSION_KEYS = [
-  "hanverse_user",
-  "hanverse_session",
-  "hanverseUser",
-  "currentUser",
-  "user",
-  "authUser",
-  "session"
-];
+IMPORTANT:
+
+This file contains ZERO lesson curriculum.
+
+It does NOT contain:
+
+- Lesson titles
+- Vocabulary
+- Objectives
+- Dialogues
+- Quiz questions
+- Answers
+- Audio URLs
+- Image URLs
+- Video URLs
+
+All of those come from the database through:
+
+    GET /api/lessons/:lessonId
+
+Example:
+
+    /api/lessons/lesson_1
+
+
+The backend should assemble:
+
+    lessons
+    lesson_objectives
+    lesson_vocabulary
+    lesson_content
+    lesson_examples
+    lesson_quiz_questions
+    lesson_quiz_options
+    lesson_completion_settings
+
+
+The frontend then renders whatever is returned.
+
+This means you can add/edit lesson content in Neon
+without changing lesson.html.
+================================================================
+*/
+
+
+/* =============================================================
+   STATE
+============================================================= */
 
 const state = {
-  user:null,
-  lesson:null,
-  lessonId:"",
-  slides:[],
-  currentSlide:0,
-  quizIndex:0,
-  answers:{},
-  score:0,
-  startedAt:Date.now(),
-  savedProgress:null,
-  completed:false,
-  saving:false
+
+    user: null,
+
+    lesson: null,
+
+    lessonId: null,
+
+    activities: [],
+
+    currentActivity: 0,
+
+    quizIndex: 0,
+
+    answers: {},
+
+    score: 0,
+
+    startedAt: Date.now(),
+
+    completed: false,
+
+    saving: false
 };
 
-const $ = id => document.getElementById(id);
 
-function escapeHTML(value){
-  const div=document.createElement("div");
-  div.textContent=String(value ?? "");
-  return div.innerHTML;
+/* =============================================================
+   HELPERS
+============================================================= */
+
+const $ = id =>
+    document.getElementById(id);
+
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        String(value ?? "");
+
+    return div.innerHTML;
 }
 
-function escapeAttr(value){
-  return escapeHTML(value).replace(/"/g,"&quot;");
+
+function escapeAttribute(value) {
+
+    return escapeHTML(value)
+        .replace(/"/g, "&quot;");
 }
 
-/* ---------------- API ---------------- */
 
-async function requestJSON(path,options={}){
-  const url=API_BASE+"/"+String(path).replace(/^\/+/,"");
-
-  const response=await fetch(url,{
-    credentials:"include",
-    cache:"no-store",
-    ...options,
-    headers:{
-      Accept:"application/json",
-      ...(options.headers||{})
-    }
-  });
-
-  const raw=await response.text();
-  let data=null;
-
-  try{
-    data=raw ? JSON.parse(raw) : null;
-  }catch{
-    throw new Error(`Server returned invalid JSON (HTTP ${response.status}).`);
-  }
-
-  if(!response.ok){
-    const error=new Error(
-      data?.error ||
-      data?.message ||
-      `Request failed (HTTP ${response.status}).`
-    );
-    error.status=response.status;
-    error.data=data;
-    throw error;
-  }
-
-  return data;
-}
-
-function getJSON(path){
-  return requestJSON(path,{method:"GET"});
-}
-
-function postJSON(path,body){
-  return requestJSON(path,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(body)
-  });
-}
-
-/* ---------------- SESSION ---------------- */
-
-function readSession(){
-  for(const key of SESSION_KEYS){
-    try{
-      const raw=localStorage.getItem(key);
-      if(!raw)continue;
-
-      const parsed=JSON.parse(raw);
-      const candidates=[
-        parsed?.user,
-        parsed?.data?.user,
-        parsed?.data,
-        parsed
-      ];
-
-      for(const candidate of candidates){
-        if(candidate && typeof candidate==="object" && getUserId(candidate)){
-          return candidate;
-        }
-      }
-    }catch{}
-  }
-
-  return null;
-}
-
-function getUserId(user=state.user){
-  const value=
-    user?.user_id ??
-    user?.userId ??
-    user?.id ??
-    user?._id;
-
-  const number=Number(value);
-  return Number.isFinite(number) && number>0 ? number : null;
-}
-
-function getUserName(user=state.user){
-  return (
-    user?.full_name ||
-    user?.fullName ||
-    user?.first_name ||
-    user?.username ||
-    user?.name ||
-    "Learner"
-  );
-}
-
-function getRole(user=state.user){
-  if(!user)return "student";
-
-  if(
-    user.is_admin===true ||
-    user.isAdmin===true ||
-    String(user.role||"").toLowerCase()==="admin"
-  )return "admin";
-
-  if(
-    user.is_parent===true ||
-    user.isParent===true ||
-    user.parent===true ||
-    String(user.role||"").toLowerCase()==="parent"
-  )return "parent";
-
-  return "student";
-}
-
-/* ---------------- LESSON IDs ---------------- */
-
-function requestedLessonId(){
-  const params=new URLSearchParams(location.search);
-  return String(
-    params.get("id") ||
-    params.get("lessonId") ||
-    params.get("lesson") ||
-    "lesson_1"
-  ).trim();
-}
-
-function canonicalLessonKey(value){
-  const raw=String(value||"").trim();
-
-  if(/^lesson_\d+$/i.test(raw)){
-    return raw;
-  }
-
-  const match=raw.match(/(\d+)$/);
-  if(match)return `lesson_${match[1]}`;
-
-  return "";
-}
-
-function progressLessonNumber(value){
-  const raw=String(value||"");
-  const match=raw.match(/(\d+)$/);
-  return match ? Number(match[1]) : null;
-}
-
-/* ---------------- NAV ---------------- */
-
-function makeNavLink(label,href,active=false){
-  const a=document.createElement("a");
-  a.className="nav-link";
-  a.href=href;
-  a.textContent=label;
-
-  if(active)a.setAttribute("aria-current","page");
-
-  return a;
-}
-
-function makeMobileLink(label,href,active=false){
-  const a=document.createElement("a");
-  a.href=href;
-  a.textContent=label;
-
-  if(active)a.setAttribute("aria-current","page");
-
-  return a;
-}
-
-function renderNavbar(){
-  const desktop=$("desktopNav");
-  const actions=$("desktopActions");
-  const mobile=$("mobileMenu");
-
-  if(!desktop || !actions || !mobile)return;
-
-  desktop.innerHTML="";
-  actions.innerHTML="";
-  mobile.innerHTML="";
-
-  const links=[
-    ["Home","index.html",false],
-    ["Learn","learn.html",true],
-    ["Roadmap","roadmap.html",false],
-    ["Worksheets","worksheets.html",false]
-  ];
-
-  links.forEach(([label,href,active])=>{
-    desktop.appendChild(makeNavLink(label,href,active));
-    mobile.appendChild(makeMobileLink(label,href,active));
-  });
-
-  const role=getRole();
-
-  if(role==="parent"){
-    desktop.appendChild(makeNavLink("Parent","parent.html"));
-    mobile.appendChild(makeMobileLink("Parent","parent.html"));
-  }
-
-  if(role==="admin"){
-    desktop.appendChild(makeNavLink("Admin","admin.html"));
-    mobile.appendChild(makeMobileLink("Admin","admin.html"));
-  }
-
-  const profileHref=
-    role==="parent" ? "parent.html" :
-    role==="admin" ? "admin.html" :
-    "profile.html";
-
-  const profile=document.createElement("a");
-  profile.className="btn btn-outline";
-  profile.href=profileHref;
-  profile.textContent=`👤 ${getUserName()}`;
-
-  actions.appendChild(profile);
-  mobile.appendChild(makeMobileLink(`👤 ${getUserName()}`,profileHref));
-}
-
-/* ---------------- LESSON NORMALISATION ---------------- */
-
-function getLessonId(lesson){
-  return String(
-    lesson?.lesson_id ??
-    lesson?.lessonId ??
-    lesson?.id ??
-    lesson?._id ??
-    state.lessonId
-  );
-}
-
-function lessonLevel(lesson){
-  const value=Number(
-    lesson?.level ??
-    lesson?.course_level ??
-    lesson?.yct_level ??
-    1
-  );
-
-  return Number.isFinite(value) ? value : 1;
-}
-
-function lessonXP(lesson){
-  const value=Number(
-    lesson?.xp ??
-    lesson?.completion_xp ??
-    lesson?.xp_earned ??
-    10
-  );
-
-  return Number.isFinite(value) ? value : 10;
-}
-
-function normalizeArray(value){
-  return Array.isArray(value) ? value : [];
-}
-
-function normalizeLesson(raw){
-  const lesson=
-    raw?.lesson ||
-    raw?.data?.lesson ||
-    raw?.data ||
-    raw;
-
-  if(!lesson || typeof lesson!=="object"){
-    throw new Error("The lesson returned by the server is invalid.");
-  }
-
-  return {
-    ...lesson,
-
-    lesson_id:String(
-      lesson.lesson_id ??
-      lesson.lessonId ??
-      lesson.id ??
-      lesson._id ??
-      state.lessonId
-    ),
-
-    title:
-      lesson.title ||
-      lesson.name ||
-      "Untitled Lesson",
-
-    description:
-      lesson.description ||
-      lesson.short_description ||
-      "Continue your Mandarin adventure.",
-
-    level:lessonLevel(lesson),
-    xp:lessonXP(lesson),
-
-    icon:
-      lesson.icon ||
-      lesson.emoji ||
-      "🐼",
-
-    objectives:normalizeArray(
-      lesson.objectives
-    ),
-
-    vocabulary:normalizeArray(
-      lesson.vocabulary
-    ),
-
-    content:normalizeArray(
-      lesson.content
-    ),
-
-    examples:normalizeArray(
-      lesson.examples
-    ),
-
-    quiz:normalizeArray(
-      lesson.quiz ||
-      lesson.questions
-    ),
-
-    completion_settings:
-      lesson.completion_settings ||
-      lesson.completionSettings ||
-      {}
-  };
-}
-
-/* ---------------- LOAD LESSON ---------------- */
-
-async function fetchLesson(){
-  const key=canonicalLessonKey(
-    requestedLessonId()
-  );
-
-  if(!key){
-    throw new Error("Invalid lesson ID.");
-  }
-
-  state.lessonId=key;
-
-  /*
-   * DO NOT convert this to 1.
-   * The lessons table contains lesson_1, lesson_2, etc.
-   */
-  const data=await getJSON(
-    `lessons/${encodeURIComponent(key)}`
-  );
-
-  return normalizeLesson(data);
-}
-
-/* ---------------- PROGRESS ---------------- */
-
-async function fetchSavedProgress(){
-  const userId=getUserId();
-  const progressId=progressLessonNumber(
-    state.lessonId
-  );
-
-  if(!userId || !progressId){
-    return null;
-  }
-
-  try{
-    return await getJSON(
-      `progress/${encodeURIComponent(userId)}/${encodeURIComponent(progressId)}`
-    );
-  }catch(error){
-    /*
-     * 404 means the learner has not started this lesson.
-     * That is a normal state.
-     */
-    if(error.status===404){
-      return null;
-    }
-
-    console.warn(
-      "HanVerse progress lookup:",
-      error
-    );
-
-    return null;
-  }
-}
-
-function progressIsComplete(progress){
-  if(!progress)return false;
-
-  if(
-    progress.completed===true ||
-    progress.is_completed===true ||
-    progress.completed_at
-  ){
-    return true;
-  }
-
-  const value=Number(
-    progress.progress_pct ??
-    progress.progressPercent ??
-    progress.completed_pct ??
-    progress.progress ??
-    progress.percent ??
-    0
-  );
-
-  return Number.isFinite(value) && value>=100;
-}
-
-async function saveProgress(){
-  if(state.saving)return false;
-  if(state.completed)return true;
-
-  const userId=getUserId();
-  const lessonNumber=progressLessonNumber(
-    state.lessonId
-  );
-
-  if(!userId || !lessonNumber){
-    showToast(
-      "error",
-      "We couldn't identify your lesson or account."
-    );
-    return false;
-  }
-
-  state.saving=true;
-  state.score=calculateQuizScore();
-
-  const saveButton=$("saveLessonBtn");
-
-  if(saveButton){
-    saveButton.disabled=true;
-    saveButton.textContent="Saving…";
-  }
-
-  updateSaveStatus(
-    "Saving your progress…",
-    ""
-  );
-
-  try{
-    const timeSpent=Math.max(
-      1,
-      Math.round(
-        (Date.now()-state.startedAt)/1000
-      )
-    );
-
-    const payload={
-      userId,
-      lessonId:lessonNumber,
-      courseType:
-        state.lesson.course_type ||
-        state.lesson.courseType ||
-        "YCT",
-      courseLevel:lessonLevel(state.lesson),
-      completed:true,
-      score:state.score,
-      xpEarned:lessonXP(state.lesson),
-      timeSpent,
-      attempts:1,
-      quizAnswers:state.answers,
-      quizScore:state.score
-    };
-
-    const response=await postJSON(
-      "progress",
-      payload
-    );
-
-    state.savedProgress=
-      response?.progress ||
-      response?.data ||
-      response;
-
-    state.completed=true;
-
-    updateSaveStatus(
-      "✓ Progress saved successfully!",
-      "success"
-    );
-
-    if(saveButton){
-      saveButton.disabled=true;
-      saveButton.textContent="✓ Saved";
-    }
-
-    showToast(
-      "success",
-      `Lesson complete! +${lessonXP(state.lesson)} XP 🎉`
-    );
-
-    renderCurrentSlide();
-
-    return true;
-
-  }catch(error){
-    console.error(
-      "HanVerse progress save failed:",
-      error
-    );
-
-    updateSaveStatus(
-      error.message ||
-      "We couldn't save your progress.",
-      "error"
-    );
-
-    if(saveButton){
-      saveButton.disabled=false;
-      saveButton.textContent="Save lesson";
-    }
-
-    showToast(
-      "error",
-      error.message ||
-      "We couldn't save your progress."
-    );
-
-    return false;
-
-  }finally{
-    state.saving=false;
-  }
-}
-
-/* ---------------- SPEECH ---------------- */
-
-function speak(text){
-  if(!text)return;
-
-  if(!("speechSynthesis" in window)){
-    showToast(
-      "error",
-      "Speech isn't available in this browser."
-    );
-    return;
-  }
-
-  speechSynthesis.cancel();
-
-  const utterance=
-    new SpeechSynthesisUtterance(
-      String(text)
-    );
-
-  utterance.lang="zh-CN";
-  utterance.rate=.82;
-
-  speechSynthesis.speak(
-    utterance
-  );
-}
-
-/* ---------------- QUIZ ---------------- */
-
-function quizQuestions(){
-  return normalizeArray(
-    state.lesson?.quiz
-  );
-}
-
-function questionOptions(question){
-  if(Array.isArray(question?.options)){
-    return question.options;
-  }
-
-  if(Array.isArray(question?.answers)){
-    return question.answers;
-  }
-
-  return [];
-}
-
-function correctIndex(question){
-  const options=
-    questionOptions(question);
-
-  const raw=
-    question?.correct ??
-    question?.correct_answer ??
-    question?.correctAnswer ??
-    question?.answer ??
-    0;
-
-  if(typeof raw==="number"){
-    return raw;
-  }
-
-  const numeric=Number(raw);
-
-  if(Number.isFinite(numeric)){
-    return numeric;
-  }
-
-  return options.findIndex(
-    option =>
-      String(option).toLowerCase() ===
-      String(raw).toLowerCase()
-  );
-}
-
-function calculateQuizScore(){
-  const questions=quizQuestions();
-
-  if(!questions.length)return 100;
-
-  let correct=0;
-
-  questions.forEach((question,index)=>{
-    if(
-      state.answers[index] !== undefined &&
-      state.answers[index] ===
-      correctIndex(question)
-    ){
-      correct++;
-    }
-  });
-
-  return Math.round(
-    (correct/questions.length)*100
-  );
-}
-
-function answerQuestion(index){
-  const questions=quizQuestions();
-  const question=
-    questions[state.quizIndex];
-
-  if(!question)return;
-
-  state.answers[state.quizIndex]=index;
-
-  renderCurrentSlide();
-}
-
-/* ---------------- SLIDES ---------------- */
-
-function buildSlides(){
-  const lesson=state.lesson;
-  const slides=[];
-
-  slides.push({
-    type:"welcome"
-  });
-
-  if(lesson.objectives.length){
-    slides.push({
-      type:"objectives"
-    });
-  }
-
-  if(lesson.vocabulary.length){
-    slides.push({
-      type:"vocabulary"
-    });
-  }
-
-  if(lesson.content.length){
-    slides.push({
-      type:"content"
-    });
-  }
-
-  if(lesson.examples.length){
-    slides.push({
-      type:"examples"
-    });
-  }
-
-  if(quizQuestions().length){
-    slides.push({
-      type:"quiz"
-    });
-  }
-
-  slides.push({
-    type:"complete"
-  });
-
-  return slides;
-}
-
-function renderWelcome(){
-  return `
-    <div class="slide-center">
-      <div class="panda-hero">
-        ${escapeHTML(state.lesson.icon || "🐼")}
-      </div>
-
-      <span class="kicker">
-        YCT ${lessonLevel(state.lesson)} · Lesson
-      </span>
-
-      <h2>
-        ${escapeHTML(state.lesson.title)}
-      </h2>
-
-      <p class="slide-copy">
-        ${escapeHTML(state.lesson.description)}
-      </p>
-
-      <div style="margin-top:25px">
-        <span class="meta-pill">
-          🎯 ${quizQuestions().length ? "Learn + Practice" : "Learn"}
-        </span>
-        <span class="meta-pill">
-          ⭐ +${lessonXP(state.lesson)} XP
-        </span>
-      </div>
-    </div>
-  `;
-}
-
-function renderObjectives(){
-  const items=state.lesson.objectives;
-
-  return `
-    <div>
-      <span class="kicker">Your mission</span>
-      <h2>What you'll learn</h2>
-      <p class="slide-copy">
-        By the end of this lesson, you'll be able to:
-      </p>
-
-      <div class="objectives">
-        ${items.map((item,index)=>{
-          const text=
-            typeof item==="string"
-              ? item
-              : item.objective ||
-                item.text ||
-                item.title ||
-                "";
-
-          return `
-            <div class="objective">
-              <span class="objective-icon">
-                ${escapeHTML(
-                  item.icon ||
-                  ["🎯","🗣️","👂","✍️"][index%4] ||
-                  "🎯"
-                )}
-              </span>
-              <span>${escapeHTML(text)}</span>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderVocabulary(){
-  const items=state.lesson.vocabulary;
-
-  return `
-    <div>
-      <span class="kicker">New words</span>
-      <h2>Let's learn the words</h2>
-      <p class="slide-copy">
-        Listen, look and say each word aloud.
-      </p>
-
-      <div class="vocab-grid">
-        ${items.map(item=>{
-          const chinese=
-            item.chinese ||
-            item.word ||
-            item.hanzi ||
-            "";
-
-          const pinyin=
-            item.pinyin ||
-            "";
-
-          const english=
-            item.english ||
-            item.meaning ||
-            item.translation ||
-            "";
-
-          return `
-            <article class="word-card">
-              <div class="word-emoji">
-                ${escapeHTML(
-                  item.emoji ||
-                  item.icon ||
-                  "🀄"
-                )}
-              </div>
-
-              <div class="word-chinese">
-                ${escapeHTML(chinese)}
-              </div>
-
-              <div class="word-pinyin">
-                ${escapeHTML(pinyin)}
-              </div>
-
-              <div class="word-english">
-                ${escapeHTML(english)}
-              </div>
-
-              ${
-                chinese
-                  ? `
-                    <button
-                      class="speak-btn"
-                      type="button"
-                      data-speak="${escapeAttr(chinese)}"
-                    >
-                      🔊 Listen
-                    </button>
-                  `
-                  : ""
-              }
-            </article>
-          `;
-        }).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderContent(){
-  const blocks=state.lesson.content;
-
-  return `
-    <div>
-      <span class="kicker">Learn</span>
-      <h2>Let's understand it</h2>
-
-      <div>
-        ${blocks.map(block=>{
-          const title=
-            typeof block==="string"
-              ? ""
-              : block.title ||
-                "";
-
-          const body=
-            typeof block==="string"
-              ? block
-              : block.body ||
-                block.text ||
-                block.content ||
-                "";
-
-          return `
-            <article class="content-block">
-              ${
-                title
-                  ? `<h3>${escapeHTML(title)}</h3>`
-                  : ""
-              }
-              <p>
-                ${escapeHTML(body)}
-              </p>
-            </article>
-          `;
-        }).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderExamples(){
-  return `
-    <div>
-      <span class="kicker">Use it</span>
-      <h2>Try it in a conversation</h2>
-      <p class="slide-copy">
-        Listen to the examples and notice how the words work together.
-      </p>
-
-      <div class="example-list">
-        ${state.lesson.examples.map((item,index)=>{
-          const chinese=
-            item.chinese ||
-            item.text ||
-            "";
-
-          return `
-            <article class="example">
-              <div class="example-avatar">
-                ${escapeHTML(
-                  item.icon ||
-                  item.emoji ||
-                  (index%2 ? "🧑" : "🐼")
-                )}
-              </div>
-
-              <div>
-                <div class="example-chinese">
-                  ${escapeHTML(chinese)}
-                </div>
-
-                ${
-                  item.pinyin
-                    ? `
-                      <div class="example-pinyin">
-                        ${escapeHTML(item.pinyin)}
-                      </div>
-                    `
-                    : ""
+/* =============================================================
+   API
+============================================================= */
+
+async function apiRequest(
+    path,
+    options = {}
+) {
+
+    const url =
+        "/api/" +
+        String(path)
+            .replace(/^\/+/, "");
+
+    const response =
+        await fetch(
+            url,
+            {
+                credentials: "include",
+                cache: "no-store",
+
+                ...options,
+
+                headers: {
+                    Accept:
+                        "application/json",
+
+                    ...(options.headers || {})
                 }
-
-                ${
-                  item.english ||
-                  item.translation
-                    ? `
-                      <div class="example-english">
-                        ${escapeHTML(
-                          item.english ||
-                          item.translation
-                        )}
-                      </div>
-                    `
-                    : ""
-                }
-
-                ${
-                  chinese
-                    ? `
-                      <button
-                        class="speak-btn"
-                        type="button"
-                        data-speak="${escapeAttr(chinese)}"
-                      >
-                        🔊 Listen
-                      </button>
-                    `
-                    : ""
-                }
-              </div>
-            </article>
-          `;
-        }).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderQuiz(){
-  const questions=quizQuestions();
-
-  if(!questions.length){
-    return `<div class="slide-center"><h2>No quiz yet.</h2></div>`;
-  }
-
-  const question=
-    questions[state.quizIndex];
-
-  const options=
-    questionOptions(question);
-
-  const selected=
-    state.answers[state.quizIndex];
-
-  const correct=
-    correctIndex(question);
-
-  return `
-    <div class="quiz-card">
-      <div class="quiz-top">
-        <span>Quick challenge</span>
-        <span>
-          ${state.quizIndex+1} / ${questions.length}
-        </span>
-      </div>
-
-      <div class="quiz-question">
-        ${escapeHTML(
-          question.question ||
-          question.prompt ||
-          question.text ||
-          "Choose the best answer."
-        )}
-      </div>
-
-      <div class="quiz-options">
-        ${options.map((option,index)=>{
-          let cls="option";
-
-          if(selected!==undefined){
-            if(index===correct){
-              cls+=" correct";
-            }else if(index===selected){
-              cls+=" wrong";
             }
-          }
-
-          return `
-            <button
-              type="button"
-              class="${cls}"
-              data-option="${index}"
-              ${selected!==undefined ? "disabled" : ""}
-            >
-              ${escapeHTML(option)}
-            </button>
-          `;
-        }).join("")}
-      </div>
-
-      <div
-        class="feedback ${
-          selected!==undefined
-            ? "show " +
-              (
-                selected===correct
-                  ? "good"
-                  : "bad"
-              )
-            : ""
-        }"
-      >
-        ${
-          selected===undefined
-            ? ""
-            : selected===correct
-              ? "✓ Correct! Keep going."
-              : "Not quite. The correct answer is highlighted."
-        }
-      </div>
-    </div>
-  `;
-}
-
-function renderComplete(){
-  const settings=
-    state.lesson.completion_settings ||
-    {};
-
-  const xp=
-    Number(
-      settings.completion_xp ||
-      lessonXP(state.lesson)
-    );
-
-  return `
-    <div class="complete-card">
-      <div class="complete-icon">🎉</div>
-
-      <span class="kicker">
-        Lesson complete
-      </span>
-
-      <h2>
-        You did it!
-      </h2>
-
-      <p class="slide-copy">
-        You finished
-        <strong>
-          ${escapeHTML(state.lesson.title)}
-        </strong>.
-        Your progress is ready to be saved.
-      </p>
-
-      <div class="rewards">
-        <div class="reward">
-          <strong>⭐ +${xp}</strong>
-          <span>XP</span>
-        </div>
-
-        <div class="reward">
-          <strong>🎯 ${state.score}%</strong>
-          <span>Quiz score</span>
-        </div>
-
-        <div class="reward">
-          <strong>🐼 100%</strong>
-          <span>Lesson complete</span>
-        </div>
-      </div>
-
-      <div
-        class="save-status ${
-          state.completed
-            ? "success"
-            : ""
-        }"
-        id="saveStatus"
-      >
-        ${
-          state.completed
-            ? "✓ Progress already saved"
-            : "Ready to save your progress"
-        }
-      </div>
-
-      <div class="complete-actions">
-        <button
-          class="btn btn-primary"
-          type="button"
-          id="saveLessonBtn"
-          ${
-            state.completed
-              ? "disabled"
-              : ""
-          }
-        >
-          ${
-            state.completed
-              ? "✓ Saved"
-              : "Save lesson"
-          }
-        </button>
-
-        <a
-          class="btn btn-outline"
-          href="roadmap.html"
-        >
-          Back to Roadmap
-        </a>
-      </div>
-    </div>
-  `;
-}
-
-function renderSlideHTML(){
-  const slide=
-    state.slides[state.currentSlide];
-
-  if(!slide)return "";
-
-  switch(slide.type){
-    case "welcome":
-      return renderWelcome();
-
-    case "objectives":
-      return renderObjectives();
-
-    case "vocabulary":
-      return renderVocabulary();
-
-    case "content":
-      return renderContent();
-
-    case "examples":
-      return renderExamples();
-
-    case "quiz":
-      return renderQuiz();
-
-    case "complete":
-      return renderComplete();
-
-    default:
-      return `
-        <div class="slide-center">
-          <h2>Let's keep learning!</h2>
-        </div>
-      `;
-  }
-}
-
-/* ---------------- RENDER ---------------- */
-
-function renderCurrentSlide(){
-  const slide=$("slide");
-
-  if(!slide)return;
-
-  slide.classList.remove("hidden");
-  slide.innerHTML=renderSlideHTML();
-
-  /*
-   * Restart the entrance animation after each activity.
-   */
-  slide.style.animation="none";
-  void slide.offsetWidth;
-  slide.style.animation="";
-
-  const total=state.slides.length;
-  const current=state.currentSlide+1;
-  const percent=
-    total
-      ? Math.round((current/total)*100)
-      : 0;
-
-  $("progressFill").style.width=
-    `${percent}%`;
-
-  $("progressPercent").textContent=
-    `${percent}%`;
-
-  $("slideCounter").textContent=
-    `${current} / ${total}`;
-
-  const activityNames={
-    welcome:"Welcome",
-    objectives:"Your mission",
-    vocabulary:"New words",
-    content:"Learn",
-    examples:"Conversation",
-    quiz:"Challenge",
-    complete:"Complete"
-  };
-
-  $("activityMeta").textContent=
-    activityNames[
-      state.slides[state.currentSlide]?.type
-    ] || "Lesson";
-
-  $("lessonMeta").textContent=
-    `YCT ${lessonLevel(state.lesson)} · Lesson ${
-      String(state.lessonId).replace(/^lesson_/i,"")
-    }`;
-
-  bindInteractions();
-  updateControls();
-}
-
-function bindInteractions(){
-  document
-    .querySelectorAll("[data-speak]")
-    .forEach(button=>{
-      button.addEventListener(
-        "click",
-        ()=>speak(button.dataset.speak)
-      );
-    });
-
-  document
-    .querySelectorAll("[data-option]")
-    .forEach(button=>{
-      button.addEventListener(
-        "click",
-        ()=>{
-          answerQuestion(
-            Number(button.dataset.option)
-          );
-        }
-      );
-    });
-
-  const save=$("saveLessonBtn");
-
-  if(save){
-    save.addEventListener(
-      "click",
-      saveProgress
-    );
-  }
-}
-
-function updateSaveStatus(message,type=""){
-  const status=$("saveStatus");
-
-  if(!status)return;
-
-  status.className=
-    "save-status" +
-    (type ? ` ${type}` : "");
-
-  status.textContent=message;
-}
-
-function updateControls(){
-  const prev=$("prevBtn");
-  const next=$("nextBtn");
-
-  if(!prev || !next)return;
-
-  const slide=
-    state.slides[state.currentSlide];
-
-  prev.disabled=
-    state.currentSlide===0 ||
-    state.saving;
-
-  if(slide?.type==="quiz"){
-    const questions=quizQuestions();
-
-    const answered=
-      state.answers[
-        state.quizIndex
-      ] !== undefined;
-
-    if(!answered){
-      next.textContent="Choose an answer";
-      next.disabled=true;
-      return;
-    }
-
-    if(
-      state.quizIndex <
-      questions.length-1
-    ){
-      next.textContent="Next →";
-    }else{
-      next.textContent="Finish challenge →";
-    }
-
-    next.disabled=false;
-    return;
-  }
-
-  if(slide?.type==="complete"){
-    next.textContent=
-      state.completed
-        ? "✓ Saved"
-        : "Save lesson";
-
-    next.disabled=
-      state.completed ||
-      state.saving;
-
-    return;
-  }
-
-  next.textContent=
-    state.currentSlide===
-    state.slides.length-2
-      ? "Finish →"
-      : "Continue →";
-
-  next.disabled=false;
-}
-
-/* ---------------- NAVIGATION ---------------- */
-
-function nextSlide(){
-  const slide=
-    state.slides[state.currentSlide];
-
-  if(slide?.type==="quiz"){
-    const questions=quizQuestions();
-
-    if(
-      state.answers[
-        state.quizIndex
-      ]===undefined
-    ){
-      showToast(
-        "error",
-        "Choose an answer first."
-      );
-      return;
-    }
-
-    if(
-      state.quizIndex <
-      questions.length-1
-    ){
-      state.quizIndex++;
-      renderCurrentSlide();
-      return;
-    }
-  }
-
-  if(
-    state.currentSlide >=
-    state.slides.length-1
-  ){
-    saveProgress();
-    return;
-  }
-
-  state.currentSlide++;
-
-  if(
-    state.slides[
-      state.currentSlide
-    ]?.type==="quiz"
-  ){
-    state.quizIndex=0;
-  }
-
-  renderCurrentSlide();
-}
-
-function prevSlide(){
-  if(state.currentSlide<=0)return;
-
-  state.currentSlide--;
-
-  if(
-    state.slides[
-      state.currentSlide
-    ]?.type==="quiz"
-  ){
-    const questions=quizQuestions();
-
-    state.quizIndex=
-      Math.max(
-        0,
-        questions.length-1
-      );
-  }
-
-  renderCurrentSlide();
-}
-
-/* ---------------- TOAST ---------------- */
-
-function showToast(type,message){
-  const region=$("toastRegion");
-  if(!region)return;
-
-  const toast=document.createElement("div");
-  toast.className=
-    `toast ${type||""}`;
-
-  toast.textContent=message;
-
-  region.appendChild(toast);
-
-  setTimeout(()=>{
-    toast.style.opacity="0";
-    toast.style.transform=
-      "translateY(8px)";
-    toast.style.transition=
-      "opacity .2s ease,transform .2s ease";
-
-    setTimeout(
-      ()=>toast.remove(),
-      220
-    );
-  },3200);
-}
-
-/* ---------------- ERROR STATE ---------------- */
-
-function showError(error){
-  console.error(
-    "HanVerse lesson error:",
-    error
-  );
-
-  $("loadingState")
-    .classList.add("hidden");
-
-  $("slide")
-    .classList.add("hidden");
-
-  $("lessonControls")
-    .classList.add("hidden");
-
-  $("errorState")
-    .classList.remove("hidden");
-
-  $("errorMessage").textContent=
-    error?.message ||
-    "Please try again.";
-}
-
-/* ---------------- INIT ---------------- */
-
-async function init(){
-  state.user=readSession();
-
-  if(!state.user){
-    location.replace("login.html");
-    return;
-  }
-
-  renderNavbar();
-
-  state.lesson=
-    await fetchLesson();
-
-  state.lessonId=
-    getLessonId(
-      state.lesson
-    ) ||
-    state.lessonId;
-
-  $("lessonTitle").textContent=
-    state.lesson.title;
-
-  $("lessonSubtitle").textContent=
-    state.lesson.description;
-
-  $("xpDisplay").textContent=
-    lessonXP(state.lesson);
-
-  state.savedProgress=
-    await fetchSavedProgress();
-
-  state.completed=
-    progressIsComplete(
-      state.savedProgress
-    );
-
-  state.slides=
-    buildSlides();
-
-  $("loadingState")
-    .classList.add("hidden");
-
-  $("errorState")
-    .classList.add("hidden");
-
-  $("lessonControls")
-    .classList.remove("hidden");
-
-  renderCurrentSlide();
-
-  if(state.completed){
-    state.currentSlide=
-      state.slides.length-1;
-
-    renderCurrentSlide();
-
-    showToast(
-      "success",
-      "✓ You've already completed this lesson."
-    );
-  }
-}
-
-/* ---------------- EVENTS ---------------- */
-
-$("prevBtn")
-  .addEventListener(
-    "click",
-    prevSlide
-  );
-
-$("nextBtn")
-  .addEventListener(
-    "click",
-    nextSlide
-  );
-
-$("retryBtn")
-  .addEventListener(
-    "click",
-    ()=>{
-      $("errorState")
-        .classList.add("hidden");
-
-      $("loadingState")
-        .classList.remove("hidden");
-
-      init().catch(showError);
-    }
-  );
-
-$("mobileToggle")
-  .addEventListener(
-    "click",
-    ()=>{
-      const button=
-        $("mobileToggle");
-
-      const menu=
-        $("mobileMenu");
-
-      const open=
-        menu.classList.toggle(
-          "open"
         );
 
-      button.setAttribute(
-        "aria-expanded",
-        String(open)
-      );
 
-      button.textContent=
-        open ? "✕" : "☰";
-    }
-  );
+    const raw =
+        await response.text();
 
-$("mobileMenu")
-  .addEventListener(
-    "click",
-    event=>{
-      if(event.target.closest("a")){
-        $("mobileMenu")
-          .classList.remove("open");
+    let data;
 
-        $("mobileToggle")
-          .setAttribute(
-            "aria-expanded",
-            "false"
-          );
+    try {
 
-        $("mobileToggle")
-          .textContent="☰";
-      }
-    }
-  );
+        data =
+            raw
+                ? JSON.parse(raw)
+                : null;
 
-document.addEventListener(
-  "keydown",
-  event=>{
-    if(
-      event.target.matches(
-        "input,textarea,select"
-      )
-    )return;
+    } catch {
 
-    if(event.key==="ArrowRight"){
-      if(!$("nextBtn").disabled){
-        nextSlide();
-      }
+        const error =
+            new Error(
+                `Server returned invalid JSON (HTTP ${response.status}).`
+            );
+
+        error.status =
+            response.status;
+
+        throw error;
     }
 
-    if(event.key==="ArrowLeft"){
-      if(!$("prevBtn").disabled){
-        prevSlide();
-      }
+
+    if (!response.ok) {
+
+        const error =
+            new Error(
+                data?.error ||
+                data?.message ||
+                `Request failed (HTTP ${response.status}).`
+            );
+
+        error.status =
+            response.status;
+
+        error.data =
+            data;
+
+        throw error;
     }
-  }
-);
 
-window.addEventListener(
-  "online",
-  ()=>{
-    $("offlineBanner")
-      .classList.remove("show");
-  }
-);
 
-window.addEventListener(
-  "offline",
-  ()=>{
-    $("offlineBanner")
-      .classList.add("show");
-  }
-);
-
-if(!navigator.onLine){
-  $("offlineBanner")
-    .classList.add("show");
+    return data;
 }
 
-init().catch(showError);
 
-})();
+function getJSON(path) {
+
+    return apiRequest(
+        path,
+        {
+            method: "GET"
+        }
+    );
+}
+
+
+function postJSON(
+    path,
+    body
+) {
+
+    return apiRequest(
+        path,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:
+                JSON.stringify(body)
+        }
+    );
+}
+
+
+/* =============================================================
+   URL
+============================================================= */
+
+function getRequestedLessonId() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    return String(
+        params.get("id") ||
+        params.get("lessonId") ||
+        "lesson_1"
+    ).trim();
+}
+
+
+function normaliseLessonId(value) {
+
+    const raw =
+        String(value || "")
+            .trim();
+
+    if (
+        /^lesson_\d+$/i.test(raw)
+    ) {
+
+        return raw;
+    }
+
+
+    const match =
+        raw.match(/(\d+)$/);
+
+    if (match) {
+
+        return `lesson_${match[1]}`;
+    }
+
+
+    return "";
+}
+
+
+function lessonNumber(lessonId) {
+
+    const match =
+        String(lessonId)
+            .match(/(\d+)$/);
+
+    return match
+        ? Number(match[1])
+        : null;
+}
+
+
+/* =============================================================
+   USER
+============================================================= */
+
+function readUser() {
+
+    const keys = [
+        "hanverse_user",
+        "hanverse_session",
+        "currentUser",
+        "authUser",
+        "user",
+        "session"
+    ];
+
+
+    for (const key of keys) {
+
+        try {
+
+            const raw =
+                localStorage.getItem(key);
+
+            if (!raw) continue;
+
+            const parsed =
+                JSON.parse(raw);
+
+            const candidates = [
+                parsed?.user,
+                parsed?.data?.user,
+                parsed?.data,
+                parsed,
+            ];
+
+
+            for (
+                const candidate
+                of candidates
+            ) {
+
+                if (
+                    candidate &&
+                    typeof candidate ===
+                        "object" &&
+                    getUserId(candidate)
+                ) {
+
+                    return candidate;
+                }
+            }
+
+        } catch {
+            // Ignore malformed local storage.
+        }
+    }
+
+
+    return null;
+}
+
+
+function getUserId(user = state.user) {
+
+    const id =
+        user?.user_id ??
+        user?.userId ??
+        user?.id;
+
+    const number =
+        Number(id);
+
+    return Number.isFinite(number) &&
+        number > 0
+        ? number
+        : null;
+}
+
+
+function getUserName() {
+
+    return (
+        state.user?.full_name ||
+        state.user?.fullName ||
+        state.user?.username ||
+        state.user?.name ||
+        "Learner"
+    );
+}
+
+
+/* =============================================================
+   NAVBAR
+============================================================= */
+
+function renderNavbar() {
+
+    const links =
+        [
+            ["Home", "index.html"],
+            ["Learn", "learn.html"],
+            ["Roadmap", "roadmap.html"],
+            ["Worksheets", "worksheets.html"]
+        ];
+
+
+    const desktop =
+        $("navLinks");
+
+    const mobile =
+        $("mobileMenu");
+
+
+    desktop.innerHTML = "";
+
+    mobile.innerHTML = "";
+
+
+    links.forEach(
+        ([label, href]) => {
+
+            const desktopLink =
+                document.createElement("a");
+
+            desktopLink.className =
+                "nav-link";
+
+            desktopLink.href =
+                href;
+
+            desktopLink.textContent =
+                label;
+
+            if (
+                label === "Learn"
+            ) {
+
+                desktopLink.classList
+                    .add("active");
+            }
+
+            desktop.appendChild(
+                desktopLink
+            );
+
+
+            const mobileLink =
+                document.createElement("a");
+
+            mobileLink.href =
+                href;
+
+            mobileLink.textContent =
+                label;
+
+            mobile.appendChild(
+                mobileLink
+            );
+        }
+    );
+
+
+    $("profileLink").textContent =
+        `👤 ${getUserName()}`;
+}
+
+
+/* =============================================================
+   NORMALISE DATABASE RESPONSE
+============================================================= */
+
+function array(value) {
+
+    if (Array.isArray(value)) return value;
+
+    if (typeof value === "string") {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    }
+
+    return [];
+}
+
+
+function normaliseLesson(data) {
+
+    const lesson =
+        data?.lesson ||
+        data?.data?.lesson ||
+        data?.data ||
+        data;
+
+
+    if (
+        !lesson ||
+        typeof lesson !== "object"
+    ) {
+
+        throw new Error(
+            "The lesson API returned no lesson."
+        );
+    }
+
+
+    /*
+     * Accept both possible API designs:
+     *
+     * {
+     *   lesson: {...},
+     *   objectives: [...]
+     * }
+     *
+     * OR
+     *
+     * {
+     *   lesson: {
+     *      objectives: [...]
+     *   }
+     * }
+     */
+
+    return {
+
+        ...lesson,
+
+        lesson_id:
+            String(
+                lesson.lesson_id ||
+                lesson.lessonId ||
+                lesson.id ||
+                state.lessonId
+            ),
+
+
+        title:
+            lesson.title ||
+            "Untitled Lesson",
+
+
+        description:
+            lesson.description ||
+            lesson.short_description ||
+            "",
+
+
+        level:
+            Number(
+                lesson.level ||
+                lesson.course_level ||
+                1
+            ),
+
+
+        xp:
+            Number(
+                lesson.xp ||
+                lesson.completion_xp ||
+                0
+            ),
+
+
+        objectives:
+            data?.objectives ||
+            data?.data?.objectives ||
+            lesson.objectives ||
+            [],
+
+
+        vocabulary:
+            data?.vocabulary ||
+            data?.data?.vocabulary ||
+            lesson.vocabulary ||
+            [],
+
+
+        content:
+            data?.content ||
+            data?.data?.content ||
+            lesson.content ||
+            [],
+
+
+        examples:
+            data?.examples ||
+            data?.data?.examples ||
+            lesson.examples ||
+            [],
+
+
+        media:
+            data?.media ||
+            data?.data?.media ||
+            lesson.media ||
+            [],
+
+
+        quiz:
+            data?.quiz ||
+            data?.data?.quiz ||
+            lesson.quiz ||
+            [],
+
+
+        completion_settings:
+            data?.completion_settings ||
+            data?.data?.completion_settings ||
+            lesson.completion_settings ||
+            {}
+    };
+}
+
+
+/* =============================================================
+   FETCH LESSON FROM DATABASE
+============================================================= */
+
+async function fetchLesson() {
+
+    const requested =
+        getRequestedLessonId();
+
+
+    const id =
+        normaliseLessonId(
+            requested
+        );
+
+
+    if (!id) {
+
+        throw new Error(
+            "Invalid lesson ID."
+        );
+    }
+
+
+    state.lessonId =
+        id;
+
+
+    /*
+     * THIS IS THE ONLY LESSON CONTENT REQUEST.
+     *
+     * No lesson content is stored in this HTML.
+     */
+
+    /*
+     * Learner endpoint.
+     *
+     * The lesson page reads ONLY from the API. The API must return
+     * the lesson row plus its related content/media.
+     */
+    const data =
+        await getJSON(
+            `lessons/${encodeURIComponent(id)}`
+        );
+
+
+    return normaliseLesson(data);
+}
+
+
+/* =============================================================
+   BUILD ACTIVITIES AUTOMATICALLY
+============================================================= */
+
+function buildActivities() {
+
+    const lesson =
+        state.lesson;
+
+    const activities = [];
+
+
+    /*
+     * These are not hard-coded lessons.
+     *
+     * They are renderers for whichever DB collections exist.
+     */
+
+    activities.push({
+        type: "welcome"
+    });
+
+
+    if (
+        array(
+            lesson.objectives
+        ).length
+    ) {
+
+        activities.push({
+            type: "objectives"
+        });
+    }
+
+
+    if (
+        array(
+            lesson.vocabulary
+        ).length
+    ) {
+
+        activities.push({
+            type: "vocabulary"
+        });
+    }
+
+
+    if (
+        array(
+            lesson.content
+        ).length
+    ) {
+
+        activities.push({
+            type: "content"
+        });
+    }
+
+
+    if (
+        array(
+            lesson.examples
+        ).length
+    ) {
+
+        activities.push({
+            type: "examples"
+        });
+    }
+
+
+    /*
+     * Media is also automatically recognised.
+     */
+
+    if (
+        array(
+            lesson.media
+        ).length
+    ) {
+
+        activities.push({
+            type: "media"
+        });
+    }
+
+
+    if (
+        array(
+            lesson.quiz
+        ).length
+    ) {
+
+        activities.push({
+            type: "quiz"
+        });
+    }
+
+
+    activities.push({
+        type: "complete"
+    });
+
+
+    return activities;
+}
+
+
+/* =============================================================
+   MEDIA
+============================================================= */
+
+function mediaType(item) {
+
+    const explicit =
+        String(
+            item?.media_type ||
+            item?.type ||
+            ""
+        ).toLowerCase();
+
+
+    if (
+        [
+            "image",
+            "video",
+            "audio"
+        ].includes(explicit)
+    ) {
+
+        return explicit;
+    }
+
+
+    const url =
+        String(
+            item?.url ||
+            item?.media_url ||
+            item?.src ||
+            ""
+        ).toLowerCase();
+
+
+    if (
+        /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/
+            .test(url)
+    ) {
+
+        return "image";
+    }
+
+
+    if (
+        /\.(mp4|webm|mov)(\?|$)/
+            .test(url)
+    ) {
+
+        return "video";
+    }
+
+
+    if (
+        /\.(mp3|wav|ogg|m4a)(\?|$)/
+            .test(url)
+    ) {
+
+        return "audio";
+    }
+
+
+    return explicit || "image";
+}
+
+
+function renderMediaItem(item) {
+
+    const type =
+        mediaType(item);
+
+    const url =
+        item?.url ||
+        item?.media_url ||
+        item?.src;
+
+
+    if (!url) return "";
+
+
+    const title =
+        item?.title ||
+        "";
+
+
+    const caption =
+        item?.caption ||
+        item?.description ||
+        "";
+
+
+    let media = "";
+
+
+    if (type === "image") {
+
+        media = `
+            <img
+                src="${escapeAttribute(url)}"
+                alt="${escapeAttribute(
+                    item?.alt ||
+                    title ||
+                    "Lesson image"
+                )}"
+                loading="lazy"
+            >
+        `;
+    }
+
+
+    if (type === "video") {
+
+        media = `
+            <video
+                controls
+                playsinline
+                preload="metadata"
+            >
+                <source
+                    src="${escapeAttribute(url)}"
+                >
+            </video>
+        `;
+    }
+
+
+    if (type === "audio") {
+
+        media = `
+            <audio
+                controls
+                preload="metadata"
+            >
+                <source
+                    src="${escapeAttribute(url)}"
+            >
+        `;
+    }
+
+
+    return `
+        <div class="media-card">
+
+            ${title
+                ? `
+                    <div
+                        class="media-caption"
+                    >
+                        <strong>
+                            ${escapeHTML(title)}
+                        </strong>
+                    </div>
+                `
+                : ""
+            }
+
+            ${media}
+
+            ${caption
+                ? `
+                    <div
+                        class="media-caption"
+                    >
+                        ${escapeHTML(caption)}
+                    </div>
+                `
+                : ""
+            }
+
+        </div>
+    `;
+}
+
+
+/* =============================================================
+   RENDER WELCOME
+============================================================= */
+
+function renderWelcome() {
+
+    return `
+
+        <div class="welcome">
+
+            <div class="mascot">
+
+                ${escapeHTML(
+                    state.lesson.icon ||
+                    state.lesson.emoji ||
+                    "🐼"
+                )}
+
+            </div>
+
+
+            <div class="section-kicker">
+                YCT ${state.lesson.level}
+            </div>
+
+
+            <h2 class="section-title">
+                ${escapeHTML(
+                    state.lesson.title
+                )}
+            </h2>
+
+
+            <p class="section-description">
+                ${escapeHTML(
+                    state.lesson.description
+                )}
+            </p>
+
+        </div>
+
+    `;
+}
+
+
+/* =============================================================
+   OBJECTIVES
+============================================================= */
+
+function renderObjectives() {
+
+    const items =
+        array(
+            state.lesson.objectives
+        );
+
+
+    return `
+
+        <div>
+
+            <div class="section-kicker">
+                Your learning goals
+            </div>
+
+            <h2 class="section-title">
+                What you'll learn
+            </h2>
+
+
+            <div class="objectives">
+
+                ${items.map(
+                    (item, index) => {
+
+                        const text =
+                            typeof item === "string"
+                                ? item
+                                : (
+                                    item.objective ||
+                                    item.text ||
+                                    item.title ||
+                                    ""
+                                );
+
+
+                        return `
+
+                            <div class="objective">
+
+                                <div class="objective-icon">
+                                    ${escapeHTML(
+                                        item.icon ||
+                                        ["🎯","🗣️","👂","✍️"][index % 4]
+                                    )}
+                                </div>
+
+                                <div class="objective-text">
+                                    ${escapeHTML(text)}
+                                </div>
+
+                            </div>
+
+                        `;
+                    }
+                ).join("")}
+
+            </div>
+
+        </div>
+
+    `;
+}
+
+
+/* =============================================================
+   VOCABULARY
+============================================================= */
+
+function renderVocabulary() {
+
+    const words =
+        array(
+            state.lesson.vocabulary
+        );
+
+
+    return `
+
+        <div>
+
+            <div class="section-kicker">
+                Vocabulary
+            </div>
+
+            <h2 class="section-title">
+                New words
+            </h2>
+
+            <p class="section-description">
+                Listen, look and practise each word.
+            </p>
+
+
+            <div class="vocabulary-grid">
+
+                ${words.map(
+                    word => {
+
+                        const chinese =
+                            word.chinese ||
+                            word.word ||
+                            word.hanzi ||
+                            "";
+
+
+                        const pinyin =
+                            word.pinyin ||
+                            "";
+
+
+                        const english =
+                            word.english ||
+                            word.meaning ||
+                            word.translation ||
+                            "";
+
+
+                        const audio =
+                            word.audio_url ||
+                            word.audioUrl ||
+                            word.audio ||
+                            "";
+
+
+                        return `
+
+                            <article
+                                class="vocabulary-card"
+                            >
+
+                                <div>
+                                    ${escapeHTML(
+                                        word.icon ||
+                                        word.emoji ||
+                                        "🀄"
+                                    )}
+                                </div>
+
+
+                                <div class="hanzi">
+                                    ${escapeHTML(
+                                        chinese
+                                    )}
+                                </div>
+
+
+                                <div class="pinyin">
+                                    ${escapeHTML(
+                                        pinyin
+                                    )}
+                                </div>
+
+
+                                <div class="meaning">
+                                    ${escapeHTML(
+                                        english
+                                    )}
+                                </div>
+
+
+                                ${
+                                    audio
+                                        ? `
+                                            <audio
+                                                controls
+                                                preload="none"
+                                                style="
+                                                    margin-top:12px;
+                                                "
+                                            >
+                                                <source
+                                                    src="${escapeAttribute(
+                                                        audio
+                                                    )}"
+                                                >
+                                            </audio>
+                                        `
+                                        : chinese
+                                            ? `
+                                                <button
+                                                    class="listen-button"
+                                                    type="button"
+                                                    data-speak="${escapeAttribute(
+                                                        chinese
+                                                    )}"
+                                                >
+                                                    🔊 Listen
+                                                </button>
+                                            `
+                                            : ""
+                                }
+
+                            </article>
+
+                        `;
+                    }
+                ).join("")}
+
+            </div>
+
+        </div>
+
+    `;
+}
+
+
+/* =============================================================
+   CONTENT
+============================================================= */
+
+function renderContent() {
+
+    const blocks =
+        array(
+            state.lesson.content
+        );
+
+
+    return `
+
+        <div>
+
+            <div class="section-kicker">
+                Lesson
+            </div>
+
+            <h2 class="section-title">
+                Let's learn
+            </h2>
+
+
+            ${blocks.map(
+                block => {
+
+                    const title =
+                        block.title ||
+                        "";
+
+
+                    const body =
+                        block.body ||
+                        block.text ||
+                        block.content ||
+                        "";
+
+
+                    return `
+
+                        <article
+                            class="content-block"
+                        >
+
+                            ${
+                                title
+                                    ? `
+                                        <h3>
+                                            ${escapeHTML(
+                                                title
+                                            )}
+                                        </h3>
+                                    `
+                                    : ""
+                            }
+
+
+                            ${
+                                body
+                                    ? `
+                                        <p>
+                                            ${escapeHTML(
+                                                body
+                                            )}
+                                        </p>
+                                    `
+                                    : ""
+                            }
+
+
+                            ${
+                                block.media_url ||
+                                block.image_url ||
+                                block.video_url ||
+                                block.audio_url
+                                    ? renderMediaItem({
+                                        ...block,
+                                        url:
+                                            block.media_url ||
+                                            block.image_url ||
+                                            block.video_url ||
+                                            block.audio_url,
+                                        type:
+                                            block.video_url
+                                                ? "video"
+                                                : block.audio_url
+                                                    ? "audio"
+                                                    : "image"
+                                    })
+                                    : ""
+                            }
+
+                        </article>
+
+                    `;
+                }
+            ).join("")}
+
+        </div>
+
+    `;
+}
+
+
+/* =============================================================
+   EXAMPLES
+============================================================= */
+
+function renderExamples() {
+
+    const examples =
+        array(
+            state.lesson.examples
+        );
+
+
+    return `
+
+        <div>
+
+            <div class="section-kicker">
+                Practice
+            </div>
+
+            <h2 class="section-title">
+                Try it
+            </h2>
+
+
+            <div class="examples">
+
+                ${examples.map(
+                    (example, index) => {
+
+                        const chinese =
+                            example.chinese ||
+                            example.text ||
+                            "";
+
+
+                        const audio =
+                            example.audio_url ||
+                            example.audioUrl ||
+                            example.audio ||
+                            "";
+
+
+                        return `
+
+                            <article class="example">
+
+                                <div class="speaker">
+                                    ${escapeHTML(
+                                        example.icon ||
+                                        example.emoji ||
+                                        (
+                                            index % 2
+                                                ? "🧑"
+                                                : "🐼"
+                                        )
+                                    )}
+                                </div>
+
+
+                                <div>
+
+                                    ${
+                                        example.speaker
+                                            ? `
+                                                <div
+                                                    style="
+                                                        color:var(--muted);
+                                                        font-size:.68rem;
+                                                        font-weight:900;
+                                                        margin-bottom:4px;
+                                                    "
+                                                >
+                                                    ${escapeHTML(
+                                                        example.speaker
+                                                    )}
+                                                </div>
+                                            `
+                                            : ""
+                                    }
+
+
+                                    <div class="example-chinese">
+                                        ${escapeHTML(
+                                            chinese
+                                        )}
+                                    </div>
+
+
+                                    ${
+                                        example.pinyin
+                                            ? `
+                                                <div
+                                                    class="example-pinyin"
+                                                >
+                                                    ${escapeHTML(
+                                                        example.pinyin
+                                                    )}
+                                                </div>
+                                            `
+                                            : ""
+                                    }
+
+
+                                    ${
+                                        example.english
+                                            ? `
+                                                <div
+                                                    class="example-english"
+                                                >
+                                                    ${escapeHTML(
+                                                        example.english
+                                                    )}
+                                                </div>
+                                            `
+                                            : ""
+                                    }
+
+
+                                    ${
+                                        audio
+                                            ? `
+                                                <audio
+                                                    controls
+                                                    preload="none"
+                                                    style="
+                                                        margin-top:10px;
+                                                    "
+                                                >
+                                                    <source
+                                                        src="${escapeAttribute(
+                                                            audio
+                                                        )}"
+                                                    >
+                                                </audio>
+                                            `
+                                            : chinese
+                                                ? `
+                                                    <button
+                                                        class="listen-button"
+                                                        type="button"
+                                                        data-speak="${escapeAttribute(
+                                                            chinese
+                                                        )}"
+                                                    >
+                                                        🔊 Listen
+                                                    </button>
+                                                `
+                                                : ""
+                                    }
+
+                                </div>
+
+                            </article>
+
+                        `;
+                    }
+                ).join("")}
+
+            </div>
+
+        </div>
+
+    `;
+}
+
+
+/* =============================================================
+   QUIZ
+============================================================= */
+
+function quizQuestions() {
+
+    return array(
+        state.lesson.quiz
+    );
+}
+
+
+function getQuestionOptions(question) {
+
+    return array(
+        question.options ||
+        question.answers
+    );
+}
+
+
+function getCorrectAnswer(question) {
+
+    const options =
+        getQuestionOptions(
+            question
+        );
+
+
+    if (
+        typeof question.correct_index ===
+            "number"
+    ) {
+
+        return question.correct_index;
+    }
+
+
+    if (
+        typeof question.correctIndex ===
+            "number"
+    ) {
+
+        return question.correctIndex;
+    }
+
+
+    if (
+        typeof question.correct ===
+            "number"
+    ) {
+
+        return question.correct;
+    }
+
+
+    const correct =
+        question.correct_answer ||
+        question.correctAnswer ||
+        question.answer;
+
+
+    if (
+        correct !== undefined
+    ) {
+
+        const numeric =
+            Number(correct);
+
+        if (
+            Number.isFinite(numeric)
+        ) {
+
+            return numeric;
+        }
+
+
+        return options.findIndex(
+            option =>
+                String(option)
+                    .toLowerCase() ===
+                String(correct)
+                    .toLowerCase()
+        );
+    }
+
+
+    /*
+     * Also support the DB representation:
+     *
+     * options:
+     * [
+     *   {
+     *      option_text: "...",
+     *      is_correct: true
+     *   }
+     * ]
+     */
+
+    const dbCorrect =
+        options.findIndex(
+            option =>
+                option &&
+                option.is_correct === true
+        );
+
+
+    return dbCorrect;
+}
+
+
+function renderQuiz() {
+
+    const questions =
+        quizQuestions();
+
+
+    const question =
+        questions[
+            state.quizIndex
+        ];
+
+
+    if (!question) {
+
+        return `
+            <div class="quiz">
+                <h2 class="section-title">
+                    Challenge complete!
+                </h2>
+            </div>
+        `;
+    }
+
+
+    const options =
+        getQuestionOptions(
+            question
+        );
+
+
+    const selected =
+        state.answers[
+            state.quizIndex
+        ];
+
+
+    const correct =
+        getCorrectAnswer(
+            question
+        );
+
+
+    return `
+
+        <div class="quiz">
+
+            <div class="quiz-top">
+
+                <span>
+                    Challenge
+                </span>
+
+                <span>
+                    ${state.quizIndex + 1}
+                    /
+                    ${questions.length}
+                </span>
+
+            </div>
+
+
+            <div class="question">
+
+                ${escapeHTML(
+                    question.question ||
+                    question.prompt ||
+                    question.text ||
+                    ""
+                )}
+
+            </div>
+
+
+            <div class="options">
+
+                ${options.map(
+                    (option, index) => {
+
+                        const text =
+                            typeof option ===
+                                "string"
+                                    ? option
+                                    : (
+                                        option.option_text ||
+                                        option.text ||
+                                        option.label ||
+                                        ""
+                                    );
+
+
+                        let className =
+                            "option";
+
+
+                        if (
+                            selected !== undefined
+                        ) {
+
+                            if (
+                                index === correct
+                            ) {
+
+                                className +=
+                                    " correct";
+                            }
+
+                            else if (
+                                index === selected
+                            ) {
+
+                                className +=
+                                    " wrong";
+                            }
+                        }
+
+
+                        return `
+
+                            <button
+                                class="${className}"
+                                type="button"
+                                data-option="${index}"
+                                ${
+                                    selected !==
+                                        undefined
+                                        ? "disabled"
+                                        : ""
+                                }
+                            >
+                                ${escapeHTML(text)}
+                            </button>
+
+                        `;
+                    }
+                ).join("")}
+
+            </div>
+
+
+            ${
+                selected !== undefined
+                    ? `
+                        <div
+                            class="
+                                feedback
+                                ${
+                                    selected ===
+                                        correct
+                                        ? "good"
+                                        : "bad"
+                                }
+                            "
+                        >
+                            ${
+                                selected ===
+                                    correct
+                                    ? "✓ Correct! Great work."
+                                    : "Not quite. Try to remember this one."
+                            }
+                        </div>
+                    `
+                    : ""
+            }
+
+        </div>
+
+    `;
+}
+
+
+/* =============================================================
+   COMPLETE
+============================================================= */
+
+function renderComplete() {
+
+    const settings =
+        state.lesson
+            .completion_settings ||
+        {};
+
+
+    const xp =
+        Number(
+            settings.completion_xp ||
+            state.lesson.xp ||
+            0
+        );
+
+
+    return `
+
+        <div class="complete">
+
+            <div class="complete-icon">
+                🎉
+            </div>
+
+
+            <div class="section-kicker">
+                Lesson complete
+            </div>
+
+
+            <h2 class="section-title">
+                You did it!
+            </h2>
+
+
+            <p class="section-description">
+
+                You completed
+                <strong>
+                    ${escapeHTML(
+                        state.lesson.title
+                    )}
+                </strong>.
+
+            </p>
+
+
+            <div class="rewards">
+
+                <div class="reward">
+
+                    <strong>
+                        ⭐ +${xp}
+                    </strong>
+
+                    <span>
+                        XP
+                    </span>
+
+                </div>
+
+
+                <div class="reward">
+
+                    <strong>
+                        🎯 ${state.score}%
+                    </strong>
+
+                    <span>
+                        Quiz score
+                    </span>
+
+                </div>
+
+
+                <div class="reward">
+
+                    <strong>
+                        🐼 100%
+                    </strong>
+
+                    <span>
+                        Complete
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="saveStatus"
+                style="
+                    margin:0 auto 16px;
+                    max-width:500px;
+                    padding:11px 14px;
+                    border-radius:13px;
+                    background:#F7F4ED;
+                    color:var(--muted);
+                    font-size:.75rem;
+                    font-weight:850;
+                "
+            >
+                ${
+                    state.completed
+                        ? "✓ Progress saved"
+                        : "Ready to save your progress"
+                }
+            </div>
+
+
+            <button
+                id="saveButton"
+                class="button primary"
+                type="button"
+                ${
+                    state.completed
+                        ? "disabled"
+                        : ""
+                }
+            >
+                ${
+                    state.completed
+                        ? "✓ Saved"
+                        : "Save progress"
+                }
+            </button>
+
+        </div>
+
+    `;
+}
+
+
+/* =============================================================
+   SAVE PROGRESS
+============================================================= */
+
+function calculateScore() {
+
+    const questions =
+        quizQuestions();
+
+
+    if (!questions.length) {
+
+        return 100;
+    }
+
+
+    let correct = 0;
+
+
+    questions.forEach(
+        (question, index) => {
+
+            if (
+                state.answers[index] !==
+                    undefined &&
+                state.answers[index] ===
+                    getCorrectAnswer(
+                        question
+                    )
+            ) {
+
+                correct++;
+            }
+        }
+    );
+
+
+    return Math.round(
+        correct /
+        questions.length *
+        100
+    );
+}
+
+
+async function saveProgress() {
+
+    if (state.saving) {
+        return;
+    }
+
+
+    const userId =
+        getUserId();
+
+
+    const lessonId =
+        lessonNumber(
+            state.lessonId
+        );
+
+
+    if (
+        !userId ||
+        !lessonId
+    ) {
+
+        showToast(
+            "error",
+            "We couldn't identify your account or lesson."
+        );
+
+        return;
+    }
+
+
+    state.saving = true;
+
+
+    state.score =
+        calculateScore();
+
+
+    const saveButton =
+        $("saveButton");
+
+
+    if (saveButton) {
+
+        saveButton.disabled =
+            true;
+
+        saveButton.textContent =
+            "Saving…";
+    }
+
+
+    try {
+
+        const timeSpent =
+            Math.max(
+                1,
+                Math.round(
+                    (
+                        Date.now() -
+                        state.startedAt
+                    ) / 1000
+                )
+            );
+
+
+        /*
+         * This payload maps directly to your
+         * user_progress table.
+         */
+
+        const payload = {
+
+            userId: userId,
+
+            lessonId: lessonId,
+
+            courseType:
+                state.lesson.course_type ||
+                "YCT",
+
+            courseLevel:
+                state.lesson.level,
+
+            completed: true,
+
+            score:
+                state.score,
+
+            xpEarned:
+                Number(
+                    state.lesson
+                        .completion_settings
+                        ?.completion_xp ||
+                    state.lesson.xp ||
+                    0
+                ),
+
+            timeSpent:
+
+                timeSpent,
+
+            attempts: 1,
+
+            quizAnswers:
+                state.answers,
+
+            quizScore:
+                state.score
+        };
+
+
+        try {
+            await postJSON(
+                "progress",
+                payload
+            );
+        } catch (primaryError) {
+            /*
+             * Compatibility fallback for HanVerse deployments where
+             * progress is exposed as /api/progress/:userId/:lessonId.
+             */
+            if (primaryError.status !== 404) throw primaryError;
+
+            await postJSON(
+                `progress/${encodeURIComponent(userId)}/${encodeURIComponent(lessonId)}`,
+                payload
+            );
+        }
+
+
+        state.completed =
+            true;
+
+
+        if (saveButton) {
+
+            saveButton.textContent =
+                "✓ Saved";
+        }
+
+
+        const status =
+            $("saveStatus");
+
+
+        if (status) {
+
+            status.textContent =
+                "✓ Your progress has been saved!";
+
+            status.style.background =
+                "#EEF9F3";
+
+            status.style.color =
+                "#27724E";
+        }
+
+
+        showToast(
+            "success",
+            `Progress saved! +${payload.xpEarned} XP 🎉`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Progress save failed:",
+            error
+        );
+
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                "Save progress";
+        }
+
+
+        const status =
+            $("saveStatus");
+
+
+        if (status) {
+
+            status.textContent =
+                error.message ||
+                "Progress could not be saved.";
+
+            status.style.background =
+                "#FFF1F2";
+
+            status.style.color =
+                "#A8323D";
+        }
+
+
+        showToast(
+            "error",
+            error.message ||
+            "Progress could not be saved."
+        );
+
+
+    } finally {
+
+        state.saving =
+            false;
+    }
+}
+
+
+/* =============================================================
+   RENDER CURRENT ACTIVITY
+============================================================= */
+
+function renderCurrentActivity() {
+
+    const activity =
+        state.activities[
+            state.currentActivity
+        ];
+
+
+    if (!activity) {
+        return;
+    }
+
+
+    const container =
+        $("lessonContent");
+
+
+    container.classList
+        .remove("hidden");
+
+
+    switch (
+        activity.type
+    ) {
+
+        case "welcome":
+
+            container.innerHTML =
+                renderWelcome();
+
+            break;
+
+
+        case "objectives":
+
+            container.innerHTML =
+                renderObjectives();
+
+            break;
+
+
+        case "vocabulary":
+
+            container.innerHTML =
+                renderVocabulary();
+
+            break;
+
+
+        case "content":
+
+            container.innerHTML =
+                renderContent();
+
+            break;
+
+
+        case "examples":
+
+            container.innerHTML =
+                renderExamples();
+
+            break;
+
+
+        case "media":
+
+            container.innerHTML = `
+
+                <div>
+
+                    <div class="section-kicker">
+                        Watch & listen
+                    </div>
+
+                    <h2 class="section-title">
+                        Learn with media
+                    </h2>
+
+                    ${array(
+                        state.lesson.media
+                    ).map(
+                        renderMediaItem
+                    ).join("")}
+
+                </div>
+
+            `;
+
+            break;
+
+
+        case "quiz":
+
+            container.innerHTML =
+                renderQuiz();
+
+            break;
+
+
+        case "complete":
+
+            container.innerHTML =
+                renderComplete();
+
+            break;
+
+
+        default:
+
+            /*
+             * Future-proof fallback.
+             *
+             * If server.js later returns an unknown
+             * section type with a body, it will still
+             * display instead of breaking the page.
+             */
+
+            container.innerHTML = `
+
+                <div>
+
+                    <div class="section-kicker">
+                        Lesson activity
+                    </div>
+
+                    <h2 class="section-title">
+                        ${escapeHTML(
+                            activity.title ||
+                            "Keep learning"
+                        )}
+                    </h2>
+
+                    ${
+                        activity.body
+                            ? `
+                                <p class="section-description">
+                                    ${escapeHTML(
+                                        activity.body
+                                    )}
+                                </p>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            `;
+    }
+
+
+    /*
+     * Re-run the entrance animation.
+     */
+
+    container.style.animation =
+        "none";
+
+    void container.offsetWidth;
+
+    container.style.animation =
+        "";
+
+
+    updateProgress();
+
+    bindDynamicEvents();
+}
+
+
+/* =============================================================
+   PROGRESS UI
+============================================================= */
+
+function updateProgress() {
+
+    const total =
+        state.activities.length;
+
+
+    const current =
+        state.currentActivity + 1;
+
+
+    const percent =
+        total
+            ? Math.round(
+                current /
+                total *
+                100
+            )
+            : 0;
+
+
+    $("progressBar").style.width =
+        `${percent}%`;
+
+
+    $("progressNumber").textContent =
+        `${percent}%`;
+
+
+    $("slideCounter").textContent =
+        `${current} / ${total}`;
+
+
+    const names = {
+
+        welcome:
+            "Welcome",
+
+        objectives:
+            "Learning goals",
+
+        vocabulary:
+            "Vocabulary",
+
+        content:
+            "Lesson",
+
+        examples:
+            "Practice",
+
+        media:
+            "Watch & listen",
+
+        quiz:
+            "Challenge",
+
+        complete:
+            "Complete"
+    };
+
+
+    $("activityName").textContent =
+        names[
+            state.activities[
+                state.currentActivity
+            ]?.type
+        ] ||
+        "Lesson";
+
+
+    $("lessonLevel").textContent =
+        `YCT ${state.lesson.level}`;
+}
+
+
+/* =============================================================
+   DYNAMIC EVENTS
+============================================================= */
+
+function bindDynamicEvents() {
+
+    document
+        .querySelectorAll(
+            "[data-speak]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        speak(
+                            button.dataset.speak
+                        );
+                    }
+                );
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-option]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        answerQuiz(
+                            Number(
+                                button.dataset.option
+                            )
+                        );
+                    }
+                );
+            }
+        );
+
+
+    const saveButton =
+        $("saveButton");
+
+
+    if (saveButton) {
+
+        saveButton.addEventListener(
+            "click",
+            saveProgress
+        );
+    }
+}
+
+
+/* =============================================================
+   SPEECH
+============================================================= */
+
+function speak(text) {
+
+    if (
+        !("speechSynthesis" in window)
+    ) {
+
+        showToast(
+            "error",
+            "Speech is not supported in this browser."
+        );
+
+        return;
+    }
+
+
+    speechSynthesis.cancel();
+
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            text
+        );
+
+
+    utterance.lang =
+        "zh-CN";
+
+
+    utterance.rate =
+        .82;
+
+
+    speechSynthesis.speak(
+        utterance
+    );
+}
+
+
+/* =============================================================
+   QUIZ
+============================================================= */
+
+function answerQuiz(index) {
+
+    state.answers[
+        state.quizIndex
+    ] = index;
+
+
+    renderCurrentActivity();
+}
+
+
+/* =============================================================
+   NAVIGATION
+============================================================= */
+
+function next() {
+
+    const activity =
+        state.activities[
+            state.currentActivity
+        ];
+
+
+    if (
+        activity?.type ===
+        "quiz"
+    ) {
+
+        const questions =
+            quizQuestions();
+
+
+        if (
+            state.answers[
+                state.quizIndex
+            ] === undefined
+        ) {
+
+            showToast(
+                "error",
+                "Choose an answer first."
+            );
+
+            return;
+        }
+
+
+        if (
+            state.quizIndex <
+            questions.length - 1
+        ) {
+
+            state.quizIndex++;
+
+            renderCurrentActivity();
+
+            return;
+        }
+    }
+
+
+    if (
+        activity?.type ===
+        "complete"
+    ) {
+
+        saveProgress();
+
+        return;
+    }
+
+
+    if (
+        state.currentActivity <
+        state.activities.length - 1
+    ) {
+
+        state.currentActivity++;
+
+        renderCurrentActivity();
+    }
+}
+
+
+function back() {
+
+    if (
+        state.currentActivity <=
+        0
+    ) {
+
+        return;
+    }
+
+
+    state.currentActivity--;
+
+    renderCurrentActivity();
+}
+
+
+/* =============================================================
+   TOAST
+============================================================= */
+
+function showToast(
+    type,
+    message
+) {
+
+    const area =
+        $("toastArea");
+
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+
+    toast.className =
+        `toast ${type || ""}`;
+
+
+    toast.textContent =
+        message;
+
+
+    area.appendChild(
+        toast
+    );
+
+
+    setTimeout(
+        () => {
+
+            toast.style.opacity =
+                "0";
+
+            toast.style.transform =
+                "translateY(8px)";
+
+            toast.style.transition =
+                "all .2s ease";
+
+
+            setTimeout(
+                () => toast.remove(),
+                220
+            );
+
+        },
+        3200
+    );
+}
+
+
+/* =============================================================
+   ERROR
+============================================================= */
+
+function showError(error) {
+
+    console.error(
+        "HanVerse lesson error:",
+        error
+    );
+
+
+    $("loadingState")
+        .classList
+        .add("hidden");
+
+
+    $("lessonContent")
+        .classList
+        .add("hidden");
+
+
+    $("controls")
+        .classList
+        .add("hidden");
+
+
+    $("errorState")
+        .classList
+        .remove("hidden");
+
+
+    $("errorMessage")
+        .textContent =
+        error?.message ||
+        "The lesson could not be loaded from the database.";
+}
+
+
+/* =============================================================
+   INITIALISE
+============================================================= */
+
+async function init() {
+
+    state.user =
+        readUser();
+
+
+    /*
+     * Keep your existing login system.
+     * If a session exists, continue.
+     */
+
+    if (!state.user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+    renderNavbar();
+
+
+    /*
+     * FETCH EVERYTHING FROM API.
+     */
+
+    state.lesson =
+        await fetchLesson();
+
+
+    $("lessonTitle").textContent =
+        state.lesson.title;
+
+
+    $("lessonDescription").textContent =
+        state.lesson.description;
+
+
+    $("lessonXP").textContent =
+        state.lesson.xp;
+
+
+    state.activities =
+        buildActivities();
+
+
+    if (
+        !state.activities.length
+    ) {
+
+        throw new Error(
+            "This lesson contains no content."
+        );
+    }
+
+
+    $("loadingState")
+        .classList
+        .add("hidden");
+
+
+    $("errorState")
+        .classList
+        .add("hidden");
+
+
+    $("controls")
+        .classList
+        .remove("hidden");
+
+
+    renderCurrentActivity();
+}
+
+
+/* =============================================================
+   EVENTS
+============================================================= */
+
+$("continueButton")
+    .addEventListener(
+        "click",
+        next
+    );
+
+
+$("backButton")
+    .addEventListener(
+        "click",
+        back
+    );
+
+
+$("retryButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            $("errorState")
+                .classList
+                .add("hidden");
+
+
+            $("loadingState")
+                .classList
+                .remove("hidden");
+
+
+            init()
+                .catch(showError);
+        }
+    );
+
+
+$("mobileMenuButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            const menu =
+                $("mobileMenu");
+
+
+            const open =
+                menu.classList
+                    .toggle("open");
+
+
+            $("mobileMenuButton")
+                .textContent =
+                open
+                    ? "✕"
+                    : "☰";
+        }
+    );
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.target.matches(
+                "input,textarea,select"
+            )
+        ) {
+
+            return;
+        }
+
+
+        if (
+            event.key ===
+            "ArrowRight"
+        ) {
+
+            next();
+        }
+
+
+        if (
+            event.key ===
+            "ArrowLeft"
+        ) {
+
+            back();
+        }
+    }
+);
+
+
+/* =============================================================
+   START
+============================================================= */
+
+init()
+    .catch(showError);
+
 </script>
+
 </body>
 </html>
