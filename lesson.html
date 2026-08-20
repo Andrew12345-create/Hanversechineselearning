@@ -2,852 +2,2413 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#E63946">
-<title>HanVerse | Lesson</title>
+<meta name="description" content="HanVerse interactive Chinese lesson">
+<title>HanVerse · Lesson</title>
+
 <style>
 :root{
   --red:#E63946;
-  --red-dark:#c92f3b;
+  --red-dark:#C92F3B;
   --yellow:#F4D35E;
   --blue:#4EA8DE;
   --green:#74C69D;
   --cream:#FFFDF7;
-  --ink:#253044;
-  --muted:#6d7482;
-  --line:#ebe7df;
+  --ink:#263238;
+  --muted:#718096;
+  --line:#E8E4DB;
   --white:#fff;
-  --shadow:0 18px 50px rgba(37,48,68,.10);
-  --radius:24px;
+  --shadow:0 18px 50px rgba(38,50,56,.10);
+  --shadow-soft:0 8px 24px rgba(38,50,56,.08);
+  --radius:22px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
 }
+
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
   margin:0;
-  min-height:100vh;
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  color:var(--ink);
   background:
-    radial-gradient(circle at 10% 0%,rgba(244,211,94,.18),transparent 25rem),
-    radial-gradient(circle at 90% 15%,rgba(78,168,222,.12),transparent 25rem),
+    radial-gradient(circle at 10% 0%,rgba(244,211,94,.18),transparent 22rem),
+    radial-gradient(circle at 95% 20%,rgba(78,168,222,.12),transparent 24rem),
     var(--cream);
+  color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
 }
 button,a{font:inherit}
 button{cursor:pointer}
-a{text-decoration:none;color:inherit}
+button:disabled{cursor:not-allowed}
+a{color:inherit;text-decoration:none}
 
-.container{width:min(1120px,calc(100% - 32px));margin:auto}
+.container{
+  width:min(100% - 32px,1080px);
+  margin:auto;
+}
 
 /* NAV */
 .nav-wrap{
-  position:sticky;top:0;z-index:1000;
-  background:rgba(255,253,247,.88);
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(235,231,223,.9);
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(255,253,247,.90);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(232,228,219,.8);
 }
 .nav{
-  min-height:72px;
+  min-height:66px;
   display:flex;
   align-items:center;
-  gap:24px;
+  gap:22px;
 }
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.2rem}
+.brand{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  font-size:1.12rem;
+  font-weight:950;
+  letter-spacing:-.04em;
+  white-space:nowrap;
+}
+.brand span:last-child{color:var(--red)}
 .brand-mark{
-  width:40px;height:40px;border-radius:13px;
-  display:grid;place-items:center;background:#fff;
-  box-shadow:0 7px 20px rgba(37,48,68,.08);
+  width:38px;height:38px;
+  display:grid;place-items:center;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:13px;
+  box-shadow:var(--shadow-soft);
 }
-.brand span{color:var(--red)}
-.nav-links{display:flex;align-items:center;gap:6px;margin-left:12px}
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex:1;
+}
 .nav-link{
-  padding:9px 12px;border-radius:11px;color:var(--muted);
-  font-size:.82rem;font-weight:800;
+  padding:9px 12px;
+  border-radius:11px;
+  color:var(--muted);
+  font-size:.82rem;
+  font-weight:800;
 }
-.nav-link:hover,.nav-link.active{color:var(--ink);background:#f4f0e8}
-.nav-actions{margin-left:auto;display:flex;gap:9px;align-items:center}
-.btn{
-  min-height:42px;padding:0 17px;border:1px solid transparent;border-radius:12px;
-  display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  font-size:.78rem;font-weight:900;transition:.2s ease;
+.nav-link:hover,.nav-link.active{
+  color:var(--ink);
+  background:#F4F0E8;
 }
-.btn:hover{transform:translateY(-1px)}
-.btn-primary{background:var(--red);color:#fff;box-shadow:0 8px 20px rgba(230,57,70,.18)}
-.btn-primary:hover{background:var(--red-dark)}
-.btn-outline{background:#fff;border-color:var(--line)}
-.mobile-toggle{display:none;margin-left:auto;width:43px;height:43px;border:1px solid var(--line);background:#fff;border-radius:12px}
-.mobile-menu{display:none;border-top:1px solid var(--line);padding:10px 16px 16px}
-.mobile-menu.open{display:grid}
-.mobile-menu a{padding:13px;border-radius:11px;font-weight:800;font-size:.85rem}
-.mobile-menu a:hover{background:#f5f1e9}
+.nav-actions{display:flex;gap:8px;align-items:center}
+.mobile-toggle{
+  display:none;
+  margin-left:auto;
+  width:42px;height:42px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fff;
+  font-size:1.2rem;
+}
+.mobile-menu{
+  display:none;
+  padding:10px 16px 16px;
+  border-top:1px solid var(--line);
+  background:rgba(255,253,247,.98);
+}
+.mobile-menu.open{display:grid;gap:4px}
+.mobile-menu a{
+  padding:13px 14px;
+  border-radius:13px;
+  font-weight:800;
+}
+.mobile-menu a:hover{background:#F4F0E8}
 
-/* PAGE */
-main{padding:42px 0 70px}
-.lesson-top{
-  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:20px
+/* BUTTONS */
+.btn{
+  border:0;
+  border-radius:14px;
+  min-height:44px;
+  padding:0 17px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-weight:900;
+  font-size:.82rem;
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.btn:hover:not(:disabled){transform:translateY(-2px)}
+.btn-primary{
+  color:#fff;
+  background:var(--red);
+  box-shadow:0 7px 18px rgba(230,57,70,.22);
+}
+.btn-primary:hover:not(:disabled){background:var(--red-dark)}
+.btn-outline{
+  background:#fff;
+  color:var(--ink);
+  border:1px solid var(--line);
+}
+.btn-ghost{
+  background:transparent;
+  color:var(--muted);
+}
+
+/* PAGE HEADER */
+.lesson-page{padding:30px 0 130px}
+.lesson-head{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:24px;
+  align-items:end;
+  margin-bottom:20px;
 }
 .eyebrow{
-  color:var(--red);font-size:.68rem;font-weight:900;text-transform:uppercase;
-  letter-spacing:.12em
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  color:var(--red);
+  font-size:.70rem;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.12em;
 }
-h1{margin:7px 0 7px;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.055em;line-height:1.05}
-.subtitle{margin:0;color:var(--muted);font-size:.9rem;line-height:1.65;max-width:700px}
+.lesson-head h1{
+  margin:7px 0 6px;
+  font-size:clamp(1.8rem,4vw,2.65rem);
+  line-height:1.04;
+  letter-spacing:-.05em;
+}
+.subtitle{
+  margin:0;
+  max-width:650px;
+  color:var(--muted);
+  line-height:1.6;
+  font-size:.92rem;
+}
 .xp-chip{
-  flex:none;padding:11px 15px;border:1px solid var(--line);background:#fff;
-  border-radius:999px;font-size:.78rem;font-weight:900;box-shadow:0 8px 25px rgba(37,48,68,.06)
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:10px 15px;
+  font-size:.82rem;
+  font-weight:950;
+  white-space:nowrap;
+  box-shadow:var(--shadow-soft);
 }
 
-/* PROGRESS */
-.progress-card{
-  background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 20px;
-  box-shadow:var(--shadow);margin-bottom:18px
+/* DUOLINGO-STYLE PROGRESS */
+.progress-shell{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px 16px;
+  box-shadow:var(--shadow-soft);
+  margin-bottom:16px;
 }
-.progress-meta{display:flex;justify-content:space-between;gap:12px;font-size:.72rem;font-weight:800;color:var(--muted)}
-.progress-meta strong{color:var(--ink)}
-.progress-track{height:9px;background:#eeeae2;border-radius:99px;overflow:hidden;margin-top:12px}
-.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),#ff7a6f);border-radius:inherit;transition:width .35s ease}
-.progress-steps{display:flex;align-items:center;margin-top:14px;overflow:hidden}
-.progress-step{
-  width:25px;height:25px;border-radius:50%;display:grid;place-items:center;
-  background:#eeeae2;color:#8b9099;font-size:.62rem;font-weight:900;flex:none
+.progress-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
-.progress-step.active{background:var(--red);color:#fff}
-.progress-step.completed{background:var(--green);color:#fff}
-.progress-connector{height:3px;flex:1;background:#eeeae2;min-width:8px}
-.progress-connector.completed{background:var(--green)}
+.progress-track{
+  height:11px;
+  flex:1;
+  background:#EEEAE1;
+  border-radius:999px;
+  overflow:hidden;
+}
+.progress-fill{
+  width:0;
+  height:100%;
+  background:linear-gradient(90deg,var(--red),#F06A74);
+  border-radius:inherit;
+  transition:width .55s cubic-bezier(.22,.8,.25,1);
+}
+.progress-percent{
+  min-width:42px;
+  text-align:right;
+  font-size:.76rem;
+  font-weight:950;
+}
+.lesson-meta-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.meta-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#F7F4ED;
+  color:var(--muted);
+  font-size:.68rem;
+  font-weight:900;
+}
 
-/* STAGE */
-.stage{
-  background:#fff;border:1px solid var(--line);border-radius:28px;
-  box-shadow:var(--shadow);overflow:hidden
+/* MAIN CARD */
+.lesson-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:28px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
 }
-.slide-viewport{overflow:hidden}
-.slide-wrapper{display:flex;transition:transform .38s cubic-bezier(.22,.8,.25,1)}
+.lesson-stage{
+  min-height:590px;
+  display:grid;
+  place-items:center;
+  padding:42px 32px 30px;
+  position:relative;
+}
 .slide{
-  min-width:100%;padding:clamp(30px,6vw,70px);
-  min-height:460px;display:flex;align-items:center;justify-content:center
+  width:min(100%,700px);
+  animation:slideIn .35s ease both;
 }
-.slide-content{width:min(720px,100%);text-align:center}
-.hero-icon,.word-character,.complete-icon{
-  width:100px;height:100px;margin:0 auto 20px;border-radius:30px;
-  display:grid;place-items:center;background:#fff8db;border:1px solid #f1e3ad;
-  font-size:3.2rem;box-shadow:0 14px 30px rgba(37,48,68,.08)
+@keyframes slideIn{
+  from{opacity:0;transform:translateY(12px) scale(.985)}
+  to{opacity:1;transform:none}
 }
-.slide-kicker{
-  display:inline-block;padding:6px 10px;border-radius:99px;background:#f5f1e9;
-  color:var(--muted);font-size:.64rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em
+.slide-center{text-align:center}
+.kicker{
+  color:var(--red);
+  font-size:.70rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-weight:950;
 }
-.slide h2{margin:15px 0 10px;font-size:clamp(1.55rem,3.5vw,2.45rem);letter-spacing:-.045em}
-.slide p{color:var(--muted);line-height:1.75;font-size:.9rem}
-.panda-tip{
-  margin:24px auto 0;max-width:500px;padding:14px 17px;background:#f8fbff;
-  border:1px solid #e1edf6;border-radius:16px;font-size:.78rem;font-weight:700
+.slide h2{
+  margin:10px 0 10px;
+  font-size:clamp(1.6rem,4vw,2.35rem);
+  letter-spacing:-.045em;
 }
+.slide-copy{
+  color:var(--muted);
+  line-height:1.65;
+  max-width:600px;
+  margin:0 auto;
+}
+.panda-hero{
+  width:118px;height:118px;
+  margin:0 auto 20px;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#FFF8DF,#fff);
+  border:2px solid #F2E5B2;
+  border-radius:36px;
+  font-size:4rem;
+  box-shadow:0 14px 30px rgba(244,211,94,.22);
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-7px)}
+}
+
+/* OBJECTIVES */
+.objectives{
+  display:grid;
+  gap:10px;
+  margin:26px auto 0;
+  max-width:560px;
+  text-align:left;
+}
+.objective{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:13px 15px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#FFFEFB;
+}
+.objective-icon{
+  width:34px;height:34px;
+  flex:0 0 34px;
+  display:grid;place-items:center;
+  border-radius:11px;
+  background:#EEF8F2;
+}
+.objective span:last-child{font-weight:800;font-size:.84rem}
 
 /* VOCAB */
-.vocab-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:25px;text-align:left}
+.vocab-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:22px;
+}
 .word-card{
-  border:1px solid var(--line);border-radius:18px;padding:20px;background:#fff;
-  transition:.2s ease
+  text-align:left;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#FFFEFB;
+  position:relative;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
 }
-.word-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(37,48,68,.08)}
-.word-chinese{font-size:2rem;font-weight:900}
-.word-pinyin{color:var(--red);font-weight:900;margin-top:3px}
-.word-english{color:var(--muted);font-size:.78rem;margin-top:4px}
-.speak{
-  margin-top:13px;border:0;background:#f5f1e9;border-radius:10px;padding:8px 11px;
-  font-size:.7rem;font-weight:900
+.word-card:hover{
+  transform:translateY(-3px);
+  box-shadow:var(--shadow-soft);
+  border-color:#D9D2C4;
 }
+.word-emoji{font-size:1.25rem}
+.word-chinese{
+  margin-top:6px;
+  font-size:2rem;
+  font-weight:950;
+  line-height:1.1;
+  font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
+}
+.word-pinyin{
+  margin-top:5px;
+  color:var(--red);
+  font-weight:900;
+  font-size:.82rem;
+}
+.word-english{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:.76rem;
+}
+.speak-btn{
+  margin-top:12px;
+  min-height:34px;
+  padding:0 11px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+  font-size:.72rem;
+  font-weight:900;
+}
+.speak-btn:hover{background:#F5F2EB}
 
-/* STORY */
-.story-list{display:grid;gap:12px;margin-top:25px;text-align:left}
-.story-card{display:grid;grid-template-columns:55px 1fr;gap:13px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:17px}
-.story-icon{width:55px;height:55px;display:grid;place-items:center;border-radius:15px;background:#f5f1e9;font-size:1.6rem}
-.story-card h3{margin:0;font-size:.9rem}.story-card p{margin:4px 0 0;font-size:.76rem}
+/* CONTENT / EXAMPLES */
+.content-block{
+  margin-top:22px;
+  padding:19px;
+  border:1px solid var(--line);
+  border-radius:19px;
+  background:#FFFEFB;
+}
+.content-block h3{
+  margin:0 0 8px;
+  font-size:1rem;
+}
+.content-block p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+}
+.example-list{display:grid;gap:12px;margin-top:18px}
+.example{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:13px;
+  padding:16px;
+  border-radius:18px;
+  background:#F8FBFE;
+  border:1px solid #E3EEF5;
+}
+.example-avatar{
+  width:42px;height:42px;
+  display:grid;place-items:center;
+  border-radius:14px;
+  background:#fff;
+  border:1px solid var(--line);
+  font-size:1.35rem;
+}
+.example-chinese{
+  font-size:1.35rem;
+  font-weight:950;
+  font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
+}
+.example-pinyin{color:var(--red);font-size:.76rem;font-weight:850;margin-top:3px}
+.example-english{color:var(--muted);font-size:.76rem;margin-top:3px}
 
 /* QUIZ */
-.quiz-card{max-width:650px;margin:20px auto 0;text-align:left}
-.question-count{font-size:.67rem;font-weight:900;color:var(--red);text-transform:uppercase}
-.question{font-size:1.25rem;font-weight:900;margin:10px 0 18px}
-.options{display:grid;gap:10px}
-.option{
-  width:100%;text-align:left;padding:14px 16px;border:1px solid var(--line);background:#fff;
-  border-radius:14px;font-size:.8rem;font-weight:800;transition:.18s
+.quiz-card{
+  max-width:620px;
+  margin:0 auto;
 }
-.option:hover:not(:disabled){border-color:#cbd5df;transform:translateX(2px)}
-.option.selected{border-color:var(--blue);background:#eef8ff}
-.option.correct{border-color:#5eb58b;background:#effaf4}
-.option.wrong{border-color:#e97b84;background:#fff1f2}
-.option:disabled{cursor:default}
-.feedback{min-height:28px;margin-top:13px;font-size:.76rem;font-weight:800}
-.feedback.good{color:#23855b}.feedback.bad{color:#c43745}
+.quiz-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--muted);
+  font-size:.72rem;
+  font-weight:900;
+}
+.quiz-question{
+  margin:22px 0;
+  text-align:center;
+  font-size:clamp(1.25rem,3.5vw,1.75rem);
+  font-weight:950;
+  line-height:1.3;
+}
+.quiz-options{display:grid;gap:10px}
+.option{
+  width:100%;
+  text-align:left;
+  padding:15px 17px;
+  border:2px solid #E8E4DB;
+  border-radius:16px;
+  background:#fff;
+  font-weight:850;
+  transition:.18s ease;
+}
+.option:hover:not(:disabled){
+  border-color:#CFC6B5;
+  transform:translateY(-1px);
+}
+.option.selected{border-color:var(--blue);background:#F1F9FE}
+.option.correct{border-color:var(--green);background:#EEF9F3}
+.option.wrong{border-color:#E88D96;background:#FFF2F3}
+.option:disabled{opacity:1}
+.feedback{
+  min-height:44px;
+  margin-top:13px;
+  border-radius:13px;
+  padding:11px 13px;
+  display:none;
+  font-size:.78rem;
+  font-weight:850;
+}
+.feedback.show{display:block}
+.feedback.good{background:#EEF9F3;color:#27724E}
+.feedback.bad{background:#FFF1F2;color:#A8323D}
 
 /* COMPLETE */
-.reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:25px 0}
-.reward{padding:16px;border:1px solid var(--line);border-radius:16px;background:#fff}
-.reward strong{display:block;font-size:1.15rem}.reward span{display:block;color:var(--muted);font-size:.65rem;margin-top:3px}
-.save-status{margin:16px auto;max-width:500px;padding:11px 14px;border-radius:12px;background:#f5f1e9;color:var(--muted);font-size:.72rem;font-weight:800}
-.save-status.success{background:#effaf4;color:#237b57}
-.save-status.error{background:#fff1f2;color:#b92f3c}
-.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-
-/* FOOTER NAV */
-.slide-nav{
-  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;
-  padding:15px 20px;border-top:1px solid var(--line);background:#fcfaf6
+.complete-card{text-align:center}
+.complete-icon{
+  width:110px;height:110px;
+  margin:0 auto 18px;
+  display:grid;place-items:center;
+  background:#FFF8DF;
+  border:2px solid #F2E5B2;
+  border-radius:34px;
+  font-size:4rem;
+  animation:pop .55s cubic-bezier(.17,.89,.32,1.3);
 }
-.slide-nav .btn:last-child{justify-self:end}
-.counter{font-size:.72rem;font-weight:900;color:var(--muted)}
-
-/* LOADING / TOAST */
-.loading{
-  min-height:480px;display:grid;place-items:center;align-content:center;gap:12px;
-  color:var(--muted);font-size:.8rem
+@keyframes pop{
+  from{transform:scale(.65);opacity:0}
+  to{transform:scale(1);opacity:1}
 }
-.spinner{width:34px;height:34px;border:4px solid #eeeae2;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}
+.rewards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:25px 0;
+}
+.reward{
+  padding:16px 10px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#FFFEFB;
+}
+.reward strong{display:block;font-size:1.15rem}
+.reward span{display:block;color:var(--muted);font-size:.68rem;margin-top:4px;font-weight:800}
+.save-status{
+  margin:0 auto 16px;
+  padding:11px 14px;
+  border-radius:13px;
+  background:#F7F4ED;
+  color:var(--muted);
+  font-size:.75rem;
+  font-weight:850;
+  max-width:480px;
+}
+.save-status.success{background:#EEF9F3;color:#27724E}
+.save-status.error{background:#FFF1F2;color:#A8323D}
+.complete-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+
+/* BOTTOM CONTROLS */
+.lesson-controls{
+  position:sticky;
+  bottom:0;
+  z-index:30;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:14px;
+  padding:15px 20px calc(15px + var(--safe-bottom));
+  background:rgba(255,255,255,.96);
+  border-top:1px solid var(--line);
+  backdrop-filter:blur(16px);
+}
+.control-counter{
+  text-align:center;
+  color:var(--muted);
+  font-size:.72rem;
+  font-weight:950;
+}
+
+/* LOADING / ERROR */
+.state{
+  min-height:470px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:12px;
+  text-align:center;
+  color:var(--muted);
+}
+.spinner{
+  width:40px;height:40px;
+  border:4px solid #EEEAE1;
+  border-top-color:var(--red);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
+.error-icon{font-size:3rem}
 .hidden{display:none!important}
-.toast-region{position:fixed;right:18px;bottom:18px;z-index:2000;display:grid;gap:9px;max-width:min(360px,calc(100% - 36px))}
-.toast{padding:13px 15px;border-radius:14px;background:#253044;color:#fff;box-shadow:var(--shadow);font-size:.75rem;font-weight:800}
-.toast.success{background:#237b57}.toast.error{background:#b92f3c}
-.offline{display:none;background:#253044;color:#fff;text-align:center;padding:8px;font-size:.7rem;font-weight:800}
+
+/* TOAST */
+.toast-region{
+  position:fixed;
+  right:18px;
+  bottom:calc(84px + var(--safe-bottom));
+  z-index:300;
+  display:grid;
+  gap:9px;
+  width:min(360px,calc(100% - 36px));
+}
+.toast{
+  background:#263238;
+  color:#fff;
+  padding:13px 15px;
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  font-size:.76rem;
+  font-weight:850;
+  animation:toastIn .25s ease both;
+}
+.toast.success{background:#267A56}
+.toast.error{background:#B63441}
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:none}
+}
+.offline{
+  display:none;
+  background:#263238;
+  color:#fff;
+  text-align:center;
+  padding:8px 12px;
+  font-size:.70rem;
+  font-weight:850;
+}
 .offline.show{display:block}
 
 /* RESPONSIVE */
 @media(max-width:800px){
   .nav-links,.nav-actions{display:none}
   .mobile-toggle{display:block}
-  .lesson-top{align-items:flex-start;flex-direction:column}
-  .xp-chip{align-self:flex-start}
-  .vocab-grid{grid-template-columns:1fr}
+  .lesson-head{grid-template-columns:1fr;align-items:start}
+  .xp-chip{justify-self:start}
 }
-@media(max-width:560px){
-  .container{width:min(100% - 20px,1120px)}
-  main{padding-top:24px}
-  .slide{padding:30px 18px;min-height:520px}
-  .slide-nav{grid-template-columns:1fr 1fr}
-  .counter{display:none}
-  .slide-nav .btn{width:100%}
-  .reward-grid{grid-template-columns:1fr}
-  .hero-icon,.word-character,.complete-icon{width:82px;height:82px;font-size:2.6rem}
-  .progress-card{padding:15px}
+@media(max-width:640px){
+  .container{width:min(100% - 20px,1080px)}
+  .lesson-page{padding-top:20px}
+  .lesson-head h1{font-size:1.75rem}
+  .lesson-stage{min-height:560px;padding:30px 16px 22px}
+  .lesson-card{border-radius:22px}
+  .vocab-grid{grid-template-columns:1fr}
+  .rewards{grid-template-columns:1fr 1fr}
+  .rewards .reward:last-child{grid-column:1/-1}
+  .lesson-controls{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    padding-left:12px;
+    padding-right:12px;
+  }
+  .control-counter{display:none}
+  .lesson-controls .btn{width:100%}
+}
+@media(max-width:380px){
+  .lesson-stage{padding:25px 12px 18px}
+  .slide h2{font-size:1.45rem}
+  .word-chinese{font-size:1.8rem}
+  .rewards{grid-template-columns:1fr}
+  .rewards .reward:last-child{grid-column:auto}
 }
 @media(prefers-reduced-motion:reduce){
-  *,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+  *,*:before,*:after{
+    animation:none!important;
+    transition:none!important;
+    scroll-behavior:auto!important;
+  }
 }
 </style>
 </head>
-<body>
 
-<div class="offline" id="offlineBanner">You're offline. Your lesson can still be viewed, but progress needs a connection to save.</div>
+<body>
+<div class="offline" id="offlineBanner">You're offline. You can continue viewing the lesson, but progress needs a connection to save.</div>
 
 <header class="nav-wrap">
   <nav class="nav container">
-    <a class="brand" href="index.html"><span class="brand-mark">🐼</span>Han<span>Verse</span></a>
+    <a class="brand" href="index.html">
+      <span class="brand-mark">🐼</span>
+      Han<span>Verse</span>
+    </a>
     <div class="nav-links" id="desktopNav"></div>
     <div class="nav-actions" id="desktopActions"></div>
-    <button class="mobile-toggle" id="mobileToggle" aria-expanded="false" aria-controls="mobileMenu">☰</button>
+    <button class="mobile-toggle" id="mobileToggle" type="button" aria-expanded="false" aria-controls="mobileMenu">☰</button>
   </nav>
   <div class="mobile-menu" id="mobileMenu"></div>
 </header>
 
-<main>
+<main class="lesson-page">
   <div class="container">
-    <section class="lesson-top">
+
+    <section class="lesson-head">
       <div>
-        <div class="eyebrow">HanVerse lesson</div>
+        <span class="eyebrow">🐼 HanVerse lesson</span>
         <h1 id="lessonTitle">Loading lesson…</h1>
         <p class="subtitle" id="lessonSubtitle">Preparing your Mandarin adventure.</p>
       </div>
       <div class="xp-chip">⭐ <span id="xpDisplay">0</span> XP</div>
     </section>
 
-    <section class="progress-card" aria-label="Lesson progress">
-      <div class="progress-meta">
-        <span id="lessonMeta">Lesson · YCT</span>
-        <strong id="progressText">1 / 1</strong>
+    <section class="progress-shell" aria-label="Lesson progress">
+      <div class="progress-row">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-percent" id="progressPercent">0%</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-steps" id="progressSteps"></div>
+      <div class="lesson-meta-row">
+        <span class="meta-pill" id="lessonMeta">YCT 1 · Lesson</span>
+        <span class="meta-pill" id="activityMeta">Getting ready…</span>
+      </div>
     </section>
 
-    <section class="stage" id="stage">
-      <div class="loading" id="loadingState">
-        <div class="spinner"></div>
-        <span>Loading your lesson…</span>
+    <section class="lesson-card">
+      <div class="lesson-stage" id="lessonStage">
+
+        <div class="state" id="loadingState">
+          <div class="spinner" aria-hidden="true"></div>
+          <strong>Loading your lesson…</strong>
+          <span>Getting your learning adventure ready.</span>
+        </div>
+
+        <div class="state hidden" id="errorState">
+          <div class="error-icon">😕</div>
+          <strong id="errorTitle">We couldn't load this lesson.</strong>
+          <span id="errorMessage">Please try again.</span>
+          <button class="btn btn-primary" id="retryBtn" type="button">Try again</button>
+        </div>
+
+        <div class="slide hidden" id="slide"></div>
       </div>
 
-      <div class="slide-viewport hidden" id="slideViewport">
-        <div class="slide-wrapper" id="slideWrapper"></div>
-      </div>
-
-      <div class="slide-nav hidden" id="slideNav">
+      <div class="lesson-controls hidden" id="lessonControls">
         <button class="btn btn-outline" id="prevBtn" type="button">← Back</button>
-        <div class="counter" id="slideCounter">1 / 1</div>
-        <button class="btn btn-primary" id="nextBtn" type="button">Next →</button>
+        <div class="control-counter" id="slideCounter">1 / 1</div>
+        <button class="btn btn-primary" id="nextBtn" type="button">Continue →</button>
       </div>
     </section>
+
   </div>
 </main>
 
 <div class="toast-region" id="toastRegion" aria-live="polite"></div>
 
 <script>
-(function(){
-  "use strict";
+(() => {
+"use strict";
 
-  const API_BASE = "/api";
-  const SESSION_KEY = "hanverse_user";
+/*
+ * HANVERSE LESSON ENGINE
+ *
+ * Database is the source of truth.
+ *
+ * Content expected from:
+ * GET /api/lessons/:lessonId
+ *
+ * The lesson endpoint uses the string lesson ID:
+ *   lesson_1
+ *
+ * Progress uses the INTEGER user_progress.lesson_id:
+ *   lesson_1 -> 1
+ *
+ * This distinction is intentional because the current database schema
+ * uses a string lesson_id in lessons and an integer lesson_id in progress.
+ */
 
-  const state = {
-    user: null,
-    lesson: null,
-    slides: [],
-    currentSlide: 0,
-    quizIndex: 0,
-    answers: {},
-    savedProgress: null,
-    completed: false,
-    saving: false,
-    startedAt: Date.now()
+const API_BASE = "/api";
+const SESSION_KEYS = [
+  "hanverse_user",
+  "hanverse_session",
+  "hanverseUser",
+  "currentUser",
+  "user",
+  "authUser",
+  "session"
+];
+
+const state = {
+  user:null,
+  lesson:null,
+  lessonId:"",
+  slides:[],
+  currentSlide:0,
+  quizIndex:0,
+  answers:{},
+  score:0,
+  startedAt:Date.now(),
+  savedProgress:null,
+  completed:false,
+  saving:false
+};
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value){
+  const div=document.createElement("div");
+  div.textContent=String(value ?? "");
+  return div.innerHTML;
+}
+
+function escapeAttr(value){
+  return escapeHTML(value).replace(/"/g,"&quot;");
+}
+
+/* ---------------- API ---------------- */
+
+async function requestJSON(path,options={}){
+  const url=API_BASE+"/"+String(path).replace(/^\/+/,"");
+
+  const response=await fetch(url,{
+    credentials:"include",
+    cache:"no-store",
+    ...options,
+    headers:{
+      Accept:"application/json",
+      ...(options.headers||{})
+    }
+  });
+
+  const raw=await response.text();
+  let data=null;
+
+  try{
+    data=raw ? JSON.parse(raw) : null;
+  }catch{
+    throw new Error(`Server returned invalid JSON (HTTP ${response.status}).`);
+  }
+
+  if(!response.ok){
+    const error=new Error(
+      data?.error ||
+      data?.message ||
+      `Request failed (HTTP ${response.status}).`
+    );
+    error.status=response.status;
+    error.data=data;
+    throw error;
+  }
+
+  return data;
+}
+
+function getJSON(path){
+  return requestJSON(path,{method:"GET"});
+}
+
+function postJSON(path,body){
+  return requestJSON(path,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(body)
+  });
+}
+
+/* ---------------- SESSION ---------------- */
+
+function readSession(){
+  for(const key of SESSION_KEYS){
+    try{
+      const raw=localStorage.getItem(key);
+      if(!raw)continue;
+
+      const parsed=JSON.parse(raw);
+      const candidates=[
+        parsed?.user,
+        parsed?.data?.user,
+        parsed?.data,
+        parsed
+      ];
+
+      for(const candidate of candidates){
+        if(candidate && typeof candidate==="object" && getUserId(candidate)){
+          return candidate;
+        }
+      }
+    }catch{}
+  }
+
+  return null;
+}
+
+function getUserId(user=state.user){
+  const value=
+    user?.user_id ??
+    user?.userId ??
+    user?.id ??
+    user?._id;
+
+  const number=Number(value);
+  return Number.isFinite(number) && number>0 ? number : null;
+}
+
+function getUserName(user=state.user){
+  return (
+    user?.full_name ||
+    user?.fullName ||
+    user?.first_name ||
+    user?.username ||
+    user?.name ||
+    "Learner"
+  );
+}
+
+function getRole(user=state.user){
+  if(!user)return "student";
+
+  if(
+    user.is_admin===true ||
+    user.isAdmin===true ||
+    String(user.role||"").toLowerCase()==="admin"
+  )return "admin";
+
+  if(
+    user.is_parent===true ||
+    user.isParent===true ||
+    user.parent===true ||
+    String(user.role||"").toLowerCase()==="parent"
+  )return "parent";
+
+  return "student";
+}
+
+/* ---------------- LESSON IDs ---------------- */
+
+function requestedLessonId(){
+  const params=new URLSearchParams(location.search);
+  return String(
+    params.get("id") ||
+    params.get("lessonId") ||
+    params.get("lesson") ||
+    "lesson_1"
+  ).trim();
+}
+
+function canonicalLessonKey(value){
+  const raw=String(value||"").trim();
+
+  if(/^lesson_\d+$/i.test(raw)){
+    return raw;
+  }
+
+  const match=raw.match(/(\d+)$/);
+  if(match)return `lesson_${match[1]}`;
+
+  return "";
+}
+
+function progressLessonNumber(value){
+  const raw=String(value||"");
+  const match=raw.match(/(\d+)$/);
+  return match ? Number(match[1]) : null;
+}
+
+/* ---------------- NAV ---------------- */
+
+function makeNavLink(label,href,active=false){
+  const a=document.createElement("a");
+  a.className="nav-link";
+  a.href=href;
+  a.textContent=label;
+
+  if(active)a.setAttribute("aria-current","page");
+
+  return a;
+}
+
+function makeMobileLink(label,href,active=false){
+  const a=document.createElement("a");
+  a.href=href;
+  a.textContent=label;
+
+  if(active)a.setAttribute("aria-current","page");
+
+  return a;
+}
+
+function renderNavbar(){
+  const desktop=$("desktopNav");
+  const actions=$("desktopActions");
+  const mobile=$("mobileMenu");
+
+  if(!desktop || !actions || !mobile)return;
+
+  desktop.innerHTML="";
+  actions.innerHTML="";
+  mobile.innerHTML="";
+
+  const links=[
+    ["Home","index.html",false],
+    ["Learn","learn.html",true],
+    ["Roadmap","roadmap.html",false],
+    ["Worksheets","worksheets.html",false]
+  ];
+
+  links.forEach(([label,href,active])=>{
+    desktop.appendChild(makeNavLink(label,href,active));
+    mobile.appendChild(makeMobileLink(label,href,active));
+  });
+
+  const role=getRole();
+
+  if(role==="parent"){
+    desktop.appendChild(makeNavLink("Parent","parent.html"));
+    mobile.appendChild(makeMobileLink("Parent","parent.html"));
+  }
+
+  if(role==="admin"){
+    desktop.appendChild(makeNavLink("Admin","admin.html"));
+    mobile.appendChild(makeMobileLink("Admin","admin.html"));
+  }
+
+  const profileHref=
+    role==="parent" ? "parent.html" :
+    role==="admin" ? "admin.html" :
+    "profile.html";
+
+  const profile=document.createElement("a");
+  profile.className="btn btn-outline";
+  profile.href=profileHref;
+  profile.textContent=`👤 ${getUserName()}`;
+
+  actions.appendChild(profile);
+  mobile.appendChild(makeMobileLink(`👤 ${getUserName()}`,profileHref));
+}
+
+/* ---------------- LESSON NORMALISATION ---------------- */
+
+function getLessonId(lesson){
+  return String(
+    lesson?.lesson_id ??
+    lesson?.lessonId ??
+    lesson?.id ??
+    lesson?._id ??
+    state.lessonId
+  );
+}
+
+function lessonLevel(lesson){
+  const value=Number(
+    lesson?.level ??
+    lesson?.course_level ??
+    lesson?.yct_level ??
+    1
+  );
+
+  return Number.isFinite(value) ? value : 1;
+}
+
+function lessonXP(lesson){
+  const value=Number(
+    lesson?.xp ??
+    lesson?.completion_xp ??
+    lesson?.xp_earned ??
+    10
+  );
+
+  return Number.isFinite(value) ? value : 10;
+}
+
+function normalizeArray(value){
+  return Array.isArray(value) ? value : [];
+}
+
+function normalizeLesson(raw){
+  const lesson=
+    raw?.lesson ||
+    raw?.data?.lesson ||
+    raw?.data ||
+    raw;
+
+  if(!lesson || typeof lesson!=="object"){
+    throw new Error("The lesson returned by the server is invalid.");
+  }
+
+  return {
+    ...lesson,
+
+    lesson_id:String(
+      lesson.lesson_id ??
+      lesson.lessonId ??
+      lesson.id ??
+      lesson._id ??
+      state.lessonId
+    ),
+
+    title:
+      lesson.title ||
+      lesson.name ||
+      "Untitled Lesson",
+
+    description:
+      lesson.description ||
+      lesson.short_description ||
+      "Continue your Mandarin adventure.",
+
+    level:lessonLevel(lesson),
+    xp:lessonXP(lesson),
+
+    icon:
+      lesson.icon ||
+      lesson.emoji ||
+      "🐼",
+
+    objectives:normalizeArray(
+      lesson.objectives
+    ),
+
+    vocabulary:normalizeArray(
+      lesson.vocabulary
+    ),
+
+    content:normalizeArray(
+      lesson.content
+    ),
+
+    examples:normalizeArray(
+      lesson.examples
+    ),
+
+    quiz:normalizeArray(
+      lesson.quiz ||
+      lesson.questions
+    ),
+
+    completion_settings:
+      lesson.completion_settings ||
+      lesson.completionSettings ||
+      {}
   };
+}
 
-  const $ = id => document.getElementById(id);
+/* ---------------- LOAD LESSON ---------------- */
 
-  function readSession(){
-    const keys = [
-      SESSION_KEY,
-      "hanverseUser",
-      "user",
-      "userData",
-      "currentUser",
-      "authUser",
-      "session"
-    ];
+async function fetchLesson(){
+  const key=canonicalLessonKey(
+    requestedLessonId()
+  );
 
-    for(const key of keys){
-      try{
-        const raw = localStorage.getItem(key);
-        if(!raw) continue;
+  if(!key){
+    throw new Error("Invalid lesson ID.");
+  }
 
-        const parsed = JSON.parse(raw);
-        const value = parsed && typeof parsed === "object"
-          ? (parsed.user || parsed.data || parsed)
-          : null;
+  state.lessonId=key;
 
-        if(value && typeof value === "object"){
-          return value;
-        }
-      }catch(error){
-        console.warn("HanVerse session read failed for", key, error);
-      }
-    }
+  /*
+   * DO NOT convert this to 1.
+   * The lessons table contains lesson_1, lesson_2, etc.
+   */
+  const data=await getJSON(
+    `lessons/${encodeURIComponent(key)}`
+  );
 
+  return normalizeLesson(data);
+}
+
+/* ---------------- PROGRESS ---------------- */
+
+async function fetchSavedProgress(){
+  const userId=getUserId();
+  const progressId=progressLessonNumber(
+    state.lessonId
+  );
+
+  if(!userId || !progressId){
     return null;
   }
 
-  function userId(user){
-    return String(
-      user?.user_id ??
-      user?.userId ??
-      user?.id ??
-      user?._id ??
-      ""
+  try{
+    return await getJSON(
+      `progress/${encodeURIComponent(userId)}/${encodeURIComponent(progressId)}`
     );
-  }
-
-  function userName(user){
-    return user?.full_name ||
-      user?.fullName ||
-      [user?.first_name,user?.last_name].filter(Boolean).join(" ") ||
-      user?.name ||
-      user?.username ||
-      "Learner";
-  }
-
-  function roleOf(user){
-    if(!user) return "";
-    if(user.is_admin === true || user.isAdmin === true) return "admin";
-    if(user.is_parent === true || user.isParent === true || user.parent === true) return "parent";
-    return String(user.role || user.user_role || "").toLowerCase();
-  }
-
-  function apiURL(path){
-    return API_BASE + "/" + String(path || "").replace(/^\/+/,"");
-  }
-
-  async function requestJSON(path, options){
-    const response = await fetch(apiURL(path), {
-      credentials:"include",
-      cache:"no-store",
-      ...options,
-      headers:{
-        Accept:"application/json",
-        ...(options && options.headers ? options.headers : {})
-      }
-    });
-
-    const text = await response.text();
-    let data = null;
-
-    try{
-      data = text ? JSON.parse(text) : null;
-    }catch(error){
-      throw new Error("Server returned a non-JSON response (HTTP " + response.status + ").");
-    }
-
-    if(!response.ok){
-      throw new Error(
-        data?.error ||
-        data?.message ||
-        "Request failed (HTTP " + response.status + ")."
-      );
-    }
-
-    return data;
-  }
-
-  function getJSON(path){
-    return requestJSON(path,{method:"GET"});
-  }
-
-  function postJSON(path, body){
-    return requestJSON(path,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(body)
-    });
-  }
-
-  function param(name){
-    return new URLSearchParams(window.location.search).get(name);
-  }
-
-  function getLessonId(){
-    return String(param("id") || "lesson_1");
-  }
-
-  function lessonId(lesson){
-    return String(
-      lesson?.id ??
-      lesson?._id ??
-      lesson?.lessonId ??
-      lesson?.lesson_id ??
-      getLessonId()
-    );
-  }
-
-  function numericLessonId(value){
-    const raw = String(value ?? "").trim();
-    const match = raw.match(/(?:lesson[_-])?(\d+)$/i);
-    return match ? Number(match[1]) : Number(raw);
-  }
-
-  function lessonLevel(lesson){
-    const n = Number(
-      lesson?.level ??
-      lesson?.course_level ??
-      lesson?.yct_level ??
-      1
-    );
-    return Number.isFinite(n) && n > 0 ? n : 1;
-  }
-
-  function lessonXP(lesson){
-    const n = Number(lesson?.xp ?? lesson?.xp_earned ?? 10);
-    return Number.isFinite(n) ? n : 10;
-  }
-
-  function esc(value){
-    const div = document.createElement("div");
-    div.textContent = String(value ?? "");
-    return div.innerHTML;
-  }
-
-  function escapeAttr(value){
-    return esc(value).replace(/"/g,"&quot;");
-  }
-
-  function normalizeLesson(raw){
-    const lesson = raw?.lesson || raw?.data || raw;
-
-    if(!lesson || typeof lesson !== "object"){
-      throw new Error("The lesson returned by the server is invalid.");
-    }
-
-    return {
-      ...lesson,
-      id: lesson.id || lesson._id || lesson.lessonId || lesson.lesson_id || getLessonId(),
-      title: lesson.title || lesson.name || "Untitled Lesson",
-      description: lesson.description || "Continue building your Mandarin skills.",
-      level: lessonLevel(lesson),
-      xp: lessonXP(lesson),
-      icon: lesson.icon || lesson.emoji || "📚",
-      vocabulary: Array.isArray(lesson.vocabulary) ? lesson.vocabulary : [],
-      story: Array.isArray(lesson.story) ? lesson.story : [],
-      quiz: Array.isArray(lesson.quiz) ? lesson.quiz : []
-    };
-  }
-
-  function fallbackLesson(){
-    return {
-      id:getLessonId(),
-      title:"Greetings & Introductions",
-      description:"Learn how to say hello, introduce yourself, and greet others in Mandarin.",
-      level:1,
-      premium:false,
-      xp:10,
-      icon:"👋",
-      vocabulary:[
-        {pinyin:"nǐ hǎo",chinese:"你好",english:"Hello"},
-        {pinyin:"zài jiàn",chinese:"再见",english:"Goodbye"},
-        {pinyin:"xiè xiè",chinese:"谢谢",english:"Thank you"},
-        {pinyin:"duì bu qǐ",chinese:"对不起",english:"Sorry"},
-        {pinyin:"qǐng wèn",chinese:"请问",english:"Excuse me / May I ask"}
-      ],
-      quiz:[
-        {correct:0,options:["你好","再见","谢谢","对不起"],question:"How do you say \"Hello\" in Mandarin?"},
-        {correct:1,options:["Hello","Goodbye","Thank you","Sorry"],question:"What does \"再见\" mean?"},
-        {correct:2,options:["你好","再见","谢谢","对不起"],question:"How do you say \"Thank you\" in Mandarin?"}
-      ]
-    };
-  }
-
-  async function fetchLesson(id){
-    const candidates = [
-      "lessons/" + encodeURIComponent(id),
-      "lesson/" + encodeURIComponent(id),
-      "lessons?id=" + encodeURIComponent(id)
-    ];
-
-    let lastError = null;
-
-    for(const path of candidates){
-      try{
-        const data = await getJSON(path);
-        const lesson = data?.lesson || data?.data || data;
-
-        if(lesson && typeof lesson === "object"){
-          return normalizeLesson(lesson);
-        }
-      }catch(error){
-        lastError = error;
-      }
-    }
-
-    if(lastError){
-      console.warn("HanVerse lesson API lookup failed:", lastError);
-    }
-
-    return null;
-  }
-
-  async function fetchSavedProgress(uid,lid){
-    const userId = Number(uid);
-    const lessonId = numericLessonId(lid);
-
-    if(!Number.isFinite(userId) || !Number.isFinite(lessonId)) return null;
-
-    try{
-      const response = await fetch(
-        API + "progress/" + encodeURIComponent(userId) + "/" + encodeURIComponent(lessonId),
-        {
-          method:"GET",
-          credentials:"include",
-          headers:{Accept:"application/json"}
-        }
-      );
-
-      if(response.status === 404) return null;
-
-      const data = await response.json().catch(()=>null);
-      if(!response.ok){
-        console.warn("Progress lookup failed:",response.status,data);
-        return null;
-      }
-
-      return data?.progress ?? data?.data ?? data ?? null;
-    }catch(error){
-      console.warn("Progress lookup unavailable:",error);
+  }catch(error){
+    /*
+     * 404 means the learner has not started this lesson.
+     * That is a normal state.
+     */
+    if(error.status===404){
       return null;
     }
+
+    console.warn(
+      "HanVerse progress lookup:",
+      error
+    );
+
+    return null;
+  }
+}
+
+function progressIsComplete(progress){
+  if(!progress)return false;
+
+  if(
+    progress.completed===true ||
+    progress.is_completed===true ||
+    progress.completed_at
+  ){
+    return true;
   }
 
-  async function saveProgress(){
-    if(state.saving || state.completed) return false;
+  const value=Number(
+    progress.progress_pct ??
+    progress.progressPercent ??
+    progress.completed_pct ??
+    progress.progress ??
+    progress.percent ??
+    0
+  );
 
-    const userId = Number(uid());
-    const lessonId = numericLessonId(state.lesson?.id ?? getLessonId());
+  return Number.isFinite(value) && value>=100;
+}
 
-    if(!Number.isFinite(userId) || !Number.isFinite(lessonId)){
-      showToast("error","We couldn't identify your lesson. Please log in again.");
-      return false;
-    }
+async function saveProgress(){
+  if(state.saving)return false;
+  if(state.completed)return true;
 
-    state.saving = true;
+  const userId=getUserId();
+  const lessonNumber=progressLessonNumber(
+    state.lessonId
+  );
 
-    const status = $("saveStatus");
-    const next = $("nextBtn");
-
-    if(status){
-      status.className = "save-status";
-      status.textContent = "Saving your progress…";
-    }
-
-    if(next){
-      next.disabled = true;
-      next.textContent = "Saving…";
-    }
-
-    try{
-      const payload = {
-        userId,
-        lessonId,
-        completed:true,
-        score:Number(state.score || 0),
-        xpEarned:Number(state.lesson?.xp ?? state.lesson?.xpEarned ?? 0),
-        timeSpent:Math.max(0,Math.round((Date.now()-state.startedAt)/1000)),
-        quizAnswers:state.quizAnswers || {},
-        quizScore:Number(state.score || 0)
-      };
-
-      const response = await fetch(API + "progress",{
-        method:"POST",
-        credentials:"include",
-        headers:{
-          "Content-Type":"application/json",
-          "Accept":"application/json"
-        },
-        body:JSON.stringify(payload)
-      });
-
-      const data = await response.json().catch(()=>null);
-
-      if(!response.ok || data?.success === false){
-        const message = data?.error || data?.message || `Save failed (${response.status})`;
-        throw new Error(message);
-      }
-
-      // Confirm the API write can be read back.
-      const saved = await fetchSavedProgress(userId,lessonId);
-      if(!saved){
-        throw new Error("The server accepted the save, but the saved progress could not be read back.");
-      }
-
-      state.savedProgress = saved;
-      state.completed = true;
-
-      if(status){
-        status.className = "save-status success";
-        status.textContent = "✓ Progress saved to HanVerse";
-      }
-
-      if(next){
-        next.disabled = true;
-        next.textContent = "✓ Completed";
-        next.className = "btn btn-primary";
-      }
-
-      showToast("success","Lesson progress saved!");
-      return true;
-
-    }catch(error){
-      console.error("HanVerse progress save failed:",error);
-
-      if(status){
-        status.className = "save-status error";
-        status.textContent = "Could not save progress.";
-      }
-
-      if(next){
-        next.disabled = false;
-        next.textContent = "Save lesson";
-        next.className = "btn btn-primary";
-      }
-
-      showToast("error",error.message || "We couldn't save your progress.");
-      return false;
-
-    }finally{
-      state.saving = false;
-    }
+  if(!userId || !lessonNumber){
+    showToast(
+      "error",
+      "We couldn't identify your lesson or account."
+    );
+    return false;
   }
 
-  async function completeLesson(){
-    return saveProgress();
+  state.saving=true;
+  state.score=calculateQuizScore();
+
+  const saveButton=$("saveLessonBtn");
+
+  if(saveButton){
+    saveButton.disabled=true;
+    saveButton.textContent="Saving…";
   }
 
-  function nextSlide(){
-    if(state.currentSlide >= state.slides.length - 1){
-      if(state.completed || state.saving) return;
-      saveProgress();
+  updateSaveStatus(
+    "Saving your progress…",
+    ""
+  );
+
+  try{
+    const timeSpent=Math.max(
+      1,
+      Math.round(
+        (Date.now()-state.startedAt)/1000
+      )
+    );
+
+    const payload={
+      userId,
+      lessonId:lessonNumber,
+      courseType:
+        state.lesson.course_type ||
+        state.lesson.courseType ||
+        "YCT",
+      courseLevel:lessonLevel(state.lesson),
+      completed:true,
+      score:state.score,
+      xpEarned:lessonXP(state.lesson),
+      timeSpent,
+      attempts:1,
+      quizAnswers:state.answers,
+      quizScore:state.score
+    };
+
+    const response=await postJSON(
+      "progress",
+      payload
+    );
+
+    state.savedProgress=
+      response?.progress ||
+      response?.data ||
+      response;
+
+    state.completed=true;
+
+    updateSaveStatus(
+      "✓ Progress saved successfully!",
+      "success"
+    );
+
+    if(saveButton){
+      saveButton.disabled=true;
+      saveButton.textContent="✓ Saved";
+    }
+
+    showToast(
+      "success",
+      `Lesson complete! +${lessonXP(state.lesson)} XP 🎉`
+    );
+
+    renderCurrentSlide();
+
+    return true;
+
+  }catch(error){
+    console.error(
+      "HanVerse progress save failed:",
+      error
+    );
+
+    updateSaveStatus(
+      error.message ||
+      "We couldn't save your progress.",
+      "error"
+    );
+
+    if(saveButton){
+      saveButton.disabled=false;
+      saveButton.textContent="Save lesson";
+    }
+
+    showToast(
+      "error",
+      error.message ||
+      "We couldn't save your progress."
+    );
+
+    return false;
+
+  }finally{
+    state.saving=false;
+  }
+}
+
+/* ---------------- SPEECH ---------------- */
+
+function speak(text){
+  if(!text)return;
+
+  if(!("speechSynthesis" in window)){
+    showToast(
+      "error",
+      "Speech isn't available in this browser."
+    );
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const utterance=
+    new SpeechSynthesisUtterance(
+      String(text)
+    );
+
+  utterance.lang="zh-CN";
+  utterance.rate=.82;
+
+  speechSynthesis.speak(
+    utterance
+  );
+}
+
+/* ---------------- QUIZ ---------------- */
+
+function quizQuestions(){
+  return normalizeArray(
+    state.lesson?.quiz
+  );
+}
+
+function questionOptions(question){
+  if(Array.isArray(question?.options)){
+    return question.options;
+  }
+
+  if(Array.isArray(question?.answers)){
+    return question.answers;
+  }
+
+  return [];
+}
+
+function correctIndex(question){
+  const options=
+    questionOptions(question);
+
+  const raw=
+    question?.correct ??
+    question?.correct_answer ??
+    question?.correctAnswer ??
+    question?.answer ??
+    0;
+
+  if(typeof raw==="number"){
+    return raw;
+  }
+
+  const numeric=Number(raw);
+
+  if(Number.isFinite(numeric)){
+    return numeric;
+  }
+
+  return options.findIndex(
+    option =>
+      String(option).toLowerCase() ===
+      String(raw).toLowerCase()
+  );
+}
+
+function calculateQuizScore(){
+  const questions=quizQuestions();
+
+  if(!questions.length)return 100;
+
+  let correct=0;
+
+  questions.forEach((question,index)=>{
+    if(
+      state.answers[index] !== undefined &&
+      state.answers[index] ===
+      correctIndex(question)
+    ){
+      correct++;
+    }
+  });
+
+  return Math.round(
+    (correct/questions.length)*100
+  );
+}
+
+function answerQuestion(index){
+  const questions=quizQuestions();
+  const question=
+    questions[state.quizIndex];
+
+  if(!question)return;
+
+  state.answers[state.quizIndex]=index;
+
+  renderCurrentSlide();
+}
+
+/* ---------------- SLIDES ---------------- */
+
+function buildSlides(){
+  const lesson=state.lesson;
+  const slides=[];
+
+  slides.push({
+    type:"welcome"
+  });
+
+  if(lesson.objectives.length){
+    slides.push({
+      type:"objectives"
+    });
+  }
+
+  if(lesson.vocabulary.length){
+    slides.push({
+      type:"vocabulary"
+    });
+  }
+
+  if(lesson.content.length){
+    slides.push({
+      type:"content"
+    });
+  }
+
+  if(lesson.examples.length){
+    slides.push({
+      type:"examples"
+    });
+  }
+
+  if(quizQuestions().length){
+    slides.push({
+      type:"quiz"
+    });
+  }
+
+  slides.push({
+    type:"complete"
+  });
+
+  return slides;
+}
+
+function renderWelcome(){
+  return `
+    <div class="slide-center">
+      <div class="panda-hero">
+        ${escapeHTML(state.lesson.icon || "🐼")}
+      </div>
+
+      <span class="kicker">
+        YCT ${lessonLevel(state.lesson)} · Lesson
+      </span>
+
+      <h2>
+        ${escapeHTML(state.lesson.title)}
+      </h2>
+
+      <p class="slide-copy">
+        ${escapeHTML(state.lesson.description)}
+      </p>
+
+      <div style="margin-top:25px">
+        <span class="meta-pill">
+          🎯 ${quizQuestions().length ? "Learn + Practice" : "Learn"}
+        </span>
+        <span class="meta-pill">
+          ⭐ +${lessonXP(state.lesson)} XP
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+function renderObjectives(){
+  const items=state.lesson.objectives;
+
+  return `
+    <div>
+      <span class="kicker">Your mission</span>
+      <h2>What you'll learn</h2>
+      <p class="slide-copy">
+        By the end of this lesson, you'll be able to:
+      </p>
+
+      <div class="objectives">
+        ${items.map((item,index)=>{
+          const text=
+            typeof item==="string"
+              ? item
+              : item.objective ||
+                item.text ||
+                item.title ||
+                "";
+
+          return `
+            <div class="objective">
+              <span class="objective-icon">
+                ${escapeHTML(
+                  item.icon ||
+                  ["🎯","🗣️","👂","✍️"][index%4] ||
+                  "🎯"
+                )}
+              </span>
+              <span>${escapeHTML(text)}</span>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderVocabulary(){
+  const items=state.lesson.vocabulary;
+
+  return `
+    <div>
+      <span class="kicker">New words</span>
+      <h2>Let's learn the words</h2>
+      <p class="slide-copy">
+        Listen, look and say each word aloud.
+      </p>
+
+      <div class="vocab-grid">
+        ${items.map(item=>{
+          const chinese=
+            item.chinese ||
+            item.word ||
+            item.hanzi ||
+            "";
+
+          const pinyin=
+            item.pinyin ||
+            "";
+
+          const english=
+            item.english ||
+            item.meaning ||
+            item.translation ||
+            "";
+
+          return `
+            <article class="word-card">
+              <div class="word-emoji">
+                ${escapeHTML(
+                  item.emoji ||
+                  item.icon ||
+                  "🀄"
+                )}
+              </div>
+
+              <div class="word-chinese">
+                ${escapeHTML(chinese)}
+              </div>
+
+              <div class="word-pinyin">
+                ${escapeHTML(pinyin)}
+              </div>
+
+              <div class="word-english">
+                ${escapeHTML(english)}
+              </div>
+
+              ${
+                chinese
+                  ? `
+                    <button
+                      class="speak-btn"
+                      type="button"
+                      data-speak="${escapeAttr(chinese)}"
+                    >
+                      🔊 Listen
+                    </button>
+                  `
+                  : ""
+              }
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderContent(){
+  const blocks=state.lesson.content;
+
+  return `
+    <div>
+      <span class="kicker">Learn</span>
+      <h2>Let's understand it</h2>
+
+      <div>
+        ${blocks.map(block=>{
+          const title=
+            typeof block==="string"
+              ? ""
+              : block.title ||
+                "";
+
+          const body=
+            typeof block==="string"
+              ? block
+              : block.body ||
+                block.text ||
+                block.content ||
+                "";
+
+          return `
+            <article class="content-block">
+              ${
+                title
+                  ? `<h3>${escapeHTML(title)}</h3>`
+                  : ""
+              }
+              <p>
+                ${escapeHTML(body)}
+              </p>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderExamples(){
+  return `
+    <div>
+      <span class="kicker">Use it</span>
+      <h2>Try it in a conversation</h2>
+      <p class="slide-copy">
+        Listen to the examples and notice how the words work together.
+      </p>
+
+      <div class="example-list">
+        ${state.lesson.examples.map((item,index)=>{
+          const chinese=
+            item.chinese ||
+            item.text ||
+            "";
+
+          return `
+            <article class="example">
+              <div class="example-avatar">
+                ${escapeHTML(
+                  item.icon ||
+                  item.emoji ||
+                  (index%2 ? "🧑" : "🐼")
+                )}
+              </div>
+
+              <div>
+                <div class="example-chinese">
+                  ${escapeHTML(chinese)}
+                </div>
+
+                ${
+                  item.pinyin
+                    ? `
+                      <div class="example-pinyin">
+                        ${escapeHTML(item.pinyin)}
+                      </div>
+                    `
+                    : ""
+                }
+
+                ${
+                  item.english ||
+                  item.translation
+                    ? `
+                      <div class="example-english">
+                        ${escapeHTML(
+                          item.english ||
+                          item.translation
+                        )}
+                      </div>
+                    `
+                    : ""
+                }
+
+                ${
+                  chinese
+                    ? `
+                      <button
+                        class="speak-btn"
+                        type="button"
+                        data-speak="${escapeAttr(chinese)}"
+                      >
+                        🔊 Listen
+                      </button>
+                    `
+                    : ""
+                }
+              </div>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderQuiz(){
+  const questions=quizQuestions();
+
+  if(!questions.length){
+    return `<div class="slide-center"><h2>No quiz yet.</h2></div>`;
+  }
+
+  const question=
+    questions[state.quizIndex];
+
+  const options=
+    questionOptions(question);
+
+  const selected=
+    state.answers[state.quizIndex];
+
+  const correct=
+    correctIndex(question);
+
+  return `
+    <div class="quiz-card">
+      <div class="quiz-top">
+        <span>Quick challenge</span>
+        <span>
+          ${state.quizIndex+1} / ${questions.length}
+        </span>
+      </div>
+
+      <div class="quiz-question">
+        ${escapeHTML(
+          question.question ||
+          question.prompt ||
+          question.text ||
+          "Choose the best answer."
+        )}
+      </div>
+
+      <div class="quiz-options">
+        ${options.map((option,index)=>{
+          let cls="option";
+
+          if(selected!==undefined){
+            if(index===correct){
+              cls+=" correct";
+            }else if(index===selected){
+              cls+=" wrong";
+            }
+          }
+
+          return `
+            <button
+              type="button"
+              class="${cls}"
+              data-option="${index}"
+              ${selected!==undefined ? "disabled" : ""}
+            >
+              ${escapeHTML(option)}
+            </button>
+          `;
+        }).join("")}
+      </div>
+
+      <div
+        class="feedback ${
+          selected!==undefined
+            ? "show " +
+              (
+                selected===correct
+                  ? "good"
+                  : "bad"
+              )
+            : ""
+        }"
+      >
+        ${
+          selected===undefined
+            ? ""
+            : selected===correct
+              ? "✓ Correct! Keep going."
+              : "Not quite. The correct answer is highlighted."
+        }
+      </div>
+    </div>
+  `;
+}
+
+function renderComplete(){
+  const settings=
+    state.lesson.completion_settings ||
+    {};
+
+  const xp=
+    Number(
+      settings.completion_xp ||
+      lessonXP(state.lesson)
+    );
+
+  return `
+    <div class="complete-card">
+      <div class="complete-icon">🎉</div>
+
+      <span class="kicker">
+        Lesson complete
+      </span>
+
+      <h2>
+        You did it!
+      </h2>
+
+      <p class="slide-copy">
+        You finished
+        <strong>
+          ${escapeHTML(state.lesson.title)}
+        </strong>.
+        Your progress is ready to be saved.
+      </p>
+
+      <div class="rewards">
+        <div class="reward">
+          <strong>⭐ +${xp}</strong>
+          <span>XP</span>
+        </div>
+
+        <div class="reward">
+          <strong>🎯 ${state.score}%</strong>
+          <span>Quiz score</span>
+        </div>
+
+        <div class="reward">
+          <strong>🐼 100%</strong>
+          <span>Lesson complete</span>
+        </div>
+      </div>
+
+      <div
+        class="save-status ${
+          state.completed
+            ? "success"
+            : ""
+        }"
+        id="saveStatus"
+      >
+        ${
+          state.completed
+            ? "✓ Progress already saved"
+            : "Ready to save your progress"
+        }
+      </div>
+
+      <div class="complete-actions">
+        <button
+          class="btn btn-primary"
+          type="button"
+          id="saveLessonBtn"
+          ${
+            state.completed
+              ? "disabled"
+              : ""
+          }
+        >
+          ${
+            state.completed
+              ? "✓ Saved"
+              : "Save lesson"
+          }
+        </button>
+
+        <a
+          class="btn btn-outline"
+          href="roadmap.html"
+        >
+          Back to Roadmap
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+function renderSlideHTML(){
+  const slide=
+    state.slides[state.currentSlide];
+
+  if(!slide)return "";
+
+  switch(slide.type){
+    case "welcome":
+      return renderWelcome();
+
+    case "objectives":
+      return renderObjectives();
+
+    case "vocabulary":
+      return renderVocabulary();
+
+    case "content":
+      return renderContent();
+
+    case "examples":
+      return renderExamples();
+
+    case "quiz":
+      return renderQuiz();
+
+    case "complete":
+      return renderComplete();
+
+    default:
+      return `
+        <div class="slide-center">
+          <h2>Let's keep learning!</h2>
+        </div>
+      `;
+  }
+}
+
+/* ---------------- RENDER ---------------- */
+
+function renderCurrentSlide(){
+  const slide=$("slide");
+
+  if(!slide)return;
+
+  slide.classList.remove("hidden");
+  slide.innerHTML=renderSlideHTML();
+
+  /*
+   * Restart the entrance animation after each activity.
+   */
+  slide.style.animation="none";
+  void slide.offsetWidth;
+  slide.style.animation="";
+
+  const total=state.slides.length;
+  const current=state.currentSlide+1;
+  const percent=
+    total
+      ? Math.round((current/total)*100)
+      : 0;
+
+  $("progressFill").style.width=
+    `${percent}%`;
+
+  $("progressPercent").textContent=
+    `${percent}%`;
+
+  $("slideCounter").textContent=
+    `${current} / ${total}`;
+
+  const activityNames={
+    welcome:"Welcome",
+    objectives:"Your mission",
+    vocabulary:"New words",
+    content:"Learn",
+    examples:"Conversation",
+    quiz:"Challenge",
+    complete:"Complete"
+  };
+
+  $("activityMeta").textContent=
+    activityNames[
+      state.slides[state.currentSlide]?.type
+    ] || "Lesson";
+
+  $("lessonMeta").textContent=
+    `YCT ${lessonLevel(state.lesson)} · Lesson ${
+      String(state.lessonId).replace(/^lesson_/i,"")
+    }`;
+
+  bindInteractions();
+  updateControls();
+}
+
+function bindInteractions(){
+  document
+    .querySelectorAll("[data-speak]")
+    .forEach(button=>{
+      button.addEventListener(
+        "click",
+        ()=>speak(button.dataset.speak)
+      );
+    });
+
+  document
+    .querySelectorAll("[data-option]")
+    .forEach(button=>{
+      button.addEventListener(
+        "click",
+        ()=>{
+          answerQuestion(
+            Number(button.dataset.option)
+          );
+        }
+      );
+    });
+
+  const save=$("saveLessonBtn");
+
+  if(save){
+    save.addEventListener(
+      "click",
+      saveProgress
+    );
+  }
+}
+
+function updateSaveStatus(message,type=""){
+  const status=$("saveStatus");
+
+  if(!status)return;
+
+  status.className=
+    "save-status" +
+    (type ? ` ${type}` : "");
+
+  status.textContent=message;
+}
+
+function updateControls(){
+  const prev=$("prevBtn");
+  const next=$("nextBtn");
+
+  if(!prev || !next)return;
+
+  const slide=
+    state.slides[state.currentSlide];
+
+  prev.disabled=
+    state.currentSlide===0 ||
+    state.saving;
+
+  if(slide?.type==="quiz"){
+    const questions=quizQuestions();
+
+    const answered=
+      state.answers[
+        state.quizIndex
+      ] !== undefined;
+
+    if(!answered){
+      next.textContent="Choose an answer";
+      next.disabled=true;
       return;
     }
 
-    const current = state.slides[state.currentSlide];
-
-    if(current?.type === "quiz"){
-      const questions = current.data.questions || [];
-
-      if(state.quizIndex < questions.length - 1){
-        state.quizIndex += 1;
-        renderCurrentSlide();
-        return;
-      }
-
-      const allAnswered = questions.every((_,index) => state.answers[index] !== undefined);
-
-      if(!allAnswered){
-        showToast("error","Please answer every challenge first.");
-        return;
-      }
+    if(
+      state.quizIndex <
+      questions.length-1
+    ){
+      next.textContent="Next →";
+    }else{
+      next.textContent="Finish challenge →";
     }
 
-    state.currentSlide += 1;
-
-    if(state.slides[state.currentSlide]?.type === "quiz"){
-      state.quizIndex = 0;
-    }
-
-    renderCurrentSlide();
+    next.disabled=false;
+    return;
   }
 
-  function prevSlide(){
-    if(state.currentSlide <= 0) return;
+  if(slide?.type==="complete"){
+    next.textContent=
+      state.completed
+        ? "✓ Saved"
+        : "Save lesson";
 
-    state.currentSlide -= 1;
+    next.disabled=
+      state.completed ||
+      state.saving;
 
-    if(state.slides[state.currentSlide]?.type === "quiz"){
-      const questions = state.slides[state.currentSlide].data.questions || [];
-      state.quizIndex = Math.max(0,questions.length - 1);
-    }
-
-    renderCurrentSlide();
+    return;
   }
 
-  function showToast(type,message){
-    const region = $("toastRegion");
-    const toast = document.createElement("div");
+  next.textContent=
+    state.currentSlide===
+    state.slides.length-2
+      ? "Finish →"
+      : "Continue →";
 
-    toast.className = "toast " + (type || "");
-    toast.textContent = message;
+  next.disabled=false;
+}
 
-    region.appendChild(toast);
+/* ---------------- NAVIGATION ---------------- */
 
-    window.setTimeout(() => {
-      toast.remove();
-    },3500);
-  }
+function nextSlide(){
+  const slide=
+    state.slides[state.currentSlide];
 
-  async function init(){
-    state.user = readSession();
+  if(slide?.type==="quiz"){
+    const questions=quizQuestions();
 
-    if(!state.user){
-      window.location.replace("login.html");
+    if(
+      state.answers[
+        state.quizIndex
+      ]===undefined
+    ){
+      showToast(
+        "error",
+        "Choose an answer first."
+      );
       return;
     }
 
-    renderNavbar();
-
-    const role = roleOf(state.user);
-
-    if(role && role !== "student" && role !== "parent" && role !== "admin"){
-      console.warn("HanVerse: unknown user role:",role);
-    }
-
-    const requestedId = getLessonId();
-
-    let lesson = await fetchLesson(requestedId);
-
-    if(!lesson){
-      lesson = fallbackLesson();
-      showToast("error","The lesson API was unavailable, so a local fallback was loaded.");
-    }
-
-    state.lesson = lesson;
-    state.startedAt = Date.now();
-
-    $("lessonTitle").textContent = lesson.title;
-    $("lessonSubtitle").textContent = lesson.description;
-    $("lessonMeta").textContent =
-      "Lesson " +
-      String(lessonId(lesson)).replace(/^lesson_/,"") +
-      " · YCT " +
-      lessonLevel(lesson);
-
-    $("xpDisplay").textContent = lessonXP(lesson);
-
-    const uid = userId(state.user);
-
-    state.savedProgress = await fetchSavedProgress(uid,lessonId(lesson));
-
-    if(isSavedCompleted()){
-      state.completed = true;
-      showToast("success","✓ You've already completed this lesson.");
-    }
-
-    state.slides = buildSlides(lesson);
-
-    $("loadingState").classList.add("hidden");
-    $("slideViewport").classList.remove("hidden");
-    $("slideNav").classList.remove("hidden");
-
-    renderSlides();
-
-    if(state.completed){
-      state.currentSlide = state.slides.length - 1;
+    if(
+      state.quizIndex <
+      questions.length-1
+    ){
+      state.quizIndex++;
       renderCurrentSlide();
+      return;
     }
   }
 
-  $("prevBtn").addEventListener("click",prevSlide);
-  $("nextBtn").addEventListener("click",nextSlide);
-
-  $("mobileToggle").addEventListener("click",() => {
-    const button = $("mobileToggle");
-    const menu = $("mobileMenu");
-    const open = menu.classList.toggle("open");
-
-    button.setAttribute("aria-expanded",String(open));
-    button.textContent = open ? "✕" : "☰";
-  });
-
-  $("mobileMenu").addEventListener("click",event => {
-    if(event.target.closest("a")){
-      $("mobileMenu").classList.remove("open");
-      $("mobileToggle").setAttribute("aria-expanded","false");
-      $("mobileToggle").textContent = "☰";
-    }
-  });
-
-  document.addEventListener("keydown",event => {
-    if(event.target.matches("input,textarea,select")) return;
-
-    if(event.key === "ArrowRight") nextSlide();
-    if(event.key === "ArrowLeft") prevSlide();
-  });
-
-  window.addEventListener("online",() => {
-    $("offlineBanner").classList.remove("show");
-  });
-
-  window.addEventListener("offline",() => {
-    $("offlineBanner").classList.add("show");
-  });
-
-  if(!navigator.onLine){
-    $("offlineBanner").classList.add("show");
+  if(
+    state.currentSlide >=
+    state.slides.length-1
+  ){
+    saveProgress();
+    return;
   }
 
-  init().catch(error => {
-    console.error("HanVerse lesson initialization failed:",error);
+  state.currentSlide++;
 
-    $("loadingState").innerHTML = `
-      <div style="font-size:3rem">😕</div>
-      <strong>We couldn't load this lesson.</strong>
-      <span>${esc(error.message || "Unknown error")}</span>
-      <button class="btn btn-primary" type="button" onclick="location.reload()">Try again</button>
-    `;
-  });
+  if(
+    state.slides[
+      state.currentSlide
+    ]?.type==="quiz"
+  ){
+    state.quizIndex=0;
+  }
+
+  renderCurrentSlide();
+}
+
+function prevSlide(){
+  if(state.currentSlide<=0)return;
+
+  state.currentSlide--;
+
+  if(
+    state.slides[
+      state.currentSlide
+    ]?.type==="quiz"
+  ){
+    const questions=quizQuestions();
+
+    state.quizIndex=
+      Math.max(
+        0,
+        questions.length-1
+      );
+  }
+
+  renderCurrentSlide();
+}
+
+/* ---------------- TOAST ---------------- */
+
+function showToast(type,message){
+  const region=$("toastRegion");
+  if(!region)return;
+
+  const toast=document.createElement("div");
+  toast.className=
+    `toast ${type||""}`;
+
+  toast.textContent=message;
+
+  region.appendChild(toast);
+
+  setTimeout(()=>{
+    toast.style.opacity="0";
+    toast.style.transform=
+      "translateY(8px)";
+    toast.style.transition=
+      "opacity .2s ease,transform .2s ease";
+
+    setTimeout(
+      ()=>toast.remove(),
+      220
+    );
+  },3200);
+}
+
+/* ---------------- ERROR STATE ---------------- */
+
+function showError(error){
+  console.error(
+    "HanVerse lesson error:",
+    error
+  );
+
+  $("loadingState")
+    .classList.add("hidden");
+
+  $("slide")
+    .classList.add("hidden");
+
+  $("lessonControls")
+    .classList.add("hidden");
+
+  $("errorState")
+    .classList.remove("hidden");
+
+  $("errorMessage").textContent=
+    error?.message ||
+    "Please try again.";
+}
+
+/* ---------------- INIT ---------------- */
+
+async function init(){
+  state.user=readSession();
+
+  if(!state.user){
+    location.replace("login.html");
+    return;
+  }
+
+  renderNavbar();
+
+  state.lesson=
+    await fetchLesson();
+
+  state.lessonId=
+    getLessonId(
+      state.lesson
+    ) ||
+    state.lessonId;
+
+  $("lessonTitle").textContent=
+    state.lesson.title;
+
+  $("lessonSubtitle").textContent=
+    state.lesson.description;
+
+  $("xpDisplay").textContent=
+    lessonXP(state.lesson);
+
+  state.savedProgress=
+    await fetchSavedProgress();
+
+  state.completed=
+    progressIsComplete(
+      state.savedProgress
+    );
+
+  state.slides=
+    buildSlides();
+
+  $("loadingState")
+    .classList.add("hidden");
+
+  $("errorState")
+    .classList.add("hidden");
+
+  $("lessonControls")
+    .classList.remove("hidden");
+
+  renderCurrentSlide();
+
+  if(state.completed){
+    state.currentSlide=
+      state.slides.length-1;
+
+    renderCurrentSlide();
+
+    showToast(
+      "success",
+      "✓ You've already completed this lesson."
+    );
+  }
+}
+
+/* ---------------- EVENTS ---------------- */
+
+$("prevBtn")
+  .addEventListener(
+    "click",
+    prevSlide
+  );
+
+$("nextBtn")
+  .addEventListener(
+    "click",
+    nextSlide
+  );
+
+$("retryBtn")
+  .addEventListener(
+    "click",
+    ()=>{
+      $("errorState")
+        .classList.add("hidden");
+
+      $("loadingState")
+        .classList.remove("hidden");
+
+      init().catch(showError);
+    }
+  );
+
+$("mobileToggle")
+  .addEventListener(
+    "click",
+    ()=>{
+      const button=
+        $("mobileToggle");
+
+      const menu=
+        $("mobileMenu");
+
+      const open=
+        menu.classList.toggle(
+          "open"
+        );
+
+      button.setAttribute(
+        "aria-expanded",
+        String(open)
+      );
+
+      button.textContent=
+        open ? "✕" : "☰";
+    }
+  );
+
+$("mobileMenu")
+  .addEventListener(
+    "click",
+    event=>{
+      if(event.target.closest("a")){
+        $("mobileMenu")
+          .classList.remove("open");
+
+        $("mobileToggle")
+          .setAttribute(
+            "aria-expanded",
+            "false"
+          );
+
+        $("mobileToggle")
+          .textContent="☰";
+      }
+    }
+  );
+
+document.addEventListener(
+  "keydown",
+  event=>{
+    if(
+      event.target.matches(
+        "input,textarea,select"
+      )
+    )return;
+
+    if(event.key==="ArrowRight"){
+      if(!$("nextBtn").disabled){
+        nextSlide();
+      }
+    }
+
+    if(event.key==="ArrowLeft"){
+      if(!$("prevBtn").disabled){
+        prevSlide();
+      }
+    }
+  }
+);
+
+window.addEventListener(
+  "online",
+  ()=>{
+    $("offlineBanner")
+      .classList.remove("show");
+  }
+);
+
+window.addEventListener(
+  "offline",
+  ()=>{
+    $("offlineBanner")
+      .classList.add("show");
+  }
+);
+
+if(!navigator.onLine){
+  $("offlineBanner")
+    .classList.add("show");
+}
+
+init().catch(showError);
 
 })();
 </script>
