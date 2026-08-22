@@ -95,6 +95,464 @@ main{max-width:1400px;margin:auto;padding:30px 24px 70px}
 .email-preview{width:100%;height:560px;border:1px solid var(--border);border-radius:14px;background:#fff;display:block}
 .preview-note{font-size:.6rem;color:var(--muted);margin-top:6px}
 .personal-recipient{padding:10px 12px;margin-bottom:14px;border:1px solid rgba(78,168,222,.2);background:rgba(78,168,222,.07);border-radius:11px;font-size:.68rem}
+
+/* =========================================================
+   HANVERSE ADMIN — MOTION / MICRO-INTERACTION SYSTEM
+   Added without changing the dashboard's existing functionality.
+   ========================================================= */
+
+:root{
+  --motion-fast:.16s cubic-bezier(.2,.8,.2,1);
+  --motion:.28s cubic-bezier(.2,.8,.2,1);
+  --motion-slow:.55s cubic-bezier(.16,1,.3,1);
+}
+
+/* Ambient background motion */
+body{
+  position:relative;
+  overflow-x:hidden;
+}
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  width:380px;
+  height:380px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:-1;
+  filter:blur(70px);
+  opacity:.16;
+  animation:ambientFloat 12s ease-in-out infinite alternate;
+}
+body::before{
+  top:12%;
+  left:-180px;
+  background:var(--red);
+}
+body::after{
+  right:-180px;
+  bottom:4%;
+  background:var(--blue);
+  animation-delay:-5s;
+}
+
+@keyframes ambientFloat{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(35px,-25px,0) scale(1.08)}
+  100%{transform:translate3d(-15px,30px,0) scale(.94)}
+}
+
+/* Initial dashboard entrance */
+.topbar{
+  animation:slideDown .55s var(--motion-slow) both;
+}
+main{
+  animation:pageEnter .65s var(--motion-slow) .08s both;
+}
+.hero{
+  animation:fadeUp .55s var(--motion-slow) .12s both;
+}
+.tabs{
+  animation:fadeUp .5s var(--motion-slow) .18s both;
+}
+
+@keyframes slideDown{
+  from{opacity:0;transform:translateY(-18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes pageEnter{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Brand / status */
+.brand img{
+  transition:transform var(--motion),filter var(--motion);
+}
+.brand:hover img{
+  transform:rotate(-4deg) scale(1.07);
+  filter:drop-shadow(0 8px 18px rgba(230,57,70,.22));
+}
+.admin-dot{
+  animation:statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(116,198,157,.18)}
+  50%{box-shadow:0 0 0 7px rgba(116,198,157,.05)}
+}
+
+/* Buttons */
+.btn{
+  position:relative;
+  overflow:hidden;
+  transition:
+    transform var(--motion-fast),
+    background var(--motion-fast),
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+.btn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255,255,255,.18) 48%,
+    transparent 72%
+  );
+  transform:translateX(-130%);
+  transition:transform .55s ease;
+  pointer-events:none;
+}
+.btn:hover::after{
+  transform:translateX(130%);
+}
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 22px rgba(0,0,0,.16);
+}
+.btn:active{
+  transform:translateY(0) scale(.97);
+}
+.btn:disabled{
+  cursor:not-allowed;
+  opacity:.58;
+  transform:none!important;
+  box-shadow:none!important;
+}
+
+/* Stats */
+.stat{
+  position:relative;
+  overflow:hidden;
+  transition:
+    transform var(--motion),
+    border-color var(--motion),
+    box-shadow var(--motion);
+  animation:statEnter .55s var(--motion-slow) both;
+}
+.stat:nth-child(1){animation-delay:.18s}
+.stat:nth-child(2){animation-delay:.23s}
+.stat:nth-child(3){animation-delay:.28s}
+.stat:nth-child(4){animation-delay:.33s}
+.stat::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-70%;
+  width:45%;
+  height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+  transform:skewX(-18deg);
+  transition:left .7s ease;
+}
+.stat:hover{
+  transform:translateY(-4px);
+  border-color:rgba(255,255,255,.15);
+  box-shadow:0 16px 34px rgba(0,0,0,.22);
+}
+.stat:hover::before{
+  left:125%;
+}
+@keyframes statEnter{
+  from{opacity:0;transform:translateY(14px) scale(.98)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* Tabs */
+.tab{
+  transition:
+    transform var(--motion-fast),
+    background var(--motion-fast),
+    color var(--motion-fast),
+    border-color var(--motion-fast);
+}
+.tab:hover{
+  transform:translateY(-2px);
+}
+.tab.active{
+  animation:tabPop .28s var(--motion-fast);
+}
+@keyframes tabPop{
+  0%{transform:scale(.96)}
+  70%{transform:scale(1.025)}
+  100%{transform:scale(1)}
+}
+
+/* Panels */
+.panel{
+  animation:panelEnter .6s var(--motion-slow) both;
+}
+@keyframes panelEnter{
+  from{opacity:0;transform:translateY(15px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* User and lesson cards */
+.card{
+  position:relative;
+  overflow:hidden;
+  transition:
+    transform var(--motion),
+    border-color var(--motion),
+    box-shadow var(--motion);
+  animation:cardEnter .45s var(--motion-slow) both;
+}
+.user-grid .card:nth-child(1),
+.lesson-grid .card:nth-child(1){animation-delay:.04s}
+.user-grid .card:nth-child(2),
+.lesson-grid .card:nth-child(2){animation-delay:.08s}
+.user-grid .card:nth-child(3),
+.lesson-grid .card:nth-child(3){animation-delay:.12s}
+.user-grid .card:nth-child(4),
+.lesson-grid .card:nth-child(4){animation-delay:.16s}
+.user-grid .card:nth-child(5),
+.lesson-grid .card:nth-child(5){animation-delay:.20s}
+.user-grid .card:nth-child(6),
+.lesson-grid .card:nth-child(6){animation-delay:.24s}
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(circle at 0 0,rgba(230,57,70,.11),transparent 45%);
+  transition:opacity var(--motion);
+}
+.card:hover{
+  transform:translateY(-5px);
+  border-color:rgba(255,255,255,.14);
+  box-shadow:0 18px 38px rgba(0,0,0,.24);
+}
+.card:hover::after{
+  opacity:1;
+}
+@keyframes cardEnter{
+  from{opacity:0;transform:translateY(12px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* Avatar / lesson artwork */
+.avatar{
+  transition:transform var(--motion),background var(--motion);
+}
+.card:hover .avatar{
+  transform:scale(1.08) rotate(-3deg);
+  background:rgba(255,255,255,.1);
+}
+.lesson-cover{
+  transition:transform var(--motion),box-shadow var(--motion);
+}
+.lesson-cover img{
+  transition:transform .6s cubic-bezier(.2,.8,.2,1),filter .6s ease;
+}
+.card:hover .lesson-cover{
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.card:hover .lesson-cover img{
+  transform:scale(1.055);
+  filter:saturate(1.08);
+}
+
+/* Search and form controls */
+.input,.select,.textarea{
+  transition:
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast),
+    background var(--motion-fast),
+    transform var(--motion-fast);
+}
+.input:hover,.select:hover,.textarea:hover{
+  background:#101221;
+}
+.input:focus,.select:focus,.textarea:focus{
+  transform:translateY(-1px);
+}
+
+/* Empty/loading states */
+.empty{
+  animation:fadeUp .45s var(--motion-slow) both;
+}
+.empty i{
+  animation:emptyFloat 2.8s ease-in-out infinite;
+}
+@keyframes emptyFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-5px)}
+}
+
+/* Modal — smoother open/close while preserving .open behavior */
+.modal{
+  display:flex;
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s ease,visibility .22s ease;
+}
+.modal.open{
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+}
+.dialog{
+  transform:translateY(18px) scale(.97);
+  opacity:0;
+  transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .22s ease;
+}
+.modal.open .dialog{
+  transform:translateY(0) scale(1);
+  opacity:1;
+}
+
+/* Modal content */
+.dialog-head,
+.dialog-body,
+.dialog-foot{
+  animation:modalContent .35s ease both;
+}
+.modal:not(.open) .dialog-head,
+.modal:not(.open) .dialog-body,
+.modal:not(.open) .dialog-foot{
+  animation:none;
+}
+@keyframes modalContent{
+  from{opacity:0}
+  to{opacity:1}
+}
+.close{
+  transition:transform var(--motion-fast),background var(--motion-fast);
+}
+.close:hover{
+  transform:rotate(90deg) scale(1.05);
+  background:rgba(255,255,255,.11);
+}
+
+/* Sender / media rows */
+.sender-card,
+.media-row,
+.campaign-row,
+.choice{
+  transition:
+    transform var(--motion-fast),
+    border-color var(--motion-fast),
+    background var(--motion-fast);
+}
+.sender-card:hover,
+.media-row:hover,
+.campaign-row:hover{
+  transform:translateX(3px);
+  border-color:rgba(255,255,255,.14);
+  background:rgba(255,255,255,.04);
+}
+.choice:hover{
+  border-color:rgba(255,255,255,.16);
+  background:rgba(255,255,255,.035);
+}
+
+/* Email preview */
+.email-preview{
+  transition:box-shadow var(--motion),transform var(--motion);
+}
+.preview-wrap:hover .email-preview{
+  transform:translateY(-2px);
+  box-shadow:0 18px 35px rgba(0,0,0,.18);
+}
+
+/* Panda helper */
+#pandaToggle{
+  animation:pandaFloat 3s ease-in-out infinite;
+  box-shadow:0 12px 28px rgba(230,57,70,.22);
+}
+#pandaToggle:hover{
+  animation:pandaBounce .55s ease;
+}
+@keyframes pandaFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-7px)}
+}
+@keyframes pandaBounce{
+  0%{transform:scale(1)}
+  35%{transform:scale(1.12) rotate(-5deg)}
+  70%{transform:scale(.97) rotate(4deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+.chat{
+  transform:translateY(14px) scale(.96);
+  opacity:0;
+  visibility:hidden;
+  transition:
+    transform .28s cubic-bezier(.16,1,.3,1),
+    opacity .2s ease,
+    visibility .2s ease;
+}
+.chat.open{
+  transform:translateY(0) scale(1);
+  opacity:1;
+  visibility:visible;
+}
+.chat .bubble{
+  animation:messageIn .3s var(--motion-slow) both;
+}
+@keyframes messageIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Authentication */
+.auth-box{
+  animation:authEnter .7s cubic-bezier(.16,1,.3,1) both;
+}
+.auth-logo img{
+  animation:logoFloat 3.2s ease-in-out infinite;
+  transition:transform var(--motion);
+}
+.auth-logo img:hover{
+  transform:scale(1.08) rotate(-5deg);
+}
+@keyframes authEnter{
+  from{opacity:0;transform:translateY(22px) scale(.96)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes logoFloat{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-6px) rotate(1.5deg)}
+}
+
+/* Scheduled / status pills */
+.pill{
+  transition:transform var(--motion-fast),filter var(--motion-fast);
+}
+.pill:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.08);
+}
+
+/* Accessibility: respect reduced-motion preferences */
+@media (prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+    scroll-behavior:auto!important;
+  }
+}
+
+.btn.is-refreshing i{
+  animation:refreshSpin .7s linear infinite;
+}
+@keyframes refreshSpin{
+  to{transform:rotate(360deg)}
+}
+
 @media(max-width:900px){.composer-grid{grid-template-columns:1fr}.preview-wrap{position:static}.email-preview{height:500px}}
 
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.admin-identity{display:none}.campaign-row{grid-template-columns:1fr 100px}.campaign-row>:nth-child(3),.campaign-row>:nth-child(4){display:none}}
@@ -919,7 +1377,18 @@ function switchSection(section){
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchSection(t.dataset.section));
 $('broadcastBtn').onclick=openBroadcast;
 $('createUserBtn').onclick=newUser;
-$('refreshBtn').onclick=()=>state.section==='users'?loadUsers():loadLessons();
+$('refreshBtn').onclick=async()=>{
+  const btn=$('refreshBtn');
+  btn.classList.add('is-refreshing');
+  btn.disabled=true;
+  try{
+    if(state.section==='users') await loadUsers();
+    else await loadLessons();
+  }finally{
+    btn.disabled=false;
+    setTimeout(()=>btn.classList.remove('is-refreshing'),180);
+  }
+};
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{state.userFilter=b.dataset.filter;renderUsers()});
 $('userSearch').oninput=()=>{state.userQuery=$('userSearch').value;renderUsers()};
 $('lessonSearch').oninput=()=>{state.lessonQuery=$('lessonSearch').value;renderLessons()};

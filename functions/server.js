@@ -2705,15 +2705,48 @@ router.get('/lessons', async (req, res) => {
   }
 });
 
-// GET: Single lesson by ID
+// ============================================================
+// COMPLETE LESSON API
+// ============================================================
+// Neon is the single source of truth.
+//
+// Main lesson:
+//   lessons
+//
+// Relational lesson data:
+//   lesson_objectives
+//   lesson_content
+//   lesson_vocabulary
+//   lesson_examples
+//   lesson_media
+//   lesson_quiz_questions
+//   lesson_quiz_options
+//   lesson_completion_settings
+//
+// EVERYTHING is returned in order_index order.
+// ============================================================
+
 router.get('/lessons/:lessonId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const { lessonId } = req.params;
+    const lessonId = String(req.params.lessonId || '').trim();
 
-    const result = await pool.query(`
-      SELECT 
+    if (!lessonId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Lesson ID is required.'
+      });
+    }
+
+    console.log(`📚 Loading lesson from database: ${lessonId}`);
+
+    // ========================================================
+    // 1. MAIN LESSON
+    // ========================================================
+
+    const lessonResult = await pool.query(`
+      SELECT
         lesson_id,
         title,
         description,
@@ -2723,48 +2756,354 @@ router.get('/lessons/:lessonId', async (req, res) => {
         xp,
         icon,
         order_index,
-        vocabulary,
-        quiz,
-        learning_objectives
+        category,
+        is_published,
+        is_featured,
+        course_type,
+        short_description,
+        estimated_minutes,
+        is_premium
       FROM lessons
-      WHERE lesson_id = $1 AND is_published = true
+      WHERE lesson_id = $1
+        AND is_published = TRUE
+      LIMIT 1
     `, [lessonId]);
 
-    if (!result.rows.length) {
+    if (lessonResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Lesson not found'
+        error: 'Lesson not found.'
       });
     }
 
-    const l = result.rows[0];
+    const lesson = lessonResult.rows[0];
+
+    console.log(`✅ Lesson found: ${lesson.title}`);
+
+    // ========================================================
+    // 2. OBJECTIVES
+    // ========================================================
+
+    const objectivesResult = await pool.query(`
+      SELECT
+        objective_id,
+        lesson_id,
+        objective,
+        order_index
+      FROM lesson_objectives
+      WHERE lesson_id = $1
+      ORDER BY order_index ASC, objective_id ASC
+    `, [lessonId]);
+
+    // ========================================================
+    // 3. CONTENT
+    // ========================================================
+
+    const contentResult = await pool.query(`
+      SELECT
+        content_id,
+        lesson_id,
+        content_type,
+        title,
+        body,
+        media_url,
+        order_index
+      FROM lesson_content
+      WHERE lesson_id = $1
+      ORDER BY order_index ASC, content_id ASC
+    `, [lessonId]);
+
+    // ========================================================
+    // 4. VOCABULARY
+    // ========================================================
+
+    const vocabularyResult = await pool.query(`
+      SELECT
+        vocabulary_id,
+        lesson_id,
+        chinese,
+        pinyin,
+        english,
+        part_of_speech,
+        example_chinese,
+        example_pinyin,
+        example_english,
+        audio_url,
+        image_url,
+        notes,
+        order_index
+      FROM lesson_vocabulary
+      WHERE lesson_id = $1
+      ORDER BY order_index ASC, vocabulary_id ASC
+    `, [lessonId]);
+
+    // ========================================================
+    // 5. EXAMPLES
+    // ========================================================
+
+    const examplesResult = await pool.query(`
+      SELECT
+        example_id,
+        lesson_id,
+        speaker,
+        chinese,
+        pinyin,
+        english,
+        audio_url,
+        order_index
+      FROM lesson_examples
+      WHERE lesson_id = $1
+      ORDER BY order_index ASC, example_id ASC
+    `, [lessonId]);
+
+    // ========================================================
+    // 6. MEDIA
+    // ========================================================
+
+    const mediaResult = await pool.query(`
+      SELECT
+        media_id,
+        lesson_id,
+        media_type,
+        media_url,
+        title,
+        caption,
+        alt_text,
+        poster_url,
+        duration_seconds,
+        order_index,
+        is_published
+      FROM lesson_media
+      WHERE lesson_id = $1
+        AND is_published = TRUE
+      ORDER BY order_index ASC, media_id ASC
+    `, [lessonId]);
+
+    // ========================================================
+    // 7. QUIZ QUESTIONS
+    // ========================================================
+
+    const quizQuestionsResult = await pool.query(`
+      SELECT
+        question_id,
+        lesson_id,
+        question,
+        question_type,
+        explanation,
+        points,
+        order_index
+      FROM lesson_quiz_questions
+      WHERE lesson_id = $1
+      ORDER BY order_index ASC, question_id ASC
+    `, [lessonId]);
+
+    // ========================================================
+    // 8. QUIZ OPTIONS
+    // ========================================================
+
+    const questionIds = quizQuestionsResult.rows.map(
+      question => question.question_id
+    );
+
+    let quizOptionsResult = {
+      rows: []
+    };
+
+    if (questionIds.length > 0) {
+      quizOptionsResult = await pool.query(`
+        SELECT
+          option_id,
+          question_id,
+          option_text,
+          is_correct,
+          order_index
+        FROM lesson_quiz_options
+        WHERE question_id = ANY($1::integer[])
+        ORDER BY
+          question_id ASC,
+          order_index ASC,
+          option_id ASC
+      `, [questionIds]);
+    }
+
+    // ========================================================
+    // 9. CONNECT OPTIONS TO QUESTIONS
+    // ========================================================
+
+    const optionsByQuestion = {};
+
+    for (const option of quizOptionsResult.rows) {
+
+      if (!optionsByQuestion[option.question_id]) {
+        optionsByQuestion[option.question_id] = [];
+      }
+
+      optionsByQuestion[option.question_id].push(option);
+    }
+
+    const quiz = quizQuestionsResult.rows.map(
+      question => ({
+        ...question,
+
+        options:
+          optionsByQuestion[question.question_id] || []
+      })
+    );
+
+    // ========================================================
+    // 10. COMPLETION SETTINGS
+    // ========================================================
+
+    const completionResult = await pool.query(`
+      SELECT
+        lesson_id,
+        passing_score,
+        requires_quiz,
+        min_attempts,
+        completion_xp
+      FROM lesson_completion_settings
+      WHERE lesson_id = $1
+      LIMIT 1
+    `, [lessonId]);
+
+    const completionSettings =
+      completionResult.rows[0] || {
+        lesson_id: lessonId,
+        passing_score: 80,
+        requires_quiz: true,
+        min_attempts: 1,
+        completion_xp: lesson.xp || 20
+      };
+
+    // ========================================================
+    // 11. DIAGNOSTIC LOG
+    // ========================================================
+
+    console.log(
+      `📊 ${lessonId} database contents:`
+    );
+
+    console.log(
+      `   🎯 Objectives: ${objectivesResult.rows.length}`
+    );
+
+    console.log(
+      `   📖 Content: ${contentResult.rows.length}`
+    );
+
+    console.log(
+      `   🀄 Vocabulary: ${vocabularyResult.rows.length}`
+    );
+
+    console.log(
+      `   💬 Examples: ${examplesResult.rows.length}`
+    );
+
+    console.log(
+      `   🎬 Media: ${mediaResult.rows.length}`
+    );
+
+    console.log(
+      `   🧠 Quiz questions: ${quiz.length}`
+    );
+
+    console.log(
+      `   🔘 Quiz options: ${quizOptionsResult.rows.length}`
+    );
+
+    // ========================================================
+    // 12. RETURN EVERYTHING
+    // ========================================================
 
     return res.json({
+
       success: true,
+
       lesson: {
-        id: l.lesson_id,
-        title: l.title,
-        description: l.description,
-        content: l.content || '',
-        level: l.level,
-        premium: l.premium,
-        xp: l.xp || 10,
-        icon: l.icon || '📚',
-        vocabulary: l.vocabulary || [],
-        quiz: l.quiz || [],
-        learningObjectives: l.learning_objectives || []
-      }
+        lesson_id: lesson.lesson_id,
+        id: lesson.lesson_id,
+
+        title: lesson.title,
+
+        description:
+          lesson.description || '',
+
+        short_description:
+          lesson.short_description || '',
+
+        course_type:
+          lesson.course_type || 'YCT',
+
+        category:
+          lesson.category || 'yct',
+
+        level:
+          lesson.level || 1,
+
+        premium:
+          lesson.premium === true ||
+          lesson.is_premium === true,
+
+        is_premium:
+          lesson.is_premium === true,
+
+        xp:
+          lesson.xp || 10,
+
+        icon:
+          lesson.icon || '🐼',
+
+        order_index:
+          lesson.order_index || 0,
+
+        estimated_minutes:
+          lesson.estimated_minutes || 15,
+
+        is_featured:
+          lesson.is_featured === true
+      },
+
+      // ======================================================
+      // RELATIONAL DATA
+      // ======================================================
+
+      objectives:
+        objectivesResult.rows,
+
+      content:
+        contentResult.rows,
+
+      vocabulary:
+        vocabularyResult.rows,
+
+      examples:
+        examplesResult.rows,
+
+      media:
+        mediaResult.rows,
+
+      quiz,
+
+      completion_settings:
+        completionSettings
     });
 
   } catch (error) {
-    console.error('❌ Lesson fetch error:', error);
+
+    console.error(
+      '❌ Complete lesson API error:',
+      error
+    );
+
     return res.status(500).json({
       success: false,
-      error: 'Failed to fetch lesson'
+      error:
+        process.env.NODE_ENV === 'development'
+          ? error.message
+          : 'Failed to load lesson.'
     });
   }
 });
-
 /* ==========================================
   PROGRESS ENDPOINTS 📊
 ========================================== */
@@ -3820,15 +4159,347 @@ router.post('/admin/email/campaigns', verifyAdminToken, async (req, res) => {
   }
 });
 
+// ============================================================
+// HANVERSE CAMPAIGN EMAIL TEMPLATE
+// ============================================================
+
+function escapeEmailHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function campaignMessageToHtml(message) {
+  const safeMessage = escapeEmailHtml(message || '');
+
+  return safeMessage
+    .split(/\n\s*\n/)
+    .map(paragraph => {
+      const formatted = paragraph.replace(/\n/g, '<br>');
+      return `<p style="margin:0 0 18px 0;">${formatted}</p>`;
+    })
+    .join('');
+}
+
+function buildHanVerseCampaignEmail({
+  recipientName,
+  subject,
+  message
+}) {
+  const safeName = escapeEmailHtml(
+    recipientName || 'HanVerse Learner'
+  );
+
+  const safeSubject = escapeEmailHtml(
+    subject || 'A message from HanVerse'
+  );
+
+  const messageHtml = campaignMessageToHtml(message);
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>${safeSubject}</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #FFFDF7;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #333333;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    img {
+      border: 0;
+      outline: none;
+      text-decoration: none;
+      max-width: 100%;
+    }
+
+    a {
+      color: #E63946;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .email-wrapper {
+        width: 100% !important;
+      }
+
+      .email-content {
+        padding: 28px 20px !important;
+      }
+
+      .email-title {
+        font-size: 25px !important;
+      }
+
+      .panda {
+        font-size: 48px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <table
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="background-color:#FFFDF7;padding:28px 12px;"
+  >
+    <tr>
+      <td align="center">
+
+        <!-- MAIN EMAIL -->
+        <table
+          class="email-wrapper"
+          width="600"
+          cellpadding="0"
+          cellspacing="0"
+          border="0"
+          style="
+            width:600px;
+            max-width:600px;
+            background:#ffffff;
+            border-radius:20px;
+            overflow:hidden;
+            border:1px solid #eee9df;
+            box-shadow:0 8px 30px rgba(51,51,51,0.08);
+          "
+        >
+
+          <!-- HEADER -->
+          <tr>
+            <td
+              align="center"
+              style="
+                background:#E63946;
+                padding:28px 20px 24px;
+              "
+            >
+
+              <div
+                class="panda"
+                style="
+                  font-size:56px;
+                  line-height:1;
+                  margin-bottom:10px;
+                "
+              >
+                🐼
+              </div>
+
+              <div
+                style="
+                  color:#ffffff;
+                  font-size:28px;
+                  font-weight:800;
+                  letter-spacing:-0.5px;
+                "
+              >
+                HanVerse
+              </div>
+
+              <div
+                style="
+                  color:#ffffff;
+                  opacity:0.9;
+                  font-size:13px;
+                  margin-top:5px;
+                "
+              >
+                Learn Chinese. Have Fun.
+              </div>
+
+            </td>
+          </tr>
+
+
+          <!-- CONTENT -->
+          <tr>
+            <td
+              class="email-content"
+              style="
+                padding:38px 42px 32px;
+              "
+            >
+
+              <!-- GREETING -->
+              <div
+                style="
+                  font-size:15px;
+                  color:#666666;
+                  margin-bottom:18px;
+                "
+              >
+                Hi ${safeName} 👋
+              </div>
+
+
+              <!-- SUBJECT -->
+              <h1
+                class="email-title"
+                style="
+                  margin:0 0 22px 0;
+                  color:#E63946;
+                  font-size:29px;
+                  line-height:1.25;
+                  font-weight:800;
+                  letter-spacing:-0.5px;
+                "
+              >
+                ${safeSubject}
+              </h1>
+
+
+              <!-- MESSAGE CARD -->
+              <table
+                width="100%"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+              >
+                <tr>
+                  <td
+                    style="
+                      background:#FFFDF7;
+                      border-left:4px solid #F4D35E;
+                      border-radius:12px;
+                      padding:22px 20px;
+                      color:#444444;
+                      font-size:15px;
+                      line-height:1.75;
+                    "
+                  >
+                    ${messageHtml}
+                  </td>
+                </tr>
+              </table>
+
+
+              <!-- PANDA SIGN-OFF -->
+              <div
+                style="
+                  margin-top:30px;
+                  padding-top:24px;
+                  border-top:1px solid #eee9df;
+                "
+              >
+
+                <div
+                  style="
+                    font-size:15px;
+                    color:#555555;
+                    line-height:1.6;
+                  "
+                >
+                  Keep learning, keep practicing, and keep having fun! 🌟
+                </div>
+
+                <div
+                  style="
+                    margin-top:16px;
+                    font-size:15px;
+                    font-weight:700;
+                    color:#333333;
+                  "
+                >
+                  The HanVerse Team 🐼
+                </div>
+
+              </div>
+
+            </td>
+          </tr>
+
+
+          <!-- FOOTER -->
+          <tr>
+            <td
+              align="center"
+              style="
+                background:#333333;
+                padding:24px 20px;
+              "
+            >
+
+              <div
+                style="
+                  color:#ffffff;
+                  font-size:14px;
+                  font-weight:700;
+                "
+              >
+                HanVerse 🐼
+              </div>
+
+              <div
+                style="
+                  color:#bbbbbb;
+                  font-size:12px;
+                  margin-top:7px;
+                  line-height:1.5;
+                "
+              >
+                Learn Chinese. Have Fun.
+              </div>
+
+              <div
+                style="
+                  color:#999999;
+                  font-size:11px;
+                  margin-top:12px;
+                "
+              >
+                You are receiving this email because you have a HanVerse account.
+              </div>
+
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+`;
+}
+
+
+// ============================================================
 // CAMPAIGN PROCESSING FUNCTION
+// ============================================================
+
 async function processCampaign(campaignId) {
   try {
     if (!pool) {
-      console.error(`❌ Cannot process campaign ${campaignId}: Database pool not available`);
+      console.error(
+        `❌ Cannot process campaign ${campaignId}: Database pool not available`
+      );
       return;
     }
 
-    // Get campaign details
+    // --------------------------------------------------------
+    // GET CAMPAIGN
+    // --------------------------------------------------------
+
     const campaignResult = await pool.query(
       `SELECT * FROM email_campaigns WHERE campaign_id = $1`,
       [campaignId]
@@ -3841,28 +4512,40 @@ async function processCampaign(campaignId) {
 
     const campaign = campaignResult.rows[0];
 
-    // Get recipients
+
+    // --------------------------------------------------------
+    // GET PENDING RECIPIENTS
+    // --------------------------------------------------------
+
     const recipientsResult = await pool.query(
-      `SELECT * FROM email_campaign_recipients WHERE campaign_id = $1 AND status = 'pending'`,
+      `
+        SELECT *
+        FROM email_campaign_recipients
+        WHERE campaign_id = $1
+          AND status = 'pending'
+      `,
       [campaignId]
     );
+
 
     let sent = 0;
     let failed = 0;
 
+
+    // --------------------------------------------------------
+    // SEND TO EACH RECIPIENT
+    // --------------------------------------------------------
+
     for (const recipient of recipientsResult.rows) {
+
       try {
-        const html = `
-          <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;color:#333;">
-            <div style="text-align:center;">
-              <div style="font-size:48px;">🐼</div>
-              <h2 style="color:#E63946;">${campaign.subject}</h2>
-            </div>
-            <div style="margin-top:20px;line-height:1.7;white-space:pre-wrap;">${campaign.message}</div>
-            <hr style="margin:28px 0;border:0;border-top:1px solid #eee;">
-            <p style="color:#777;font-size:13px;text-align:center;">HanVerse — Learn Chinese. Have Fun. 🐼</p>
-          </div>
-        `;
+
+        const html = buildHanVerseCampaignEmail({
+          recipientName: recipient.recipient_name,
+          subject: campaign.subject,
+          message: campaign.message
+        });
+
 
         const emailResult = await sendEmail({
           to: recipient.email,
@@ -3870,50 +4553,144 @@ async function processCampaign(campaignId) {
           html
         });
 
+
+        // ----------------------------------------------------
+        // SUCCESS
+        // ----------------------------------------------------
+
         if (emailResult.success) {
+
           await pool.query(
-            `UPDATE email_campaign_recipients SET status = 'sent', sent_at = NOW() WHERE recipient_id = $1`,
+            `
+              UPDATE email_campaign_recipients
+              SET
+                status = 'sent',
+                sent_at = NOW(),
+                error_message = NULL
+              WHERE recipient_id = $1
+            `,
             [recipient.recipient_id]
           );
+
           sent++;
-        } else {
-          await pool.query(
-            `UPDATE email_campaign_recipients SET status = 'failed', error_message = $1 WHERE recipient_id = $2`,
-            [emailResult.error, recipient.recipient_id]
+
+          console.log(
+            `✅ Campaign ${campaignId}: sent to ${recipient.email}`
           );
-          failed++;
+
         }
+
+
+        // ----------------------------------------------------
+        // EMAIL PROVIDER FAILURE
+        // ----------------------------------------------------
+
+        else {
+
+          await pool.query(
+            `
+              UPDATE email_campaign_recipients
+              SET
+                status = 'failed',
+                error_message = $1
+              WHERE recipient_id = $2
+            `,
+            [
+              emailResult.error || 'Email provider returned an unknown error.',
+              recipient.recipient_id
+            ]
+          );
+
+          failed++;
+
+          console.error(
+            `❌ Campaign ${campaignId}: failed for ${recipient.email}`,
+            emailResult.error
+          );
+
+        }
+
       } catch (error) {
+
         failed++;
-        console.error(`❌ Failed to send to ${recipient.email}:`, error);
-        await pool.query(
-          `UPDATE email_campaign_recipients SET status = 'failed', error_message = $1 WHERE recipient_id = $2`,
-          [error.message, recipient.recipient_id]
+
+        console.error(
+          `❌ Campaign ${campaignId}: failed to send to ${recipient.email}:`,
+          error
         );
+
+
+        await pool.query(
+          `
+            UPDATE email_campaign_recipients
+            SET
+              status = 'failed',
+              error_message = $1
+            WHERE recipient_id = $2
+          `,
+          [
+            error.message || 'Unknown email sending error.',
+            recipient.recipient_id
+          ]
+        );
+
       }
+
     }
 
-    // Update campaign status
+
+    // --------------------------------------------------------
+    // UPDATE CAMPAIGN STATUS
+    // --------------------------------------------------------
+
     await pool.query(
-      `UPDATE email_campaigns
-       SET status = 'completed', sent_count = $1, failed_count = $2, sent_at = NOW(), updated_at = NOW()
-       WHERE campaign_id = $3`,
-      [sent, failed, campaignId]
+      `
+        UPDATE email_campaigns
+        SET
+          status = 'completed',
+          sent_count = $1,
+          failed_count = $2,
+          sent_at = NOW(),
+          updated_at = NOW()
+        WHERE campaign_id = $3
+      `,
+      [
+        sent,
+        failed,
+        campaignId
+      ]
     );
 
-    console.log(`✅ Campaign ${campaignId} completed: ${sent} sent, ${failed} failed`);
+
+    console.log(
+      `✅ Campaign ${campaignId} completed: ${sent} sent, ${failed} failed`
+    );
 
   } catch (error) {
-    console.error(`❌ Campaign ${campaignId} processing error:`, error);
+
+    console.error(
+      `❌ Campaign ${campaignId} processing error:`,
+      error
+    );
+
+
     try {
+
       await pool.query(
-        `UPDATE email_campaigns SET status = 'failed', updated_at = NOW() WHERE campaign_id = $1`,
+        `
+          UPDATE email_campaigns
+          SET
+            status = 'failed',
+            updated_at = NOW()
+          WHERE campaign_id = $1
+        `,
         [campaignId]
       );
+
     } catch (_) {}
+
   }
 }
-
 // CANCEL CAMPAIGN
 router.post('/admin/email/campaigns/:id/cancel', verifyAdminToken, async (req, res) => {
   try {
