@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="HanVerse — fun, interactive Chinese learning for young learners.">
+<meta name="description" content="HanVerse helps children learn Mandarin Chinese through structured YCT-aligned lessons, vocabulary, examples, practice and progress tracking for young learners.">
 <meta name="theme-color" content="#F8FBFF">
-<title>HanVerse | Learn Chinese Through Adventure</title>
+<title>HanVerse | YCT-Aligned Chinese Learning for Children</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1159,6 +1159,694 @@ footer{
 }
 </style>
 
+<style id="hanverse-premium-site">
+/* ============================================================
+   HANVERSE — PREMIUM PARENT-FIRST HOMEPAGE
+   Visual direction:
+   premium educational platform / warm editorial / child-friendly
+   No games on the homepage.
+   Existing HanVerse colour palette preserved.
+   ============================================================ */
+
+:root{
+  --hv-bg:#FFFDF7;
+  --hv-ink:#172033;
+  --hv-muted:#657083;
+  --hv-line:rgba(23,32,51,.10);
+  --hv-soft:#F7F8FA;
+  --hv-blue:#4EA8DE;
+  --hv-red:#E63946;
+  --hv-yellow:#F4D35E;
+  --hv-green:#74C69D;
+  --hv-radius:26px;
+  --hv-shadow:0 22px 70px rgba(28,43,64,.10);
+  --hv-shadow-sm:0 12px 34px rgba(28,43,64,.08);
+  --hv-ease:cubic-bezier(.2,.8,.2,1);
+  --hv-spring:cubic-bezier(.16,1,.3,1);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at 10% 8%,rgba(78,168,222,.08),transparent 25%),
+    radial-gradient(circle at 90% 28%,rgba(116,198,157,.08),transparent 24%),
+    var(--hv-bg);
+  color:var(--hv-ink);
+}
+body:before,body:after{display:none}
+
+/* Header */
+.site-header{
+  background:rgba(255,253,247,.86);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(23,32,51,.06);
+}
+.navbar{
+  max-width:1180px;
+  min-height:72px;
+  margin:auto;
+  border-radius:0;
+  box-shadow:none;
+  background:transparent;
+}
+.brand-mark{
+  box-shadow:0 8px 20px rgba(78,168,222,.18);
+}
+.nav-link{
+  font-weight:650;
+  color:#4D586B;
+}
+.nav-link:hover,.nav-link.active{color:var(--hv-ink)}
+.nav-link:after{
+  background:var(--hv-red);
+  bottom:2px;
+}
+
+/* Buttons */
+.btn{
+  border-radius:14px;
+  min-height:46px;
+  padding:0 20px;
+  font-weight:750;
+  letter-spacing:-.01em;
+}
+.primary{
+  background:var(--hv-blue);
+  box-shadow:0 10px 26px rgba(78,168,222,.22);
+}
+.primary:hover{
+  box-shadow:0 15px 34px rgba(78,168,222,.28);
+  transform:translateY(-2px);
+}
+.secondary{
+  background:#fff;
+  border:1px solid var(--hv-line);
+  box-shadow:0 7px 20px rgba(23,32,51,.05);
+}
+.secondary:hover{
+  background:#fff;
+  border-color:rgba(78,168,222,.30);
+  transform:translateY(-2px);
+}
+
+/* Hero */
+.hero{
+  min-height:690px;
+  padding:78px 0 82px;
+  position:relative;
+  overflow:hidden;
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  width:620px;
+  height:620px;
+  right:-250px;
+  top:-160px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(78,168,222,.12),transparent 68%);
+  pointer-events:none;
+}
+.hero:after{
+  content:"";
+  position:absolute;
+  width:420px;
+  height:220px;
+  left:-160px;
+  bottom:-110px;
+  border-radius:50%;
+  background:rgba(244,211,94,.12);
+  filter:blur(35px);
+  pointer-events:none;
+}
+.hero-content{
+  max-width:670px;
+  animation:heroIn .8s var(--hv-spring) both;
+}
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border:1px solid rgba(78,168,222,.18);
+  background:rgba(78,168,222,.07);
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#367FAE;
+}
+.hero h1{
+  font-size:clamp(44px,5.7vw,72px);
+  line-height:.98;
+  letter-spacing:-.055em;
+  margin:20px 0 22px;
+  max-width:680px;
+}
+.hero h1 .underline{
+  color:var(--hv-red);
+}
+.hero p{
+  max-width:620px;
+  font-size:18px;
+  line-height:1.72;
+  color:#5F6B7D;
+}
+.hero-actions{
+  margin-top:30px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.hero-trust{
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px;
+  margin-top:25px;
+  color:#657083;
+  font-size:13px;
+}
+.hero-trust span{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.hero-trust i{
+  color:var(--hv-green);
+}
+
+/* Hero visual: premium lesson preview */
+.hero-visual{
+  animation:visualIn .9s var(--hv-spring) .12s both;
+}
+.hero-visual:before{
+  content:"";
+  position:absolute;
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  border:1px solid rgba(78,168,222,.13);
+  right:40px;
+  top:45px;
+  box-shadow:0 0 0 35px rgba(78,168,222,.025),0 0 0 70px rgba(78,168,222,.018);
+  animation:ringFloat 8s ease-in-out infinite;
+}
+.lesson{
+  transform:none;
+  border:1px solid rgba(23,32,51,.09);
+  border-radius:30px;
+  background:rgba(255,255,255,.90);
+  box-shadow:var(--hv-shadow);
+  backdrop-filter:blur(12px);
+  animation:cardFloat 7s ease-in-out 1s infinite;
+}
+.lesson-top{
+  border-bottom:1px solid var(--hv-line);
+}
+.character{
+  background:
+    radial-gradient(circle at 30% 20%,rgba(244,211,94,.28),transparent 38%),
+    linear-gradient(145deg,#F7FBFF,#EEF7FC);
+  border-radius:24px;
+  border:1px solid rgba(78,168,222,.10);
+}
+.lesson .panda{
+  filter:drop-shadow(0 14px 18px rgba(23,32,51,.10));
+}
+
+/* Small floating facts */
+.float{
+  border:1px solid rgba(23,32,51,.08);
+  box-shadow:0 15px 32px rgba(23,32,51,.09);
+  backdrop-filter:blur(12px);
+}
+.xp{background:#FFFDF0}
+.streak{background:#F2FBF6}
+
+/* Section system */
+section{
+  position:relative;
+}
+.section{
+  padding:108px 0;
+}
+.section-head{
+  max-width:760px;
+  margin:0 auto 48px;
+  text-align:center;
+}
+.section-head .eyebrow{
+  margin-bottom:14px;
+}
+.section-head h2{
+  font-size:clamp(32px,4vw,48px);
+  line-height:1.05;
+  letter-spacing:-.045em;
+  margin:0 0 14px;
+}
+.section-head p{
+  font-size:16px;
+  line-height:1.7;
+  color:var(--hv-muted);
+  margin:0 auto;
+  max-width:660px;
+}
+
+/* Parent value cards */
+.feature-grid{
+  gap:18px;
+}
+.feature{
+  border:1px solid var(--hv-line);
+  background:#fff;
+  border-radius:22px;
+  padding:28px;
+  box-shadow:0 8px 30px rgba(23,32,51,.035);
+  transition:transform .3s var(--hv-spring),box-shadow .3s ease,border-color .3s ease;
+}
+.feature:hover{
+  transform:translateY(-7px);
+  box-shadow:var(--hv-shadow-sm);
+  border-color:rgba(78,168,222,.20);
+}
+.feature-icon{
+  border-radius:15px;
+  box-shadow:none;
+}
+.feature h3{
+  font-size:19px;
+  letter-spacing:-.02em;
+}
+.feature p{
+  line-height:1.65;
+  color:#687386;
+}
+
+/* Curriculum */
+#curriculum{
+  background:#F7F9FB;
+  border-top:1px solid rgba(23,32,51,.05);
+  border-bottom:1px solid rgba(23,32,51,.05);
+}
+.course-grid{
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+.course{
+  min-height:245px;
+  background:#fff;
+  border:1px solid var(--hv-line);
+  border-radius:24px;
+  padding:26px;
+  box-shadow:0 8px 28px rgba(23,32,51,.035);
+}
+.course:nth-child(1){border-top:4px solid var(--hv-blue)}
+.course:nth-child(2){border-top:4px solid var(--hv-green)}
+.course:nth-child(3){border-top:4px solid var(--hv-yellow)}
+.course:nth-child(4){border-top:4px solid var(--hv-red)}
+.course:hover{
+  transform:translateY(-8px);
+  box-shadow:var(--hv-shadow-sm);
+}
+.course .level{
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.course h3{
+  font-size:23px;
+  margin:12px 0 9px;
+}
+.course p{
+  line-height:1.62;
+  color:#697487;
+}
+.course a{
+  margin-top:20px;
+  font-weight:800;
+}
+
+/* Sample lesson */
+.peek{
+  background:#fff;
+}
+.lesson-preview{
+  max-width:1050px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:.85fr 1.15fr;
+  gap:18px;
+  align-items:stretch;
+}
+.preview-intro{
+  border-radius:28px;
+  padding:42px;
+  background:
+    radial-gradient(circle at 90% 10%,rgba(244,211,94,.18),transparent 34%),
+    linear-gradient(145deg,#F7FBFF,#F3F8FB);
+  border:1px solid rgba(78,168,222,.12);
+}
+.preview-intro h3{
+  font-size:32px;
+  letter-spacing:-.04em;
+  margin:12px 0;
+}
+.preview-intro p{
+  color:#647083;
+  line-height:1.7;
+}
+.preview-window{
+  border:1px solid var(--hv-line);
+  border-radius:28px;
+  background:#fff;
+  box-shadow:var(--hv-shadow);
+  overflow:hidden;
+}
+.preview-window-head{
+  height:50px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:0 18px;
+  border-bottom:1px solid var(--hv-line);
+  background:#FBFCFD;
+}
+.preview-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+}
+.preview-body{
+  padding:28px;
+}
+.preview-vocab{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:20px;
+  border-radius:20px;
+  background:#FAFBFC;
+  border:1px solid var(--hv-line);
+}
+.preview-vocab .hanzi{
+  font-size:54px;
+  font-weight:800;
+  line-height:1;
+}
+.preview-vocab .pinyin{
+  color:var(--hv-blue);
+  font-weight:750;
+}
+.preview-vocab .meaning{
+  color:#697487;
+  font-size:14px;
+}
+.preview-example{
+  margin-top:15px;
+  padding:20px;
+  border-radius:20px;
+  background:#FFFDF7;
+  border:1px solid rgba(244,211,94,.25);
+}
+.preview-example .cn{
+  font-size:24px;
+  font-weight:750;
+}
+.preview-example .py{
+  color:#697487;
+  margin-top:5px;
+}
+.preview-example .en{
+  margin-top:8px;
+  color:#4E596B;
+}
+
+/* Panda guide */
+.guide{
+  background:
+    radial-gradient(circle at 15% 25%,rgba(78,168,222,.10),transparent 28%),
+    radial-gradient(circle at 85% 75%,rgba(116,198,157,.10),transparent 28%),
+    #F7F9FB;
+}
+.guide-box{
+  max-width:1000px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:40px;
+  align-items:center;
+  padding:46px;
+  border-radius:32px;
+  background:#fff;
+  border:1px solid var(--hv-line);
+  box-shadow:var(--hv-shadow-sm);
+}
+.guide-panda{
+  display:grid;
+  place-items:center;
+  min-height:230px;
+  border-radius:26px;
+  background:linear-gradient(145deg,#F4FAFE,#FFFDF7);
+}
+.guide-panda img{
+  max-width:180px;
+  filter:drop-shadow(0 18px 20px rgba(23,32,51,.12));
+  animation:gentlePanda 4s ease-in-out infinite;
+}
+@keyframes gentlePanda{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+.guide-copy h2{
+  font-size:40px;
+  line-height:1.05;
+  letter-spacing:-.04em;
+  margin:0 0 15px;
+}
+.guide-copy p{
+  color:#667184;
+  line-height:1.75;
+  max-width:650px;
+}
+.guide-points{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:25px;
+}
+.guide-point{
+  padding:16px;
+  border-radius:17px;
+  background:#FAFBFC;
+  border:1px solid var(--hv-line);
+}
+.guide-point strong{display:block;margin-bottom:5px}
+.guide-point span{font-size:13px;color:#697487}
+
+/* Parents */
+.parent-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+  max-width:1000px;
+  margin:auto;
+}
+.parent-card{
+  padding:30px;
+  border:1px solid var(--hv-line);
+  border-radius:23px;
+  background:#fff;
+  transition:transform .3s var(--hv-spring),box-shadow .3s ease;
+}
+.parent-card:hover{
+  transform:translateY(-5px);
+  box-shadow:var(--hv-shadow-sm);
+}
+.parent-card h3{margin:0 0 9px}
+.parent-card p{margin:0;color:#687386;line-height:1.68}
+
+/* Trust */
+.trust-strip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  max-width:1000px;
+  margin:auto;
+  border:1px solid var(--hv-line);
+  border-radius:25px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 8px 30px rgba(23,32,51,.04);
+}
+.trust-item{
+  padding:28px 22px;
+  text-align:center;
+  border-right:1px solid var(--hv-line);
+}
+.trust-item:last-child{border-right:0}
+.trust-item i{
+  display:block;
+  font-size:25px;
+  margin-bottom:11px;
+}
+.trust-item strong{display:block}
+.trust-item span{font-size:12px;color:#697487}
+
+/* FAQ */
+.faq{
+  max-width:850px;
+  margin:auto;
+}
+.faq-item{
+  border-bottom:1px solid var(--hv-line);
+}
+.faq-q{
+  width:100%;
+  padding:23px 4px;
+  border:0;
+  background:transparent;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  text-align:left;
+  font:inherit;
+  font-weight:750;
+  color:var(--hv-ink);
+  cursor:pointer;
+}
+.faq-q i{
+  transition:transform .25s var(--hv-ease);
+}
+.faq-item.open .faq-q i{transform:rotate(45deg)}
+.faq-a{
+  max-height:0;
+  overflow:hidden;
+  color:#687386;
+  line-height:1.7;
+  transition:max-height .35s var(--hv-ease),padding .35s ease;
+}
+.faq-item.open .faq-a{
+  max-height:180px;
+  padding:0 4px 22px;
+}
+
+/* Pricing */
+.pricing{
+  background:#F7F9FB;
+  border-top:1px solid rgba(23,32,51,.05);
+}
+.price-grid{
+  max-width:820px;
+  margin:auto;
+}
+.price-card{
+  border-radius:26px;
+  border:1px solid var(--hv-line);
+  background:#fff;
+  box-shadow:0 10px 35px rgba(23,32,51,.05);
+}
+.price-card.featured{
+  border:1.5px solid rgba(78,168,222,.35);
+  box-shadow:0 22px 60px rgba(78,168,222,.13);
+}
+
+/* CTA */
+.cta{
+  padding:110px 0;
+}
+.cta-box{
+  position:relative;
+  overflow:hidden;
+  border-radius:34px;
+  padding:70px 40px;
+  background:
+    radial-gradient(circle at 85% 20%,rgba(244,211,94,.16),transparent 25%),
+    radial-gradient(circle at 10% 80%,rgba(116,198,157,.13),transparent 28%),
+    #17324D;
+  color:#fff;
+  box-shadow:0 28px 80px rgba(23,50,77,.20);
+}
+.cta-box h2{
+  font-size:clamp(36px,4.5vw,56px);
+  letter-spacing:-.045em;
+}
+.cta-box p{
+  color:rgba(255,255,255,.75);
+  max-width:600px;
+  margin:auto;
+  line-height:1.7;
+}
+.cta-actions .secondary{
+  background:rgba(255,255,255,.10);
+  color:#fff;
+  border-color:rgba(255,255,255,.20);
+}
+.cta-actions .primary{
+  background:var(--hv-red);
+  box-shadow:0 12px 28px rgba(230,57,70,.24);
+}
+
+/* Scroll reveal */
+.hv-reveal{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity .7s var(--hv-spring),transform .7s var(--hv-spring);
+}
+.hv-reveal.visible{opacity:1;transform:none}
+
+/* Scroll progress */
+#hvScrollProgress{
+  position:fixed;
+  top:0;
+  left:0;
+  width:0;
+  height:3px;
+  z-index:4000;
+  background:linear-gradient(90deg,var(--hv-blue),var(--hv-green));
+}
+
+/* Mobile */
+@media(max-width:900px){
+  .hero{padding-top:54px}
+  .hero h1{font-size:48px}
+  .course-grid{grid-template-columns:repeat(2,1fr)}
+  .lesson-preview{grid-template-columns:1fr}
+  .guide-box{grid-template-columns:1fr;padding:28px}
+  .guide-points{grid-template-columns:1fr}
+  .trust-strip{grid-template-columns:repeat(2,1fr)}
+  .trust-item:nth-child(2){border-right:0}
+  .trust-item:nth-child(-n+2){border-bottom:1px solid var(--hv-line)}
+  .parent-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .hero{padding:40px 0 60px}
+  .hero h1{font-size:40px}
+  .hero p{font-size:16px}
+  .hero-actions .btn{width:100%}
+  .hero-trust{gap:10px;flex-direction:column}
+  .section{padding:78px 0}
+  .course-grid{grid-template-columns:1fr}
+  .preview-vocab{align-items:flex-start;flex-direction:column}
+  .preview-vocab .hanzi{font-size:46px}
+  .trust-strip{grid-template-columns:1fr}
+  .trust-item{border-right:0!important;border-bottom:1px solid var(--hv-line)}
+  .trust-item:last-child{border-bottom:0}
+  .cta-box{padding:52px 24px}
+}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition-duration:.001ms!important;
+  }
+}
+</style>
 </head>
 
 <body>
@@ -1197,7 +1885,281 @@ footer{
   </div>
 </header>
 
-<main>
+
+<main id="premiumHome">
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-content">
+      <span class="eyebrow"><i class="fa-solid fa-sparkles"></i> YCT-aligned Chinese learning</span>
+      <h1>Help your child build a <span class="underline">strong foundation</span> in Mandarin.</h1>
+      <p>HanVerse is a Chinese learning platform designed for young learners. Children build their skills through structured lessons, vocabulary, examples, listening practice and quizzes — while parents can follow their progress.</p>
+
+      <div class="hero-actions">
+        <a class="btn primary" href="#curriculum">Explore the Curriculum <i class="fa-solid fa-arrow-right"></i></a>
+        <a class="btn secondary" href="#sample">See a Sample Lesson</a>
+      </div>
+
+      <div class="hero-trust">
+        <span><i class="fa-solid fa-circle-check"></i> YCT 1–4 pathway</span>
+        <span><i class="fa-solid fa-circle-check"></i> Built for young learners</span>
+        <span><i class="fa-solid fa-circle-check"></i> Progress tracking</span>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="lesson">
+        <div class="lesson-top">
+          <span>HanVerse · Sample Lesson</span>
+          <span><i class="fa-solid fa-book-open"></i></span>
+        </div>
+        <div class="character">
+          <div class="panda">🐼</div>
+          <div class="lesson-word">你好</div>
+          <div class="lesson-pinyin">Nǐ hǎo</div>
+          <div class="lesson-meaning">Hello</div>
+        </div>
+        <div class="lesson-bottom">
+          <div><strong>Vocabulary</strong><span>Learn the word</span></div>
+          <div><strong>Example</strong><span>Use it in context</span></div>
+          <div><strong>Practice</strong><span>Check understanding</span></div>
+        </div>
+      </div>
+      <div class="float xp"><strong>+20 XP</strong><span>Lesson completed</span></div>
+      <div class="float streak"><strong>3 day streak</strong><span>Keep learning</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head hv-reveal">
+      <span class="eyebrow">Why HanVerse?</span>
+      <h2>Chinese learning designed for children.</h2>
+      <p>A structured learning experience that gives children a clear way to learn Mandarin while giving parents a better view of what they are learning.</p>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature hv-reveal">
+        <div class="feature-icon"><i class="fa-solid fa-route"></i></div>
+        <h3>YCT-aligned learning</h3>
+        <p>A progressive pathway from YCT 1 through YCT 4, helping children build their Chinese skills step by step.</p>
+      </article>
+      <article class="feature hv-reveal">
+        <div class="feature-icon"><i class="fa-solid fa-clock"></i></div>
+        <h3>Focused lessons</h3>
+        <p>Lessons are broken into manageable activities so children can learn new material without feeling overwhelmed.</p>
+      </article>
+      <article class="feature hv-reveal">
+        <div class="feature-icon"><i class="fa-solid fa-language"></i></div>
+        <h3>Learn in context</h3>
+        <p>Children meet new vocabulary through characters, pinyin, meanings, examples and practical language use.</p>
+      </article>
+      <article class="feature hv-reveal">
+        <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>Practice & progress</h3>
+        <p>Quizzes and progress tracking help children practise what they have learned and see their development.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="curriculum" class="section">
+  <div class="container">
+    <div class="section-head hv-reveal">
+      <span class="eyebrow">The curriculum</span>
+      <h2>A clear path for growing Chinese skills.</h2>
+      <p>HanVerse is organised around the YCT pathway, giving families a clearer picture of where learning can go next.</p>
+    </div>
+
+    <div class="course-grid">
+      <article class="course hv-reveal">
+        <span class="level">YCT 1</span>
+        <h3>Build the foundations</h3>
+        <p>Develop essential vocabulary, expressions and early confidence with Mandarin Chinese.</p>
+        <a href="#sample">Preview learning <i class="fa-solid fa-arrow-right"></i></a>
+      </article>
+      <article class="course hv-reveal">
+        <span class="level">YCT 2</span>
+        <h3>Expand everyday Chinese</h3>
+        <p>Broaden vocabulary and begin using Chinese across more familiar everyday situations.</p>
+        <a href="#sample">Preview learning <i class="fa-solid fa-arrow-right"></i></a>
+      </article>
+      <article class="course hv-reveal">
+        <span class="level">YCT 3</span>
+        <h3>Develop communication</h3>
+        <p>Build broader comprehension and more practical language skills through structured lessons.</p>
+        <a href="#sample">Preview learning <i class="fa-solid fa-arrow-right"></i></a>
+      </article>
+      <article class="course hv-reveal">
+        <span class="level">YCT 4</span>
+        <h3>Build greater confidence</h3>
+        <p>Continue developing vocabulary, comprehension and communication at a higher level.</p>
+        <a href="#sample">Preview learning <i class="fa-solid fa-arrow-right"></i></a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="sample" class="section peek">
+  <div class="container">
+    <div class="section-head hv-reveal">
+      <span class="eyebrow">Inside a lesson</span>
+      <h2>See what your child actually learns.</h2>
+      <p>HanVerse lessons combine new language with examples and opportunities to practise understanding.</p>
+    </div>
+
+    <div class="lesson-preview">
+      <div class="preview-intro hv-reveal">
+        <span class="eyebrow">Sample vocabulary</span>
+        <h3>Learn the word. Then use it.</h3>
+        <p>Instead of presenting vocabulary in isolation, HanVerse can bring words together with pronunciation, meaning and examples.</p>
+        <a class="btn primary" href="#pricing">Explore HanVerse <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="preview-window hv-reveal">
+        <div class="preview-window-head">
+          <span class="preview-dot" style="background:#E63946"></span>
+          <span class="preview-dot" style="background:#F4D35E"></span>
+          <span class="preview-dot" style="background:#74C69D"></span>
+          <span style="margin-left:auto;font-size:12px;color:#7A8494">Lesson 1 · Vocabulary</span>
+        </div>
+        <div class="preview-body">
+          <div class="preview-vocab">
+            <div>
+              <div class="hanzi">你好</div>
+              <div class="pinyin">Nǐ hǎo</div>
+            </div>
+            <div class="meaning">Hello</div>
+          </div>
+          <div class="preview-example">
+            <div class="cn">你好！</div>
+            <div class="py">Nǐ hǎo!</div>
+            <div class="en">Hello!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section guide">
+  <div class="container">
+    <div class="guide-box hv-reveal">
+      <div class="guide-panda">
+        <div style="font-size:150px;line-height:1">🐼</div>
+      </div>
+      <div class="guide-copy">
+        <span class="eyebrow">Meet your HanVerse guide</span>
+        <h2>A friendly companion for every lesson.</h2>
+        <p>The HanVerse Panda gives children a familiar face throughout the learning experience — helping the platform feel welcoming without taking the focus away from learning.</p>
+        <div class="guide-points">
+          <div class="guide-point"><strong>Learn</strong><span>New language</span></div>
+          <div class="guide-point"><strong>Practise</strong><span>Use what you know</span></div>
+          <div class="guide-point"><strong>Progress</strong><span>See your growth</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head hv-reveal">
+      <span class="eyebrow">For parents</span>
+      <h2>Made with parents in mind.</h2>
+      <p>Learning Chinese is a long-term investment. HanVerse is designed to make that learning journey easier to understand and support.</p>
+    </div>
+    <div class="parent-grid">
+      <article class="parent-card hv-reveal"><h3>Know what your child is learning</h3><p>Follow lessons and the curriculum structure instead of wondering what your child is working on.</p></article>
+      <article class="parent-card hv-reveal"><h3>Build a consistent learning habit</h3><p>Focused lessons make it easier to incorporate Mandarin into a child's regular learning routine.</p></article>
+      <article class="parent-card hv-reveal"><h3>Follow their progress</h3><p>Progress tracking helps families see learning activity, completed lessons and achievements.</p></article>
+      <article class="parent-card hv-reveal"><h3>Keep learning child-friendly</h3><p>A welcoming visual experience helps children engage with Chinese without making the platform feel overwhelming.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="section-head hv-reveal">
+      <span class="eyebrow">Built around learning</span>
+      <h2>A platform with a clear educational purpose.</h2>
+    </div>
+    <div class="trust-strip hv-reveal">
+      <div class="trust-item"><i class="fa-solid fa-book"></i><strong>YCT pathway</strong><span>YCT 1–4 structure</span></div>
+      <div class="trust-item"><i class="fa-solid fa-child"></i><strong>Young learners</strong><span>Designed with children in mind</span></div>
+      <div class="trust-item"><i class="fa-solid fa-list-check"></i><strong>Structured lessons</strong><span>Content, examples & practice</span></div>
+      <div class="trust-item"><i class="fa-solid fa-chart-simple"></i><strong>Progress tracking</strong><span>See learning development</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head hv-reveal">
+      <span class="eyebrow">Parents ask</span>
+      <h2>Questions you may have.</h2>
+    </div>
+    <div class="faq">
+      <div class="faq-item hv-reveal">
+        <button class="faq-q">What ages is HanVerse designed for?<i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a">HanVerse is designed for young learners developing their Mandarin Chinese skills, with learning organised around YCT levels.</div>
+      </div>
+      <div class="faq-item hv-reveal">
+        <button class="faq-q">What is YCT?<i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a">YCT is the Youth Chinese Test, a Chinese language proficiency examination designed for primary and secondary school students.</div>
+      </div>
+      <div class="faq-item hv-reveal">
+        <button class="faq-q">What does a HanVerse lesson include?<i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a">Lessons can include vocabulary, examples, instructional content, media, practice and quizzes depending on the lesson.</div>
+      </div>
+      <div class="faq-item hv-reveal">
+        <button class="faq-q">Can parents follow their child's progress?<i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a">HanVerse includes progress tracking designed to help families follow learning activity and completed lessons.</div>
+      </div>
+      <div class="faq-item hv-reveal">
+        <button class="faq-q">Can my child learn at their own pace?<i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a">Children can work through lessons and revisit learning as they progress through the curriculum.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="section pricing">
+  <div class="container">
+    <div class="section-head hv-reveal">
+      <span class="eyebrow">Membership</span>
+      <h2>Choose how your child learns.</h2>
+      <p>Start exploring HanVerse and upgrade when you're ready for the full learning experience.</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card featured hv-reveal" style="padding:36px">
+        <span class="eyebrow">HanVerse Premium</span>
+        <h3 style="font-size:32px;margin:15px 0 7px">A fuller learning experience.</h3>
+        <p style="color:#697487;line-height:1.7">Full course access, video lessons, premium worksheets, progress tracking, achievements and priority support.</p>
+        <a class="btn primary" href="#top" style="margin-top:18px">Start Premium Learning <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container">
+    <div class="cta-box hv-reveal" style="text-align:center">
+      <span class="eyebrow" style="background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.16);color:#fff">Begin with HanVerse</span>
+      <h2>Give your child a stronger start in Mandarin.</h2>
+      <p>Explore the curriculum, preview a lesson and see whether HanVerse is the right fit for your child's Chinese learning journey.</p>
+      <div class="cta-actions" style="margin-top:26px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+        <a class="btn primary" href="#curriculum">Explore the Curriculum</a>
+        <a class="btn secondary" href="#sample">See a Sample Lesson</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div id="legacyHome" style="display:none!important"><main>
 <section class="hero" id="home">
   <div class="container hero-grid">
     <div class="hero-content" id="heroContent">
@@ -1312,7 +2274,7 @@ footer{
 <section class="cta">
   <div class="container"><div class="cta-box reveal" data-reveal><h2>Ready to start your Chinese adventure?</h2><p>Make Chinese learning something your child looks forward to.</p><div class="cta-actions"><a class="btn white large" href="signup.html">Start Learning →</a><a class="btn outline large" href="learn.html">Explore Courses</a></div></div></div>
 </section>
-</main>
+</main></div>
 
 <footer>
   <div class="container">
@@ -1387,5 +2349,72 @@ function init(){renderRoles();renderAuth();initMenu();initScroll();initReveal()}
 document.readyState==="loading"?addEventListener("DOMContentLoaded",init,{once:true}):init();
 })();
 </script>
+
+<script>
+(function(){
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function reveal(){
+    const items=document.querySelectorAll('.hv-reveal');
+    if(!items.length)return;
+    if(reduce){
+      items.forEach(x=>x.classList.add('visible'));
+      return;
+    }
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    },{threshold:.12,rootMargin:'0px 0px -40px'});
+    items.forEach(x=>io.observe(x));
+  }
+
+  function faq(){
+    document.querySelectorAll('.faq-q').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const item=btn.closest('.faq-item');
+        document.querySelectorAll('.faq-item.open').forEach(other=>{
+          if(other!==item) other.classList.remove('open');
+        });
+        item.classList.toggle('open');
+      });
+    });
+  }
+
+  function progress(){
+    const bar=document.getElementById('hvScrollProgress');
+    if(!bar)return;
+    const update=()=>{
+      const max=document.documentElement.scrollHeight-innerHeight;
+      bar.style.width=(max>0?Math.min(100,scrollY/max*100):0)+'%';
+    };
+    update();
+    addEventListener('scroll',update,{passive:true});
+    addEventListener('resize',update,{passive:true});
+  }
+
+  function pointer(){
+    if(reduce || matchMedia('(pointer:coarse)').matches)return;
+    const visual=document.querySelector('.hero-visual');
+    const lesson=document.querySelector('.lesson');
+    if(!visual||!lesson)return;
+    visual.addEventListener('pointermove',e=>{
+      const r=visual.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      lesson.style.transform=`translate3d(${(x*7).toFixed(1)}px,${(y*5).toFixed(1)}px,0)`;
+    });
+    visual.addEventListener('pointerleave',()=>lesson.style.transform='');
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    reveal();faq();progress();pointer();
+  });
+})();
+</script>
+
 </body>
 </html>
