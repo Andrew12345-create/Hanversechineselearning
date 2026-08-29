@@ -4238,6 +4238,214 @@ router.get('/admin/overview', verifyAdminToken, async (req, res) => {
 });
 
 /* =========================================================
+   ADMIN ANALYTICS 📊
+========================================================= */
+
+router.get('/admin/analytics', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    // ---------------------------------------------------------
+    // USER OVERVIEW
+    // ---------------------------------------------------------
+    const userStatsResult = await pool.query(`
+      SELECT
+        COUNT(*) AS total_users,
+
+        COUNT(*) FILTER (
+          WHERE is_verified = TRUE
+        ) AS verified_users,
+
+        COUNT(*) FILTER (
+          WHERE is_verified = FALSE
+        ) AS unverified_users,
+
+        COUNT(*) FILTER (
+          WHERE role = 'parent'
+        ) AS parent_users,
+
+        COUNT(*) FILTER (
+          WHERE role = 'student'
+        ) AS student_users,
+
+        COUNT(*) FILTER (
+          WHERE premium = TRUE
+        ) AS premium_users,
+
+        COUNT(*) FILTER (
+          WHERE is_banned = TRUE
+        ) AS banned_users
+
+      FROM users
+    `);
+
+    // ---------------------------------------------------------
+    // NEW USERS
+    // ---------------------------------------------------------
+    const newUsersResult = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (
+          WHERE created_at >= CURRENT_DATE
+        ) AS new_users_today,
+
+        COUNT(*) FILTER (
+          WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
+        ) AS new_users_7_days,
+
+        COUNT(*) FILTER (
+          WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+        ) AS new_users_30_days
+
+      FROM users
+    `);
+
+    // ---------------------------------------------------------
+    // USER ACTIVITY
+    // ---------------------------------------------------------
+    const activityResult = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (
+          WHERE last_active >= NOW() - INTERVAL '24 hours'
+        ) AS active_24h,
+
+        COUNT(*) FILTER (
+          WHERE last_active >= NOW() - INTERVAL '7 days'
+        ) AS active_7d,
+
+        COUNT(*) FILTER (
+          WHERE last_active >= NOW() - INTERVAL '30 days'
+        ) AS active_30d
+
+      FROM users
+      WHERE is_banned = FALSE
+    `);
+
+    // ---------------------------------------------------------
+    // LEARNING STATISTICS
+    // ---------------------------------------------------------
+    const learningResult = await pool.query(`
+      SELECT
+        COALESCE(SUM(xp), 0) AS total_xp,
+
+        COALESCE(
+          ROUND(AVG(xp), 0),
+          0
+        ) AS average_xp,
+
+        COALESCE(
+          ROUND(AVG(level), 1),
+          0
+        ) AS average_level,
+
+        COALESCE(
+          ROUND(AVG(streak_days), 1),
+          0
+        ) AS average_streak,
+
+        COALESCE(
+          SUM(lessons_completed),
+          0
+        ) AS total_lessons_completed,
+
+        COALESCE(
+          SUM(achievements_count),
+          0
+        ) AS total_achievements
+
+      FROM users
+      WHERE is_banned = FALSE
+    `);
+
+    // ---------------------------------------------------------
+    // PREMIUM CONVERSION
+    // ---------------------------------------------------------
+    const premiumResult = await pool.query(`
+      SELECT
+        COUNT(*) AS total_users,
+
+        COUNT(*) FILTER (
+          WHERE premium = TRUE
+        ) AS premium_users,
+
+        ROUND(
+          100.0 *
+          COUNT(*) FILTER (
+            WHERE premium = TRUE
+          )
+          / NULLIF(COUNT(*), 0),
+          1
+        ) AS premium_conversion_percent
+
+      FROM users
+      WHERE is_banned = FALSE
+    `);
+
+    const users = userStatsResult.rows[0] || {};
+    const newUsers = newUsersResult.rows[0] || {};
+    const activity = activityResult.rows[0] || {};
+    const learning = learningResult.rows[0] || {};
+    const premium = premiumResult.rows[0] || {};
+
+    return res.json({
+      success: true,
+
+      users: {
+        total: Number(users.total_users || 0),
+        verified: Number(users.verified_users || 0),
+        unverified: Number(users.unverified_users || 0),
+        parents: Number(users.parent_users || 0),
+        students: Number(users.student_users || 0),
+        premium: Number(users.premium_users || 0),
+        banned: Number(users.banned_users || 0)
+      },
+
+      growth: {
+        today: Number(newUsers.new_users_today || 0),
+        last_7_days: Number(newUsers.new_users_7_days || 0),
+        last_30_days: Number(newUsers.new_users_30_days || 0)
+      },
+
+      activity: {
+        last_24_hours: Number(activity.active_24h || 0),
+        last_7_days: Number(activity.active_7d || 0),
+        last_30_days: Number(activity.active_30d || 0)
+      },
+
+      learning: {
+        total_xp: Number(learning.total_xp || 0),
+        average_xp: Number(learning.average_xp || 0),
+        average_level: Number(learning.average_level || 0),
+        average_streak: Number(learning.average_streak || 0),
+        total_lessons_completed: Number(
+          learning.total_lessons_completed || 0
+        ),
+        total_achievements: Number(
+          learning.total_achievements || 0
+        )
+      },
+
+      premium: {
+        total_users: Number(premium.total_users || 0),
+        premium_users: Number(premium.premium_users || 0),
+        conversion_percent: Number(
+          premium.premium_conversion_percent || 0
+        )
+      },
+
+      generated_at: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Admin analytics error:', error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load analytics data.'
+    });
+  }
+});
+
+/* =========================================================
    ADMIN EMAIL BROADCAST
 ========================================================= */
 
