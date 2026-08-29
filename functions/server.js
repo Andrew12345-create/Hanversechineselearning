@@ -1024,10 +1024,20 @@ async function verifyAdminToken(req, res, next) {
       return res.status(401).json({ success: false, error: 'Invalid or expired token.' });
     }
 
-    // Check that the token contains admin claims
-    if (!decoded.is_admin && !decoded.role === 'admin') {
-      return res.status(403).json({ success: false, error: 'Access denied. Admin privileges required.' });
-    }
+  // Check that the token contains valid admin claims.
+const isAdminToken =
+  decoded.is_admin === true ||
+  decoded.is_admin === 1 ||
+  decoded.is_admin === '1' ||
+  decoded.is_admin === 'true' ||
+  decoded.role === 'admin';
+
+if (!isAdminToken) {
+  return res.status(403).json({
+    success: false,
+    error: 'Access denied. Admin privileges required.'
+  });
+}
 
     const userId = decoded.user_id || decoded.id;
     if (!userId) {
@@ -1045,9 +1055,18 @@ async function verifyAdminToken(req, res, next) {
     }
 
     const user = userResult.rows[0];
-    if (!user.is_admin) {
-      return res.status(403).json({ success: false, error: 'Access denied. Admin privileges required.' });
-    }
+const databaseAdmin =
+  user.is_admin === true ||
+  user.is_admin === 1 ||
+  user.is_admin === '1' ||
+  user.is_admin === 'true';
+
+if (!databaseAdmin) {
+  return res.status(403).json({
+    success: false,
+    error: 'Access denied. Admin privileges required.'
+  });
+}
 
     if (user.is_banned) {
       return res.status(403).json({ success: false, error: 'Account is banned.' });
@@ -4177,10 +4196,11 @@ router.post('/admin/verify-password', async (req, res) => {
       is_admin: true
     }, '8h');
 
-    return res.json({
-      success: true,
-      adminToken
-    });
+return res.json({
+  success: true,
+  adminToken,
+  user: safeUser(user)
+});
 
   } catch (error) {
     console.error('❌ Admin verification error:', error);
