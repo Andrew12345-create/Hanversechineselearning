@@ -556,6 +556,55 @@ main{
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.admin-identity{display:none}.campaign-row{grid-template-columns:1fr 100px}.campaign-row>:nth-child(3),.campaign-row>:nth-child(4){display:none}}
 @media(max-width:560px){.topbar{padding:0 13px}.brand strong{display:none}.top-actions .btn span{display:none}.hero{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.audience-grid,.timing-grid{grid-template-columns:1fr}.campaign-row{grid-template-columns:1fr}.campaign-row>:nth-child(3),.campaign-row>:nth-child(4){display:block}.chat{right:10px;left:10px;width:auto}}
 </style>
+
+<style id="hanverse-admin-final-ui">
+:root{
+ --hv-blue:#2563EB;--hv-blue-dark:#1D4ED8;--hv-blue-soft:#EFF6FF;
+ --hv-teal:#14B8A6;--hv-teal-soft:#ECFEFF;--hv-gold:#F59E0B;--hv-gold-soft:#FFFBEB;
+ --hv-green:#74C69D;--hv-green-soft:#ECFDF5;--hv-red:#E63946;--hv-red-soft:#FEF2F2;
+ --hv-navy:#0F172A;--hv-text:#1E293B;--hv-muted:#64748B;--hv-line:#E2E8F0;
+}
+body{font-family:Poppins,system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(135deg,#F8FBFF 0%,#FFFDF7 55%,#F4FBFA 100%);color:var(--hv-text)}
+button,.btn,.tab{visibility:visible!important;opacity:1!important}
+.btn{min-height:38px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;border-radius:12px!important;font-weight:800!important;white-space:nowrap!important}
+.btn-primary{background:var(--hv-blue)!important;border-color:var(--hv-blue)!important;color:#fff!important}
+.btn-primary:hover{background:var(--hv-blue-dark)!important}
+.btn-blue{background:var(--hv-blue-soft)!important;border-color:#BFDBFE!important;color:var(--hv-blue-dark)!important}
+.btn-green{background:var(--hv-green-soft)!important;border-color:#BBF7D0!important;color:#15803D!important}
+.btn-danger{background:var(--hv-red-soft)!important;border-color:#FECACA!important;color:#B91C1C!important}
+.tabs{background:rgba(255,255,255,.96)!important;border:1px solid var(--hv-line)!important;border-radius:16px!important;padding:5px!important;box-shadow:0 6px 20px rgba(15,23,42,.05)!important}
+.tab{min-height:40px!important;padding:10px 13px!important;border-radius:11px!important;font-weight:900!important}
+.tab.active{background:var(--hv-blue)!important;color:#fff!important}
+.panel{border-color:var(--hv-line)!important;box-shadow:0 10px 30px rgba(15,23,42,.06)!important}
+.panel-head{min-height:60px!important}
+.analytics-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+.analytics-card{min-height:116px!important;padding:16px!important;border:1px solid var(--hv-line)!important;border-radius:17px!important;background:#fff!important;box-shadow:0 5px 16px rgba(15,23,42,.04)!important}
+.analytics-card:nth-child(4n+1){background:linear-gradient(145deg,#fff,var(--hv-blue-soft))!important}
+.analytics-card:nth-child(4n+2){background:linear-gradient(145deg,#fff,var(--hv-teal-soft))!important}
+.analytics-card:nth-child(4n+3){background:linear-gradient(145deg,#fff,var(--hv-gold-soft))!important}
+.analytics-card:nth-child(4n){background:linear-gradient(145deg,#fff,var(--hv-green-soft))!important}
+.analytics-card span{font-size:.62rem!important;color:var(--hv-muted)!important;font-weight:700!important}
+.analytics-card strong{font-size:1.55rem!important;line-height:1.15!important;color:var(--hv-navy)!important;margin:6px 0!important}
+.analytics-card small{font-size:.57rem!important;color:var(--hv-muted)!important}
+.analytics-toolbar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:12px 14px!important;margin-bottom:14px!important;border:1px solid var(--hv-line)!important;border-radius:14px!important;background:#F8FAFC!important}
+.analytics-section-note{padding:13px 14px!important;border:1px dashed #CBD5E1!important;border-radius:14px!important;background:#F8FAFC!important;color:var(--hv-muted)!important;font-size:.63rem!important;margin-top:14px!important}
+.dashboard-grid{display:grid!important;grid-template-columns:1.2fr 1fr 1fr!important;gap:12px!important}
+.quick-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+.quick-actions .btn{width:100%!important}
+.stats{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:12px!important}
+.stat{border:1px solid var(--hv-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:0 7px 22px rgba(15,23,42,.05)!important}
+.user-grid,.lesson-grid{gap:12px!important}
+.card{border-color:var(--hv-line)!important;border-radius:17px!important}
+.actions{display:flex!important;flex-wrap:wrap!important;gap:6px!important}
+.actions .btn{flex:0 0 auto!important}
+.toolbar{align-items:center!important}
+.toolbar .btn{flex:0 0 auto!important}
+#analyticsSection{width:100%!important}
+#pandaSection{width:100%!important}
+@media(max-width:1100px){.dashboard-grid{grid-template-columns:1fr 1fr!important}.dashboard-grid>.panel:last-child{grid-column:1/-1!important}.analytics-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)!important}.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.dashboard-grid{grid-template-columns:1fr!important}.dashboard-grid>.panel:last-child{grid-column:auto!important}}
+@media(max-width:620px){main{padding:18px 12px 50px!important}.tabs{width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important}.tab{flex:0 0 auto!important}.stats{grid-template-columns:1fr 1fr!important;gap:8px!important}.analytics-grid{grid-template-columns:1fr 1fr!important}.analytics-card{min-height:100px!important;padding:12px!important}.quick-actions{grid-template-columns:1fr!important}}
+</style>
 </head>
 <body>
 
@@ -632,8 +681,8 @@ main{
   </section>
 
   <section id="analyticsSection" class="panel hidden">
-<div class="panel-head"><div><h2>📈 Analytics</h2><span class="small-note">Live metrics from Neon via the Admin API.</span></div></div>
-<div class="panel-body"><div class="analytics-grid">
+<div class="panel-head"><div><h2>📈 Analytics</h2><button type="button" class="btn btn-blue btn-sm" id="refreshAnalytics">↻ Refresh</button><span class="small-note">Live metrics from Neon via the Admin API.</span></div></div>
+<div class="panel-body"><div class="analytics-toolbar"><div><strong style="color:#0F172A;font-size:.78rem">Platform performance</strong><div style="color:#64748B;font-size:.58rem;margin-top:2px">Live metrics from Neon</div></div><span class="pill green" id="analyticsStatus">Ready</span></div><div class="analytics-grid>
 <div class="analytics-card"><span>Total users</span><strong id="analyticsUsers">—</strong><small>All accounts</small></div>
 <div class="analytics-card"><span>Verified</span><strong id="analyticsVerified">—</strong><small>Verified accounts</small></div>
 <div class="analytics-card"><span>Premium</span><strong id="analyticsPremium">—</strong><small>Premium accounts</small></div>
@@ -939,70 +988,51 @@ function showLogin(message=''){
 }
 
 async function loadAdminAnalytics(){
+  const status=document.getElementById('analyticsStatus');
+  if(status){status.textContent='Loading…';status.className='pill yellow';}
   try{
-    if(typeof api !== 'function') return null;
     const data=await api('/admin/analytics');
-    if(!data || !data.success) throw new Error(data?.error || 'Analytics request failed');
-    const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value)};
+    if(!data||!data.success)throw new Error(data?.error||'Analytics request failed');
+    const set=(id,v)=>{const el=$(id);if(el)el.textContent=String(v);};
     const u=data.users||{},g=data.growth||{},a=data.activity||{},l=data.learning||{},p=data.premium||{};
-    set('dashVerified',u.verified||0);
-    set('dashUnverified',u.unverified||0);
-    set('dashPremiumRate',(p.conversion_percent||0)+'%');
-    set('dashBanned',u.banned||0);
-    set('analyticsUsers',u.total||0);
-    set('analyticsVerified',u.verified||0);
-    set('analyticsPremium',u.premium||0);
-    set('analyticsParents',u.parents||0);
-    set('analyticsStudents',u.students||0);
-    set('analyticsNewToday',g.today||0);
-    set('analyticsNew7Days',g.last_7_days||0);
-    set('analyticsNew30Days',g.last_30_days||0);
-    set('analyticsActive24h',a.last_24_hours||0);
-    set('analyticsActive7d',a.last_7_days||0);
-    set('analyticsActive30d',a.last_30_days||0);
-    set('analyticsTotalXP',Number(l.total_xp||0).toLocaleString());
-    set('analyticsAverageXP',Number(l.average_xp||0).toLocaleString());
-    set('analyticsAverageLevel',l.average_level||0);
-    set('analyticsAverageStreak',l.average_streak||0);
-    set('analyticsLessonsCompleted',Number(l.total_lessons_completed||0).toLocaleString());
-    set('analyticsAchievements',Number(l.total_achievements||0).toLocaleString());
+    set('dashVerified',u.verified||0);set('dashUnverified',u.unverified||0);set('dashPremiumRate',(p.conversion_percent||0)+'%');set('dashBanned',u.banned||0);
+    set('analyticsUsers',u.total||0);set('analyticsVerified',u.verified||0);set('analyticsPremium',u.premium||0);set('analyticsParents',u.parents||0);set('analyticsStudents',u.students||0);
+    set('analyticsNewToday',g.today||0);set('analyticsNew7Days',g.last_7_days||0);set('analyticsNew30Days',g.last_30_days||0);
+    set('analyticsActive24h',a.last_24_hours||0);set('analyticsActive7d',a.last_7_days||0);set('analyticsActive30d',a.last_30_days||0);
+    set('analyticsTotalXP',Number(l.total_xp||0).toLocaleString());set('analyticsAverageXP',Number(l.average_xp||0).toLocaleString());
+    set('analyticsAverageLevel',l.average_level||0);set('analyticsAverageStreak',l.average_streak||0);
+    set('analyticsLessonsCompleted',Number(l.total_lessons_completed||0).toLocaleString());set('analyticsAchievements',Number(l.total_achievements||0).toLocaleString());
+    if(status){status.textContent='Live';status.className='pill green';}
     return data;
-  }catch(err){
-    console.error('❌ Analytics loading error:',err);
+  }catch(error){
+    console.error('❌ Admin analytics:',error);
+    if(status){status.textContent='Unavailable';status.className='pill red';}
     return null;
   }
 }
 
 
 function updateAdminMetrics(){
-  const users = (typeof state !== 'undefined' && Array.isArray(state.users)) ? state.users : [];
-  const lessons = (typeof state !== 'undefined' && Array.isArray(state.lessons)) ? state.lessons : [];
-  const yes = value => value === true || value === 1 || value === '1' || value === 'true';
-  const verified = users.filter(u => yes(u.is_verified)).length;
-  const premium = users.filter(u => yes(u.premium ?? u.is_premium)).length;
-  const parents = users.filter(u => String(u.role || '').toLowerCase() === 'parent').length;
-  const banned = users.filter(u => yes(u.is_banned)).length;
-  const set = (id,value) => { const el=document.getElementById(id); if(el) el.textContent=String(value); };
-
-  set('totalUsers', users.length);
-  set('pendingUsers', Math.max(users.length - verified - banned, 0));
-  set('parentUsers', parents);
-  set('premiumUsers', premium);
-  set('userBadge', users.length);
-  set('lessonBadge', lessons.length);
-  set('dashVerified', verified);
-  set('dashUnverified', Math.max(users.length - verified, 0));
-  set('dashPremiumRate', users.length ? Math.round(premium/users.length*100)+'%' : '0%');
-  set('dashBanned', banned);
-  set('analyticsUsers', users.length);
-  set('analyticsVerified', verified);
-  set('analyticsPremium', premium);
-  set('analyticsParents', parents);
+  const users=Array.isArray(state.users)?state.users:[];
+  const lessons=Array.isArray(state.lessons)?state.lessons:[];
+  const yes=v=>v===true||v===1||v==='1'||v==='true';
+  const verified=users.filter(u=>yes(u.is_verified)).length;
+  const premium=users.filter(u=>yes(u.premium!==undefined?u.premium:u.is_premium)).length;
+  const parents=users.filter(u=>String(u.role||'').toLowerCase()==='parent').length;
+  const banned=users.filter(u=>yes(u.is_banned)).length;
+  const set=(id,v)=>{const el=$(id);if(el)el.textContent=String(v);};
+  set('totalUsers',users.length);set('pendingUsers',Math.max(users.length-verified-banned,0));
+  set('parentUsers',parents);set('premiumUsers',premium);set('userBadge',users.length);set('lessonBadge',lessons.length);
+  set('dashVerified',verified);set('dashUnverified',Math.max(users.length-verified,0));
+  set('dashPremiumRate',users.length?Math.round(premium/users.length*100)+'%':'0%');set('dashBanned',banned);
 }
 
 function showApp(){
   $('authScreen').classList.add('hidden');
   $('app').classList.remove('hidden');
+  switchSection('dashboard');
+  updateAdminMetrics();
+  loadUsers();
 }
 function setIdentity(user){
   state.adminUser=user||sessionUser()||{};
@@ -1470,17 +1500,23 @@ async function refreshCampaigns(){
 function switchSection(section){
   state.section=section;
   ['dashboard','users','lessons','analytics','panda'].forEach(name=>{
-    const el=$(name+'Section');
-    if(el) el.classList.toggle('hidden',name!==section);
+    const el=$(name+'Section');if(el)el.classList.toggle('hidden',name!==section);
   });
   document.querySelectorAll('.tab[data-section]').forEach(t=>t.classList.toggle('active',t.dataset.section===section));
-  if(section==='lessons') loadLessons();
-  if(section==='analytics') loadAdminAnalytics();
+  if(section==='users')loadUsers();
+  if(section==='lessons')loadLessons();
+  if(section==='analytics')loadAdminAnalytics();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchSection(t.dataset.section));
 $('broadcastBtn').onclick=openBroadcast;
 $('createUserBtn').onclick=newUser;
+$('dashNewUser').onclick=()=>newUser();
+$('dashNewLesson').onclick=()=>newLesson();
+$('dashBroadcast').onclick=()=>openBroadcast();
+$('dashPanda').onclick=()=>switchSection('panda');
+$('refreshAnalytics')?.addEventListener('click',()=>loadAdminAnalytics());
+
 $('refreshBtn').onclick=async()=>{
   const btn=$('refreshBtn');
   btn.classList.add('is-refreshing');
