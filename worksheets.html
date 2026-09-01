@@ -1,0 +1,1252 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hanverse Worksheet</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+color:#222;
+min-height:100vh;
+background:linear-gradient(135deg,#fff4c7,#ffd9e1,#d8f3ff)
+}
+
+body:before,body:after{
+content:"";
+position:fixed;
+width:300px;height:300px;
+border-radius:50%;
+filter:blur(80px);
+z-index:-1
+}
+
+body:before{
+background:#ff777755;
+top:5%;left:-100px
+}
+
+body:after{
+background:#66ccff55;
+right:-100px;bottom:-100px
+}
+
+header{
+height:75px;
+padding:0 6%;
+display:flex;
+align-items:center;
+justify-content:space-between;
+background:#ffffffbb;
+backdrop-filter:blur(18px);
+box-shadow:0 5px 25px #0002;
+position:sticky;
+top:0;
+z-index:5
+}
+
+.logo{
+font-size:30px;
+font-weight:900;
+color:#e53935
+}
+
+.logo span{color:#222}
+
+.logo-panda{
+display:inline-block;
+font-size:38px;
+animation:bounce 2s infinite
+}
+
+.score{
+background:white;
+padding:10px 18px;
+border-radius:50px;
+font-weight:bold;
+box-shadow:0 4px 15px #0002
+}
+
+#score{color:#e53935}
+
+main{
+max-width:900px;
+margin:50px auto;
+padding:20px
+}
+
+.hero{text-align:center}
+
+.hero-panda{
+font-size:85px;
+display:inline-block;
+filter:drop-shadow(0 10px 8px #0003);
+animation:float 3s infinite
+}
+
+h1{
+font-size:60px;
+margin:5px;
+font-weight:900;
+background:linear-gradient(90deg,#e53935,#ff9f43,#e53935);
+background-size:200%;
+-webkit-background-clip:text;
+color:transparent;
+animation:gradient 3s infinite
+}
+
+.hero p{
+font-size:18px;
+color:#777
+}
+
+.progress{
+height:15px;
+background:#ffffffaa;
+border-radius:30px;
+overflow:hidden;
+margin:30px auto;
+max-width:650px;
+box-shadow:inset 0 2px 6px #0002
+}
+
+.progress-fill{
+height:100%;
+width:0;
+border-radius:30px;
+background:linear-gradient(90deg,#e53935,#ff9f43,#ffd166);
+transition:.5s
+}
+
+.worksheet{
+padding:40px;
+background:#ffffffc9;
+backdrop-filter:blur(20px);
+border:1px solid #fff;
+border-radius:35px;
+box-shadow:0 25px 60px #0002
+}
+
+.question{
+padding:25px;
+margin:25px 0;
+background:#ffffffdd;
+border:2px solid #eee;
+border-radius:22px;
+box-shadow:0 8px 20px #0000000d;
+transition:.3s;
+position:relative
+}
+
+.question:hover{
+transform:translateY(-7px) scale(1.01);
+box-shadow:0 18px 35px #0002;
+border-color:#ffcccc
+}
+
+.question:before{
+content:"";
+position:absolute;
+width:7px;
+height:100%;
+left:-2px;
+top:0;
+border-radius:20px 0 0 20px;
+background:linear-gradient(#e53935,#ffb347)
+}
+
+.question h3{
+font-size:20px;
+margin-top:0
+}
+
+label{
+display:block;
+padding:15px;
+margin:9px 0;
+border:2px solid #eee;
+border-radius:14px;
+background:#fafafa;
+cursor:pointer;
+transition:.2s;
+font-weight:bold
+}
+
+label:hover{
+background:#fff4ce;
+border-color:#ffc94d;
+transform:translateX(8px);
+box-shadow:0 5px 15px #0001
+}
+
+input[type=radio]{
+accent-color:#e53935;
+width:18px;
+height:18px
+}
+
+input[type=text]{
+width:100%;
+padding:16px;
+border:2px solid #ddd;
+border-radius:14px;
+font-size:16px;
+outline:none;
+transition:.25s
+}
+
+input[type=text]:focus{
+border-color:#e53935;
+box-shadow:0 0 0 5px #e5393520;
+transform:scale(1.01)
+}
+
+.buttons{
+display:flex;
+justify-content:center;
+gap:15px;
+margin:35px
+}
+
+button{
+padding:15px 28px;
+border:0;
+border-radius:15px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:.2s
+}
+
+button:hover{
+transform:translateY(-5px) scale(1.04);
+box-shadow:0 12px 25px #0003
+}
+
+.check{
+color:white;
+background:linear-gradient(135deg,#e53935,#ff7043);
+box-shadow:0 7px 20px #e334
+}
+
+.reset{
+background:white;
+border:2px solid #ddd
+}
+
+.correct{
+border-color:#35b879!important;
+background:#ecfff5!important;
+animation:pop .4s
+}
+
+.wrong{
+border-color:#f55!important;
+background:#fff0f0!important;
+animation:shake .4s
+}
+
+#result{
+padding:20px;
+text-align:center;
+font-size:28px;
+font-weight:900;
+border-radius:20px
+}
+
+/* PANDA BUTTON */
+
+.tutor-panda{
+position:fixed;
+right:25px;
+bottom:25px;
+font-size:70px;
+cursor:pointer;
+z-index:20;
+filter:drop-shadow(0 8px 8px #0003);
+animation:float 3s infinite;
+transition:.2s
+}
+
+.tutor-panda:hover{
+transform:scale(1.15) rotate(5deg)
+}
+
+.tutor-panda:after{
+content:"Ask Panda!";
+position:absolute;
+right:0;
+top:-35px;
+font-size:14px;
+background:white;
+padding:7px 12px;
+border-radius:15px;
+box-shadow:0 4px 15px #0003;
+white-space:nowrap
+}
+
+/* PANDA AI WINDOW */
+
+#tutor{
+display:none;
+position:fixed;
+right:25px;
+bottom:115px;
+width:380px;
+max-width:calc(100% - 40px);
+background:#fffffff5;
+backdrop-filter:blur(20px);
+border:2px solid white;
+border-radius:25px;
+box-shadow:0 20px 60px #0004;
+z-index:19;
+overflow:hidden;
+animation:pop .3s
+}
+
+.tutor-head{
+padding:18px;
+background:linear-gradient(135deg,#e53935,#ff9f43);
+color:white;
+font-size:20px;
+font-weight:bold;
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
+.close{
+background:#ffffff33;
+color:white;
+padding:5px 10px;
+font-size:18px
+}
+
+.tutor-sub{
+padding:8px 15px;
+background:#fff8df;
+font-size:13px;
+font-weight:bold;
+color:#777;
+text-align:center
+}
+
+.tutor-body{
+padding:15px
+}
+
+.chat{
+height:280px;
+overflow:auto;
+background:#f7f7f7;
+border-radius:15px;
+padding:12px
+}
+
+.msg{
+padding:11px 13px;
+margin:8px 0;
+border-radius:16px;
+max-width:90%;
+line-height:1.45
+}
+
+.bot{
+background:white;
+border:1px solid #eee
+}
+
+.user{
+background:#ffe0e0;
+margin-left:auto;
+text-align:right
+}
+
+.typing{
+opacity:.65;
+font-style:italic
+}
+
+.tutor-input{
+display:flex;
+gap:7px;
+margin-top:12px
+}
+
+.tutor-input input{
+flex:1;
+padding:12px;
+border:2px solid #ddd;
+border-radius:12px;
+outline:none;
+min-width:0
+}
+
+.tutor-input input:focus{
+border-color:#e53935;
+box-shadow:0 0 0 4px #e5393520
+}
+
+.tutor-input button{
+padding:10px 14px;
+background:#e53935;
+color:white
+}
+
+.quick{
+display:flex;
+gap:6px;
+flex-wrap:wrap;
+margin-top:10px
+}
+
+.quick button{
+font-size:12px;
+padding:8px 10px;
+background:white;
+border:1px solid #ddd
+}
+
+.bottom-panda{
+text-align:center;
+margin:20px 0 10px
+}
+
+.bottom-panda .panda{
+font-size:65px;
+display:inline-block;
+animation:float 3s infinite
+}
+
+.bottom-panda p{
+margin:5px;
+color:#777;
+font-weight:bold
+}
+
+footer{
+text-align:center;
+padding:25px;
+color:#777
+}
+
+@keyframes float{
+0%,100%{transform:translateY(0) rotate(-4deg)}
+50%{transform:translateY(-14px) rotate(4deg)}
+}
+
+@keyframes bounce{
+50%{transform:translateY(-6px)}
+}
+
+@keyframes gradient{
+to{background-position:200%}
+}
+
+@keyframes pop{
+50%{transform:scale(1.03)}
+}
+
+@keyframes shake{
+25%{transform:translateX(-7px)}
+75%{transform:translateX(7px)}
+}
+
+@media(max-width:600px){
+
+header{padding:0 15px}
+
+.logo{font-size:21px}
+
+.logo-panda{font-size:28px}
+
+main{margin:25px auto}
+
+h1{font-size:40px}
+
+.hero-panda{font-size:65px}
+
+.worksheet{padding:20px}
+
+.buttons{
+flex-direction:column;
+margin:25px 0
+}
+
+button{width:100%}
+
+#tutor{
+right:20px;
+bottom:100px
+}
+
+.tutor-panda{
+right:15px;
+bottom:15px
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+<span class="logo-panda">🐼</span>
+Han<span>verse</span>
+</div>
+
+<div class="score">
+⭐ <span id="score">0</span>/5
+</div>
+
+</header>
+
+
+<main>
+
+<div class="hero">
+
+<div class="hero-panda">🐼</div>
+
+<h1>Chinese Basics</h1>
+
+<p>
+Welcome to your Hanverse worksheet!
+</p>
+
+</div>
+
+
+<div class="progress">
+
+<div
+class="progress-fill"
+id="progressFill">
+</div>
+
+</div>
+
+
+<div class="worksheet">
+
+
+<div class="question" id="q1">
+
+<h3>1. What does "你好" mean?</h3>
+
+<label>
+<input type="radio" name="q1" value="hello">
+Hello
+</label>
+
+<label>
+<input type="radio" name="q1" value="goodbye">
+Goodbye
+</label>
+
+<label>
+<input type="radio" name="q1" value="thanks">
+Thank you
+</label>
+
+</div>
+
+
+<div class="question" id="q2">
+
+<h3>2. What is "谢谢"?</h3>
+
+<label>
+<input type="radio" name="q2" value="hello">
+Hello
+</label>
+
+<label>
+<input type="radio" name="q2" value="thanks">
+Thank you
+</label>
+
+<label>
+<input type="radio" name="q2" value="sorry">
+Sorry
+</label>
+
+</div>
+
+
+<div class="question" id="q3">
+
+<h3>3. What does "再见" mean?</h3>
+
+<label>
+<input type="radio" name="q3" value="goodbye">
+Goodbye
+</label>
+
+<label>
+<input type="radio" name="q3" value="yes">
+Yes
+</label>
+
+<label>
+<input type="radio" name="q3" value="water">
+Water
+</label>
+
+</div>
+
+
+<div class="question" id="q4">
+
+<h3>4. Type the pinyin for "你好"</h3>
+
+<input
+type="text"
+id="answer4"
+placeholder="Type your answer..."
+>
+
+</div>
+
+
+<div class="question" id="q5">
+
+<h3>5. Which character means "water"?</h3>
+
+<label>
+<input type="radio" name="q5" value="水">
+水
+</label>
+
+<label>
+<input type="radio" name="q5" value="火">
+火
+</label>
+
+<label>
+<input type="radio" name="q5" value="山">
+山
+</label>
+
+</div>
+
+
+<div class="buttons">
+
+<button
+class="check"
+onclick="check()">
+Check Answers
+</button>
+
+<button
+class="reset"
+onclick="reset()">
+Reset
+</button>
+
+</div>
+
+
+<div id="result"></div>
+
+</div>
+
+</main>
+
+
+<!-- PANDA AI TUTOR -->
+
+<div id="tutor">
+
+<div class="tutor-head">
+
+<span>🐼 Panda AI Tutor</span>
+
+<button
+class="close"
+onclick="closeTutor()">
+×
+</button>
+
+</div>
+
+
+<div class="tutor-sub">
+🔒 No-spoiler mode • 🧠 Learn • 💡 Get hints • 🎉 Have fun!
+</div>
+
+
+<div class="tutor-body">
+
+<div class="chat" id="chat">
+
+<div class="msg bot">
+
+🐼🎉 <b>Hi! I'm Panda!</b><br><br>
+
+I'm your Hanverse Chinese-learning buddy! 🧠✨
+
+I can explain Chinese, practice with you,
+play tiny learning games, and give helpful hints. 💡
+
+<br><br>
+
+🔒 <b>NO-SPOILER MODE:</b><br>
+
+I won't give or confirm the answers to this worksheet.
+I'll help you discover them yourself! 🌟
+
+</div>
+
+</div>
+
+
+<div class="quick">
+
+<button onclick="quickAsk('Give me a hint!')">
+💡 Hint
+</button>
+
+<button onclick="quickAsk('Teach me something useful about Chinese!')">
+🧠 Teach me
+</button>
+
+<button onclick="quickAsk('Give me a tiny Chinese practice game!')">
+🎮 Mini game
+</button>
+
+</div>
+
+
+<div class="tutor-input">
+
+<input
+id="tutorInput"
+placeholder="Ask Panda anything! 🐼"
+onkeydown="if(event.key==='Enter')askPanda()"
+>
+
+<button onclick="askPanda()">
+Send 🚀
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CLICKABLE PANDA -->
+
+<div
+class="tutor-panda"
+onclick="openTutor()"
+title="Open Panda AI Tutor">
+🐼
+</div>
+
+
+<div class="bottom-panda">
+
+<div class="panda">🐼</div>
+
+<p>Keep learning!</p>
+
+</div>
+
+
+<footer>
+Hanverse • Learn Chinese
+</footer>
+
+
+<script>
+
+/* =========================
+   WORKSHEET
+========================= */
+
+function check(){
+
+let answers={
+q1:"hello",
+q2:"thanks",
+q3:"goodbye",
+q5:"水"
+};
+
+let score=0;
+let answered=0;
+
+for(let q in answers){
+
+let selected=document.querySelector(
+`input[name="${q}"]:checked`
+);
+
+let box=document.getElementById(q);
+
+box.classList.remove("correct","wrong");
+
+if(selected){
+
+answered++;
+
+if(selected.value===answers[q]){
+
+score++;
+box.classList.add("correct");
+
+}else{
+
+box.classList.add("wrong");
+
+}
+
+}else{
+
+box.classList.add("wrong");
+
+}
+
+}
+
+
+let text=document.getElementById("answer4");
+let q4=document.getElementById("q4");
+let value=text.value.trim().toLowerCase();
+
+q4.classList.remove("correct","wrong");
+
+if(value)answered++;
+
+if(value==="ni hao"||value==="nǐ hǎo"){
+
+score++;
+q4.classList.add("correct");
+
+}else{
+
+q4.classList.add("wrong");
+
+}
+
+
+document.getElementById("score").textContent=score;
+
+document.getElementById("progressFill").style.width=
+(answered/5*100)+"%";
+
+
+let result=document.getElementById("result");
+
+if(score===5){
+
+result.textContent="🎉 PERFECT! 5/5! 🐼";
+
+}else if(score>=3){
+
+result.textContent=
+"🌟 Great job! "+score+"/5!";
+
+}else{
+
+result.textContent=
+"💪 Keep practicing! "+score+"/5!";
+
+}
+
+}
+
+
+function reset(){
+
+document.querySelectorAll("input").forEach(input=>{
+
+if(input.type==="radio"){
+
+input.checked=false;
+
+}else if(input.id!=="tutorInput"){
+
+input.value="";
+
+}
+
+});
+
+
+document.querySelectorAll(".question").forEach(q=>{
+
+q.classList.remove("correct","wrong");
+
+});
+
+
+document.getElementById("score").textContent="0";
+
+document.getElementById("progressFill").style.width="0%";
+
+document.getElementById("result").textContent="";
+
+}
+
+
+/* =========================
+   PANDA WINDOW
+========================= */
+
+function openTutor(){
+
+document.getElementById("tutor").style.display="block";
+
+setTimeout(()=>{
+
+document.getElementById("tutorInput").focus();
+
+},100);
+
+}
+
+
+function closeTutor(){
+
+document.getElementById("tutor").style.display="none";
+
+}
+
+
+function quickAsk(text){
+
+document.getElementById("tutorInput").value=text;
+
+askPanda();
+
+}
+
+
+/* =========================
+   USER INFO
+========================= */
+
+function getUserId(){
+
+let keys=[
+"userId",
+"user_id",
+"userid",
+"hanverseUserId"
+];
+
+for(let key of keys){
+
+let value=localStorage.getItem(key);
+
+if(value)return value;
+
+}
+
+try{
+
+let user=JSON.parse(
+localStorage.getItem("user")
+);
+
+if(user){
+
+return user.id||
+user.userId||
+user.user_id||
+null;
+
+}
+
+}catch(e){}
+
+return null;
+
+}
+
+
+function getYCTLevel(){
+
+let keys=[
+"yctLevel",
+"yct_level",
+"level"
+];
+
+for(let key of keys){
+
+let value=localStorage.getItem(key);
+
+if(value)return value;
+
+}
+
+try{
+
+let user=JSON.parse(
+localStorage.getItem("user")
+);
+
+if(user){
+
+return user.yctLevel||
+user.yct_level||
+user.level||
+1;
+
+}
+
+}catch(e){}
+
+return 1;
+
+}
+
+
+/* =========================
+   PANDA AI
+========================= */
+
+async function askPanda(){
+
+let input=document.getElementById("tutorInput");
+
+let message=input.value.trim();
+
+if(!message)return;
+
+
+let chat=document.getElementById("chat");
+
+
+let userBubble=document.createElement("div");
+
+userBubble.className="msg user";
+
+userBubble.textContent=message;
+
+chat.appendChild(userBubble);
+
+
+input.value="";
+
+
+let typing=document.createElement("div");
+
+typing.className="msg bot typing";
+
+typing.textContent="🐼 Panda is thinking... 🤔🎋";
+
+chat.appendChild(typing);
+
+chat.scrollTop=chat.scrollHeight;
+
+
+const worksheetRules=`
+
+IMPORTANT HANVERSE WORKSHEET RULES:
+
+The student is currently working on a Chinese worksheet.
+
+You are Panda, a joyful and supportive children's Chinese tutor.
+
+You MUST NOT reveal, confirm, or directly solve any answer on this worksheet.
+
+NEVER:
+- Give a worksheet answer.
+- Confirm whether a student's answer is correct.
+- Say "yes, that's correct" about a worksheet answer.
+- Say "no, that's wrong" about a worksheet answer.
+- Tell the student which multiple-choice option to choose.
+- Give the exact answer to a worksheet question.
+- Reveal an answer through a translation specifically intended to solve the question.
+- Give the answer even if the student asks repeatedly.
+- Give the answer disguised as a "hint."
+
+You CAN:
+- Explain Chinese vocabulary generally.
+- Explain pinyin.
+- Explain tones.
+- Teach pronunciation.
+- Explain how Chinese characters work.
+- Give general examples that are NOT the worksheet answers.
+- Give useful but non-revealing hints.
+- Encourage the student.
+- Create mini-games.
+- Ask the student questions that help them think.
+- Celebrate effort.
+- Explain a concept after the student finishes the worksheet.
+
+If the student asks:
+"Is my answer correct?"
+"Is it X?"
+"What's the answer?"
+"Tell me the answer."
+"Which one do I choose?"
+
+DO NOT confirm or deny the answer.
+
+Instead respond cheerfully with something like:
+
+"🐼🔒 No spoilers! I can't confirm the worksheet answer, but I can give you a clue or teach you the idea behind it! 💡"
+
+Keep your language simple and joyful for children.
+
+Use emojis naturally.
+
+Never be scary, rude, insulting, or patronizing.
+
+The goal is to help the student LEARN, not simply finish the worksheet.
+`;
+
+
+try{
+
+let response=await fetch(
+"/api/panda-chat",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+/*
+   This combines the student's question
+   with the worksheet rules.
+
+   Your existing server.js still handles
+   OPENAI_API_KEY and the actual AI request.
+*/
+
+message:
+worksheetRules+
+"\n\nSTUDENT MESSAGE:\n"+
+message,
+
+userId:getUserId(),
+
+conversationId:
+"worksheet-"+getUserId(),
+
+yctLevel:getYCTLevel()
+
+})
+
+});
+
+
+let data=await response.json();
+
+
+typing.remove();
+
+
+if(!response.ok){
+
+throw new Error(
+data.error||
+"Panda could not respond."
+);
+
+}
+
+
+/*
+   Your server may return the AI text
+   under different property names depending
+   on the existing response structure.
+*/
+
+let reply=
+data.reply||
+data.response||
+data.message||
+data.text||
+data.output||
+"🐼🎋 My bamboo brain got a little tangled! Try asking me again!";
+
+
+let botBubble=document.createElement("div");
+
+botBubble.className="msg bot";
+
+botBubble.innerHTML=formatPandaReply(reply);
+
+chat.appendChild(botBubble);
+
+chat.scrollTop=chat.scrollHeight;
+
+
+}catch(error){
+
+console.error("Panda error:",error);
+
+typing.remove();
+
+
+let errorBubble=document.createElement("div");
+
+errorBubble.className="msg bot";
+
+errorBubble.innerHTML=
+"🐼💥 <b>Oops!</b><br><br>"+
+"My bamboo-powered brain couldn't reach Hanverse right now. 🎋<br><br>"+
+"Try again in a moment! 🌟";
+
+chat.appendChild(errorBubble);
+
+chat.scrollTop=chat.scrollHeight;
+
+}
+
+}
+
+
+/* =========================
+   SAFE PANDA TEXT
+========================= */
+
+function formatPandaReply(text){
+
+let safe=String(text)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+
+safe=safe.replace(
+/\*\*(.*?)\*\*/g,
+"<b>$1</b>"
+);
+
+safe=safe.replace(
+/\n/g,
+"<br>"
+);
+
+return safe;
+
+}
+
+</script>
+
+</body>
+</html>
+```

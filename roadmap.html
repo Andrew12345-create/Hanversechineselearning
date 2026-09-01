@@ -2,50 +2,3656 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#E63946">
+
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"
+>
+
+<meta name="theme-color" content="#F8FAFC">
+
+<meta
+    name="description"
+    content="HanVerse | Your Mandarin Learning Roadmap"
+>
+
 <title>HanVerse | Roadmap</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+>
+
 <style>
-:root{--red:#E63946;--red2:#c92d3a;--yellow:#F4D35E;--green:#74C69D;--blue:#4EA8DE;--ink:#18212b;--muted:#697586;--cream:#FFFDF7;--line:#e8ebef;--white:#fff;--shadow:0 18px 50px #18212b12}
-*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(180deg,#fffdf7,#f6fbff);min-height:100vh}a{text-decoration:none;color:inherit}.container{width:min(1120px,calc(100% - 28px));margin:auto}.nav{position:sticky;top:0;z-index:50;background:#fffdf7eb;backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.navin{height:68px;display:flex;align-items:center;gap:20px}.brand{display:flex;align-items:center;gap:9px;font-weight:950;font-size:1.2rem}.logo{width:40px;height:40px;border-radius:14px;background:var(--red);display:grid;place-items:center;font-size:1.35rem;box-shadow:0 8px 18px #e6394630}.links{display:flex;gap:4px;margin-left:auto}.links a{padding:9px 12px;border-radius:11px;color:var(--muted);font-size:.82rem;font-weight:850}.links a:hover,.links a.active{background:#fff;color:var(--red)}.profile{padding:9px 12px;border:1px solid var(--line);border-radius:11px;font-size:.76rem;font-weight:850}.menu{display:none;margin-left:auto;width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:#fff}.mobile{display:none;padding:10px 14px 15px;border-top:1px solid var(--line)}.mobile.open{display:grid}.mobile a{padding:12px;font-weight:850;border-radius:10px}.hero{padding:42px 0 25px}.heroGrid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.panel{background:#fffffff0;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}.heroCopy{padding:30px;overflow:hidden;position:relative}.eyebrow{font-size:.68rem;letter-spacing:.14em;font-weight:950;color:var(--red)}h1{font-size:clamp(2.1rem,5vw,3.5rem);line-height:1;letter-spacing:-.055em;margin:10px 0}.heroCopy p{color:var(--muted);line-height:1.7;max-width:680px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:19px}.btn{border:0;border-radius:13px;padding:11px 15px;font-weight:900;cursor:pointer}.primary{background:var(--red);color:#fff;box-shadow:0 8px 18px #e6394630}.ghost{background:#fff;border:1px solid var(--line)}.stats{padding:25px}.statnum{font-size:2.7rem;font-weight:950}.label{font-size:.68rem;color:var(--muted);font-weight:900}.track{height:11px;background:#edf0f2;border-radius:99px;overflow:hidden;margin:15px 0 9px}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),#f37a65,var(--yellow));transition:width .7s}.statline{display:flex;justify-content:space-between;color:var(--muted);font-size:.75rem;font-weight:850}.xp{margin-top:18px;padding:13px;border-radius:13px;background:#fff9df;font-weight:900}main{padding:10px 0 75px}.heading{display:flex;justify-content:space-between;align-items:end;margin:18px 0}.heading h2{margin:0;font-size:1.55rem}.heading p{margin:5px 0;color:var(--muted);font-size:.82rem}.tip{display:none;align-items:center;gap:12px;padding:15px 18px;margin:0 auto 25px;background:linear-gradient(135deg,#fff8df,#fff);border:1px solid #f0df9d;border-radius:18px;box-shadow:0 8px 22px #18212b09}.tip .panda{font-size:1.8rem}.tip strong{display:block}.tip span{font-size:.74rem;color:var(--muted)}.level{margin-bottom:52px}.levelHead{display:flex;align-items:center;gap:13px;margin-bottom:20px}.levelIcon{width:55px;height:55px;border-radius:17px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:1.5rem;box-shadow:0 7px 18px #18212b0d}.levelHead h3{margin:0;font-size:1.12rem}.levelHead p{margin:4px 0 0;color:var(--muted);font-size:.76rem}.count{margin-left:auto;padding:7px 10px;border-radius:99px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:.68rem;font-weight:900}.path{position:relative}.path:before{content:"";position:absolute;top:25px;bottom:25px;left:50%;width:6px;transform:translateX(-50%);background:linear-gradient(#dfe5e9,#eef1f3,#dfe5e9);border-radius:99px}.path:after{content:"🐼";position:absolute;left:50%;top:-10px;transform:translateX(-50%);font-size:1.45rem;z-index:2}.row{display:flex;position:relative;margin-bottom:18px;z-index:1}.row:nth-child(odd){justify-content:flex-end;padding-right:50%}.row:nth-child(even){justify-content:flex-start;padding-left:50%}.card{width:min(420px,calc(100% - 25px));padding:17px;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 9px 25px #18212b0d;position:relative;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-4px);box-shadow:0 17px 34px #18212b18}.card.done{border-color:#bce4cf}.card.current{border:2px solid var(--red);background:linear-gradient(135deg,#fff,#fff8f8);box-shadow:0 12px 30px #e639461f}.card.current:before{content:"CONTINUE";position:absolute;top:-10px;right:18px;background:var(--red);color:#fff;padding:5px 9px;border-radius:99px;font-size:.56rem;font-weight:950;letter-spacing:.08em}.card.locked{opacity:.62;filter:saturate(.7);cursor:not-allowed}.node{position:absolute;top:17px;width:54px;height:54px;border-radius:50%;background:#fff;border:5px solid #dfe4e8;display:grid;place-items:center;z-index:2;box-shadow:0 6px 16px #18212b18;font-size:1.2rem}.row:nth-child(odd) .node{right:-27px}.row:nth-child(even) .node{left:-27px}.done .node{border-color:var(--green);background:#effbf5}.current .node{border-color:var(--red);animation:pulse 2s infinite}.title{font-weight:950}.desc{font-size:.8rem;color:var(--muted);line-height:1.5;margin:5px 0 11px}.meta{display:flex;gap:6px;flex-wrap:wrap}.pill{font-size:.65rem;font-weight:900;padding:5px 8px;border-radius:99px;background:#f3f5f6;color:#667085}.pill.done{background:#eaf8f0;color:#23734d}.pill.current{background:#fff0f1;color:#b21f2d}.pill.premium{background:#fff6d2;color:#886300}.mini{height:5px;background:#eef1f3;border-radius:99px;overflow:hidden;margin-top:12px}.mini span{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .6s}.state{background:#fff;border:1px solid var(--line);border-radius:22px;padding:45px;text-align:center;box-shadow:var(--shadow);color:var(--muted)}.state h3{margin:10px 0 6px;color:var(--ink)}.state p{line-height:1.6;max-width:520px;margin:0 auto 17px}.modal{display:none;position:fixed;inset:0;background:#18212b99;backdrop-filter:blur(7px);z-index:100;place-items:center;padding:20px}.modal.open{display:grid}.modalBox{width:min(430px,100%);background:#fff;border-radius:24px;padding:28px;text-align:center;box-shadow:0 30px 80px #0003}.modalIcon{font-size:2.4rem}.modalBox h3{margin:10px 0 5px}.modalBox p{color:var(--muted);line-height:1.6}.modalActions{display:flex;gap:8px;justify-content:center;margin-top:18px}@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #e6394638}50%{box-shadow:0 0 0 10px #e6394600}}@media(max-width:800px){.links,.profile{display:none}.menu{display:block}.heroGrid{grid-template-columns:1fr}.path:before{left:23px;transform:none}.path:after{left:23px;transform:translateX(-50%)}.row,.row:nth-child(odd),.row:nth-child(even){padding:0 0 0 60px;justify-content:flex-start}.row .node,.row:nth-child(odd) .node,.row:nth-child(even) .node{left:0;right:auto}.card{width:100%}}@media(max-width:500px){.container{width:calc(100% - 18px)}.hero{padding-top:25px}.heroCopy,.stats{padding:22px}.actions .btn{width:100%}.heading{display:block}.count{display:inline-block;margin-top:8px}.row{padding-left:56px!important}.path:before,.path:after{left:21px}.node{width:48px;height:48px}.card{padding:14px}}
+
+/* =========================================================
+   HANVERSE
+   ROADMAP
+   ========================================================= */
+
+:root{
+
+    /* Core HanVerse palette */
+    --blue:#2563EB;
+    --blue-dark:#1D4ED8;
+    --blue-light:#DBEAFE;
+
+    --teal:#14B8A6;
+    --teal-light:#99F6E4;
+
+    --amber:#F59E0B;
+    --amber-light:#FDE68A;
+
+    --green:#10B981;
+    --green-light:#D1FAE5;
+
+    --red:#EF4444;
+    --red-light:#FEE2E2;
+
+    /* Neutrals */
+    --navy:#0F172A;
+    --ink:#1E293B;
+    --muted:#64748B;
+
+    --bg:#F8FAFC;
+    --white:#FFFFFF;
+    --line:#E2E8F0;
+
+    /* Effects */
+    --shadow:
+        0 18px 55px rgba(15,23,42,.09);
+
+    --shadow-soft:
+        0 8px 28px rgba(15,23,42,.06);
+
+    --shadow-blue:
+        0 14px 35px rgba(37,99,235,.16);
+
+    --radius:24px;
+
+    --font:
+        'Poppins',
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+*{
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+
+    color:var(--ink);
+
+    font-family:var(--font);
+
+    background:
+        radial-gradient(
+            circle at 5% 5%,
+            rgba(37,99,235,.08),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 95% 12%,
+            rgba(20,184,166,.08),
+            transparent 25%
+        ),
+        var(--bg);
+
+    -webkit-font-smoothing:antialiased;
+}
+
+a{
+    color:inherit;
+    text-decoration:none;
+}
+
+button{
+    font:inherit;
+}
+
+
+/* =========================================================
+   CONTAINER
+   ========================================================= */
+
+.container{
+    width:min(1160px,calc(100% - 32px));
+    margin:auto;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.nav{
+    position:sticky;
+    top:0;
+    z-index:100;
+
+    background:rgba(255,255,255,.90);
+
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
+    border-bottom:1px solid rgba(226,232,240,.85);
+
+    box-shadow:
+        0 4px 22px rgba(15,23,42,.04);
+}
+
+.navin{
+    min-height:70px;
+
+    display:flex;
+    align-items:center;
+
+    gap:20px;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+
+    gap:10px;
+
+    font-size:1.2rem;
+    font-weight:900;
+
+    letter-spacing:-.035em;
+}
+
+.logo{
+    width:42px;
+    height:42px;
+
+    display:grid;
+    place-items:center;
+
+    border-radius:14px;
+
+    color:#fff;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--blue),
+            var(--blue-dark)
+        );
+
+    box-shadow:
+        0 8px 20px rgba(37,99,235,.25);
+
+    font-size:1.35rem;
+}
+
+.links{
+    display:flex;
+    align-items:center;
+
+    gap:4px;
+
+    margin-left:auto;
+}
+
+.links a{
+    padding:9px 13px;
+
+    border-radius:12px;
+
+    color:var(--muted);
+
+    font-size:.78rem;
+    font-weight:700;
+
+    transition:
+        .2s ease;
+}
+
+.links a:hover,
+.links a.active{
+    color:var(--blue);
+    background:var(--blue-light);
+}
+
+.profile{
+    padding:9px 13px;
+
+    border:1px solid var(--line);
+    border-radius:12px;
+
+    background:#fff;
+
+    color:var(--ink);
+
+    font-size:.72rem;
+    font-weight:800;
+
+    transition:.2s;
+}
+
+.profile:hover{
+    border-color:#BFDBFE;
+    color:var(--blue);
+}
+
+.menu{
+    display:none;
+
+    margin-left:auto;
+
+    width:43px;
+    height:43px;
+
+    border:1px solid var(--line);
+    border-radius:13px;
+
+    background:#fff;
+
+    color:var(--ink);
+
+    cursor:pointer;
+
+    font-size:1rem;
+}
+
+.mobile{
+    display:none;
+
+    padding:10px 14px 16px;
+
+    border-top:1px solid var(--line);
+
+    background:rgba(255,255,255,.97);
+}
+
+.mobile.open{
+    display:grid;
+    gap:4px;
+}
+
+.mobile a{
+    padding:12px 13px;
+
+    border-radius:12px;
+
+    font-size:.78rem;
+    font-weight:800;
+}
+
+.mobile a:hover,
+.mobile a.active{
+    background:var(--blue-light);
+    color:var(--blue);
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.hero{
+    padding:46px 0 30px;
+}
+
+.heroGrid{
+    display:grid;
+
+    grid-template-columns:
+        1.18fr
+        .82fr;
+
+    gap:18px;
+}
+
+.panel{
+    position:relative;
+
+    overflow:hidden;
+
+    background:
+        rgba(255,255,255,.95);
+
+    border:1px solid var(--line);
+
+    border-radius:28px;
+
+    box-shadow:var(--shadow-soft);
+}
+
+.heroCopy{
+    padding:38px;
+}
+
+.heroCopy::before{
+    content:"";
+
+    position:absolute;
+
+    width:320px;
+    height:320px;
+
+    right:-170px;
+    top:-180px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(37,99,235,.13),
+            transparent 68%
+        );
+}
+
+.eyebrow{
+    position:relative;
+
+    display:inline-flex;
+    align-items:center;
+
+    gap:8px;
+
+    padding:7px 12px;
+
+    border-radius:999px;
+
+    background:var(--blue-light);
+
+    color:var(--blue-dark);
+
+    font-size:.64rem;
+    font-weight:900;
+
+    letter-spacing:.1em;
+}
+
+.eyebrow::before{
+    content:"🐼";
+    font-size:.82rem;
+}
+
+h1{
+    position:relative;
+
+    margin:15px 0 13px;
+
+    color:var(--navy);
+
+    font-size:
+        clamp(
+            2.15rem,
+            5vw,
+            3.6rem
+        );
+
+    line-height:1.03;
+
+    letter-spacing:-.06em;
+}
+
+.heroCopy p{
+    position:relative;
+
+    max-width:680px;
+
+    margin:0;
+
+    color:var(--muted);
+
+    font-size:.82rem;
+
+    line-height:1.8;
+}
+
+.actions{
+    position:relative;
+
+    display:flex;
+    flex-wrap:wrap;
+
+    gap:9px;
+
+    margin-top:23px;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.btn{
+    display:inline-flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:7px;
+
+    padding:11px 16px;
+
+    border-radius:13px;
+
+    font-size:.73rem;
+    font-weight:900;
+
+    cursor:pointer;
+
+    transition:
+        transform .2s,
+        box-shadow .2s,
+        border-color .2s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.primary{
+    border:1px solid transparent;
+
+    color:#fff;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--blue),
+            var(--blue-dark)
+        );
+
+    box-shadow:var(--shadow-blue);
+}
+
+.primary:hover{
+    box-shadow:
+        0 17px 35px rgba(37,99,235,.23);
+}
+
+.ghost{
+    border:1px solid var(--line);
+
+    background:#fff;
+
+    color:var(--ink);
+}
+
+.ghost:hover{
+    border-color:#BFDBFE;
+    color:var(--blue);
+}
+
+
+/* =========================================================
+   PROGRESS PANEL
+   ========================================================= */
+
+.stats{
+    padding:30px;
+}
+
+.stats::before{
+    content:"";
+
+    position:absolute;
+
+    width:230px;
+    height:230px;
+
+    right:-120px;
+    top:-100px;
+
+    border-radius:50%;
+
+    background:var(--teal-light);
+
+    opacity:.30;
+}
+
+.stats::after{
+    content:"🐼";
+
+    position:absolute;
+
+    right:23px;
+    top:23px;
+
+    font-size:2rem;
+}
+
+.label{
+    position:relative;
+
+    color:var(--muted);
+
+    font-size:.62rem;
+    font-weight:900;
+
+    letter-spacing:.12em;
+}
+
+.statnum{
+    position:relative;
+
+    margin-top:8px;
+
+    color:var(--navy);
+
+    font-size:3.05rem;
+    line-height:1;
+
+    font-weight:900;
+
+    letter-spacing:-.06em;
+}
+
+.track{
+    position:relative;
+
+    height:12px;
+
+    margin:19px 0 10px;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+    background:#EEF2F7;
+}
+
+.fill{
+    width:0;
+    height:100%;
+
+    border-radius:inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--blue),
+            var(--teal)
+        );
+
+    transition:
+        width .7s ease;
+}
+
+.statline{
+    display:flex;
+    justify-content:space-between;
+
+    color:var(--muted);
+
+    font-size:.68rem;
+    font-weight:700;
+}
+
+.statline b{
+    color:var(--ink);
+}
+
+.xp{
+    position:relative;
+
+    display:flex;
+    align-items:center;
+
+    gap:7px;
+
+    margin-top:22px;
+    padding:14px 15px;
+
+    border:1px solid #FDE68A;
+    border-radius:15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #FFFBEB,
+            #FFFDF5
+        );
+
+    color:#92400E;
+
+    font-size:.76rem;
+    font-weight:900;
+}
+
+.xp::before{
+    content:"⭐";
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+main{
+    padding:15px 0 90px;
+}
+
+.heading{
+    display:flex;
+
+    justify-content:space-between;
+    align-items:flex-end;
+
+    margin:26px 0 25px;
+}
+
+.heading h2{
+    margin:0;
+
+    color:var(--navy);
+
+    font-size:1.55rem;
+    line-height:1.15;
+
+    letter-spacing:-.04em;
+}
+
+.heading p{
+    margin:7px 0 0;
+
+    color:var(--muted);
+
+    font-size:.73rem;
+}
+
+
+/* =========================================================
+   PANDA TIP
+   ========================================================= */
+
+.tip{
+    display:none;
+
+    align-items:center;
+
+    gap:13px;
+
+    margin:0 auto 30px;
+
+    padding:15px 18px;
+
+    border:1px solid #BFDBFE;
+    border-radius:18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #EFF6FF,
+            #FFFFFF
+        );
+
+    box-shadow:var(--shadow-soft);
+}
+
+.tip .panda{
+    width:44px;
+    height:44px;
+
+    flex:none;
+
+    display:grid;
+    place-items:center;
+
+    border-radius:14px;
+
+    background:#fff;
+
+    box-shadow:
+        0 5px 16px rgba(37,99,235,.10);
+
+    font-size:1.5rem;
+}
+
+.tip strong{
+    display:block;
+
+    color:var(--navy);
+
+    font-size:.76rem;
+}
+
+.tip span{
+    display:block;
+
+    margin-top:2px;
+
+    color:var(--muted);
+
+    font-size:.67rem;
+}
+
+
+/* =========================================================
+   LEVEL
+   ========================================================= */
+
+.level{
+    margin-bottom:72px;
+}
+
+.levelHead{
+    display:flex;
+
+    align-items:center;
+
+    gap:13px;
+
+    margin-bottom:25px;
+}
+
+.levelIcon{
+    width:56px;
+    height:56px;
+
+    flex:none;
+
+    display:grid;
+    place-items:center;
+
+    border:1px solid var(--line);
+    border-radius:17px;
+
+    background:#fff;
+
+    box-shadow:var(--shadow-soft);
+
+    font-size:1.45rem;
+}
+
+.levelHead h3{
+    margin:0;
+
+    color:var(--navy);
+
+    font-size:1.08rem;
+    font-weight:900;
+}
+
+.levelHead p{
+    margin:4px 0 0;
+
+    color:var(--muted);
+
+    font-size:.7rem;
+}
+
+.count{
+    margin-left:auto;
+
+    padding:7px 11px;
+
+    border:1px solid var(--line);
+    border-radius:999px;
+
+    background:#fff;
+
+    color:var(--muted);
+
+    font-size:.62rem;
+    font-weight:900;
+}
+
+
+/* =========================================================
+   ROADMAP
+   ========================================================= */
+
+.path{
+    position:relative;
+
+    padding:4px 0 8px;
+}
+
+/* Central line */
+
+.path::before{
+    content:"";
+
+    position:absolute;
+
+    top:25px;
+    bottom:25px;
+
+    left:50%;
+
+    width:5px;
+
+    transform:translateX(-50%);
+
+    border-radius:999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            var(--blue-light),
+            #E2E8F0 50%,
+            var(--teal-light)
+        );
+}
+
+/* Panda starting point */
+
+.path::after{
+    content:"🐼";
+
+    position:absolute;
+
+    top:-17px;
+    left:50%;
+
+    z-index:5;
+
+    width:43px;
+    height:43px;
+
+    display:grid;
+    place-items:center;
+
+    transform:translateX(-50%);
+
+    border:1px solid #BFDBFE;
+    border-radius:50%;
+
+    background:#fff;
+
+    box-shadow:
+        0 8px 20px rgba(37,99,235,.15);
+
+    font-size:1.2rem;
+}
+
+
+/* =========================================================
+   ROADMAP ROW
+   ========================================================= */
+
+.row{
+    position:relative;
+
+    z-index:2;
+
+    display:flex;
+
+    min-height:102px;
+
+    margin-bottom:20px;
+}
+
+.row:nth-child(odd){
+    justify-content:flex-end;
+
+    padding-right:50%;
+}
+
+.row:nth-child(even){
+    justify-content:flex-start;
+
+    padding-left:50%;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.card{
+    position:relative;
+
+    width:min(
+        430px,
+        calc(100% - 27px)
+    );
+
+    padding:19px;
+
+    border:1px solid var(--line);
+    border-radius:21px;
+
+    background:#fff;
+
+    box-shadow:var(--shadow-soft);
+
+    cursor:pointer;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        border-color .2s ease;
+}
+
+.card:hover{
+    transform:translateY(-4px);
+
+    border-color:#BFDBFE;
+
+    box-shadow:
+        0 18px 38px rgba(15,23,42,.11);
+}
+
+.card:focus-visible{
+    outline:3px solid rgba(37,99,235,.28);
+    outline-offset:3px;
+}
+
+
+/* Completed */
+
+.card.done{
+    border-color:#A7F3D0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #FFFFFF,
+            #F0FDF8
+        );
+}
+
+
+/* Current */
+
+.card.current{
+    border:2px solid var(--blue);
+
+    background:
+        linear-gradient(
+            135deg,
+            #FFFFFF,
+            #EFF6FF
+        );
+
+    box-shadow:
+        0 15px 38px rgba(37,99,235,.15);
+}
+
+.card.current::before{
+    content:"CONTINUE";
+
+    position:absolute;
+
+    top:-11px;
+    right:18px;
+
+    padding:5px 10px;
+
+    border-radius:999px;
+
+    background:var(--blue);
+
+    color:#fff;
+
+    font-size:.53rem;
+    font-weight:900;
+
+    letter-spacing:.08em;
+
+    box-shadow:
+        0 5px 12px rgba(37,99,235,.22);
+}
+
+
+/* Locked */
+
+.card.locked{
+    opacity:.60;
+
+    filter:saturate(.65);
+
+    cursor:not-allowed;
+}
+
+.card.locked:hover{
+    transform:none;
+
+    border-color:var(--line);
+
+    box-shadow:var(--shadow-soft);
+}
+
+
+/* Premium */
+
+.card.premium-card{
+    border-color:#FDE68A;
+
+    background:
+        linear-gradient(
+            135deg,
+            #FFFFFF,
+            #FFFBEB
+        );
+}
+
+
+/* =========================================================
+   NODE
+   ========================================================= */
+
+.node{
+    position:absolute;
+
+    top:17px;
+
+    width:54px;
+    height:54px;
+
+    z-index:5;
+
+    display:grid;
+    place-items:center;
+
+    border:5px solid #E2E8F0;
+    border-radius:50%;
+
+    background:#fff;
+
+    color:var(--muted);
+
+    font-size:1.12rem;
+
+    box-shadow:
+        0 7px 18px rgba(15,23,42,.12);
+}
+
+.row:nth-child(odd) .node{
+    right:-27px;
+}
+
+.row:nth-child(even) .node{
+    left:-27px;
+}
+
+
+/* Node states */
+
+.row.done .node{
+    border-color:var(--green);
+
+    background:var(--green-light);
+
+    color:#047857;
+}
+
+.row.current .node{
+    border-color:var(--blue);
+
+    background:var(--blue-light);
+
+    color:var(--blue);
+
+    animation:
+        pulseBlue 2.2s infinite;
+}
+
+.row.locked .node{
+    border-color:#CBD5E1;
+
+    background:#F8FAFC;
+
+    color:#94A3B8;
+}
+
+@keyframes pulseBlue{
+
+    0%,100%{
+        box-shadow:
+            0 0 0 0 rgba(37,99,235,.18),
+            0 7px 18px rgba(15,23,42,.12);
+    }
+
+    50%{
+        box-shadow:
+            0 0 0 10px rgba(37,99,235,0),
+            0 7px 18px rgba(15,23,42,.12);
+    }
+}
+
+
+/* =========================================================
+   CARD CONTENT
+   ========================================================= */
+
+.title{
+    color:var(--navy);
+
+    font-size:.82rem;
+    font-weight:900;
+
+    line-height:1.35;
+}
+
+.desc{
+    margin:5px 0 12px;
+
+    color:var(--muted);
+
+    font-size:.68rem;
+
+    line-height:1.6;
+}
+
+.meta{
+    display:flex;
+
+    gap:6px;
+
+    flex-wrap:wrap;
+}
+
+.pill{
+    padding:5px 8px;
+
+    border-radius:999px;
+
+    background:#F1F5F9;
+
+    color:#64748B;
+
+    font-size:.59rem;
+    font-weight:900;
+}
+
+.pill.done{
+    background:var(--green-light);
+    color:#047857;
+}
+
+.pill.current{
+    background:var(--blue-light);
+    color:var(--blue-dark);
+}
+
+.pill.premium{
+    background:#FFFBEB;
+    color:#92400E;
+}
+
+.pill.locked{
+    background:#F1F5F9;
+    color:#64748B;
+}
+
+
+/* Mini progress */
+
+.mini{
+    height:5px;
+
+    margin-top:13px;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+    background:#EEF2F7;
+}
+
+.mini span{
+    display:block;
+
+    width:0;
+    height:100%;
+
+    border-radius:inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--blue),
+            var(--teal)
+        );
+
+    transition:
+        width .6s ease;
+}
+
+.card.done .mini span{
+    background:var(--green);
+}
+
+
+/* =========================================================
+   LOADING / ERROR
+   ========================================================= */
+
+.state{
+    padding:48px 30px;
+
+    margin-bottom:30px;
+
+    border:1px solid var(--line);
+    border-radius:25px;
+
+    background:#fff;
+
+    text-align:center;
+
+    box-shadow:var(--shadow-soft);
+
+    color:var(--muted);
+}
+
+.stateIcon{
+    font-size:2rem;
+}
+
+.state h3{
+    margin:10px 0 6px;
+
+    color:var(--navy);
+
+    font-size:1rem;
+}
+
+.state p{
+    max-width:520px;
+
+    margin:0 auto 18px;
+
+    font-size:.72rem;
+
+    line-height:1.7;
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.modal{
+    display:none;
+
+    position:fixed;
+    inset:0;
+
+    z-index:500;
+
+    place-items:center;
+
+    padding:20px;
+
+    background:
+        rgba(15,23,42,.62);
+
+    backdrop-filter:blur(8px);
+}
+
+.modal.open{
+    display:grid;
+}
+
+.modalBox{
+    width:min(440px,100%);
+
+    padding:30px;
+
+    border:1px solid rgba(255,255,255,.65);
+    border-radius:26px;
+
+    background:#fff;
+
+    text-align:center;
+
+    box-shadow:
+        0 30px 80px rgba(15,23,42,.28);
+
+    animation:
+        modalIn .2s ease;
+}
+
+@keyframes modalIn{
+
+    from{
+        opacity:0;
+        transform:
+            translateY(10px)
+            scale(.98);
+    }
+
+    to{
+        opacity:1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+.modalIcon{
+    width:62px;
+    height:62px;
+
+    margin:0 auto;
+
+    display:grid;
+    place-items:center;
+
+    border-radius:19px;
+
+    background:var(--blue-light);
+
+    font-size:1.8rem;
+}
+
+.modalBox h3{
+    margin:14px 0 6px;
+
+    color:var(--navy);
+
+    font-size:1.05rem;
+}
+
+.modalBox p{
+    margin:0;
+
+    color:var(--muted);
+
+    font-size:.72rem;
+
+    line-height:1.7;
+}
+
+.modalActions{
+    display:flex;
+
+    justify-content:center;
+
+    gap:8px;
+
+    margin-top:20px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media(max-width:900px){
+
+    .links,
+    .profile{
+        display:none;
+    }
+
+    .menu{
+        display:block;
+    }
+
+    .heroGrid{
+        grid-template-columns:1fr;
+    }
+
+    .heroCopy{
+        padding:31px;
+    }
+
+    .path::before{
+        left:25px;
+        transform:none;
+    }
+
+    .path::after{
+        left:25px;
+        transform:translateX(-50%);
+    }
+
+    .row,
+    .row:nth-child(odd),
+    .row:nth-child(even){
+
+        justify-content:flex-start;
+
+        padding-left:64px;
+        padding-right:0;
+    }
+
+    .row .node,
+    .row:nth-child(odd) .node,
+    .row:nth-child(even) .node{
+
+        left:0;
+        right:auto;
+    }
+
+    .card{
+        width:100%;
+    }
+}
+
+
+@media(max-width:560px){
+
+    .container{
+        width:calc(100% - 20px);
+    }
+
+    .hero{
+        padding-top:28px;
+    }
+
+    .heroCopy,
+    .stats{
+        padding:23px;
+    }
+
+    h1{
+        font-size:2.35rem;
+    }
+
+    .heroCopy p{
+        font-size:.76rem;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .actions .btn{
+        width:100%;
+    }
+
+    .heading{
+        display:block;
+    }
+
+    .heading h2{
+        font-size:1.35rem;
+    }
+
+    .count{
+        display:inline-flex;
+
+        margin-top:10px;
+    }
+
+    .levelHead{
+        align-items:flex-start;
+    }
+
+    .levelIcon{
+        width:49px;
+        height:49px;
+
+        border-radius:15px;
+    }
+
+    .levelHead h3{
+        font-size:.95rem;
+    }
+
+    .levelHead p{
+        font-size:.64rem;
+    }
+
+    .row,
+    .row:nth-child(odd),
+    .row:nth-child(even){
+        padding-left:57px;
+    }
+
+    .path::before{
+        left:21px;
+    }
+
+    .path::after{
+        left:21px;
+    }
+
+    .node{
+        width:48px;
+        height:48px;
+    }
+
+    .card{
+        padding:15px;
+        border-radius:18px;
+    }
+
+    .tip{
+        padding:13px;
+    }
+
+    .tip .panda{
+        width:39px;
+        height:39px;
+    }
+
+    .modalBox{
+        padding:25px 20px;
+    }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+.btn:focus-visible,
+a:focus-visible,
+button:focus-visible{
+    outline:3px solid rgba(37,99,235,.28);
+    outline-offset:3px;
+}
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+
+        animation:none!important;
+
+        transition:none!important;
+
+        scroll-behavior:auto!important;
+    }
+}
+
 </style>
 </head>
+
+
 <body>
-<header class="nav"><div class="container navin"><a class="brand" href="index.html"><span class="logo">🐼</span>HanVerse</a><nav class="links" id="links"></nav><a class="profile" id="profile" href="profile.html"></a><button class="menu" id="menu">☰</button></div><nav class="mobile" id="mobile"></nav></header>
-<section class="hero"><div class="container heroGrid"><div class="panel heroCopy"><div class="eyebrow">YOUR MANDARIN JOURNEY</div><h1 id="headline">Your learning roadmap.</h1><p>Your HanVerse path is built from the lessons published in your database. Complete a lesson to unlock the next step.</p><div class="actions"><a id="continue" class="btn primary" href="#roadmap">Continue Learning →</a><button id="refresh" class="btn ghost">↻ Refresh</button></div></div><div class="panel stats"><div class="label">OVERALL PROGRESS</div><div class="statnum" id="percent">0%</div><div class="track"><div class="fill" id="fill"></div></div><div class="statline"><span><b id="done">0</b> completed</span><span><b id="total">0</b> lessons</span></div><div class="xp">⚡ <span id="xp">0</span> XP earned</div></div></div></section>
-<main id="roadmap"><div class="container"><div class="heading"><div><h2>Learning Roadmap</h2><p>Follow the path. Learn. Practise. Complete. Unlock.</p></div></div><div id="tip" class="tip"><div class="panda">🐼</div><div><strong id="tipTitle">Your next lesson</strong><span id="tipText">Keep going!</span></div></div><div id="state"></div><div id="content"></div></div></main>
-<div class="modal" id="modal"><div class="modalBox"><div class="modalIcon" id="modalIcon">🔒</div><h3 id="modalTitle">Lesson locked</h3><p id="modalText">Complete the previous lesson first.</p><div class="modalActions"><button class="btn ghost" id="close">Close</button><button class="btn primary" id="open" style="display:none">Open Lesson</button></div></div></div>
+
+
+<!-- =======================================================
+     NAVIGATION
+     ======================================================= -->
+
+<header class="nav">
+
+    <div class="container navin">
+
+        <a
+            class="brand"
+            href="index.html"
+            aria-label="HanVerse Home"
+        >
+
+            <span class="logo">🐼</span>
+
+            HanVerse
+
+        </a>
+
+
+        <nav
+            class="links"
+            id="links"
+            aria-label="Main navigation"
+        ></nav>
+
+
+        <a
+            class="profile"
+            id="profile"
+            href="profile.html"
+        ></a>
+
+
+        <button
+            class="menu"
+            id="menu"
+            type="button"
+            aria-label="Open navigation"
+            aria-expanded="false"
+        >
+            ☰
+        </button>
+
+    </div>
+
+
+    <nav
+        class="mobile"
+        id="mobile"
+        aria-label="Mobile navigation"
+    ></nav>
+
+</header>
+
+
+<!-- =======================================================
+     HERO
+     ======================================================= -->
+
+<section class="hero">
+
+    <div class="container heroGrid">
+
+
+        <!-- Hero copy -->
+
+        <div class="panel heroCopy">
+
+            <div class="eyebrow">
+                YOUR MANDARIN JOURNEY
+            </div>
+
+
+            <h1>
+                Your learning roadmap.
+            </h1>
+
+
+            <p>
+                Follow your HanVerse journey from your first
+                Mandarin words to confident Chinese communication.
+                Complete lessons, earn XP, and unlock the next step.
+            </p>
+
+
+            <div class="actions">
+
+                <a
+                    id="continue"
+                    class="btn primary"
+                    href="#roadmap"
+                >
+                    Continue Learning →
+                </a>
+
+
+                <button
+                    id="refresh"
+                    class="btn ghost"
+                    type="button"
+                >
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Progress -->
+
+        <div class="panel stats">
+
+            <div class="label">
+                OVERALL PROGRESS
+            </div>
+
+
+            <div
+                class="statnum"
+                id="percent"
+            >
+                0%
+            </div>
+
+
+            <div class="track">
+
+                <div
+                    class="fill"
+                    id="fill"
+                ></div>
+
+            </div>
+
+
+            <div class="statline">
+
+                <span>
+                    <b id="done">0</b>
+                    completed
+                </span>
+
+                <span>
+                    <b id="total">0</b>
+                    lessons
+                </span>
+
+            </div>
+
+
+            <div class="xp">
+
+                <span id="xp">0</span>
+
+                XP earned
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =======================================================
+     ROADMAP
+     ======================================================= -->
+
+<main id="roadmap">
+
+    <div class="container">
+
+
+        <div class="heading">
+
+            <div>
+
+                <h2>
+                    Learning Roadmap
+                </h2>
+
+                <p>
+                    Learn. Practise. Complete. Unlock.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Panda recommendation -->
+
+        <div
+            id="tip"
+            class="tip"
+        >
+
+            <div class="panda">
+                🐼
+            </div>
+
+            <div>
+
+                <strong id="tipTitle">
+                    Your next lesson
+                </strong>
+
+                <span id="tipText">
+                    Keep going!
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Loading / error -->
+
+        <div
+            id="state"
+            aria-live="polite"
+        ></div>
+
+
+        <!-- Dynamic roadmap -->
+
+        <div
+            id="content"
+            aria-live="polite"
+        ></div>
+
+    </div>
+
+</main>
+
+
+<!-- =======================================================
+     MODAL
+     ======================================================= -->
+
+<div
+    class="modal"
+    id="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+>
+
+    <div class="modalBox">
+
+        <div
+            class="modalIcon"
+            id="modalIcon"
+        >
+            🔒
+        </div>
+
+
+        <h3 id="modalTitle">
+            Lesson locked
+        </h3>
+
+
+        <p id="modalText">
+            Complete the previous lesson first.
+        </p>
+
+
+        <div class="modalActions">
+
+            <button
+                class="btn ghost"
+                id="close"
+                type="button"
+            >
+                Close
+            </button>
+
+
+            <button
+                class="btn primary"
+                id="open"
+                type="button"
+                style="display:none"
+            >
+                Open Lesson
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 <script>
+
 "use strict";
-const $=id=>document.getElementById(id);const state={user:null,lessons:[],progress:{},current:-1};
-function uid(u){return String(u?.user_id??u?.userId??u?.id??"")}
-function user(){for(const k of ["hanverse_user","hanverseUser","hanverse_session","hanverseSession","currentUser","authUser","user"]){try{const x=JSON.parse(localStorage.getItem(k)||"null"),u=x?.user||x?.data?.user||x;if(uid(u))return u}catch{}}return null}
-function name(u){return u?.full_name||u?.fullName||u?.username||u?.name||"Learner"}
-async function api(path,opt={}){const r=await fetch("/api/"+String(path).replace(/^\/+/,""),{credentials:"include",cache:"no-store",...opt,headers:{Accept:"application/json",...(opt.headers||{})}});const t=await r.text();let d=null;try{d=t?JSON.parse(t):null}catch{throw Error(`Invalid JSON response (HTTP ${r.status})`)}if(!r.ok)throw Error(d?.error||d?.message||`Request failed (HTTP ${r.status})`);return d}
-function lid(l){return String(l?.id??l?.lesson_id??l?.lessonId??l?._id??"")}
-function numeric(v){const m=String(v||"").match(/(\d+)$/);return m?m[1]:""}
-function canonical(v){const n=numeric(v);return n?`lesson_${n}`:String(v||"")}
-function level(l){const n=Number(l?.level??l?.yct_level??l?.yctLevel??1);return Number.isFinite(n)?n:1}
-function title(l){return l?.title||l?.name||"Untitled lesson"}
-function desc(l){return l?.description||"Continue building your Mandarin skills."}
-function xp(l){const n=Number(l?.xp??l?.completion_xp??10);return Number.isFinite(n)?n:10}
-function icon(l){return l?.icon||"📚"}
-function premium(l){return l?.premium===true||l?.is_premium===true||l?.isPremium===true}
-function pct(r){if(!r)return 0;if(r.completed===true||r.is_completed===true)return 100;const n=Number(r.progress_pct??r.progressPercent??r.completed_pct??r.completedPercent??r.progress??r.percent??0);return Number.isFinite(n)?Math.max(0,Math.min(100,n)):0}
-function progressFor(l){return Math.max(Number(state.progress[lid(l)]||0),Number(state.progress[canonical(lid(l))]||0),Number(state.progress[numeric(lid(l))]||0))}
-function done(l){return progressFor(l)>=100}
-function unlocked(i){return i===0||done(state.lessons[i-1])}
-function meta(n){return({1:["🌱","YCT 1","Build your Mandarin foundations."],2:["🌿","YCT 2","Start communicating with confidence."],3:["🌳","YCT 3","Develop stronger vocabulary and sentences."],4:["🏆","YCT 4","Take your Mandarin to the next level."],5:["🔥","HSK 1","Begin your HSK journey."],6:["🚀","HSK 2","Build practical everyday Chinese."],7:["⭐","HSK 3","Communicate with greater fluency."]}[n]||["📚",`Level ${n}`,"Continue your Chinese learning journey."])}
-function nav(){const links=[["Home","index.html"],["Learn","learn.html"],["Worksheets","worksheets.html"],["Roadmap","roadmap.html"]];$("links").innerHTML="";$("mobile").innerHTML="";links.forEach(([t,h])=>{const a=document.createElement("a");a.href=h;a.textContent=t;if(t==="Roadmap")a.className="active";$("links").appendChild(a);$("mobile").appendChild(a.cloneNode(true))});$("profile").textContent="👤 "+name(state.user);$("profile").href="profile.html"}
-async function lessons(){const d=await api("lessons");const list=Array.isArray(d?.lessons)?d.lessons:Array.isArray(d)?d:[];state.lessons=list.filter(l=>lid(l));if(!state.lessons.length)throw Error("No published lessons were returned by the database.")}
-async function loadProgress(){state.progress={};const id=uid(state.user);if(!id)throw Error("No valid logged-in user was found.");try{const d=await api(`progress/${encodeURIComponent(id)}`);const rows=Array.isArray(d?.progress)?d.progress:Array.isArray(d?.data)?d.data:Array.isArray(d)?d:[];rows.forEach(r=>{const raw=r?.lesson_id??r?.lessonId;if(!raw)return;const p=pct(r);state.progress[String(raw)]=Math.max(Number(state.progress[String(raw)]||0),p);state.progress[canonical(raw)]=Math.max(Number(state.progress[canonical(raw)]||0),p);state.progress[numeric(raw)]=Math.max(Number(state.progress[numeric(raw)]||0),p)});console.log("🐼 HanVerse progress loaded:",state.progress)}catch(e){if(!/404|not found/i.test(e.message))throw e;console.warn("All-progress endpoint unavailable; falling back to individual lesson progress.");await Promise.all(state.lessons.map(async l=>{const n=numeric(lid(l));if(!n)return;try{const r=await api(`progress/${id}/${n}`);const x=r?.progress??r?.data??r;if(x){const p=pct(x);state.progress[lid(l)]=p;state.progress[canonical(lid(l))]=p;state.progress[n]=p}}catch(err){if(!/404|not found/i.test(err.message))console.warn("Progress unavailable for",n,err)}}))}}
-function overall(){if(!state.lessons.length)return 0;return Math.round(state.lessons.reduce((s,l)=>s+progressFor(l),0)/state.lessons.length)}
-function addP(parent,text,cl=""){const x=document.createElement("span");x.className="pill "+cl;x.textContent=text;parent.appendChild(x)}
-function render(){const percent=overall(),completed=state.lessons.filter(done).length;state.current=state.lessons.findIndex(l=>!done(l));if(state.current<0)state.current=state.lessons.length;$("percent").textContent=percent+"%";$("fill").style.width=percent+"%";$("done").textContent=completed;$("total").textContent=state.lessons.length;$("xp").textContent=state.lessons.reduce((s,l)=>s+(done(l)?xp(l):0),0);$("headline").textContent=`${name(state.user)}'s learning roadmap.`;const next=state.lessons[state.current];$("continue").href=next?`lesson.html?id=${encodeURIComponent(lid(next))}`:"#roadmap";$("continue").textContent=next?"Continue Learning →":"Roadmap Complete 🎉";$("tip").style.display="flex";$("tipTitle").textContent=next?`Next up: ${title(next)}`:"Amazing work! 🎉";$("tipText").textContent=next?"Complete this lesson to keep your learning path moving.":"You've completed every lesson currently on your roadmap.";const groups={};state.lessons.forEach((l,i)=>(groups[level(l)]??=[]).push([l,i]));$("content").innerHTML="";Object.keys(groups).map(Number).sort((a,b)=>a-b).forEach(n=>{const [em,lt,ld]=meta(n),items=groups[n],section=document.createElement("section");section.className="level";const head=document.createElement("div");head.className="levelHead";head.innerHTML=`<div class="levelIcon">${em}</div><div><h3>${lt}</h3><p>${ld}</p></div><span class="count">${items.filter(x=>done(x[0])).length} / ${items.length} complete</span>`;const path=document.createElement("div");path.className="path";items.forEach(([l,i])=>{const row=document.createElement("div");row.className="row";const d=done(l),cur=i===state.current&&!d,un=unlocked(i);const card=document.createElement("article");card.className="card"+(d?" done":"")+(cur?" current":"")+(!un?" locked":"");const node=document.createElement("div");node.className="node";node.textContent=d?"✓":un?icon(l):"🔒";const body=document.createElement("div");body.innerHTML=`<div class="title">${escapeHtml(title(l))}</div><div class="desc">${escapeHtml(desc(l))}</div><div class="meta"></div><div class="mini"><span style="width:${progressFor(l)}%"></span></div>`;const m=body.querySelector(".meta");addP(m,d?"Completed":cur?"Continue":un?"Start":"Locked",d?"done":cur?"current":"");addP(m,`⚡ ${xp(l)} XP`);if(premium(l))addP(m,"👑 Premium","premium");card.appendChild(body);row.append(node,card);path.appendChild(row);const open=()=>openLesson(l,i);card.onclick=open;card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};card.tabIndex=0});section.append(head,path);$("content").appendChild(section)})}
-function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function openLesson(l,i){if(!unlocked(i)){$("modalIcon").textContent=premium(l)?"👑":"🔒";$("modalTitle").textContent=premium(l)?"Premium lesson":"Lesson locked";$("modalText").textContent=premium(l)?"This lesson is part of the premium HanVerse journey.":`Complete the previous lesson first to unlock ${title(l)}.`;$("open").style.display=premium(l)?"inline-block":"none";$("open").onclick=()=>location.href="signup.html";$("modal").classList.add("open");return}location.href=`lesson.html?id=${encodeURIComponent(lid(l))}`}
-async function load(){state.user=user();if(!state.user)return location.replace("login.html");$("state").innerHTML='<div class="state">🐼<h3>Loading your roadmap…</h3><p>Fetching lessons and your saved database progress.</p></div>';nav();try{await lessons();await loadProgress();render();$("state").innerHTML=""}catch(e){console.error(e);$("state").innerHTML=`<div class="state">⚠️<h3>We couldn’t load your roadmap</h3><p>${escapeHtml(e.message||"Please try again.")}</p><button class="btn primary" id="retry">Try Again</button></div>`;$("retry").onclick=load}}
-$("refresh").onclick=load;$("close").onclick=()=>$("modal").classList.remove("open");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("open")};$("menu").onclick=()=>{$("mobile").classList.toggle("open");$("menu").textContent=$("mobile").classList.contains("open")?"✕":"☰"};document.addEventListener("keydown",e=>{if(e.key==="Escape")$("modal").classList.remove("open")});load();
+
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
+const $ = id =>
+    document.getElementById(id);
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+const state = {
+
+    user:null,
+
+    lessons:[],
+
+    progress:{},
+
+    current:-1
+
+};
+
+
+/* =========================================================
+   USER
+   ========================================================= */
+
+function getUserId(user){
+
+    return String(
+        user?.user_id ??
+        user?.userId ??
+        user?.id ??
+        ""
+    );
+
+}
+
+
+function getUserName(user){
+
+    return (
+        user?.full_name ||
+        user?.fullName ||
+        user?.username ||
+        user?.name ||
+        "Learner"
+    );
+
+}
+
+
+function getStoredUser(){
+
+    const keys = [
+
+        "hanverse_user",
+        "hanverseUser",
+        "hanverse_session",
+        "hanverseSession",
+        "currentUser",
+        "authUser",
+        "user"
+
+    ];
+
+
+    for(const key of keys){
+
+        try{
+
+            const raw =
+                localStorage.getItem(key);
+
+            if(!raw){
+                continue;
+            }
+
+
+            const parsed =
+                JSON.parse(raw);
+
+
+            const user =
+                parsed?.user ??
+                parsed?.data?.user ??
+                parsed;
+
+
+            if(getUserId(user)){
+                return user;
+            }
+
+        }catch(error){
+
+            console.warn(
+                "Could not read localStorage key:",
+                key
+            );
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   API
+   ========================================================= */
+
+async function api(path,options={}){
+
+    const cleanPath =
+        String(path)
+            .replace(/^\/+/,"");
+
+
+    const response =
+        await fetch(
+            `/api/${cleanPath}`,
+            {
+
+                credentials:"include",
+
+                cache:"no-store",
+
+                ...options,
+
+                headers:{
+                    Accept:"application/json",
+                    ...(options.headers || {})
+                }
+
+            }
+        );
+
+
+    const text =
+        await response.text();
+
+
+    let data = null;
+
+
+    if(text){
+
+        try{
+
+            data =
+                JSON.parse(text);
+
+        }catch{
+
+            throw new Error(
+                `Invalid JSON response (HTTP ${response.status})`
+            );
+
+        }
+
+    }
+
+
+    if(!response.ok){
+
+        throw new Error(
+            data?.error ||
+            data?.message ||
+            `Request failed (HTTP ${response.status})`
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+/* =========================================================
+   LESSON HELPERS
+   ========================================================= */
+
+function lessonId(lesson){
+
+    return String(
+        lesson?.id ??
+        lesson?.lesson_id ??
+        lesson?.lessonId ??
+        lesson?._id ??
+        ""
+    );
+
+}
+
+
+function lessonTitle(lesson){
+
+    return String(
+        lesson?.title ??
+        lesson?.name ??
+        "Untitled lesson"
+    );
+
+}
+
+
+function lessonDescription(lesson){
+
+    return String(
+        lesson?.description ??
+        "Continue your Mandarin journey."
+    );
+
+}
+
+
+function lessonLevel(lesson){
+
+    const value =
+        Number(
+            lesson?.level ??
+            lesson?.yct_level ??
+            lesson?.yctLevel ??
+            1
+        );
+
+
+    return Number.isFinite(value)
+        ? value
+        : 1;
+
+}
+
+
+function lessonIcon(lesson){
+
+    return (
+        lesson?.icon ||
+        "📚"
+    );
+
+}
+
+
+function isPremium(lesson){
+
+    return (
+        lesson?.premium === true ||
+        lesson?.is_premium === true ||
+        lesson?.isPremium === true
+    );
+
+}
+
+
+function lessonXP(lesson){
+
+    const value =
+        Number(
+            lesson?.xp ??
+            lesson?.completion_xp ??
+            10
+        );
+
+
+    return Number.isFinite(value)
+        ? value
+        : 10;
+
+}
+
+
+/* =========================================================
+   ESCAPE
+   ========================================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(
+            /[&<>"']/g,
+            character => ({
+
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                '"':"&quot;",
+                "'":"&#39;"
+
+            }[character])
+        );
+
+}
+
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+function progressValue(response){
+
+    if(!response){
+        return 0;
+    }
+
+
+    if(
+        response.completed === true ||
+        response.is_completed === true
+    ){
+
+        return 100;
+
+    }
+
+
+    const value =
+        Number(
+            response.progress_pct ??
+            response.progressPercent ??
+            response.completed_pct ??
+            response.completedPercent ??
+            response.progress ??
+            response.percent ??
+            0
+        );
+
+
+    if(!Number.isFinite(value)){
+        return 0;
+    }
+
+
+    return Math.max(
+        0,
+        Math.min(100,value)
+    );
+
+}
+
+
+function progressFor(lesson){
+
+    const id =
+        lessonId(lesson);
+
+
+    return Math.max(
+        0,
+        Number(
+            state.progress[id] ?? 0
+        )
+    );
+
+}
+
+
+function isComplete(lesson){
+
+    return progressFor(lesson) >= 100;
+
+}
+
+
+/* =========================================================
+   LEVEL META
+   ========================================================= */
+
+function levelMeta(level){
+
+    const levels = {
+
+        1:{
+            icon:"🌱",
+            title:"YCT 1",
+            description:
+                "Build your Mandarin foundations."
+        },
+
+        2:{
+            icon:"🌿",
+            title:"YCT 2",
+            description:
+                "Start communicating with confidence."
+        },
+
+        3:{
+            icon:"🌳",
+            title:"YCT 3",
+            description:
+                "Develop stronger vocabulary and sentences."
+        },
+
+        4:{
+            icon:"🏆",
+            title:"YCT 4",
+            description:
+                "Take your Mandarin to the next level."
+        },
+
+        5:{
+            icon:"🔥",
+            title:"HSK 1",
+            description:
+                "Begin your HSK journey."
+        },
+
+        6:{
+            icon:"🚀",
+            title:"HSK 2",
+            description:
+                "Build practical everyday Chinese."
+        },
+
+        7:{
+            icon:"⭐",
+            title:"HSK 3",
+            description:
+                "Communicate with greater fluency."
+        }
+
+    };
+
+
+    return (
+        levels[level] ||
+        {
+            icon:"📚",
+            title:`Level ${level}`,
+            description:
+                "Continue your Chinese learning journey."
+        }
+    );
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+function buildNavigation(){
+
+    const navigation = [
+
+        ["Home","index.html"],
+        ["Learn","learn.html"],
+        ["Worksheets","worksheets.html"],
+        ["Roadmap","roadmap.html"]
+
+    ];
+
+
+    $("links").innerHTML = "";
+    $("mobile").innerHTML = "";
+
+
+    navigation.forEach(
+        ([label,url]) => {
+
+            const desktop =
+                document.createElement("a");
+
+
+            desktop.href = url;
+
+            desktop.textContent =
+                label;
+
+
+            if(label === "Roadmap"){
+                desktop.classList.add("active");
+            }
+
+
+            $("links")
+                .appendChild(desktop);
+
+
+            const mobile =
+                desktop.cloneNode(true);
+
+
+            $("mobile")
+                .appendChild(mobile);
+
+        }
+    );
+
+
+    $("profile").textContent =
+        "👤 " +
+        getUserName(state.user);
+
+
+    $("profile").href =
+        "profile.html";
+
+}
+
+
+/* =========================================================
+   LOAD LESSONS
+   ========================================================= */
+
+async function loadLessons(){
+
+    const response =
+        await api("lessons");
+
+
+    const lessons =
+        Array.isArray(response?.lessons)
+            ? response.lessons
+            : Array.isArray(response)
+                ? response
+                : [];
+
+
+    state.lessons =
+        lessons.filter(
+            lesson =>
+                Boolean(
+                    lessonId(lesson)
+                )
+        );
+
+
+    if(!state.lessons.length){
+
+        throw new Error(
+            "No published lessons were returned by the database."
+        );
+
+    }
+
+
+    console.log(
+        "🐼 HanVerse lessons loaded:",
+        state.lessons
+    );
+
+}
+
+
+/* =========================================================
+   LOAD PROGRESS
+   ========================================================= */
+
+async function loadProgress(){
+
+    state.progress = {};
+
+
+    const userId =
+        getUserId(state.user);
+
+
+    if(!userId){
+
+        throw new Error(
+            "No valid logged-in user was found."
+        );
+
+    }
+
+
+    /*
+     * IMPORTANT
+     *
+     * HanVerse exposes progress as:
+     *
+     * /api/progress/:userId/:lessonId
+     *
+     * We therefore request each lesson individually.
+     */
+
+    await Promise.all(
+
+        state.lessons.map(
+            async lesson => {
+
+                const id =
+                    lessonId(lesson);
+
+
+                if(!id){
+                    return;
+                }
+
+
+                try{
+
+                    const response =
+                        await api(
+                            `progress/${encodeURIComponent(userId)}/${encodeURIComponent(id)}`
+                        );
+
+
+                    const record =
+                        response?.progress ??
+                        response?.data ??
+                        response;
+
+
+                    state.progress[id] =
+                        progressValue(record);
+
+                }catch(error){
+
+                    /*
+                     * A missing progress record means
+                     * the learner has not started the lesson.
+                     */
+
+                    if(
+                        !/404|not found/i
+                            .test(error.message)
+                    ){
+
+                        console.warn(
+                            "Progress unavailable:",
+                            id,
+                            error
+                        );
+
+                    }
+
+
+                    state.progress[id] = 0;
+
+                }
+
+            }
+        )
+
+    );
+
+
+    console.log(
+        "🐼 HanVerse progress loaded:",
+        state.progress
+    );
+
+}
+
+
+/* =========================================================
+   OVERALL PROGRESS
+   ========================================================= */
+
+function calculateOverallProgress(){
+
+    if(!state.lessons.length){
+        return 0;
+    }
+
+
+    const total =
+        state.lessons.reduce(
+            (sum,lesson) =>
+                sum +
+                progressFor(lesson),
+            0
+        );
+
+
+    return Math.round(
+        total /
+        state.lessons.length
+    );
+
+}
+
+
+/* =========================================================
+   UNLOCK LOGIC
+   ========================================================= */
+
+function isUnlocked(index){
+
+    /*
+     * First lesson is always available.
+     */
+
+    if(index === 0){
+        return true;
+    }
+
+
+    const previous =
+        state.lessons[index - 1];
+
+
+    /*
+     * Every later lesson requires
+     * completion of the previous lesson.
+     */
+
+    return (
+        previous &&
+        isComplete(previous)
+    );
+
+}
+
+
+/* =========================================================
+   FIND CURRENT LESSON
+   ========================================================= */
+
+function findCurrentLesson(){
+
+    const index =
+        state.lessons.findIndex(
+            lesson =>
+                !isComplete(lesson)
+        );
+
+
+    return index >= 0
+        ? index
+        : state.lessons.length;
+
+}
+
+
+/* =========================================================
+   PILLS
+   ========================================================= */
+
+function pill(text, className=""){
+
+    const element =
+        document.createElement("span");
+
+
+    element.className =
+        `pill ${className}`;
+
+
+    element.textContent =
+        text;
+
+
+    return element;
+
+}
+
+
+/* =========================================================
+   UPDATE DASHBOARD
+   ========================================================= */
+
+function renderDashboard(){
+
+    const percent =
+        calculateOverallProgress();
+
+
+    const completed =
+        state.lessons.filter(
+            isComplete
+        ).length;
+
+
+    $("percent").textContent =
+        `${percent}%`;
+
+
+    $("fill").style.width =
+        `${percent}%`;
+
+
+    $("done").textContent =
+        completed;
+
+
+    $("total").textContent =
+        state.lessons.length;
+
+
+    const earnedXP =
+        state.lessons.reduce(
+            (sum,lesson) =>
+                sum +
+                (
+                    isComplete(lesson)
+                        ? lessonXP(lesson)
+                        : 0
+                ),
+            0
+        );
+
+
+    $("xp").textContent =
+        earnedXP;
+
+
+    state.current =
+        findCurrentLesson();
+
+
+    const next =
+        state.lessons[state.current];
+
+
+    if(next){
+
+        $("continue").href =
+            `lesson.html?id=${encodeURIComponent(
+                lessonId(next)
+            )}`;
+
+
+        $("continue").textContent =
+            "Continue Learning →";
+
+
+        $("tip").style.display =
+            "flex";
+
+
+        $("tipTitle").textContent =
+            `Next up: ${lessonTitle(next)}`;
+
+
+        $("tipText").textContent =
+            isPremium(next)
+                ? "This is a premium lesson. Upgrade to continue your journey."
+                : "Complete this lesson to unlock the next step.";
+
+    }else{
+
+        $("continue").href =
+            "#roadmap";
+
+
+        $("continue").textContent =
+            "Roadmap Complete 🎉";
+
+
+        $("tip").style.display =
+            "flex";
+
+
+        $("tipTitle").textContent =
+            "Amazing work! 🎉";
+
+
+        $("tipText").textContent =
+            "You've completed every lesson currently on your roadmap.";
+
+    }
+
+}
+
+
+/* =========================================================
+   CREATE LESSON CARD
+   ========================================================= */
+
+function createLessonCard(lesson,index){
+
+    const complete =
+        isComplete(lesson);
+
+
+    const unlocked =
+        isUnlocked(index);
+
+
+    const current =
+        index === state.current &&
+        !complete;
+
+
+    const premium =
+        isPremium(lesson);
+
+
+    const row =
+        document.createElement("div");
+
+
+    row.className =
+        "row";
+
+
+    if(complete){
+        row.classList.add("done");
+    }
+
+
+    if(current){
+        row.classList.add("current");
+    }
+
+
+    if(!unlocked){
+        row.classList.add("locked");
+    }
+
+
+    /*
+     * Premium lessons get a special visual
+     * treatment, but their normal lesson
+     * information remains visible.
+     */
+
+    if(premium){
+        row.classList.add("premium");
+    }
+
+
+    /* =====================================================
+       NODE
+       ===================================================== */
+
+    const node =
+        document.createElement("div");
+
+
+    node.className =
+        "node";
+
+
+    if(complete){
+
+        node.textContent =
+            "✓";
+
+    }else if(!unlocked){
+
+        node.textContent =
+            "🔒";
+
+    }else if(premium){
+
+        node.textContent =
+            "👑";
+
+    }else{
+
+        node.textContent =
+            lessonIcon(lesson);
+
+    }
+
+
+    /* =====================================================
+       CARD
+       ===================================================== */
+
+    const card =
+        document.createElement("article");
+
+
+    card.className =
+        "card";
+
+
+    if(complete){
+        card.classList.add("done");
+    }
+
+
+    if(current){
+        card.classList.add("current");
+    }
+
+
+    if(!unlocked){
+        card.classList.add("locked");
+    }
+
+
+    if(premium){
+        card.classList.add("premium-card");
+    }
+
+
+    card.tabIndex = 0;
+
+    card.setAttribute(
+        "role",
+        "button"
+    );
+
+
+    card.setAttribute(
+        "aria-label",
+        lessonTitle(lesson)
+    );
+
+
+    /* =====================================================
+       CONTENT
+       ===================================================== */
+
+    const title =
+        document.createElement("div");
+
+
+    title.className =
+        "title";
+
+
+    title.textContent =
+        lessonTitle(lesson);
+
+
+    const description =
+        document.createElement("div");
+
+
+    description.className =
+        "desc";
+
+
+    description.textContent =
+        lessonDescription(lesson);
+
+
+    const meta =
+        document.createElement("div");
+
+
+    meta.className =
+        "meta";
+
+
+    if(complete){
+
+        meta.appendChild(
+            pill(
+                "✓ Completed",
+                "done"
+            )
+        );
+
+    }else if(current){
+
+        meta.appendChild(
+            pill(
+                "Continue",
+                "current"
+            )
+        );
+
+    }else if(unlocked){
+
+        meta.appendChild(
+            pill("Start")
+        );
+
+    }else{
+
+        meta.appendChild(
+            pill(
+                "Locked",
+                "locked"
+            )
+        );
+
+    }
+
+
+    meta.appendChild(
+        pill(
+            `⚡ ${lessonXP(lesson)} XP`
+        )
+    );
+
+
+    if(premium){
+
+        meta.appendChild(
+            pill(
+                "👑 Premium",
+                "premium"
+            )
+        );
+
+    }
+
+
+    /* =====================================================
+       MINI PROGRESS
+       ===================================================== */
+
+    const mini =
+        document.createElement("div");
+
+
+    mini.className =
+        "mini";
+
+
+    const miniFill =
+        document.createElement("span");
+
+
+    miniFill.style.width =
+        `${progressFor(lesson)}%`;
+
+
+    mini.appendChild(
+        miniFill
+    );
+
+
+    card.appendChild(title);
+
+    card.appendChild(description);
+
+    card.appendChild(meta);
+
+    card.appendChild(mini);
+
+
+    row.appendChild(node);
+
+    row.appendChild(card);
+
+
+    /* =====================================================
+       INTERACTION
+       ===================================================== */
+
+    const open =
+        () =>
+            openLesson(
+                lesson,
+                index
+            );
+
+
+    card.addEventListener(
+        "click",
+        open
+    );
+
+
+    card.addEventListener(
+        "keydown",
+        event => {
+
+            if(
+                event.key === "Enter" ||
+                event.key === " "
+            ){
+
+                event.preventDefault();
+
+                open();
+
+            }
+
+        }
+    );
+
+
+    return row;
+
+}
+
+
+/* =========================================================
+   RENDER ROADMAP
+   ========================================================= */
+
+function renderRoadmap(){
+
+    const content =
+        $("content");
+
+
+    /*
+     * Always clear the old roadmap.
+     */
+
+    content.innerHTML = "";
+
+
+    if(!state.lessons.length){
+
+        throw new Error(
+            "The roadmap has no lessons to display."
+        );
+
+    }
+
+
+    /*
+     * Group by the actual `level` property
+     * returned by /api/lessons.
+     */
+
+    const groups =
+        new Map();
+
+
+    state.lessons.forEach(
+        (lesson,index) => {
+
+            const level =
+                lessonLevel(lesson);
+
+
+            if(!groups.has(level)){
+
+                groups.set(
+                    level,
+                    []
+                );
+
+            }
+
+
+            groups
+                .get(level)
+                .push({
+                    lesson,
+                    index
+                });
+
+        }
+    );
+
+
+    /*
+     * Sort levels numerically.
+     */
+
+    const sortedLevels =
+        [...groups.keys()]
+            .sort(
+                (a,b) =>
+                    a - b
+            );
+
+
+    sortedLevels.forEach(
+        level => {
+
+            const info =
+                levelMeta(level);
+
+
+            const items =
+                groups.get(level);
+
+
+            /* =============================================
+               SECTION
+               ============================================= */
+
+            const section =
+                document.createElement("section");
+
+
+            section.className =
+                "level";
+
+
+            section.dataset.level =
+                level;
+
+
+            /* =============================================
+               HEADER
+               ============================================= */
+
+            const header =
+                document.createElement("div");
+
+
+            header.className =
+                "levelHead";
+
+
+            const icon =
+                document.createElement("div");
+
+
+            icon.className =
+                "levelIcon";
+
+
+            icon.textContent =
+                info.icon;
+
+
+            const text =
+                document.createElement("div");
+
+
+            const heading =
+                document.createElement("h3");
+
+
+            heading.textContent =
+                info.title;
+
+
+            const description =
+                document.createElement("p");
+
+
+            description.textContent =
+                info.description;
+
+
+            text.appendChild(
+                heading
+            );
+
+            text.appendChild(
+                description
+            );
+
+
+            const completed =
+                items.filter(
+                    item =>
+                        isComplete(
+                            item.lesson
+                        )
+                ).length;
+
+
+            const count =
+                document.createElement("span");
+
+
+            count.className =
+                "count";
+
+
+            count.textContent =
+                `${completed}/${items.length} complete`;
+
+
+            header.appendChild(icon);
+
+            header.appendChild(text);
+
+            header.appendChild(count);
+
+
+            /* =============================================
+               PATH
+               ============================================= */
+
+            const path =
+                document.createElement("div");
+
+
+            path.className =
+                "path";
+
+
+            items.forEach(
+                ({lesson,index}) => {
+
+                    path.appendChild(
+                        createLessonCard(
+                            lesson,
+                            index
+                        )
+                    );
+
+                }
+            );
+
+
+            section.appendChild(header);
+
+            section.appendChild(path);
+
+
+            content.appendChild(section);
+
+        }
+    );
+
+
+    /*
+     * Explicitly make sure the roadmap is visible.
+     */
+
+    content.style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+function showModal(
+    icon,
+    title,
+    text,
+    showOpen=false,
+    openAction=null
+){
+
+    $("modalIcon").textContent =
+        icon;
+
+
+    $("modalTitle").textContent =
+        title;
+
+
+    $("modalText").textContent =
+        text;
+
+
+    $("open").style.display =
+        showOpen
+            ? "inline-flex"
+            : "none";
+
+
+    $("open").onclick =
+        openAction;
+
+
+    $("modal")
+        .classList
+        .add("open");
+
+}
+
+
+function closeModal(){
+
+    $("modal")
+        .classList
+        .remove("open");
+
+}
+
+
+/* =========================================================
+   OPEN LESSON
+   ========================================================= */
+
+function openLesson(
+    lesson,
+    index
+){
+
+    const unlocked =
+        isUnlocked(index);
+
+
+    const complete =
+        isComplete(lesson);
+
+
+    const premium =
+        isPremium(lesson);
+
+
+    /*
+     * Premium lessons require premium access.
+     */
+
+    if(premium){
+
+        showModal(
+
+            "👑",
+
+            "Premium lesson",
+
+            `${lessonTitle(lesson)} is part of the premium HanVerse journey. Upgrade to unlock this lesson and continue further.`,
+
+            true,
+
+            () => {
+
+                location.href =
+                    "signup.html";
+
+            }
+
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Normal locked lesson.
+     */
+
+    if(!unlocked){
+
+        const previous =
+            state.lessons[index - 1];
+
+
+        showModal(
+
+            "🔒",
+
+            "Lesson locked",
+
+            previous
+                ? `Complete "${lessonTitle(previous)}" first to unlock ${lessonTitle(lesson)}.`
+                : "Complete the previous lesson first.",
+
+            false
+
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Available lesson.
+     */
+
+    location.href =
+        `lesson.html?id=${encodeURIComponent(
+            lessonId(lesson)
+        )}`;
+
+}
+
+
+/* =========================================================
+   LOADING STATE
+   ========================================================= */
+
+function showLoading(){
+
+    $("state").innerHTML = `
+
+        <div class="state">
+
+            <div class="stateIcon">
+                🐼
+            </div>
+
+            <h3>
+                Loading your roadmap…
+            </h3>
+
+            <p>
+                Fetching your HanVerse lessons and saved progress.
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+function clearState(){
+
+    $("state").innerHTML =
+        "";
+
+}
+
+
+/* =========================================================
+   ERROR STATE
+   ========================================================= */
+
+function showError(error){
+
+    console.error(
+        "HanVerse roadmap error:",
+        error
+    );
+
+
+    $("state").innerHTML = `
+
+        <div class="state">
+
+            <div class="stateIcon">
+                ⚠️
+            </div>
+
+            <h3>
+                We couldn't load your roadmap
+            </h3>
+
+            <p>
+                ${escapeHTML(
+                    error?.message ||
+                    "Something went wrong while loading your roadmap."
+                )}
+            </p>
+
+            <button
+                class="btn primary"
+                id="retry"
+                type="button"
+            >
+                Try Again
+            </button>
+
+        </div>
+
+    `;
+
+
+    $("retry").onclick =
+        loadPage;
+
+}
+
+
+/* =========================================================
+   MAIN LOAD
+   ========================================================= */
+
+async function loadPage(){
+
+    showLoading();
+
+
+    state.user =
+        getStoredUser();
+
+
+    /*
+     * Require login.
+     */
+
+    if(!state.user){
+
+        location.replace(
+            "login.html"
+        );
+
+        return;
+
+    }
+
+
+    buildNavigation();
+
+
+    try{
+
+        await loadLessons();
+
+        await loadProgress();
+
+        renderDashboard();
+
+        renderRoadmap();
+
+        clearState();
+
+
+        console.log(
+            "🐼 HanVerse roadmap rendered successfully."
+        );
+
+    }catch(error){
+
+        showError(error);
+
+    }
+
+}
+
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+
+$("refresh").addEventListener(
+    "click",
+    loadPage
+);
+
+
+$("close").addEventListener(
+    "click",
+    closeModal
+);
+
+
+$("modal").addEventListener(
+    "click",
+    event => {
+
+        if(
+            event.target ===
+            $("modal")
+        ){
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+$("menu").addEventListener(
+    "click",
+    () => {
+
+        const mobile =
+            $("mobile");
+
+
+        const isOpen =
+            mobile
+                .classList
+                .toggle("open");
+
+
+        $("menu").textContent =
+            isOpen
+                ? "✕"
+                : "☰";
+
+
+        $("menu")
+            .setAttribute(
+                "aria-expanded",
+                String(isOpen)
+            );
+
+    }
+);
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(event.key === "Escape"){
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+loadPage();
+
 </script>
+
 </body>
 </html>
