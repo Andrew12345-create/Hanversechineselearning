@@ -3135,6 +3135,568 @@ topic and does not need to stay on a lesson.
   }
 
 });
+
+/* ==========================================
+   EXPLORE ENDPOINTS 🌏
+   HANVERSE V2
+========================================== */
+
+/*
+  Explore V2 API
+
+  Free users:
+    - Can see published free content
+    - Premium content is returned as locked metadata
+
+  Premium users:
+    - Can access premium content
+
+  Supported endpoints:
+    GET /explore
+    GET /explore/categories
+    GET /explore/featured
+    GET /explore/series/:slug
+    GET /explore/:slug
+*/
+
+
+// ============================================================
+// HELPER: Determine whether current user is premium
+// ============================================================
+
+function isExplorePremiumUser(req) {
+  const user = req.user || {};
+
+  return (
+    user.premium === true ||
+    user.is_premium === true ||
+    user.isPremium === true
+  );
+}
+
+
+// ============================================================
+// HELPER: Map Explore content row
+// ============================================================
+
+function mapExploreItem(item, canAccessPremium = false) {
+  const isPremium = item.premium === true;
+
+  return {
+    id: item.id,
+
+    categoryId: item.category_id,
+    category: item.category_slug || '',
+    categoryName: item.category_name || '',
+    categoryIcon: item.category_icon || '🌏',
+
+    title: item.title || '',
+    slug: item.slug || '',
+
+    description: item.description || '',
+    content: (!isPremium || canAccessPremium)
+      ? (item.content || '')
+      : '',
+
+    thumbnailUrl: item.thumbnail_url || '',
+    heroImageUrl: item.hero_image_url || '',
+
+    videoUrl: (!isPremium || canAccessPremium)
+      ? (item.video_url || '')
+      : '',
+
+    audioUrl: (!isPremium || canAccessPremium)
+      ? (item.audio_url || '')
+      : '',
+
+    contentType: item.content_type || 'article',
+
+    difficulty: item.difficulty || '',
+    yctLevel: item.yct_level || '',
+    hskLevel: item.hsk_level || '',
+
+    author: item.author || '',
+    durationMinutes: item.duration_minutes || null,
+
+    subtitle: item.subtitle || '',
+    transcript: (!isPremium || canAccessPremium)
+      ? (item.transcript || '')
+      : '',
+
+    seriesId: item.series_id || null,
+    episodeNumber: item.episode_number || null,
+
+    featured: item.featured === true,
+    pandaFeatured: item.panda_featured === true,
+
+    estimatedXp: item.estimated_xp || 0,
+
+    published: item.published === true,
+    premium: isPremium,
+    locked: isPremium && !canAccessPremium,
+
+    orderIndex: item.order_index || 0,
+
+    createdAt: item.created_at || null,
+    updatedAt: item.updated_at || null,
+    publishedAt: item.published_at || null
+  };
+}
+
+
+// ============================================================
+// GET /explore/categories
+// ============================================================
+
+router.get('/explore/categories', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const result = await pool.query(`
+      SELECT
+        id,
+        name,
+        slug,
+        description,
+        icon,
+        order_index
+      FROM explore_categories
+      ORDER BY order_index ASC, id ASC
+    `);
+
+    return res.json({
+      success: true,
+
+      categories: result.rows.map(category => ({
+        id: category.id,
+        name: category.name || '',
+        slug: category.slug || '',
+        description: category.description || '',
+        icon: category.icon || '🌏',
+        orderIndex: category.order_index || 0
+      }))
+    });
+
+  } catch (error) {
+    console.error('❌ Explore categories error:', error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load Explore categories.'
+    });
+  }
+});
+
+
+// ============================================================
+// GET /explore/featured
+// ============================================================
+
+router.get('/explore/featured', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const canAccessPremium = isExplorePremiumUser(req);
+
+    const result = await pool.query(`
+      SELECT
+        ec.*,
+
+        ecat.name AS category_name,
+        ecat.slug AS category_slug,
+        ecat.icon AS category_icon
+
+      FROM explore_content ec
+
+      LEFT JOIN explore_categories ecat
+        ON ecat.id = ec.category_id
+
+      WHERE ec.published = TRUE
+        AND ec.featured = TRUE
+
+      ORDER BY
+        ec.order_index ASC NULLS LAST,
+        ec.id ASC
+
+      LIMIT 20
+    `);
+
+    return res.json({
+      success: true,
+
+      items: result.rows.map(item =>
+        mapExploreItem(item, canAccessPremium)
+      ),
+
+      count: result.rows.length
+    });
+
+  } catch (error) {
+    console.error('❌ Explore featured error:', error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load featured Explore content.'
+    });
+  }
+});
+
+
+// ============================================================
+// GET /explore
+//
+// Query parameters:
+//
+// category=stories
+// search=panda
+// difficulty=beginner
+// yct=YCT1
+// hsk=HSK1
+// type=story
+// premium=true
+// limit=100
+// ============================================================
+
+router.get('/explore', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const {
+      category,
+      search,
+      difficulty,
+      yct,
+      hsk,
+      type,
+      limit = 100
+    } = req.query || {};
+
+    const values = [];
+    const conditions = [
+      'ec.published = TRUE'
+    ];
+
+    // --------------------------------------------------------
+    // CATEGORY
+    // --------------------------------------------------------
+
+    if (category && category !== 'all') {
+      values.push(String(category).trim().toLowerCase());
+
+      conditions.push(`
+        LOWER(ecat.slug) = $${values.length}
+      `);
+    }
+
+    // --------------------------------------------------------
+    // SEARCH
+    // --------------------------------------------------------
+
+    if (search && String(search).trim()) {
+      values.push(
+        `%${String(search).trim().toLowerCase()}%`
+      );
+
+      conditions.push(`
+        (
+          LOWER(ec.title) LIKE $${values.length}
+          OR LOWER(COALESCE(ec.description, '')) LIKE $${values.length}
+          OR LOWER(COALESCE(ec.content, '')) LIKE $${values.length}
+          OR LOWER(COALESCE(ec.author, '')) LIKE $${values.length}
+        )
+      `);
+    }
+
+    // --------------------------------------------------------
+    // DIFFICULTY
+    // --------------------------------------------------------
+
+    if (difficulty && difficulty !== 'all') {
+      values.push(String(difficulty).trim());
+
+      conditions.push(`
+        ec.difficulty = $${values.length}
+      `);
+    }
+
+    // --------------------------------------------------------
+    // YCT
+    // --------------------------------------------------------
+
+    if (yct && yct !== 'all') {
+      values.push(String(yct).trim());
+
+      conditions.push(`
+        ec.yct_level = $${values.length}
+      `);
+    }
+
+    // --------------------------------------------------------
+    // HSK
+    // --------------------------------------------------------
+
+    if (hsk && hsk !== 'all') {
+      values.push(String(hsk).trim());
+
+      conditions.push(`
+        ec.hsk_level = $${values.length}
+      `);
+    }
+
+    // --------------------------------------------------------
+    // CONTENT TYPE
+    // --------------------------------------------------------
+
+    if (type && type !== 'all') {
+      values.push(String(type).trim().toLowerCase());
+
+      conditions.push(`
+        ec.content_type = $${values.length}
+      `);
+    }
+
+    // --------------------------------------------------------
+    // PREMIUM ACCESS PARAMETER
+    //
+    // Premium users can access premium content.
+    // Free users receive the item metadata but it remains locked.
+    // --------------------------------------------------------
+
+    const premiumParam = values.length + 1;
+
+    values.push(isExplorePremiumUser(req));
+
+    // --------------------------------------------------------
+    // LIMIT
+    // --------------------------------------------------------
+
+    const parsedLimit = Math.min(
+      Math.max(Number(limit) || 100, 1),
+      200
+    );
+
+    const limitParam = values.length + 1;
+
+    values.push(parsedLimit);
+
+    // --------------------------------------------------------
+    // QUERY
+    // --------------------------------------------------------
+
+    const result = await pool.query(`
+      SELECT
+        ec.*,
+
+        ecat.name AS category_name,
+        ecat.slug AS category_slug,
+        ecat.icon AS category_icon
+
+      FROM explore_content ec
+
+      LEFT JOIN explore_categories ecat
+        ON ecat.id = ec.category_id
+
+      WHERE ${conditions.join(' AND ')}
+
+      ORDER BY
+        ec.featured DESC,
+        ecat.order_index ASC NULLS LAST,
+        ec.order_index ASC NULLS LAST,
+        ec.id ASC
+
+      LIMIT $${limitParam}
+    `, values);
+
+    // --------------------------------------------------------
+    // CATEGORIES
+    // --------------------------------------------------------
+
+    const categoriesResult = await pool.query(`
+      SELECT
+        id,
+        name,
+        slug,
+        description,
+        icon,
+        order_index
+
+      FROM explore_categories
+
+      ORDER BY
+        order_index ASC,
+        id ASC
+    `);
+
+    const categories = categoriesResult.rows.map(category => ({
+      id: category.id,
+      name: category.name || '',
+      slug: category.slug || '',
+      description: category.description || '',
+      icon: category.icon || '🌏',
+      orderIndex: category.order_index || 0
+    }));
+
+    // --------------------------------------------------------
+    // RESPONSE
+    // --------------------------------------------------------
+
+    const items = result.rows.map(item =>
+      mapExploreItem(
+        item,
+        isExplorePremiumUser(req)
+      )
+    );
+
+    console.log(
+      `🌏 Explore loaded: ${items.length} items`
+    );
+
+    return res.json({
+      success: true,
+      items,
+      categories,
+      count: items.length,
+
+      access: {
+        premium: isExplorePremiumUser(req)
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Explore API error:', error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load Explore content.',
+      details:
+        process.env.NODE_ENV === 'development'
+          ? error.message
+          : undefined
+    });
+  }
+});
+
+
+// ============================================================
+// GET /explore/series/:slug
+//
+// IMPORTANT:
+// This route MUST appear before /explore/:slug.
+// ============================================================
+
+router.get('/explore/series/:slug', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const slug = String(
+      req.params.slug || ''
+    ).trim();
+
+    if (!slug) {
+      return res.status(400).json({
+        success: false,
+        error: 'Series slug is required.'
+      });
+    }
+
+    const canAccessPremium = isExplorePremiumUser(req);
+
+    const seriesResult = await pool.query(`
+      SELECT
+        id,
+        title,
+        slug,
+        description,
+        thumbnail_url,
+        premium,
+        published,
+        order_index,
+        created_at,
+        updated_at
+
+      FROM explore_series
+
+      WHERE slug = $1
+        AND published = TRUE
+
+      LIMIT 1
+    `, [slug]);
+
+    if (!seriesResult.rows.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Explore series not found.'
+      });
+    }
+
+    const series = seriesResult.rows[0];
+
+    const contentResult = await pool.query(`
+      SELECT
+        ec.*,
+
+        ecat.name AS category_name,
+        ecat.slug AS category_slug,
+        ecat.icon AS category_icon
+
+      FROM explore_content ec
+
+      LEFT JOIN explore_categories ecat
+        ON ecat.id = ec.category_id
+
+      WHERE ec.series_id = $1
+        AND ec.published = TRUE
+
+      ORDER BY
+        ec.episode_number ASC NULLS LAST,
+        ec.order_index ASC NULLS LAST,
+        ec.id ASC
+    `, [series.id]);
+
+    return res.json({
+      success: true,
+
+      series: {
+        id: series.id,
+        title: series.title || '',
+        slug: series.slug || '',
+        description: series.description || '',
+        thumbnailUrl: series.thumbnail_url || '',
+        premium: series.premium === true,
+        locked:
+          series.premium === true &&
+          !canAccessPremium,
+
+        published: series.published === true,
+        orderIndex: series.order_index || 0
+      },
+
+      items: contentResult.rows.map(item =>
+        mapExploreItem(
+          item,
+          canAccessPremium
+        )
+      )
+    });
+
+  } catch (error) {
+    console.error('❌ Explore series error:', error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load Explore series.',
+      details:
+        process.env.NODE_ENV === 'development'
+          ? error.message
+          : undefined
+    });
+  }
+});
+
+
+
+
+
 /* ==========================================
   LESSONS ENDPOINTS 📚
 ========================================== */
@@ -6303,6 +6865,9 @@ router.delete('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, async
     });
   }
 });
+
+
+
 
 /* =========================================================
    ADMIN ROUTE STATUS

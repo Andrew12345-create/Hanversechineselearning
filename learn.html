@@ -1,542 +1,2639 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#fffdf7">
-<title>Learn Mandarin | HanVerse</title>
-<link rel="icon" type="image/png" href="hanverse-logo2.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 
-<style>
-:root{
-  --red:#e63946;--red-dark:#c92f3b;--yellow:#f4d35e;--blue:#4ea8de;
-  --green:#74c69d;--cream:#fffdf7;--ink:#253044;--muted:#697386;
-  --white:#fff;--line:#e9e4d8;--shadow:0 18px 50px rgba(37,48,68,.10);
-  --soft:0 10px 30px rgba(37,48,68,.07);--radius:24px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  font-family:Poppins,system-ui,sans-serif;color:var(--ink);background:
-  radial-gradient(circle at 8% 12%,rgba(244,211,94,.16),transparent 28%),
-  radial-gradient(circle at 92% 22%,rgba(78,168,222,.10),transparent 26%),var(--cream);
-  min-height:100vh;overflow-x:hidden;
-}
-a{text-decoration:none;color:inherit} button{font:inherit}
-.container{width:min(1180px,calc(100% - 36px));margin:auto}
+    <meta name="theme-color" content="#2563EB">
 
-/* NAVBAR */
-.navbar{position:sticky;top:0;z-index:1000;background:rgba(255,253,247,.92);
-  backdrop-filter:blur(16px);border-bottom:1px solid rgba(233,228,216,.9)}
-.nav-inner{height:76px;display:flex;align-items:center;gap:22px}
-.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:1.22rem;white-space:nowrap}
-.brand-mark{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;
-  background:linear-gradient(135deg,var(--red),#f06a73);color:#fff;box-shadow:0 8px 20px rgba(230,57,70,.2)}
-.nav-links{display:flex;align-items:center;justify-content:center;gap:5px;flex:1}
-.nav-link{padding:10px 13px;border-radius:12px;color:#596273;font-size:.91rem;font-weight:600;transition:.2s}
-.nav-link:hover,.nav-link[aria-current=page]{background:#f6f2e9;color:var(--red)}
-.nav-actions{display:flex;align-items:center;gap:9px}
-.nav-btn{padding:10px 16px;border-radius:13px;border:1px solid var(--line);font-size:.88rem;font-weight:700;white-space:nowrap;transition:.2s}
-.nav-btn:hover{transform:translateY(-1px)}
-.nav-login{background:#fff}.nav-primary{background:var(--red);color:#fff;border-color:var(--red);
-  box-shadow:0 8px 20px rgba(230,57,70,.17)}.nav-profile{display:none;background:#fff}
-.mobile-toggle{display:none;width:44px;height:44px;border:1px solid var(--line);background:#fff;border-radius:13px;cursor:pointer}
-.mobile-menu{display:none;padding:0 18px 18px}.mobile-menu.open{display:block}
-.mobile-menu a{display:block;padding:13px 14px;border-radius:12px;font-weight:600;color:#596273}
-.mobile-menu a:hover{background:#f6f2e9;color:var(--red)}
-.mobile-divider{height:1px;background:var(--line);margin:8px 0}
+    <title>Learn | HanVerse</title>
 
-/* HERO */
-.hero{padding:92px 0 78px}
-.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:70px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#fff;
-  border:1px solid var(--line);color:var(--red);font-size:.78rem;font-weight:800;box-shadow:var(--soft);margin-bottom:20px}
-.eyebrow-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
-h1{font-size:clamp(2.5rem,5vw,4.65rem);line-height:1.03;letter-spacing:-2.8px;max-width:700px}
-.hero-title-accent{color:var(--red)}
-.hero-copy{margin-top:22px;max-width:620px;color:var(--muted);font-size:1.05rem;line-height:1.8}
-.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.cta{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:50px;padding:13px 20px;
-  border-radius:15px;font-weight:800;font-size:.92rem;transition:.22s}
-.cta:hover{transform:translateY(-2px)}.cta-primary{background:var(--red);color:#fff;box-shadow:0 14px 28px rgba(230,57,70,.18)}
-.cta-secondary{background:#fff;border:1px solid var(--line);color:var(--ink)}
-.welcome{display:none;align-items:center;gap:12px;margin-top:18px;padding:14px 16px;border:1px solid var(--line);
-  background:#fff;border-radius:16px;box-shadow:var(--soft)}.welcome.show{display:flex}
-.welcome-icon{width:38px;height:38px;border-radius:12px;background:#fff4d2;display:grid;place-items:center}
-.welcome strong{display:block;font-size:.9rem}.welcome span{display:block;color:var(--muted);font-size:.76rem;margin-top:2px}
+    <link rel="icon" type="image/png" href="hanverse-logo2.png">
 
-/* PREVIEW */
-.preview-wrap{position:relative;min-height:420px;display:grid;place-items:center}
-.preview-card{width:min(440px,100%);background:#fff;border:1px solid var(--line);border-radius:30px;padding:28px;
-  box-shadow:var(--shadow);position:relative;overflow:hidden}
-.preview-card:before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-75px;top:-80px;background:rgba(244,211,94,.22)}
-.preview-top{display:flex;justify-content:space-between;align-items:center;position:relative}
-.preview-label{font-size:.68rem;font-weight:800;color:var(--muted);letter-spacing:1px}
-.preview-xp{font-size:.72rem;font-weight:800;color:#9a7600;background:#fff4cc;padding:7px 10px;border-radius:999px}
-.preview-title{font-size:1.35rem;font-weight:800;margin-top:22px}.preview-subtitle{color:var(--muted);font-size:.82rem;line-height:1.6;margin-top:6px}
-.preview-path{display:grid;gap:10px;margin-top:22px}.preview-node{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:17px}
-.node-icon{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;font-size:1.15rem}
-.node-icon.green{background:#e7f7ef}.node-icon.yellow{background:#fff5d5}.node-icon.blue{background:#e7f4fc}
-.node-info{flex:1}.node-info strong{display:block;font-size:.84rem}.node-info span{display:block;font-size:.7rem;color:var(--muted);margin-top:2px}
-.node-status{font-weight:900}.done{color:#35a56f}.locked{color:#b7bdc7}
-.float-pill{position:absolute;background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 14px;font-size:.72rem;font-weight:800;box-shadow:var(--soft);animation:float 4s ease-in-out infinite}
-.pill-one{left:-25px;top:50px}.pill-two{right:-18px;bottom:45px;animation-delay:-1.5s}
-@keyframes float{50%{transform:translateY(-8px)}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-/* LEVELS */
-.levels{padding:40px 0 95px}.section-heading{text-align:center;max-width:760px;margin:0 auto 38px}
-.kicker{font-size:.72rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--red);font-weight:800}
-.section-heading h2{font-size:clamp(1.8rem,3.5vw,2.7rem);letter-spacing:-1.3px;margin-top:8px}
-.section-heading p{color:var(--muted);line-height:1.7;margin-top:10px;font-size:.9rem}
-.level-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
-.level-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:23px;min-height:190px;box-shadow:var(--soft);transition:.25s}
-.level-card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
-.level-icon{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;font-size:1.4rem;margin-bottom:20px}
-.level-one .level-icon{background:#e7f7ef}.level-two .level-icon{background:#eaf7e8}.level-three .level-icon{background:#e9f4fc}.level-four .level-icon{background:#fff4d3}
-.level-card strong{display:block;font-size:.9rem}.level-card span{display:block;color:var(--muted);font-size:.76rem;line-height:1.65;margin-top:7px}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
 
-/* HOW */
-.how{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:90px 0}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.step{border:1px solid var(--line);border-radius:22px;padding:26px;background:var(--cream)}
-.step-number{font-size:.72rem;font-weight:900;color:var(--red);letter-spacing:1px}.step h3{font-size:1rem;margin-top:20px}.step p{font-size:.78rem;color:var(--muted);line-height:1.7;margin-top:8px}
+    <style>
 
-/* FOOTER */
-footer{padding:30px 0}.footer-inner{width:min(1180px,calc(100% - 36px));margin:auto;display:flex;justify-content:space-between;
-  gap:20px;color:var(--muted);font-size:.72rem}
+        /* =========================================================
+           HANVERSE V2 DESIGN SYSTEM
+        ========================================================= */
 
-/* AUTH LOADING */
-.auth-gate{position:fixed;inset:0;z-index:5000;background:rgba(255,253,247,.96);display:grid;place-items:center;padding:24px}
-.auth-card{width:min(420px,100%);text-align:center;background:#fff;border:1px solid var(--line);border-radius:25px;padding:32px;box-shadow:var(--shadow)}
-.spinner{width:34px;height:34px;border:3px solid #eee9de;border-top-color:var(--red);border-radius:50%;margin:0 auto 18px;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}.auth-card h2{font-size:1rem}.auth-card p{font-size:.78rem;color:var(--muted);margin-top:7px;line-height:1.6}
-body.auth-resolved .auth-gate{display:none}
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #DBEAFE;
 
-/* RESPONSIVE */
-@media(max-width:950px){
-  .nav-links,.nav-actions{display:none}.mobile-toggle{display:block;margin-left:auto}
-  .hero{padding-top:65px}.hero-grid{grid-template-columns:1fr;gap:42px}.hero-copy{max-width:720px}
-  .preview-wrap{min-height:390px}.level-grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:650px){
-  .container,.footer-inner{width:min(100% - 28px,1180px)}
-  .nav-inner{height:68px}.brand-mark{width:38px;height:38px}.brand{font-size:1.08rem}
-  .hero{padding:54px 0 58px}h1{font-size:clamp(2.3rem,12vw,3.5rem);letter-spacing:-1.8px}
-  .hero-copy{font-size:.92rem;line-height:1.7}.hero-actions{flex-direction:column}.cta{width:100%}
-  .preview-wrap{min-height:350px}.preview-card{padding:21px;border-radius:24px}
-  .pill-one{left:-4px;top:15px}.pill-two{right:-4px;bottom:25px}
-  .level-grid,.steps{grid-template-columns:1fr}.levels{padding-bottom:65px}.how{padding:70px 0}
-  .footer-inner{flex-direction:column;align-items:flex-start}
-}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-</style>
+            --teal: #14B8A6;
+            --teal-light: #99F6E4;
+
+            --amber: #F59E0B;
+            --amber-light: #FDE68A;
+
+            --ink: #0F172A;
+            --muted: #64748B;
+
+            --white: #FFFFFF;
+            --surface: #F8FAFC;
+            --border: #E2E8F0;
+
+            --success: #16A34A;
+            --danger: #DC2626;
+
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+
+            --shadow-sm: 0 4px 16px rgba(15, 23, 42, .05);
+            --shadow: 0 12px 35px rgba(15, 23, 42, .08);
+            --shadow-lg: 0 20px 55px rgba(15, 23, 42, .11);
+        }
+
+
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Poppins", system-ui, sans-serif;
+            color: var(--ink);
+            background: var(--surface);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+
+        /* =========================================================
+           NAVIGATION
+        ========================================================= */
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            background: rgba(255,255,255,.94);
+            backdrop-filter: blur(18px);
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            width: min(1200px, calc(100% - 32px));
+            height: 72px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-weight: 800;
+            font-size: 1.15rem;
+            white-space: nowrap;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 13px;
+
+            background: var(--primary);
+            color: white;
+
+            font-weight: 800;
+
+            box-shadow: 0 8px 22px rgba(37,99,235,.22);
+        }
+
+        .nav-links {
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            padding: 9px 13px;
+
+            border-radius: 11px;
+
+            color: var(--muted);
+
+            font-size: .85rem;
+            font-weight: 600;
+
+            transition: .2s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--surface);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            padding: 7px 11px;
+
+            border: 1px solid var(--border);
+            border-radius: 13px;
+
+            background: white;
+
+            font-size: .8rem;
+            font-weight: 700;
+        }
+
+        .nav-avatar {
+            width: 32px;
+            height: 32px;
+
+            border-radius: 10px;
+
+            display: grid;
+            place-items: center;
+
+            background: var(--primary-light);
+            color: var(--primary-dark);
+
+            overflow: hidden;
+        }
+
+        .nav-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mobile-toggle {
+            display: none;
+
+            margin-left: auto;
+
+            width: 43px;
+            height: 43px;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: white;
+
+            cursor: pointer;
+            font-size: 1.15rem;
+        }
+
+        .mobile-menu {
+            display: none;
+
+            padding: 8px 16px 18px;
+
+            border-top: 1px solid var(--border);
+        }
+
+        .mobile-menu.open {
+            display: block;
+        }
+
+        .mobile-menu a {
+            display: block;
+
+            padding: 12px 13px;
+
+            border-radius: 11px;
+
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .mobile-menu a.active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+
+        /* =========================================================
+           PAGE
+        ========================================================= */
+
+        .page {
+            width: min(1200px, calc(100% - 32px));
+            margin: auto;
+
+            padding: 48px 0 80px;
+        }
+
+
+        /* =========================================================
+           LOADING
+        ========================================================= */
+
+        .loading {
+            min-height: 65vh;
+
+            display: grid;
+            place-items: center;
+
+            text-align: center;
+        }
+
+        .loader {
+            width: 42px;
+            height: 42px;
+
+            border: 4px solid var(--primary-light);
+            border-top-color: var(--primary);
+
+            border-radius: 50%;
+
+            animation: spin .8s linear infinite;
+
+            margin: 0 auto 18px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading h2 {
+            font-size: 1.05rem;
+        }
+
+        .loading p {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+
+        /* =========================================================
+           ERROR
+        ========================================================= */
+
+        .error-state {
+            display: none;
+
+            max-width: 520px;
+            margin: 80px auto;
+
+            padding: 35px;
+
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+
+            text-align: center;
+
+            box-shadow: var(--shadow);
+        }
+
+        .error-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .error-state h2 {
+            font-size: 1.25rem;
+        }
+
+        .error-state p {
+            color: var(--muted);
+            margin-top: 8px;
+            font-size: .85rem;
+            line-height: 1.7;
+        }
+
+        .error-state a {
+            display: inline-flex;
+
+            margin-top: 20px;
+
+            padding: 11px 18px;
+
+            background: var(--primary);
+            color: white;
+
+            border-radius: 12px;
+
+            font-weight: 700;
+            font-size: .85rem;
+        }
+
+
+        /* =========================================================
+           WELCOME
+        ========================================================= */
+
+        .welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 30px;
+
+            margin-bottom: 32px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            color: var(--primary);
+
+            font-size: .72rem;
+            font-weight: 800;
+
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+        }
+
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: var(--teal);
+        }
+
+        .welcome h1 {
+            margin-top: 8px;
+
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.08;
+
+            letter-spacing: -1.5px;
+        }
+
+        .welcome-copy {
+            max-width: 600px;
+
+            margin-top: 9px;
+
+            color: var(--muted);
+
+            font-size: .9rem;
+            line-height: 1.7;
+        }
+
+
+        /* =========================================================
+           STATS
+        ========================================================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+
+            margin-bottom: 34px;
+        }
+
+        .stat {
+            background: white;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+
+            padding: 19px;
+
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-icon {
+            width: 37px;
+            height: 37px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 11px;
+
+            background: var(--primary-light);
+
+            font-size: 1rem;
+        }
+
+        .stat:nth-child(2) .stat-icon {
+            background: #FEF3C7;
+        }
+
+        .stat:nth-child(3) .stat-icon {
+            background: var(--teal-light);
+        }
+
+        .stat:nth-child(4) .stat-icon {
+            background: #EDE9FE;
+        }
+
+        .stat-label {
+            margin-top: 14px;
+
+            color: var(--muted);
+
+            font-size: .7rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            margin-top: 2px;
+
+            font-size: 1.45rem;
+            font-weight: 800;
+        }
+
+
+        /* =========================================================
+           CURRENT LESSON
+        ========================================================= */
+
+        .continue-card {
+            position: relative;
+
+            overflow: hidden;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+
+            color: white;
+
+            border-radius: var(--radius-xl);
+
+            padding: 32px;
+
+            margin-bottom: 38px;
+
+            box-shadow: 0 18px 45px rgba(37,99,235,.22);
+        }
+
+        .continue-card::after {
+            content: "汉";
+
+            position: absolute;
+
+            right: 28px;
+            bottom: -45px;
+
+            font-size: 12rem;
+
+            font-weight: 900;
+
+            opacity: .07;
+
+            pointer-events: none;
+        }
+
+        .continue-inner {
+            position: relative;
+            z-index: 1;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 30px;
+        }
+
+        .continue-label {
+            font-size: .7rem;
+            font-weight: 800;
+
+            text-transform: uppercase;
+            letter-spacing: 1px;
+
+            opacity: .78;
+        }
+
+        .continue-card h2 {
+            margin-top: 7px;
+
+            font-size: clamp(1.35rem, 3vw, 2rem);
+
+            letter-spacing: -.6px;
+        }
+
+        .continue-description {
+            max-width: 610px;
+
+            margin-top: 8px;
+
+            color: rgba(255,255,255,.82);
+
+            font-size: .82rem;
+            line-height: 1.65;
+        }
+
+        .lesson-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+
+            margin-top: 17px;
+        }
+
+        .meta-pill {
+            padding: 6px 10px;
+
+            background: rgba(255,255,255,.13);
+
+            border: 1px solid rgba(255,255,255,.16);
+
+            border-radius: 999px;
+
+            font-size: .68rem;
+            font-weight: 700;
+        }
+
+        .continue-button {
+            flex-shrink: 0;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+
+            padding: 13px 20px;
+
+            background: white;
+            color: var(--primary-dark);
+
+            border-radius: 13px;
+
+            font-size: .85rem;
+            font-weight: 800;
+
+            box-shadow: 0 8px 20px rgba(0,0,0,.12);
+
+            transition: .2s ease;
+        }
+
+        .continue-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .no-lesson {
+            position: relative;
+            z-index: 1;
+        }
+
+
+        /* =========================================================
+           SECTION HEADER
+        ========================================================= */
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+
+            gap: 20px;
+
+            margin-bottom: 18px;
+        }
+
+        .section-kicker {
+            color: var(--primary);
+
+            font-size: .68rem;
+            font-weight: 800;
+
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-header h2 {
+            margin-top: 4px;
+
+            font-size: 1.35rem;
+
+            letter-spacing: -.5px;
+        }
+
+        .section-header p {
+            color: var(--muted);
+
+            font-size: .76rem;
+        }
+
+
+        /* =========================================================
+           LEVEL FILTER
+        ========================================================= */
+
+        .level-tabs {
+            display: flex;
+            gap: 7px;
+
+            margin-bottom: 18px;
+
+            overflow-x: auto;
+
+            padding-bottom: 3px;
+        }
+
+        .level-tab {
+            flex-shrink: 0;
+
+            padding: 8px 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 999px;
+
+            background: white;
+
+            color: var(--muted);
+
+            font-size: .72rem;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: .2s ease;
+        }
+
+        .level-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .level-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+
+        /* =========================================================
+           LESSON GRID
+        ========================================================= */
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .lesson-card {
+            position: relative;
+
+            display: flex;
+            flex-direction: column;
+
+            min-height: 220px;
+
+            padding: 20px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+
+            box-shadow: var(--shadow-sm);
+
+            transition: .22s ease;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .lesson-card.completed {
+            border-color: rgba(22,163,74,.25);
+        }
+
+        .lesson-card.current {
+            border-color: var(--primary);
+            box-shadow: 0 8px 28px rgba(37,99,235,.12);
+        }
+
+        .lesson-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .lesson-icon {
+            width: 44px;
+            height: 44px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 13px;
+
+            background: var(--primary-light);
+
+            font-size: 1.25rem;
+        }
+
+        .lesson-status {
+            padding: 5px 8px;
+
+            border-radius: 999px;
+
+            font-size: .61rem;
+            font-weight: 800;
+        }
+
+        .status-complete {
+            background: #DCFCE7;
+            color: var(--success);
+        }
+
+        .status-current {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .status-available {
+            background: var(--surface);
+            color: var(--muted);
+        }
+
+        .status-premium {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .lesson-number {
+            margin-top: 17px;
+
+            color: var(--primary);
+
+            font-size: .65rem;
+            font-weight: 800;
+
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .lesson-title {
+            margin-top: 4px;
+
+            font-size: .98rem;
+            font-weight: 800;
+        }
+
+        .lesson-description {
+            margin-top: 7px;
+
+            color: var(--muted);
+
+            font-size: .72rem;
+            line-height: 1.65;
+
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .lesson-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-top: auto;
+            padding-top: 17px;
+        }
+
+        .lesson-xp {
+            color: var(--muted);
+
+            font-size: .68rem;
+            font-weight: 700;
+        }
+
+        .lesson-action {
+            padding: 8px 12px;
+
+            background: var(--primary-light);
+            color: var(--primary-dark);
+
+            border-radius: 10px;
+
+            font-size: .68rem;
+            font-weight: 800;
+        }
+
+        .lesson-card.completed .lesson-action {
+            background: #DCFCE7;
+            color: var(--success);
+        }
+
+        .lesson-card.premium .lesson-action {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+
+        /* =========================================================
+           EMPTY
+        ========================================================= */
+
+        .empty {
+            display: none;
+
+            padding: 45px 20px;
+
+            background: white;
+
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-md);
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: .82rem;
+        }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        footer {
+            padding: 25px 0 35px;
+
+            border-top: 1px solid var(--border);
+
+            background: white;
+        }
+
+        .footer-inner {
+            width: min(1200px, calc(100% - 32px));
+            margin: auto;
+
+            display: flex;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            color: var(--muted);
+
+            font-size: .68rem;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 950px) {
+
+            .nav-links,
+            .nav-user {
+                display: none;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .lessons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .continue-inner {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .continue-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+
+        @media (max-width: 650px) {
+
+            .page {
+                padding-top: 32px;
+            }
+
+            .welcome {
+                display: block;
+            }
+
+            .welcome h1 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat {
+                padding: 15px;
+            }
+
+            .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .continue-card {
+                padding: 24px;
+                border-radius: 24px;
+            }
+
+            .lessons-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                display: block;
+            }
+
+            .section-header p {
+                margin-top: 5px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+            }
+        }
+
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+
+        }
+
+    </style>
 </head>
+
 
 <body>
 
-<div class="auth-gate" id="authGate">
-  <div class="auth-card">
-    <div class="spinner"></div>
-    <h2>Checking your HanVerse account…</h2>
-    <p>Getting your learning space ready.</p>
-  </div>
-</div>
+
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
 
 <header class="navbar">
-  <div class="nav-inner container">
-    <a class="brand" href="index.html" aria-label="HanVerse home">
-      <span class="brand-mark">汉</span><span>HanVerse</span>
-    </a>
 
-    <nav class="nav-links" id="desktopNav" aria-label="Main navigation"></nav>
+    <div class="nav-inner">
 
-    <div class="nav-actions" id="navActions">
-      <a class="nav-btn nav-login" id="navLogin" href="login.html">Log In</a>
-      <a class="nav-btn nav-primary" id="navPrimary" href="signup.html">Start Learning</a>
-      <a class="nav-btn nav-profile" id="navProfile" href="profile.html">Learner</a>
+        <a href="index.html" class="brand">
+
+            <span class="brand-mark">汉</span>
+
+            <span>HanVerse</span>
+
+        </a>
+
+
+        <nav class="nav-links" aria-label="Main navigation">
+
+            <a class="nav-link" href="index.html">
+                🏠 Home
+            </a>
+
+            <a class="nav-link active" href="learn.html">
+                📚 Learn
+            </a>
+
+            <a class="nav-link" href="play.html">
+                🎮 Play
+            </a>
+
+            <a class="nav-link" href="explore.html">
+                🌏 Explore
+            </a>
+
+            <a class="nav-link" href="panda.html">
+                🐼 Panda
+            </a>
+
+            <a class="nav-link" href="me.html">
+                👤 Me
+            </a>
+
+        </nav>
+
+
+        <a href="me.html" class="nav-user" id="navUser">
+
+            <span class="nav-avatar" id="navAvatar">
+                👤
+            </span>
+
+            <span id="navUserName">
+                Learner
+            </span>
+
+        </a>
+
+
+        <button
+            class="mobile-toggle"
+            id="mobileToggle"
+            type="button"
+            aria-label="Open navigation"
+            aria-expanded="false">
+
+            ☰
+
+        </button>
+
     </div>
 
-    <button class="mobile-toggle" id="mobileToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
-  </div>
-  <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation"></nav>
+
+    <nav class="mobile-menu" id="mobileMenu">
+
+        <a href="index.html">
+            🏠 Home
+        </a>
+
+        <a href="learn.html" class="active">
+            📚 Learn
+        </a>
+
+        <a href="play.html">
+            🎮 Play
+        </a>
+
+        <a href="explore.html">
+            🌏 Explore
+        </a>
+
+        <a href="panda.html">
+            🐼 Panda
+        </a>
+
+        <a href="me.html">
+            👤 Me
+        </a>
+
+    </nav>
+
 </header>
 
-<main>
-<section class="hero">
-  <div class="container hero-grid">
+
+
+<!-- ============================================================
+     LOADING
+============================================================ -->
+
+<div class="loading" id="loadingState">
+
     <div>
-      <div class="eyebrow"><span class="eyebrow-dot"></span>Mandarin learning, made adventurous</div>
-      <h1>Your journey to <span class="hero-title-accent">Chinese fluency</span> starts here.</h1>
-      <p class="hero-copy">HanVerse turns Mandarin into a guided adventure. Learn vocabulary, build confidence, practise what you know and progress through a structured YCT learning journey.</p>
-      <div class="hero-actions">
-        <a class="cta cta-primary" id="heroPrimary" href="signup.html">Start Learning <span>→</span></a>
-        <a class="cta cta-secondary" id="heroSecondary" href="login.html">I already have an account</a>
-      </div>
-      <div class="welcome" id="welcomeBack">
-        <div class="welcome-icon">🎉</div>
-        <div><strong id="welcomeName">Welcome back!</strong><span>Your learning journey is ready.</span></div>
-      </div>
+
+        <div class="loader"></div>
+
+        <h2>Loading your learning journey...</h2>
+
+        <p>
+            Getting your lessons and progress from HanVerse.
+        </p>
+
     </div>
 
-    <div class="preview-wrap">
-      <div class="float-pill pill-one">⭐ Earn XP</div>
-      <div class="float-pill pill-two">🔥 Build your streak</div>
-      <div class="preview-card">
-        <div class="preview-top"><span class="preview-label">YOUR LEARNING JOURNEY</span><span class="preview-xp">+10 XP</span></div>
-        <div class="preview-title">Mandarin Foundations</div>
-        <div class="preview-subtitle">Start with the essentials and gradually build your Chinese skills.</div>
-        <div class="preview-path">
-          <div class="preview-node"><div class="node-icon green">👋</div><div class="node-info"><strong>Greetings</strong><span>你好 · 再见 · 谢谢</span></div><span class="node-status done">✓</span></div>
-          <div class="preview-node"><div class="node-icon yellow">🔢</div><div class="node-info"><strong>Numbers</strong><span>一 · 二 · 三 · 四</span></div><span class="node-status done">✓</span></div>
-          <div class="preview-node"><div class="node-icon blue">🎨</div><div class="node-info"><strong>Colours & Objects</strong><span>红色 · 蓝色 · 书</span></div><span class="node-status locked">○</span></div>
+</div>
+
+
+
+<!-- ============================================================
+     ERROR
+============================================================ -->
+
+<div class="error-state" id="errorState">
+
+    <div class="error-icon">
+        📚
+    </div>
+
+    <h2>
+        We couldn't load your learning journey.
+    </h2>
+
+    <p id="errorMessage">
+        Please try again.
+    </p>
+
+    <a href="login.html">
+        Return to Login
+    </a>
+
+</div>
+
+
+
+<!-- ============================================================
+     MAIN
+============================================================ -->
+
+<main class="page" id="mainContent" style="display:none;">
+
+
+    <!-- WELCOME -->
+
+    <section class="welcome">
+
+        <div>
+
+            <div class="eyebrow">
+
+                <span class="eyebrow-dot"></span>
+
+                Your learning journey
+
+            </div>
+
+            <h1 id="welcomeTitle">
+                Welcome back!
+            </h1>
+
+            <p class="welcome-copy">
+                Follow your HanVerse pathway, complete lessons and build your Mandarin skills one step at a time.
+            </p>
+
         </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="levels">
-  <div class="container">
-    <div class="section-heading">
-      <div class="kicker">The HanVerse pathway</div>
-      <h2>A clear path from beginner to confident learner.</h2>
-      <p>HanVerse follows a structured YCT journey so you always know what you are learning and what comes next.</p>
-    </div>
-    <div class="level-grid">
-      <article class="level-card level-one"><div class="level-icon">🌱</div><strong>YCT 1 · Beginner</strong><span>Essential words, greetings, numbers and everyday foundations.</span></article>
-      <article class="level-card level-two"><div class="level-icon">🌿</div><strong>YCT 2 · Elementary</strong><span>Build sentences and talk about familiar people, places and activities.</span></article>
-      <article class="level-card level-three"><div class="level-icon">🌳</div><strong>YCT 3 · Intermediate</strong><span>Expand vocabulary and communicate with greater confidence.</span></article>
-      <article class="level-card level-four"><div class="level-icon">🏆</div><strong>YCT 4 · Advanced</strong><span>Strengthen your skills and prepare for more challenging Chinese.</span></article>
-    </div>
-  </div>
-</section>
+    </section>
 
-<section class="how">
-  <div class="container">
-    <div class="section-heading"><div class="kicker">How HanVerse works</div><h2>Learn a little. Practise a lot. Keep moving.</h2></div>
-    <div class="steps">
-      <article class="step"><div class="step-number">01</div><h3>Follow your roadmap</h3><p>Your lessons are organised into a clear learning pathway so you always know where to go next.</p></article>
-      <article class="step"><div class="step-number">02</div><h3>Learn through practice</h3><p>Meet useful Chinese vocabulary, practise meaning and pinyin, then test yourself.</p></article>
-      <article class="step"><div class="step-number">03</div><h3>Build your progress</h3><p>Earn XP, complete lessons and keep building your Mandarin confidence one step at a time.</p></article>
-    </div>
-  </div>
-</section>
+
+
+    <!-- STATS -->
+
+    <section class="stats">
+
+        <article class="stat">
+
+            <div class="stat-top">
+
+                <div class="stat-icon">
+                    ⭐
+                </div>
+
+            </div>
+
+            <div class="stat-label">
+                XP
+            </div>
+
+            <div class="stat-value" id="xpValue">
+                0
+            </div>
+
+        </article>
+
+
+        <article class="stat">
+
+            <div class="stat-top">
+
+                <div class="stat-icon">
+                    🔥
+                </div>
+
+            </div>
+
+            <div class="stat-label">
+                DAY STREAK
+            </div>
+
+            <div class="stat-value" id="streakValue">
+                0
+            </div>
+
+        </article>
+
+
+        <article class="stat">
+
+            <div class="stat-top">
+
+                <div class="stat-icon">
+                    📚
+                </div>
+
+            </div>
+
+            <div class="stat-label">
+                LESSONS COMPLETED
+            </div>
+
+            <div class="stat-value" id="completedValue">
+                0
+            </div>
+
+        </article>
+
+
+        <article class="stat">
+
+            <div class="stat-top">
+
+                <div class="stat-icon">
+                    🎯
+                </div>
+
+            </div>
+
+            <div class="stat-label">
+                CURRENT LEVEL
+            </div>
+
+            <div class="stat-value" id="levelValue">
+                —
+            </div>
+
+        </article>
+
+    </section>
+
+
+
+    <!-- CONTINUE -->
+
+    <section class="continue-card">
+
+        <div class="continue-inner" id="continueContent">
+
+            <div class="no-lesson">
+
+                <div class="continue-label">
+                    Continue learning
+                </div>
+
+                <h2 id="continueTitle">
+                    Finding your next lesson...
+                </h2>
+
+                <p class="continue-description" id="continueDescription">
+                    Loading your learning pathway.
+                </p>
+
+                <div class="lesson-meta" id="continueMeta"></div>
+
+            </div>
+
+            <a
+                href="#"
+                class="continue-button"
+                id="continueButton">
+
+                Continue
+                <span>→</span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- LESSONS -->
+
+    <section>
+
+        <div class="section-header">
+
+            <div>
+
+                <div class="section-kicker">
+                    Your curriculum
+                </div>
+
+                <h2>
+                    Lessons
+                </h2>
+
+            </div>
+
+            <p id="lessonCount">
+                Loading lessons...
+            </p>
+
+        </div>
+
+
+        <div class="level-tabs" id="levelTabs"></div>
+
+
+        <div class="lessons-grid" id="lessonsGrid"></div>
+
+
+        <div class="empty" id="emptyLessons">
+
+            No published lessons are available for this level yet.
+
+        </div>
+
+    </section>
+
+
 </main>
 
-<footer><div class="footer-inner"><span>© 2026 HanVerse. Learn Chinese. Explore more.</span><span>Made for curious learners.</span></div></footer>
 
-<script>
-(() => {
-  "use strict";
 
-  const CONFIG = {
-    API_BASE: "/api",
-    ROADMAP: "roadmap.html"
-  };
+<!-- FOOTER -->
 
-  const SESSION_KEY = "hanverse_user";
+<footer>
 
-  const $ = id => document.getElementById(id);
+    <div class="footer-inner">
 
-  function localSession() {
-    try {
-      const raw = localStorage.getItem(SESSION_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      console.warn("HanVerse local session error:", e);
-      return null;
+        <span>
+            © 2026 HanVerse
+        </span>
+
+        <span>
+            Learn Chinese. Explore more.
+        </span>
+
+    </div>
+
+</footer>
+
+
+
+<script type="module">
+
+    /* ============================================================
+       HANVERSE V2 — LEARN
+       Database-driven learning page
+    ============================================================ */
+
+
+
+    /* ============================================================
+       CONFIG
+    ============================================================ */
+
+    const API_BASE =
+        window.location.hostname === "localhost"
+            ? "/.netlify/functions/server"
+            : "/api";
+
+
+    const SESSION_KEY =
+        "hanverse_user";
+
+
+    /* ============================================================
+       STATE
+    ============================================================ */
+
+    let currentUser = null;
+
+    let allLessons = [];
+
+    let progressMap = new Map();
+
+    let selectedLevel = null;
+
+
+    /* ============================================================
+       DOM
+    ============================================================ */
+
+    const $ = id =>
+        document.getElementById(id);
+
+
+    /* ============================================================
+       API
+    ============================================================ */
+
+    async function apiGet(endpoint) {
+
+        const response = await fetch(
+            `${API_BASE}${endpoint}`,
+            {
+                method: "GET",
+
+                credentials: "include",
+
+                headers: {
+                    "Accept": "application/json"
+                },
+
+                cache: "no-store"
+            }
+        );
+
+
+        const contentType =
+            response.headers.get("content-type") || "";
+
+
+        if (!contentType.includes("application/json")) {
+
+            throw new Error(
+                `Invalid server response from ${endpoint}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data?.error ||
+                data?.message ||
+                `Request failed (${response.status})`
+            );
+
+        }
+
+
+        return data;
+
     }
-  }
 
-  function identity(user) {
-    return user && (user.user_id || user.userId || user.id || user.email);
-  }
 
-  function localAuthHint() {
-    const s = localSession();
-    return !!identity(s);
-  }
+    /* ============================================================
+       SESSION
+    ============================================================ */
 
-  function apiUrl(path) {
-    return `${CONFIG.API_BASE}/${String(path).replace(/^\/+/, "")}`;
-  }
+    function getLocalUser() {
 
-  async function requestJSON(path, token) {
-    const headers = { "Accept": "application/json" };
-    if (token) headers.Authorization = `Bearer ${token}`;
+        try {
 
-    const response = await fetch(apiUrl(path), {
-      method: "GET",
-      headers,
-      credentials: "include",
-      cache: "no-store"
-    });
+            const raw =
+                localStorage.getItem(SESSION_KEY);
 
-    const type = response.headers.get("content-type") || "";
-    if (!type.includes("application/json")) {
-      throw new Error(`Non-JSON response from ${path}`);
+            if (!raw) return null;
+
+            return JSON.parse(raw);
+
+        } catch (error) {
+
+            console.warn(
+                "Could not read HanVerse session:",
+                error
+            );
+
+            return null;
+
+        }
+
     }
 
-    const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data?.error || data?.message || `HTTP ${response.status}`);
+    function getUserId(user) {
+
+        if (!user) return null;
+
+        return (
+            user.user_id ||
+            user.userId ||
+            user.id ||
+            null
+        );
+
     }
 
-    return data;
-  }
 
-  /*
-   * Verify the account against the backend first.
-   * The local session is only a fallback for projects where the
-   * authentication endpoint is not exposed yet.
-   */
-  async function getCurrentUser() {
-    const local = localSession();
-    const token = local?.token || local?.accessToken || local?.jwt || null;
+    /* ============================================================
+       LOAD USER
+    ============================================================ */
 
-    const endpoints = ["auth/me", "me", "user/me"];
+    async function loadUser() {
 
-    for (const endpoint of endpoints) {
-      try {
-        const data = await requestJSON(endpoint, token);
-        const user = data?.user || data?.account || data?.data?.user || data?.data || data;
+        const session =
+            getLocalUser();
 
-        if (identity(user)) return user;
-      } catch (error) {
-        // Try the next known endpoint.
-      }
+
+        if (!session) {
+
+            throw new Error(
+                "Please log in to access your learning journey."
+            );
+
+        }
+
+
+        const userId =
+            getUserId(session);
+
+
+        if (!userId) {
+
+            throw new Error(
+                "Your HanVerse session is missing a user ID."
+            );
+
+        }
+
+
+        /*
+         * The database is the source of truth.
+         */
+
+        try {
+
+            const response =
+                await apiGet(
+                    `/user/${encodeURIComponent(userId)}`
+                );
+
+
+            if (response?.user) {
+
+                currentUser =
+                    response.user;
+
+                /*
+                 * Keep local session reasonably fresh.
+                 */
+
+                try {
+
+                    localStorage.setItem(
+                        SESSION_KEY,
+                        JSON.stringify({
+                            ...session,
+                            ...currentUser
+                        })
+                    );
+
+                } catch (_) {}
+
+                return;
+
+            }
+
+        } catch (error) {
+
+            /*
+             * If the profile endpoint fails,
+             * retain the session rather than inventing data.
+             */
+
+            console.warn(
+                "Database user lookup failed:",
+                error
+            );
+
+        }
+
+
+        currentUser =
+            session;
+
     }
 
-    /*
-     * If no current-user endpoint exists, preserve the existing
-     * HanVerse login behaviour using hanverse_user.
-     */
-    return local;
-  }
 
-  function roleOf(user) {
-    if (!user) return "guest";
+    /* ============================================================
+       LOAD LESSONS
+    ============================================================ */
 
-    const raw = String(
-      user.role ??
-      user.user_role ??
-      user.account_type ??
-      user.user_type ??
-      ""
-    ).toLowerCase().trim();
+    async function loadLessons() {
+
+        const response =
+            await apiGet("/lessons");
+
+
+        if (!Array.isArray(response?.lessons)) {
+
+            throw new Error(
+                "The lessons endpoint returned an invalid response."
+            );
+
+        }
+
+
+        allLessons =
+            response.lessons;
+
+    }
+
+
+    /* ============================================================
+       LOAD PROGRESS
+    ============================================================ */
+
+    async function loadProgress() {
+
+        const userId =
+            getUserId(currentUser);
+
+
+        if (!userId) return;
+
+
+        progressMap =
+            new Map();
+
+
+        /*
+         * The current backend exposes progress
+         * per user + lesson.
+         *
+         * Fetch each published lesson's current
+         * progress record.
+         */
+
+        const requests =
+            allLessons.map(async lesson => {
+
+                try {
+
+                    const response =
+                        await apiGet(
+                            `/progress/${encodeURIComponent(userId)}/${encodeURIComponent(lesson.id)}`
+                        );
+
+
+                    progressMap.set(
+                        String(lesson.id),
+                        response
+                    );
+
+                } catch (error) {
+
+                    /*
+                     * A missing progress record simply means
+                     * the learner has not completed/started it.
+                     */
+
+                    progressMap.set(
+                        String(lesson.id),
+                        {
+                            success: true,
+                            completed: false,
+                            progress: null
+                        }
+                    );
+
+                }
+
+            });
+
+
+        await Promise.all(requests);
+
+    }
+
+
+    /* ============================================================
+       USER HELPERS
+    ============================================================ */
+
+    function displayName(user) {
+
+        if (!user)
+            return "Learner";
+
+
+        return (
+            user.full_name ||
+            user.fullName ||
+            user.name ||
+            user.username ||
+            user.first_name ||
+            "Learner"
+        );
+
+    }
+
+
+    function currentLevel(user) {
+
+        if (!user)
+            return 1;
+
+
+        /*
+         * current_yct is the most useful field
+         * for the structured curriculum.
+         */
+
+        const yct =
+            user.current_yct;
+
+
+        if (typeof yct === "string") {
+
+            const match =
+                yct.match(/\d+/);
+
+            if (match)
+                return Number(match[0]);
+
+        }
+
+
+        if (typeof yct === "number")
+            return yct;
+
+
+        /*
+         * Fallback to chinese_level.
+         */
+
+        const chinese =
+            String(user.chinese_level || "");
+
+
+        const match =
+            chinese.match(/\d+/);
+
+
+        if (match)
+            return Number(match[0]);
+
+
+        /*
+         * Last fallback.
+         */
+
+        const level =
+            Number(user.level);
+
+
+        return Number.isFinite(level) && level > 0
+            ? level
+            : 1;
+
+    }
+
+
+    function levelLabel(level) {
+
+        return `YCT ${level}`;
+
+    }
+
+
+    function lessonLevel(lesson) {
+
+        const value =
+            lesson?.level;
+
+
+        if (typeof value === "number")
+            return value;
+
+
+        const match =
+            String(value || "").match(/\d+/);
+
+
+        return match
+            ? Number(match[0])
+            : 1;
+
+    }
+
+
+    /* ============================================================
+       STATS
+    ============================================================ */
+
+    function renderStats() {
+
+        const user =
+            currentUser;
+
+
+        $("xpValue").textContent =
+            Number(user?.xp || 0).toLocaleString();
+
+
+        $("streakValue").textContent =
+            Number(user?.streak_days || 0);
+
+
+        /*
+         * Prefer database user's lessons_completed.
+         * If unavailable, calculate from actual lesson
+         * progress records.
+         */
+
+        let completed =
+            Number(user?.lessons_completed);
+
+
+        if (!Number.isFinite(completed)) {
+
+            completed =
+                Array.from(progressMap.values())
+                    .filter(p => p?.completed === true)
+                    .length;
+
+        }
+
+
+        $("completedValue").textContent =
+            completed.toLocaleString();
+
+
+        $("levelValue").textContent =
+            levelLabel(currentLevel(user));
+
+    }
+
+
+    /* ============================================================
+       NAV USER
+    ============================================================ */
+
+    function renderUser() {
+
+        const name =
+            displayName(currentUser);
+
+
+        $("navUserName").textContent =
+            name;
+
+
+        const avatar =
+            currentUser?.profile_picture;
+
+
+        if (avatar) {
+
+            $("navAvatar").innerHTML =
+                `<img src="${escapeAttribute(avatar)}" alt="">`;
+
+        }
+
+    }
+
+
+    /* ============================================================
+       CONTINUE LESSON
+    ============================================================ */
+
+    function findNextLesson() {
+
+        const level =
+            currentLevel(currentUser);
+
+
+        const levelLessons =
+            allLessons
+                .filter(
+                    lesson =>
+                        lessonLevel(lesson) === level
+                )
+                .sort(
+                    (a, b) =>
+                        Number(a.order_index || a.id || 0) -
+                        Number(b.order_index || b.id || 0)
+                );
+
+
+        /*
+         * First incomplete lesson at the learner's
+         * current curriculum level.
+         */
+
+        const incomplete =
+            levelLessons.find(
+                lesson =>
+                    !progressMap.get(String(lesson.id))?.completed
+            );
+
+
+        if (incomplete)
+            return incomplete;
+
+
+        /*
+         * If the current YCT level is completely finished,
+         * find the first lesson of the next level.
+         */
+
+        const nextLevel =
+            allLessons
+                .filter(
+                    lesson =>
+                        lessonLevel(lesson) > level
+                )
+                .sort(
+                    (a, b) =>
+                        lessonLevel(a) - lessonLevel(b) ||
+                        Number(a.order_index || a.id || 0) -
+                        Number(b.order_index || b.id || 0)
+                );
+
+
+        return nextLevel[0] || null;
+
+    }
+
+
+    function renderContinue() {
+
+        const lesson =
+            findNextLesson();
+
+
+        const title =
+            $("continueTitle");
+
+
+        const description =
+            $("continueDescription");
+
+
+        const button =
+            $("continueButton");
+
+
+        const meta =
+            $("continueMeta");
+
+
+        meta.innerHTML = "";
+
+
+        if (!lesson) {
+
+            title.textContent =
+                "You've reached the end! 🎉";
+
+
+            description.textContent =
+                "There are no more published lessons available in your current learning pathway yet.";
+
+
+            button.style.display =
+                "none";
+
+
+            return;
+
+        }
+
+
+        title.textContent =
+            lesson.title ||
+            "Next lesson";
+
+
+        description.textContent =
+            lesson.description ||
+            "Continue your Mandarin journey with this lesson.";
+
+
+        button.href =
+            `lesson.html?id=${encodeURIComponent(lesson.id)}`;
+
+
+        button.style.display =
+            "inline-flex";
+
+
+        addMeta(
+            meta,
+            levelLabel(lessonLevel(lesson))
+        );
+
+
+        addMeta(
+            meta,
+            `${Number(lesson.xp || 10)} XP`
+        );
+
+
+        if (lesson.premium) {
+
+            addMeta(
+                meta,
+                "Premium"
+            );
+
+        }
+
+    }
+
+
+    function addMeta(container, text) {
+
+        const pill =
+            document.createElement("span");
+
+
+        pill.className =
+            "meta-pill";
+
+
+        pill.textContent =
+            text;
+
+
+        container.appendChild(pill);
+
+    }
+
+
+    /* ============================================================
+       LEVEL TABS
+    ============================================================ */
+
+    function renderLevelTabs() {
+
+        const container =
+            $("levelTabs");
+
+
+        container.innerHTML = "";
+
+
+        const levels =
+            [...new Set(
+                allLessons.map(
+                    lesson =>
+                        lessonLevel(lesson)
+                )
+            )].sort(
+                (a, b) => a - b
+            );
+
+
+        if (!levels.length) {
+
+            return;
+
+        }
+
+
+        const userLevel =
+            currentLevel(currentUser);
+
+
+        /*
+         * Start on the learner's actual level
+         * if it exists in the lesson database.
+         */
+
+        selectedLevel =
+            levels.includes(userLevel)
+                ? userLevel
+                : levels[0];
+
+
+        levels.forEach(level => {
+
+            const button =
+                document.createElement("button");
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "level-tab";
+
+
+            button.dataset.level =
+                String(level);
+
+
+            button.textContent =
+                levelLabel(level);
+
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    selectedLevel =
+                        level;
+
+                    renderLevelTabs();
+
+                    renderLessons();
+
+                }
+            );
+
+
+            if (level === selectedLevel) {
+
+                button.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            container.appendChild(button);
+
+        });
+
+    }
+
+
+    /* ============================================================
+       LESSONS
+    ============================================================ */
+
+    function renderLessons() {
+
+        const grid =
+            $("lessonsGrid");
+
+
+        const empty =
+            $("emptyLessons");
+
+
+        grid.innerHTML = "";
+
+
+        const lessons =
+            allLessons
+                .filter(
+                    lesson =>
+                        lessonLevel(lesson) === selectedLevel
+                )
+                .sort(
+                    (a, b) =>
+                        Number(a.order_index || a.id || 0) -
+                        Number(b.order_index || b.id || 0)
+                );
+
+
+        $("lessonCount").textContent =
+            `${lessons.length} published lesson${lessons.length === 1 ? "" : "s"}`;
+
+
+        if (!lessons.length) {
+
+            empty.style.display =
+                "block";
+
+
+            return;
+
+        }
+
+
+        empty.style.display =
+            "none";
+
+
+        lessons.forEach(
+            (lesson, index) => {
+
+                grid.appendChild(
+                    createLessonCard(
+                        lesson,
+                        index
+                    )
+                );
+
+            }
+        );
+
+    }
+
+
+    function createLessonCard(
+        lesson,
+        index
+    ) {
+
+        const card =
+            document.createElement("article");
+
+
+        const progress =
+            progressMap.get(
+                String(lesson.id)
+            );
+
+
+        const completed =
+            progress?.completed === true;
+
+
+        const nextLesson =
+            findNextLesson();
+
+
+        const isCurrent =
+            nextLesson &&
+            String(nextLesson.id) ===
+            String(lesson.id);
+
+
+        if (completed)
+            card.classList.add("completed");
+
+
+        if (isCurrent)
+            card.classList.add("current");
+
+
+        if (lesson.premium)
+            card.classList.add("premium");
+
+
+        const status =
+            completed
+                ? "Complete"
+                : isCurrent
+                    ? "Continue"
+                    : lesson.premium
+                        ? "Premium"
+                        : "Available";
+
+
+        const statusClass =
+            completed
+                ? "status-complete"
+                : isCurrent
+                    ? "status-current"
+                    : lesson.premium
+                        ? "status-premium"
+                        : "status-available";
+
+
+        const icon =
+            lesson.icon ||
+            "📚";
+
+
+        const title =
+            lesson.title ||
+            `Lesson ${index + 1}`;
+
+
+        const description =
+            lesson.description ||
+            "Continue building your Mandarin skills.";
+
+
+        const xp =
+            Number(lesson.xp || 10);
+
+
+        card.innerHTML = `
+
+            <div class="lesson-top">
+
+                <div class="lesson-icon">
+                    ${escapeHTML(icon)}
+                </div>
+
+                <span class="lesson-status ${statusClass}">
+                    ${status}
+                </span>
+
+            </div>
+
+
+            <div class="lesson-number">
+                ${levelLabel(lessonLevel(lesson))}
+                · Lesson ${index + 1}
+            </div>
+
+
+            <h3 class="lesson-title">
+                ${escapeHTML(title)}
+            </h3>
+
+
+            <p class="lesson-description">
+                ${escapeHTML(description)}
+            </p>
+
+
+            <div class="lesson-bottom">
+
+                <span class="lesson-xp">
+                    ⭐ ${xp} XP
+                </span>
+
+
+                <a
+                    class="lesson-action"
+                    href="lesson.html?id=${encodeURIComponent(lesson.id)}">
+
+                    ${completed
+                        ? "Review"
+                        : isCurrent
+                            ? "Continue"
+                            : "Start"}
+
+                </a>
+
+            </div>
+        `;
+
+
+        return card;
+
+    }
+
+
+    /* ============================================================
+       MOBILE NAV
+    ============================================================ */
+
+    function setupMobileNav() {
+
+        const toggle =
+            $("mobileToggle");
+
+
+        const menu =
+            $("mobileMenu");
+
+
+        toggle.addEventListener(
+            "click",
+            () => {
+
+                const open =
+                    menu.classList.toggle("open");
+
+
+                toggle.setAttribute(
+                    "aria-expanded",
+                    String(open)
+                );
+
+
+                toggle.textContent =
+                    open ? "✕" : "☰";
+
+            }
+        );
+
+
+        menu.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target.closest("a")
+                ) {
+
+                    menu.classList.remove(
+                        "open"
+                    );
+
+
+                    toggle.textContent =
+                        "☰";
+
+
+                    toggle.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* ============================================================
+       SECURITY HELPERS
+    ============================================================ */
+
+    function escapeHTML(value) {
+
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+    }
+
+
+    function escapeAttribute(value) {
+
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+    }
+
+
+    /* ============================================================
+       INIT
+    ============================================================ */
+
+    async function init() {
+
+        setupMobileNav();
+
+
+        try {
+
+            /*
+             * 1. Load authenticated/local user.
+             */
+
+            await loadUser();
+
+
+            /*
+             * Parents/admins should use their own experiences.
+             */
+
+            const role =
+                String(
+                    currentUser?.role || ""
+                ).toLowerCase();
+
+
+            if (
+                role === "admin" ||
+                currentUser?.is_admin === true
+            ) {
+
+                window.location.replace(
+                    "admin.html"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                role === "parent" ||
+                role === "guardian"
+            ) {
+
+                window.location.replace(
+                    "parents.html"
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * 2. Load actual published lessons.
+             */
+
+            await loadLessons();
+
+
+            /*
+             * 3. Load actual learner progress.
+             */
+
+            await loadProgress();
+
+
+            /*
+             * 4. Render everything.
+             */
+
+            renderUser();
+
+
+            $("welcomeTitle").textContent =
+                `Welcome back, ${displayName(currentUser)}!`;
+
+
+            renderStats();
+
+            renderContinue();
+
+            renderLevelTabs();
+
+            renderLessons();
+
+
+            /*
+             * 5. Reveal page.
+             */
+
+            $("loadingState").style.display =
+                "none";
+
+
+            $("mainContent").style.display =
+                "block";
+
+
+        } catch (error) {
+
+            console.error(
+                "HanVerse Learn V2 error:",
+                error
+            );
+
+
+            $("loadingState").style.display =
+                "none";
+
+
+            $("errorState").style.display =
+                "block";
+
+
+            $("errorMessage").textContent =
+                error?.message ||
+                "Something went wrong while loading your learning journey.";
+
+        }
+
+    }
+
 
     if (
-      user.is_admin === true ||
-      user.isAdmin === true ||
-      raw === "admin" ||
-      raw === "administrator"
-    ) return "admin";
+        document.readyState === "loading"
+    ) {
 
-    if (raw === "parent" || raw === "guardian") return "parent";
+        document.addEventListener(
+            "DOMContentLoaded",
+            init,
+            { once: true }
+        );
 
-    if (
-      raw === "student" ||
-      raw === "learner" ||
-      raw === "child" ||
-      raw === "pupil"
-    ) return "student";
-
-    /*
-     * server.js safeUser() returns role and defaults it to student.
-     * If an authenticated account reaches this page without a role,
-     * treat it as a student rather than allowing access to Learn.
-     */
-    if (identity(user)) return "student";
-
-    return "guest";
-  }
-
-  function displayName(user) {
-    if (!user) return "Learner";
-    if (user.full_name) return user.full_name;
-    if (user.fullName) return user.fullName;
-
-    if (user.first_name && user.last_name) {
-      return `${user.first_name} ${user.last_name}`;
-    }
-
-    return user.first_name ||
-           user.firstName ||
-           user.name ||
-           user.display_name ||
-           user.username ||
-           "Learner";
-  }
-
-  function navLink(label, href, current = false) {
-    const a = document.createElement("a");
-    a.className = "nav-link";
-    a.href = href;
-    a.textContent = label;
-    if (current) a.setAttribute("aria-current", "page");
-    return a;
-  }
-
-  function mobileLink(label, href, current = false) {
-    const a = document.createElement("a");
-    a.href = href;
-    a.textContent = label;
-    if (current) a.setAttribute("aria-current", "page");
-    return a;
-  }
-
-  function renderNavbar(user, role) {
-    const desktop = $("desktopNav");
-    const mobile = $("mobileMenu");
-
-    desktop.innerHTML = "";
-    mobile.innerHTML = "";
-
-    desktop.appendChild(navLink("Home", "index.html"));
-    desktop.appendChild(navLink("Learn", "learn.html", true));
-    desktop.appendChild(navLink("Worksheets", "worksheets.html"));
-
-    mobile.appendChild(mobileLink("Home", "index.html"));
-    mobile.appendChild(mobileLink("Learn", "learn.html", true));
-    mobile.appendChild(mobileLink("Worksheets", "worksheets.html"));
-
-    if (role === "student" || role === "parent" || role === "admin") {
-      desktop.appendChild(navLink("Roadmap", CONFIG.ROADMAP));
-      mobile.appendChild(mobileLink("Roadmap", CONFIG.ROADMAP));
-    }
-
-    if (role === "parent") {
-      desktop.appendChild(navLink("Parent", "parent.html"));
-      mobile.appendChild(mobileLink("Parent", "parent.html"));
-    }
-
-    if (role === "admin") {
-      desktop.appendChild(navLink("Admin", "admin.html"));
-      mobile.appendChild(mobileLink("Admin", "admin.html"));
-    }
-
-    const login = $("navLogin");
-    const primary = $("navPrimary");
-    const profile = $("navProfile");
-
-    if (role === "guest") {
-      login.style.display = "";
-      primary.style.display = "";
-      profile.style.display = "none";
-
-      login.href = "login.html";
-      login.textContent = "Log In";
-
-      primary.href = "signup.html";
-      primary.textContent = "Start Learning";
-
-      mobile.appendChild(mobileLink("Log In", "login.html"));
-      mobile.appendChild(mobileLink("Start Learning", "signup.html"));
     } else {
-      /*
-       * Logged-in users NEVER see Log In or Start Learning.
-       * Their full name replaces the auth buttons.
-       */
-      login.style.display = "none";
-      primary.style.display = "none";
-      profile.style.display = "";
 
-      profile.href =
-        role === "parent" ? "parent.html" :
-        role === "admin" ? "admin.html" :
-        "profile.html";
+        init();
 
-      profile.textContent = displayName(user);
-
-      mobile.appendChild(mobileLink(displayName(user), profile.href));
-    }
-  }
-
-  function renderHero(user, role) {
-    const primary = $("heroPrimary");
-    const secondary = $("heroSecondary");
-    const welcome = $("welcomeBack");
-
-    if (role === "guest") {
-      primary.href = "signup.html";
-      primary.innerHTML = "Start Learning <span>→</span>";
-      secondary.href = "login.html";
-      secondary.textContent = "I already have an account";
-      welcome.classList.remove("show");
-      return;
     }
 
-    primary.href = CONFIG.ROADMAP;
-    primary.innerHTML = "Continue Learning <span>→</span>";
-    secondary.href =
-      role === "parent" ? "parent.html" :
-      role === "admin" ? "admin.html" :
-      "profile.html";
-    secondary.textContent = "View my profile";
-
-    welcome.classList.add("show");
-    $("welcomeName").textContent = `Welcome back, ${displayName(user)}!`;
-  }
-
-  function setupMobile() {
-    const button = $("mobileToggle");
-    const menu = $("mobileMenu");
-
-    button.addEventListener("click", () => {
-      const open = menu.classList.toggle("open");
-      button.setAttribute("aria-expanded", String(open));
-      button.textContent = open ? "✕" : "☰";
-    });
-
-    menu.addEventListener("click", event => {
-      if (event.target.closest("a")) {
-        menu.classList.remove("open");
-        button.textContent = "☰";
-        button.setAttribute("aria-expanded", "false");
-      }
-    });
-  }
-
-  async function init() {
-    setupMobile();
-
-    let user = null;
-
-    try {
-      user = await getCurrentUser();
-    } catch (error) {
-      console.warn("HanVerse authentication check failed:", error);
-      user = localSession();
-    }
-
-    const role = roleOf(user);
-
-    /*
-     * HARD STUDENT GATE:
-     * A student is not allowed to remain on learn.html.
-     * Once the account is identified as a student, immediately
-     * send them to the database-driven roadmap.
-     */
-    if (role === "student") {
-      window.location.replace(CONFIG.ROADMAP);
-      return;
-    }
-
-    renderNavbar(user, role);
-    renderHero(user, role);
-
-    document.body.classList.add("auth-resolved");
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, { once: true });
-  } else {
-    init();
-  }
-})();
 </script>
 
 </body>

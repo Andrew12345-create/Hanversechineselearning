@@ -2,311 +2,2673 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Practice - Hanverse</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="notifications-client.js"></script>
-    <script src="notifications.js"></script>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+
+    <meta name="theme-color" content="#2563EB">
+
+    <title>Play | HanVerse</title>
+
+    <link rel="icon" type="image/png" href="Hanverse-logo2.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* =========================================================
+           HANVERSE V2
+        ========================================================= */
+
         :root {
-            --primary: #F4D35E;
-            --primary-light: #FF6B6B;
-            --background: #FAFBFC;
-            --surface: #FFFFFF;
-            --text-primary: #1A1A2E;
-            --text-secondary: #6B7280;
-            --border: #E5E7EB;
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-light: #DBEAFE;
+
+            --teal: #14B8A6;
+            --teal-light: #99F6E4;
+
+            --amber: #F59E0B;
+            --amber-light: #FDE68A;
+
+            --ink: #0F172A;
+            --muted: #64748B;
+
+            --white: #FFFFFF;
+            --surface: #F8FAFC;
+            --border: #E2E8F0;
+
+            --green: #16A34A;
+            --purple: #7C3AED;
+
+            --radius-sm: 12px;
+            --radius-md: 18px;
             --radius-lg: 24px;
+            --radius-xl: 30px;
+
+            --shadow-sm: 0 4px 16px rgba(15,23,42,.05);
+            --shadow: 0 12px 35px rgba(15,23,42,.08);
         }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--background);
-            min-height: 100vh;
-            min-height: 100dvh;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        .app-container {
-            max-width: 430px;
-            margin: 0 auto;
-            min-height: 100vh;
-            min-height: 100dvh;
+            font-family: "Poppins", sans-serif;
             background: var(--surface);
+            color: var(--ink);
+            min-height: 100vh;
         }
-        .app-header {
-            background: rgba(255, 255, 255, 0.95);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            padding: 1rem 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        /* =========================================================
+           NAV
+        ========================================================= */
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            background: rgba(255,255,255,.95);
+            backdrop-filter: blur(18px);
+
             border-bottom: 1px solid var(--border);
         }
-        .app-logo {
+
+        .nav-inner {
+            width: min(1200px, calc(100% - 32px));
+            height: 72px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 1.1rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+
+            display: grid;
+            place-items: center;
+
+            background: var(--primary);
+            color: white;
+
+            border-radius: 13px;
+
+            font-weight: 800;
+        }
+
+        .nav-links {
+            flex: 1;
+
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            padding: 9px 13px;
+
+            border-radius: 11px;
+
+            color: var(--muted);
+
+            font-size: .84rem;
+            font-weight: 600;
+
+            transition: .2s;
+        }
+
+        .nav-link:hover {
+            background: var(--surface);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            padding: 7px 11px;
+
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+
+            font-size: .8rem;
+            font-weight: 700;
+        }
+
+        .nav-avatar {
+            width: 32px;
+            height: 32px;
+
+            display: grid;
+            place-items: center;
+
+            overflow: hidden;
+
+            border-radius: 10px;
+            background: var(--primary-light);
+        }
+
+        .nav-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mobile-toggle {
+            display: none;
+
+            margin-left: auto;
+
+            width: 43px;
+            height: 43px;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: white;
+
+            cursor: pointer;
+        }
+
+        .mobile-menu {
+            display: none;
+            padding: 8px 16px 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .mobile-menu.open {
+            display: block;
+        }
+
+        .mobile-menu a {
+            display: block;
+            padding: 12px;
+            border-radius: 11px;
+
+            color: var(--muted);
+            font-size: .88rem;
+            font-weight: 600;
+        }
+
+        .mobile-menu a.active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        /* =========================================================
+           PAGE
+        ========================================================= */
+
+        .page {
+            width: min(1200px, calc(100% - 32px));
+            margin: auto;
+
+            padding: 48px 0 80px;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+
+            gap: 30px;
+
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            color: var(--primary);
+
+            font-size: .7rem;
+            font-weight: 800;
+
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero h1 {
+            margin-top: 7px;
+
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.05;
+
+            letter-spacing: -1.5px;
+        }
+
+        .hero p {
+            max-width: 650px;
+
+            margin-top: 10px;
+
+            color: var(--muted);
+
+            font-size: .88rem;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           PRACTICE MODES
+        ========================================================= */
+
+        .section-title {
+            margin-bottom: 16px;
+        }
+
+        .section-title small {
+            color: var(--primary);
+
+            font-size: .68rem;
+            font-weight: 800;
+
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-title h2 {
+            margin-top: 4px;
+            font-size: 1.35rem;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+
+            margin-bottom: 42px;
+        }
+
+        .mode-card {
+            position: relative;
+
+            display: flex;
+            flex-direction: column;
+
+            min-height: 205px;
+
+            padding: 21px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+
+            box-shadow: var(--shadow-sm);
+
+            cursor: pointer;
+
+            transition: .22s ease;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .mode-icon {
+            width: 52px;
+            height: 52px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 15px;
+
+            font-size: 1.5rem;
+
+            margin-bottom: 17px;
+        }
+
+        .blue {
+            background: var(--primary-light);
+        }
+
+        .teal {
+            background: var(--teal-light);
+        }
+
+        .amber {
+            background: var(--amber-light);
+        }
+
+        .purple {
+            background: #EDE9FE;
+        }
+
+        .mode-card h3 {
+            font-size: .98rem;
+            font-weight: 800;
+        }
+
+        .mode-card p {
+            margin-top: 6px;
+
+            color: var(--muted);
+
+            font-size: .72rem;
+            line-height: 1.6;
+        }
+
+        .mode-arrow {
+            margin-top: auto;
+            padding-top: 15px;
+
+            color: var(--primary);
+
+            font-size: .7rem;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+           WORKSHEETS
+        ========================================================= */
+
+        .worksheet-section {
+            margin-top: 10px;
+        }
+
+        .worksheet-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .worksheet-card {
+            padding: 19px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+
+            box-shadow: var(--shadow-sm);
+        }
+
+        .worksheet-icon {
+            width: 42px;
+            height: 42px;
+
+            display: grid;
+            place-items: center;
+
+            background: var(--primary-light);
+
+            border-radius: 12px;
+
+            font-size: 1.2rem;
+        }
+
+        .worksheet-card h3 {
+            margin-top: 14px;
+
+            font-size: .9rem;
+            font-weight: 800;
+        }
+
+        .worksheet-card p {
+            margin-top: 6px;
+
+            color: var(--muted);
+
+            font-size: .7rem;
+            line-height: 1.6;
+        }
+
+        .worksheet-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-top: 17px;
+        }
+
+        .worksheet-level {
+            color: var(--muted);
+
+            font-size: .65rem;
+            font-weight: 700;
+        }
+
+        .worksheet-action {
+            padding: 7px 11px;
+
+            background: var(--primary-light);
+            color: var(--primary-dark);
+
+            border-radius: 9px;
+
+            font-size: .65rem;
+            font-weight: 800;
+        }
+
+        .worksheet-action.premium {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        /* =========================================================
+           MODAL
+        ========================================================= */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+
+            z-index: 2000;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background: rgba(15,23,42,.55);
+            backdrop-filter: blur(7px);
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-box {
+            width: min(680px, 100%);
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            background: white;
+
+            border-radius: 25px;
+
+            box-shadow: 0 30px 80px rgba(0,0,0,.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 20px 23px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.1rem;
+        }
+
+        .close-button {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+
+            border: 0;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.25rem;
-            color: white;
-        }
-        .app-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        .main-content {
-            padding: 1.25rem;
-            padding-bottom: 110px;
-            padding-bottom: max(110px, env(safe-area-inset-bottom));
-        }
-        .stats-banner {
-            background: linear-gradient(135deg, #1A1A2E 0%, #16213e 100%);
-            border-radius: 20px;
-            padding: 1.5rem;
-            color: white;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            box-shadow: 0 8px 24px rgba(26,26,46,.25);
-        }
-        .stats-banner h2 {
-            font-size: 2.2rem;
-            margin-bottom: 0.25rem;
-            color: var(--primary);
-        }
-        .stats-banner p {
-            opacity: 0.75;
-            font-size: 0.875rem;
-        }
-        .practice-card {
+
             background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 2px solid var(--border);
+
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(.4,0,.2,1);
-            position: relative;
-            overflow: hidden;
-        }
-        .practice-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px rgba(244,211,94,.18);
-        }
-        .practice-card:active{transform:translateY(-1px);}
-        .practice-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-        .practice-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        .practice-desc {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 430px;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-around;
-            padding: 0.75rem 1rem;
-            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-            z-index: 100;
-        }
-.nav-item{
-            display: flex;
-            min-width: 52px;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.5rem;
-            border-radius: 12px;
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--text-secondary);
-            min-width: 60px;
-            -webkit-tap-highlight-color: transparent;
+
+            font-size: 1rem;
         }
 
-        .nav-item:active {
-            transform: scale(0.98);
+        .modal-content {
+            padding: 25px;
         }
-        .nav-item.active {
-            color: var(--primary);
+
+        /* =========================================================
+           FLASHCARDS
+        ========================================================= */
+
+        .flashcard {
+            min-height: 270px;
+
+            display: grid;
+            place-items: center;
+
+            padding: 30px;
+
+            background: var(--primary-light);
+
+            border-radius: 22px;
+
+            text-align: center;
+
+            cursor: pointer;
         }
-        .nav-item.active .nav-icon {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
+
+        .flashcard-character {
+            font-family: serif;
+
+            font-size: 5rem;
+            font-weight: 700;
+
+            color: var(--primary-dark);
         }
-        .nav-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+
+        .flashcard-pinyin {
+            margin-top: 8px;
+
+            font-size: 1rem;
+            font-weight: 700;
+
+            color: var(--muted);
+        }
+
+        .flashcard-meaning {
+            margin-top: 10px;
+
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .flashcard-hint {
+            margin-top: 15px;
+
+            color: var(--muted);
+
+            font-size: .68rem;
+        }
+
+        .practice-controls {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            background: var(--background);
+
+            margin-top: 17px;
         }
-.nav-label {
-            font-size: 0.64rem;
-            font-weight: 500;
+
+        .practice-button {
+            padding: 10px 16px;
+
+            border: 0;
+            border-radius: 11px;
+
+            background: var(--primary);
+            color: white;
+
+            font-size: .75rem;
+            font-weight: 800;
+
+            cursor: pointer;
         }
+
+        .practice-button.secondary {
+            background: var(--surface);
+            color: var(--ink);
+
+            border: 1px solid var(--border);
+        }
+
+        /* =========================================================
+           QUIZ
+        ========================================================= */
+
+        .quiz-question {
+            font-size: 1.15rem;
+            font-weight: 800;
+            line-height: 1.5;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 9px;
+
+            margin-top: 20px;
+        }
+
+        .quiz-option {
+            width: 100%;
+
+            padding: 13px 15px;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: white;
+
+            text-align: left;
+
+            cursor: pointer;
+
+            font-size: .78rem;
+            font-weight: 600;
+
+            transition: .2s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--green);
+            background: #DCFCE7;
+        }
+
+        .quiz-option.wrong {
+            border-color: #DC2626;
+            background: #FEE2E2;
+        }
+
+        .quiz-result {
+            margin-top: 20px;
+
+            padding: 18px;
+
+            border-radius: 15px;
+
+            background: var(--surface);
+
+            text-align: center;
+
+            font-size: .9rem;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+           WRITING
+        ========================================================= */
+
+        .writing-character {
+            text-align: center;
+
+            font-family: serif;
+
+            font-size: 6rem;
+            font-weight: 700;
+
+            color: var(--primary-dark);
+
+            margin: 10px 0 20px;
+        }
+
+        .writing-input {
+            width: 100%;
+
+            padding: 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            outline: none;
+
+            font-family: "Poppins", sans-serif;
+        }
+
+        .writing-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* =========================================================
+           STATES
+        ========================================================= */
+
+        .loading {
+            padding: 50px;
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: .8rem;
+        }
+
+        .empty {
+            padding: 35px;
+
+            background: white;
+
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-md);
+
+            color: var(--muted);
+
+            text-align: center;
+
+            font-size: .78rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        footer {
+            padding: 25px 0;
+
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .footer-inner {
+            width: min(1200px, calc(100% - 32px));
+            margin: auto;
+
+            display: flex;
+            justify-content: space-between;
+
+            color: var(--muted);
+
+            font-size: .67rem;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 950px) {
+
+            .nav-links,
+            .nav-user {
+                display: none;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .mode-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .worksheet-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 620px) {
+
+            .page {
+                padding-top: 32px;
+            }
+
+            .hero {
+                display: block;
+            }
+
+            .mode-grid,
+            .worksheet-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 7px;
+            }
+
+        }
+
     </style>
-  <script src="device-redirect.js"></script>
-  <link rel="stylesheet" href="app.css">
 </head>
-<body class="app-page">
-    <div class="app-container">
-        <header class="app-header">
-            <div class="app-logo">汉</div>
-            <span class="app-title">Practice</span>
-        </header>
-        <main class="main-content">
-            <div class="stats-banner">
-                <h2 id="wordsPracticed">—</h2>
-                <p>Words Practiced This Week</p>
-            </div>
-            <div class="practice-card">
-                <div class="practice-icon" style="background: linear-gradient(135deg, #FFE5E5 0%, #FFCDD2 100%);">📝</div>
-                <h3 class="practice-title">Flashcards</h3>
-                <p class="practice-desc">Review vocabulary with interactive flashcards</p>
-            </div>
-            <div class="practice-card">
-                <div class="practice-icon" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);">🎮</div>
-                <h3 class="practice-title">Quiz Mode</h3>
-                <p class="practice-desc">Test your knowledge with timed quizzes</p>
-            </div>
-            <div class="practice-card">
-                <div class="practice-icon" style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);">✍️</div>
-                <h3 class="practice-title">Writing Practice</h3>
-                <p class="practice-desc">Practice writing Chinese characters</p>
-            </div>
-            <div class="practice-card">
-                <div class="practice-icon" style="background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);">🗣️</div>
-                <h3 class="practice-title">Speaking Practice</h3>
-                <p class="practice-desc">Improve pronunciation with voice recognition</p>
-            </div>
-        </main>
-        <nav class="bottom-nav">
-            <a href="index.html" class="nav-item">
-                <div class="nav-icon">🏠</div>
-                <span class="nav-label">Home</span>
+
+
+<body>
+
+
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+
+<header class="navbar">
+
+    <div class="nav-inner">
+
+        <a href="index.html" class="brand">
+            <span class="brand-mark">汉</span>
+            <span>HanVerse</span>
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a class="nav-link" href="index.html">
+                🏠 Home
             </a>
-            <a href="learn.html" class="nav-item">
-                <div class="nav-icon">📚</div>
-                <span class="nav-label">Learn</span>
+
+            <a class="nav-link" href="learn.html">
+                📚 Learn
             </a>
-            <a href="practice.html" class="nav-item active">
-                <div class="nav-icon">🎯</div>
-                <span class="nav-label">Practice</span>
+
+            <a class="nav-link active" href="practice.html">
+                🎮 Play
             </a>
-            <a href="profile.html" class="nav-item">
-                <div class="nav-icon">👤</div>
-                <span class="nav-label">Profile</span>
+
+            <a class="nav-link" href="explore.html">
+                🌏 Explore
             </a>
+
+            <a class="nav-link" href="panda.html">
+                🐼 Panda
+            </a>
+
+            <a class="nav-link" href="me.html">
+                👤 Me
+            </a>
+
         </nav>
+
+
+        <a href="me.html" class="nav-user">
+
+            <span class="nav-avatar" id="navAvatar">
+                👤
+            </span>
+
+            <span id="navUserName">
+                Learner
+            </span>
+
+        </a>
+
+
+        <button
+            class="mobile-toggle"
+            id="mobileToggle"
+            aria-label="Open menu">
+
+            ☰
+
+        </button>
+
     </div>
 
-<!-- ── Notifications ── -->
-     <script src="notifications.js"></script>
-     <script>
-     const API_URL =
-  location.hostname === 'localhost'
-    ? '/.netlify/functions/server'
-    : '/api';
-     /* ── Load real word count ── */
-     (async()=>{
-       try{
-         const stored=localStorage.getItem('hanverse_user');
-         if(!stored)return;
-         const {user_id}=JSON.parse(stored);
-         const r=await fetch(API_URL+'/user/'+user_id);
-        if(!r.ok)return;
-        const d=await r.json();
-        const count=(d.vocabulary||[]).length;
-        const el=document.getElementById('wordsPracticed');
-        if(el)el.textContent=count||'0';
-      }catch(e){}
-    })();
 
-    /* ── Practice card click ── */
-    const cardMessages = {
-      'Flashcards':    {msg:'Great practice session! +20 XP', emoji:'📝'},
-      'Quiz Mode':     {msg:'Quiz unlocked! Test your skills!', emoji:'🎮'},
-      'Writing Practice': {msg:'Practice mode ready!', emoji:'✍️'},
-      'Speaking Practice': {msg:'Let\'s get speaking!', emoji:'🗣️'},
-    };
+    <nav class="mobile-menu" id="mobileMenu">
 
-    document.querySelectorAll('.practice-card').forEach(card=>{
-      card.addEventListener('click', function(e){
-        const titleEl = this.querySelector('.practice-title');
-        const title   = titleEl ? titleEl.textContent : '';
-        const info    = cardMessages[title] || {msg:'Practice mode coming soon!','xp':10,emoji:'🎯'};
+        <a href="index.html">🏠 Home</a>
+        <a href="learn.html">📚 Learn</a>
+        <a href="practice.html" class="active">🎮 Play</a>
+        <a href="explore.html">🌏 Explore</a>
+        <a href="panda.html">🐼 Panda</a>
+        <a href="me.html">👤 Me</a>
 
-        /* ripple */
-        const rect = this.getBoundingClientRect();
-        const r = document.createElement('div');
-        r.className = 'n-ripple-container';
-        const ring = document.createElement('div');
-        ring.className = 'n-ripple';
-        ring.style.cssText = `width:30px;height:30px;
-          left:${e.clientX-rect.left-15}px;
-          top:${e.clientY-rect.top-15}px;
-          background:rgba(78,168,222,.35);`;
-        this.style.position='relative';
-        this.style.overflow='hidden';
-        this.appendChild(r);
-        r.appendChild(ring);
-        setTimeout(()=>r.remove(),700);
+    </nav>
 
-        Notify.toast(info.msg,'xp',2800);
-        Notify.showXP(info.xp || 10);
-        Notify.miniConfetti();
-      });
-    });
+</header>
 
-    /* ── Hover sparkle ── */
-    document.querySelectorAll('.practice-card').forEach(card=>{
-      card.addEventListener('mouseenter',()=>{
-        Notify.badgePulse(card.querySelector('.practice-icon'));
-      });
-    });
 
-    /* ── Bottom nav item ── */
-    document.querySelectorAll('.nav-item').forEach(item=>{
-      item.addEventListener('click',function(){
-        Notify.toast('Navigating... ✨','info',1500);
-      });
-    });
 
-    /* ── Stats banner ── */
-    setTimeout(()=>{
-      Notify.toast('You\'ve practiced 156 words this week! 🎯','xp',3500);
-      Notify.miniConfetti();
-    },1200);
+<!-- ============================================================
+     PAGE
+============================================================ -->
 
-    </script>
-    </body>
+<main class="page">
+
+
+    <section class="hero">
+
+        <div>
+
+            <div class="eyebrow">
+                Practice without the pressure
+            </div>
+
+            <h1>
+                Play & Practice 🎮
+            </h1>
+
+            <p>
+                Strengthen the Mandarin you learn in your lessons through
+                vocabulary, quizzes, characters, speaking and downloadable
+                worksheets.
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ========================================================
+         PRACTICE MODES
+    ======================================================== -->
+
+    <section>
+
+        <div class="section-title">
+
+            <small>
+                Practice modes
+            </small>
+
+            <h2>
+                Choose how you want to practise
+            </h2>
+
+        </div>
+
+
+        <div class="mode-grid">
+
+
+            <article class="mode-card"
+                     data-mode="flashcards">
+
+                <div class="mode-icon blue">
+                    🃏
+                </div>
+
+                <h3>
+                    Flashcards
+                </h3>
+
+                <p>
+                    Review vocabulary from your real HanVerse lessons.
+                </p>
+
+                <div class="mode-arrow">
+                    Start practice →
+                </div>
+
+            </article>
+
+
+            <article class="mode-card"
+                     data-mode="quiz">
+
+                <div class="mode-icon teal">
+                    🧠
+                </div>
+
+                <h3>
+                    Quick Quiz
+                </h3>
+
+                <p>
+                    Test yourself using quiz questions stored in your lessons.
+                </p>
+
+                <div class="mode-arrow">
+                    Start quiz →
+                </div>
+
+            </article>
+
+
+            <article class="mode-card"
+                     data-mode="writing">
+
+                <div class="mode-icon amber">
+                    ✍️
+                </div>
+
+                <h3>
+                    Character Practice
+                </h3>
+
+                <p>
+                    Practise Chinese characters from your lesson vocabulary.
+                </p>
+
+                <div class="mode-arrow">
+                    Practise →
+                </div>
+
+            </article>
+
+
+            <article class="mode-card"
+                     data-mode="speaking">
+
+                <div class="mode-icon purple">
+                    🗣️
+                </div>
+
+                <h3>
+                    Speaking
+                </h3>
+
+                <p>
+                    Use HanVerse's speaking experience to practise Mandarin aloud.
+                </p>
+
+                <div class="mode-arrow">
+                    Speak with Panda →
+                </div>
+
+            </article>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ========================================================
+         WORKSHEETS
+    ======================================================== -->
+
+    <section class="worksheet-section">
+
+        <div class="section-title">
+
+            <small>
+                Study resources
+            </small>
+
+            <h2>
+                Worksheets
+            </h2>
+
+        </div>
+
+
+        <div id="worksheetLoading" class="loading">
+            Loading published worksheets...
+        </div>
+
+
+        <div
+            id="worksheetGrid"
+            class="worksheet-grid">
+        </div>
+
+
+        <div
+            id="worksheetEmpty"
+            class="empty hidden">
+
+            No published worksheets are available yet.
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- ============================================================
+     MODAL
+============================================================ -->
+
+<div class="modal" id="practiceModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                Practice
+            </h2>
+
+            <button
+                class="close-button"
+                id="closeModal">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <div
+            class="modal-content"
+            id="modalContent">
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<footer>
+
+    <div class="footer-inner">
+
+        <span>
+            © 2026 HanVerse
+        </span>
+
+        <span>
+            Learn Chinese. Explore more.
+        </span>
+
+    </div>
+
+</footer>
+
+
+
+<script>
+
+    /* =========================================================
+       HANVERSE V2 — PLAY
+    ========================================================= */
+
+    const API_BASE =
+        location.hostname === "localhost"
+            ? "/.netlify/functions/server"
+            : "/api";
+
+
+    let currentUser = null;
+    let lessons = [];
+    let vocabulary = [];
+    let quizQuestions = [];
+
+    let flashcardIndex = 0;
+    let flashcardFlipped = false;
+
+    let quizIndex = 0;
+    let quizScore = 0;
+
+
+    const $ = id =>
+        document.getElementById(id);
+
+
+    /* =========================================================
+       API
+    ========================================================= */
+
+    async function getJSON(endpoint) {
+
+        const response =
+            await fetch(
+                API_BASE + endpoint,
+                {
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+
+        const type =
+            response.headers.get("content-type") || "";
+
+
+        if (!type.includes("application/json")) {
+
+            throw new Error(
+                "The server returned an invalid response."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok || data.success === false) {
+
+            throw new Error(
+                data.error ||
+                data.message ||
+                "Request failed."
+            );
+
+        }
+
+
+        return data;
+
+    }
+
+
+    /* =========================================================
+       USER
+    ========================================================= */
+
+    function getStoredUser() {
+
+        try {
+
+            const raw =
+                localStorage.getItem(
+                    "hanverse_user"
+                );
+
+            return raw
+                ? JSON.parse(raw)
+                : null;
+
+        } catch {
+
+            return null;
+
+        }
+
+    }
+
+
+    async function loadUser() {
+
+        const stored =
+            getStoredUser();
+
+
+        if (!stored) {
+
+            return null;
+
+        }
+
+
+        const id =
+            stored.user_id ||
+            stored.userId ||
+            stored.id;
+
+
+        if (!id) {
+
+            return stored;
+
+        }
+
+
+        try {
+
+            const data =
+                await getJSON(
+                    `/user/${encodeURIComponent(id)}`
+                );
+
+
+            return data.user || stored;
+
+        } catch {
+
+            return stored;
+
+        }
+
+    }
+
+
+    function renderUser() {
+
+        if (!currentUser)
+            return;
+
+
+        const name =
+            currentUser.full_name ||
+            currentUser.fullName ||
+            currentUser.name ||
+            currentUser.username ||
+            currentUser.first_name ||
+            "Learner";
+
+
+        $("navUserName").textContent =
+            name;
+
+
+        if (currentUser.profile_picture) {
+
+            $("navAvatar").innerHTML =
+                `<img src="${escapeAttr(currentUser.profile_picture)}" alt="">`;
+
+        }
+
+    }
+
+
+    /* =========================================================
+       LESSONS
+    ========================================================= */
+
+    async function loadLessons() {
+
+        const data =
+            await getJSON("/lessons");
+
+
+        lessons =
+            Array.isArray(data.lessons)
+                ? data.lessons
+                : [];
+
+
+        /*
+         * Use vocabulary and quiz data already attached
+         * to the lesson records.
+         */
+
+        vocabulary = [];
+
+        quizQuestions = [];
+
+
+        lessons.forEach(
+            lesson => {
+
+                const lessonVocabulary =
+                    Array.isArray(lesson.vocabulary)
+                        ? lesson.vocabulary
+                        : [];
+
+
+                lessonVocabulary.forEach(
+                    word => {
+
+                        vocabulary.push({
+                            ...word,
+                            lessonId: lesson.id,
+                            lessonTitle: lesson.title
+                        });
+
+                    }
+                );
+
+
+                const lessonQuiz =
+                    Array.isArray(lesson.quiz)
+                        ? lesson.quiz
+                        : [];
+
+
+                lessonQuiz.forEach(
+                    question => {
+
+                        quizQuestions.push({
+                            ...question,
+                            lessonId: lesson.id,
+                            lessonTitle: lesson.title
+                        });
+
+                    }
+                );
+
+            }
+        );
+
+
+        /*
+         * Some databases may store richer lesson vocabulary
+         * in the individual lesson endpoint instead.
+         *
+         * Load those when the summary records contain no data.
+         */
+
+        if (
+            vocabulary.length === 0 ||
+            quizQuestions.length === 0
+        ) {
+
+            const extra =
+                lessons.slice(0, 20).map(
+                    async lesson => {
+
+                        try {
+
+                            const data =
+                                await getJSON(
+                                    `/lessons/${encodeURIComponent(lesson.id)}`
+                                );
+
+
+                            const full =
+                                data.lesson || data;
+
+
+                            const words =
+                                Array.isArray(full.vocabulary)
+                                    ? full.vocabulary
+                                    : [];
+
+
+                            words.forEach(
+                                word => {
+
+                                    vocabulary.push({
+                                        ...word,
+                                        lessonId: lesson.id,
+                                        lessonTitle: lesson.title
+                                    });
+
+                                }
+                            );
+
+
+                            const questions =
+                                Array.isArray(full.quiz)
+                                    ? full.quiz
+                                    : [];
+
+
+                            questions.forEach(
+                                question => {
+
+                                    quizQuestions.push({
+                                        ...question,
+                                        lessonId: lesson.id,
+                                        lessonTitle: lesson.title
+                                    });
+
+                                }
+                            );
+
+                        } catch (error) {
+
+                            console.warn(
+                                "Could not load lesson practice data:",
+                                lesson.id,
+                                error
+                            );
+
+                        }
+
+                    }
+                );
+
+
+            await Promise.all(extra);
+
+        }
+
+
+        /*
+         * Remove duplicate vocabulary.
+         */
+
+        const seenWords =
+            new Set();
+
+
+        vocabulary =
+            vocabulary.filter(
+                word => {
+
+                    const key =
+                        String(
+                            word.vocabulary_id ||
+                            word.id ||
+                            word.word ||
+                            word.hanzi ||
+                            word.chinese ||
+                            Math.random()
+                        );
+
+
+                    if (seenWords.has(key))
+                        return false;
+
+
+                    seenWords.add(key);
+
+                    return true;
+
+                }
+            );
+
+    }
+
+
+    /* =========================================================
+       WORKSHEETS
+    ========================================================= */
+
+    async function loadWorksheets() {
+
+        const data =
+            await getJSON("/worksheets");
+
+
+        const worksheets =
+            Array.isArray(data.worksheets)
+                ? data.worksheets
+                : [];
+
+
+        $("worksheetLoading")
+            .classList.add("hidden");
+
+
+        if (!worksheets.length) {
+
+            $("worksheetEmpty")
+                .classList.remove("hidden");
+
+            return;
+
+        }
+
+
+        const grid =
+            $("worksheetGrid");
+
+
+        grid.innerHTML = "";
+
+
+        worksheets.forEach(
+            worksheet => {
+
+                const card =
+                    document.createElement("article");
+
+
+                card.className =
+                    "worksheet-card";
+
+
+                const level =
+                    worksheet.level
+                        ? `YCT ${worksheet.level}`
+                        : "HanVerse";
+
+
+                const premium =
+                    worksheet.premium === true;
+
+
+                card.innerHTML = `
+
+                    <div class="worksheet-icon">
+                        📄
+                    </div>
+
+                    <h3>
+                        ${escapeHTML(
+                            worksheet.title ||
+                            "Worksheet"
+                        )}
+                    </h3>
+
+                    <p>
+                        ${escapeHTML(
+                            worksheet.description ||
+                            "Practice your Mandarin with this worksheet."
+                        )}
+                    </p>
+
+                    <div class="worksheet-bottom">
+
+                        <span class="worksheet-level">
+                            ${escapeHTML(level)}
+                        </span>
+
+                        <a
+                            class="worksheet-action ${premium ? "premium" : ""}"
+                            href="${escapeAttr(
+                                worksheet.fileUrl || "#"
+                            )}"
+                            ${worksheet.fileUrl
+                                ? 'target="_blank" rel="noopener"'
+                                : ""}>
+
+                            ${premium ? "Premium" : "Open"}
+
+                        </a>
+
+                    </div>
+                `;
+
+
+                grid.appendChild(card);
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       MODAL
+    ========================================================= */
+
+    function openModal(title) {
+
+        $("modalTitle").textContent =
+            title;
+
+        $("practiceModal")
+            .classList.add("open");
+
+    }
+
+
+    function closeModal() {
+
+        $("practiceModal")
+            .classList.remove("open");
+
+    }
+
+
+    $("closeModal")
+        .addEventListener(
+            "click",
+            closeModal
+        );
+
+
+    $("practiceModal")
+        .addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    $("practiceModal")
+                ) {
+
+                    closeModal();
+
+                }
+
+            }
+        );
+
+
+    /* =========================================================
+       FLASHCARDS
+    ========================================================= */
+
+    function startFlashcards() {
+
+        if (!vocabulary.length) {
+
+            openModal("Flashcards");
+
+            $("modalContent").innerHTML = `
+
+                <div class="empty">
+                    There isn't any lesson vocabulary available
+                    for flashcard practice yet.
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        flashcardIndex = 0;
+        flashcardFlipped = false;
+
+        openModal("Flashcards");
+
+        renderFlashcard();
+
+    }
+
+
+    function renderFlashcard() {
+
+        const word =
+            vocabulary[
+                flashcardIndex %
+                vocabulary.length
+            ];
+
+
+        const hanzi =
+            word.hanzi ||
+            word.chinese ||
+            word.character ||
+            word.word ||
+            word.term ||
+            "";
+
+
+        const pinyin =
+            word.pinyin ||
+            "";
+
+
+        const meaning =
+            word.meaning ||
+            word.english ||
+            word.translation ||
+            word.definition ||
+            "";
+
+
+        $("modalContent").innerHTML = `
+
+            <div
+                class="flashcard"
+                id="flashcard">
+
+                <div>
+
+                    <div class="flashcard-character">
+                        ${escapeHTML(hanzi)}
+                    </div>
+
+                    ${
+                        flashcardFlipped
+                            ? `
+                                <div class="flashcard-pinyin">
+                                    ${escapeHTML(pinyin)}
+                                </div>
+
+                                <div class="flashcard-meaning">
+                                    ${escapeHTML(meaning)}
+                                </div>
+                              `
+                            : `
+                                <div class="flashcard-hint">
+                                    Tap the card to reveal the answer
+                                </div>
+                              `
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="practice-controls">
+
+                <button
+                    class="practice-button secondary"
+                    id="flashPrevious">
+
+                    ← Previous
+
+                </button>
+
+
+                <span style="font-size:.7rem;color:#64748B;">
+                    ${flashcardIndex + 1}
+                    /
+                    ${vocabulary.length}
+                </span>
+
+
+                <button
+                    class="practice-button"
+                    id="flashNext">
+
+                    Next →
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        $("flashcard")
+            .addEventListener(
+                "click",
+                () => {
+
+                    flashcardFlipped =
+                        !flashcardFlipped;
+
+                    renderFlashcard();
+
+                }
+            );
+
+
+        $("flashPrevious")
+            .addEventListener(
+                "click",
+                () => {
+
+                    flashcardIndex =
+                        (
+                            flashcardIndex -
+                            1 +
+                            vocabulary.length
+                        ) %
+                        vocabulary.length;
+
+                    flashcardFlipped = false;
+
+                    renderFlashcard();
+
+                }
+            );
+
+
+        $("flashNext")
+            .addEventListener(
+                "click",
+                () => {
+
+                    flashcardIndex =
+                        (
+                            flashcardIndex + 1
+                        ) %
+                        vocabulary.length;
+
+                    flashcardFlipped = false;
+
+                    renderFlashcard();
+
+                }
+            );
+
+    }
+
+
+    /* =========================================================
+       QUIZ
+    ========================================================= */
+
+    function startQuiz() {
+
+        if (!quizQuestions.length) {
+
+            openModal("Quick Quiz");
+
+            $("modalContent").innerHTML = `
+
+                <div class="empty">
+                    There aren't any lesson quiz questions
+                    available yet.
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        quizIndex = 0;
+        quizScore = 0;
+
+        openModal("Quick Quiz");
+
+        renderQuiz();
+
+    }
+
+
+    function renderQuiz() {
+
+        const question =
+            quizQuestions[
+                quizIndex %
+                quizQuestions.length
+            ];
+
+
+        const text =
+            question.question ||
+            question.prompt ||
+            question.text ||
+            question.question_text ||
+            "Question";
+
+
+        let options =
+            question.options ||
+            question.answers ||
+            [];
+
+
+        /*
+         * Accommodate different database shapes.
+         */
+
+        if (
+            typeof options === "string"
+        ) {
+
+            try {
+
+                options =
+                    JSON.parse(options);
+
+            } catch {
+
+                options = [];
+
+            }
+
+        }
+
+
+        if (
+            !Array.isArray(options) ||
+            !options.length
+        ) {
+
+            const possible =
+                [
+                    question.option_a,
+                    question.option_b,
+                    question.option_c,
+                    question.option_d
+                ].filter(Boolean);
+
+
+            options =
+                possible;
+
+        }
+
+
+        $("modalContent").innerHTML = `
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:16px;
+                color:#64748B;
+                font-size:.7rem;
+                font-weight:700;
+            ">
+
+                <span>
+                    Question ${quizIndex + 1}
+                </span>
+
+                <span>
+                    Score: ${quizScore}
+                </span>
+
+            </div>
+
+
+            <div class="quiz-question">
+                ${escapeHTML(text)}
+            </div>
+
+
+            <div
+                class="quiz-options"
+                id="quizOptions">
+
+                ${options.map(
+                    (option, index) => `
+
+                        <button
+                            class="quiz-option"
+                            data-index="${index}">
+
+                            ${escapeHTML(
+                                typeof option === "object"
+                                    ? (
+                                        option.text ||
+                                        option.answer ||
+                                        option.label ||
+                                        ""
+                                    )
+                                    : option
+                            )}
+
+                        </button>
+
+                    `
+                ).join("")}
+
+            </div>
+
+
+            <div
+                class="quiz-result hidden"
+                id="quizResult">
+            </div>
+
+        `;
+
+
+        const correct =
+            question.correct_answer ??
+            question.correctAnswer ??
+            question.answer ??
+            question.correct_option ??
+            question.correct;
+
+
+        document
+            .querySelectorAll(".quiz-option")
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            const selected =
+                                Number(
+                                    button.dataset.index
+                                );
+
+
+                            const correctIndex =
+                                getCorrectIndex(
+                                    correct,
+                                    options
+                                );
+
+
+                            document
+                                .querySelectorAll(
+                                    ".quiz-option"
+                                )
+                                .forEach(
+                                    optionButton => {
+
+                                        optionButton.disabled =
+                                            true;
+
+                                    }
+                                );
+
+
+                            if (
+                                selected ===
+                                correctIndex
+                            ) {
+
+                                button.classList.add(
+                                    "correct"
+                                );
+
+                                quizScore++;
+
+                            } else {
+
+                                button.classList.add(
+                                    "wrong"
+                                );
+
+
+                                const correctButton =
+                                    document.querySelector(
+                                        `.quiz-option[data-index="${correctIndex}"]`
+                                    );
+
+
+                                if (
+                                    correctButton
+                                ) {
+
+                                    correctButton.classList.add(
+                                        "correct"
+                                    );
+
+                                }
+
+                            }
+
+
+                            const result =
+                                $("quizResult");
+
+
+                            result.classList.remove(
+                                "hidden"
+                            );
+
+
+                            result.innerHTML =
+
+                                selected === correctIndex
+
+                                    ? "🎉 Correct!"
+
+                                    : "Keep going — you'll get it next time!";
+
+
+                            setTimeout(
+                                () => {
+
+                                    quizIndex++;
+
+
+                                    if (
+                                        quizIndex >=
+                                        Math.min(
+                                            quizQuestions.length,
+                                            10
+                                        )
+                                    ) {
+
+                                        showQuizFinished();
+
+                                    } else {
+
+                                        renderQuiz();
+
+                                    }
+
+                                },
+                                850
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+
+    function getCorrectIndex(
+        correct,
+        options
+    ) {
+
+        if (
+            typeof correct === "number"
+        ) {
+
+            return correct;
+
+        }
+
+
+        const value =
+            String(
+                correct ?? ""
+            ).trim();
+
+
+        if (
+            /^[0-9]+$/.test(value)
+        ) {
+
+            return Number(value);
+
+        }
+
+
+        const letter =
+            value.toUpperCase();
+
+
+        const letters =
+            ["A", "B", "C", "D"];
+
+
+        if (
+            letters.includes(letter)
+        ) {
+
+            return letters.indexOf(
+                letter
+            );
+
+        }
+
+
+        const index =
+            options.findIndex(
+                option =>
+                    String(
+                        typeof option === "object"
+                            ? (
+                                option.text ||
+                                option.answer ||
+                                option.label ||
+                                ""
+                            )
+                            : option
+                    ).trim().toLowerCase()
+                    === value.toLowerCase()
+            );
+
+
+        return index >= 0
+            ? index
+            : 0;
+
+    }
+
+
+    function showQuizFinished() {
+
+        const total =
+            Math.min(
+                quizQuestions.length,
+                10
+            );
+
+
+        $("modalContent").innerHTML = `
+
+            <div style="
+                text-align:center;
+                padding:25px 10px;
+            ">
+
+                <div style="
+                    font-size:3rem;
+                    margin-bottom:15px;
+                ">
+                    🎉
+                </div>
+
+                <h2>
+                    Quiz complete!
+                </h2>
+
+                <p style="
+                    margin-top:8px;
+                    color:#64748B;
+                    font-size:.8rem;
+                ">
+                    You scored ${quizScore} / ${total}.
+                </p>
+
+                <button
+                    class="practice-button"
+                    style="margin-top:22px;"
+                    onclick="startQuiz()">
+
+                    Try Again
+
+                </button>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================================================
+       WRITING
+    ========================================================= */
+
+    function startWriting() {
+
+        const characters =
+            vocabulary.filter(
+                word =>
+                    word.hanzi ||
+                    word.chinese ||
+                    word.character
+            );
+
+
+        openModal("Character Practice");
+
+
+        if (!characters.length) {
+
+            $("modalContent").innerHTML = `
+
+                <div class="empty">
+                    No Chinese characters are available
+                    in the current lesson vocabulary yet.
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let index = 0;
+
+
+        function render() {
+
+            const word =
+                characters[
+                    index %
+                    characters.length
+                ];
+
+
+            const character =
+                word.hanzi ||
+                word.chinese ||
+                word.character;
+
+
+            const meaning =
+                word.meaning ||
+                word.english ||
+                word.translation ||
+                "";
+
+
+            $("modalContent").innerHTML = `
+
+                <p style="
+                    text-align:center;
+                    color:#64748B;
+                    font-size:.72rem;
+                ">
+                    Write this character:
+                </p>
+
+
+                <div class="writing-character">
+                    ${escapeHTML(character)}
+                </div>
+
+
+                <p style="
+                    text-align:center;
+                    color:#64748B;
+                    font-size:.75rem;
+                ">
+                    ${escapeHTML(meaning)}
+                </p>
+
+
+                <input
+                    class="writing-input"
+                    id="writingInput"
+                    placeholder="Type the character here..."
+                    autocomplete="off">
+
+
+                <div class="practice-controls">
+
+                    <button
+                        class="practice-button secondary"
+                        id="writingPrevious">
+
+                        ← Previous
+
+                    </button>
+
+
+                    <span style="
+                        color:#64748B;
+                        font-size:.7rem;
+                    ">
+                        ${index + 1} / ${characters.length}
+                    </span>
+
+
+                    <button
+                        class="practice-button"
+                        id="writingNext">
+
+                        Next →
+
+                    </button>
+
+                </div>
+
+            `;
+
+
+            $("writingInput")
+                .focus();
+
+
+            $("writingInput")
+                .addEventListener(
+                    "input",
+                    event => {
+
+                        if (
+                            event.target.value.trim()
+                            ===
+                            String(character).trim()
+                        ) {
+
+                            event.target.style.borderColor =
+                                "#16A34A";
+
+                            event.target.style.background =
+                                "#DCFCE7";
+
+                        }
+
+                    }
+                );
+
+
+            $("writingPrevious")
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        index =
+                            (
+                                index -
+                                1 +
+                                characters.length
+                            ) %
+                            characters.length;
+
+                        render();
+
+                    }
+                );
+
+
+            $("writingNext")
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        index =
+                            (
+                                index + 1
+                            ) %
+                            characters.length;
+
+                        render();
+
+                    }
+                );
+
+        }
+
+
+        render();
+
+    }
+
+
+    /* =========================================================
+       SPEAKING
+    ========================================================= */
+
+    function startSpeaking() {
+
+        /*
+         * The existing HanVerse Talk/Panda experience is already
+         * the correct home for voice interaction.
+         */
+
+        window.location.href =
+            "talk.html";
+
+    }
+
+
+    /* =========================================================
+       MODE EVENTS
+    ========================================================= */
+
+    document
+        .querySelectorAll(".mode-card")
+        .forEach(
+            card => {
+
+                card.addEventListener(
+                    "click",
+                    () => {
+
+                        const mode =
+                            card.dataset.mode;
+
+
+                        if (
+                            mode === "flashcards"
+                        ) {
+
+                            startFlashcards();
+
+                        }
+
+
+                        if (
+                            mode === "quiz"
+                        ) {
+
+                            startQuiz();
+
+                        }
+
+
+                        if (
+                            mode === "writing"
+                        ) {
+
+                            startWriting();
+
+                        }
+
+
+                        if (
+                            mode === "speaking"
+                        ) {
+
+                            startSpeaking();
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+    /* =========================================================
+       MOBILE NAV
+    ========================================================= */
+
+    $("mobileToggle")
+        .addEventListener(
+            "click",
+            () => {
+
+                $("mobileMenu")
+                    .classList.toggle("open");
+
+            }
+        );
+
+
+    /* =========================================================
+       SECURITY
+    ========================================================= */
+
+    function escapeHTML(value) {
+
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+    }
+
+
+    function escapeAttr(value) {
+
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;");
+
+    }
+
+
+    /* =========================================================
+       INIT
+    ========================================================= */
+
+    async function init() {
+
+        try {
+
+            currentUser =
+                await loadUser();
+
+
+            renderUser();
+
+
+            await Promise.all([
+                loadLessons(),
+                loadWorksheets()
+            ]);
+
+
+        } catch (error) {
+
+            console.error(
+                "Play V2 failed:",
+                error
+            );
+
+
+            $("worksheetLoading")
+                .textContent =
+                "Unable to load worksheets right now.";
+
+        }
+
+    }
+
+
+    init();
+
+</script>
+
+</body>
 </html>
