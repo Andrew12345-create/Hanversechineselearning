@@ -3455,16 +3455,7 @@ router.get('/explore', async (req, res) => {
       `);
     }
 
-    // --------------------------------------------------------
-    // PREMIUM ACCESS PARAMETER
-    //
-    // Premium users can access premium content.
-    // Free users receive the item metadata but it remains locked.
-    // --------------------------------------------------------
-
-    const premiumParam = values.length + 1;
-
-    values.push(isExplorePremiumUser(req));
+    
 
     // --------------------------------------------------------
     // LIMIT
