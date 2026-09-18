@@ -30,7 +30,6 @@
 <meta
     name="hanverse-realtime-url"
     content="https://hanversechineselearning-lbs9.onrender.com"
-> 
 >
 
 <title>Hanverse | Lesson</title>
@@ -3990,6 +3989,82 @@ body::before{
     border:1px solid var(--border);border-radius:50%;background:#fff;
     font-size:1rem;color:var(--muted);
 }
+.community-live{
+    margin:0 0 14px;
+    border:1px solid var(--border);
+    border-radius:22px;
+    background:#fff;
+    box-shadow:var(--shadow-sm);
+    overflow:hidden;
+}
+.community-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 15px 10px;
+}
+.community-icon{
+    width:38px;height:38px;display:grid;place-items:center;
+    border-radius:13px;
+    background:var(--primary-light);
+    font-size:1.1rem;
+}
+.community-title{font-size:.78rem;font-weight:950;color:var(--dark)}
+.community-sub{font-size:.59rem;color:var(--muted);margin-top:2px}
+.community-count{
+    margin-left:auto;
+    padding:6px 9px;
+    border-radius:999px;
+    background:var(--secondary-light);
+    color:var(--secondary-dark);
+    font-size:.58rem;
+    font-weight:950;
+}
+.community-learners{
+    display:flex;
+    gap:7px;
+    overflow-x:auto;
+    padding:0 15px 12px;
+    scrollbar-width:none;
+}
+.community-learners::-webkit-scrollbar{display:none}
+.learner-pill{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:7px 9px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:#FAFCFD;
+    font-size:.59rem;
+    font-weight:850;
+}
+.learner-pill .presence{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--secondary);
+}
+.community-feed{
+    border-top:1px solid var(--border);
+    padding:10px 15px;
+}
+.community-feed-title{
+    font-size:.57rem;font-weight:950;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);margin-bottom:7px;
+}
+.community-event{
+    display:flex;gap:8px;align-items:flex-start;
+    padding:6px 0;font-size:.61rem;color:var(--text-secondary);
+}
+.community-event strong{color:var(--dark)}
+.community-event-icon{width:20px;flex:0 0 20px;text-align:center}
+.community-empty{font-size:.6rem;color:var(--muted);padding:3px 0}
+@media(max-width:600px){
+    .community-head{padding:12px}
+    .community-learners{padding:0 12px 10px}
+    .community-feed{padding:9px 12px}
+}
+
 .leaderboard-panel{
     position:fixed;right:16px;top:88px;z-index:450;
     width:min(330px,calc(100% - 32px));
@@ -4265,6 +4340,27 @@ body::before{
         <button class="live-leaderboard" id="leaderboardBtn" type="button">🏆 Class</button>
     </section>
 
+    <section class="community-live" id="communityLive" aria-label="HanVerse Learning Community">
+        <div class="community-head">
+            <div class="community-icon">🌍</div>
+            <div>
+                <div class="community-title">HanVerse Learning Community</div>
+                <div class="community-sub" id="communitySub">Learners studying this lesson right now</div>
+            </div>
+            <div class="community-count" id="communityCount">0 online</div>
+        </div>
+
+        <div class="community-learners" id="communityLearners">
+            <div class="community-empty">Waiting for learners…</div>
+        </div>
+
+        <div class="community-feed">
+            <div class="community-feed-title">Live activity</div>
+            <div id="communityFeed">
+                <div class="community-empty">Your learning activity will appear here.</div>
+            </div>
+        </div>
+    </section>
 
 
     <!-- ===================================================
@@ -8162,6 +8258,99 @@ function wrongChime(){
    LEARNER FEEDBACK LOOP — LIVE SYNC
    ========================================================= */
 
+function renderCommunityLearners(list){
+    const wrap = $("communityLearners");
+    const count = $("communityCount");
+    if(!wrap) return;
+
+    const learners = Array.isArray(list) ? list : [];
+    if(count) count.textContent = `${learners.length} online`;
+
+    if(!learners.length){
+        wrap.innerHTML = '<div class="community-empty">You are the first learner here 🐼</div>';
+        return;
+    }
+
+    const me = uid(state.user);
+
+    wrap.innerHTML = learners.slice(0,20).map(learner=>{
+        const id = uid(learner);
+        const mine = id && me && id === me;
+        const name = learner.username || learner.name || "Learner";
+        return `<div class="learner-pill">
+            <span class="presence"></span>
+            <span>${esc(name)}${mine ? " · you" : ""}</span>
+        </div>`;
+    }).join("");
+}
+
+function communityActivityLabel(item){
+    const name = item?.userName || item?.username || "A learner";
+    const type = String(item?.type || "activity");
+
+    const labels = {
+        lesson_completed: "completed a lesson 🎉",
+        lesson_complete: "completed a lesson 🎉",
+        quiz_answered: "answered a quiz question 🎯",
+        quiz_answer: "answered a quiz question 🎯",
+        slide_viewed: "is exploring the lesson 📚",
+        lesson_started: "started learning 📖",
+        achievement: "earned an achievement 🏆"
+    };
+
+    return `${esc(name)} ${labels[type] || "is learning now 🐼"}`;
+}
+
+function renderCommunityFeed(list){
+    const feed = $("communityFeed");
+    if(!feed) return;
+
+    const items = Array.isArray(list) ? list.slice(0,6) : [];
+
+    if(!items.length){
+        feed.innerHTML = '<div class="community-empty">Be the first to make some learning activity! 🐼</div>';
+        return;
+    }
+
+    feed.innerHTML = items.map(item=>{
+        const type = String(item?.type || "");
+        const icon =
+            type.includes("complete") ? "🎉" :
+            type.includes("quiz") ? "🎯" :
+            type.includes("achievement") ? "🏆" :
+            "⚡";
+
+        return `<div class="community-event">
+            <span class="community-event-icon">${icon}</span>
+            <span>${communityActivityLabel(item)}</span>
+        </div>`;
+    }).join("");
+}
+
+function addCommunityActivity(item){
+    if(!item) return;
+
+    const me = uid(state.user);
+    if(
+        item.userId &&
+        me &&
+        Number(item.userId) === Number(me)
+    ){
+        return;
+    }
+
+    state.live.communityActivities =
+        Array.isArray(state.live.communityActivities)
+            ? state.live.communityActivities
+            : [];
+
+    state.live.communityActivities.unshift(item);
+    state.live.communityActivities =
+        state.live.communityActivities.slice(0,10);
+
+    renderCommunityFeed(state.live.communityActivities);
+}
+
 function renderLeaderboard(){
     const rows = $("leaderboardRows");
     if(!rows) return;
@@ -8184,6 +8373,11 @@ function renderLeaderboard(){
 }
 
 function updateOnline(count){
+    state.live.communityActivities =
+        Array.isArray(state.live.communityActivities)
+            ? state.live.communityActivities
+            : [];
+
     state.live.online =
         Math.max(
             0,
@@ -8195,6 +8389,12 @@ function updateOnline(count){
 
     if(el){
         el.textContent =
+            `${state.live.online} online`;
+    }
+
+    const communityCount = $("communityCount");
+    if(communityCount){
+        communityCount.textContent =
             `${state.live.online} online`;
     }
 
@@ -8371,6 +8571,27 @@ function initLiveSync(){
             updateOnline(count);
         });
 
+        socket.on("learners:list",(payload)=>{
+            const learners = Array.isArray(payload)
+                ? payload
+                : (payload?.learners || []);
+
+            renderCommunityLearners(learners);
+
+            if(payload?.count !== undefined){
+                updateOnline(payload.count);
+            }
+        });
+
+        socket.on("community:history",(payload)=>{
+            const items = Array.isArray(payload)
+                ? payload
+                : (payload?.activities || []);
+
+            state.live.communityActivities = items.slice(0,10);
+            renderCommunityFeed(state.live.communityActivities);
+        });
+
         socket.on("leaderboard:update",(payload)=>{
             const list =
                 Array.isArray(payload)
@@ -8422,18 +8643,14 @@ function initLiveSync(){
         });
 
         socket.on("learner:activity",(payload)=>{
-            if(
-                payload?.userId &&
-                uid(state.user) &&
-                Number(payload.userId) === uid(state.user)
-            ){
-                return;
-            }
+            addCommunityActivity(payload);
 
             if(
-                payload?.type === "lesson_complete"
+                payload?.type === "lesson_complete" ||
+                payload?.type === "lesson_completed"
             ){
                 const who =
+                    payload.userName ||
                     payload.username ||
                     "A learner";
 
@@ -8594,6 +8811,8 @@ async function init(){
 
     renderNav();
     initCompleteModal();
+    renderCommunityLearners([]);
+    renderCommunityFeed([]);
 
 
     try{
