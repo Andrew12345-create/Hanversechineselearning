@@ -23,7 +23,8 @@
 <!--
     Realtime server URL:
     - Leave empty for local development; lesson.html will use http://localhost:3001
-    - For production, set this to the public URL of realtime-server.js
+    - For production, set this to the public URL of realtime-server.js.
+      Do NOT leave this empty on production if realtime features are required.
       e.g. https://realtime.your-domain.com
 -->
 <meta
@@ -51,9 +52,9 @@
 
 :root{
 
-    --primary:#E63946;
-    --primary-dark:#BE2D38;
-    --primary-light:#FDE8EA;
+    --primary:#4EA8DE;
+    --primary-dark:#277EAF;
+    --primary-light:#E4F3FC;
 
     --secondary:#74C69D;
     --secondary-dark:#3F8F69;
@@ -8220,7 +8221,16 @@ function resolveRealtimeUrl(){
     /*
        The realtime server is a separate persistent Node server.
        During local development it runs on port 3001.
-       In production, set the meta tag above to the public realtime URL.
+
+       IMPORTANT:
+       Netlify does NOT host the persistent Socket.IO server at
+       https://hanverse.netlify.app/socket.io/.
+       Therefore, never fall back to window.location.origin in production.
+       That fallback caused the 404 WebSocket handshake error.
+
+       In production, the meta tag above MUST contain the public URL of
+       realtime-server.js, for example:
+       https://hanverse-realtime.example.com
     */
     if(
         host === "localhost" ||
@@ -8230,7 +8240,7 @@ function resolveRealtimeUrl(){
         return `${window.location.protocol}//${host}:3001`;
     }
 
-    return window.location.origin;
+    return "";
 }
 
 
