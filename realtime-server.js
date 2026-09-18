@@ -20,7 +20,7 @@ const { Pool } = pkg;
    CONFIGURATION
 ============================================================ */
 
-const PORT = Number(process.env.REALTIME_PORT || 3001);
+const PORT = Number(process.env.PORT || process.env.REALTIME_PORT || 3001);
 
 const ALLOWED_ORIGINS = (
     process.env.ALLOWED_ORIGINS ||
