@@ -20,17 +20,7 @@
     content="Hanverse | Learn Mandarin through fun, interactive lessons"
 >
 
-<!--
-    Realtime server URL:
-    - Leave empty for local development; lesson.html will use http://localhost:3001
-    - For production, set this to the public URL of realtime-server.js.
-      Do NOT leave this empty on production if realtime features are required.
-      e.g. https://realtime.your-domain.com
--->
-<meta
-    name="hanverse-realtime-url"
-    content="https://hanversechineselearning-lbs9.onrender.com"
->
+<meta name="hanverse-realtime-url" content="https://hanversechineselearning-lbs9.onrender.com">
 
 <title>Hanverse | Lesson</title>
 
@@ -52,21 +42,17 @@
 
 :root{
 
-    --primary:#4EA8DE;
-    --primary-dark:#277EAF;
-    --primary-light:#E4F3FC;
+    --primary:#2563EB;
+    --primary-dark:#1D4ED8;
+    --primary-light:#DBEAFE;
 
-    --secondary:#74C69D;
-    --secondary-dark:#3F8F69;
-    --secondary-light:#E5F5EC;
+    --secondary:#14B8A6;
+    --secondary-dark:#0F766E;
+    --secondary-light:#99F6E4;
 
-    --accent:#F4D35E;
-    --accent-dark:#B88B00;
-    --accent-light:#FFF4C7;
-
-    --sky:#4EA8DE;
-    --sky-dark:#277EAF;
-    --sky-light:#E4F3FC;
+    --accent:#F59E0B;
+    --accent-dark:#D97706;
+    --accent-light:#FDE68A;
 
     --dark:#0F172A;
     --text:#1E293B;
@@ -833,134 +819,84 @@ body::before{
 }
 
 
-/* Panda animations */
+/* =========================================================
+   PANDA MOTION SYSTEM — soft, playful, premium
+   ========================================================= */
 
-.panda-avatar.panda-bounce{
-
-    animation:
-        pandaBounce
-        .65s
-        var(--ease);
+.panda-avatar{
+    will-change:transform;
 }
 
-.panda-avatar.panda-happy{
+.panda-avatar.panda-bounce{ animation:pandaBreatheIn .62s cubic-bezier(.22,1,.36,1); }
+.panda-avatar.panda-happy{ animation:pandaHappyHop .78s cubic-bezier(.16,1,.3,1); }
+.panda-avatar.panda-worried{ animation:pandaOops .52s cubic-bezier(.36,.07,.19,.97); }
+.panda-avatar.panda-celebrate{ animation:pandaVictory 1.05s cubic-bezier(.16,1,.3,1); }
 
-    animation:
-        pandaHappy
-        .8s
-        var(--ease);
+.panda-avatar.panda-bounce::before,
+.panda-avatar.panda-happy::before,
+.panda-avatar.panda-worried::before,
+.panda-avatar.panda-celebrate::before{
+    content:"";
+    position:absolute;
+    inset:-5px;
+    border-radius:21px;
+    border:2px solid transparent;
+    pointer-events:none;
+    opacity:0;
 }
 
-.panda-avatar.panda-worried{
-
-    animation:
-        pandaWorried
-        .55s
-        ease;
+.panda-avatar.panda-happy::before{
+    animation:pandaGlow .78s ease-out;
+    border-color:rgba(116,198,157,.48);
 }
 
-.panda-avatar.panda-celebrate{
-
-    animation:
-        pandaCelebrate
-        .9s
-        var(--ease);
+.panda-avatar.panda-celebrate::before{
+    animation:pandaGlowBig 1.05s ease-out;
+    border-color:rgba(244,211,94,.62);
 }
 
-@keyframes pandaBounce{
-
-    0%{
-        transform:translateY(0);
-    }
-
-    35%{
-        transform:
-            translateY(-9px)
-            rotate(-4deg);
-    }
-
-    65%{
-        transform:
-            translateY(2px)
-            rotate(3deg);
-    }
-
-    100%{
-        transform:none;
-    }
+@keyframes pandaBreatheIn{
+    0%{transform:translateY(0) scale(1);}
+    45%{transform:translateY(-6px) scale(1.045);}
+    72%{transform:translateY(1px) scale(.985);}
+    100%{transform:none;}
 }
 
-@keyframes pandaHappy{
-
-    0%{
-        transform:scale(1);
-    }
-
-    35%{
-        transform:
-            scale(1.15)
-            rotate(-5deg);
-    }
-
-    65%{
-        transform:
-            scale(1.08)
-            rotate(5deg);
-    }
-
-    100%{
-        transform:scale(1);
-    }
+@keyframes pandaHappyHop{
+    0%{transform:translateY(0) rotate(0) scale(1);}
+    22%{transform:translateY(-5px) rotate(-4deg) scale(1.06);}
+    48%{transform:translateY(-10px) rotate(4deg) scale(1.09);}
+    70%{transform:translateY(-2px) rotate(-2deg) scale(1.03);}
+    100%{transform:none;}
 }
 
-@keyframes pandaWorried{
-
-    0%,
-    100%{
-        transform:translateX(0);
-    }
-
-    25%{
-        transform:translateX(-4px);
-    }
-
-    75%{
-        transform:translateX(4px);
-    }
+@keyframes pandaOops{
+    0%,100%{transform:translateX(0) rotate(0);}
+    18%{transform:translateX(-4px) rotate(-3deg);}
+    36%{transform:translateX(4px) rotate(3deg);}
+    54%{transform:translateX(-3px) rotate(-2deg);}
+    72%{transform:translateX(2px) rotate(1deg);}
 }
 
-@keyframes pandaCelebrate{
+@keyframes pandaVictory{
+    0%{transform:translateY(0) scale(.94) rotate(0);}
+    18%{transform:translateY(-5px) scale(1.05) rotate(-5deg);}
+    38%{transform:translateY(-13px) scale(1.13) rotate(5deg);}
+    55%{transform:translateY(-7px) scale(1.08) rotate(-4deg);}
+    72%{transform:translateY(-11px) scale(1.1) rotate(3deg);}
+    100%{transform:none;}
+}
 
-    0%{
-        transform:
-            scale(.9)
-            translateY(0);
-    }
+@keyframes pandaGlow{
+    0%{opacity:0;transform:scale(.82);}
+    28%{opacity:1;transform:scale(1.08);}
+    100%{opacity:0;transform:scale(1.3);}
+}
 
-    30%{
-        transform:
-            scale(1.18)
-            translateY(-9px)
-            rotate(-6deg);
-    }
-
-    55%{
-        transform:
-            scale(1.12)
-            translateY(-4px)
-            rotate(6deg);
-    }
-
-    80%{
-        transform:
-            scale(1.05)
-            translateY(0)
-            rotate(-2deg);
-    }
-
-    100%{
-        transform:none;
-    }
+@keyframes pandaGlowBig{
+    0%{opacity:0;transform:scale(.72);}
+    24%{opacity:1;transform:scale(1.08);}
+    100%{opacity:0;transform:scale(1.42);}
 }
 
 
@@ -1045,6 +981,30 @@ body::before{
         scale(1);
 }
 
+
+/* Companion card motion */
+.journey{
+    position:relative;
+    overflow:visible;
+}
+.journey::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    pointer-events:none;
+    opacity:0;
+}
+.journey.reaction-good::before{ animation:journeyGood .7s ease-out; }
+.journey.reaction-great::before{ animation:journeyGreat .95s ease-out; }
+@keyframes journeyGood{
+    0%{opacity:.55;box-shadow:0 0 0 0 rgba(116,198,157,.24);}
+    100%{opacity:0;box-shadow:0 0 0 12px rgba(116,198,157,0);}
+}
+@keyframes journeyGreat{
+    0%{opacity:.7;box-shadow:0 0 0 0 rgba(244,211,94,.3);}
+    100%{opacity:0;box-shadow:0 0 0 18px rgba(244,211,94,0);}
+}
 
 /* =========================================================
    PROGRESS
@@ -3186,6 +3146,17 @@ body::before{
 }
 
 
+/* Interaction motion */
+.btn:not(:disabled){ transition:transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .16s ease; }
+.btn:not(:disabled):hover{ transform:translateY(-1px); }
+.btn:not(:disabled):active{ transform:translateY(1px) scale(.985); }
+.option:not(:disabled){ transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease, border-color .18s ease; }
+.option:not(:disabled):hover{ transform:translateY(-2px); }
+.option.correct{ animation:answerCorrect .62s cubic-bezier(.16,1,.3,1); }
+.option.wrong{ animation:answerWrong .5s cubic-bezier(.36,.07,.19,.97); }
+@keyframes answerCorrect{0%{transform:scale(.985)}45%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes answerWrong{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}}
+
 /* =========================================================
    BUTTONS
    ========================================================= */
@@ -3989,82 +3960,6 @@ body::before{
     border:1px solid var(--border);border-radius:50%;background:#fff;
     font-size:1rem;color:var(--muted);
 }
-.community-live{
-    margin:0 0 14px;
-    border:1px solid var(--border);
-    border-radius:22px;
-    background:#fff;
-    box-shadow:var(--shadow-sm);
-    overflow:hidden;
-}
-.community-head{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:14px 15px 10px;
-}
-.community-icon{
-    width:38px;height:38px;display:grid;place-items:center;
-    border-radius:13px;
-    background:var(--primary-light);
-    font-size:1.1rem;
-}
-.community-title{font-size:.78rem;font-weight:950;color:var(--dark)}
-.community-sub{font-size:.59rem;color:var(--muted);margin-top:2px}
-.community-count{
-    margin-left:auto;
-    padding:6px 9px;
-    border-radius:999px;
-    background:var(--secondary-light);
-    color:var(--secondary-dark);
-    font-size:.58rem;
-    font-weight:950;
-}
-.community-learners{
-    display:flex;
-    gap:7px;
-    overflow-x:auto;
-    padding:0 15px 12px;
-    scrollbar-width:none;
-}
-.community-learners::-webkit-scrollbar{display:none}
-.learner-pill{
-    flex:0 0 auto;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    padding:7px 9px;
-    border:1px solid var(--border);
-    border-radius:999px;
-    background:#FAFCFD;
-    font-size:.59rem;
-    font-weight:850;
-}
-.learner-pill .presence{
-    width:7px;height:7px;border-radius:50%;
-    background:var(--secondary);
-}
-.community-feed{
-    border-top:1px solid var(--border);
-    padding:10px 15px;
-}
-.community-feed-title{
-    font-size:.57rem;font-weight:950;text-transform:uppercase;
-    letter-spacing:.06em;color:var(--muted);margin-bottom:7px;
-}
-.community-event{
-    display:flex;gap:8px;align-items:flex-start;
-    padding:6px 0;font-size:.61rem;color:var(--text-secondary);
-}
-.community-event strong{color:var(--dark)}
-.community-event-icon{width:20px;flex:0 0 20px;text-align:center}
-.community-empty{font-size:.6rem;color:var(--muted);padding:3px 0}
-@media(max-width:600px){
-    .community-head{padding:12px}
-    .community-learners{padding:0 12px 10px}
-    .community-feed{padding:9px 12px}
-}
-
 .leaderboard-panel{
     position:fixed;right:16px;top:88px;z-index:450;
     width:min(330px,calc(100% - 32px));
@@ -4091,45 +3986,707 @@ body::before{
 }
 
 
-/* COMMUNITY UX ENHANCEMENTS */
-html{
-    scroll-behavior:smooth;
-}
-.lesson-content,
-.lesson-card,
-.slide-container,
-.lesson-body{
-    scroll-margin-top:96px;
-}
-.community-live{
-    transition:transform .2s ease, box-shadow .2s ease;
-}
-.community-live:hover{
-    transform:translateY(-1px);
-}
-.community-event{
-    animation:communityEventIn .28s ease both;
-}
-@keyframes communityEventIn{
-    from{opacity:0;transform:translateY(4px)}
-    to{opacity:1;transform:translateY(0)}
-}
-
-
-/* ============================================================
-   LESSON NAVIGATION
-   Do not let dynamic slide rendering force the document
-   back to the top. Next/Previous deliberately preserve the
-   learner's current reading position.
-   ============================================================ */
-#content {
-    overflow-anchor: none;
-}
-
+/* LEARNING COMMUNITY */
+.community-card{margin:18px 0 24px;padding:22px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
+.community-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.community-kicker{font-size:.72rem;font-weight:800;letter-spacing:.12em;color:var(--secondary-dark);margin-bottom:4px}
+.community-card h2{margin:0;color:var(--dark);font-size:1.15rem}.community-card p{margin:4px 0 0;color:var(--muted);font-size:.88rem}
+.community-online{white-space:nowrap;padding:8px 12px;border-radius:999px;background:var(--green-light);color:var(--green-dark);font-weight:800;font-size:.8rem}
+.community-learners{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;min-height:34px}.community-learner{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:var(--primary-light);color:var(--dark);font-size:.8rem;font-weight:700}.community-learner-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block}
+.community-feed{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--bg);color:var(--text-secondary);font-size:.84rem;min-height:42px}.community-feed-item{padding:5px 0}.community-empty{color:var(--muted);font-size:.82rem}
 </style>
 
-<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous">
-</script>
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
+
+<style id="hanverse-celebration-css">
+/* =========================================================
+   HANVERSE MOTION SYSTEM
+   ========================================================= */
+:root {
+    --hv-red: #E63946;
+    --hv-yellow: #F4D35E;
+    --hv-blue: #4EA8DE;
+    --hv-green: #74C69D;
+    --hv-cream: #FFFDF7;
+}
+
+button, .btn, a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    transition: transform .16s cubic-bezier(.2,.9,.25,1.35),
+                box-shadow .16s ease,
+                filter .16s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(2px) scale(.97);
+}
+
+/* --- Perfect-score experience --- */
+.perfect-score-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    font-family: inherit;
+}
+
+.perfect-score-overlay.is-visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.perfect-backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 43%, rgba(244,211,94,.34), transparent 28%),
+        radial-gradient(circle at 18% 75%, rgba(116,198,157,.18), transparent 25%),
+        radial-gradient(circle at 84% 22%, rgba(78,168,222,.20), transparent 25%),
+        rgba(20,25,34,.82);
+    backdrop-filter: blur(12px);
+}
+
+.perfect-rays {
+    position: absolute;
+    width: 180vmax;
+    height: 180vmax;
+    background: repeating-conic-gradient(
+        from 0deg,
+        rgba(244,211,94,.10) 0deg 7deg,
+        transparent 7deg 15deg
+    );
+    animation: hvSpin 18s linear infinite;
+}
+
+.perfect-ring {
+    position: absolute;
+    width: min(70vw, 620px);
+    aspect-ratio: 1;
+    border: 2px solid rgba(244,211,94,.32);
+    border-radius: 50%;
+    transform: scale(.2);
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .ring-one {
+    animation: hvRing 1.2s cubic-bezier(.16,1,.3,1) .02s forwards;
+}
+.perfect-score-overlay.is-visible .ring-two {
+    animation: hvRing 1.35s cubic-bezier(.16,1,.3,1) .18s forwards;
+}
+.perfect-score-overlay.is-visible .ring-three {
+    animation: hvRing 1.5s cubic-bezier(.16,1,.3,1) .34s forwards;
+}
+
+.perfect-score-overlay::before {
+    content: "PERFECT!";
+    position: absolute;
+    z-index: 11;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(3.5) rotate(-12deg);
+    padding: 9px 18px;
+    border-radius: 999px;
+    background: var(--hv-yellow);
+    color: #1d2430;
+    font-size: 13px;
+    font-weight: 1000;
+    letter-spacing: .14em;
+    box-shadow: 0 8px 0 rgba(29,36,48,.15);
+    opacity: 0;
+    pointer-events: none;
+}
+.perfect-score-overlay.is-visible::before {
+    animation: hvImpact .62s cubic-bezier(.16,1.5,.3,1) .22s forwards;
+}
+
+.perfect-close {
+    position:absolute;
+    top:14px;
+    right:16px;
+    z-index:20;
+    width:38px;
+    height:38px;
+    border:0;
+    border-radius:50%;
+    background:rgba(29,36,48,.08);
+    color:#1d2430;
+    font:700 27px/38px Arial,sans-serif;
+    cursor:pointer;
+    opacity:0;
+    transform:scale(.5) rotate(-20deg);
+}
+.perfect-score-overlay.is-visible .perfect-close {
+    animation: hvCloseIn .42s cubic-bezier(.16,1.4,.3,1) 1.05s forwards;
+}
+.perfect-close:hover {
+    background:rgba(230,57,70,.12);
+    transform:scale(1.08);
+}
+@keyframes hvCloseIn {
+    to { opacity:1; transform:scale(1) rotate(0); }
+}
+
+.perfect-card {
+    position: relative;
+    width: min(520px, 94vw);
+    max-height: 92vh;
+    overflow: visible;
+    text-align: center;
+    padding: 28px 26px 30px;
+    border-radius: 34px;
+    background:
+        linear-gradient(180deg, rgba(255,253,247,.98), rgba(255,253,247,.94));
+    box-shadow:
+        0 35px 100px rgba(0,0,0,.35),
+        0 0 0 2px rgba(255,255,255,.45) inset;
+    transform: translateY(70px) scale(.72) rotate(-2deg);
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .perfect-card {
+    animation: hvCardIn .78s cubic-bezier(.16,1.35,.3,1) .12s forwards;
+}
+
+.perfect-score-overlay.is-visible .perfect-card::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 36px;
+    border: 3px solid transparent;
+    background: linear-gradient(120deg, var(--hv-yellow), var(--hv-red), var(--hv-blue), var(--hv-green), var(--hv-yellow)) border-box;
+    -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    background-size: 300% 300%;
+    animation: hvBorder 3s linear infinite;
+    pointer-events: none;
+}
+
+.perfect-kicker {
+    position: relative;
+    z-index: 3;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .22em;
+    color: var(--hv-red);
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .perfect-kicker {
+    animation: hvFadeUp .45s ease .58s forwards;
+}
+
+.perfect-title {
+    position: relative;
+    z-index: 3;
+    margin: 3px 0 4px;
+    font-size: clamp(36px, 8vw, 58px);
+    line-height: .95;
+    font-weight: 1000;
+    letter-spacing: -.045em;
+    color: #1d2430;
+    text-shadow: 0 4px 0 rgba(244,211,94,.48);
+    transform: scale(.6);
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .perfect-title {
+    animation: hvTitle .68s cubic-bezier(.16,1.4,.3,1) .62s forwards;
+}
+
+.perfect-subtitle {
+    position: relative;
+    z-index: 3;
+    color: #5b6572;
+    font-size: 15px;
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .perfect-subtitle {
+    animation: hvFadeUp .45s ease .78s forwards;
+}
+
+.perfect-score-pill {
+    position: relative;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+    margin: 17px auto 9px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    background: #1d2430;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(29,36,48,.22);
+    transform: scale(0);
+}
+
+.perfect-score-overlay.is-visible .perfect-score-pill {
+    animation: hvPop .58s cubic-bezier(.16,1.45,.3,1) .92s forwards;
+}
+
+.perfect-score-pill strong {
+    font-size: 27px;
+    letter-spacing: -.03em;
+}
+
+.score-star {
+    color: var(--hv-yellow);
+    font-size: 19px;
+    animation: hvStarPulse 1.1s ease-in-out 1.4s infinite alternate;
+}
+
+.perfect-xp {
+    position: relative;
+    z-index: 3;
+    display: block;
+    margin: 0 auto;
+    font-weight: 1000;
+    color: #3d8d69;
+    font-size: 20px;
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .perfect-xp {
+    animation: hvXp .65s cubic-bezier(.16,1.35,.3,1) 1.15s forwards;
+}
+
+.perfect-message {
+    position: relative;
+    z-index: 3;
+    min-height: 23px;
+    margin: 6px 0 16px;
+    color: #65707c;
+    font-size: 14px;
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .perfect-message {
+    animation: hvFadeUp .45s ease 1.3s forwards;
+}
+
+.perfect-continue {
+    position: relative;
+    z-index: 5;
+    width: min(100%, 330px);
+    border: 0;
+    border-radius: 17px;
+    padding: 15px 18px;
+    cursor: pointer;
+    background: var(--hv-red);
+    color: white;
+    font: inherit;
+    font-weight: 950;
+    box-shadow: 0 10px 0 #b92735, 0 17px 28px rgba(230,57,70,.25);
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .perfect-continue {
+    animation: hvFadeUp .45s ease 1.48s forwards;
+}
+
+.perfect-continue span {
+    letter-spacing: .06em;
+}
+
+.perfect-continue b {
+    float: right;
+    font-size: 21px;
+    line-height: 16px;
+    transition: transform .2s ease;
+}
+
+.perfect-continue:hover b {
+    transform: translateX(5px);
+}
+
+.perfect-continue:active {
+    box-shadow: 0 4px 0 #b92735, 0 8px 14px rgba(230,57,70,.2);
+}
+
+/* --- CSS Panda --- */
+.perfect-panda {
+    position: relative;
+    z-index: 4;
+    width: 160px;
+    height: 165px;
+    margin: -103px auto 3px;
+    transform-origin: 50% 90%;
+    opacity: 0;
+}
+
+.perfect-score-overlay.is-visible .perfect-panda {
+    animation: hvPandaIn .9s cubic-bezier(.16,1.5,.3,1) .05s forwards,
+               hvPandaDance 1.7s ease-in-out 1.0s infinite;
+}
+
+.panda-body {
+    position: absolute;
+    inset: 12px 10px 0;
+    filter: drop-shadow(0 14px 8px rgba(0,0,0,.15));
+}
+
+.panda-head {
+    position: absolute;
+    width: 104px;
+    height: 91px;
+    left: 28px;
+    top: 8px;
+    border-radius: 48% 48% 46% 46%;
+    background: #fff;
+    border: 5px solid #1d2430;
+    z-index: 3;
+}
+
+.ear {
+    position: absolute;
+    width: 37px;
+    height: 37px;
+    top: 2px;
+    border-radius: 50%;
+    background: #1d2430;
+}
+.ear.left { left: 19px; transform: translate(-50%, -50%); }
+.ear.right { right: 19px; transform: translate(50%, -50%); }
+
+.eye {
+    position: absolute;
+    width: 31px;
+    height: 38px;
+    top: 25px;
+    border-radius: 60% 40% 55% 45%;
+    background: #1d2430;
+    transform: rotate(25deg);
+}
+.eye.left { left: 12px; }
+.eye.right { right: 12px; transform: rotate(-25deg); }
+
+.eye b {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    top: 7px;
+    right: 7px;
+    border-radius: 50%;
+    background: white;
+}
+
+.panda-nose {
+    position: absolute;
+    left: 44px;
+    top: 54px;
+    width: 15px;
+    height: 10px;
+    border-radius: 50%;
+    background: #1d2430;
+}
+
+.panda-mouth {
+    position: absolute;
+    left: 48px;
+    top: 61px;
+    width: 9px;
+    height: 10px;
+    border-right: 3px solid #1d2430;
+    border-bottom: 3px solid #1d2430;
+    transform: rotate(45deg);
+}
+
+.panda-blush {
+    position: absolute;
+    top: 57px;
+    width: 17px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(230,57,70,.35);
+}
+.panda-blush.left { left: 8px; }
+.panda-blush.right { right: 8px; }
+
+.panda-belly {
+    position: absolute;
+    width: 90px;
+    height: 83px;
+    left: 35px;
+    top: 76px;
+    border-radius: 48% 48% 42% 42%;
+    background: #1d2430;
+}
+
+.panda-belly::after {
+    content: "";
+    position: absolute;
+    width: 57px;
+    height: 52px;
+    left: 16px;
+    top: 17px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.panda-arm {
+    position: absolute;
+    width: 35px;
+    height: 68px;
+    top: 79px;
+    border-radius: 50%;
+    background: #1d2430;
+}
+.panda-arm.left {
+    left: 15px;
+    transform: rotate(28deg);
+    transform-origin: top center;
+}
+.panda-arm.right {
+    right: 15px;
+    transform: rotate(-28deg);
+    transform-origin: top center;
+}
+
+.perfect-score-overlay.is-visible .panda-arm.left {
+    animation: hvWaveLeft .55s ease-in-out 1.05s 3 alternate;
+}
+.perfect-score-overlay.is-visible .panda-arm.right {
+    animation: hvWaveRight .55s ease-in-out 1.25s 3 alternate;
+}
+
+.panda-shadow {
+    position: absolute;
+    width: 100px;
+    height: 18px;
+    left: 30px;
+    bottom: 0;
+    border-radius: 50%;
+    background: rgba(0,0,0,.18);
+    filter: blur(4px);
+}
+
+.panda-crown {
+    position: absolute;
+    z-index: 6;
+    right: 4px;
+    top: -10px;
+    font-size: 31px;
+    color: var(--hv-yellow);
+    filter: drop-shadow(0 4px 0 rgba(0,0,0,.12));
+    transform: rotate(12deg) scale(0);
+}
+
+.perfect-score-overlay.is-visible .panda-crown {
+    animation: hvCrown .7s cubic-bezier(.16,1.5,.3,1) .48s forwards,
+               hvCrownFloat 1.6s ease-in-out 1.2s infinite alternate;
+}
+
+.perfect-burst {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 6px;
+    width: 0;
+    height: 0;
+}
+
+.perfect-burst span {
+    position: absolute;
+    width: 10px;
+    height: 30px;
+    border-radius: 999px;
+    background: var(--hv-yellow);
+    transform-origin: 50% 100px;
+    opacity: 0;
+}
+
+.perfect-burst span:nth-child(1) { transform: rotate(0deg); }
+.perfect-burst span:nth-child(2) { transform: rotate(30deg); background:var(--hv-red); }
+.perfect-burst span:nth-child(3) { transform: rotate(60deg); background:var(--hv-blue); }
+.perfect-burst span:nth-child(4) { transform: rotate(90deg); background:var(--hv-green); }
+.perfect-burst span:nth-child(5) { transform: rotate(120deg); }
+.perfect-burst span:nth-child(6) { transform: rotate(150deg); background:var(--hv-red); }
+.perfect-burst span:nth-child(7) { transform: rotate(180deg); background:var(--hv-blue); }
+.perfect-burst span:nth-child(8) { transform: rotate(210deg); background:var(--hv-green); }
+.perfect-burst span:nth-child(9) { transform: rotate(240deg); }
+.perfect-burst span:nth-child(10) { transform: rotate(270deg); background:var(--hv-red); }
+.perfect-burst span:nth-child(11) { transform: rotate(300deg); background:var(--hv-blue); }
+.perfect-burst span:nth-child(12) { transform: rotate(330deg); background:var(--hv-green); }
+
+.perfect-score-overlay.is-visible .perfect-burst span {
+    animation: hvBurst .8s cubic-bezier(.16,1,.3,1) 0.35s forwards;
+}
+
+.perfect-sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.perfect-sparkles i {
+    position: absolute;
+    color: var(--hv-yellow);
+    font-style: normal;
+    font-size: 22px;
+    opacity: 0;
+}
+
+.perfect-sparkles i:nth-child(1) { left: 12%; top: 23%; }
+.perfect-sparkles i:nth-child(2) { left: 82%; top: 19%; color:var(--hv-blue); }
+.perfect-sparkles i:nth-child(3) { left: 9%; top: 65%; color:var(--hv-green); }
+.perfect-sparkles i:nth-child(4) { left: 90%; top: 61%; color:var(--hv-red); }
+.perfect-sparkles i:nth-child(5) { left: 20%; top: 82%; color:var(--hv-blue); }
+.perfect-sparkles i:nth-child(6) { left: 75%; top: 80%; }
+.perfect-sparkles i:nth-child(7) { left: 5%; top: 42%; color:var(--hv-red); }
+.perfect-sparkles i:nth-child(8) { left: 94%; top: 39%; color:var(--hv-green); }
+
+.perfect-score-overlay.is-visible .perfect-sparkles i {
+    animation: hvSparkle 1.1s ease-in-out 1.0s infinite alternate;
+}
+.perfect-score-overlay.is-visible .perfect-sparkles i:nth-child(2n) {
+    animation-delay: 1.35s;
+}
+
+/* --- General lesson micro-motion helpers --- */
+.hv-pop {
+    animation: hvTinyPop .34s cubic-bezier(.16,1.4,.3,1);
+}
+.hv-success {
+    animation: hvSuccess .55s cubic-bezier(.16,1.3,.3,1);
+}
+.hv-wrong {
+    animation: hvWrong .4s ease;
+}
+.hv-xp-float {
+    animation: hvFloatUp .85s cubic-bezier(.16,1,.3,1) forwards;
+}
+
+@keyframes hvCardIn {
+    0% { opacity:0; transform:translateY(70px) scale(.72) rotate(-2deg); }
+    65% { opacity:1; transform:translateY(-9px) scale(1.025) rotate(.4deg); }
+    100% { opacity:1; transform:translateY(0) scale(1) rotate(0); }
+}
+@keyframes hvPandaIn {
+    0% { opacity:0; transform:translateY(80px) scale(.35) rotate(-18deg); }
+    55% { opacity:1; transform:translateY(-18px) scale(1.12) rotate(7deg); }
+    100% { opacity:1; transform:translateY(0) scale(1) rotate(0); }
+}
+@keyframes hvPandaDance {
+    0%,100% { transform:rotate(0) translateY(0); }
+    25% { transform:rotate(-5deg) translateY(-5px); }
+    50% { transform:rotate(4deg) translateY(0); }
+    75% { transform:rotate(-3deg) translateY(-4px); }
+}
+@keyframes hvWaveLeft {
+    from { transform:rotate(28deg); }
+    to { transform:rotate(-34deg) translateY(-5px); }
+}
+@keyframes hvWaveRight {
+    from { transform:rotate(-28deg); }
+    to { transform:rotate(34deg) translateY(-5px); }
+}
+@keyframes hvCrown {
+    0% { transform:rotate(12deg) scale(0); }
+    75% { transform:rotate(-8deg) scale(1.25); }
+    100% { transform:rotate(12deg) scale(1); }
+}
+@keyframes hvCrownFloat {
+    from { transform:rotate(8deg) translateY(0); }
+    to { transform:rotate(15deg) translateY(-6px); }
+}
+@keyframes hvBurst {
+    0% { opacity:0; transform:scale(.1) rotate(var(--r)); }
+    35% { opacity:1; }
+    100% { opacity:0; transform:scale(1) translateY(-85px) rotate(var(--r)); }
+}
+@keyframes hvRing {
+    0% { opacity:0; transform:scale(.2); }
+    30% { opacity:1; }
+    100% { opacity:0; transform:scale(1.7); }
+}
+@keyframes hvSpin { to { transform:rotate(360deg); } }
+@keyframes hvBorder { to { background-position:300% 50%; } }
+@keyframes hvTitle {
+    0% { opacity:0; transform:scale(.55) rotate(-5deg); }
+    70% { opacity:1; transform:scale(1.08) rotate(1deg); }
+    100% { opacity:1; transform:scale(1) rotate(0); }
+}
+@keyframes hvFadeUp {
+    from { opacity:0; transform:translateY(14px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes hvPop {
+    0% { transform:scale(0); }
+    65% { transform:scale(1.13); }
+    100% { transform:scale(1); }
+}
+@keyframes hvXp {
+    0% { opacity:0; transform:translateY(20px) scale(.7); }
+    70% { opacity:1; transform:translateY(-4px) scale(1.1); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes hvStarPulse {
+    from { transform:scale(1) rotate(-8deg); }
+    to { transform:scale(1.25) rotate(8deg); }
+}
+@keyframes hvSparkle {
+    from { opacity:.2; transform:scale(.6) rotate(0); }
+    to { opacity:1; transform:scale(1.35) rotate(20deg); }
+}
+@keyframes hvTinyPop {
+    0% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+    100% { transform:scale(1); }
+}
+@keyframes hvSuccess {
+    0% { transform:scale(1); }
+    35% { transform:scale(1.045) rotate(-1deg); }
+    70% { transform:scale(1.02) rotate(1deg); }
+    100% { transform:scale(1); }
+}
+@keyframes hvWrong {
+    0%,100% { transform:translateX(0); }
+    20% { transform:translateX(-7px); }
+    40% { transform:translateX(7px); }
+    60% { transform:translateX(-4px); }
+    80% { transform:translateX(4px); }
+}
+@keyframes hvFloatUp {
+    from { opacity:1; transform:translateY(0) scale(1); }
+    to { opacity:0; transform:translateY(-42px) scale(1.18); }
+}
+@keyframes hvImpact {
+    0% { opacity:0; transform:translate(-50%,-50%) scale(3.5) rotate(-12deg); }
+    18% { opacity:1; transform:translate(-50%,-50%) scale(.88) rotate(5deg); }
+    42% { opacity:1; transform:translate(-50%,-50%) scale(1.08) rotate(-2deg); }
+    100% { opacity:0; transform:translate(-50%,-50%) scale(.55) rotate(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+    .perfect-score-overlay.is-visible {
+        transition: opacity .2s ease;
+    }
+}
+</style>
+
 </head>
 
 
@@ -4287,6 +4844,20 @@ html{
 
 
 
+    <section class="community-card" id="communityCard" aria-label="Learning Community">
+        <div class="community-card-head">
+            <div>
+                <div class="community-kicker">LIVE COMMUNITY</div>
+                <h2>Learning Community</h2>
+                <p>Learners learning with you right now</p>
+            </div>
+            <div class="community-online" id="communityOnline">0 online</div>
+        </div>
+        <div class="community-learners" id="communityLearners" aria-live="polite"><span class="community-empty">Waiting for learners…</span></div>
+        <div class="community-feed" id="communityFeed" aria-live="polite"><span class="community-empty">Your learning community will appear here.</span></div>
+    </section>
+
+
     <!-- ===================================================
          PROGRESS
          =================================================== -->
@@ -4376,27 +4947,6 @@ html{
         <strong id="onlineCount">0 online</strong>
     </section>
 
-    <section class="community-live" id="communityLive" aria-label="Learning Community">
-        <div class="community-head">
-            <div class="community-icon">🌍</div>
-            <div>
-                <div class="community-title">Learning Community</div>
-                <div class="community-sub" id="communitySub">Learners learning with you right now</div>
-            </div>
-            <div class="community-count" id="communityCount">0 online</div>
-        </div>
-
-        <div class="community-learners" id="communityLearners">
-            <div class="community-empty">Waiting for learners…</div>
-        </div>
-
-        <div class="community-feed">
-            <div class="community-feed-title">Live activity</div>
-            <div id="communityFeed">
-                <div class="community-empty">Your learning activity will appear here.</div>
-            </div>
-        </div>
-    </section>
 
 
     <!-- ===================================================
@@ -4532,6 +5082,9 @@ html{
     </div>
 </div>
 
+
+
+
 <script>
 
 "use strict";
@@ -4575,7 +5128,7 @@ const state = {
     live:{
         socket:null,
         connected:false,
-        online:0,
+        online:0
     }
 
 };
@@ -4839,24 +5392,11 @@ function renderNav(){
                 );
 
 
-            const mobileLink =
-                desktop.cloneNode(true);
-
-            mobileLink.addEventListener(
-                "click",
-                ()=>{
-                    $("mobile")
-                        ?.classList
-                        .remove("open");
-
-                    $("menu").textContent =
-                        "☰";
-                }
-            );
-
             $("mobile")
                 .appendChild(
-                    mobileLink
+                    desktop.cloneNode(
+                        true
+                    )
                 );
 
         }
@@ -5361,6 +5901,8 @@ function ordered(value){
 /* =========================================================
    LOAD LESSON
    ========================================================= */
+
+window.state = state;
 
 async function loadLesson(){
 
@@ -5926,7 +6468,7 @@ function speak(text){
     pandaReact(
         "listen"
     );
-
+    playSound("panda");
 
     speechSynthesis.speak(
         utterance
@@ -7255,6 +7797,8 @@ function renderActivityMap(){
    RENDER
    ========================================================= */
 
+window.render = render;
+
 function render(){
 
     const slide =
@@ -7669,16 +8213,9 @@ function bind(){
                             );
 
                             successChime();
-
+                            playSound("xp");
                             xpBurst(2);
 
-                            emitLearnerActivity(
-                                "quiz_answer",
-                                {
-                                    correct:true,
-                                    score:state.score
-                                }
-                            );
 
                             toast(
                                 "success",
@@ -7690,16 +8227,9 @@ function bind(){
                             pandaReact(
                                 "wrong"
                             );
-
                             wrongChime();
+                            emitLearnerActivity("quiz_answer",{correct:false,score:state.score});
 
-                            emitLearnerActivity(
-                                "quiz_answer",
-                                {
-                                    correct:false,
-                                    score:state.score
-                                }
-                            );
 
                             toast(
                                 "error",
@@ -7749,14 +8279,9 @@ function bind(){
    NEXT
    ========================================================= */
 
-
-/* =========================================================
-   NAVIGATION UX
-   Next/Previous change the lesson activity without scrolling.
-   This keeps the learner's reading position intact.
-   ========================================================= */
-
 function next(){
+
+    playSound("tap");
 
     const slide =
         state.activities[
@@ -7799,6 +8324,25 @@ function next(){
     }
 
 
+    /* PERFECT SCORE: trigger immediately after the final quiz answer. */
+    if (slide.type === "quiz" && typeof window.showHanVersePerfectScore === "function") {
+        const quizSlides = state.activities.filter(item => item?.type === "quiz");
+        const allQuizAnswered = quizSlides.length > 0 &&
+            quizSlides.every(item => state.answers[item.index] !== undefined);
+
+        if (allQuizAnswered) {
+            state.score = calculateScore();
+            if (state.score === 100) {
+                state.perfectCelebrationPending = true;
+                window.showHanVersePerfectScore({
+                    score: 100,
+                    xp: Number(state.lesson?.xp ?? 0)
+                });
+                return;
+            }
+        }
+    }
+
     if(
         state.index <
         state.activities.length - 1
@@ -7806,12 +8350,11 @@ function next(){
 
         state.index++;
 
-
         render();
-return;
+
+        return;
 
     }
-
 
     saveProgress();
 
@@ -7833,7 +8376,8 @@ function back(){
 
 
         render();
-}
+
+    }
 
 }
 
@@ -7877,12 +8421,24 @@ function redoTest(){
     pandaReact(
         "quiz"
     );
+
+
+    window.scrollTo({
+
+        top:0,
+
+        behavior:"smooth"
+
+    });
+
 }
 
 
 /* =========================================================
    SAVE
    ========================================================= */
+
+window.saveProgress = saveProgress;
 
 async function saveProgress(){
 
@@ -8043,7 +8599,7 @@ async function saveProgress(){
                 : "complete"
         );
 
-
+        playSound("complete");
         xpBurst(xp);
 
 
@@ -8052,6 +8608,11 @@ async function saveProgress(){
             `Lesson saved! +${xp} XP 🎉`
         );
         emitLearnerActivity("lesson_complete",{score:state.score,xp});
+
+        // The perfect-score celebration has already happened immediately after
+        // the final quiz. Saving now must ONLY save progress and show the normal
+        // completion result — never replay the celebration.
+        state.perfectCelebrationPending = false;
         setTimeout(openCompleteModal,220);
 
 
@@ -8209,510 +8770,162 @@ function showError(
 
 
 /* =========================================================
-   LEARNER FEEDBACK LOOP — AUDIO
+   HANVERSE SOUND SYSTEM — clean learning cues
+   No external audio files required.
    ========================================================= */
 
 let audioContext = null;
+let soundMaster = null;
 
 function getAudioContext(){
     if(!audioContext){
         const Ctx = window.AudioContext || window.webkitAudioContext;
         if(!Ctx) return null;
         audioContext = new Ctx();
+        soundMaster = audioContext.createGain();
+        soundMaster.gain.value = 0.18;
+        soundMaster.connect(audioContext.destination);
     }
     if(audioContext.state === "suspended") audioContext.resume().catch(()=>{});
     return audioContext;
 }
 
-function successChime(){
-    const ctx = getAudioContext();
-    if(!ctx) return;
-    const now = ctx.currentTime;
-    [523.25,659.25,783.99].forEach((freq,i)=>{
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.0001, now + i*.08);
-        gain.gain.exponentialRampToValueAtTime(.16, now + i*.08 + .025);
-        gain.gain.exponentialRampToValueAtTime(.0001, now + i*.08 + .22);
-        osc.connect(gain).connect(ctx.destination);
-        osc.start(now + i*.08);
-        osc.stop(now + i*.08 + .24);
-    });
+function tone(freq, start, duration, options={}){
+    const ctx=getAudioContext();
+    if(!ctx || !soundMaster) return;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    const type=options.type || "sine";
+    const volume=options.volume ?? 0.22;
+    const end=start+duration;
+    osc.type=type;
+    osc.frequency.setValueAtTime(freq,start);
+    if(options.to) osc.frequency.exponentialRampToValueAtTime(options.to,end);
+    gain.gain.setValueAtTime(0.0001,start);
+    gain.gain.exponentialRampToValueAtTime(Math.max(.001,volume),start+.018);
+    gain.gain.exponentialRampToValueAtTime(.0001,end);
+    osc.connect(gain).connect(soundMaster);
+    osc.start(start);
+    osc.stop(end+.02);
 }
 
-function wrongChime(){
-    const ctx = getAudioContext();
+function playSound(kind){
+    const ctx=getAudioContext();
     if(!ctx) return;
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type="sine"; osc.frequency.setValueAtTime(220,now);
-    osc.frequency.exponentialRampToValueAtTime(165,now+.16);
-    gain.gain.setValueAtTime(.0001,now);
-    gain.gain.exponentialRampToValueAtTime(.08,now+.02);
-    gain.gain.exponentialRampToValueAtTime(.0001,now+.2);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(); osc.stop(now+.22);
+    const now=ctx.currentTime;
+
+    if(kind === "tap"){
+        tone(330,now,.055,{type:"sine",volume:.10,to:290});
+        return;
+    }
+
+    if(kind === "flip"){
+        tone(420,now,.06,{type:"triangle",volume:.055,to:610});
+        tone(690,now+.045,.07,{type:"sine",volume:.035,to:760});
+        return;
+    }
+
+    if(kind === "correct"){
+        // Warm, unmistakable 3-note success: G4 → B4 → D5.
+        tone(392,now,.13,{type:"triangle",volume:.20});
+        tone(493.88,now+.075,.15,{type:"triangle",volume:.18});
+        tone(587.33,now+.15,.23,{type:"sine",volume:.20});
+        return;
+    }
+
+    if(kind === "wrong"){
+        // Gentle descending cue — informative, never harsh.
+        tone(277.18,now,.11,{type:"sine",volume:.12,to:246.94});
+        tone(246.94,now+.075,.16,{type:"triangle",volume:.09,to:220});
+        return;
+    }
+
+    if(kind === "xp"){
+        tone(659.25,now,.10,{type:"triangle",volume:.12});
+        tone(783.99,now+.07,.13,{type:"triangle",volume:.10});
+        return;
+    }
+
+    if(kind === "complete"){
+        tone(392,now,.14,{type:"triangle",volume:.15});
+        tone(523.25,now+.10,.16,{type:"triangle",volume:.14});
+        tone(659.25,now+.21,.18,{type:"sine",volume:.15});
+        tone(783.99,now+.33,.32,{type:"sine",volume:.13});
+        return;
+    }
+
+    if(kind === "panda"){
+        tone(440,now,.07,{type:"sine",volume:.08,to:520});
+        tone(520,now+.055,.09,{type:"sine",volume:.06,to:610});
+    }
 }
+
+function successChime(){ playSound("correct"); }
+function wrongChime(){ playSound("wrong"); }
+
 
 /* =========================================================
    LEARNER FEEDBACK LOOP — LIVE SYNC
    ========================================================= */
 
-function renderCommunityLearners(list){
-    const wrap = $("communityLearners");
-    const count = $("communityCount");
-    if(!wrap) return;
-
-    const learners = Array.isArray(list) ? list : [];
-    if(count) count.textContent = `${learners.length} online`;
-
-    if(!learners.length){
-        wrap.innerHTML = '<div class="community-empty">You are the first learner here 🐼</div>';
-        return;
-    }
-
-    const me = uid(state.user);
-
-    wrap.innerHTML = learners.slice(0,20).map(learner=>{
-        const id = uid(learner);
-        const mine = id && me && id === me;
-        const name = learner.username || learner.name || "Learner";
-        return `<div class="learner-pill">
-            <span class="presence"></span>
-            <span>${esc(name)}${mine ? " · you" : ""}</span>
-        </div>`;
-    }).join("");
+function renderCommunityLearners(learners){
+    const box=$("communityLearners"); if(!box)return;
+    const list=Array.isArray(learners)?learners:[];
+    if(!list.length){box.innerHTML='<span class="community-empty">No other learners are visible right now.</span>';return;}
+    box.innerHTML=list.slice(0,20).map(l=>{const name=l.username||l.userName||l.name||l.full_name||"Learner";return `<span class="community-learner"><span class="community-learner-dot"></span>${esc(name)}</span>`}).join("");
 }
-
-function communityActivityLabel(item){
-    const name = item?.userName || item?.username || "A learner";
-    const type = String(item?.type || "activity");
-
-    const labels = {
-        lesson_completed: "completed a lesson 🎉",
-        lesson_complete: "completed a lesson 🎉",
-        quiz_answered: "answered a quiz question 🎯",
-        quiz_answer: "answered a quiz question 🎯",
-        slide_viewed: "is exploring the lesson 📚",
-        lesson_started: "started learning 📖",
-        achievement: "earned an achievement 🏆"
-    };
-
-    return `${esc(name)} ${labels[type] || "is learning now 🐼"}`;
+function addCommunityActivity(payload){
+    const box=$("communityFeed"); if(!box||!payload)return;
+    const who=payload.username||payload.userName||"A learner", type=payload.type||payload.activity||"activity";
+    let message=`${who} is learning with you 📚`;
+    if(type==="lesson_complete")message=`${who} just completed a lesson 🎉`;
+    else if(type==="quiz_answer")message=`${who} is practicing a quiz ⚡`;
+    else if(type==="lesson_start")message=`${who} started a lesson 🚀`;
+    const item=document.createElement("div"); item.className="community-feed-item"; item.textContent=message;
+    if(box.querySelector(".community-empty"))box.innerHTML=""; box.prepend(item); while(box.children.length>5)box.lastElementChild.remove();
 }
-
-function renderCommunityFeed(list){
-    const feed = $("communityFeed");
-    if(!feed) return;
-
-    const items = Array.isArray(list) ? list.slice(0,6) : [];
-
-    if(!items.length){
-        feed.innerHTML = '<div class="community-empty">Be the first to make some learning activity! 🐼</div>';
-        return;
-    }
-
-    feed.innerHTML = items.map(item=>{
-        const type = String(item?.type || "");
-        const icon =
-            type.includes("complete") ? "🎉" :
-            type.includes("quiz") ? "🎯" :
-            type.includes("achievement") ? "🏆" :
-            "⚡";
-
-        return `<div class="community-event">
-            <span class="community-event-icon">${icon}</span>
-            <span>${communityActivityLabel(item)}</span>
-        </div>`;
-    }).join("");
-}
-
-function addCommunityActivity(item){
-    if(!item) return;
-
-    const me = uid(state.user);
-    if(
-        item.userId &&
-        me &&
-        Number(item.userId) === Number(me)
-    ){
-        return;
-    }
-
-    state.live.communityActivities =
-        Array.isArray(state.live.communityActivities)
-            ? state.live.communityActivities
-            : [];
-
-    state.live.communityActivities.unshift(item);
-    state.live.communityActivities =
-        state.live.communityActivities.slice(0,10);
-
-    renderCommunityFeed(state.live.communityActivities);
-}
-
-
+function renderCommunityHistory(items){(Array.isArray(items)?items:[]).slice(-5).forEach(addCommunityActivity)}
 function updateOnline(count){
-    state.live.communityActivities =
-        Array.isArray(state.live.communityActivities)
-            ? state.live.communityActivities
-            : [];
-
-    state.live.online =
-        Math.max(
-            0,
-            Number(count) || 0
-        );
-
-    const el = $("onlineCount");
-    const modal = $("modalOnline");
-
-    if(el){
-        el.textContent =
-            `${state.live.online} online`;
-    }
-
-    const communityCount = $("communityCount");
-    if(communityCount){
-        communityCount.textContent =
-            `${state.live.online} online`;
-    }
-
-    if(modal){
-        modal.textContent =
-            String(state.live.online);
-    }
+    state.live.online=Math.max(0,Number(count)||0);
+    const el=$("onlineCount"), community=$("communityOnline"), modal=$("modalOnline");
+    if(el)el.textContent=`${state.live.online} online`; if(community)community.textContent=`${state.live.online} online`; if(modal)modal.textContent=String(state.live.online);
 }
 
-function resolveRealtimeUrl(){
-    const meta =
-        document.querySelector('meta[name="hanverse-realtime-url"]');
-
-    const configured =
-        meta?.content?.trim() ||
-        localStorage.getItem("hanverse_realtime_url")?.trim() ||
-        "";
-
-    if(configured){
-        return configured.replace(/\/+$/,"");
-    }
-
-    const host = window.location.hostname;
-
-    /*
-       The realtime server is a separate persistent Node server.
-       During local development it runs on port 3001.
-
-       IMPORTANT:
-       Netlify does NOT host the persistent Socket.IO server at
-       https://hanverse.netlify.app/socket.io/.
-       Therefore, never fall back to window.location.origin in production.
-       That fallback caused the 404 WebSocket handshake error.
-
-       In production, the meta tag above MUST contain the public URL of
-       realtime-server.js, for example:
-       https://hanverse-realtime.example.com
-    */
-    if(
-        host === "localhost" ||
-        host === "127.0.0.1" ||
-        host === "::1"
-    ){
-        return `${window.location.protocol}//${host}:3001`;
-    }
-
-    return "";
-}
-
-
+function resolveRealtimeUrl(){const meta=document.querySelector('meta[name="hanverse-realtime-url"]');return String(meta?.content||"").trim().replace(/\/$/,"");}
 function initLiveSync(){
-    const bar = $("liveFeedback");
-    const text = $("liveText");
-
-    if(!bar){
-        return;
-    }
-
-    /*
-       Socket.IO is optional. The lesson itself must continue working
-       even when the realtime server is unavailable.
-    */
-    if(typeof window.io !== "function"){
-        if(text){
-            text.textContent =
-                "Learning community sync unavailable";
-        }
-        return;
-    }
-
-    const realtimeUrl = resolveRealtimeUrl();
-
-    if(!realtimeUrl){
-        if(text){
-            text.textContent =
-                "Learning community sync unavailable";
-        }
-        return;
-    }
-
+    const bar=$("liveFeedback"), text=$("liveText"); if(!bar)return;
+    if(typeof window.io!=="function"){if(text)text.textContent="Learning community sync unavailable";return;}
+    const realtimeUrl=resolveRealtimeUrl(); if(!realtimeUrl){if(text)text.textContent="Learning community sync unavailable";return;}
     try{
-        const socket = window.io(realtimeUrl,{
-            transports:["websocket","polling"],
-            reconnection:true,
-            reconnectionAttempts:Infinity,
-            reconnectionDelay:1000,
-            reconnectionDelayMax:5000,
-            timeout:5000
-        });
-
-        state.live.socket = socket;
-
-        socket.on("connect",()=>{
-            state.live.connected = true;
-
-            bar.classList.add("connected");
-
-            if(text){
-                text.textContent =
-                    "Learning community live";
-            }
-
-            /*
-               IMPORTANT:
-               initLiveSync() is called only after loadLesson() now,
-               so the server receives the real lessonId.
-            */
-            const payload = {
-                userId:uid(state.user),
-                username:userName(),
-                lessonId:state.lessonId,
-                courseType:
-                    state.lesson?.course_type ||
-                    "YCT",
-                courseLevel:
-                    Number(
-                        state.lesson?.level ||
-                        1
-                    )
-            };
-
-            socket.emit(
-                "learner:join",
-                payload
-            );
-
-            /*
-               Ask for the current leaderboard as soon as we connect.
-            */
-});
-
-        socket.on("disconnect",()=>{
-            state.live.connected = false;
-
-            bar.classList.remove("connected");
-
-            updateOnline(0);
-
-            if(text){
-                text.textContent =
-                    "Reconnecting to learning community…";
-            }
-        });
-
-        socket.on("connect_error",(error)=>{
-            state.live.connected = false;
-
-            bar.classList.remove("connected");
-
-            if(text){
-                text.textContent =
-                    "Live sync is reconnecting…";
-            }
-
-            console.warn(
-                "HanVerse realtime connection error:",
-                error?.message || error
-            );
-        });
-
-        socket.on("learners:online",(payload)=>{
-            const count =
-                typeof payload === "number"
-                    ? payload
-                    : (
-                        payload?.count ??
-                        payload?.online ??
-                        0
-                    );
-
-            updateOnline(count);
-        });
-
-        socket.on("learners:list",(payload)=>{
-            const learners = Array.isArray(payload)
-                ? payload
-                : (payload?.learners || []);
-
-            renderCommunityLearners(learners);
-
-            if(payload?.count !== undefined){
-                updateOnline(payload.count);
-            }
-        });
-
-        socket.on("community:history",(payload)=>{
-            const items = Array.isArray(payload)
-                ? payload
-                : (payload?.activities || []);
-
-            state.live.communityActivities = items.slice(0,10);
-            renderCommunityFeed(state.live.communityActivities);
-        });
-state.live.leaderboard = list;
-
-            renderLeaderboard();
-        });
-
-        socket.on("learner:joined",(payload)=>{
-            if(payload?.count !== undefined){
-                updateOnline(payload.count);
-            }
-
-            const who =
-                payload?.username ||
-                "A learner";
-
-            /*
-               Do not announce the current learner as a new learner.
-            */
-            if(
-                payload?.userId &&
-                uid(state.user) &&
-                Number(payload.userId) === uid(state.user)
-            ){
-                return;
-            }
-
-            if(text){
-                text.textContent =
-                    `${who} joined the learning community 🐼`;
-
-                setTimeout(()=>{
-                    if(
-                        state.live.connected &&
-                        text
-                    ){
-                        text.textContent =
-                            "Learning community live";
-                    }
-                },3000);
-            }
-        });
-
-        socket.on("learner:activity",(payload)=>{
-            addCommunityActivity(payload);
-
-            if(
-                payload?.type === "lesson_complete" ||
-                payload?.type === "lesson_completed"
-            ){
-                const who =
-                    payload.userName ||
-                    payload.username ||
-                    "A learner";
-
-                if(text){
-                    text.textContent =
-                        `${who} just completed a lesson 🎉`;
-
-                    setTimeout(()=>{
-                        if(
-                            state.live.connected &&
-                            text
-                        ){
-                            text.textContent =
-                                "Learning community live";
-                        }
-                    },3500);
-                }
-            }
-        });
-
-    }catch(error){
-        console.warn(
-            "Live sync unavailable:",
-            error
-        );
-
-        if(text){
-            text.textContent =
-                "Learning community sync unavailable";
-        }
-    }
+        const socket=window.io(realtimeUrl,{transports:["websocket","polling"],reconnection:true,reconnectionAttempts:5,timeout:5000}); state.live.socket=socket;
+        socket.on("connect",()=>{state.live.connected=true;bar.classList.add("connected");if(text)text.textContent="Learning community live";socket.emit("learner:join",{userId:uid(state.user),username:userName(),lessonId:state.lessonId,courseType:state.lesson?.course_type||"YCT",courseLevel:Number(state.lesson?.level||1)});});
+        socket.on("disconnect",()=>{state.live.connected=false;bar.classList.remove("connected");if(text)text.textContent="Reconnecting to learning community…";});
+        socket.on("learners:online",p=>updateOnline(p?.count??p?.online??p));
+        socket.on("learners:list",p=>{const list=Array.isArray(p)?p:(p?.learners||p?.list||[]);renderCommunityLearners(list);updateOnline(p?.count??list.length);});
+        socket.on("community:history",p=>renderCommunityHistory(Array.isArray(p)?p:(p?.activities||p?.history||[])));
+        socket.on("learner:activity",p=>{if(p?.userId&&uid(state.user)&&Number(p.userId)===uid(state.user))return;addCommunityActivity(p);if(p?.type==="lesson_complete"&&text){text.textContent=`${p.username||"A learner"} just completed a lesson 🎉`;setTimeout(()=>{if(state.live.connected)text.textContent="Learning community live"},3500)}});
+        socket.on("learner:joined",p=>{if(p?.userId&&uid(state.user)&&Number(p.userId)===uid(state.user))return;addCommunityActivity({username:p?.username||p?.userName,type:"lesson_start"});});
+        socket.on("connect_error",()=>{if(text)text.textContent="Live sync is reconnecting…";});
+    }catch(error){console.warn("Live sync unavailable:",error);if(text)text.textContent="Learning community sync unavailable";}
 }
 
-function emitLearnerActivity(
-    type,
-    extra={}
-){
-    const socket =
-        state.live.socket;
-
-    const userId =
-        uid(state.user);
-
-    if(
-        !socket ||
-        !state.live.connected ||
-        !userId
-    ){
-        return;
-    }
-
-    const safeExtra = {};
-
-    Object.entries(
-        extra || {}
-    ).forEach(
-        ([key,value])=>{
-            if(
-                typeof value === "string"
-            ){
-                safeExtra[key] =
-                    value.slice(0,120);
-            }else if(
-                typeof value === "number" ||
-                typeof value === "boolean"
-            ){
-                safeExtra[key] =
-                    value;
-            }
-        }
-    );
-
-    socket.emit(
-        "learner:activity",
-        {
-            userId,
-            username:
-                userName().slice(0,80),
-            lessonId:
-                state.lessonId,
-            type:
-                String(type || "activity").slice(0,50),
-            ...safeExtra
-        }
-    );
+function emitLearnerActivity(type,extra={}){
+    const socket=state.live.socket;
+    if(!socket || !state.live.connected) return;
+    socket.emit("learner:activity",{
+        userId:uid(state.user),
+        username:userName(),
+        lessonId:state.lessonId,
+        type,
+        ...extra
+    });
 }
 
 /* =========================================================
    LESSON COMPLETE MODAL
    ========================================================= */
 
-function openCompleteModal(){
+window.openCompleteModal = function openCompleteModal(){
     const modal=$("completeModal");
     if(!modal) return;
     const percentage=calculateScore();
@@ -8736,22 +8949,6 @@ function initCompleteModal(){
     $("modalLearn")?.addEventListener("click",()=>location.href="learn.html");
     $("completeModal")?.addEventListener("click",e=>{
         if(e.target.id==="completeModal") closeCompleteModal();
-    });
-    $("leaderboardBtn")?.addEventListener("click",()=>{
-        const panel =
-            $("leaderboardPanel");
-
-        panel?.classList.toggle("open");
-
-        renderLeaderboard();
-
-        if(
-            panel?.classList.contains("open") &&
-            state.live.socket &&
-            state.live.connected
-        ){
-            state.live.
-}
     });
 }
 
@@ -8779,8 +8976,6 @@ async function init(){
 
     renderNav();
     initCompleteModal();
-    renderCommunityLearners([]);
-    renderCommunityFeed([]);
 
 
     try{
@@ -8789,12 +8984,6 @@ async function init(){
 
 
         await loadExistingProgress();
-
-        /*
-           Start realtime only after the lesson has loaded so the
-           learner joins with the correct lessonId/course/level.
-        */
-        initLiveSync();
 
 
         state.activities =
@@ -8849,6 +9038,7 @@ async function init(){
 
 
         render();
+        initLiveSync();
 
 
     }catch(error){
@@ -8932,7 +9122,7 @@ document.addEventListener(
 
         if(event.key === "Escape"){
             closeCompleteModal();
-return;
+            return;
         }
 
 
@@ -8960,31 +9150,269 @@ return;
 
 
 /* =========================================================
-   CLEANUP
-   ========================================================= */
-
-window.addEventListener(
-    "beforeunload",
-    ()=>{
-        try{
-            speechSynthesis?.cancel();
-        }catch{}
-
-        try{
-            state.live.socket?.disconnect();
-        }catch{}
-    }
-);
-
-
-/* =========================================================
    GO
    ========================================================= */
 
 init();
 
-/* Navigation is handled directly by next() and back(); no global scroll handler. */
+window.addEventListener("beforeunload",()=>{try{state.live?.socket?.disconnect()}catch{}});
+
 </script>
+
+
+<!-- HANVERSE PERFECT SCORE CELEBRATION -->
+<div class="perfect-score-overlay" id="perfectScoreOverlay" aria-hidden="true">
+    <div class="perfect-backdrop"></div>
+    <div class="perfect-rays"></div>
+    <div class="perfect-ring ring-one"></div>
+    <div class="perfect-ring ring-two"></div>
+    <div class="perfect-ring ring-three"></div>
+
+    <div class="perfect-sparkles" aria-hidden="true">
+        <i>✦</i><i>✦</i><i>✧</i><i>✦</i><i>✧</i><i>✦</i><i>✧</i><i>✦</i>
+    </div>
+
+    <div class="perfect-card" id="perfectScoreCard">
+        <button class="perfect-close" id="perfectClose" type="button" aria-label="Close perfect score celebration">×</button>
+        <div class="perfect-burst" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="perfect-panda" id="perfectPanda" aria-hidden="true">
+            <div class="panda-shadow"></div>
+            <div class="panda-body">
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+                <div class="panda-head">
+                    <div class="eye left"><b></b></div>
+                    <div class="eye right"><b></b></div>
+                    <div class="panda-nose"></div>
+                    <div class="panda-mouth"></div>
+                    <div class="panda-blush left"></div>
+                    <div class="panda-blush right"></div>
+                </div>
+                <div class="panda-belly"></div>
+                <div class="panda-arm left"></div>
+                <div class="panda-arm right"></div>
+            </div>
+            <div class="panda-crown">✦</div>
+        </div>
+
+        <div class="perfect-kicker">LESSON MASTERED</div>
+        <div class="perfect-title">PERFECT SCORE!</div>
+        <div class="perfect-subtitle">You got every challenge right.</div>
+
+        <div class="perfect-score-pill">
+            <span class="score-star">★</span>
+            <strong id="perfectScoreValue">100%</strong>
+            <span class="score-star">★</span>
+        </div>
+
+        <div class="perfect-xp" id="perfectXpReward">+0 XP</div>
+        <div class="perfect-message" id="perfectMessage">Panda is doing a victory dance! 🐼</div>
+
+        <button class="perfect-continue" id="perfectContinue" type="button">
+            <span>SEE MY RESULTS</span>
+            <b>→</b>
+        </button>
+    </div>
+</div>
+
+
+<script id="hanverse-celebration-js">
+(function () {
+    "use strict";
+
+    const overlay = document.getElementById("perfectScoreOverlay");
+    const continueBtn = document.getElementById("perfectContinue");
+    const scoreValue = document.getElementById("perfectScoreValue");
+    const xpReward = document.getElementById("perfectXpReward");
+    const message = document.getElementById("perfectMessage");
+
+    if (!overlay) return;
+
+    let audioContext = null;
+
+    function ensureAudio() {
+        try {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === "suspended") audioContext.resume();
+            return audioContext;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function tone(freq, start, duration, volume, type) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = type || "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(
+            Math.max(volume, 0.001),
+            ctx.currentTime + start + 0.018
+        );
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            ctx.currentTime + start + duration
+        );
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + duration + 0.03);
+    }
+
+    function perfectSound() {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+
+        // Bright HanVerse "mastery" fanfare — short, musical, not arcade-like.
+        [
+            [523.25, 0.00, 0.20, 0.065],
+            [659.25, 0.11, 0.20, 0.070],
+            [783.99, 0.22, 0.22, 0.075],
+            [1046.50, 0.38, 0.42, 0.085]
+        ].forEach(([f, s, d, v]) => tone(f, s, d, v, "sine"));
+
+        // Tiny sparkle overtone.
+        tone(1318.51, 0.52, 0.28, 0.035, "triangle");
+        tone(1567.98, 0.60, 0.25, 0.025, "triangle");
+    }
+
+    function confettiBurst() {
+        const colors = ["#E63946", "#F4D35E", "#4EA8DE", "#74C69D"];
+        const frag = document.createDocumentFragment();
+
+        for (let i = 0; i < 42; i++) {
+            const el = document.createElement("span");
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 170 + Math.random() * 310;
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            el.style.position = "fixed";
+            el.style.left = "50%";
+            el.style.top = "47%";
+            el.style.width = (5 + Math.random() * 7) + "px";
+            el.style.height = (8 + Math.random() * 12) + "px";
+            el.style.borderRadius = "3px";
+            el.style.background = colors[i % colors.length];
+            el.style.zIndex = "100000";
+            el.style.pointerEvents = "none";
+            el.style.transform = "rotate(" + Math.random() * 360 + "deg)";
+            el.style.transition =
+                "transform 1.15s cubic-bezier(.12,.8,.2,1), opacity 1.15s ease";
+            frag.appendChild(el);
+
+            requestAnimationFrame(() => {
+                el.style.transform =
+                    "translate(" + x + "px," + (y + 100) + "px) rotate(" +
+                    (Math.random() * 720 - 360) + "deg)";
+                el.style.opacity = "0";
+            });
+
+            setTimeout(() => el.remove(), 1250);
+        }
+
+        document.body.appendChild(frag);
+    }
+
+    function showPerfectScore(data) {
+        const score = Number(data?.score ?? 100);
+        const xp = Number(data?.xp ?? data?.earnedXp ?? 0);
+
+        scoreValue.textContent = Math.round(score) + "%";
+        xpReward.textContent = "+" + Math.max(0, Math.round(xp)) + " XP";
+
+        const messages = [
+            "Panda is doing a victory dance! 🐼",
+            "Every answer. Every challenge. Nailed it! ✨",
+            "Your Mandarin mastery is shining! 🌟",
+            "That was flawless. Panda is impressed! 🐼",
+            "Perfect! Your learning streak just got brighter! 🔥"
+        ];
+        message.textContent = messages[Math.floor(Math.random() * messages.length)];
+
+        overlay.classList.remove("is-visible");
+        overlay.setAttribute("aria-hidden", "false");
+
+        // Force the animation timeline to restart.
+        void overlay.offsetWidth;
+        overlay.classList.add("is-visible");
+
+        perfectSound();
+        setTimeout(confettiBurst, 320);
+    }
+
+    function hidePerfectScore() {
+        overlay.classList.remove("is-visible");
+        overlay.setAttribute("aria-hidden", "true");
+    }
+
+    function goToFinalLessonPage() {
+        hidePerfectScore();
+        const s = window.state;
+        if (s && Array.isArray(s.activities) && s.activities.length) {
+            s.perfectCelebrationPending = false;
+            s.index = s.activities.length - 1;
+            if (typeof window.render === "function") {
+                window.render();
+            }
+        }
+        window.dispatchEvent(new CustomEvent("hanverse:perfect-score-dismissed"));
+    }
+
+    document.getElementById("perfectClose")?.addEventListener("click", goToFinalLessonPage);
+    continueBtn?.addEventListener("click", goToFinalLessonPage);
+
+    // Do not dismiss the celebration by accidentally clicking the dark background.
+    // The learner should intentionally close it with X or continue.
+
+    window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && overlay.classList.contains("is-visible")) {
+            hidePerfectScore();
+        }
+    });
+
+    // Public hook for the lesson completion logic.
+    window.showHanVersePerfectScore = showPerfectScore;
+
+    // Also expose a tiny animation API so existing lesson interactions can use it.
+    window.HanVerseMotion = {
+        pop(element) {
+            if (!element) return;
+            element.classList.remove("hv-pop");
+            void element.offsetWidth;
+            element.classList.add("hv-pop");
+        },
+        success(element) {
+            if (!element) return;
+            element.classList.remove("hv-success");
+            void element.offsetWidth;
+            element.classList.add("hv-success");
+        },
+        wrong(element) {
+            if (!element) return;
+            element.classList.remove("hv-wrong");
+            void element.offsetWidth;
+            element.classList.add("hv-wrong");
+        },
+        sound: perfectSound
+    };
+})();
+</script>
+
+
+
 
 </body>
 
