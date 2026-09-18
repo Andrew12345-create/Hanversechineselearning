@@ -20,6 +20,17 @@
     content="Hanverse | Learn Mandarin through fun, interactive lessons"
 >
 
+<!--
+    Realtime server URL:
+    - Leave empty for local development; lesson.html will use http://localhost:3001
+    - For production, set this to the public URL of realtime-server.js
+      e.g. https://realtime.your-domain.com
+-->
+<meta
+    name="hanverse-realtime-url"
+    content=""
+>
+
 <title>Hanverse | Lesson</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,17 +51,21 @@
 
 :root{
 
-    --primary:#2563EB;
-    --primary-dark:#1D4ED8;
-    --primary-light:#DBEAFE;
+    --primary:#E63946;
+    --primary-dark:#BE2D38;
+    --primary-light:#FDE8EA;
 
-    --secondary:#14B8A6;
-    --secondary-dark:#0F766E;
-    --secondary-light:#99F6E4;
+    --secondary:#74C69D;
+    --secondary-dark:#3F8F69;
+    --secondary-light:#E5F5EC;
 
-    --accent:#F59E0B;
-    --accent-dark:#D97706;
-    --accent-light:#FDE68A;
+    --accent:#F4D35E;
+    --accent-dark:#B88B00;
+    --accent-light:#FFF4C7;
+
+    --sky:#4EA8DE;
+    --sky-dark:#277EAF;
+    --sky-light:#E4F3FC;
 
     --dark:#0F172A;
     --text:#1E293B;
@@ -3874,8 +3889,133 @@ body::before{
 
 }
 
+
+/* =========================================================
+   LEARNER FEEDBACK LOOP — INTERACTION LAYER
+   ========================================================= */
+
+.feedback-live{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:0 0 11px;
+    padding:9px 13px;
+    border:1px solid var(--border);
+    border-radius:16px;
+    background:rgba(255,255,255,.92);
+    box-shadow:var(--shadow-xs);
+    font-size:.65rem;
+    font-weight:800;
+    color:var(--muted);
+}
+.live-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:#94A3B8;
+    box-shadow:0 0 0 4px rgba(148,163,184,.12);
+}
+.feedback-live.connected .live-dot{
+    background:var(--green);
+    box-shadow:0 0 0 4px rgba(22,163,74,.12);
+    animation:livePulse 1.8s ease-in-out infinite;
+}
+.feedback-live strong{color:var(--dark)}
+.feedback-live .live-spacer{margin-left:auto}
+.live-leaderboard{
+    border:0;background:transparent;color:var(--primary-dark);
+    font-size:.64rem;font-weight:900;padding:4px 6px;
+}
+@keyframes livePulse{50%{transform:scale(1.35);opacity:.65}}
+
+.option:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.option.correct::before{background:var(--green);color:#fff;border-color:var(--green)}
+.option.wrong::before{background:var(--red);color:#fff;border-color:var(--red)}
+
+.feedback-explain{
+    margin-top:7px;
+    font-size:.64rem;
+    opacity:.82;
+}
+
+.lesson-complete-modal{
+    position:fixed;inset:0;z-index:500;
+    display:grid;place-items:center;
+    padding:20px;
+    background:rgba(15,23,42,.52);
+    backdrop-filter:blur(8px);
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:.3s var(--ease);
+}
+.lesson-complete-modal.open{
+    opacity:1;visibility:visible;pointer-events:auto;
+}
+.complete-modal-card{
+    position:relative;width:min(520px,100%);
+    padding:30px 24px 24px;
+    border:1px solid var(--border);
+    border-radius:30px;background:#fff;
+    box-shadow:var(--shadow-xl);
+    text-align:center;
+    transform:translateY(24px) scale(.96);
+    transition:.45s var(--ease);
+}
+.lesson-complete-modal.open .complete-modal-card{
+    transform:none;
+}
+.complete-modal-icon{
+    width:88px;height:88px;margin:-64px auto 14px;
+    display:grid;place-items:center;
+    border-radius:27px;
+    background:linear-gradient(135deg,var(--accent-light),#fff);
+    border:1px solid #FCD34D;
+    font-size:3.1rem;
+    box-shadow:0 14px 34px rgba(245,158,11,.18);
+    animation:completionPop .7s var(--ease);
+}
+.complete-modal-card h2{margin-bottom:6px}
+.complete-modal-card p{color:var(--text-secondary);font-size:.78rem}
+.modal-rewards{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0;
+}
+.modal-reward{
+    padding:12px 7px;border-radius:15px;background:#F8FAFC;
+    border:1px solid var(--border);
+}
+.modal-reward strong{display:block;font-size:1rem;color:var(--dark)}
+.modal-reward span{font-size:.57rem;color:var(--muted);font-weight:800;text-transform:uppercase}
+.modal-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.modal-close{
+    position:absolute;right:13px;top:13px;width:34px;height:34px;
+    border:1px solid var(--border);border-radius:50%;background:#fff;
+    font-size:1rem;color:var(--muted);
+}
+.leaderboard-panel{
+    position:fixed;right:16px;top:88px;z-index:450;
+    width:min(330px,calc(100% - 32px));
+    padding:17px;border:1px solid var(--border);border-radius:20px;
+    background:#fff;box-shadow:var(--shadow-xl);
+    transform:translateX(120%);transition:.35s var(--ease);
+}
+.leaderboard-panel.open{transform:none}
+.leaderboard-panel h3{margin:0 0 3px;font-size:.9rem}
+.leaderboard-sub{font-size:.62rem;color:var(--muted);margin-bottom:12px}
+.leader-row{
+    display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;
+    padding:8px 5px;border-bottom:1px solid #F1F5F9;font-size:.68rem;font-weight:800;
+}
+.leader-row:last-child{border-bottom:0}
+.leader-rank{color:var(--accent-dark)}
+.leader-xp{color:var(--primary-dark)}
+.live-me{background:var(--primary-light);border-radius:10px}
+@media(max-width:600px){
+    .feedback-live{font-size:.59rem}
+    .modal-rewards{grid-template-columns:1fr 1fr}
+    .modal-reward:last-child{grid-column:1/-1}
+    .leaderboard-panel{top:76px}
+}
+
 </style>
 
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
 </head>
 
 
@@ -4115,6 +4255,14 @@ body::before{
 
     </section>
 
+    <section class="feedback-live" id="liveFeedback" aria-live="polite">
+        <span class="live-dot" id="liveDot"></span>
+        <span id="liveText">Connecting to your learning community…</span>
+        <span class="live-spacer"></span>
+        <strong id="onlineCount">0 online</strong>
+        <button class="live-leaderboard" id="leaderboardBtn" type="button">🏆 Class</button>
+    </section>
+
 
 
     <!-- ===================================================
@@ -4231,6 +4379,31 @@ body::before{
 
 </main>
 
+<div class="lesson-complete-modal" id="completeModal" role="dialog" aria-modal="true" aria-labelledby="completeModalTitle">
+    <div class="complete-modal-card">
+        <button class="modal-close" id="closeCompleteModal" type="button" aria-label="Close">×</button>
+        <div class="complete-modal-icon" id="completeModalIcon">🏆</div>
+        <div class="kicker">Lesson complete</div>
+        <h2 id="completeModalTitle">You did it! 🎉</h2>
+        <p id="completeModalText">Your Mandarin progress has been saved.</p>
+        <div class="modal-rewards">
+            <div class="modal-reward"><strong id="modalXP">+10</strong><span>XP earned</span></div>
+            <div class="modal-reward"><strong id="modalScore">100%</strong><span>Score</span></div>
+            <div class="modal-reward"><strong id="modalOnline">0</strong><span>Learners online</span></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn secondary" id="modalStay" type="button">Review lesson</button>
+            <button class="btn primary" id="modalLearn" type="button">Back to Learn 📚</button>
+        </div>
+    </div>
+</div>
+
+<aside class="leaderboard-panel" id="leaderboardPanel" aria-label="Class leaderboard">
+    <h3>🏆 Class leaderboard</h3>
+    <div class="leaderboard-sub" id="leaderboardSub">Live updates from your class</div>
+    <div id="leaderboardRows"></div>
+</aside>
+
 
 
 <script>
@@ -4272,7 +4445,13 @@ const state = {
 
     saving:false,
 
-    completed:false
+    completed:false,
+    live:{
+        socket:null,
+        connected:false,
+        online:0,
+        leaderboard:[]
+    }
 
 };
 
@@ -4535,11 +4714,24 @@ function renderNav(){
                 );
 
 
+            const mobileLink =
+                desktop.cloneNode(true);
+
+            mobileLink.addEventListener(
+                "click",
+                ()=>{
+                    $("mobile")
+                        ?.classList
+                        .remove("open");
+
+                    $("menu").textContent =
+                        "☰";
+                }
+            );
+
             $("mobile")
                 .appendChild(
-                    desktop.cloneNode(
-                        true
-                    )
+                    mobileLink
                 );
 
         }
@@ -7351,9 +7543,17 @@ function bind(){
                                 "correct"
                             );
 
+                            successChime();
 
                             xpBurst(2);
 
+                            emitLearnerActivity(
+                                "quiz_answer",
+                                {
+                                    correct:true,
+                                    score:state.score
+                                }
+                            );
 
                             toast(
                                 "success",
@@ -7366,6 +7566,15 @@ function bind(){
                                 "wrong"
                             );
 
+                            wrongChime();
+
+                            emitLearnerActivity(
+                                "quiz_answer",
+                                {
+                                    correct:false,
+                                    score:state.score
+                                }
+                            );
 
                             toast(
                                 "error",
@@ -7741,6 +7950,8 @@ async function saveProgress(){
             "success",
             `Lesson saved! +${xp} XP 🎉`
         );
+        emitLearnerActivity("lesson_complete",{score:state.score,xp});
+        setTimeout(openCompleteModal,220);
 
 
     }catch(error){
@@ -7897,8 +8108,461 @@ function showError(
 
 
 /* =========================================================
+   LEARNER FEEDBACK LOOP — AUDIO
+   ========================================================= */
+
+let audioContext = null;
+
+function getAudioContext(){
+    if(!audioContext){
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if(!Ctx) return null;
+        audioContext = new Ctx();
+    }
+    if(audioContext.state === "suspended") audioContext.resume().catch(()=>{});
+    return audioContext;
+}
+
+function successChime(){
+    const ctx = getAudioContext();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    [523.25,659.25,783.99].forEach((freq,i)=>{
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, now + i*.08);
+        gain.gain.exponentialRampToValueAtTime(.16, now + i*.08 + .025);
+        gain.gain.exponentialRampToValueAtTime(.0001, now + i*.08 + .22);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(now + i*.08);
+        osc.stop(now + i*.08 + .24);
+    });
+}
+
+function wrongChime(){
+    const ctx = getAudioContext();
+    if(!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type="sine"; osc.frequency.setValueAtTime(220,now);
+    osc.frequency.exponentialRampToValueAtTime(165,now+.16);
+    gain.gain.setValueAtTime(.0001,now);
+    gain.gain.exponentialRampToValueAtTime(.08,now+.02);
+    gain.gain.exponentialRampToValueAtTime(.0001,now+.2);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(); osc.stop(now+.22);
+}
+
+/* =========================================================
+   LEARNER FEEDBACK LOOP — LIVE SYNC
+   ========================================================= */
+
+function renderLeaderboard(){
+    const rows = $("leaderboardRows");
+    if(!rows) return;
+    const data = Array.isArray(state.live.leaderboard) ? state.live.leaderboard : [];
+    if(!data.length){
+        rows.innerHTML = '<div class="leaderboard-sub">No live class scores yet.</div>';
+        return;
+    }
+    rows.innerHTML = data.slice(0,8).map((learner,i)=>{
+        const id = uid(learner);
+        const mine = id && uid(state.user) && id === uid(state.user);
+        const name = learner.name || learner.username || learner.full_name || "Learner";
+        const xp = Number(learner.xp ?? learner.score ?? 0);
+        return `<div class="leader-row ${mine ? "live-me" : ""}">
+            <span class="leader-rank">#${i+1}</span>
+            <span>${esc(name)}${mine ? " (you)" : ""}</span>
+            <span class="leader-xp">${xp} XP</span>
+        </div>`;
+    }).join("");
+}
+
+function updateOnline(count){
+    state.live.online =
+        Math.max(
+            0,
+            Number(count) || 0
+        );
+
+    const el = $("onlineCount");
+    const modal = $("modalOnline");
+
+    if(el){
+        el.textContent =
+            `${state.live.online} online`;
+    }
+
+    if(modal){
+        modal.textContent =
+            String(state.live.online);
+    }
+}
+
+function resolveRealtimeUrl(){
+    const meta =
+        document.querySelector('meta[name="hanverse-realtime-url"]');
+
+    const configured =
+        meta?.content?.trim() ||
+        localStorage.getItem("hanverse_realtime_url")?.trim() ||
+        "";
+
+    if(configured){
+        return configured.replace(/\/+$/,"");
+    }
+
+    const host = window.location.hostname;
+
+    /*
+       The realtime server is a separate persistent Node server.
+       During local development it runs on port 3001.
+       In production, set the meta tag above to the public realtime URL.
+    */
+    if(
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host === "::1"
+    ){
+        return `${window.location.protocol}//${host}:3001`;
+    }
+
+    return window.location.origin;
+}
+
+
+function initLiveSync(){
+    const bar = $("liveFeedback");
+    const text = $("liveText");
+
+    if(!bar){
+        return;
+    }
+
+    /*
+       Socket.IO is optional. The lesson itself must continue working
+       even when the realtime server is unavailable.
+    */
+    if(typeof window.io !== "function"){
+        if(text){
+            text.textContent =
+                "Learning community sync unavailable";
+        }
+        return;
+    }
+
+    const realtimeUrl = resolveRealtimeUrl();
+
+    if(!realtimeUrl){
+        if(text){
+            text.textContent =
+                "Learning community sync unavailable";
+        }
+        return;
+    }
+
+    try{
+        const socket = window.io(realtimeUrl,{
+            transports:["websocket","polling"],
+            reconnection:true,
+            reconnectionAttempts:Infinity,
+            reconnectionDelay:1000,
+            reconnectionDelayMax:5000,
+            timeout:5000
+        });
+
+        state.live.socket = socket;
+
+        socket.on("connect",()=>{
+            state.live.connected = true;
+
+            bar.classList.add("connected");
+
+            if(text){
+                text.textContent =
+                    "Learning community live";
+            }
+
+            /*
+               IMPORTANT:
+               initLiveSync() is called only after loadLesson() now,
+               so the server receives the real lessonId.
+            */
+            const payload = {
+                userId:uid(state.user),
+                username:userName(),
+                lessonId:state.lessonId,
+                courseType:
+                    state.lesson?.course_type ||
+                    "YCT",
+                courseLevel:
+                    Number(
+                        state.lesson?.level ||
+                        1
+                    )
+            };
+
+            socket.emit(
+                "learner:join",
+                payload
+            );
+
+            /*
+               Ask for the current leaderboard as soon as we connect.
+            */
+            socket.emit(
+                "leaderboard:request"
+            );
+        });
+
+        socket.on("disconnect",()=>{
+            state.live.connected = false;
+
+            bar.classList.remove("connected");
+
+            updateOnline(0);
+
+            if(text){
+                text.textContent =
+                    "Reconnecting to learning community…";
+            }
+        });
+
+        socket.on("connect_error",(error)=>{
+            state.live.connected = false;
+
+            bar.classList.remove("connected");
+
+            if(text){
+                text.textContent =
+                    "Live sync is reconnecting…";
+            }
+
+            console.warn(
+                "HanVerse realtime connection error:",
+                error?.message || error
+            );
+        });
+
+        socket.on("learners:online",(payload)=>{
+            const count =
+                typeof payload === "number"
+                    ? payload
+                    : (
+                        payload?.count ??
+                        payload?.online ??
+                        0
+                    );
+
+            updateOnline(count);
+        });
+
+        socket.on("leaderboard:update",(payload)=>{
+            const list =
+                Array.isArray(payload)
+                    ? payload
+                    : (
+                        payload?.leaderboard ||
+                        []
+                    );
+
+            state.live.leaderboard = list;
+
+            renderLeaderboard();
+        });
+
+        socket.on("learner:joined",(payload)=>{
+            if(payload?.count !== undefined){
+                updateOnline(payload.count);
+            }
+
+            const who =
+                payload?.username ||
+                "A learner";
+
+            /*
+               Do not announce the current learner as a new learner.
+            */
+            if(
+                payload?.userId &&
+                uid(state.user) &&
+                Number(payload.userId) === uid(state.user)
+            ){
+                return;
+            }
+
+            if(text){
+                text.textContent =
+                    `${who} joined the learning community 🐼`;
+
+                setTimeout(()=>{
+                    if(
+                        state.live.connected &&
+                        text
+                    ){
+                        text.textContent =
+                            "Learning community live";
+                    }
+                },3000);
+            }
+        });
+
+        socket.on("learner:activity",(payload)=>{
+            if(
+                payload?.userId &&
+                uid(state.user) &&
+                Number(payload.userId) === uid(state.user)
+            ){
+                return;
+            }
+
+            if(
+                payload?.type === "lesson_complete"
+            ){
+                const who =
+                    payload.username ||
+                    "A learner";
+
+                if(text){
+                    text.textContent =
+                        `${who} just completed a lesson 🎉`;
+
+                    setTimeout(()=>{
+                        if(
+                            state.live.connected &&
+                            text
+                        ){
+                            text.textContent =
+                                "Learning community live";
+                        }
+                    },3500);
+                }
+            }
+        });
+
+    }catch(error){
+        console.warn(
+            "Live sync unavailable:",
+            error
+        );
+
+        if(text){
+            text.textContent =
+                "Learning community sync unavailable";
+        }
+    }
+}
+
+function emitLearnerActivity(
+    type,
+    extra={}
+){
+    const socket =
+        state.live.socket;
+
+    const userId =
+        uid(state.user);
+
+    if(
+        !socket ||
+        !state.live.connected ||
+        !userId
+    ){
+        return;
+    }
+
+    const safeExtra = {};
+
+    Object.entries(
+        extra || {}
+    ).forEach(
+        ([key,value])=>{
+            if(
+                typeof value === "string"
+            ){
+                safeExtra[key] =
+                    value.slice(0,120);
+            }else if(
+                typeof value === "number" ||
+                typeof value === "boolean"
+            ){
+                safeExtra[key] =
+                    value;
+            }
+        }
+    );
+
+    socket.emit(
+        "learner:activity",
+        {
+            userId,
+            username:
+                userName().slice(0,80),
+            lessonId:
+                state.lessonId,
+            type:
+                String(type || "activity").slice(0,50),
+            ...safeExtra
+        }
+    );
+}
+
+/* =========================================================
+   LESSON COMPLETE MODAL
+   ========================================================= */
+
+function openCompleteModal(){
+    const modal=$("completeModal");
+    if(!modal) return;
+    const percentage=calculateScore();
+    const xp=Number(state.lesson?.xp || 10);
+    $("modalXP").textContent=`+${xp}`;
+    $("modalScore").textContent=`${percentage}%`;
+    $("completeModalIcon").textContent=percentage>=90 ? "🤩" : percentage>=80 ? "🏆" : "🐼";
+    $("completeModalTitle").textContent=percentage>=90 ? "Panda is VERY impressed!" : percentage>=80 ? "You did it! 🎉" : "Great effort! 💪";
+    $("completeModalText").textContent=`${state.lesson?.title || "This lesson"} is now complete. Your progress has been saved.`;
+    modal.classList.add("open");
+    successChime();
+}
+
+function closeCompleteModal(){
+    $("completeModal")?.classList.remove("open");
+}
+
+function initCompleteModal(){
+    $("closeCompleteModal")?.addEventListener("click",closeCompleteModal);
+    $("modalStay")?.addEventListener("click",closeCompleteModal);
+    $("modalLearn")?.addEventListener("click",()=>location.href="learn.html");
+    $("completeModal")?.addEventListener("click",e=>{
+        if(e.target.id==="completeModal") closeCompleteModal();
+    });
+    $("leaderboardBtn")?.addEventListener("click",()=>{
+        const panel =
+            $("leaderboardPanel");
+
+        panel?.classList.toggle("open");
+
+        renderLeaderboard();
+
+        if(
+            panel?.classList.contains("open") &&
+            state.live.socket &&
+            state.live.connected
+        ){
+            state.live.socket.emit(
+                "leaderboard:request"
+            );
+        }
+    });
+}
+
+/* =========================================================
    INIT
    ========================================================= */
+
 
 async function init(){
 
@@ -7918,6 +8582,7 @@ async function init(){
 
 
     renderNav();
+    initCompleteModal();
 
 
     try{
@@ -7926,6 +8591,12 @@ async function init(){
 
 
         await loadExistingProgress();
+
+        /*
+           Start realtime only after the lesson has loaded so the
+           learner joins with the correct lessonId/course/level.
+        */
+        initLiveSync();
 
 
         state.activities =
@@ -8061,6 +8732,13 @@ document.addEventListener(
         }
 
 
+        if(event.key === "Escape"){
+            closeCompleteModal();
+            $("leaderboardPanel")?.classList.remove("open");
+            return;
+        }
+
+
         if(
             event.key ===
             "ArrowRight"
@@ -8080,6 +8758,24 @@ document.addEventListener(
 
         }
 
+    }
+);
+
+
+/* =========================================================
+   CLEANUP
+   ========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    ()=>{
+        try{
+            speechSynthesis?.cancel();
+        }catch{}
+
+        try{
+            state.live.socket?.disconnect();
+        }catch{}
     }
 );
 

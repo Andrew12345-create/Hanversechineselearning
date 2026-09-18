@@ -1,59 +1,1121 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F8FAFC">
-<meta name="description" content="HanVerse — Learn Mandarin through stories, games, practice and Panda AI.">
+<meta name="description" content="HanVerse — Learn Mandarin through stories, games, practice, exploration and Panda AI.">
 <title>HanVerse | Learn Mandarin Through Stories, Games & AI</title>
 <link rel="icon" type="image/png" href="hanverse-logo2.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
-:root{--blue:#2563EB;--blue-dark:#1D4ED8;--blue-soft:#DBEAFE;--teal:#14B8A6;--teal-soft:#99F6E4;--amber:#F59E0B;--amber-soft:#FDE68A;--green:#10B981;--navy:#0F172A;--text:#1E293B;--muted:#64748B;--bg:#F8FAFC;--white:#fff;--line:#E2E8F0;--r:24px;--pill:999px;--shadow:0 20px 60px rgba(15,23,42,.10);--soft:0 8px 28px rgba(15,23,42,.06)}
-*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:Poppins,system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 5% 8%,rgba(37,99,235,.10),transparent 25%),radial-gradient(circle at 95% 15%,rgba(20,184,166,.10),transparent 25%),var(--bg);overflow-x:hidden}a{text-decoration:none;color:inherit}button{font:inherit}.container{width:min(1160px,calc(100% - 32px));margin:auto}
-.nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:1200px;height:72px;z-index:1000;display:flex;align-items:center;padding:0 24px;background:rgba(255,255,255,.86);backdrop-filter:blur(22px);border:1px solid rgba(226,232,240,.8);border-radius:22px;box-shadow:0 6px 30px rgba(15,23,42,.07);transition:.3s}.nav.shrink{height:58px;top:12px;border-radius:17px;background:rgba(255,255,255,.94);box-shadow:0 10px 40px rgba(15,23,42,.10)}.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:900;white-space:nowrap}.brand img{width:40px;height:40px;border-radius:12px;object-fit:contain}.nav.shrink .brand img{width:32px;height:32px}.links{display:flex;align-items:center;justify-content:center;gap:25px;flex:1;margin:0 20px}.links a{font-size:.82rem;font-weight:700;color:var(--muted);padding:7px 0;position:relative}.links a:hover{color:var(--blue)}.links a:after{content:'';position:absolute;left:50%;bottom:0;width:100%;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--blue),var(--teal));transform:translateX(-50%) scaleX(0);transition:.2s}.links a:hover:after{transform:translateX(-50%) scaleX(1)}.actions{display:flex;gap:8px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 18px;border-radius:var(--pill);font-size:.78rem;font-weight:800;border:1px solid var(--line);background:#fff;cursor:pointer;transition:.2s}.btn:hover{transform:translateY(-2px)}.btn-primary{background:linear-gradient(135deg,var(--blue),var(--teal));border-color:transparent;color:#fff;box-shadow:0 9px 22px rgba(37,99,235,.22)}.menu{display:none;margin-left:auto;width:43px;height:43px;border:1px solid var(--line);border-radius:13px;background:#fff}.mobile{display:none;position:fixed;top:82px;left:14px;right:14px;z-index:999;padding:10px;background:rgba(255,255,255,.97);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.mobile.open{display:grid}.mobile a{padding:13px;border-radius:11px;font-size:.84rem;font-weight:800}.mobile a:hover{background:var(--blue-soft);color:var(--blue)}
-main{padding-top:125px}.hero{padding:62px 0 72px}.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:70px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:var(--pill);background:#fff;border:1px solid var(--line);color:var(--blue);font-size:.68rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;box-shadow:var(--soft)}.dot{width:7px;height:7px;border-radius:50%;background:var(--teal)}h1{font-size:clamp(3rem,6vw,5.2rem);line-height:1.02;letter-spacing:-.065em;color:var(--navy);margin-top:19px}h1 span{color:var(--blue)}.hero-copy{max-width:650px;color:var(--muted);font-size:1rem;line-height:1.8;margin-top:20px}.hero-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}.btn-large{padding:14px 21px;font-size:.86rem}.welcome{display:none;margin-top:16px;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:var(--soft);font-size:.76rem}.welcome.show{display:flex;align-items:center;gap:10px}.welcome strong{display:block}.welcome span{display:block;color:var(--muted);font-size:.68rem;margin-top:2px}
-.hero-art{position:relative;min-height:440px;display:grid;place-items:center}.journey{width:min(450px,100%);padding:26px;background:#fff;border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow);position:relative;overflow:hidden}.journey:before{content:'';position:absolute;width:230px;height:230px;border-radius:50%;right:-100px;top:-105px;background:rgba(219,234,254,.65)}.journey-head{display:flex;justify-content:space-between;align-items:center;position:relative}.journey-label{font-size:.65rem;letter-spacing:.12em;font-weight:900;color:var(--muted)}.xp{padding:7px 10px;border-radius:var(--pill);background:#FFFBEB;color:#9A6700;font-size:.68rem;font-weight:900}.journey h2{font-size:1.35rem;margin-top:21px;color:var(--navy)}.journey p{font-size:.74rem;color:var(--muted);line-height:1.65;margin-top:5px}.path{display:grid;gap:10px;margin-top:20px}.node{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:17px;background:#fff}.node-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.2rem}.b{background:#EFF6FF}.t{background:#ECFDF5}.a{background:#FFFBEB}.node strong{display:block;font-size:.8rem}.node small{display:block;color:var(--muted);font-size:.65rem;margin-top:2px}.check{margin-left:auto;font-weight:900;color:var(--green)}.lock{margin-left:auto;color:#A8B0BC}.float{position:absolute;padding:9px 13px;background:#fff;border:1px solid var(--line);border-radius:var(--pill);box-shadow:var(--soft);font-size:.67rem;font-weight:900}.f1{left:-22px;top:60px}.f2{right:-18px;bottom:48px}.panda-badge{position:absolute;bottom:-18px;left:30px;width:70px;height:70px;border-radius:22px;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#EFF6FF);border:1px solid var(--line);box-shadow:var(--shadow);font-size:2.25rem}
-.section{padding:88px 0}.white{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.heading{text-align:center;max-width:720px;margin:0 auto 38px}.kicker{color:var(--blue);font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.heading h2{font-size:clamp(1.8rem,3.8vw,2.65rem);letter-spacing:-.045em;color:var(--navy);margin-top:8px}.heading p{font-size:.82rem;line-height:1.7;color:var(--muted);margin-top:8px}
-.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.feature{padding:23px;background:#fff;border:1px solid var(--line);border-radius:21px;box-shadow:var(--soft);transition:.25s}.feature:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:#BFDBFE}.icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:1.35rem;background:var(--blue-soft)}.feature:nth-child(2) .icon,.feature:nth-child(5) .icon{background:#ECFDF5}.feature:nth-child(3) .icon,.feature:nth-child(6) .icon{background:#FFFBEB}.feature h3{font-size:.9rem;color:var(--navy);margin-top:17px}.feature p{font-size:.7rem;line-height:1.7;color:var(--muted);margin-top:5px}.feature a{display:inline-flex;margin-top:13px;color:var(--blue);font-size:.7rem;font-weight:900}
-.try-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px;align-items:stretch}.word-card,.try-info{background:#fff;border:1px solid var(--line);border-radius:25px;box-shadow:var(--soft)}.word-card{display:grid;place-items:center;min-height:320px;text-align:center;background:linear-gradient(145deg,#fff,#EFF6FF)}.hanzi{font-size:clamp(5rem,10vw,8rem);line-height:1;font-weight:700;color:var(--navy)}.pinyin{font-size:.95rem;color:var(--blue);font-weight:800;margin-top:8px}.meaning{font-size:.78rem;color:var(--muted);margin-top:3px}.audio{margin-top:20px;border:0;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;cursor:pointer;box-shadow:0 9px 22px rgba(37,99,235,.22)}.try-info{padding:30px}.try-info h2{font-size:1.7rem;letter-spacing:-.04em;color:var(--navy)}.try-info>p{font-size:.78rem;line-height:1.75;color:var(--muted);margin-top:8px}.quiz{margin-top:22px;padding:17px;border:1px solid var(--line);border-radius:17px;background:#F8FAFC}.quiz strong{font-size:.76rem}.answers{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.answer{border:1px solid var(--line);background:#fff;border-radius:var(--pill);padding:9px 13px;font-size:.68rem;font-weight:800;cursor:pointer}.answer.correct{background:#ECFDF5;border-color:#A7F3D0;color:#047857}.answer.wrong{background:#FEF2F2;border-color:#FECACA;color:#B91C1C}.result{min-height:20px;font-size:.68rem;font-weight:800;margin-top:9px;color:var(--green)}
-.panda-section{background:linear-gradient(135deg,#EFF6FF,#F0FDFA)}.panda-grid{display:grid;grid-template-columns:.7fr 1.3fr;gap:30px;align-items:center}.panda-visual{min-height:330px;border-radius:30px;background:radial-gradient(circle at 50% 35%,#fff 0 25%,transparent 26%),linear-gradient(145deg,#DBEAFE,#CCFBF1);display:grid;place-items:center;border:1px solid #BFDBFE}.panda-visual .panda{font-size:8rem;filter:drop-shadow(0 15px 15px rgba(15,23,42,.12))}.panda-copy h2{font-size:clamp(2rem,4vw,3rem);line-height:1.05;color:var(--navy);letter-spacing:-.05em}.panda-copy h2 span{color:var(--blue)}.panda-copy>p{font-size:.82rem;color:var(--muted);line-height:1.75;margin-top:10px;max-width:600px}.panda-features{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}.pf{padding:15px;background:rgba(255,255,255,.8);border:1px solid rgba(191,219,254,.8);border-radius:16px}.pf b{display:block;font-size:.73rem}.pf span{display:block;font-size:.64rem;color:var(--muted);line-height:1.5;margin-top:4px}
-.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:35px}.level{position:relative;padding:22px;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--soft)}.level:not(:last-child):after{content:'→';position:absolute;right:-13px;top:50%;transform:translateY(-50%);z-index:2;color:var(--blue);font-weight:900}.level-num{font-size:.65rem;color:var(--blue);font-weight:900;letter-spacing:.08em}.level h3{font-size:1rem;margin-top:9px;color:var(--navy)}.level p{font-size:.67rem;line-height:1.6;color:var(--muted);margin-top:4px}.level-icon{font-size:1.35rem;float:right}
-.parent{display:grid;grid-template-columns:1.1fr .9fr;gap:35px;align-items:center}.parent-copy h2{font-size:clamp(1.9rem,4vw,3rem);letter-spacing:-.05em;color:var(--navy);line-height:1.08}.parent-copy h2 span{color:var(--teal)}.parent-copy>p{font-size:.8rem;line-height:1.75;color:var(--muted);margin-top:10px}.parent-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}.parent-item{padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:15px;font-size:.7rem;font-weight:800}.parent-item span{display:block;font-size:.62rem;color:var(--muted);font-weight:500;margin-top:3px}.parent-card{padding:24px;background:#fff;border:1px solid var(--line);border-radius:25px;box-shadow:var(--shadow)}.parent-card .pc-top{display:flex;align-items:center;gap:12px}.pc-avatar{width:48px;height:48px;border-radius:15px;background:var(--blue-soft);display:grid;place-items:center;font-size:1.35rem}.parent-card strong{font-size:.8rem}.parent-card small{display:block;color:var(--muted);font-size:.62rem;margin-top:2px}.progress{margin-top:22px}.progress-row{display:flex;justify-content:space-between;font-size:.65rem;font-weight:800;margin-bottom:7px}.bar{height:9px;border-radius:var(--pill);background:#EEF2F6;overflow:hidden}.bar span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--teal))}.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.mini-stat{padding:12px;border-radius:14px;background:#F8FAFC}.mini-stat b{display:block;font-size:1rem}.mini-stat span{font-size:.58rem;color:var(--muted)}
-.final{padding:90px 0;text-align:center;background:linear-gradient(135deg,var(--blue),#1D4ED8 50%,var(--teal));color:#fff}.final h2{font-size:clamp(2rem,5vw,3.7rem);letter-spacing:-.055em}.final p{max-width:600px;margin:10px auto 22px;font-size:.82rem;line-height:1.7;color:rgba(255,255,255,.82)}.final .btn{background:#fff;color:var(--blue);border-color:#fff}.final .btn:hover{box-shadow:0 12px 28px rgba(0,0,0,.16)}footer{padding:30px 0 45px;background:#fff}.foot{display:flex;justify-content:space-between;gap:20px;align-items:center}.foot-brand{font-weight:900}.foot p,.foot a{font-size:.65rem;color:var(--muted)}.foot-links{display:flex;gap:15px}.offline{display:none;position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:2000;background:var(--navy);color:#fff;border-radius:var(--pill);padding:10px 15px;font-size:.68rem;font-weight:700;box-shadow:var(--shadow)}.offline.show{display:block}
-@media(max-width:900px){.links,.actions{display:none}.menu{display:block}.hero-grid,.try-grid,.panda-grid,.parent{grid-template-columns:1fr}.hero{padding-top:35px}.hero-art{min-height:390px}.feature-grid{grid-template-columns:repeat(2,1fr)}.roadmap{grid-template-columns:repeat(2,1fr)}.level:not(:last-child):after{display:none}.panda-visual{min-height:260px}.parent-card{max-width:600px}}
-@media(max-width:600px){.container{width:calc(100% - 24px)}.nav{top:10px;width:calc(100% - 20px);height:62px;padding:0 14px;border-radius:17px}.mobile{top:80px}.brand{font-size:17px}.brand img{width:34px;height:34px}main{padding-top:95px}.hero{padding:32px 0 55px}h1{font-size:clamp(2.65rem,14vw,4rem)}.hero-copy{font-size:.88rem;line-height:1.7}.hero-buttons{flex-direction:column}.btn-large{width:100%}.hero-art{min-height:350px}.journey{padding:21px;border-radius:24px}.f1{left:-2px;top:18px}.f2{right:-2px;bottom:20px}.panda-badge{left:18px}.section{padding:65px 0}.feature-grid{grid-template-columns:1fr}.try-info{padding:22px}.word-card{min-height:270px}.panda-features,.parent-list{grid-template-columns:1fr}.roadmap{grid-template-columns:1fr}.parent{gap:22px}.foot{flex-direction:column;align-items:flex-start}.foot-links{flex-wrap:wrap}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+:root{
+  --blue:#2563EB;--blue-dark:#1D4ED8;--blue-soft:#DBEAFE;
+  --teal:#14B8A6;--teal-soft:#CCFBF1;
+  --amber:#F59E0B;--amber-soft:#FEF3C7;
+  --green:#10B981;--green-soft:#ECFDF5;
+  --navy:#0F172A;--text:#1E293B;--muted:#64748B;
+  --bg:#F8FAFC;--white:#FFFFFF;--line:#E2E8F0;
+  --r:24px;--pill:999px;
+  --shadow:0 24px 70px rgba(15,23,42,.11);
+  --soft:0 8px 30px rgba(15,23,42,.06)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Poppins,system-ui,sans-serif;color:var(--text);
+  background:radial-gradient(circle at 7% 8%,rgba(37,99,235,.10),transparent 24%),
+             radial-gradient(circle at 92% 13%,rgba(20,184,166,.09),transparent 25%),
+             radial-gradient(circle at 50% 90%,rgba(245,158,11,.07),transparent 30%),var(--bg);
+  overflow-x:hidden
+}
+a{text-decoration:none;color:inherit}button{font:inherit}
+.container{width:min(1160px,calc(100% - 32px));margin:auto}
+
+.hv-navbar{
+  position:fixed;
+  top:18px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(1180px,calc(100% - 40px));
+  height:70px;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  padding:0 12px 0 20px;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(226,232,240,.9);
+  border-radius:20px;
+  box-shadow:0 8px 32px rgba(15,23,42,.08);
+  transition:height .25s ease,top .25s ease,box-shadow .25s ease
+}
+.hv-navbar.is-scrolled{
+  top:11px;
+  height:60px;
+  border-radius:17px;
+  background:rgba(255,255,255,.97);
+  box-shadow:0 10px 38px rgba(15,23,42,.11)
+}
+.hv-brand{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--navy);
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:-.04em;
+  white-space:nowrap;
+  text-decoration:none
+}
+.hv-brand img{
+  width:40px;
+  height:40px;
+  object-fit:contain;
+  border-radius:11px;
+  transition:width .25s ease,height .25s ease
+}
+.hv-navbar.is-scrolled .hv-brand img{width:34px;height:34px}
+.hv-nav-links{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  margin:0 24px
+}
+.hv-nav-links a{
+  position:relative;
+  padding:9px 12px;
+  border-radius:10px;
+  color:#475569;
+  font-size:.76rem;
+  font-weight:700;
+  white-space:nowrap;
+  text-decoration:none;
+  transition:color .18s ease,background .18s ease
+}
+.hv-nav-links a:hover{
+  color:var(--blue);
+  background:var(--blue-soft)
+}
+.hv-nav-links a::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:4px;
+  height:2px;
+  border-radius:2px;
+  background:var(--blue);
+  transform:scaleX(0);
+  transform-origin:center;
+  transition:transform .18s ease
+}
+.hv-nav-links a:hover::after{transform:scaleX(1)}
+.hv-nav-actions{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:5px
+}
+.hv-login{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:0 12px;
+  border-radius:10px;
+  color:var(--navy);
+  font-size:.76rem;
+  font-weight:800;
+  white-space:nowrap;
+  text-decoration:none;
+  transition:color .18s ease,background .18s ease
+}
+.hv-login:hover{
+  color:var(--blue);
+  background:var(--blue-soft)
+}
+.hv-start{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:44px;
+  padding:0 18px;
+  border-radius:999px;
+  color:#fff;
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  box-shadow:0 9px 24px rgba(37,99,235,.22);
+  font-size:.76rem;
+  font-weight:800;
+  white-space:nowrap;
+  text-decoration:none;
+  transition:transform .2s ease,box-shadow .2s ease
+}
+.hv-start:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 32px rgba(37,99,235,.30)
+}
+.hv-arrow{font-size:1rem;line-height:1}
+.hv-menu-button{
+  display:none;
+  width:44px;
+  height:44px;
+  margin-left:auto;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  cursor:pointer
+}
+.hv-menu-button span{
+  display:block;
+  width:19px;
+  height:2px;
+  margin:4px auto;
+  border-radius:2px;
+  background:var(--navy);
+  transition:transform .2s ease,opacity .2s ease
+}
+.hv-mobile-menu{
+  display:none;
+  position:fixed;
+  top:98px;
+  left:20px;
+  right:20px;
+  z-index:999;
+  padding:9px;
+  background:rgba(255,255,255,.98);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--shadow)
+}
+.hv-mobile-menu.is-open{
+  display:grid;
+  gap:2px
+}
+.hv-mobile-menu a{
+  display:flex;
+  align-items:center;
+  padding:13px 14px;
+  border-radius:11px;
+  color:var(--text);
+  font-size:.84rem;
+  font-weight:800;
+  text-decoration:none;
+  transition:color .18s ease,background .18s ease
+}
+.hv-mobile-menu a:hover{
+  color:var(--blue);
+  background:var(--blue-soft)
+}
+.hv-mobile-divider{
+  height:1px;
+  margin:7px 4px;
+  background:var(--line)
+}
+.hv-mobile-login{color:var(--navy)!important}
+.hv-mobile-start{
+  justify-content:center;
+  gap:7px;
+  margin:4px 2px 2px;
+  color:#fff!important;
+  background:linear-gradient(135deg,var(--red),var(--blue));
+  box-shadow:0 8px 20px rgba(37,99,235,.18)
+}
+.hv-mobile-start span{font-size:1rem}
+@media (max-width:1080px){
+  .hv-navbar{width:calc(100% - 28px)}
+  .hv-nav-links{margin:0 10px}
+  .hv-nav-links a{padding-left:8px;padding-right:8px;font-size:.71rem}
+  .hv-start{padding-left:15px;padding-right:15px}
+}
+@media (max-width:900px){
+  .hv-nav-links,.hv-nav-actions{display:none}
+  .hv-menu-button{display:block}
+}
+main{padding-top:125px}
+.hero{padding:62px 0 82px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:70px;align-items:center}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:var(--pill);
+  background:#fff;border:1px solid var(--line);color:var(--blue);font-size:.68rem;
+  font-weight:900;letter-spacing:.08em;text-transform:uppercase;box-shadow:var(--soft)
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--teal)}
+h1{font-size:clamp(3rem,6vw,5.2rem);line-height:.98;letter-spacing:-.072em;color:var(--navy);margin-top:19px}
+h1 span{color:var(--blue)}
+.hero-copy{max-width:650px;color:var(--muted);font-size:1rem;line-height:1.8;margin-top:20px}
+.hero-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.btn-large{padding:14px 21px;font-size:.86rem}
+
+/* =========================================================
+   HANVERSE PREMIUM BUTTON SYSTEM
+   ========================================================= */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-height:48px;
+  padding:0 20px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:var(--navy);
+  font-size:.78rem;
+  font-weight:800;
+  letter-spacing:-.01em;
+  text-decoration:none;
+  cursor:pointer;
+  box-shadow:0 4px 14px rgba(23,32,51,.05);
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease,color .2s ease,border-color .2s ease;
+}
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(23,32,51,.11);
+  border-color:#D5D0C5;
+}
+.btn:active{transform:translateY(0);box-shadow:0 5px 14px rgba(23,32,51,.08)}
+.btn:focus-visible{
+  outline:3px solid rgba(78,168,222,.28);
+  outline-offset:3px;
+}
+.btn-primary{
+  color:#fff;
+  border-color:transparent;
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  box-shadow:0 10px 24px rgba(230,57,70,.22);
+}
+.btn-primary:hover{
+  color:#fff;
+  border-color:transparent;
+  background:linear-gradient(135deg,var(--blue-dark),#1E40AF);
+  box-shadow:0 15px 34px rgba(37,99,235,.30);
+}
+.btn-primary span{transition:transform .2s ease}
+.btn-primary:hover span{transform:translateX(3px)}
+.btn-large{min-height:52px;padding:0 23px;border-radius:15px;font-size:.82rem}
+.hero-buttons .btn-large:first-child{
+  min-width:190px;
+}
+.hero-buttons .btn-large:last-child{
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(10px);
+}
+
+.hero-note{display:flex;align-items:center;gap:9px;margin-top:16px;color:var(--muted);font-size:.68rem;font-weight:600}
+.hero-note strong{color:var(--navy)}
+.hero-art{position:relative;min-height:440px;display:grid;place-items:center}
+.journey{
+  width:min(450px,100%);padding:26px;background:#fff;border:1px solid var(--line);
+  border-radius:30px;box-shadow:0 28px 80px rgba(23,32,51,.13);position:relative;overflow:hidden
+}
+.journey:before{content:'';position:absolute;width:230px;height:230px;border-radius:50%;right:-100px;top:-105px;background:rgba(219,234,254,.65)}
+.journey-head{display:flex;justify-content:space-between;align-items:center;position:relative}
+.journey-label{font-size:.65rem;letter-spacing:.12em;font-weight:900;color:var(--muted)}
+.xp{padding:7px 10px;border-radius:var(--pill);background:#FFFBEB;color:#9A6700;font-size:.68rem;font-weight:900}
+.journey h2{font-size:1.35rem;margin-top:21px;color:var(--navy)}
+.journey p{font-size:.74rem;color:var(--muted);line-height:1.65;margin-top:5px}
+.path{display:grid;gap:10px;margin-top:20px}
+.node{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:17px;background:#fff}
+.node-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.2rem}
+.b{background:var(--blue-soft)}.t{background:#ECFDF5}.a{background:#FFFBEB}
+.node strong{display:block;font-size:.8rem}.node small{display:block;color:var(--muted);font-size:.65rem;margin-top:2px}
+.check{margin-left:auto;font-weight:900;color:var(--green)}.lock{margin-left:auto;color:#A8B0BC}
+.float{position:absolute;padding:9px 13px;background:#fff;border:1px solid var(--line);border-radius:var(--pill);box-shadow:var(--soft);font-size:.67rem;font-weight:900}
+.f1{left:-22px;top:60px}.f2{right:-18px;bottom:48px}
+.panda-badge{
+  position:absolute;bottom:-18px;left:30px;width:70px;height:70px;border-radius:22px;
+  display:grid;place-items:center;background:linear-gradient(145deg,#fff,#EFF6FF);
+  border:1px solid var(--line);box-shadow:var(--shadow);font-size:2.25rem
+}
+
+.section{padding:104px 0}.white{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.heading{text-align:center;max-width:720px;margin:0 auto 38px}
+.kicker{color:var(--blue);font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.heading h2{font-size:clamp(1.9rem,3.8vw,2.7rem);letter-spacing:-.052em;color:var(--navy);margin-top:8px}
+.heading p{font-size:.82rem;line-height:1.7;color:var(--muted);margin-top:8px}
+
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.feature{padding:23px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:21px;box-shadow:var(--soft);transition:.25s}
+.feature:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:#BFDBFE}
+.icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:1.35rem;background:var(--blue-soft)}
+.feature:nth-child(2) .icon,.feature:nth-child(5) .icon{background:#ECFDF5}
+.feature:nth-child(3) .icon,.feature:nth-child(6) .icon{background:#FFFBEB}
+.feature h3{font-size:.9rem;color:var(--navy);margin-top:17px}
+.feature p{font-size:.7rem;line-height:1.7;color:var(--muted);margin-top:5px}
+.feature a{display:inline-flex;margin-top:13px;color:var(--blue);font-size:.7rem;font-weight:900}
+
+.campus-preview{display:grid;grid-template-columns:.78fr 1.22fr;gap:30px;align-items:center}
+.campus-copy h2{font-size:clamp(2rem,4vw,3rem);line-height:1.08;letter-spacing:-.05em;color:var(--navy)}
+.campus-copy h2 span{color:var(--blue)}
+.campus-copy>p{font-size:.82rem;color:var(--muted);line-height:1.75;margin-top:11px}
+.campus-points{display:grid;gap:10px;margin-top:22px}
+.campus-point{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:15px}
+.campus-point b{display:block;font-size:.72rem}.campus-point span{display:block;color:var(--muted);font-size:.62rem;line-height:1.5;margin-top:2px}
+.dashboard{
+  padding:20px;background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)
+}
+.dash-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dash-brand{font-size:.75rem;font-weight:900;color:var(--navy)}.dash-stats{display:flex;gap:7px}
+.dash-pill{padding:6px 9px;border-radius:var(--pill);background:#F8FAFC;font-size:.6rem;font-weight:900}
+.dash-welcome{margin-top:18px;padding:17px;border-radius:19px;background:linear-gradient(135deg,#EFF6FF,#F0FDFA)}
+.dash-welcome small{font-size:.58rem;color:var(--muted);font-weight:700}
+.dash-welcome h3{font-size:1.05rem;color:var(--navy);margin-top:3px}
+.dash-welcome p{font-size:.65rem;color:var(--muted);margin-top:3px}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.dash-card{padding:15px;border:1px solid var(--line);border-radius:17px}
+.dash-card small{font-size:.56rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.dash-card strong{display:block;font-size:.82rem;margin-top:7px;color:var(--navy)}
+.dash-card p{font-size:.59rem;color:var(--muted);margin-top:2px}
+.progress-line{height:7px;background:#EEF2F6;border-radius:99px;overflow:hidden;margin-top:10px}
+.progress-line span{display:block;height:100%;width:62%;background:linear-gradient(90deg,var(--red),var(--blue));border-radius:inherit}
+.dash-nav{display:flex;justify-content:space-between;gap:5px;margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.dash-nav span{font-size:.56rem;font-weight:800;color:var(--muted)}
+
+.try-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px;align-items:stretch}
+.word-card,.try-info{background:#fff;border:1px solid var(--line);border-radius:25px;box-shadow:var(--soft)}
+.word-card{display:grid;place-items:center;min-height:320px;text-align:center;background:linear-gradient(145deg,#fff,#EFF6FF)}
+.hanzi{font-size:clamp(5rem,10vw,8rem);line-height:1;font-weight:700;color:var(--navy)}
+.pinyin{font-size:.95rem;color:var(--blue);font-weight:800;margin-top:8px}
+.meaning{font-size:.78rem;color:var(--muted);margin-top:3px}
+.audio{margin-top:20px;border:0;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;cursor:pointer;box-shadow:0 9px 22px rgba(37,99,235,.22)}
+.try-info{padding:30px}.try-info h2{font-size:1.7rem;letter-spacing:-.04em;color:var(--navy)}
+.try-info>p{font-size:.78rem;line-height:1.75;color:var(--muted);margin-top:8px}
+.quiz{margin-top:22px;padding:17px;border:1px solid var(--line);border-radius:17px;background:#F8FAFC}
+.quiz strong{font-size:.76rem}.answers{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.answer{border:1px solid var(--line);background:#fff;border-radius:var(--pill);padding:9px 13px;font-size:.68rem;font-weight:800;cursor:pointer}
+.answer.correct{background:#ECFDF5;border-color:#A7F3D0;color:#047857}.answer.wrong{background:#FEF2F2;border-color:#FECACA;color:#B91C1C}
+.result{min-height:20px;font-size:.68rem;font-weight:800;margin-top:9px;color:var(--green)}
+
+.panda-section{background:linear-gradient(135deg,#EFF6FF,#F0FDFA)}
+.panda-grid{display:grid;grid-template-columns:.7fr 1.3fr;gap:30px;align-items:center}
+.panda-visual{min-height:330px;border-radius:30px;background:radial-gradient(circle at 50% 35%,#fff 0 25%,transparent 26%),linear-gradient(145deg,#DBEAFE,#CCFBF1);display:grid;place-items:center;border:1px solid #BFDBFE}
+.panda-visual .panda{font-size:8rem;filter:drop-shadow(0 15px 15px rgba(15,23,42,.12))}
+.panda-copy h2{font-size:clamp(2rem,4vw,3rem);line-height:1.05;color:var(--navy);letter-spacing:-.05em}
+.panda-copy h2 span{color:var(--blue)}.panda-copy>p{font-size:.82rem;color:var(--muted);line-height:1.75;margin-top:10px;max-width:600px}
+.panda-features{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+.pf{padding:15px;background:rgba(255,255,255,.8);border:1px solid rgba(191,219,254,.8);border-radius:16px}
+.pf b{display:block;font-size:.73rem}.pf span{display:block;font-size:.64rem;color:var(--muted);line-height:1.5;margin-top:4px}
+
+.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:35px}
+.level{position:relative;padding:22px;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--soft)}
+.level:not(:last-child):after{content:'→';position:absolute;right:-13px;top:50%;transform:translateY(-50%);z-index:2;color:var(--blue);font-weight:900}
+.level-num{font-size:.65rem;color:var(--blue);font-weight:900;letter-spacing:.08em}
+.level h3{font-size:1rem;margin-top:9px;color:var(--navy)}.level p{font-size:.67rem;line-height:1.6;color:var(--muted);margin-top:4px}
+.level-icon{font-size:1.35rem;float:right}
+
+.parent{display:grid;grid-template-columns:1.1fr .9fr;gap:35px;align-items:center}
+.parent-copy h2{font-size:clamp(1.9rem,4vw,3rem);letter-spacing:-.05em;color:var(--navy);line-height:1.08}
+.parent-copy h2 span{color:var(--teal)}.parent-copy>p{font-size:.8rem;line-height:1.75;color:var(--muted);margin-top:10px}
+.parent-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}
+.parent-item{padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:15px;font-size:.7rem;font-weight:800}
+.parent-item span{display:block;font-size:.62rem;color:var(--muted);font-weight:500;margin-top:3px}
+.parent-card{padding:24px;background:#fff;border:1px solid var(--line);border-radius:25px;box-shadow:var(--shadow)}
+.parent-card .pc-top{display:flex;align-items:center;gap:12px}.pc-avatar{width:48px;height:48px;border-radius:15px;background:var(--blue-soft);display:grid;place-items:center;font-size:1.35rem}
+.parent-card strong{font-size:.8rem}.parent-card small{display:block;color:var(--muted);font-size:.62rem;margin-top:2px}
+.progress{margin-top:22px}.progress-row{display:flex;justify-content:space-between;font-size:.65rem;font-weight:800;margin-bottom:7px}
+.bar{height:9px;border-radius:var(--pill);background:#EEF2F6;overflow:hidden}.bar span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--red),var(--blue))}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}
+.mini-stat{padding:12px;border-radius:14px;background:#F8FAFC}.mini-stat b{display:block;font-size:1rem}.mini-stat span{font-size:.58rem;color:var(--muted)}
+
+.final{padding:90px 0;text-align:center;background:linear-gradient(135deg,var(--red),#C92F3B 50%,var(--blue));color:#fff}
+.final h2{font-size:clamp(2rem,5vw,3.7rem);letter-spacing:-.055em}.final p{max-width:600px;margin:10px auto 22px;font-size:.82rem;line-height:1.7;color:rgba(255,255,255,.82)}
+.final .btn{background:#fff;color:var(--blue);border-color:#fff}.final .btn:hover{box-shadow:0 12px 28px rgba(0,0,0,.16)}
+footer{padding:30px 0 45px;background:#fff}.foot{display:flex;justify-content:space-between;gap:20px;align-items:center}
+.foot-brand{font-weight:900}.foot p,.foot a{font-size:.65rem;color:var(--muted)}.foot-links{display:flex;gap:15px}
+.offline{display:none;position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:2000;background:var(--navy);color:#fff;border-radius:var(--pill);padding:10px 15px;font-size:.68rem;font-weight:700;box-shadow:var(--shadow)}
+.offline.show{display:block}
+.route-loading{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;background:var(--bg);opacity:0;pointer-events:none;transition:opacity .15s}
+.route-loading.show{opacity:1;pointer-events:auto}
+.route-loading-inner{text-align:center}.route-loading-inner .panda{font-size:3.2rem}
+.route-loading-inner p{font-size:.75rem;font-weight:800;color:var(--muted);margin-top:8px}
+
+@media(max-width:900px){
+  .hv-nav-links,.hv-nav-actions{display:none}.hv-menu-button{display:block}.hero-grid,.try-grid,.panda-grid,.parent,.campus-preview{grid-template-columns:1fr}
+  .hero{padding-top:35px}.hero-art{min-height:390px}.feature-grid{grid-template-columns:repeat(2,1fr)}
+  .roadmap{grid-template-columns:repeat(2,1fr)}.level:not(:last-child):after{display:none}
+  .panda-visual{min-height:260px}.parent-card{max-width:600px}.campus-copy{order:2}.dashboard{order:1}
+}
+@media(max-width:600px){
+  .container{width:calc(100% - 24px)}.hv-navbar{top:10px;width:calc(100% - 20px);height:62px;padding:0 14px;border-radius:17px}
+  .hv-mobile-menu{top:80px}.hv-brand{font-size:17px}.hv-brand img{width:34px;height:34px}main{padding-top:95px}
+  .hero{padding:32px 0 55px}h1{font-size:clamp(2.65rem,14vw,4rem)}.hero-copy{font-size:.88rem;line-height:1.7}
+  .hero-buttons{flex-direction:column}.btn-large{width:100%;min-height:54px}.hero-art{min-height:350px}.journey{padding:21px;border-radius:24px}
+  .f1{left:-2px;top:18px}.f2{right:-2px;bottom:20px}.panda-badge{left:18px}
+  .section{padding:65px 0}.feature-grid{grid-template-columns:1fr}.try-info{padding:22px}.word-card{min-height:270px}
+  .panda-features,.parent-list{grid-template-columns:1fr}.roadmap{grid-template-columns:1fr}
+  .parent{gap:22px}.foot{flex-direction:column;align-items:flex-start}.foot-links{flex-wrap:wrap}
+  .dash-grid{grid-template-columns:1fr}.dash-stats{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+/* =========================================================
+   HANVERSE MOTION SYSTEM
+   ========================================================= */
+@keyframes hvFadeUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes hvFadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes hvFloat{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(-10px) rotate(1deg)}
+}
+@keyframes hvFloatAlt{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(8px) rotate(-1deg)}
+}
+@keyframes hvPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.18)}
+  50%{box-shadow:0 0 0 12px rgba(37,99,235,0)}
+}
+@keyframes hvShimmer{
+  0%{transform:translateX(-130%)}
+  100%{transform:translateX(130%)}
+}
+@keyframes hvPop{
+  0%{transform:scale(.94);opacity:.5}
+  70%{transform:scale(1.03)}
+  100%{transform:scale(1);opacity:1}
+}
+
+/* Initial page entrance */
+.hv-navbar{animation:hvFadeIn .65s ease both}
+.hero .eyebrow{animation:hvFadeUp .7s .08s ease both}
+.hero h1{animation:hvFadeUp .75s .16s ease both}
+.hero .hero-copy{animation:hvFadeUp .75s .24s ease both}
+.hero .hero-buttons{animation:hvFadeUp .75s .32s ease both}
+.hero .hero-note{animation:hvFadeUp .75s .40s ease both}
+.hero-art{animation:hvFadeUp .85s .18s ease both}
+
+/* Floating hero chips */
+.f1{animation:hvFloat 4s ease-in-out infinite}
+.f2{animation:hvFloatAlt 4.7s .4s ease-in-out infinite}
+
+/* Panda has a gentle breathing/floating motion */
+.panda-badge{animation:hvFloat 3.8s ease-in-out infinite}
+.panda-visual .panda{animation:hvFloat 4.2s ease-in-out infinite}
+
+/* Interactive cards */
+.feature,.level,.campus-point,.parent-item,.dash-card{
+  transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
+}
+.feature:hover,.level:hover,.campus-point:hover,.parent-item:hover,.dash-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 16px 38px rgba(15,23,42,.10);
+}
+
+/* Premium CTA light sweep */
+.btn-primary{position:relative;overflow:hidden}
+.btn-primary::after{
+  content:"";
+  position:absolute;
+  top:0;bottom:0;left:0;width:55%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.20),transparent);
+  transform:translateX(-130%);
+  pointer-events:none;
+}
+.btn-primary:hover::after{animation:hvShimmer .7s ease}
+
+/* Audio button pulse */
+.audio{animation:hvPulse 2.4s 1.2s ease-in-out infinite}
+.audio:hover{transform:scale(1.06)}
+
+/* Quiz feedback */
+.answer.correct{animation:hvPop .3s ease both}
+.answer.wrong{animation:hvPop .3s ease both}
+
+/* Progress movement */
+.progress-line span,.bar span{
+  transform-origin:left center;
+  animation:hvPop .8s .3s ease both;
+}
+
+/* Reveal sections when supported */
+.reveal-ready{opacity:0;transform:translateY(25px)}
+.reveal-ready.is-visible{opacity:1;transform:translateY(0);transition:opacity .7s ease,transform .7s ease}
+
+/* Keep reduced-motion users comfortable */
+@media(prefers-reduced-motion:reduce){
+  .hv-navbar,.hero .eyebrow,.hero h1,.hero .hero-copy,.hero .hero-buttons,
+  .hero .hero-note,.hero-art,.f1,.f2,.panda-badge,.panda-visual .panda,
+  .audio,.progress-line span,.bar span,.answer.correct,.answer.wrong{
+    animation:none!important
+  }
+  .reveal-ready{opacity:1!important;transform:none!important}
+}
+
 </style>
 </head>
+
 <body>
-<nav class="nav" id="nav">
-  <a class="brand" href="index.html"><img src="hanverse-logo2.png" alt="HanVerse logo"><span>HanVerse</span></a>
-  <div class="links"><a href="learn.html">Learn</a><a href="roadmap.html">Roadmap</a><a href="practice.html">Practice</a><a href="talk.html">Talk to Panda</a><a href="parents.html">Parents</a></div>
-  <div class="actions" id="navActions"><a class="btn" href="login.html">Log In</a><a class="btn btn-primary" href="signup.html">Start Learning</a></div>
-  <button class="menu" id="menu" aria-label="Open navigation" aria-expanded="false">☰</button>
+
+<!--
+  HANVERSE PUBLIC HOME
+  --------------------
+  This page is the public front door.
+  Authenticated users are routed to the correct experience:
+    student -> campus/dashboard.html
+    parent  -> parent.html
+    admin   -> admin.html
+
+  IMPORTANT:
+  The backend/auth session must be the source of truth for role.
+  localStorage is NOT used to authorize or choose a role.
+-->
+<div class="route-loading" id="routeLoading" aria-hidden="true">
+  <div class="route-loading-inner">
+    <div class="panda">🐼</div>
+    <p>Opening your HanVerse...</p>
+  </div>
+</div>
+
+<nav class="hv-navbar" id="hvNavbar">
+  <a class="hv-brand" href="index.html" aria-label="HanVerse Home">
+    <img src="hanverse-logo2.png" alt="HanVerse">
+    <span>HanVerse</span>
+  </a>
+
+  <div class="hv-nav-links" aria-label="Main navigation">
+    <a href="#world">Learn</a>
+    <a href="#world">Explore</a>
+    <a href="#panda">Meet Panda</a>
+    <a href="#how">How It Works</a>
+    <a href="#parents">For Parents</a>
+  </div>
+
+  <div class="hv-nav-actions">
+    <a class="hv-login" href="login.html">Log in</a>
+    <a class="hv-start" href="signup.html">
+      <span>Start Learning</span>
+      <span class="hv-arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  <button
+    class="hv-menu-button"
+    id="hvMenuButton"
+    type="button"
+    aria-label="Open navigation"
+    aria-expanded="false"
+    aria-controls="hvMobileMenu"
+  >
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </nav>
-<nav class="mobile" id="mobile"><a href="learn.html">📚 Learn</a><a href="roadmap.html">🗺️ Roadmap</a><a href="practice.html">🎮 Practice</a><a href="talk.html">🐼 Talk to Panda</a><a href="parents.html">👪 Parents</a><a href="login.html">Log In</a><a href="signup.html">Start Learning</a></nav>
+
+<nav class="hv-mobile-menu" id="hvMobileMenu" aria-label="Mobile navigation">
+  <a href="#world">Learn</a>
+  <a href="#world">Explore</a>
+  <a href="#panda">Meet Panda</a>
+  <a href="#how">How It Works</a>
+  <a href="#parents">For Parents</a>
+  <div class="hv-mobile-divider"></div>
+  <a class="hv-mobile-login" href="login.html">Log in</a>
+  <a class="hv-mobile-start" href="signup.html">
+    Start Learning
+    <span aria-hidden="true">→</span>
+  </a>
+</nav>
+
 <div class="offline" id="offline">You're offline — some features may be unavailable.</div>
+
 <main>
-<section class="hero"><div class="container hero-grid"><div><span class="eyebrow"><i class="dot"></i> Mandarin learning, made adventurous</span><h1>Meet Panda.<br>Explore <span>Chinese.</span></h1><p class="hero-copy">HanVerse turns Mandarin into a learning adventure — with structured lessons, stories, games, practice, videos and a Panda who is always ready to help.</p><div class="hero-buttons"><a class="btn btn-primary btn-large" href="learn.html">Start Learning <span>→</span></a><a class="btn btn-large" href="talk.html">Meet Panda 🐼</a></div><div class="welcome" id="welcome"><div>🎉</div><div><strong id="welcomeName">Welcome back!</strong><span>Your HanVerse journey is ready.</span></div></div></div><div class="hero-art"><div class="float f1">⭐ Earn XP</div><div class="float f2">🔥 Build your streak</div><div class="journey"><div class="journey-head"><span class="journey-label">YOUR HANVERSE JOURNEY</span><span class="xp">+10 XP</span></div><h2>Mandarin Foundations</h2><p>Start with the essentials, practise what you learn and keep moving forward.</p><div class="path"><div class="node"><div class="node-icon b">👋</div><div><strong>Hello & Introductions</strong><small>Build your first phrases</small></div><span class="check">✓</span></div><div class="node"><div class="node-icon t">🔢</div><div><strong>Numbers & Everyday Chinese</strong><small>Useful words for real life</small></div><span class="check">✓</span></div><div class="node"><div class="node-icon a">🗣️</div><div><strong>Start Speaking</strong><small>Practise with Panda</small></div><span class="lock">🔒</span></div></div></div><div class="panda-badge">🐼</div></div></div></section>
-<section class="section white"><div class="container"><div class="heading"><span class="kicker">The HanVerse world</span><h2>One world. Many ways to learn.</h2><p>Everything connects to the same Mandarin journey, so learning never feels like a collection of disconnected activities.</p></div><div class="feature-grid"><article class="feature"><div class="icon">📚</div><h3>Learn</h3><p>Follow structured lessons and build your Chinese step by step.</p><a href="learn.html">Open Learn →</a></article><article class="feature"><div class="icon">🗺️</div><h3>Roadmap</h3><p>See where you are, what comes next and what you've already achieved.</p><a href="roadmap.html">View Roadmap →</a></article><article class="feature"><div class="icon">🎮</div><h3>Practice</h3><p>Turn new vocabulary and grammar into active practice.</p><a href="practice.html">Start Practice →</a></article><article class="feature"><div class="icon">📖</div><h3>Stories & Videos</h3><p>Meet useful Chinese through memorable stories and visual content.</p><a href="learn.html">Explore Content →</a></article><article class="feature"><div class="icon">🐼</div><h3>Talk to Panda</h3><p>Practise conversation and build confidence with your AI learning buddy.</p><a href="talk.html">Talk to Panda →</a></article><article class="feature"><div class="icon">🏆</div><h3>Track Progress</h3><p>Earn XP, build your streak and watch your learning journey grow.</p><a href="profile.html">See Profile →</a></article></div></div></section>
-<section class="section"><div class="container"><div class="heading"><span class="kicker">Try HanVerse</span><h2>Learn one word right now.</h2><p>A tiny taste of the learning experience before you enter the full HanVerse journey.</p></div><div class="try-grid"><div class="word-card"><div><div class="hanzi">你好</div><div class="pinyin">nǐ hǎo</div><div class="meaning">hello</div><button class="audio" id="audio" aria-label="Hear 你好">🔊</button></div></div><div class="try-info"><h2>你好 means…</h2><p>Choose the meaning you think is correct. Don't worry — this is just a quick taste.</p><div class="quiz"><strong>What does 你好 mean?</strong><div class="answers"><button class="answer" data-correct="false">Thank you</button><button class="answer" data-correct="true">Hello</button><button class="answer" data-correct="false">Goodbye</button></div><div class="result" id="result"></div></div><a class="btn btn-primary" style="margin-top:17px" href="learn.html">Continue Learning →</a></div></div></div></section>
-<section class="section panda-section"><div class="container panda-grid"><div class="panda-visual"><div class="panda">🐼</div></div><div class="panda-copy"><span class="kicker">Your Mandarin practice buddy</span><h2>Meet <span>Panda.</span></h2><p>When you're learning a language, sometimes you just need someone to practise with. Panda gives you a friendly place to ask questions, try Chinese and build confidence.</p><div class="panda-features"><div class="pf"><b>🗣 Speak</b><span>Have real conversations.</span></div><div class="pf"><b>👂 Listen</b><span>Hear Mandarin naturally.</span></div><div class="pf"><b>💡 Learn</b><span>Get help when you're stuck.</span></div></div><a class="btn btn-primary" style="margin-top:20px" href="talk.html">Talk to Panda →</a></div></div></section>
-<section class="section white"><div class="container"><div class="heading"><span class="kicker">Your path</span><h2>Know where you're going.</h2><p>HanVerse gives your learning a clear progression, from your first Chinese words to stronger communication.</p></div><div class="roadmap"><div class="level"><span class="level-icon">🌱</span><span class="level-num">LEVEL 1</span><h3>YCT 1</h3><p>Build your Mandarin foundations.</p></div><div class="level"><span class="level-icon">🌿</span><span class="level-num">LEVEL 2</span><h3>YCT 2</h3><p>Start communicating with confidence.</p></div><div class="level"><span class="level-icon">🌳</span><span class="level-num">LEVEL 3</span><h3>YCT 3</h3><p>Develop stronger vocabulary and sentences.</p></div><div class="level"><span class="level-icon">🏆</span><span class="level-num">LEVEL 4</span><h3>YCT 4</h3><p>Take your Mandarin to the next level.</p></div></div><div style="text-align:center;margin-top:27px"><a class="btn btn-primary" href="roadmap.html">Explore the Roadmap →</a></div></div></section>
-<section class="section"><div class="container parent"><div class="parent-copy"><span class="kicker">For families</span><h2>Fun for children.<br><span>Visibility for parents.</span></h2><p>Children get a learning world they want to return to. Parents get a clearer view of the journey, progress and learning experience.</p><div class="parent-list"><div class="parent-item">📊 Progress<span>See how learning is going.</span></div><div class="parent-item">🎯 Goals<span>Understand the learning path.</span></div><div class="parent-item">👤 Profiles<span>Manage your child's learning space.</span></div><div class="parent-item">🔔 Updates<span>Stay informed about progress.</span></div></div><a class="btn btn-primary" style="margin-top:19px" href="parents.html">Explore Parent Hub →</a></div><div class="parent-card"><div class="pc-top"><div class="pc-avatar">🐼</div><div><strong>Learning snapshot</strong><small>Example learner dashboard</small></div></div><div class="progress"><div class="progress-row"><span>Mandarin journey</span><span>68%</span></div><div class="bar"><span style="width:68%"></span></div></div><div class="stat-row"><div class="mini-stat"><b>⭐ 420</b><span>XP earned</span></div><div class="mini-stat"><b>🔥 12</b><span>Day streak</span></div><div class="mini-stat"><b>✓ 18</b><span>Lessons</span></div></div></div></div></section>
-<section class="final"><div class="container"><h2>Panda is waiting. 🐼</h2><p>Start your Mandarin journey with HanVerse and discover a learning world built around progress, practice and curiosity.</p><a class="btn" href="signup.html">Start Learning Free →</a></div></section>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow"><i class="dot"></i> Mandarin learning, made adventurous</span>
+      <h1>Meet Panda.<br>Explore <span>Chinese.</span></h1>
+      <p class="hero-copy">
+        HanVerse turns Mandarin into a learning adventure — with structured lessons,
+        stories, games, practice, exploration and a Panda who is always ready to help.
+      </p>
+      <div class="hero-buttons">
+        <a class="btn btn-primary btn-large" href="signup.html">Start Learning Free <span>→</span></a>
+        <a class="btn btn-large" href="#world">Explore HanVerse ↓</a>
+      </div>
+      <div class="hero-note">🐼 <span><strong>Learn.</strong> Play. Explore. Talk. Grow.</span></div>
+    </div>
+
+    <div class="hero-art">
+      <div class="float f1">⭐ Earn XP</div>
+      <div class="float f2">🔥 Build your streak</div>
+
+      <div class="journey">
+        <div class="journey-head">
+          <span class="journey-label">YOUR HANVERSE JOURNEY</span>
+          <span class="xp">+10 XP</span>
+        </div>
+        <h2>Mandarin Foundations</h2>
+        <p>Start with the essentials, practise what you learn and keep moving forward.</p>
+
+        <div class="path">
+          <div class="node">
+            <div class="node-icon b">👋</div>
+            <div><strong>Hello & Introductions</strong><small>Build your first phrases</small></div>
+            <span class="check">✓</span>
+          </div>
+          <div class="node">
+            <div class="node-icon t">🔢</div>
+            <div><strong>Numbers & Everyday Chinese</strong><small>Useful words for real life</small></div>
+            <span class="check">✓</span>
+          </div>
+          <div class="node">
+            <div class="node-icon a">🗣️</div>
+            <div><strong>Start Speaking</strong><small>Practise with Panda</small></div>
+            <span class="lock">🔒</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panda-badge">🐼</div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal-ready white" id="world">
+  <div class="container">
+    <div class="heading">
+      <span class="kicker">The HanVerse world</span>
+      <h2>One world. Many ways to learn.</h2>
+      <p>Everything connects to the same Mandarin journey, so learning never feels like a collection of disconnected activities.</p>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature">
+        <div class="icon">📚</div><h3>Learn</h3>
+        <p>Follow structured lessons and build your Chinese step by step.</p>
+        <a href="learn.html">Explore Learn →</a>
+      </article>
+      <article class="feature">
+        <div class="icon">🎮</div><h3>Play</h3>
+        <p>Turn vocabulary, listening and language skills into challenges and games.</p>
+        <a href="play.html">Explore Play →</a>
+      </article>
+      <article class="feature">
+        <div class="icon">🌏</div><h3>Explore</h3>
+        <p>Discover Chinese culture, places, stories, history, food and real-world language.</p>
+        <a href="explore.html">Explore the World →</a>
+      </article>
+      <article class="feature">
+        <div class="icon">📖</div><h3>Stories & Videos</h3>
+        <p>Meet useful Chinese through memorable stories and visual content.</p>
+        <a href="learn.html">Discover Content →</a>
+      </article>
+      <article class="feature">
+        <div class="icon">🐼</div><h3>Panda</h3>
+        <p>Practise conversation, ask questions and build confidence with your AI learning buddy.</p>
+        <a href="talk.html">Meet Panda →</a>
+      </article>
+      <article class="feature">
+        <div class="icon">🏆</div><h3>Your Progress</h3>
+        <p>Earn XP, build your streak and see your Mandarin journey grow.</p>
+        <a href="profile.html">See Your Journey →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal-ready" id="campus">
+  <div class="container campus-preview">
+    <div class="campus-copy">
+      <span class="kicker">Your HanVerse campus</span>
+      <h2>Everything connected in <span>one place.</span></h2>
+      <p>
+        Once you join, HanVerse becomes your personal learning campus — with your lessons,
+        progress, challenges, discoveries and Panda all connected to the same journey.
+      </p>
+
+      <div class="campus-points">
+        <div class="campus-point">
+          <div>📚</div><div><b>Know what to do next</b><span>Your learning journey keeps the next lesson clear.</span></div>
+        </div>
+        <div class="campus-point">
+          <div>⭐</div><div><b>See yourself improving</b><span>XP, streaks, achievements and mastery make progress visible.</span></div>
+        </div>
+        <div class="campus-point">
+          <div>🐼</div><div><b>Never learn alone</b><span>Panda is there across the experience to help you practise and explore.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard" aria-label="Preview of the HanVerse student campus">
+      <div class="dash-top">
+        <div class="dash-brand">🐼 HANVERSE CAMPUS</div>
+        <div class="dash-stats"><span class="dash-pill">🔥 12</span><span class="dash-pill">⭐ 2,480</span></div>
+      </div>
+      <div class="dash-welcome">
+        <small>YOUR CAMPUS</small>
+        <h3>Good afternoon! 👋</h3>
+        <p>Ready to continue your Chinese journey?</p>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <small>📖 Continue learning</small>
+          <strong>我喜欢... — Things I Like</strong>
+          <p>Lesson 3 · YCT 2</p>
+          <div class="progress-line"><span></span></div>
+        </div>
+        <div class="dash-card">
+          <small>🔥 Your streak</small>
+          <strong>12 days</strong>
+          <p>Keep it going!</p>
+        </div>
+      </div>
+      <div class="dash-nav">
+        <span>🏠 Home</span><span>📚 Learn</span><span>🎮 Play</span><span>🌏 Explore</span><span>🐼 Panda</span><span>👤 Me</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal-ready" id="try">
+  <div class="container">
+    <div class="heading">
+      <span class="kicker">Try HanVerse</span>
+      <h2>Learn one word right now.</h2>
+      <p>A tiny taste of the learning experience before you enter the full HanVerse journey.</p>
+    </div>
+
+    <div class="try-grid">
+      <div class="word-card">
+        <div>
+          <div class="hanzi">你好</div>
+          <div class="pinyin">nǐ hǎo</div>
+          <div class="meaning">hello</div>
+          <button class="audio" id="audio" aria-label="Hear 你好">🔊</button>
+        </div>
+      </div>
+
+      <div class="try-info">
+        <h2>你好 means…</h2>
+        <p>Choose the meaning you think is correct. Don't worry — this is just a quick taste.</p>
+        <div class="quiz">
+          <strong>What does 你好 mean?</strong>
+          <div class="answers">
+            <button class="answer" data-correct="false">Thank you</button>
+            <button class="answer" data-correct="true">Hello</button>
+            <button class="answer" data-correct="false">Goodbye</button>
+          </div>
+          <div class="result" id="result"></div>
+        </div>
+        <a class="btn btn-primary" style="margin-top:17px" href="signup.html">Start the Full Journey →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal-ready panda-section" id="panda">
+  <div class="container panda-grid">
+    <div class="panda-visual"><div class="panda">🐼</div></div>
+    <div class="panda-copy">
+      <span class="kicker">Your Mandarin practice buddy</span>
+      <h2>Meet <span>Panda.</span></h2>
+      <p>
+        When you're learning a language, sometimes you just need someone to practise with.
+        Panda gives you a friendly place to ask questions, try Chinese and build confidence.
+      </p>
+      <div class="panda-features">
+        <div class="pf"><b>🗣 Speak</b><span>Have real conversations.</span></div>
+        <div class="pf"><b>👂 Listen</b><span>Hear Mandarin naturally.</span></div>
+        <div class="pf"><b>💡 Learn</b><span>Get help when you're stuck.</span></div>
+      </div>
+      <a class="btn btn-primary" style="margin-top:20px" href="talk.html">Meet Panda →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal-ready white" id="path">
+  <div class="container">
+    <div class="heading">
+      <span class="kicker">Your learning path</span>
+      <h2>Know where you're going.</h2>
+      <p>HanVerse gives your learning a clear progression, from your first Chinese words to stronger communication.</p>
+    </div>
+
+    <div class="roadmap">
+      <div class="level"><span class="level-icon">🌱</span><span class="level-num">LEVEL 1</span><h3>YCT 1</h3><p>Build your Mandarin foundations.</p></div>
+      <div class="level"><span class="level-icon">🌿</span><span class="level-num">LEVEL 2</span><h3>YCT 2</h3><p>Start communicating with confidence.</p></div>
+      <div class="level"><span class="level-icon">🌳</span><span class="level-num">LEVEL 3</span><h3>YCT 3</h3><p>Develop stronger vocabulary and sentences.</p></div>
+      <div class="level"><span class="level-icon">🏆</span><span class="level-num">LEVEL 4</span><h3>YCT 4</h3><p>Take your Mandarin to the next level.</p></div>
+    </div>
+
+    <div style="text-align:center;margin-top:27px">
+      <a class="btn btn-primary" href="roadmap.html">Explore the Learning Path →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal-ready" id="parents">
+  <div class="container parent">
+    <div class="parent-copy">
+      <span class="kicker">For families</span>
+      <h2>Fun for children.<br><span>Visibility for parents.</span></h2>
+      <p>
+        Children get a learning world they want to return to. Parents get a clearer view
+        of the journey, progress and learning experience.
+      </p>
+
+      <div class="parent-list">
+        <div class="parent-item">📊 Progress<span>See how learning is going.</span></div>
+        <div class="parent-item">🎯 Goals<span>Understand the learning path.</span></div>
+        <div class="parent-item">👤 Profiles<span>Manage your child's learning space.</span></div>
+        <div class="parent-item">🔔 Updates<span>Stay informed about progress.</span></div>
+      </div>
+
+      <a class="btn btn-primary" style="margin-top:19px" href="parents.html">Explore Parent Hub →</a>
+    </div>
+
+    <div class="parent-card">
+      <div class="pc-top">
+        <div class="pc-avatar">🐼</div>
+        <div><strong>Learning snapshot</strong><small>Example parent view</small></div>
+      </div>
+      <div class="progress">
+        <div class="progress-row"><span>Mandarin journey</span><span>68%</span></div>
+        <div class="bar"><span style="width:68%"></span></div>
+      </div>
+      <div class="stat-row">
+        <div class="mini-stat"><b>⭐ 420</b><span>XP earned</span></div>
+        <div class="mini-stat"><b>🔥 12</b><span>Day streak</span></div>
+        <div class="mini-stat"><b>✓ 18</b><span>Lessons</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="container">
+    <h2>Panda is waiting. 🐼</h2>
+    <p>Start your Mandarin journey with HanVerse and discover a learning world built around progress, practice and curiosity.</p>
+    <a class="btn" href="signup.html">Start Learning Free →</a>
+  </div>
+</section>
+
 </main>
-<footer><div class="container foot"><div><div class="foot-brand">🐼 HanVerse</div><p>Learn Mandarin Through Stories, Games & AI.</p></div><div class="foot-links"><a href="learn.html">Learn</a><a href="roadmap.html">Roadmap</a><a href="talk.html">Panda</a><a href="parents.html">Parents</a><a href="login.html">Log In</a></div></div></footer>
+
+<footer>
+  <div class="container foot">
+    <div>
+      <div class="foot-brand">🐼 HanVerse</div>
+      <p>Learn Mandarin Through Stories, Games & AI.</p>
+    </div>
+    <div class="foot-links">
+      <a href="#world">Explore</a>
+      <a href="#campus">Campus</a>
+      <a href="#panda">Panda</a>
+      <a href="parents.html">Parents</a>
+      <a href="login.html">Log In</a>
+    </div>
+  </div>
+</footer>
+
 <script>
-(function(){const nav=document.getElementById('nav'),menu=document.getElementById('menu'),mobile=document.getElementById('mobile');function scroll(){nav.classList.toggle('shrink',window.scrollY>45)}window.addEventListener('scroll',scroll,{passive:true});scroll();menu.addEventListener('click',()=>{const open=mobile.classList.toggle('open');menu.setAttribute('aria-expanded',open)});mobile.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobile.classList.remove('open')));const stored=localStorage.getItem('hanverse_user');if(stored){try{const u=JSON.parse(stored);if(u&&u.user_id){document.getElementById('welcomeName').textContent='Welcome back, '+(u.username||u.full_name||'Learner')+'!';document.getElementById('welcome').classList.add('show');document.getElementById('navActions').innerHTML='<a class="btn" href="profile.html">Profile</a><a class="btn btn-primary" href="learn.html">Continue Learning →</a>'}}catch(e){}}document.querySelectorAll('.answer').forEach(btn=>btn.addEventListener('click',()=>{const result=document.getElementById('result');document.querySelectorAll('.answer').forEach(b=>b.classList.remove('correct','wrong'));if(btn.dataset.correct==='true'){btn.classList.add('correct');result.textContent='🎉 Correct! 你好 means “hello”. +5 XP'}else{btn.classList.add('wrong');result.textContent='Not quite — 你好 means “hello”. Try again!'}}));document.getElementById('audio').addEventListener('click',()=>{if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('你好');u.lang='zh-CN';u.rate=.78;speechSynthesis.speak(u)}});const offline=document.getElementById('offline');function net(){offline.classList.toggle('show',!navigator.onLine)}window.addEventListener('online',net);window.addEventListener('offline',net);net()})();
+(function(){
+  'use strict';
+
+  const routeLoading = document.getElementById('routeLoading');
+
+  /*
+    AUTH / ROLE ROUTING
+    -------------------
+    The backend endpoint below must return the currently authenticated user.
+    Expected shape (examples):
+      { authenticated:true, role:"student" }
+      { user:{ role:"parent" } }
+      { role:"admin" }
+
+    If the endpoint is unavailable or returns no authenticated session,
+    the visitor stays on the public homepage.
+
+    IMPORTANT:
+    We deliberately do NOT use localStorage to decide a user's role.
+  */
+  async function getAuthenticatedUser(){
+    const endpoints = [
+      '/api/auth/me',
+      '/api/me',
+      '/api/user/me'
+    ];
+
+    for(const endpoint of endpoints){
+      try{
+        const response = await fetch(endpoint, {
+          method:'GET',
+          credentials:'include',
+          headers:{'Accept':'application/json'},
+          cache:'no-store'
+        });
+
+        if(!response.ok) continue;
+
+        const data = await response.json();
+
+        if(data && data.authenticated === false) return null;
+
+        const user = data && data.user ? data.user : data;
+        if(user && (user.role || user.user_role || user.account_type)){
+          return user;
+        }
+      }catch(error){
+        // A missing auth endpoint should never break the public homepage.
+      }
+    }
+
+    return null;
+  }
+
+  function roleOf(user){
+    return String(
+      user.role ||
+      user.user_role ||
+      user.account_type ||
+      ''
+    ).trim().toLowerCase();
+  }
+
+  function destinationFor(role){
+    if(['student','learner'].includes(role)) return 'campus/dashboard.html';
+    if(['parent','guardian'].includes(role)) return 'parent.html';
+    if(['admin','administrator'].includes(role)) return 'admin.html';
+    return null;
+  }
+
+  async function routeAuthenticatedUser(){
+    try{
+      const user = await getAuthenticatedUser();
+      if(!user) return;
+
+      const destination = destinationFor(roleOf(user));
+      if(!destination) return;
+
+      routeLoading.classList.add('show');
+      routeLoading.setAttribute('aria-hidden','false');
+      window.location.replace(destination);
+    }catch(error){
+      // Fail open to the public homepage.
+      routeLoading.classList.remove('show');
+      routeLoading.setAttribute('aria-hidden','true');
+    }
+  }
+
+  routeAuthenticatedUser();
+
+  document.querySelectorAll('.answer').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      const result = document.getElementById('result');
+      document.querySelectorAll('.answer').forEach(function(b){
+        b.classList.remove('correct','wrong');
+      });
+
+      if(btn.dataset.correct === 'true'){
+        btn.classList.add('correct');
+        result.textContent = '🎉 Correct! 你好 means “hello”. +5 XP';
+      }else{
+        btn.classList.add('wrong');
+        result.textContent = 'Not quite — 你好 means “hello”. Try again!';
+      }
+    });
+  });
+
+  document.getElementById('audio').addEventListener('click',function(){
+    if('speechSynthesis' in window){
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance('你好');
+      utterance.lang = 'zh-CN';
+      utterance.rate = .78;
+      speechSynthesis.speak(utterance);
+    }
+  });
+
+  /*
+    Only show the offline message after the browser actually reports offline.
+    No banner is shown simply because an API request failed.
+  */
+  const offline = document.getElementById('offline');
+
+  function networkState(){
+    offline.classList.toggle('show', !navigator.onLine);
+  }
+
+  window.addEventListener('online', networkState);
+  window.addEventListener('offline', networkState);
+  networkState();
+
+  // Smooth reveal animations for below-the-fold sections.
+  const revealItems = document.querySelectorAll('.reveal-ready');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        obs.unobserve(entry.target);
+      });
+    }, {threshold:.12, rootMargin:'0px 0px -40px 0px'});
+    revealItems.forEach(item => observer.observe(item));
+  } else {
+    revealItems.forEach(item => item.classList.add('is-visible'));
+  }
+
+})();
 </script>
+
 <script src="nav-user.js"></script>
+
+<script>
+  /* HanVerse public navbar */
+  (() => {
+    const navbar = document.getElementById("hvNavbar");
+    const menuButton = document.getElementById("hvMenuButton");
+    const mobileMenu = document.getElementById("hvMobileMenu");
+
+    if (!navbar || !menuButton || !mobileMenu) return;
+
+    const updateNavbar = () => {
+      navbar.classList.toggle("is-scrolled", window.scrollY > 40);
+    };
+
+    updateNavbar();
+    window.addEventListener("scroll", updateNavbar, { passive: true });
+
+    menuButton.addEventListener("click", () => {
+      const open = mobileMenu.classList.toggle("is-open");
+      menuButton.setAttribute("aria-expanded", String(open));
+      menuButton.setAttribute(
+        "aria-label",
+        open ? "Close navigation" : "Open navigation"
+      );
+    });
+
+    mobileMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        mobileMenu.classList.remove("is-open");
+        menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "Open navigation");
+      });
+    });
+  })();
+</script>
+
 </body>
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> 33ac36c3564dd1d3c745e95e33347a4625bc5d5f
