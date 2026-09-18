@@ -4090,9 +4090,46 @@ body::before{
     .leaderboard-panel{top:76px}
 }
 
+
+/* COMMUNITY UX ENHANCEMENTS */
+html{
+    scroll-behavior:smooth;
+}
+.lesson-content,
+.lesson-card,
+.slide-container,
+.lesson-body{
+    scroll-margin-top:96px;
+}
+.community-live{
+    transition:transform .2s ease, box-shadow .2s ease;
+}
+.community-live:hover{
+    transform:translateY(-1px);
+}
+.community-event{
+    animation:communityEventIn .28s ease both;
+}
+@keyframes communityEventIn{
+    from{opacity:0;transform:translateY(4px)}
+    to{opacity:1;transform:translateY(0)}
+}
+
+
+/* ============================================================
+   LESSON NAVIGATION
+   Do not let dynamic slide rendering force the document
+   back to the top. Next/Previous deliberately preserve the
+   learner's current reading position.
+   ============================================================ */
+#content {
+    overflow-anchor: none;
+}
+
 </style>
 
-<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous">
+</script>
 </head>
 
 
@@ -4337,15 +4374,14 @@ body::before{
         <span id="liveText">Connecting to your learning community…</span>
         <span class="live-spacer"></span>
         <strong id="onlineCount">0 online</strong>
-        <button class="live-leaderboard" id="leaderboardBtn" type="button">🏆 Class</button>
     </section>
 
-    <section class="community-live" id="communityLive" aria-label="HanVerse Learning Community">
+    <section class="community-live" id="communityLive" aria-label="Learning Community">
         <div class="community-head">
             <div class="community-icon">🌍</div>
             <div>
-                <div class="community-title">HanVerse Learning Community</div>
-                <div class="community-sub" id="communitySub">Learners studying this lesson right now</div>
+                <div class="community-title">Learning Community</div>
+                <div class="community-sub" id="communitySub">Learners learning with you right now</div>
             </div>
             <div class="community-count" id="communityCount">0 online</div>
         </div>
@@ -4496,14 +4532,6 @@ body::before{
     </div>
 </div>
 
-<aside class="leaderboard-panel" id="leaderboardPanel" aria-label="Class leaderboard">
-    <h3>🏆 Class leaderboard</h3>
-    <div class="leaderboard-sub" id="leaderboardSub">Live updates from your class</div>
-    <div id="leaderboardRows"></div>
-</aside>
-
-
-
 <script>
 
 "use strict";
@@ -4548,7 +4576,6 @@ const state = {
         socket:null,
         connected:false,
         online:0,
-        leaderboard:[]
     }
 
 };
@@ -7722,6 +7749,13 @@ function bind(){
    NEXT
    ========================================================= */
 
+
+/* =========================================================
+   NAVIGATION UX
+   Next/Previous change the lesson activity without scrolling.
+   This keeps the learner's reading position intact.
+   ========================================================= */
+
 function next(){
 
     const slide =
@@ -7774,18 +7808,7 @@ function next(){
 
 
         render();
-
-
-        window.scrollTo({
-
-            top:0,
-
-            behavior:"smooth"
-
-        });
-
-
-        return;
+return;
 
     }
 
@@ -7810,17 +7833,7 @@ function back(){
 
 
         render();
-
-
-        window.scrollTo({
-
-            top:0,
-
-            behavior:"smooth"
-
-        });
-
-    }
+}
 
 }
 
@@ -7864,16 +7877,6 @@ function redoTest(){
     pandaReact(
         "quiz"
     );
-
-
-    window.scrollTo({
-
-        top:0,
-
-        behavior:"smooth"
-
-    });
-
 }
 
 
@@ -8351,26 +8354,6 @@ function addCommunityActivity(item){
     renderCommunityFeed(state.live.communityActivities);
 }
 
-function renderLeaderboard(){
-    const rows = $("leaderboardRows");
-    if(!rows) return;
-    const data = Array.isArray(state.live.leaderboard) ? state.live.leaderboard : [];
-    if(!data.length){
-        rows.innerHTML = '<div class="leaderboard-sub">No live class scores yet.</div>';
-        return;
-    }
-    rows.innerHTML = data.slice(0,8).map((learner,i)=>{
-        const id = uid(learner);
-        const mine = id && uid(state.user) && id === uid(state.user);
-        const name = learner.name || learner.username || learner.full_name || "Learner";
-        const xp = Number(learner.xp ?? learner.score ?? 0);
-        return `<div class="leader-row ${mine ? "live-me" : ""}">
-            <span class="leader-rank">#${i+1}</span>
-            <span>${esc(name)}${mine ? " (you)" : ""}</span>
-            <span class="leader-xp">${xp} XP</span>
-        </div>`;
-    }).join("");
-}
 
 function updateOnline(count){
     state.live.communityActivities =
@@ -8524,10 +8507,7 @@ function initLiveSync(){
             /*
                Ask for the current leaderboard as soon as we connect.
             */
-            socket.emit(
-                "leaderboard:request"
-            );
-        });
+});
 
         socket.on("disconnect",()=>{
             state.live.connected = false;
@@ -8591,17 +8571,7 @@ function initLiveSync(){
             state.live.communityActivities = items.slice(0,10);
             renderCommunityFeed(state.live.communityActivities);
         });
-
-        socket.on("leaderboard:update",(payload)=>{
-            const list =
-                Array.isArray(payload)
-                    ? payload
-                    : (
-                        payload?.leaderboard ||
-                        []
-                    );
-
-            state.live.leaderboard = list;
+state.live.leaderboard = list;
 
             renderLeaderboard();
         });
@@ -8780,10 +8750,8 @@ function initCompleteModal(){
             state.live.socket &&
             state.live.connected
         ){
-            state.live.socket.emit(
-                "leaderboard:request"
-            );
-        }
+            state.live.
+}
     });
 }
 
@@ -8964,8 +8932,7 @@ document.addEventListener(
 
         if(event.key === "Escape"){
             closeCompleteModal();
-            $("leaderboardPanel")?.classList.remove("open");
-            return;
+return;
         }
 
 
@@ -9016,6 +8983,7 @@ window.addEventListener(
 
 init();
 
+/* Navigation is handled directly by next() and back(); no global scroll handler. */
 </script>
 
 </body>
