@@ -6018,11 +6018,11 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
     const user = result.rows[0];
     const fullName = user.full_name || user.username || 'User';
 
-   const html = getHanVerseEmailHTML({
+const html = getHanVerseEmailHTML({
   subject: String(subject).trim(),
   message: String(message).trim(),
   recipientName: user.full_name || user.username || 'HanVerse Friend',
-  senderName: admin.full_name || admin.username || 'HanVerse Team',
+  senderName: 'HanVerse Team',
   preheader: String(subject).trim()
 });
 

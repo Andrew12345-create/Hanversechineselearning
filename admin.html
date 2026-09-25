@@ -1,645 +1,4409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#4EA8DE">
-<title>HanVerse Admin</title>
-<link rel="icon" href="hanverse-logo2.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{
-  --blue:#4EA8DE;--blue-dark:#247FBA;--blue-deep:#17679B;--blue-soft:#EAF6FD;
-  --red:#E63946;--yellow:#F4D35E;--green:#74C69D;
-  --navy:#10213B;--ink:#1E293B;--muted:#64748B;--line:#E4EAF0;
-  --bg:#F5F8FB;--surface:#FFF;--surface-2:#F8FAFC;
-  --danger:#DC3545;--danger-soft:#FFF0F2;--warning:#B77900;--warning-soft:#FFF8DF;
-  --success:#16845B;--success-soft:#EAF8F1;
-  --shadow:0 8px 28px rgba(16,33,59,.06);--shadow-lg:0 24px 70px rgba(16,33,59,.16);
-  --radius:18px;--ease:.22s cubic-bezier(.2,.8,.2,1);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.5}
-button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
-.hidden{display:none!important}.muted{color:var(--muted)}
-.app-shell{min-height:100vh;display:flex}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4EA8DE">
+  <title>HanVerse Admin</title>
+  <link rel="icon" href="hanverse-logo2.png">
 
-/* SIDEBAR */
-.sidebar{position:fixed;z-index:100;left:0;top:0;bottom:0;width:252px;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:20px 14px;transition:transform var(--ease),width var(--ease)}
-.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 24px}
-.brand img{width:42px;height:42px;object-fit:contain;border-radius:12px}
-.brand-text strong{display:block;font-family:Poppins;font-size:16px;color:var(--navy);letter-spacing:-.03em}
-.brand-text span{font-size:10px;color:var(--blue);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.nav-label{padding:14px 10px 7px;color:#94A3B8;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-.nav{display:grid;gap:3px}
-.nav-btn{border:0;background:transparent;color:#64748B;width:100%;display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;text-align:left;font-size:12px;font-weight:700;transition:all var(--ease)}
-.nav-btn .nav-icon{width:22px;text-align:center;font-size:15px}
-.nav-btn:hover{background:#F5F9FC;color:var(--navy);transform:translateX(2px)}
-.nav-btn.active{background:var(--blue-soft);color:var(--blue-deep)}
-.nav-btn.active .nav-icon{transform:scale(1.05)}
-.sidebar-bottom{margin-top:auto}
-.admin-card{background:linear-gradient(145deg,#F4FAFE,#fff);border:1px solid #DDECF5;border-radius:14px;padding:11px}
-.admin-card-top{display:flex;align-items:center;gap:9px}
-.admin-avatar{width:32px;height:32px;border-radius:10px;background:var(--blue-soft);display:grid;place-items:center;font-size:15px}
-.admin-card strong{font-size:11px;color:var(--navy);display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.admin-card small{font-size:9px;color:var(--muted)}
-.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#20B26B;margin-right:4px}
-.sidebar-logout{width:100%;margin-top:8px}
+  <style>
+    :root {
+      --blue: #4EA8DE;
+      --blue-dark: #2E8BC5;
+      --blue-deep: #17679B;
+      --blue-soft: #EAF6FD;
 
-/* MAIN */
-.main{margin-left:252px;width:calc(100% - 252px);min-width:0}
-.topbar{height:72px;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:12px;position:sticky;top:0;z-index:80}
-.mobile-menu{display:none}
-.page-title{min-width:0}.page-title h1{font-family:Poppins;font-size:17px;color:var(--navy);letter-spacing:-.035em}.page-title p{font-size:10px;color:var(--muted);margin-top:1px}
-.top-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
-.btn{min-height:37px;border:1px solid #DCE4EC;background:#fff;color:var(--ink);border-radius:10px;padding:8px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:11px;font-weight:800;transition:all var(--ease);white-space:nowrap}
-.btn:hover{transform:translateY(-1px);border-color:#C5D1DC;box-shadow:0 7px 18px rgba(16,33,59,.08)}
-.btn:active{transform:scale(.98)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-dark);border-color:var(--blue-dark)}
-.btn-soft{background:var(--blue-soft);border-color:#C9E7F7;color:var(--blue-deep)}
-.btn-green{background:var(--success-soft);border-color:#BFE8D2;color:var(--success)}
-.btn-danger{background:var(--danger-soft);border-color:#FFD0D6;color:#B42332}
-.btn-sm{min-height:32px;padding:6px 9px;font-size:10px}
-.content{max-width:1500px;margin:auto;padding:25px 28px 60px}
+      --red: #E63946;
+      --yellow: #F4D35E;
+      --green: #74C69D;
 
-/* SECTIONS */
-.section{display:none;animation:pageIn .32s ease both}.section.active{display:block}
-@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin-bottom:18px}
-.section-head h2{font-family:Poppins;color:var(--navy);font-size:22px;letter-spacing:-.045em}
-.section-head p{color:var(--muted);font-size:11px;margin-top:3px}
-.head-actions{display:flex;gap:7px;flex-wrap:wrap}
+      --navy: #10213B;
+      --ink: #243447;
+      --muted: #64748B;
+      --line: #E2E8F0;
+      --bg: #F5F8FB;
+      --white: #FFFFFF;
 
-/* METRICS */
-.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.metric{position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow);transition:all var(--ease)}
-.metric:hover{transform:translateY(-2px);box-shadow:0 15px 35px rgba(16,33,59,.09)}
-.metric::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue)}
-.metric:nth-child(2)::before{background:var(--green)}.metric:nth-child(3)::before{background:var(--yellow)}.metric:nth-child(4)::before{background:var(--red)}
-.metric-top{display:flex;justify-content:space-between;align-items:center}
-.metric-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:var(--muted)}
-.metric-icon{width:30px;height:30px;border-radius:9px;background:var(--blue-soft);display:grid;place-items:center;font-size:14px}
-.metric strong{display:block;font-family:Poppins;font-size:25px;color:var(--navy);margin-top:8px;letter-spacing:-.05em}
-.metric small{display:block;color:#94A3B8;font-size:9px;margin-top:2px}
+      --success-bg: #ECFDF5;
+      --success-text: #15803D;
+      --warning-bg: #FFFBEB;
+      --warning-text: #A16207;
+      --danger-bg: #FEF2F2;
+      --danger-text: #B91C1C;
+      --purple-bg: #FAF5FF;
+      --purple-text: #7E22CE;
 
-/* PANELS */
-.grid-2{display:grid;grid-template-columns:1.35fr .8fr;gap:13px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
-.panel{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow);overflow:hidden}
-.panel-head{min-height:55px;padding:13px 16px;border-bottom:1px solid #EDF1F5;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.panel-head h3{font-family:Poppins;font-size:12px;color:var(--navy)}
-.panel-head small{font-size:9px;color:var(--muted)}
-.panel-body{padding:15px}
-.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.quick{min-height:72px;border:1px solid var(--line);background:#FAFCFE;border-radius:12px;padding:11px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:3px;transition:all var(--ease)}
-.quick:hover{border-color:#BBDFF2;background:var(--blue-soft);transform:translateY(-2px)}
-.quick b{font-size:11px;color:var(--navy)}.quick span{font-size:9px;color:var(--muted)}
-.activity-list{display:grid;gap:10px}.activity{display:flex;gap:9px;align-items:flex-start}
-.activity-icon{width:28px;height:28px;border-radius:9px;background:var(--blue-soft);display:grid;place-items:center;font-size:12px;flex:0 0 auto}
-.activity b{font-size:10px;color:var(--navy);display:block}.activity span{font-size:9px;color:var(--muted);display:block;margin-top:1px}
-.safety{display:grid;gap:8px}.safety-row{padding:10px 11px;border-radius:10px;background:#FAFCFE;border:1px solid #EDF2F6;font-size:9px;color:#475569}.safety-row strong{color:var(--navy)}
+      --shadow: 0 8px 28px rgba(16, 33, 59, 0.07);
+      --shadow-lg: 0 24px 70px rgba(16, 33, 59, 0.16);
+      --radius: 18px;
+      --ease: 0.22s cubic-bezier(.2,.8,.2,1);
+    }
 
-/* CHART */
-.chart-wrap{height:235px;position:relative}.chart{width:100%;height:100%;display:block}
-.chart-legend{display:flex;gap:14px;margin-top:5px}.legend{font-size:9px;color:var(--muted);display:flex;align-items:center;gap:5px}.legend i{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* TOOLBAR / TABLE */
-.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:13px}
-.search{position:relative;flex:1;min-width:230px}.search span{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#94A3B8;font-size:13px}.input,.select,.textarea{width:100%;border:1px solid #D8E1E9;background:#fff;color:var(--ink);border-radius:10px;padding:9px 11px;outline:0;font-size:11px;transition:all var(--ease)}
-.search .input{padding-left:32px}.input:focus,.select:focus,.textarea:focus{border-color:#8CCBEA;box-shadow:0 0 0 3px rgba(78,168,222,.12)}
-.textarea{min-height:120px;resize:vertical}.field{margin-bottom:12px}.field label{display:block;font-size:9px;font-weight:800;color:#475569;margin-bottom:5px}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}
-table{width:100%;border-collapse:collapse;min-width:760px}
-th{background:#F8FAFC;color:#64748B;text-transform:uppercase;letter-spacing:.06em;font-size:8px;text-align:left;padding:10px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:10px 11px;border-bottom:1px solid #EEF2F5;font-size:10px;vertical-align:middle}
-tr:last-child td{border-bottom:0}tbody tr{transition:background var(--ease)}tbody tr:hover{background:#FBFDFF}
-.user-cell{display:flex;align-items:center;gap:9px;min-width:190px}.avatar{width:34px;height:34px;border-radius:10px;background:#EFF7FC;display:grid;place-items:center;font-size:15px;flex:0 0 auto}.user-cell strong{display:block;color:var(--navy);font-size:10px}.user-cell small{display:block;color:var(--muted);font-size:8px;margin-top:1px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 7px;font-size:8px;font-weight:800;white-space:nowrap;background:#F1F5F9;color:#475569}
-.pill.blue{background:var(--blue-soft);color:var(--blue-deep)}.pill.green{background:var(--success-soft);color:var(--success)}.pill.yellow{background:var(--warning-soft);color:var(--warning)}.pill.red{background:var(--danger-soft);color:#B42332}.pill.purple{background:#F7F0FF;color:#7E22CE}
-.row-actions{display:flex;gap:4px;flex-wrap:wrap}.empty{padding:40px 15px;text-align:center;color:var(--muted);font-size:10px;border:1px dashed #CBD5E1;border-radius:12px;background:#FBFDFF}
-.filter.active{background:var(--blue);border-color:var(--blue);color:#fff}
+    html { scroll-behavior: smooth; }
 
-/* LESSONS */
-.lesson-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.lesson-card{border:1px solid var(--line);border-radius:15px;background:#fff;overflow:hidden;box-shadow:0 5px 17px rgba(16,33,59,.045);transition:all var(--ease)}
-.lesson-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(16,33,59,.09)}
-.lesson-cover{height:135px;background:linear-gradient(135deg,#EAF6FD,#F2FBF7);position:relative;display:grid;place-items:center;font-size:42px;overflow:hidden}
-.lesson-cover img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}.lesson-card:hover .lesson-cover img{transform:scale(1.04)}
-.lesson-badge{position:absolute;top:9px;left:9px;background:rgba(16,33,59,.78);color:#fff;border-radius:7px;padding:4px 6px;font-size:8px;font-weight:800}.lesson-status{position:absolute;top:9px;right:9px}
-.lesson-body{padding:13px}.lesson-body h3{font-family:Poppins;color:var(--navy);font-size:12px}.lesson-body p{font-size:9px;color:var(--muted);min-height:30px;margin:5px 0 10px}
-.lesson-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+    body {
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 0 0, rgba(78,168,222,.11), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
 
-/* ANALYTICS */
-.analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.analytics-card{border:1px solid var(--line);border-radius:14px;padding:13px;background:linear-gradient(145deg,#fff,#F7FBFE)}.analytics-card span{font-size:8px;color:var(--muted);font-weight:800}.analytics-card strong{display:block;font-family:Poppins;color:var(--navy);font-size:20px;margin-top:5px}.analytics-card small{font-size:8px;color:#94A3B8}
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    img { max-width: 100%; }
+    .hidden { display: none !important; }
 
-/* COMMUNICATIONS */
-.communication-banner{padding:18px;border:1px solid #CDE7F5;background:linear-gradient(135deg,#EDF8FE,#fff);border-radius:15px;display:flex;align-items:center;gap:13px;margin-bottom:12px}
-.comm-icon{width:46px;height:46px;border-radius:13px;background:#fff;border:1px solid #D9EDF8;display:grid;place-items:center;font-size:21px;box-shadow:0 5px 14px rgba(78,168,222,.1)}
-.communication-banner strong{font-family:Poppins;font-size:13px;color:var(--navy)}.communication-banner p{font-size:9px;color:var(--muted);margin-top:2px}
-.comm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}.comm-stat{padding:13px;border:1px solid var(--line);border-radius:12px}.comm-stat span{font-size:8px;color:var(--muted)}.comm-stat strong{display:block;font-family:Poppins;font-size:19px;color:var(--navy);margin-top:4px}
-.campaign-list{display:grid;gap:7px}.campaign-row{display:grid;grid-template-columns:minmax(0,1fr) 100px 145px auto;gap:10px;align-items:center;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:#fff}.campaign-row strong{font-size:9px;color:var(--navy)}.campaign-row small{display:block;font-size:8px;color:var(--muted);margin-top:2px}.campaign-status{text-transform:capitalize;font-size:8px;font-weight:800}
+    /* ---------- AUTH ---------- */
 
-/* PANDA */
-.panda-shell{display:grid;grid-template-columns:1fr 290px;gap:13px}.chat-panel{min-height:520px;display:flex;flex-direction:column}.chat-messages{flex:1;min-height:420px;padding:16px;background:#FBFDFF;overflow:auto}.msg{display:flex;gap:8px;margin-bottom:12px}.msg.me{justify-content:flex-end}.bubble{max-width:75%;padding:9px 11px;border-radius:12px;background:#F0F4F8;color:var(--ink);font-size:10px;white-space:pre-wrap}.msg.me .bubble{background:var(--blue-soft);color:var(--blue-deep)}.chat-foot{padding:10px;border-top:1px solid var(--line);display:flex;gap:7px}.chat-foot .input{flex:1}.panda-side{display:grid;gap:13px;align-content:start}.panda-hero{padding:20px;text-align:center;background:linear-gradient(145deg,#EAF6FD,#fff);border:1px solid #CDE7F5;border-radius:17px}.panda-hero .panda{font-size:65px;animation:float 3s ease-in-out infinite}.panda-hero h3{font-family:Poppins;color:var(--navy);font-size:15px}.panda-hero p{font-size:9px;color:var(--muted);margin-top:4px}.prompt-list{display:grid;gap:6px}.prompt{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;font-size:9px;color:#475569;text-align:left}.prompt:hover{border-color:#BBDFF2;background:var(--blue-soft)}
-@keyframes float{50%{transform:translateY(-5px)}}
+    .auth-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
 
-/* MODALS */
-.modal{position:fixed;inset:0;background:rgba(16,33,59,.48);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;pointer-events:none;transition:all .2s ease}.modal.open{opacity:1;visibility:visible;pointer-events:auto}
-.dialog{width:min(720px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:19px;border:1px solid #E0E7EF;box-shadow:var(--shadow-lg);transform:translateY(12px) scale(.98);transition:transform .25s var(--ease)}.modal.open .dialog{transform:none}
-.dialog-head{position:sticky;top:0;z-index:2;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);padding:14px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.dialog-head h2{font-family:Poppins;font-size:14px;color:var(--navy)}.close{border:0;background:#F1F5F9;width:31px;height:31px;border-radius:9px;color:#64748B;font-size:15px}.close:hover{background:#E2E8F0}
-.dialog-body{padding:17px}.dialog-foot{position:sticky;bottom:0;padding:12px 17px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:7px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.full{grid-column:1/-1}
-.audience-grid,.timing-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.choice{border:1px solid #DDE5EC;border-radius:10px;padding:9px;font-size:9px;font-weight:700;color:#475569;display:flex;gap:7px;align-items:center;background:#fff}.choice:has(input:checked){border-color:#8CCBEA;background:var(--blue-soft);color:var(--blue-deep)}
-.composer-grid{display:grid;grid-template-columns:1fr .8fr;gap:16px}.preview-wrap{position:sticky;top:70px}.preview-label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:9px;font-weight:800;color:#475569}.email-preview{height:500px;width:100%;border:1px solid var(--line);border-radius:12px;background:#fff}.recipient-count{margin-top:8px;padding:9px;background:var(--success-soft);border:1px solid #BFE8D2;color:var(--success);border-radius:10px;font-size:9px;font-weight:800}.confirm-box{padding:11px;border:1px solid var(--line);border-radius:11px;background:#F8FAFC;margin-bottom:13px}.confirm-box strong{font-size:10px;color:var(--navy)}.confirm-box span{display:block;font-size:9px;color:var(--muted);margin-top:3px}
-.media-list{display:grid;gap:6px;margin-top:10px}.media-row{display:grid;grid-template-columns:45px 1fr auto;align-items:center;gap:8px;padding:8px;border:1px solid var(--line);border-radius:9px}.media-thumb{width:45px;height:36px;border-radius:7px;background:#F1F5F9;overflow:hidden;display:grid;place-items:center;font-size:14px}.media-thumb img{width:100%;height:100%;object-fit:cover}
+    .auth-card {
+      width: min(410px, 100%);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+    }
 
-/* AUTH */
-.auth-screen{min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 0,#EAF6FD,transparent 32rem),var(--bg);padding:20px}.auth-box{width:min(410px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:var(--shadow-lg)}.auth-logo{text-align:center;margin-bottom:22px}.auth-logo img{width:65px;height:65px;object-fit:contain;border-radius:17px}.auth-logo h1{font-family:Poppins;font-size:20px;color:var(--navy);margin-top:9px}.auth-logo p{font-size:9px;color:var(--muted);margin-top:2px}.error{font-size:9px;color:#B42332;margin:7px 0}.auth-lock{width:100%;margin-top:4px}
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
 
-/* TOAST / LOADING */
-#toastStack{position:fixed;right:20px;top:84px;z-index:1000;display:grid;gap:7px}.toast{min-width:240px;max-width:360px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);box-shadow:var(--shadow-lg);border-radius:11px;padding:10px 12px;font-size:9px;font-weight:800;animation:toastIn .25s ease both}.toast.error{border-left-color:var(--red)}.toast.ok{border-left-color:var(--green)}
-@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-.skeleton{background:linear-gradient(90deg,#F1F5F8 25%,#E8EEF2 50%,#F1F5F8 75%);background-size:200% 100%;animation:shimmer 1.3s infinite;border-radius:7px}@keyframes shimmer{to{background-position:-200% 0}}
-.spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .auth-logo img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      border-radius: 18px;
+    }
 
-/* RESPONSIVE */
-@media(max-width:1100px){.sidebar{width:220px}.main{margin-left:220px;width:calc(100% - 220px)}.metric-grid{grid-template-columns:repeat(2,1fr)}.analytics-grid{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:1fr}.panda-shell{grid-template-columns:1fr}.panda-side{grid-template-columns:1fr 1fr}}
-@media(max-width:800px){.sidebar{transform:translateX(-100%);box-shadow:20px 0 50px rgba(16,33,59,.15)}.sidebar.open{transform:none}.main{margin-left:0;width:100%}.mobile-menu{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:17px}.topbar{padding:0 15px}.content{padding:20px 15px 50px}.top-actions .label{display:none}.analytics-grid{grid-template-columns:repeat(2,1fr)}.composer-grid{grid-template-columns:1fr}.preview-wrap{position:static}.email-preview{height:420px}.panda-side{grid-template-columns:1fr}.campaign-row{grid-template-columns:1fr 100px}.campaign-row>:nth-child(3){display:none}}
-@media(max-width:560px){.metric-grid{grid-template-columns:1fr 1fr;gap:8px}.metric{padding:12px}.metric strong{font-size:21px}.section-head{align-items:flex-start;flex-direction:column}.form-grid,.audience-grid,.timing-grid{grid-template-columns:1fr}.full{grid-column:auto}.topbar{height:64px}.page-title h1{font-size:15px}.page-title p{display:none}.head-actions{width:100%}.head-actions .btn{flex:1}.analytics-grid{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr}.quick-grid{grid-template-columns:1fr 1fr}.dialog{max-height:95vh}.chat-messages{min-height:330px}.campaign-row{grid-template-columns:1fr}.campaign-row>:nth-child(2){display:none}#toastStack{left:12px;right:12px;top:70px}.toast{min-width:0;max-width:none}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-</style>
+    .auth-logo h1 {
+      margin-top: 12px;
+      color: var(--navy);
+      font-size: 22px;
+      letter-spacing: -0.04em;
+    }
+
+    .auth-logo p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    /* ---------- APP SHELL ---------- */
+
+    .app {
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 250px;
+      background: var(--white);
+      border-right: 1px solid var(--line);
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform var(--ease);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 9px 23px;
+      text-decoration: none;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    .brand strong {
+      display: block;
+      color: var(--navy);
+      font-size: 16px;
+      letter-spacing: -0.04em;
+    }
+
+    .brand span {
+      color: var(--blue);
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .nav-label {
+      padding: 13px 10px 7px;
+      color: #94A3B8;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .nav {
+      display: grid;
+      gap: 3px;
+    }
+
+    .nav-button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 11px;
+      padding: 10px 11px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 800;
+      transition: all var(--ease);
+    }
+
+    .nav-button:hover {
+      background: #F7FAFC;
+      color: var(--navy);
+      transform: translateX(2px);
+    }
+
+    .nav-button.active {
+      background: var(--blue-soft);
+      color: var(--blue-deep);
+    }
+
+    .nav-icon {
+      width: 22px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .nav-count {
+      margin-left: auto;
+      min-width: 22px;
+      text-align: center;
+      border-radius: 999px;
+      padding: 2px 6px;
+      background: #F1F5F9;
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 900;
+    }
+
+    .nav-button.active .nav-count {
+      background: #D7EEF9;
+      color: var(--blue-deep);
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+    }
+
+    .admin-card {
+      padding: 10px;
+      border: 1px solid #DCEEF8;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #F3FAFE, #FFFFFF);
+    }
+
+    .admin-card-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .admin-avatar {
+      width: 33px;
+      height: 33px;
+      border-radius: 10px;
+      background: var(--blue-soft);
+      display: grid;
+      place-items: center;
+    }
+
+    .admin-card strong {
+      display: block;
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--navy);
+      font-size: 10px;
+    }
+
+    .admin-card small {
+      color: var(--muted);
+      font-size: 8px;
+    }
+
+    .online-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 4px;
+      border-radius: 50%;
+      background: #22C55E;
+    }
+
+    .sidebar-logout {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .main {
+      margin-left: 250px;
+      min-width: 0;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 80;
+      height: 72px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mobile-menu {
+      display: none;
+      width: 35px;
+      height: 35px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #FFFFFF;
+    }
+
+    .top-title h1 {
+      color: var(--navy);
+      font-size: 17px;
+      letter-spacing: -.04em;
+    }
+
+    .top-title p {
+      color: var(--muted);
+      font-size: 9px;
+      margin-top: 1px;
+    }
+
+    .top-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 7px;
+    }
+
+    .content {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 26px 28px 60px;
+    }
+
+    /* ---------- GENERIC UI ---------- */
+
+    .section {
+      display: none;
+      animation: sectionIn .25s ease both;
+    }
+
+    .section.active { display: block; }
+
+    @keyframes sectionIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .section-header h2 {
+      color: var(--navy);
+      font-size: 23px;
+      letter-spacing: -.045em;
+    }
+
+    .section-header p {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 37px;
+      padding: 8px 12px;
+      border: 1px solid #D8E1E9;
+      border-radius: 10px;
+      background: #FFFFFF;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-size: 10px;
+      font-weight: 900;
+      transition: all var(--ease);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: #C2CED9;
+      box-shadow: 0 7px 18px rgba(16,33,59,.08);
+    }
+
+    .btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-dark);
+      border-color: var(--blue-dark);
+    }
+
+    .btn-soft {
+      background: var(--blue-soft);
+      border-color: #C8E6F6;
+      color: var(--blue-deep);
+    }
+
+    .btn-success {
+      background: var(--success-bg);
+      border-color: #BDE8D0;
+      color: var(--success-text);
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      border-color: #F8C8CF;
+      color: var(--danger-text);
+    }
+
+    .btn-sm {
+      min-height: 31px;
+      padding: 6px 9px;
+      font-size: 9px;
+    }
+
+    .panel {
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      min-height: 55px;
+      padding: 13px 16px;
+      border-bottom: 1px solid #EDF1F5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-header h3 {
+      color: var(--navy);
+      font-size: 12px;
+    }
+
+    .panel-header p {
+      color: var(--muted);
+      font-size: 9px;
+      margin-top: 2px;
+    }
+
+    .panel-body { padding: 15px; }
+
+    .input,
+    .select,
+    .textarea {
+      width: 100%;
+      border: 1px solid #D8E1E9;
+      border-radius: 10px;
+      background: #FFFFFF;
+      color: var(--ink);
+      padding: 9px 11px;
+      outline: none;
+      font-size: 10px;
+      transition: border-color var(--ease), box-shadow var(--ease);
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+      border-color: #8CCBEA;
+      box-shadow: 0 0 0 3px rgba(78,168,222,.12);
+    }
+
+    .textarea {
+      min-height: 115px;
+      resize: vertical;
+    }
+
+    .field { margin-bottom: 12px; }
+
+    .field label {
+      display: block;
+      margin-bottom: 5px;
+      color: #475569;
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    .muted { color: var(--muted); }
+
+    .error {
+      min-height: 16px;
+      color: var(--danger-text);
+      font-size: 9px;
+      margin-top: 5px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 7px;
+      background: #F1F5F9;
+      color: #475569;
+      font-size: 8px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .pill.blue { background: var(--blue-soft); color: var(--blue-deep); }
+    .pill.green { background: var(--success-bg); color: var(--success-text); }
+    .pill.yellow { background: var(--warning-bg); color: var(--warning-text); }
+    .pill.red { background: var(--danger-bg); color: var(--danger-text); }
+    .pill.purple { background: var(--purple-bg); color: var(--purple-text); }
+
+    .empty {
+      padding: 40px 15px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed #CBD5E1;
+      border-radius: 12px;
+      background: #FBFDFF;
+      font-size: 10px;
+    }
+
+    .loading {
+      padding: 25px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    /* ---------- DASHBOARD ---------- */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      position: relative;
+      overflow: hidden;
+      padding: 15px;
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--blue);
+    }
+
+    .metric:nth-child(2)::before { background: var(--green); }
+    .metric:nth-child(3)::before { background: var(--yellow); }
+    .metric:nth-child(4)::before { background: var(--red); }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 7px;
+      color: var(--navy);
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -.05em;
+    }
+
+    .metric-note {
+      color: #94A3B8;
+      font-size: 8px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.35fr .85fr;
+      gap: 13px;
+      margin-bottom: 13px;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .quick-action {
+      min-height: 75px;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #FAFCFE;
+      text-align: left;
+      transition: all var(--ease);
+    }
+
+    .quick-action:hover {
+      background: var(--blue-soft);
+      border-color: #B9DFF2;
+      transform: translateY(-2px);
+    }
+
+    .quick-action strong {
+      display: block;
+      color: var(--navy);
+      font-size: 10px;
+    }
+
+    .quick-action span {
+      display: block;
+      color: var(--muted);
+      font-size: 8px;
+      margin-top: 3px;
+    }
+
+    .dashboard-three {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 13px;
+    }
+
+    .snapshot {
+      display: grid;
+      gap: 9px;
+    }
+
+    .snapshot-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .snapshot-icon {
+      width: 29px;
+      height: 29px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: var(--blue-soft);
+      flex: 0 0 auto;
+    }
+
+    .snapshot-row strong {
+      display: block;
+      color: var(--navy);
+      font-size: 9px;
+    }
+
+    .snapshot-row span {
+      display: block;
+      color: var(--muted);
+      font-size: 8px;
+    }
+
+    .safety {
+      display: grid;
+      gap: 7px;
+    }
+
+    .safety-row {
+      padding: 9px 10px;
+      border: 1px solid #EDF2F6;
+      border-radius: 10px;
+      background: #FAFCFE;
+      color: #475569;
+      font-size: 8px;
+    }
+
+    .safety-row strong { color: var(--navy); }
+
+    /* ---------- USERS ---------- */
+
+    .toolbar {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 13px;
+    }
+
+    .search {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .search .input { padding-left: 31px; }
+
+    .filter.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #FFFFFF;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 820px;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 10px 11px;
+      background: #F8FAFC;
+      border-bottom: 1px solid var(--line);
+      color: #64748B;
+      text-align: left;
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    td {
+      padding: 10px 11px;
+      border-bottom: 1px solid #EEF2F5;
+      font-size: 9px;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #FBFDFF; }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 190px;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--blue-soft);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      font-size: 14px;
+    }
+
+    .user-name strong {
+      display: block;
+      color: var(--navy);
+      font-size: 10px;
+    }
+
+    .user-name small {
+      display: block;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 8px;
+    }
+
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    /* ---------- LESSONS ---------- */
+
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .lesson-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #FFFFFF;
+      box-shadow: 0 5px 17px rgba(16,33,59,.05);
+      transition: all var(--ease);
+    }
+
+    .lesson-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 32px rgba(16,33,59,.09);
+    }
+
+    .lesson-cover {
+      height: 135px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #EAF6FD, #F0FBF6);
+      overflow: hidden;
+      font-size: 42px;
+    }
+
+    .lesson-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .lesson-label {
+      position: absolute;
+      top: 9px;
+      left: 9px;
+      padding: 4px 6px;
+      border-radius: 7px;
+      background: rgba(16,33,59,.78);
+      color: #FFFFFF;
+      font-size: 8px;
+      font-weight: 900;
+    }
+
+    .lesson-state {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+    }
+
+    .lesson-body {
+      padding: 13px;
+    }
+
+    .lesson-body h3 {
+      color: var(--navy);
+      font-size: 12px;
+    }
+
+    .lesson-body p {
+      min-height: 32px;
+      margin: 5px 0 10px;
+      color: var(--muted);
+      font-size: 9px;
+    }
+
+    .lesson-meta {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    /* ---------- ANALYTICS ---------- */
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .analytics-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, #FFFFFF, #F8FBFE);
+    }
+
+    .analytics-card span {
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .analytics-card strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--navy);
+      font-size: 21px;
+      letter-spacing: -.04em;
+    }
+
+    .analytics-card small {
+      color: #94A3B8;
+      font-size: 8px;
+    }
+
+    /* ---------- COMMUNICATIONS ---------- */
+
+    .communication-banner {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 13px;
+      padding: 18px;
+      border: 1px solid #CDE7F5;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #EDF8FE, #FFFFFF);
+    }
+
+    .communication-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: #FFFFFF;
+      border: 1px solid #D9EDF8;
+      font-size: 21px;
+    }
+
+    .communication-banner strong {
+      color: var(--navy);
+      font-size: 13px;
+    }
+
+    .communication-banner p {
+      color: var(--muted);
+      font-size: 9px;
+      margin-top: 2px;
+    }
+
+    .communication-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-bottom: 13px;
+    }
+
+    .communication-stat {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #FFFFFF;
+    }
+
+    .communication-stat span {
+      color: var(--muted);
+      font-size: 8px;
+    }
+
+    .communication-stat strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--navy);
+      font-size: 19px;
+    }
+
+    .campaign-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .campaign {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 110px 145px auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #FFFFFF;
+    }
+
+    .campaign strong {
+      color: var(--navy);
+      font-size: 9px;
+    }
+
+    .campaign small {
+      display: block;
+      color: var(--muted);
+      font-size: 8px;
+      margin-top: 2px;
+    }
+
+    .composer-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) minmax(300px,.8fr);
+      gap: 18px;
+    }
+
+    .audience-grid,
+    .timing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .choice {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px;
+      border: 1px solid #DDE5EC;
+      border-radius: 10px;
+      background: #FFFFFF;
+      color: #475569;
+      font-size: 9px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .choice:has(input:checked) {
+      border-color: #8CCBEA;
+      background: var(--blue-soft);
+      color: var(--blue-deep);
+    }
+
+    .recipient-count {
+      margin-top: 8px;
+      padding: 9px;
+      border: 1px solid #BFE8D2;
+      border-radius: 10px;
+      background: var(--success-bg);
+      color: var(--success-text);
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    .schedule-box {
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #FAFCFE;
+    }
+
+    .preview-wrap {
+      position: sticky;
+      top: 86px;
+    }
+
+    .preview-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      color: #475569;
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    .email-preview {
+      width: 100%;
+      height: 510px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #FFFFFF;
+    }
+
+    /* ---------- PANDA ---------- */
+
+    .panda-layout {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 290px;
+      gap: 13px;
+    }
+
+    .panda-chat {
+      display: flex;
+      min-height: 500px;
+      flex-direction: column;
+    }
+
+    .panda-messages {
+      flex: 1;
+      min-height: 400px;
+      padding: 15px;
+      overflow: auto;
+      background: #FBFDFF;
+    }
+
+    .message {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .message.me {
+      justify-content: flex-end;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 9px 11px;
+      border-radius: 12px;
+      background: #F1F5F9;
+      color: var(--ink);
+      font-size: 10px;
+      white-space: pre-wrap;
+    }
+
+    .message.me .bubble {
+      background: var(--blue-soft);
+      color: var(--blue-deep);
+    }
+
+    .panda-footer {
+      display: flex;
+      gap: 7px;
+      padding: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .panda-footer .input { flex: 1; }
+
+    .panda-side {
+      display: grid;
+      gap: 13px;
+      align-content: start;
+    }
+
+    .panda-card {
+      padding: 20px;
+      text-align: center;
+      border: 1px solid #CDE7F5;
+      border-radius: 17px;
+      background: linear-gradient(145deg, #EAF6FD, #FFFFFF);
+    }
+
+    .panda-card .panda {
+      font-size: 62px;
+    }
+
+    .panda-card h3 {
+      margin-top: 5px;
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    .panda-card p {
+      color: var(--muted);
+      font-size: 9px;
+    }
+
+    .prompt-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .prompt {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #FFFFFF;
+      color: #475569;
+      text-align: left;
+      font-size: 9px;
+    }
+
+    .prompt:hover {
+      background: var(--blue-soft);
+      border-color: #B9DFF2;
+    }
+
+    /* ---------- MODALS ---------- */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(16,33,59,.48);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .2s ease, visibility .2s ease;
+    }
+
+    .modal.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .dialog {
+      width: min(760px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      border: 1px solid #E0E7EF;
+      border-radius: 19px;
+      background: #FFFFFF;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(10px) scale(.985);
+      transition: transform .25s var(--ease);
+    }
+
+    .modal.open .dialog {
+      transform: none;
+    }
+
+    .dialog-header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 14px 17px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dialog-header h2 {
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    .close-button {
+      width: 31px;
+      height: 31px;
+      border: 0;
+      border-radius: 9px;
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: 15px;
+    }
+
+    .dialog-body { padding: 17px; }
+
+    .dialog-footer {
+      position: sticky;
+      bottom: 0;
+      padding: 12px 17px;
+      border-top: 1px solid var(--line);
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: flex-end;
+      gap: 7px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 10px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .media-list {
+      margin-top: 10px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .media-row {
+      display: grid;
+      grid-template-columns: 48px minmax(0,1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+
+    .media-thumb {
+      width: 48px;
+      height: 38px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: #F1F5F9;
+    }
+
+    .media-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ---------- TOAST ---------- */
+
+    #toastStack {
+      position: fixed;
+      right: 18px;
+      top: 84px;
+      z-index: 1000;
+      display: grid;
+      gap: 7px;
+    }
+
+    .toast {
+      min-width: 240px;
+      max-width: 360px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--green);
+      border-radius: 11px;
+      background: #FFFFFF;
+      box-shadow: var(--shadow-lg);
+      color: var(--ink);
+      font-size: 9px;
+      font-weight: 800;
+      animation: toastIn .25s ease both;
+    }
+
+    .toast.error { border-left-color: var(--red); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-7px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+
+    @media (max-width: 1100px) {
+      .sidebar { width: 225px; }
+      .main { margin-left: 225px; }
+      .metrics { grid-template-columns: repeat(2,1fr); }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .dashboard-three { grid-template-columns: 1fr 1fr; }
+      .analytics-grid { grid-template-columns: repeat(3,1fr); }
+      .panda-layout { grid-template-columns: 1fr; }
+      .panda-side { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 800px) {
+      .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 20px 0 50px rgba(16,33,59,.15);
+      }
+
+      .sidebar.open { transform: translateX(0); }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .mobile-menu {
+        display: grid;
+        place-items: center;
+      }
+
+      .topbar {
+        padding: 0 15px;
+      }
+
+      .content {
+        padding: 20px 15px 50px;
+      }
+
+      .dashboard-three {
+        grid-template-columns: 1fr;
+      }
+
+      .composer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-wrap {
+        position: static;
+      }
+
+      .email-preview {
+        height: 430px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar { height: 64px; }
+      .top-title p { display: none; }
+      .top-actions .optional-label { display: none; }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-actions { width: 100%; }
+
+      .header-actions .btn {
+        flex: 1;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .metric {
+        padding: 12px;
+      }
+
+      .metric-value {
+        font-size: 21px;
+      }
+
+      .analytics-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .panda-side {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid,
+      .audience-grid,
+      .timing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+
+      .communication-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .campaign {
+        grid-template-columns: 1fr;
+      }
+
+      #toastStack {
+        left: 12px;
+        right: 12px;
+        top: 70px;
+      }
+
+      .toast {
+        min-width: 0;
+        max-width: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
+
 <div id="toastStack" aria-live="polite"></div>
 
-<!-- AUTH -->
-<div id="authScreen" class="auth-screen">
-  <div class="auth-box">
+<!-- ========================= AUTH ========================= -->
+
+<section id="authScreen" class="auth-screen">
+  <div class="auth-card">
     <div class="auth-logo">
       <img src="hanverse-logo2.png" alt="HanVerse">
       <h1>HanVerse Admin</h1>
       <p>Secure administrator workspace</p>
     </div>
+
     <form id="authForm">
       <div class="field">
         <label for="adminPassword">Admin password</label>
-        <input class="input" id="adminPassword" type="password" autocomplete="current-password" required placeholder="Enter your admin password">
+        <input
+          id="adminPassword"
+          class="input"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Enter your admin password"
+          required
+        >
       </div>
+
       <div id="authError" class="error"></div>
-      <button class="btn btn-primary auth-lock" type="submit"><span>🔐</span> Unlock Admin</button>
+
+      <button id="authButton" class="btn btn-primary" type="submit" style="width:100%;">
+        🔐 Unlock Admin
+      </button>
     </form>
   </div>
-</div>
+</section>
 
-<!-- APP -->
-<div id="app" class="hidden">
-  <aside class="sidebar" id="sidebar">
-    <a class="brand" href="index.html">
+<!-- ========================= APP ========================= -->
+
+<div id="app" class="app hidden">
+
+  <aside id="sidebar" class="sidebar">
+
+    <a href="index.html" class="brand">
       <img src="hanverse-logo2.png" alt="HanVerse">
-      <div class="brand-text"><strong>HanVerse</strong><span>Admin Studio</span></div>
+      <div>
+        <strong>HanVerse</strong>
+        <span>Admin Studio</span>
+      </div>
     </a>
 
     <div class="nav-label">Overview</div>
     <nav class="nav">
-      <button class="nav-btn active" data-section="dashboard"><span class="nav-icon">⌂</span>Dashboard</button>
-      <button class="nav-btn" data-section="analytics"><span class="nav-icon">⌁</span>Analytics</button>
+      <button class="nav-button active" data-section="dashboard">
+        <span class="nav-icon">⌂</span>
+        Dashboard
+      </button>
+
+      <button class="nav-button" data-section="analytics">
+        <span class="nav-icon">⌁</span>
+        Analytics
+      </button>
     </nav>
 
     <div class="nav-label">People</div>
     <nav class="nav">
-      <button class="nav-btn" data-section="users"><span class="nav-icon">♙</span>Users <span class="pill blue" style="margin-left:auto" id="userBadge">0</span></button>
+      <button class="nav-button" data-section="users">
+        <span class="nav-icon">♙</span>
+        Users
+        <span id="userCount" class="nav-count">0</span>
+      </button>
     </nav>
 
     <div class="nav-label">Learning</div>
     <nav class="nav">
-      <button class="nav-btn" data-section="lessons"><span class="nav-icon">▤</span>Lessons <span class="pill blue" style="margin-left:auto" id="lessonBadge">0</span></button>
+      <button class="nav-button" data-section="lessons">
+        <span class="nav-icon">▤</span>
+        Lessons
+        <span id="lessonCount" class="nav-count">0</span>
+      </button>
     </nav>
 
     <div class="nav-label">Communications</div>
     <nav class="nav">
-      <button class="nav-btn" data-section="communications"><span class="nav-icon">✦</span>Broadcasts</button>
+      <button class="nav-button" data-section="communications">
+        <span class="nav-icon">✦</span>
+        Broadcasts
+      </button>
     </nav>
 
     <div class="nav-label">HanVerse AI</div>
     <nav class="nav">
-      <button class="nav-btn" data-section="panda"><span class="nav-icon">🐼</span>Panda</button>
+      <button class="nav-button" data-section="panda">
+        <span class="nav-icon">🐼</span>
+        Panda
+      </button>
     </nav>
 
     <div class="sidebar-bottom">
       <div class="admin-card">
-        <div class="admin-card-top">
+        <div class="admin-card-row">
           <div class="admin-avatar">🛡️</div>
-          <div><strong id="sideAdminName">Administrator</strong><small><span class="status-dot"></span>Admin session active</small></div>
+          <div>
+            <strong id="sidebarAdminName">Administrator</strong>
+            <small><span class="online-dot"></span>Admin session active</small>
+          </div>
         </div>
       </div>
-      <button class="btn sidebar-logout" id="logoutBtn">↪ Log out</button>
+
+      <button id="logoutButton" class="btn sidebar-logout">
+        ↪ Log out
+      </button>
     </div>
   </aside>
 
   <div class="main">
+
     <header class="topbar">
-      <button class="mobile-menu" id="mobileMenu">☰</button>
-      <div class="page-title"><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Your HanVerse command centre</p></div>
+      <button id="mobileMenu" class="mobile-menu" aria-label="Open navigation">☰</button>
+
+      <div class="top-title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle">Your HanVerse command centre</p>
+      </div>
+
       <div class="top-actions">
-        <button class="btn" id="refreshBtn">↻ <span class="label">Refresh</span></button>
-        <button class="btn btn-soft" id="topBroadcast">✦ <span class="label">Broadcast</span></button>
-        <button class="btn btn-primary" id="topNewUser">＋ <span class="label">New user</span></button>
+        <button id="refreshButton" class="btn btn-sm">
+          ↻ <span class="optional-label">Refresh</span>
+        </button>
+
+        <button id="broadcastTopButton" class="btn btn-soft btn-sm">
+          ✦ <span class="optional-label">Broadcast</span>
+        </button>
       </div>
     </header>
 
     <main class="content">
 
-      <!-- DASHBOARD -->
+      <!-- ================= DASHBOARD ================= -->
+
       <section id="dashboardSection" class="section active">
-        <div class="section-head">
-          <div><h2>Good morning 👋</h2><p>Here’s what’s happening across HanVerse.</p></div>
-          <div class="head-actions"><button class="btn btn-soft" id="dashNewLesson">＋ New lesson</button></div>
+
+        <div class="section-header">
+          <div>
+            <h2>Good morning 👋</h2>
+            <p>Here’s what is happening across HanVerse.</p>
+          </div>
+
+          <div class="header-actions">
+            <button id="dashboardLessonButton" class="btn btn-primary btn-sm">＋ New lesson</button>
+          </div>
         </div>
 
-        <div class="metric-grid">
-          <div class="metric"><div class="metric-top"><span class="metric-label">Total users</span><span class="metric-icon">♙</span></div><strong id="totalUsers">—</strong><small>All registered accounts</small></div>
-          <div class="metric"><div class="metric-top"><span class="metric-label">Active today</span><span class="metric-icon">◉</span></div><strong id="dashActive">—</strong><small>Users active in 24h</small></div>
-          <div class="metric"><div class="metric-top"><span class="metric-label">Premium</span><span class="metric-icon">★</span></div><strong id="premiumUsers">—</strong><small id="dashPremiumRate">— conversion rate</small></div>
-          <div class="metric"><div class="metric-top"><span class="metric-label">Lessons</span><span class="metric-icon">▤</span></div><strong id="totalLessons">—</strong><small>Available in the CMS</small></div>
+        <div class="metrics">
+
+          <div class="metric">
+            <span class="metric-label">Total users</span>
+            <strong id="metricUsers" class="metric-value">—</strong>
+            <span class="metric-note">Registered accounts</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric-label">Active today</span>
+            <strong id="metricActive" class="metric-value">—</strong>
+            <span class="metric-note">Last 24 hours</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric-label">Premium</span>
+            <strong id="metricPremium" class="metric-value">—</strong>
+            <span id="metricPremiumRate" class="metric-note">— conversion</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric-label">Lessons</span>
+            <strong id="metricLessons" class="metric-value">—</strong>
+            <span class="metric-note">Learning library</span>
+          </div>
+
         </div>
 
-        <div class="grid-2">
+        <div class="dashboard-grid">
+
           <div class="panel">
-            <div class="panel-head"><div><h3>User growth</h3><small>Recent platform growth</small></div><span class="pill green" id="dashGrowthStatus">Live</span></div>
+            <div class="panel-header">
+              <div>
+                <h3>Platform snapshot</h3>
+                <p>Current HanVerse account health</p>
+              </div>
+              <span class="pill green">Live</span>
+            </div>
+
             <div class="panel-body">
-              <div class="chart-wrap"><canvas id="growthChart" class="chart"></canvas></div>
-              <div class="chart-legend"><span class="legend"><i></i>Registered users</span></div>
+              <div class="snapshot">
+
+                <div class="snapshot-row">
+                  <div class="snapshot-icon">✓</div>
+                  <div>
+                    <strong id="snapshotVerified">—</strong>
+                    <span>Verified accounts</span>
+                  </div>
+                </div>
+
+                <div class="snapshot-row">
+                  <div class="snapshot-icon">⏳</div>
+                  <div>
+                    <strong id="snapshotPending">—</strong>
+                    <span>Pending verification</span>
+                  </div>
+                </div>
+
+                <div class="snapshot-row">
+                  <div class="snapshot-icon">👪</div>
+                  <div>
+                    <strong id="snapshotParents">—</strong>
+                    <span>Parent accounts</span>
+                  </div>
+                </div>
+
+                <div class="snapshot-row">
+                  <div class="snapshot-icon">🚫</div>
+                  <div>
+                    <strong id="snapshotBanned">—</strong>
+                    <span>Banned accounts</span>
+                  </div>
+                </div>
+
+                <div class="snapshot-row">
+                  <div class="snapshot-icon">⚡</div>
+                  <div>
+                    <strong id="snapshotXP">—</strong>
+                    <span>Total XP earned</span>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
+
           <div class="panel">
-            <div class="panel-head"><div><h3>Quick actions</h3><small>Common admin tasks</small></div></div>
+            <div class="panel-header">
+              <div>
+                <h3>Quick actions</h3>
+                <p>Common administrator tasks</p>
+              </div>
+            </div>
+
             <div class="panel-body quick-grid">
-              <button class="quick" id="quickUser"><b>＋ Create user</b><span>Add a student, parent or admin</span></button>
-              <button class="quick" id="quickLesson"><b>▤ New lesson</b><span>Add YCT learning content</span></button>
-              <button class="quick" id="quickBroadcast"><b>✦ Broadcast</b><span>Send a HanVerse announcement</span></button>
-              <button class="quick" id="quickPanda"><b>🐼 Ask Panda</b><span>Get admin assistance</span></button>
+              <button id="quickUsers" class="quick-action">
+                <strong>♙ Manage users</strong>
+                <span>Search and update accounts</span>
+              </button>
+
+              <button id="quickLessons" class="quick-action">
+                <strong>▤ Manage lessons</strong>
+                <span>Edit the learning library</span>
+              </button>
+
+              <button id="quickBroadcast" class="quick-action">
+                <strong>✦ Broadcast</strong>
+                <span>Send a HanVerse email</span>
+              </button>
+
+              <button id="quickPanda" class="quick-action">
+                <strong>🐼 Ask Panda</strong>
+                <span>Get admin assistance</span>
+              </button>
             </div>
           </div>
+
         </div>
 
-        <div class="grid-3" style="margin-top:13px">
+        <div class="dashboard-three">
+
           <div class="panel">
-            <div class="panel-head"><div><h3>Learning snapshot</h3><small>Current learning activity</small></div></div>
-            <div class="panel-body">
-              <div class="activity-list">
-                <div class="activity"><div class="activity-icon">✓</div><div><b id="dashVerified">— verified accounts</b><span>Verified members</span></div></div>
-                <div class="activity"><div class="activity-icon">⚡</div><div><b id="dashXp">— XP</b><span>Total XP earned</span></div></div>
-                <div class="activity"><div class="activity-icon">🔥</div><div><b id="dashStreak">— days</b><span>Average streak</span></div></div>
+            <div class="panel-header">
+              <div>
+                <h3>Learning activity</h3>
+                <p>Current learning indicators</p>
+              </div>
+            </div>
+
+            <div class="panel-body snapshot">
+              <div class="snapshot-row">
+                <div class="snapshot-icon">★</div>
+                <div>
+                  <strong id="learningAverageXP">—</strong>
+                  <span>Average XP</span>
+                </div>
+              </div>
+
+              <div class="snapshot-row">
+                <div class="snapshot-icon">◈</div>
+                <div>
+                  <strong id="learningAverageLevel">—</strong>
+                  <span>Average level</span>
+                </div>
+              </div>
+
+              <div class="snapshot-row">
+                <div class="snapshot-icon">🔥</div>
+                <div>
+                  <strong id="learningAverageStreak">—</strong>
+                  <span>Average streak</span>
+                </div>
               </div>
             </div>
           </div>
+
           <div class="panel">
-            <div class="panel-head"><div><h3>Account health</h3><small>Important account states</small></div></div>
-            <div class="panel-body">
-              <div class="activity-list">
-                <div class="activity"><div class="activity-icon">⏳</div><div><b id="dashUnverified">—</b><span>Pending verification</span></div></div>
-                <div class="activity"><div class="activity-icon">👪</div><div><b id="parentUsers">—</b><span>Parent accounts</span></div></div>
-                <div class="activity"><div class="activity-icon">🚫</div><div><b id="dashBanned">—</b><span>Banned accounts</span></div></div>
+            <div class="panel-header">
+              <div>
+                <h3>Recent growth</h3>
+                <p>New account activity</p>
+              </div>
+            </div>
+
+            <div class="panel-body snapshot">
+              <div class="snapshot-row">
+                <div class="snapshot-icon">●</div>
+                <div>
+                  <strong id="growthToday">—</strong>
+                  <span>New users today</span>
+                </div>
+              </div>
+
+              <div class="snapshot-row">
+                <div class="snapshot-icon">7</div>
+                <div>
+                  <strong id="growthWeek">—</strong>
+                  <span>New users in 7 days</span>
+                </div>
+              </div>
+
+              <div class="snapshot-row">
+                <div class="snapshot-icon">30</div>
+                <div>
+                  <strong id="growthMonth">—</strong>
+                  <span>New users in 30 days</span>
+                </div>
               </div>
             </div>
           </div>
+
           <div class="panel">
-            <div class="panel-head"><div><h3>Admin safety</h3><small>Protection status</small></div></div>
+            <div class="panel-header">
+              <div>
+                <h3>Admin safety</h3>
+                <p>Security controls</p>
+              </div>
+            </div>
+
             <div class="panel-body safety">
               <div class="safety-row"><strong>🟢 Session</strong> · Admin token required</div>
-              <div class="safety-row"><strong>🟢 Authorization</strong> · Server-side protected</div>
-              <div class="safety-row"><strong>🟢 Broadcasts</strong> · Password confirmation</div>
+              <div class="safety-row"><strong>🟢 API</strong> · Server-side authorization</div>
+              <div class="safety-row"><strong>🟢 Email</strong> · Password confirmation</div>
             </div>
           </div>
+
         </div>
+
       </section>
 
-      <!-- USERS -->
+      <!-- ================= USERS ================= -->
+
       <section id="usersSection" class="section">
-        <div class="section-head"><div><h2>Users</h2><p>Manage HanVerse accounts, roles and access.</p></div><div class="head-actions"><button class="btn btn-primary" id="usersNewUser">＋ New user</button></div></div>
+
+        <div class="section-header">
+          <div>
+            <h2>Users</h2>
+            <p>Manage accounts, verification, roles and access.</p>
+          </div>
+        </div>
+
         <div class="panel">
           <div class="panel-body">
+
             <div class="toolbar">
-              <div class="search"><span>⌕</span><input class="input" id="userSearch" placeholder="Search name, username or email"></div>
-              <button class="btn btn-sm filter active" data-filter="all">All</button>
-              <button class="btn btn-sm filter" data-filter="pending">Pending</button>
-              <button class="btn btn-sm filter" data-filter="parents">Parents</button>
-              <button class="btn btn-sm filter" data-filter="premium">Premium</button>
-              <button class="btn btn-sm filter" data-filter="banned">Banned</button>
+              <div class="search">
+                <span class="search-icon">⌕</span>
+                <input id="userSearch" class="input" placeholder="Search name, username or email">
+              </div>
+
+              <button class="btn btn-sm filter active" data-user-filter="all">All</button>
+              <button class="btn btn-sm filter" data-user-filter="pending">Pending</button>
+              <button class="btn btn-sm filter" data-user-filter="parents">Parents</button>
+              <button class="btn btn-sm filter" data-user-filter="premium">Premium</button>
+              <button class="btn btn-sm filter" data-user-filter="banned">Banned</button>
             </div>
-            <div class="table-wrap" id="userTableWrap"><div class="empty">Loading users…</div></div>
+
+            <div id="userTable" class="table-wrap">
+              <div class="loading">Loading users…</div>
+            </div>
+
           </div>
         </div>
+
       </section>
 
-      <!-- LESSONS -->
+      <!-- ================= LESSONS ================= -->
+
       <section id="lessonsSection" class="section">
-        <div class="section-head"><div><h2>Lessons</h2><p>Build and manage the HanVerse learning library.</p></div><div class="head-actions"><button class="btn btn-primary" id="newLessonBtn">＋ New lesson</button></div></div>
-        <div class="panel"><div class="panel-body">
-          <div class="toolbar"><div class="search"><span>⌕</span><input class="input" id="lessonSearch" placeholder="Search lesson title, ID or description"></div><select class="select" id="lessonLevelFilter" style="width:150px"><option value="">All YCT levels</option><option value="1">YCT 1</option><option value="2">YCT 2</option><option value="3">YCT 3</option><option value="4">YCT 4</option></select></div>
-          <div class="lesson-grid" id="lessonGrid"><div class="empty">Loading lessons…</div></div>
-        </div></div>
-      </section>
 
-      <!-- ANALYTICS -->
-      <section id="analyticsSection" class="section">
-        <div class="section-head"><div><h2>Analytics</h2><p>Live platform metrics from the HanVerse Admin API.</p></div><button class="btn btn-soft" id="refreshAnalytics">↻ Refresh analytics</button></div>
-        <div class="panel"><div class="panel-body">
-          <div class="toolbar" style="justify-content:space-between"><div><strong style="font-size:11px;color:var(--navy)">Platform performance</strong><div class="muted" style="font-size:9px">Live metrics from Neon</div></div><span class="pill green" id="analyticsStatus">Ready</span></div>
-          <div class="analytics-grid">
-            <div class="analytics-card"><span>Total users</span><strong id="analyticsUsers">—</strong><small>All accounts</small></div>
-            <div class="analytics-card"><span>Verified</span><strong id="analyticsVerified">—</strong><small>Verified accounts</small></div>
-            <div class="analytics-card"><span>Premium</span><strong id="analyticsPremium">—</strong><small>Premium accounts</small></div>
-            <div class="analytics-card"><span>Parents</span><strong id="analyticsParents">—</strong><small>Parent accounts</small></div>
-            <div class="analytics-card"><span>Students</span><strong id="analyticsStudents">—</strong><small>Student accounts</small></div>
-            <div class="analytics-card"><span>New today</span><strong id="analyticsNewToday">—</strong><small>Created today</small></div>
-            <div class="analytics-card"><span>New this week</span><strong id="analyticsNew7Days">—</strong><small>Last 7 days</small></div>
-            <div class="analytics-card"><span>New this month</span><strong id="analyticsNew30Days">—</strong><small>Last 30 days</small></div>
-            <div class="analytics-card"><span>Active today</span><strong id="analyticsActive24h">—</strong><small>Last 24 hours</small></div>
-            <div class="analytics-card"><span>Active this week</span><strong id="analyticsActive7d">—</strong><small>Last 7 days</small></div>
-            <div class="analytics-card"><span>Active this month</span><strong id="analyticsActive30d">—</strong><small>Last 30 days</small></div>
-            <div class="analytics-card"><span>Total XP</span><strong id="analyticsTotalXP">—</strong><small>Non-banned users</small></div>
-            <div class="analytics-card"><span>Average XP</span><strong id="analyticsAverageXP">—</strong><small>Per user</small></div>
-            <div class="analytics-card"><span>Average level</span><strong id="analyticsAverageLevel">—</strong><small>Current average</small></div>
-            <div class="analytics-card"><span>Average streak</span><strong id="analyticsAverageStreak">—</strong><small>Days</small></div>
-            <div class="analytics-card"><span>Lessons completed</span><strong id="analyticsLessonsCompleted">—</strong><small>Total</small></div>
-            <div class="analytics-card"><span>Achievements</span><strong id="analyticsAchievements">—</strong><small>Total earned</small></div>
+        <div class="section-header">
+          <div>
+            <h2>Lessons</h2>
+            <p>Manage YCT learning content and lesson media.</p>
           </div>
-        </div></div>
-      </section>
 
-      <!-- COMMUNICATIONS -->
-      <section id="communicationsSection" class="section">
-        <div class="section-head"><div><h2>Broadcasts</h2><p>Create, schedule and manage HanVerse email campaigns.</p></div><div class="head-actions"><button class="btn" id="communicationsHistoryBtn">◷ History</button><button class="btn btn-primary" id="communicationsComposeBtn">✦ New broadcast</button></div></div>
-        <div class="communication-banner"><div class="comm-icon">📣</div><div><strong>HanVerse Broadcasts</strong><p>Reach verified users, students, parents, premium members or the wider community.</p></div></div>
-        <div class="comm-stats"><div class="comm-stat"><span>Campaigns loaded</span><strong id="communicationsCampaignCount">—</strong></div><div class="comm-stat"><span>Scheduled</span><strong id="communicationsScheduledCount">—</strong></div><div class="comm-stat"><span>Completed</span><strong id="communicationsCompletedCount">—</strong></div></div>
-        <div class="panel"><div class="panel-head"><div><h3>Recent broadcasts</h3><small>Your latest campaigns</small></div><button class="btn btn-sm" id="communicationsRefreshBtn">↻ Refresh</button></div><div class="panel-body"><div class="campaign-list" id="communicationsRecentList"><div class="empty">Loading communications…</div></div></div></div>
-      </section>
-
-      <!-- PANDA -->
-      <section id="pandaSection" class="section">
-        <div class="section-head"><div><h2>Panda AI</h2><p>Your admin-only HanVerse assistant.</p></div></div>
-        <div class="panda-shell">
-          <div class="panel chat-panel">
-            <div class="panel-head"><div><h3>🐼 Panda workspace</h3><small>Ask about HanVerse administration</small></div><span class="pill blue">Admin only</span></div>
-            <div class="chat-messages" id="adminPandaMessages"><div class="msg"><span>🐼</span><div class="bubble">Hi! I’m Panda. Ask me about HanVerse users, lessons, analytics or admin workflow.</div></div></div>
-            <div class="chat-foot"><input class="input" id="adminPandaInput" placeholder="Ask Panda…" aria-label="Ask Panda"><button class="btn btn-primary" id="adminPandaSend">Ask →</button></div>
-          </div>
-          <div class="panda-side">
-            <div class="panda-hero"><div class="panda">🐼</div><h3>What can I help with?</h3><p>Use Panda for quick admin questions.</p></div>
-            <div class="panel"><div class="panel-head"><h3>Try asking</h3></div><div class="panel-body prompt-list">
-              <button class="prompt" data-prompt="How many users do we have?">How many users do we have?</button>
-              <button class="prompt" data-prompt="How many premium users are there?">How many premium users are there?</button>
-              <button class="prompt" data-prompt="How many lessons are published?">How many lessons are published?</button>
-              <button class="prompt" data-prompt="Give me a quick platform summary.">Give me a quick platform summary.</button>
-            </div></div>
+          <div class="header-actions">
+            <button id="newLessonButton" class="btn btn-primary btn-sm">＋ New lesson</button>
           </div>
         </div>
+
+        <div class="panel">
+          <div class="panel-body">
+
+            <div class="toolbar">
+              <div class="search">
+                <span class="search-icon">⌕</span>
+                <input id="lessonSearch" class="input" placeholder="Search lessons">
+              </div>
+
+              <select id="lessonLevelFilter" class="select" style="width:150px;">
+                <option value="">All YCT levels</option>
+                <option value="1">YCT 1</option>
+                <option value="2">YCT 2</option>
+                <option value="3">YCT 3</option>
+                <option value="4">YCT 4</option>
+              </select>
+            </div>
+
+            <div id="lessonGrid" class="lesson-grid">
+              <div class="loading">Loading lessons…</div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= ANALYTICS ================= -->
+
+      <section id="analyticsSection" class="section">
+
+        <div class="section-header">
+          <div>
+            <h2>Analytics</h2>
+            <p>Live platform metrics from the HanVerse Admin API.</p>
+          </div>
+
+          <button id="refreshAnalyticsButton" class="btn btn-soft btn-sm">↻ Refresh analytics</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Platform performance</h3>
+              <p>Account, activity and learning statistics</p>
+            </div>
+            <span id="analyticsStatus" class="pill blue">Ready</span>
+          </div>
+
+          <div class="panel-body">
+            <div class="analytics-grid">
+
+              <div class="analytics-card"><span>Total users</span><strong id="aUsers">—</strong><small>All accounts</small></div>
+              <div class="analytics-card"><span>Verified</span><strong id="aVerified">—</strong><small>Verified accounts</small></div>
+              <div class="analytics-card"><span>Premium</span><strong id="aPremium">—</strong><small>Premium accounts</small></div>
+              <div class="analytics-card"><span>Parents</span><strong id="aParents">—</strong><small>Parent accounts</small></div>
+
+              <div class="analytics-card"><span>Students</span><strong id="aStudents">—</strong><small>Student accounts</small></div>
+              <div class="analytics-card"><span>New today</span><strong id="aToday">—</strong><small>Created today</small></div>
+              <div class="analytics-card"><span>New 7 days</span><strong id="a7Days">—</strong><small>Last 7 days</small></div>
+              <div class="analytics-card"><span>New 30 days</span><strong id="a30Days">—</strong><small>Last 30 days</small></div>
+
+              <div class="analytics-card"><span>Active 24h</span><strong id="aActive24">—</strong><small>Last 24 hours</small></div>
+              <div class="analytics-card"><span>Active 7d</span><strong id="aActive7">—</strong><small>Last 7 days</small></div>
+              <div class="analytics-card"><span>Active 30d</span><strong id="aActive30">—</strong><small>Last 30 days</small></div>
+              <div class="analytics-card"><span>Total XP</span><strong id="aTotalXP">—</strong><small>Earned XP</small></div>
+
+              <div class="analytics-card"><span>Average XP</span><strong id="aAverageXP">—</strong><small>Per user</small></div>
+              <div class="analytics-card"><span>Average level</span><strong id="aAverageLevel">—</strong><small>Current average</small></div>
+              <div class="analytics-card"><span>Average streak</span><strong id="aAverageStreak">—</strong><small>Days</small></div>
+              <div class="analytics-card"><span>Lessons completed</span><strong id="aLessonsCompleted">—</strong><small>Total</small></div>
+
+              <div class="analytics-card"><span>Achievements</span><strong id="aAchievements">—</strong><small>Total earned</small></div>
+              <div class="analytics-card"><span>Banned</span><strong id="aBanned">—</strong><small>Restricted accounts</small></div>
+
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= COMMUNICATIONS ================= -->
+
+      <section id="communicationsSection" class="section">
+
+        <div class="section-header">
+          <div>
+            <h2>Broadcasts</h2>
+            <p>Create, schedule and review HanVerse email campaigns.</p>
+          </div>
+
+          <div class="header-actions">
+            <button id="broadcastHistoryButton" class="btn btn-sm">◷ History</button>
+            <button id="newBroadcastButton" class="btn btn-primary btn-sm">✦ New broadcast</button>
+          </div>
+        </div>
+
+        <div class="communication-banner">
+          <div class="communication-icon">📣</div>
+          <div>
+            <strong>HanVerse Broadcasts</strong>
+            <p>Reach verified users, students, parents, premium members or your wider audience.</p>
+          </div>
+        </div>
+
+        <div class="communication-stats">
+          <div class="communication-stat">
+            <span>Campaigns loaded</span>
+            <strong id="campaignCount">—</strong>
+          </div>
+          <div class="communication-stat">
+            <span>Scheduled</span>
+            <strong id="scheduledCount">—</strong>
+          </div>
+          <div class="communication-stat">
+            <span>Completed</span>
+            <strong id="completedCount">—</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Recent broadcasts</h3>
+              <p>Latest email campaigns</p>
+            </div>
+            <button id="refreshCampaignsButton" class="btn btn-sm">↻ Refresh</button>
+          </div>
+
+          <div class="panel-body">
+            <div id="recentCampaigns" class="campaign-list">
+              <div class="loading">Loading campaigns…</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= PANDA ================= -->
+
+      <section id="pandaSection" class="section">
+
+        <div class="section-header">
+          <div>
+            <h2>Panda AI</h2>
+            <p>Your admin-only HanVerse assistant.</p>
+          </div>
+        </div>
+
+        <div class="panda-layout">
+
+          <div class="panel panda-chat">
+            <div class="panel-header">
+              <div>
+                <h3>🐼 Panda workspace</h3>
+                <p>Ask Panda about HanVerse administration.</p>
+              </div>
+              <span class="pill blue">Admin</span>
+            </div>
+
+            <div id="pandaMessages" class="panda-messages">
+              <div class="message">
+                <span>🐼</span>
+                <div class="bubble">Hi! I’m Panda. Ask me about HanVerse users, lessons, analytics or administration.</div>
+              </div>
+            </div>
+
+            <div class="panda-footer">
+              <input id="pandaInput" class="input" placeholder="Ask Panda…">
+              <button id="pandaSend" class="btn btn-primary">Ask →</button>
+            </div>
+          </div>
+
+          <div class="panda-side">
+
+            <div class="panda-card">
+              <div class="panda">🐼</div>
+              <h3>What can Panda do?</h3>
+              <p>Use Panda for quick admin questions.</p>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Try asking</h3>
+              </div>
+
+              <div class="panel-body prompt-list">
+                <button class="prompt" data-prompt="How many users do we have?">How many users do we have?</button>
+                <button class="prompt" data-prompt="How many premium users do we have?">How many premium users do we have?</button>
+                <button class="prompt" data-prompt="How many lessons are available?">How many lessons are available?</button>
+                <button class="prompt" data-prompt="Give me a quick HanVerse platform summary.">Give me a quick platform summary.</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
       </section>
 
     </main>
   </div>
 </div>
 
-<!-- USER MODAL -->
-<div class="modal" id="userModal"><div class="dialog">
-  <div class="dialog-head"><h2 id="userModalTitle">Create user</h2><button class="close" data-close="userModal">×</button></div>
-  <form id="userForm"><div class="dialog-body">
-    <input type="hidden" id="formUserId">
-    <div class="form-grid">
-      <div class="field"><label>Full name</label><input class="input" id="formFullName" required></div>
-      <div class="field"><label>Username</label><input class="input" id="formUsername" required></div>
-      <div class="field"><label>Email</label><input class="input" id="formEmail" type="email" required></div>
-      <div class="field"><label>Password</label><input class="input" id="formPassword" type="password"><small class="muted" style="font-size:8px" id="passwordHint"></small></div>
-      <div class="field"><label>Level</label><input class="input" id="formLevel" type="number" min="1" value="1"></div>
-      <div class="field"><label>XP</label><input class="input" id="formXp" type="number" min="0" value="0"></div>
-      <div class="field"><label>Role</label><select class="select" id="formRole"><option value="student">Student</option><option value="parent">Parent</option><option value="admin">Admin</option></select></div>
-      <div class="field"><label>Banned</label><select class="select" id="formBanned"><option value="false">No</option><option value="true">Yes</option></select></div>
-      <div class="field"><label>Premium</label><select class="select" id="formPremium"><option value="false">No</option><option value="true">Yes</option></select></div>
-      <div class="field"><label>Verified</label><select class="select" id="formVerified"><option value="false">No</option><option value="true">Yes</option></select></div>
+<!-- ================= USER MODAL ================= -->
+
+<div id="userModal" class="modal">
+  <div class="dialog">
+
+    <div class="dialog-header">
+      <h2 id="userModalTitle">Edit user</h2>
+      <button class="close-button" data-close="userModal">×</button>
     </div>
-    <div class="error" id="userError"></div>
-  </div><div class="dialog-foot"><button class="btn" type="button" data-close="userModal">Cancel</button><button class="btn btn-primary" type="submit">Save user</button></div></form>
-</div></div>
 
-<!-- LESSON MODAL -->
-<div class="modal" id="lessonModal"><div class="dialog">
-  <div class="dialog-head"><h2 id="lessonModalTitle">Lesson</h2><button class="close" data-close="lessonModal">×</button></div>
-  <div class="dialog-body">
-    <form id="lessonForm">
-      <input type="hidden" id="lessonId">
-      <div class="form-grid">
-        <div class="field"><label>Lesson ID</label><input class="input" id="lessonIdInput" required></div>
-        <div class="field"><label>Title</label><input class="input" id="lessonTitle" required></div>
-        <div class="field"><label>YCT level</label><input class="input" id="lessonLevel" type="number" min="1" max="4" value="1"></div>
-        <div class="field"><label>Order</label><input class="input" id="lessonOrder" type="number" min="1" value="1"></div>
-        <div class="field full"><label>Description</label><textarea class="textarea" id="lessonDescription"></textarea></div>
-        <div class="field full"><label>Cover URL</label><input class="input" id="lessonCover"></div>
-        <div class="field"><label>Video URL</label><input class="input" id="lessonVideo"></div>
-        <div class="field"><label>Audio URL</label><input class="input" id="lessonAudio"></div>
-        <div class="field"><label>Publishing</label><select class="select" id="lessonPublished"><option value="true">Published</option><option value="false">Draft</option></select></div>
-      </div>
-      <div class="error" id="lessonError"></div>
-    </form>
-    <div style="border-top:1px solid var(--line);margin-top:5px;padding-top:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:10px;color:var(--navy)">Lesson media</strong><button class="btn btn-sm" id="addMediaBtn" type="button">＋ Add media</button></div>
-      <div class="media-list" id="mediaList"><small class="muted">Save the lesson first, then add media.</small></div>
-    </div>
-  </div>
-  <div class="dialog-foot"><button class="btn" type="button" data-close="lessonModal">Close</button><button class="btn btn-primary" id="saveLessonBtn" type="button">Save lesson</button></div>
-</div></div>
+    <form id="userForm">
 
-<!-- MEDIA MODAL -->
-<div class="modal" id="mediaModal"><div class="dialog" style="max-width:500px">
-  <div class="dialog-head"><h2>Add media</h2><button class="close" data-close="mediaModal">×</button></div>
-  <div class="dialog-body">
-    <div class="field"><label>Media type</label><select class="select" id="mediaType"><option value="image">Image</option><option value="video">Video</option><option value="audio">Audio</option></select></div>
-    <div class="field"><label>Media URL</label><input class="input" id="mediaUrl" placeholder="https://..."></div>
-    <div class="field"><label>Title</label><input class="input" id="mediaTitle"></div>
-    <div class="field"><label>Caption</label><input class="input" id="mediaCaption"></div>
-    <div class="error" id="mediaError"></div>
-  </div>
-  <div class="dialog-foot"><button class="btn" type="button" data-close="mediaModal">Cancel</button><button class="btn btn-primary" id="saveMediaBtn" type="button">Add media</button></div>
-</div></div>
+      <div class="dialog-body">
 
-<!-- BROADCAST MODAL -->
-<div class="modal" id="broadcastModal"><div class="dialog" style="width:min(1100px,100%)">
-  <div class="dialog-head"><h2>✦ Email composer</h2><button class="close" data-close="broadcastModal">×</button></div>
-  <form id="broadcastForm"><div class="dialog-body">
-    <div id="personalRecipientBox" class="hidden" style="padding:9px 11px;margin-bottom:12px;background:var(--blue-soft);border:1px solid #C9E7F7;border-radius:10px;font-size:9px">✉ Personal email to <strong id="personalRecipientEmail"></strong></div>
-    <div class="composer-grid">
-      <div>
-        <div class="field" id="broadcastAudienceField"><label>Audience</label><div class="audience-grid">
-          <label class="choice"><input type="radio" name="broadcastAudience" value="all"> All users</label>
-          <label class="choice"><input type="radio" name="broadcastAudience" value="verified" checked> Verified users</label>
-          <label class="choice"><input type="radio" name="broadcastAudience" value="students"> Students</label>
-          <label class="choice"><input type="radio" name="broadcastAudience" value="parents"> Parents</label>
-          <label class="choice"><input type="radio" name="broadcastAudience" value="premium"> Premium users</label>
-          <label class="choice"><input type="radio" name="broadcastAudience" value="non_premium"> Non-premium users</label>
-        </div><div class="recipient-count" id="broadcastRecipientCount">0 recipients</div></div>
-        <div class="field"><label for="broadcastSubject">Subject</label><input class="input" id="broadcastSubject" maxlength="180" required placeholder="Email subject"></div>
-        <div class="field"><label for="broadcastMessage">Message</label><textarea class="textarea" id="broadcastMessage" style="min-height:230px" required placeholder="Write your HanVerse announcement…"></textarea></div>
-        <div class="field" id="broadcastTimingField"><label>Send timing</label><div class="timing-grid">
-          <label class="choice"><input type="radio" name="broadcastTiming" value="now" checked> Send immediately</label>
-          <label class="choice"><input type="radio" name="broadcastTiming" value="scheduled"> Schedule for later</label>
-        </div></div>
-        <div id="broadcastScheduleBox" class="hidden" style="padding:11px;border:1px solid var(--line);border-radius:11px;background:#FAFCFE">
-          <div class="form-grid"><div class="field"><label>Date</label><input class="input" id="broadcastDate" type="date"></div><div class="field"><label>Time</label><input class="input" id="broadcastTime" type="time"></div></div>
-          <div class="field"><label>Timezone</label><select class="select" id="broadcastTimezone"><option value="Africa/Nairobi">Africa/Nairobi (EAT)</option></select></div>
+        <input id="userId" type="hidden">
+
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="userFullName">Full name</label>
+            <input id="userFullName" class="input" required>
+          </div>
+
+          <div class="field">
+            <label for="userUsername">Username</label>
+            <input id="userUsername" class="input" required>
+          </div>
+
+          <div class="field">
+            <label for="userEmail">Email</label>
+            <input id="userEmail" class="input" type="email" required>
+          </div>
+
+          <div class="field">
+            <label for="userPassword">New password</label>
+            <input id="userPassword" class="input" type="password" autocomplete="new-password">
+            <small class="muted" style="font-size:8px;">Leave blank to keep the current password.</small>
+          </div>
+
+          <div class="field">
+            <label for="userRole">Role</label>
+            <select id="userRole" class="select">
+              <option value="student">Student</option>
+              <option value="parent">Parent</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="userLevel">Level</label>
+            <input id="userLevel" class="input" type="number" min="1" value="1">
+          </div>
+
+          <div class="field">
+            <label for="userXP">XP</label>
+            <input id="userXP" class="input" type="number" min="0" value="0">
+          </div>
+
+          <div class="field">
+            <label for="userPremium">Premium</label>
+            <select id="userPremium" class="select">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="userVerified">Verified</label>
+            <select id="userVerified" class="select">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="userBanned">Banned</label>
+            <select id="userBanned" class="select">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </div>
+
         </div>
-        <div class="error" id="broadcastError"></div>
+
+        <div id="userFormError" class="error"></div>
+
       </div>
-      <div class="preview-wrap"><div class="preview-label"><span>Live preview</span><span class="muted">HanVerse template</span></div><iframe id="emailPreview" class="email-preview" title="Email preview"></iframe></div>
+
+      <div class="dialog-footer">
+        <button class="btn" type="button" data-close="userModal">Cancel</button>
+        <button id="saveUserButton" class="btn btn-primary" type="submit">Save changes</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<!-- ================= LESSON MODAL ================= -->
+
+<div id="lessonModal" class="modal">
+  <div class="dialog">
+
+    <div class="dialog-header">
+      <h2 id="lessonModalTitle">Lesson</h2>
+      <button class="close-button" data-close="lessonModal">×</button>
     </div>
-  </div><div class="dialog-foot"><button class="btn" type="button" data-close="broadcastModal">Cancel</button><button class="btn btn-primary" type="submit">Review & authorise →</button></div></form>
-</div></div>
 
-<!-- CONFIRM EMAIL -->
-<div class="modal" id="emailConfirmModal"><div class="dialog" style="max-width:510px">
-  <div class="dialog-head"><h2>🛡 Authorise broadcast</h2><button class="close" data-close="emailConfirmModal">×</button></div>
-  <form id="emailConfirmForm"><div class="dialog-body">
-    <div class="confirm-box"><strong>Sending as <span id="confirmSenderName">Administrator</span></strong><span id="confirmActionText">Review the broadcast before sending.</span></div>
-    <div class="field"><label>Confirm with admin password</label><input class="input" id="emailConfirmPassword" type="password" required placeholder="Admin password"></div>
-    <div class="error" id="emailConfirmError"></div>
-    <small class="muted" style="font-size:8px">🔒 Additional confirmation is required before submission.</small>
-  </div><div class="dialog-foot"><button class="btn" type="button" data-close="emailConfirmModal">Back</button><button class="btn btn-primary" id="confirmEmailBtn" type="submit">Confirm & send</button></div></form>
-</div></div>
+    <div class="dialog-body">
 
-<!-- HISTORY -->
-<div class="modal" id="broadcastHistoryModal"><div class="dialog" style="max-width:900px">
-  <div class="dialog-head"><h2>◷ Broadcast history</h2><button class="close" data-close="broadcastHistoryModal">×</button></div>
-  <div class="dialog-body"><div class="toolbar"><select class="select" id="broadcastStatusFilter" style="width:180px"><option value="">All statuses</option><option value="processing">Processing</option><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="failed">Failed</option><option value="cancelled">Cancelled</option></select><button class="btn btn-sm" id="broadcastRefreshBtn">↻ Refresh</button></div><div class="campaign-list" id="broadcastCampaignList"><div class="empty">Loading history…</div></div></div>
-</div></div>
+      <input id="lessonOriginalId" type="hidden">
+
+      <div class="form-grid">
+
+        <div class="field">
+          <label for="lessonId">Lesson ID</label>
+          <input id="lessonId" class="input" required>
+        </div>
+
+        <div class="field">
+          <label for="lessonTitle">Title</label>
+          <input id="lessonTitle" class="input" required>
+        </div>
+
+        <div class="field">
+          <label for="lessonLevel">YCT level</label>
+          <input id="lessonLevel" class="input" type="number" min="1" max="4" value="1">
+        </div>
+
+        <div class="field">
+          <label for="lessonOrder">Order</label>
+          <input id="lessonOrder" class="input" type="number" min="1" value="1">
+        </div>
+
+        <div class="field">
+          <label for="lessonXP">XP reward</label>
+          <input id="lessonXP" class="input" type="number" min="0" value="0">
+        </div>
+
+        <div class="field">
+          <label for="lessonIcon">Icon</label>
+          <input id="lessonIcon" class="input" value="🐼">
+        </div>
+
+        <div class="field">
+          <label for="lessonPremium">Premium</label>
+          <select id="lessonPremium" class="select">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="lessonPublished">Publishing</label>
+          <select id="lessonPublished" class="select">
+            <option value="true">Published</option>
+            <option value="false">Draft</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="lessonDescription">Description</label>
+          <textarea id="lessonDescription" class="textarea"></textarea>
+        </div>
+
+        <div class="field full">
+          <label for="lessonContent">Content</label>
+          <textarea id="lessonContent" class="textarea" placeholder="Lesson content…"></textarea>
+        </div>
+
+        <div class="field full">
+          <label for="lessonVocabulary">Vocabulary JSON</label>
+          <textarea id="lessonVocabulary" class="textarea" placeholder='[]'></textarea>
+        </div>
+
+        <div class="field full">
+          <label for="lessonQuiz">Quiz JSON</label>
+          <textarea id="lessonQuiz" class="textarea" placeholder='[]'></textarea>
+        </div>
+
+        <div class="field full">
+          <label for="lessonObjectives">Learning objectives JSON</label>
+          <textarea id="lessonObjectives" class="textarea" placeholder='[]'></textarea>
+        </div>
+
+      </div>
+
+      <div id="lessonFormError" class="error"></div>
+
+      <div style="border-top:1px solid var(--line);margin-top:5px;padding-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:10px;color:var(--navy);">Lesson media</strong>
+          <button id="addMediaButton" class="btn btn-sm" type="button">＋ Add media</button>
+        </div>
+
+        <div id="mediaList" class="media-list">
+          <div class="muted" style="font-size:8px;margin-top:8px;">Save the lesson first to manage media.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="dialog-footer">
+      <button class="btn" type="button" data-close="lessonModal">Close</button>
+      <button id="saveLessonButton" class="btn btn-primary" type="button">Save lesson</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= MEDIA MODAL ================= -->
+
+<div id="mediaModal" class="modal">
+  <div class="dialog" style="max-width:500px;">
+
+    <div class="dialog-header">
+      <h2>Add media</h2>
+      <button class="close-button" data-close="mediaModal">×</button>
+    </div>
+
+    <div class="dialog-body">
+
+      <div class="field">
+        <label for="mediaType">Media type</label>
+        <select id="mediaType" class="select">
+          <option value="image">Image</option>
+          <option value="video">Video</option>
+          <option value="audio">Audio</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="mediaURL">Media URL</label>
+        <input id="mediaURL" class="input" placeholder="https://…">
+      </div>
+
+      <div class="field">
+        <label for="mediaTitle">Title</label>
+        <input id="mediaTitle" class="input">
+      </div>
+
+      <div class="field">
+        <label for="mediaCaption">Caption</label>
+        <input id="mediaCaption" class="input">
+      </div>
+
+      <div class="field">
+        <label for="mediaAlt">Alt text</label>
+        <input id="mediaAlt" class="input">
+      </div>
+
+      <div id="mediaError" class="error"></div>
+
+    </div>
+
+    <div class="dialog-footer">
+      <button class="btn" type="button" data-close="mediaModal">Cancel</button>
+      <button id="saveMediaButton" class="btn btn-primary" type="button">Add media</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= BROADCAST MODAL ================= -->
+
+<div id="broadcastModal" class="modal">
+  <div class="dialog" style="width:min(1080px,100%);">
+
+    <div class="dialog-header">
+      <h2>✦ New email broadcast</h2>
+      <button class="close-button" data-close="broadcastModal">×</button>
+    </div>
+
+    <form id="broadcastForm">
+
+      <div class="dialog-body">
+
+        <div id="personalRecipient" class="hidden" style="padding:9px 11px;margin-bottom:12px;background:var(--blue-soft);border:1px solid #C8E6F6;border-radius:10px;font-size:9px;">
+          ✉ Sending to <strong id="personalRecipientEmail"></strong>
+        </div>
+
+        <div class="composer-grid">
+
+          <div>
+
+            <div id="broadcastAudienceField" class="field">
+              <label>Audience</label>
+
+              <div class="audience-grid">
+                <label class="choice"><input type="radio" name="audience" value="all"> All users</label>
+                <label class="choice"><input type="radio" name="audience" value="verified" checked> Verified users</label>
+                <label class="choice"><input type="radio" name="audience" value="students"> Students</label>
+                <label class="choice"><input type="radio" name="audience" value="parents"> Parents</label>
+                <label class="choice"><input type="radio" name="audience" value="premium"> Premium users</label>
+                <label class="choice"><input type="radio" name="audience" value="non_premium"> Non-premium</label>
+              </div>
+
+              <div id="recipientCount" class="recipient-count">0 recipients</div>
+            </div>
+
+            <div class="field">
+              <label for="broadcastSubject">Subject</label>
+              <input id="broadcastSubject" class="input" maxlength="180" required placeholder="Email subject">
+            </div>
+
+            <div class="field">
+              <label for="broadcastMessage">Message</label>
+              <textarea id="broadcastMessage" class="textarea" style="min-height:230px;" required placeholder="Write your HanVerse announcement…"></textarea>
+            </div>
+
+            <div id="broadcastTimingField" class="field">
+              <label>Send timing</label>
+
+              <div class="timing-grid">
+                <label class="choice"><input type="radio" name="timing" value="now" checked> Send now</label>
+                <label class="choice"><input type="radio" name="timing" value="scheduled"> Schedule</label>
+              </div>
+            </div>
+
+            <div id="scheduleBox" class="schedule-box hidden">
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="scheduleDate">Date</label>
+                  <input id="scheduleDate" class="input" type="date">
+                </div>
+
+                <div class="field">
+                  <label for="scheduleTime">Time</label>
+                  <input id="scheduleTime" class="input" type="time">
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="scheduleTimezone">Timezone</label>
+                <select id="scheduleTimezone" class="select">
+                  <option value="Africa/Nairobi">Africa/Nairobi (EAT)</option>
+                </select>
+              </div>
+
+            </div>
+
+            <div id="broadcastError" class="error"></div>
+
+          </div>
+
+          <div class="preview-wrap">
+
+            <div class="preview-label">
+              <span>Live preview</span>
+              <span class="muted">HanVerse template</span>
+            </div>
+
+            <iframe id="emailPreview" class="email-preview" title="Email preview"></iframe>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="dialog-footer">
+        <button class="btn" type="button" data-close="broadcastModal">Cancel</button>
+        <button class="btn btn-primary" type="submit">Review & authorise →</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<!-- ================= EMAIL CONFIRM ================= -->
+
+<div id="emailConfirmModal" class="modal">
+  <div class="dialog" style="max-width:510px;">
+
+    <div class="dialog-header">
+      <h2>🛡 Authorise email</h2>
+      <button class="close-button" data-close="emailConfirmModal">×</button>
+    </div>
+
+    <form id="emailConfirmForm">
+
+      <div class="dialog-body">
+
+        <div style="padding:11px;border:1px solid var(--line);border-radius:11px;background:#F8FAFC;margin-bottom:13px;">
+          <strong id="confirmSummary" style="display:block;color:var(--navy);font-size:10px;">Review email</strong>
+          <span id="confirmDetails" class="muted" style="display:block;margin-top:3px;font-size:9px;"></span>
+        </div>
+
+        <div class="field">
+          <label for="confirmPassword">Admin password</label>
+          <input id="confirmPassword" class="input" type="password" required placeholder="Enter admin password">
+        </div>
+
+        <div id="emailConfirmError" class="error"></div>
+
+      </div>
+
+      <div class="dialog-footer">
+        <button class="btn" type="button" data-close="emailConfirmModal">Back</button>
+        <button id="confirmEmailButton" class="btn btn-primary" type="submit">Confirm & send</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<!-- ================= HISTORY MODAL ================= -->
+
+<div id="historyModal" class="modal">
+  <div class="dialog" style="width:min(900px,100%);">
+
+    <div class="dialog-header">
+      <h2>◷ Broadcast history</h2>
+      <button class="close-button" data-close="historyModal">×</button>
+    </div>
+
+    <div class="dialog-body">
+
+      <div class="toolbar">
+        <select id="campaignStatusFilter" class="select" style="width:180px;">
+          <option value="">All statuses</option>
+          <option value="processing">Processing</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="completed">Completed</option>
+          <option value="failed">Failed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+
+        <button id="refreshHistoryButton" class="btn btn-sm">↻ Refresh</button>
+      </div>
+
+      <div id="campaignHistory" class="campaign-list"></div>
+
+    </div>
+  </div>
+</div>
 
 <script>
 (() => {
-'use strict';
-const $=id=>document.getElementById(id);
-const API='/api',TOKEN_KEY='hanverse_admin_token',SESSION_KEY='hanverse_user';
-const state={token:localStorage.getItem(TOKEN_KEY)||'',adminUser:null,users:[],lessons:[],section:'dashboard',userFilter:'all',userQuery:'',lessonQuery:'',lessonLevel:'',pendingEmail:null,campaigns:[]};
-const first=(...v)=>v.find(x=>x!==undefined&&x!==null&&x!=='');
-const yes=v=>v===true||v===1||v==='1'||String(v).toLowerCase()==='true';
-const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-const notify=(message,type='ok')=>{const s=$('toastStack');const t=document.createElement('div');t.className='toast '+type;t.textContent=message;s.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),250)},3200)};
-function sessionUser(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'{}')}catch{return {}}}
-function headers(){const h={'Content-Type':'application/json'};if(state.token)h.Authorization='Bearer '+state.token;return h}
-async function api(path,options={}){const res=await fetch(API+path,{...options,headers:{...headers(),...(options.headers||{})}});const raw=await res.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{data={raw}}if(res.status===401){state.token='';localStorage.removeItem(TOKEN_KEY);showLogin('Your admin session has expired.');throw new Error('Unauthorised admin session.')}if(!res.ok)throw new Error(data.error||data.message||data.raw||`Request failed (${res.status})`);return data}
-function openModal(id){$(id)?.classList.add('open')}function closeModal(id){$(id)?.classList.remove('open')}
-function showLogin(msg=''){$('authScreen').classList.remove('hidden');$('app').classList.add('hidden');$('authError').textContent=msg;$('adminPassword').focus()}
-function setIdentity(user){state.adminUser=user||sessionUser()||{};const name=first(state.adminUser.full_name,state.adminUser.username,state.adminUser.email,'Administrator');$('sideAdminName').textContent=name;$('confirmSenderName').textContent=name}
-const titles={dashboard:['Dashboard','Your HanVerse command centre'],users:['Users','Manage HanVerse accounts, roles and access'],lessons:['Lessons','Build and manage the HanVerse learning library'],analytics:['Analytics','Live platform metrics'],communications:['Broadcasts','Create and manage HanVerse communications'],panda:['Panda AI','Your admin-only HanVerse assistant']};
-function switchSection(section){state.section=section;document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===section+'Section'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.section===section));$('pageTitle').textContent=titles[section]?.[0]||'Dashboard';$('pageSubtitle').textContent=titles[section]?.[1]||'';$('sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});if(section==='users')loadUsers();if(section==='lessons')loadLessons();if(section==='analytics')loadAdminAnalytics();if(section==='communications')refreshCommunications()}
-function showApp(){$('authScreen').classList.add('hidden');$('app').classList.remove('hidden');setIdentity(state.adminUser||sessionUser());switchSection('dashboard')}
+  "use strict";
 
-async function login(password){
- const user=sessionUser();if(!user.user_id)throw new Error('Please log in to HanVerse first.');
- const res=await fetch(API+'/admin/verify-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:user.user_id,adminPassword:password})});
- const data=await res.json().catch(()=>({}));if(!res.ok||!data.adminToken)throw new Error(data.error||'Admin authentication failed.');
- state.token=data.adminToken;state.adminUser=data.user||user;localStorage.setItem(TOKEN_KEY,state.token);setIdentity(state.adminUser);showApp();await Promise.all([loadUsers(),loadLessons(),loadAdminAnalytics(),refreshCommunications()]);
-}
-$('authForm').onsubmit=async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;$('authError').textContent='';try{await login($('adminPassword').value);$('adminPassword').value=''}catch(err){$('authError').textContent=err.message}finally{b.disabled=false}};
-$('logoutBtn').onclick=()=>{if(!confirm('Log out of the admin panel?'))return;state.token='';state.adminUser=null;localStorage.removeItem(TOKEN_KEY);showLogin()};
+  const API = "/api";
+  const TOKEN_KEY = "hanverse_admin_token";
+  const SESSION_KEY = "hanverse_user";
 
-/* USERS */
-function userMatches(u){if(state.userFilter==='pending'&&yes(u.is_verified))return false;if(state.userFilter==='parents'&&String(u.role||'').toLowerCase()!=='parent')return false;if(state.userFilter==='premium'&&!yes(first(u.premium,u.is_premium)))return false;if(state.userFilter==='banned'&&!yes(u.is_banned))return false;const q=state.userQuery.toLowerCase().trim();return !q||[u.full_name,u.username,u.email].some(x=>String(x||'').toLowerCase().includes(q))}
-async function loadUsers(){try{const d=await api('/admin/overview');state.users=Array.isArray(d.users)?d.users:[];renderUsers();updateStats();refreshRecipientCount()}catch(e){$('userTableWrap').innerHTML=`<div class="empty">⚠ ${esc(e.message)}</div>`}}
-function updateStats(){
- const u=state.users,l=state.lessons,verified=u.filter(x=>yes(x.is_verified)).length,premium=u.filter(x=>yes(first(x.premium,x.is_premium))).length,parents=u.filter(x=>String(x.role||'').toLowerCase()==='parent').length,banned=u.filter(x=>yes(x.is_banned)).length;
- const set=(id,v)=>{if($(id))$(id).textContent=String(v)};
- set('totalUsers',u.length);set('premiumUsers',premium);set('parentUsers',parents);set('dashVerified',verified+' verified accounts');set('dashUnverified',Math.max(u.length-verified,0));set('dashBanned',banned);set('userBadge',u.length);set('lessonBadge',l.length);set('totalLessons',l.length);set('dashPremiumRate',u.length?Math.round(premium/u.length*100)+'% conversion rate':'0%');
-}
-function renderUsers(){
- const users=state.users.filter(userMatches);
- if(!users.length){$('userTableWrap').innerHTML='<div class="empty">No users match this filter.</div>';return}
- $('userTableWrap').innerHTML=`<table><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Progress</th><th>Premium</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${users.map(u=>{
- const id=esc(u.user_id),name=esc(first(u.full_name,u.username,'User')),role=String(u.role||'student').toLowerCase(),verified=yes(u.is_verified),banned=yes(u.is_banned),premium=yes(first(u.premium,u.is_premium)),icon=role==='admin'?'👑':role==='parent'?'👪':'🎓',joined=first(u.created_at,u.createdAt,'');
- return `<tr><td><div class="user-cell"><div class="avatar">${icon}</div><div><strong>${name}</strong><small>${esc(u.email)}</small></div></div></td><td><span class="pill blue">${esc(role)}</span></td><td>${banned?'<span class="pill red">🚫 Banned</span>':verified?'<span class="pill green">✓ Verified</span>':'<span class="pill yellow">⏳ Pending</span>'}</td><td><strong style="font-size:10px;color:var(--navy)">${Number(first(u.xp,0)).toLocaleString()} XP</strong><small class="muted" style="display:block;font-size:8px">Level ${esc(first(u.level,1))}</small></td><td>${premium?'<span class="pill purple">★ Premium</span>':'<span class="muted" style="font-size:8px">Standard</span>'}</td><td><span class="muted" style="font-size:8px">${joined?new Date(joined).toLocaleDateString('en-KE'):'—'}</span></td><td><div class="row-actions"><button class="btn btn-sm btn-soft" data-edit-user="${id}">Edit</button><button class="btn btn-sm" data-email-user="${id}">Email</button>${!verified?`<button class="btn btn-sm btn-green" data-verify-user="${id}">Verify</button>`:''}<button class="btn btn-sm btn-danger" data-delete-user="${id}">Delete</button></div></td></tr>`;
- }).join('')}</tbody></table>`;
- document.querySelectorAll('[data-edit-user]').forEach(b=>b.onclick=()=>editUser(b.dataset.editUser));
- document.querySelectorAll('[data-email-user]').forEach(b=>b.onclick=()=>openPersonalEmail(b.dataset.emailUser));
- document.querySelectorAll('[data-verify-user]').forEach(b=>b.onclick=()=>verifyUser(b.dataset.verifyUser));
- document.querySelectorAll('[data-delete-user]').forEach(b=>b.onclick=()=>deleteUser(b.dataset.deleteUser));
-}
-function editUser(id){const u=state.users.find(x=>String(x.user_id)===String(id));if(!u)return;$('userModalTitle').textContent='Edit user';$('formUserId').value=u.user_id;$('formFullName').value=u.full_name||'';$('formUsername').value=u.username||'';$('formEmail').value=u.email||'';$('formPassword').value='';$('formPassword').required=false;$('passwordHint').textContent='Leave blank to keep the current password.';$('formLevel').value=first(u.level,1);$('formXp').value=first(u.xp,0);$('formRole').value=u.role||'student';$('formBanned').value=String(yes(u.is_banned));$('formPremium').value=String(yes(first(u.premium,u.is_premium)));$('formVerified').value=String(yes(u.is_verified));$('userError').textContent='';openModal('userModal')}
-function newUser(){$('userModalTitle').textContent='Create user';$('userForm').reset();$('formUserId').value='';$('formLevel').value=1;$('formXp').value=0;$('formPassword').required=true;$('passwordHint').textContent='A password is required for new accounts.';$('userError').textContent='';openModal('userModal');setTimeout(()=>$('formFullName').focus(),100)}
-async function verifyUser(id){if(!confirm('Verify this user?'))return;try{await api(`/admin/toggle-verification/${encodeURIComponent(id)}`,{method:'POST',body:JSON.stringify({verified:true})});notify('User verified.');await loadUsers()}catch(e){notify(e.message,'error')}}
-async function deleteUser(id){if(!confirm('Delete this user permanently? This cannot be undone.'))return;try{await api(`/admin/users/delete/${encodeURIComponent(id)}`,{method:'DELETE'});notify('User deleted.');await loadUsers()}catch(e){notify(e.message,'error')}}
-$('userForm').onsubmit=async e=>{e.preventDefault();const id=$('formUserId').value,password=$('formPassword').value.trim(),b=e.submitter;const payload={full_name:$('formFullName').value.trim(),username:$('formUsername').value.trim(),email:$('formEmail').value.trim(),level:Number($('formLevel').value)||1,xp:Number($('formXp').value)||0,role:$('formRole').value,is_banned:$('formBanned').value==='true',premium:$('formPremium').value==='true',is_verified:$('formVerified').value==='true'};if(password)payload.password=password;if(!id&&!password){$('userError').textContent='Password is required for a new user.';return}b.disabled=true;try{if(id)await api(`/admin/users/update/${encodeURIComponent(id)}`,{method:'POST',body:JSON.stringify(payload)});else await api('/signup',{method:'POST',body:JSON.stringify({...payload,password})});closeModal('userModal');notify(id?'User updated.':'User created.');await loadUsers()}catch(err){$('userError').textContent=err.message}finally{b.disabled=false}};
+  const state = {
+    token: localStorage.getItem(TOKEN_KEY) || "",
+    admin: null,
+    users: [],
+    lessons: [],
+    campaigns: [],
+    userFilter: "all",
+    userSearch: "",
+    lessonSearch: "",
+    lessonLevel: "",
+    pendingEmail: null
+  };
 
-/* LESSONS */
-async function loadLessons(){try{const d=await api('/admin/lessons');state.lessons=Array.isArray(d)?d:(d.lessons||[]);renderLessons();updateStats()}catch(e){state.lessons=[];$('lessonGrid').innerHTML=`<div class="empty">⚠ Could not load lessons.<br>${esc(e.message)}</div>`;updateStats()}}
-function renderLessons(){
- const q=state.lessonQuery.toLowerCase().trim(),level=String(state.lessonLevel||'');
- const list=state.lessons.filter(l=>{const ll=String(first(l.level,l.course_level,''));return(!level||ll===level)&&(!q||[l.lesson_id,l.title,l.description].some(x=>String(x||'').toLowerCase().includes(q)))}).sort((a,b)=>Number(first(a.order_index,a.order,999))-Number(first(b.order_index,b.order,999)));
- if(!list.length){$('lessonGrid').innerHTML='<div class="empty">No lessons found.</div>';return}
- $('lessonGrid').innerHTML=list.map(l=>{const id=String(first(l.lesson_id,l.id,'')),cover=first(l.cover_url,l.cover_image_url,l.image_url,l.thumbnail_url),published=yes(l.is_published),media=first(l.media_count,Array.isArray(l.media)?l.media.length:0,0);return `<article class="lesson-card"><div class="lesson-cover">${cover?`<img src="${esc(cover)}" alt="">`:'🐼'}<span class="lesson-badge">#${esc(first(l.order_index,l.order,'—'))} · YCT ${esc(first(l.level,l.course_level,'—'))}</span><span class="lesson-status pill ${published?'green':'yellow'}">${published?'Published':'Draft'}</span></div><div class="lesson-body"><h3>${esc(first(l.title,id,'Untitled lesson'))}</h3><div class="lesson-meta"><span class="pill blue">YCT ${esc(first(l.level,l.course_level,'—'))}</span><span class="pill purple">${esc(media)} media</span></div><p>${esc(first(l.description,'No description yet.'))}</p><div class="row-actions"><button class="btn btn-sm btn-soft" data-edit-lesson="${esc(id)}">Edit lesson</button><button class="btn btn-sm btn-danger" data-delete-lesson="${esc(id)}">Delete</button></div></div></article>`}).join('');
- document.querySelectorAll('[data-edit-lesson]').forEach(b=>b.onclick=()=>editLesson(b.dataset.editLesson));document.querySelectorAll('[data-delete-lesson]').forEach(b=>b.onclick=()=>deleteLesson(b.dataset.deleteLesson));
-}
-async function editLesson(id){try{const d=await api(`/admin/lessons/${encodeURIComponent(id)}`),l=d.lesson||d;$('lessonModalTitle').textContent='Edit lesson';$('lessonId').value=l.lesson_id||id;$('lessonIdInput').value=l.lesson_id||id;$('lessonTitle').value=l.title||'';$('lessonLevel').value=first(l.level,l.course_level,1);$('lessonOrder').value=first(l.order_index,l.order,1);$('lessonDescription').value=l.description||'';$('lessonCover').value=first(l.cover_url,l.cover_image_url,l.image_url,'');$('lessonVideo').value=l.video_url||'';$('lessonAudio').value=l.audio_url||'';$('lessonPublished').value=String(yes(l.is_published));$('lessonError').textContent='';renderMedia(d.media||l.media||[]);openModal('lessonModal')}catch(e){notify(e.message,'error')}}
-function newLesson(){$('lessonModalTitle').textContent='Create lesson';$('lessonForm').reset();$('lessonId').value='';$('lessonLevel').value=1;$('lessonOrder').value=state.lessons.length+1;$('lessonPublished').value='true';$('lessonError').textContent='';$('mediaList').innerHTML='<small class="muted">Save the lesson first, then add media.</small>';openModal('lessonModal');setTimeout(()=>$('lessonIdInput').focus(),100)}
-async function saveLesson(){const oldId=$('lessonId').value,payload={lesson_id:$('lessonIdInput').value.trim(),title:$('lessonTitle').value.trim(),level:Number($('lessonLevel').value)||1,order_index:Number($('lessonOrder').value)||1,description:$('lessonDescription').value.trim(),cover_url:$('lessonCover').value.trim(),video_url:$('lessonVideo').value.trim(),audio_url:$('lessonAudio').value.trim(),is_published:$('lessonPublished').value==='true'};if(!payload.lesson_id||!payload.title){$('lessonError').textContent='Lesson ID and title are required.';return}$('saveLessonBtn').disabled=true;try{const d=oldId?await api(`/admin/lessons/${encodeURIComponent(oldId)}`,{method:'PUT',body:JSON.stringify(payload)}):await api('/admin/lessons',{method:'POST',body:JSON.stringify(payload)});const savedId=d.lesson?.lesson_id||d.lesson_id||payload.lesson_id;notify('Lesson saved.');await loadLessons();await editLesson(savedId)}catch(e){$('lessonError').textContent=e.message}finally{$('saveLessonBtn').disabled=false}}
-async function deleteLesson(id){if(!confirm('Delete this lesson? This cannot be undone.'))return;try{await api(`/admin/lessons/${encodeURIComponent(id)}`,{method:'DELETE'});notify('Lesson deleted.');await loadLessons()}catch(e){notify(e.message,'error')}}
-function renderMedia(media){if(!Array.isArray(media)||!media.length){$('mediaList').innerHTML='<small class="muted">No media added yet.</small>';return}$('mediaList').innerHTML=media.map(m=>`<div class="media-row"><div class="media-thumb">${m.media_type==='image'?`<img src="${esc(m.media_url)}" alt="">`:m.media_type==='video'?'▶':'🔊'}</div><div><strong style="font-size:9px;color:var(--navy)">${esc(first(m.title,m.media_url,'Media'))}</strong><small style="display:block;font-size:8px;color:var(--muted)">${esc(m.caption||m.media_type||'')}</small></div><button class="btn btn-danger btn-sm" data-delete-media="${esc(m.media_id)}">Delete</button></div>`).join('');document.querySelectorAll('[data-delete-media]').forEach(b=>b.onclick=()=>deleteMedia(b.dataset.deleteMedia))}
-async function addMedia(){const id=$('lessonId').value;if(!id){notify('Save the lesson first.','error');return}const payload={media_type:$('mediaType').value,media_url:$('mediaUrl').value.trim(),title:$('mediaTitle').value.trim(),caption:$('mediaCaption').value.trim(),order_index:999,is_published:true};if(!payload.media_url){$('mediaError').textContent='Enter a media URL.';return}$('saveMediaBtn').disabled=true;try{await api(`/admin/lessons/${encodeURIComponent(id)}/media`,{method:'POST',body:JSON.stringify(payload)});closeModal('mediaModal');$('mediaUrl').value='';$('mediaTitle').value='';$('mediaCaption').value='';notify('Media added.');await editLesson(id)}catch(e){$('mediaError').textContent=e.message}finally{$('saveMediaBtn').disabled=false}}
-async function deleteMedia(id){const lessonId=$('lessonId').value;if(!confirm('Remove this media?'))return;try{await api(`/admin/lessons/${encodeURIComponent(lessonId)}/media/${encodeURIComponent(id)}`,{method:'DELETE'});notify('Media removed.');await editLesson(lessonId)}catch(e){notify(e.message,'error')}}
+  const $ = (id) => document.getElementById(id);
 
-/* ANALYTICS */
-async function loadAdminAnalytics(){
- const status=$('analyticsStatus');if(status){status.textContent='Loading…';status.className='pill yellow'}
- try{const data=await api('/admin/analytics');if(!data?.success)throw new Error(data?.error||'Analytics request failed');const u=data.users||{},g=data.growth||{},a=data.activity||{},l=data.learning||{},p=data.premium||{},set=(id,v)=>{if($(id))$(id).textContent=String(v)};
- set('dashVerified',(u.verified||0)+' verified accounts');set('dashUnverified',u.unverified||0);set('dashBanned',u.banned||0);set('dashPremiumRate',(p.conversion_percent||0)+'% conversion rate');set('dashActive',a.last_24_hours||0);set('dashXp',Number(l.total_xp||0).toLocaleString()+' XP');set('dashStreak',Number(l.average_streak||0)+' average');set('analyticsUsers',u.total||0);set('analyticsVerified',u.verified||0);set('analyticsPremium',u.premium||0);set('analyticsParents',u.parents||0);set('analyticsStudents',u.students||0);set('analyticsNewToday',g.today||0);set('analyticsNew7Days',g.last_7_days||0);set('analyticsNew30Days',g.last_30_days||0);set('analyticsActive24h',a.last_24_hours||0);set('analyticsActive7d',a.last_7_days||0);set('analyticsActive30d',a.last_30_days||0);set('analyticsTotalXP',Number(l.total_xp||0).toLocaleString());set('analyticsAverageXP',Number(l.average_xp||0).toLocaleString());set('analyticsAverageLevel',l.average_level||0);set('analyticsAverageStreak',l.average_streak||0);set('analyticsLessonsCompleted',Number(l.total_lessons_completed||0).toLocaleString());set('analyticsAchievements',Number(l.total_achievements||0).toLocaleString());drawGrowth(g);if(status){status.textContent='Live';status.className='pill green'}}catch(e){if(status){status.textContent='Unavailable';status.className='pill red'}console.error(e)}
-}
-function drawGrowth(g){
- const canvas=$('growthChart');if(!canvas)return;const rect=canvas.getBoundingClientRect(),dpr=devicePixelRatio||1;canvas.width=Math.max(300,rect.width*dpr);canvas.height=Math.max(180,rect.height*dpr);const c=canvas.getContext('2d');c.scale(dpr,dpr);const w=rect.width,h=rect.height;
- c.clearRect(0,0,w,h);const values=[Number(g.last_30_days||0),Number(g.last_7_days||0),Number(g.today||0)];const max=Math.max(...values,1),pad=28,step=(w-pad*2)/Math.max(values.length-1,1);
- c.strokeStyle='#E8EEF3';c.lineWidth=1;for(let i=0;i<4;i++){const y=20+i*(h-45)/3;c.beginPath();c.moveTo(pad,y);c.lineTo(w-pad,y);c.stroke()}
- c.beginPath();values.forEach((v,i)=>{const x=pad+i*step,y=h-25-(v/max)*(h-55);i?c.lineTo(x,y):c.moveTo(x,y)});c.strokeStyle='#4EA8DE';c.lineWidth=3;c.lineCap='round';c.lineJoin='round';c.stroke();
- values.forEach((v,i)=>{const x=pad+i*step,y=h-25-(v/max)*(h-55);c.beginPath();c.arc(x,y,4,0,Math.PI*2);c.fillStyle='#4EA8DE';c.fill();c.fillStyle='#64748B';c.font='9px Inter';c.textAlign='center';c.fillText(String(v),x,y-10)});c.textAlign='center';c.fillStyle='#94A3B8';c.font='8px Inter';['30 days','7 days','Today'].forEach((t,i)=>c.fillText(t,pad+i*step,h-5));
-}
-window.addEventListener('resize',()=>{if(state.section==='dashboard')loadAdminAnalytics()});
+  const first = (...values) =>
+    values.find((value) => value !== undefined && value !== null && value !== "");
 
-/* EMAIL */
-function emailSafeText(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function buildHanverseEmail({subject,message,username}){const s=emailSafeText(subject||'HanVerse Update'),u=emailSafeText(username||'HanVerse Admin'),body=String(message||'').split(/\n{2,}/).map(p=>`<p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#333">${emailSafeText(p).replace(/\n/g,'<br>')}</p>`).join('');return `<!doctype html><html><body style="margin:0;padding:0;background:#FFFDF7;font-family:Arial;color:#333"><table width="100%" cellpadding="0" cellspacing="0" style="background:#FFFDF7"><tr><td align="center" style="padding:28px 14px"><table width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;background:#fff;border:1px solid #eee8dd;border-radius:20px;overflow:hidden"><tr><td style="background:#4EA8DE;padding:24px 30px"><div style="font-size:25px;font-weight:800;color:#fff">🐼 HanVerse</div><div style="font-size:12px;color:#EAF6FD;margin-top:4px">Learn Chinese. Have fun. Grow.</div></td></tr><tr><td style="padding:34px"><div style="display:inline-block;background:#FFF4C7;color:#8A6A00;border-radius:999px;padding:6px 11px;font-size:11px;font-weight:700;margin-bottom:16px">HANVERSE UPDATE</div><h1 style="margin:0 0 22px;font-size:26px;color:#222">${s}</h1>${body}<hr style="border:0;border-top:1px solid #eee8dd;margin:28px 0 20px"><p style="margin:0;color:#777;font-size:12px">Written by <strong style="color:#333">${u}</strong></p></td></tr><tr><td style="background:#F7F8FA;padding:20px;text-align:center"><p style="margin:0;font-size:12px;font-weight:700;color:#555">HanVerse</p><p style="margin:6px 0 0;font-size:11px;color:#888">Your fun, friendly way to learn Mandarin Chinese.</p></td></tr></table></td></tr></table></body></html>`}
-function refreshRecipientCount(){let audience=document.querySelector('input[name="broadcastAudience"]:checked')?.value||'verified',users=state.users.filter(u=>u.email&&!yes(u.is_banned));if(audience==='verified')users=users.filter(u=>yes(u.is_verified));if(audience==='students')users=users.filter(u=>String(u.role||'').toLowerCase()==='student');if(audience==='parents')users=users.filter(u=>String(u.role||'').toLowerCase()==='parent');if(audience==='premium')users=users.filter(u=>yes(first(u.premium,u.is_premium)));if(audience==='non_premium')users=users.filter(u=>!yes(first(u.premium,u.is_premium)));$('broadcastRecipientCount').textContent=`${users.length} recipient${users.length===1?'':'s}`}
-function updateEmailPreview(){const subject=$('broadcastSubject').value.trim()||'HanVerse Update',message=$('broadcastMessage').value||'Your message will appear here.',username=first(state.adminUser?.full_name,state.adminUser?.username,'HanVerse Admin');$('emailPreview').srcdoc=buildHanverseEmail({subject,message,username})}
-function resetBroadcastComposer(){$('broadcastSubject').value='';$('broadcastMessage').value='';$('broadcastDate').value='';$('broadcastTime').value='';document.querySelector('input[name="broadcastAudience"][value="verified"]').checked=true;document.querySelector('input[name="broadcastTiming"][value="now"]').checked=true;$('broadcastScheduleBox').classList.add('hidden');$('broadcastError').textContent='';$('personalRecipientBox').classList.add('hidden');$('broadcastAudienceField').classList.remove('hidden');$('broadcastTimingField').classList.remove('hidden');updateEmailPreview()}
-function openBroadcast(){resetBroadcastComposer();state.pendingEmail=null;refreshRecipientCount();openModal('broadcastModal')}
-function openPersonalEmail(id){const u=state.users.find(x=>String(x.user_id)===String(id));if(!u)return;resetBroadcastComposer();state.pendingEmail={mode:'personal',campaign_type:'personal',recipient_user_id:u.user_id,recipient_email:u.email,recipient_username:first(u.username,u.full_name,'HanVerse User'),timing:'now',scheduled_for:null,timezone:'Africa/Nairobi'};$('personalRecipientBox').classList.remove('hidden');$('personalRecipientEmail').textContent=u.email;$('broadcastAudienceField').classList.add('hidden');$('broadcastTimingField').classList.add('hidden');openModal('broadcastModal')}
-$('broadcastForm').onsubmit=e=>{e.preventDefault();const subject=$('broadcastSubject').value.trim(),message=$('broadcastMessage').value.trim();if(!subject||!message){$('broadcastError').textContent='Subject and message are required.';return}const personal=state.pendingEmail?.mode==='personal',timing=personal?'now':(document.querySelector('input[name="broadcastTiming"]:checked')?.value||'now'),audience=document.querySelector('input[name="broadcastAudience"]:checked')?.value||'verified';const action=personal?{...state.pendingEmail,subject,message,timing:'now',scheduled_for:null}:{mode:'broadcast',campaign_type:'broadcast',audience_type:audience,subject,message,timing,scheduled_for:null,timezone:$('broadcastTimezone').value,recipient_username:first(state.adminUser?.username,state.adminUser?.full_name,'HanVerse Admin')};if(!personal&&timing==='scheduled'){if(!$('broadcastDate').value||!$('broadcastTime').value){$('broadcastError').textContent='Choose a date and time.';return}action.scheduled_for=`${$('broadcastDate').value}T${$('broadcastTime').value}:00`;if(new Date(action.scheduled_for)<=new Date()){$('broadcastError').textContent='Scheduled time must be in the future.';return}}state.pendingEmail=action;$('confirmActionText').textContent=personal?`Send "${subject}" to ${action.recipient_email}.`:timing==='scheduled'?`Schedule "${subject}" for ${action.scheduled_for} (${action.timezone}).`:`Send "${subject}" immediately to ${$('broadcastRecipientCount').textContent}.`;$('emailConfirmPassword').value='';$('emailConfirmError').textContent='';closeModal('broadcastModal');openModal('emailConfirmModal')};
-$('emailConfirmForm').onsubmit=async e=>{e.preventDefault();const action=state.pendingEmail;if(!action)return;const password=$('emailConfirmPassword').value.trim();if(!password){$('emailConfirmError').textContent='Admin password is required.';return}const b=$('confirmEmailBtn');b.disabled=true;try{const html=buildHanverseEmail({subject:action.subject,message:action.message,username:first(action.recipient_username,state.adminUser?.username,'HanVerse Admin')});let data;if(action.mode==='personal')data=await api(`/admin/users/email/${encodeURIComponent(action.recipient_user_id)}`,{method:'POST',body:JSON.stringify({subject:action.subject,message:action.message,html,adminPassword:password})});else data=await api('/admin/email/campaigns',{method:'POST',body:JSON.stringify({...action,html,adminPassword:password})});closeModal('emailConfirmModal');state.pendingEmail=null;notify(data.message||'Broadcast submitted successfully.');await refreshCommunications()}catch(err){$('emailConfirmError').textContent=err.message}finally{b.disabled=false}};
+  const bool = (value) =>
+    value === true ||
+    value === 1 ||
+    value === "1" ||
+    String(value).toLowerCase() === "true";
 
-/* COMMUNICATIONS */
-function campaignRow(c){const date=c.scheduled_for?new Date(c.scheduled_for).toLocaleString('en-KE',{dateStyle:'medium',timeStyle:'short'}):'Immediate',status=String(c.status||'unknown').replaceAll('_',' ');return `<div class="campaign-row"><div><strong>${esc(c.subject||'(No subject)')}</strong><small>${esc(c.audience_type||'broadcast')} · ${Number(c.total_recipients||0)} recipients</small></div><div><span class="campaign-status">${esc(status)}</span></div><div><small>${esc(date)}</small></div><div>${c.status==='scheduled'?`<button class="btn btn-sm" data-cancel-campaign="${esc(c.campaign_id)}">Cancel</button>`:''}</div></div>`}
-function bindCampaignCancel(box){box.querySelectorAll('[data-cancel-campaign]').forEach(b=>b.onclick=async()=>{if(!confirm('Cancel this scheduled broadcast?'))return;try{await api(`/admin/email/campaigns/${encodeURIComponent(b.dataset.cancelCampaign)}/cancel`,{method:'POST'});notify('Broadcast cancelled.');await refreshCommunications()}catch(e){notify(e.message,'error')}})}
-function renderCommunicationSummary(list){list=Array.isArray(list)?list:[];$('communicationsCampaignCount').textContent=list.length;$('communicationsScheduledCount').textContent=list.filter(c=>String(c.status).toLowerCase()==='scheduled').length;$('communicationsCompletedCount').textContent=list.filter(c=>String(c.status).toLowerCase()==='completed').length;const box=$('communicationsRecentList');box.innerHTML=list.length?list.slice(0,5).map(c=>campaignRow(c)).join(''):'<div class="empty">No broadcasts yet.</div>';bindCampaignCancel(box)}
-async function refreshCommunications(){if(!state.token)return;try{const d=await api('/admin/email/campaigns');state.campaigns=Array.isArray(d.campaigns)?d.campaigns.filter(c=>c.campaign_type==='broadcast'||!c.campaign_type):[];renderCommunicationSummary(state.campaigns)}catch(e){$('communicationsRecentList').innerHTML=`<div class="empty">⚠ ${esc(e.message)}</div>`}}
-async function refreshCampaigns(){const box=$('broadcastCampaignList');try{const status=$('broadcastStatusFilter').value,d=await api(`/admin/email/campaigns${status?'?status='+encodeURIComponent(status):''}`),list=(d.campaigns||[]).filter(c=>c.campaign_type==='broadcast'||!c.campaign_type);box.innerHTML=list.length?list.map(c=>campaignRow(c)).join(''):'<div class="empty">No broadcasts yet.</div>';bindCampaignCancel(box)}catch(e){box.innerHTML=`<div class="empty">${esc(e.message)}</div>`}}
+  const escapeHTML = (value) =>
+    String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char]));
 
-/* PANDA */
-async function pandaReply(input,messages){const message=input.value.trim();if(!message)return;messages.insertAdjacentHTML('beforeend',`<div class="msg me"><div class="bubble">${esc(message)}</div></div>`);input.value='';messages.scrollTop=messages.scrollHeight;try{const d=await api('/panda-chat',{method:'POST',body:JSON.stringify({message})});messages.insertAdjacentHTML('beforeend',`<div class="msg"><span>🐼</span><div class="bubble">${esc(d.reply||'I am still learning!')}</div></div>`)}catch(e){messages.insertAdjacentHTML('beforeend','<div class="msg"><span>🐼</span><div class="bubble">I could not reach Panda right now.</div></div>')}messages.scrollTop=messages.scrollHeight}
+  function getSessionUser() {
+    try {
+      return JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  }
 
-/* EVENTS */
-document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>switchSection(b.dataset.section));
-$('mobileMenu').onclick=()=>$('sidebar').classList.toggle('open');
-$('topBroadcast').onclick=openBroadcast;$('topNewUser').onclick=newUser;$('usersNewUser').onclick=newUser;$('quickUser').onclick=newUser;$('quickLesson').onclick=newLesson;$('quickBroadcast').onclick=openBroadcast;$('quickPanda').onclick=()=>switchSection('panda');$('dashNewLesson').onclick=newLesson;$('newLessonBtn').onclick=newLesson;
-$('refreshBtn').onclick=async()=>{const b=$('refreshBtn');b.disabled=true;try{await Promise.all([loadUsers(),loadLessons(),loadAdminAnalytics(),refreshCommunications()]);notify('Admin data refreshed.')}finally{b.disabled=false}};
-$('refreshAnalytics').onclick=loadAdminAnalytics;
-document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.userFilter=b.dataset.filter;renderUsers()});
-$('userSearch').oninput=()=>{state.userQuery=$('userSearch').value;renderUsers()};$('lessonSearch').oninput=()=>{state.lessonQuery=$('lessonSearch').value;renderLessons()};$('lessonLevelFilter').onchange=()=>{state.lessonLevel=$('lessonLevelFilter').value;renderLessons()};
-$('saveLessonBtn').onclick=saveLesson;$('addMediaBtn').onclick=()=>{if(!$('lessonId').value){notify('Save the lesson first.','error');return}$('mediaError').textContent='';openModal('mediaModal')};$('saveMediaBtn').onclick=addMedia;
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)closeModal(m.id)});
-document.querySelectorAll('input[name="broadcastAudience"]').forEach(x=>x.onchange=refreshRecipientCount);document.querySelectorAll('input[name="broadcastTiming"]').forEach(x=>x.onchange=e=>$('broadcastScheduleBox').classList.toggle('hidden',e.target.value!=='scheduled'));
-$('broadcastSubject').oninput=updateEmailPreview;$('broadcastMessage').oninput=updateEmailPreview;$('communicationsComposeBtn').onclick=openBroadcast;$('communicationsHistoryBtn').onclick=()=>{openModal('broadcastHistoryModal');refreshCampaigns()};$('communicationsRefreshBtn').onclick=refreshCommunications;$('broadcastRefreshBtn').onclick=refreshCampaigns;$('broadcastStatusFilter').onchange=refreshCampaigns;
-$('adminPandaSend').onclick=()=>pandaReply($('adminPandaInput'),$('adminPandaMessages'));$('adminPandaInput').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();pandaReply($('adminPandaInput'),$('adminPandaMessages'))}};document.querySelectorAll('[data-prompt]').forEach(b=>b.onclick=()=>{$('adminPandaInput').value=b.dataset.prompt;$('adminPandaInput').focus()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal.open').forEach(m=>closeModal(m.id));$('sidebar').classList.remove('open')}});
+  function authHeaders() {
+    const headers = { "Content-Type": "application/json" };
 
-/* START */
-(async()=>{if(!state.token){showLogin();return}setIdentity(sessionUser());showApp();try{await Promise.all([loadUsers(),loadLessons(),loadAdminAnalytics(),refreshCommunications()])}catch(e){console.error(e)}})();
+    if (state.token) {
+      headers.Authorization = `Bearer ${state.token}`;
+    }
+
+    return headers;
+  }
+
+  async function api(path, options = {}) {
+    const response = await fetch(API + path, {
+      ...options,
+      headers: {
+        ...authHeaders(),
+        ...(options.headers || {})
+      }
+    });
+
+    const raw = await response.text();
+
+    let data = {};
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = { raw };
+    }
+
+    if (response.status === 401) {
+      state.token = "";
+      localStorage.removeItem(TOKEN_KEY);
+      showLogin("Your admin session has expired. Please sign in again.");
+      throw new Error("Unauthorised admin session.");
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error ||
+        data.message ||
+        data.raw ||
+        `Request failed (${response.status}).`
+      );
+    }
+
+    return data;
+  }
+
+  function notify(message, type = "ok") {
+    const stack = $("toastStack");
+
+    const toast = document.createElement("div");
+    toast.className = `toast ${type === "error" ? "error" : ""}`;
+    toast.textContent = message;
+
+    stack.appendChild(toast);
+
+    window.setTimeout(() => {
+      toast.style.opacity = "0";
+      window.setTimeout(() => toast.remove(), 220);
+    }, 3200);
+  }
+
+  function openModal(id) {
+    const modal = $(id);
+    if (modal) modal.classList.add("open");
+  }
+
+  function closeModal(id) {
+    const modal = $(id);
+    if (modal) modal.classList.remove("open");
+  }
+
+  function showLogin(message = "") {
+    $("authScreen").classList.remove("hidden");
+    $("app").classList.add("hidden");
+    $("authError").textContent = message;
+    window.setTimeout(() => $("adminPassword").focus(), 50);
+  }
+
+  function showApp() {
+    $("authScreen").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    updateAdminIdentity();
+    switchSection("dashboard");
+  }
+
+  function updateAdminIdentity() {
+    const user = state.admin || getSessionUser();
+    const name = first(
+      user.full_name,
+      user.username,
+      user.email,
+      "Administrator"
+    );
+
+    $("sidebarAdminName").textContent = name;
+  }
+
+  /* ================= AUTH ================= */
+
+  async function login(password) {
+    const sessionUser = getSessionUser();
+
+    if (!sessionUser.user_id) {
+      throw new Error("Please log in to HanVerse first.");
+    }
+
+    const response = await fetch(`${API}/admin/verify-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: sessionUser.user_id,
+        adminPassword: password
+      })
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.adminToken) {
+      throw new Error(data.error || "Admin authentication failed.");
+    }
+
+    state.token = data.adminToken;
+    state.admin = data.user || sessionUser;
+
+    localStorage.setItem(TOKEN_KEY, state.token);
+
+    showApp();
+
+    await Promise.all([
+      loadUsers(),
+      loadLessons(),
+      loadAnalytics(),
+      loadCampaigns()
+    ]);
+  }
+
+  $("authForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const button = $("authButton");
+    button.disabled = true;
+    $("authError").textContent = "";
+
+    try {
+      await login($("adminPassword").value);
+      $("adminPassword").value = "";
+    } catch (error) {
+      $("authError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $("logoutButton").addEventListener("click", () => {
+    if (!confirm("Log out of the HanVerse Admin panel?")) return;
+
+    state.token = "";
+    state.admin = null;
+    localStorage.removeItem(TOKEN_KEY);
+
+    showLogin();
+  });
+
+  /* ================= NAVIGATION ================= */
+
+  const pageInfo = {
+    dashboard: ["Dashboard", "Your HanVerse command centre"],
+    users: ["Users", "Manage accounts, verification, roles and access"],
+    lessons: ["Lessons", "Manage the HanVerse learning library"],
+    analytics: ["Analytics", "Live HanVerse platform metrics"],
+    communications: ["Broadcasts", "Create and review email campaigns"],
+    panda: ["Panda AI", "Your admin-only HanVerse assistant"]
+  };
+
+  function switchSection(section) {
+    document.querySelectorAll(".section").forEach((element) => {
+      element.classList.toggle(
+        "active",
+        element.id === `${section}Section`
+      );
+    });
+
+    document.querySelectorAll(".nav-button").forEach((button) => {
+      button.classList.toggle(
+        "active",
+        button.dataset.section === section
+      );
+    });
+
+    $("pageTitle").textContent = pageInfo[section][0];
+    $("pageSubtitle").textContent = pageInfo[section][1];
+
+    $("sidebar").classList.remove("open");
+
+    if (section === "users") loadUsers();
+    if (section === "lessons") loadLessons();
+    if (section === "analytics") loadAnalytics();
+    if (section === "communications") loadCampaigns();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.querySelectorAll(".nav-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      switchSection(button.dataset.section);
+    });
+  });
+
+  $("mobileMenu").addEventListener("click", () => {
+    $("sidebar").classList.toggle("open");
+  });
+
+  /* ================= USERS ================= */
+
+  function matchesUserFilter(user) {
+    const role = String(user.role || "").toLowerCase();
+    const premium = bool(first(user.premium, user.is_premium));
+    const banned = bool(user.is_banned);
+    const verified = bool(user.is_verified);
+
+    if (state.userFilter === "pending" && verified) return false;
+    if (state.userFilter === "parents" && role !== "parent") return false;
+    if (state.userFilter === "premium" && !premium) return false;
+    if (state.userFilter === "banned" && !banned) return false;
+
+    const query = state.userSearch.trim().toLowerCase();
+
+    if (!query) return true;
+
+    return [
+      user.full_name,
+      user.username,
+      user.email
+    ].some((value) =>
+      String(value || "").toLowerCase().includes(query)
+    );
+  }
+
+  async function loadUsers() {
+    const table = $("userTable");
+
+    table.innerHTML = `<div class="loading">Loading users…</div>`;
+
+    try {
+      const data = await api("/admin/overview");
+
+      state.users = Array.isArray(data.users)
+        ? data.users
+        : [];
+
+      renderUsers();
+      updateUserCounts();
+      refreshRecipientCount();
+    } catch (error) {
+      table.innerHTML = `
+        <div class="empty">
+          Could not load users.<br>${escapeHTML(error.message)}
+        </div>
+      `;
+    }
+  }
+
+  function updateUserCounts() {
+    const users = state.users;
+
+    $("userCount").textContent = users.length;
+
+    const verified = users.filter((user) => bool(user.is_verified)).length;
+    const premium = users.filter((user) =>
+      bool(first(user.premium, user.is_premium))
+    ).length;
+    const parents = users.filter((user) =>
+      String(user.role || "").toLowerCase() === "parent"
+    ).length;
+    const banned = users.filter((user) => bool(user.is_banned)).length;
+
+    $("metricUsers").textContent = users.length;
+    $("metricPremium").textContent = premium;
+    $("metricPremiumRate").textContent =
+      `${users.length ? Math.round((premium / users.length) * 100) : 0}% conversion`;
+
+    $("snapshotVerified").textContent = verified;
+    $("snapshotPending").textContent = Math.max(users.length - verified, 0);
+    $("snapshotParents").textContent = parents;
+    $("snapshotBanned").textContent = banned;
+  }
+
+  function renderUsers() {
+    const users = state.users.filter(matchesUserFilter);
+
+    if (!users.length) {
+      $("userTable").innerHTML = `
+        <div class="empty">
+          No users match the current filter.
+        </div>
+      `;
+      return;
+    }
+
+    const rows = users.map((user) => {
+      const id = escapeHTML(user.user_id);
+      const name = escapeHTML(first(user.full_name, user.username, "User"));
+      const role = String(user.role || "student").toLowerCase();
+      const verified = bool(user.is_verified);
+      const banned = bool(user.is_banned);
+      const premium = bool(first(user.premium, user.is_premium));
+
+      const icon =
+        role === "admin" ? "👑" :
+        role === "parent" ? "👪" :
+        "🎓";
+
+      const joined = user.created_at
+        ? new Date(user.created_at).toLocaleDateString("en-KE")
+        : "—";
+
+      return `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">${icon}</div>
+              <div class="user-name">
+                <strong>${name}</strong>
+                <small>${escapeHTML(user.email || "")}</small>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="pill blue">${escapeHTML(role)}</span>
+          </td>
+
+          <td>
+            ${
+              banned
+                ? `<span class="pill red">🚫 Banned</span>`
+                : verified
+                  ? `<span class="pill green">✓ Verified</span>`
+                  : `<span class="pill yellow">⏳ Pending</span>`
+            }
+          </td>
+
+          <td>
+            <strong style="font-size:10px;color:var(--navy);">
+              ${Number(first(user.xp, 0)).toLocaleString()} XP
+            </strong>
+            <small class="muted" style="display:block;font-size:8px;">
+              Level ${escapeHTML(first(user.level, 1))}
+            </small>
+          </td>
+
+          <td>
+            ${
+              premium
+                ? `<span class="pill purple">★ Premium</span>`
+                : `<span class="muted" style="font-size:8px;">Standard</span>`
+            }
+          </td>
+
+          <td>
+            <span class="muted" style="font-size:8px;">${joined}</span>
+          </td>
+
+          <td>
+            <div class="row-actions">
+              <button class="btn btn-soft btn-sm" data-edit-user="${id}">Edit</button>
+              <button class="btn btn-sm" data-email-user="${id}">Email</button>
+
+              ${
+                verified
+                  ? ""
+                  : `<button class="btn btn-success btn-sm" data-verify-user="${id}">Verify</button>`
+              }
+
+              <button class="btn btn-danger btn-sm" data-delete-user="${id}">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    $("userTable").innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th>Plan</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+
+    document.querySelectorAll("[data-edit-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        editUser(button.dataset.editUser);
+      });
+    });
+
+    document.querySelectorAll("[data-email-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        openPersonalEmail(button.dataset.emailUser);
+      });
+    });
+
+    document.querySelectorAll("[data-verify-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        verifyUser(button.dataset.verifyUser);
+      });
+    });
+
+    document.querySelectorAll("[data-delete-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        deleteUser(button.dataset.deleteUser);
+      });
+    });
+  }
+
+  function editUser(id) {
+    const user = state.users.find(
+      (item) => String(item.user_id) === String(id)
+    );
+
+    if (!user) return;
+
+    $("userId").value = user.user_id;
+    $("userFullName").value = user.full_name || "";
+    $("userUsername").value = user.username || "";
+    $("userEmail").value = user.email || "";
+    $("userPassword").value = "";
+    $("userRole").value = user.role || "student";
+    $("userLevel").value = first(user.level, 1);
+    $("userXP").value = first(user.xp, 0);
+    $("userPremium").value = String(
+      bool(first(user.premium, user.is_premium))
+    );
+    $("userVerified").value = String(bool(user.is_verified));
+    $("userBanned").value = String(bool(user.is_banned));
+
+    $("userFormError").textContent = "";
+
+    openModal("userModal");
+  }
+
+  $("userForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const id = $("userId").value;
+
+    if (!id) {
+      $("userFormError").textContent = "No user selected.";
+      return;
+    }
+
+    const button = $("saveUserButton");
+    button.disabled = true;
+    $("userFormError").textContent = "";
+
+    const payload = {
+      full_name: $("userFullName").value.trim(),
+      username: $("userUsername").value.trim(),
+      email: $("userEmail").value.trim(),
+      role: $("userRole").value,
+      level: Number($("userLevel").value) || 1,
+      xp: Number($("userXP").value) || 0,
+      premium: $("userPremium").value === "true",
+      is_verified: $("userVerified").value === "true",
+      is_banned: $("userBanned").value === "true"
+    };
+
+    const password = $("userPassword").value.trim();
+
+    if (password) payload.password = password;
+
+    try {
+      await api(`/admin/users/update/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      closeModal("userModal");
+      notify("User updated successfully.");
+      await loadUsers();
+    } catch (error) {
+      $("userFormError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  async function verifyUser(id) {
+    if (!confirm("Verify this user?")) return;
+
+    try {
+      await api(`/admin/toggle-verification/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify({ verified: true })
+      });
+
+      notify("User verified.");
+      await loadUsers();
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  async function deleteUser(id) {
+    if (!confirm("Delete this user permanently? This cannot be undone.")) return;
+
+    try {
+      await api(`/admin/users/delete/${encodeURIComponent(id)}`, {
+        method: "DELETE"
+      });
+
+      notify("User deleted.");
+      await loadUsers();
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  document.querySelectorAll("[data-user-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-user-filter]").forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      button.classList.add("active");
+      state.userFilter = button.dataset.userFilter;
+      renderUsers();
+    });
+  });
+
+  $("userSearch").addEventListener("input", () => {
+    state.userSearch = $("userSearch").value;
+    renderUsers();
+  });
+
+  /* ================= LESSONS ================= */
+
+  async function loadLessons() {
+    $("lessonGrid").innerHTML = `<div class="loading">Loading lessons…</div>`;
+
+    try {
+      const data = await api("/admin/lessons");
+
+      state.lessons = Array.isArray(data.lessons)
+        ? data.lessons
+        : [];
+
+      $("lessonCount").textContent = state.lessons.length;
+      $("metricLessons").textContent = state.lessons.length;
+
+      renderLessons();
+    } catch (error) {
+      $("lessonGrid").innerHTML = `
+        <div class="empty">
+          Could not load lessons.<br>${escapeHTML(error.message)}
+        </div>
+      `;
+    }
+  }
+
+  function renderLessons() {
+    const query = state.lessonSearch.trim().toLowerCase();
+    const level = state.lessonLevel;
+
+    const lessons = state.lessons
+      .filter((lesson) => {
+        const lessonLevel = String(first(lesson.level, ""));
+
+        const matchesLevel =
+          !level || lessonLevel === level;
+
+        const matchesSearch =
+          !query ||
+          [
+            lesson.lesson_id,
+            lesson.title,
+            lesson.description
+          ].some((value) =>
+            String(value || "").toLowerCase().includes(query)
+          );
+
+        return matchesLevel && matchesSearch;
+      })
+      .sort((a, b) =>
+        Number(first(a.order_index, 999)) -
+        Number(first(b.order_index, 999))
+      );
+
+    if (!lessons.length) {
+      $("lessonGrid").innerHTML = `
+        <div class="empty">
+          No lessons match the current search.
+        </div>
+      `;
+      return;
+    }
+
+    $("lessonGrid").innerHTML = lessons.map((lesson) => {
+      const id = escapeHTML(first(lesson.lesson_id, ""));
+      const title = escapeHTML(first(lesson.title, "Untitled lesson"));
+      const description = escapeHTML(first(lesson.description, "No description yet."));
+      const levelValue = escapeHTML(first(lesson.level, "—"));
+      const order = escapeHTML(first(lesson.order_index, "—"));
+      const published = bool(lesson.is_published);
+      const premium = bool(lesson.premium);
+      const mediaCount = Number(first(lesson.media_count, 0));
+      const icon = escapeHTML(first(lesson.icon, "🐼"));
+
+      return `
+        <article class="lesson-card">
+
+          <div class="lesson-cover">
+            ${icon}
+
+            <span class="lesson-label">
+              #${order} · YCT ${levelValue}
+            </span>
+
+            <span class="lesson-state pill ${published ? "green" : "yellow"}">
+              ${published ? "Published" : "Draft"}
+            </span>
+          </div>
+
+          <div class="lesson-body">
+
+            <h3>${title}</h3>
+
+            <div class="lesson-meta">
+              <span class="pill blue">YCT ${levelValue}</span>
+              <span class="pill">${mediaCount} media</span>
+              ${premium ? `<span class="pill purple">★ Premium</span>` : ""}
+            </div>
+
+            <p>${description}</p>
+
+            <div class="row-actions">
+              <button class="btn btn-soft btn-sm" data-edit-lesson="${id}">
+                Edit
+              </button>
+
+              <button class="btn btn-danger btn-sm" data-delete-lesson="${id}">
+                Delete
+              </button>
+            </div>
+
+          </div>
+        </article>
+      `;
+    }).join("");
+
+    document.querySelectorAll("[data-edit-lesson]").forEach((button) => {
+      button.addEventListener("click", () => {
+        editLesson(button.dataset.editLesson);
+      });
+    });
+
+    document.querySelectorAll("[data-delete-lesson]").forEach((button) => {
+      button.addEventListener("click", () => {
+        deleteLesson(button.dataset.deleteLesson);
+      });
+    });
+  }
+
+  function newLesson() {
+    $("lessonModalTitle").textContent = "Create lesson";
+
+    $("lessonOriginalId").value = "";
+    $("lessonId").value = "";
+    $("lessonTitle").value = "";
+    $("lessonLevel").value = 1;
+    $("lessonOrder").value = state.lessons.length + 1;
+    $("lessonXP").value = 0;
+    $("lessonIcon").value = "🐼";
+    $("lessonPremium").value = "false";
+    $("lessonPublished").value = "false";
+    $("lessonDescription").value = "";
+    $("lessonContent").value = "";
+    $("lessonVocabulary").value = "[]";
+    $("lessonQuiz").value = "[]";
+    $("lessonObjectives").value = "[]";
+
+    $("lessonFormError").textContent = "";
+    $("mediaList").innerHTML =
+      `<div class="muted" style="font-size:8px;">Save the lesson first to manage media.</div>`;
+
+    openModal("lessonModal");
+  }
+
+  async function editLesson(id) {
+    try {
+      const data = await api(
+        `/admin/lessons/${encodeURIComponent(id)}`
+      );
+
+      const lesson = data.lesson || {};
+      const media = data.media || [];
+
+      $("lessonModalTitle").textContent = "Edit lesson";
+
+      $("lessonOriginalId").value = lesson.lesson_id || id;
+      $("lessonId").value = lesson.lesson_id || id;
+      $("lessonTitle").value = lesson.title || "";
+      $("lessonLevel").value = first(lesson.level, 1);
+      $("lessonOrder").value = first(lesson.order_index, 1);
+      $("lessonXP").value = first(lesson.xp, 0);
+      $("lessonIcon").value = first(lesson.icon, "🐼");
+      $("lessonPremium").value = String(bool(lesson.premium));
+      $("lessonPublished").value = String(bool(lesson.is_published));
+      $("lessonDescription").value = lesson.description || "";
+      $("lessonContent").value = lesson.content || "";
+
+      $("lessonVocabulary").value =
+        formatJSONField(lesson.vocabulary);
+
+      $("lessonQuiz").value =
+        formatJSONField(lesson.quiz);
+
+      $("lessonObjectives").value =
+        formatJSONField(lesson.learning_objectives);
+
+      $("lessonFormError").textContent = "";
+
+      renderMedia(media);
+      openModal("lessonModal");
+
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  function formatJSONField(value) {
+    if (value === null || value === undefined || value === "") {
+      return "[]";
+    }
+
+    if (typeof value === "string") {
+      try {
+        return JSON.stringify(JSON.parse(value), null, 2);
+      } catch {
+        return value;
+      }
+    }
+
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return "[]";
+    }
+  }
+
+  function parseJSONField(id, label) {
+    const raw = $(id).value.trim();
+
+    if (!raw) return [];
+
+    try {
+      return JSON.parse(raw);
+    } catch {
+      throw new Error(`${label} must contain valid JSON.`);
+    }
+  }
+
+  async function saveLesson() {
+    const originalId = $("lessonOriginalId").value.trim();
+
+    const lessonId = $("lessonId").value.trim();
+    const title = $("lessonTitle").value.trim();
+
+    if (!lessonId || !title) {
+      $("lessonFormError").textContent =
+        "Lesson ID and title are required.";
+      return;
+    }
+
+    let vocabulary;
+    let quiz;
+    let objectives;
+
+    try {
+      vocabulary = parseJSONField("lessonVocabulary", "Vocabulary");
+      quiz = parseJSONField("lessonQuiz", "Quiz");
+      objectives = parseJSONField("lessonObjectives", "Learning objectives");
+    } catch (error) {
+      $("lessonFormError").textContent = error.message;
+      return;
+    }
+
+    const payload = {
+      lesson_id: lessonId,
+      title,
+      description: $("lessonDescription").value.trim(),
+      content: $("lessonContent").value,
+      level: Number($("lessonLevel").value) || 1,
+      premium: $("lessonPremium").value === "true",
+      xp: Number($("lessonXP").value) || 0,
+      icon: $("lessonIcon").value.trim() || "🐼",
+      order_index: Number($("lessonOrder").value) || 1,
+      vocabulary,
+      quiz,
+      learning_objectives: objectives,
+      is_published: $("lessonPublished").value === "true"
+    };
+
+    const button = $("saveLessonButton");
+    button.disabled = true;
+    $("lessonFormError").textContent = "";
+
+    try {
+      let data;
+
+      if (originalId) {
+        data = await api(
+          `/admin/lessons/${encodeURIComponent(originalId)}`,
+          {
+            method: "PUT",
+            body: JSON.stringify(payload)
+          }
+        );
+      } else {
+        data = await api("/admin/lessons", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+      }
+
+      notify(data.message || "Lesson saved successfully.");
+
+      await loadLessons();
+
+      const savedId =
+        data.lesson?.lesson_id ||
+        data.lesson_id ||
+        lessonId;
+
+      await editLesson(savedId);
+
+    } catch (error) {
+      $("lessonFormError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function deleteLesson(id) {
+    if (!confirm("Delete this lesson? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await api(
+        `/admin/lessons/${encodeURIComponent(id)}`,
+        { method: "DELETE" }
+      );
+
+      notify("Lesson deleted.");
+      await loadLessons();
+
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  function renderMedia(media) {
+    if (!Array.isArray(media) || !media.length) {
+      $("mediaList").innerHTML =
+        `<div class="muted" style="font-size:8px;">No media added yet.</div>`;
+      return;
+    }
+
+    $("mediaList").innerHTML = media.map((item) => {
+      const type = item.media_type || "image";
+      const mediaId = escapeHTML(item.media_id);
+
+      const preview =
+        type === "image"
+          ? `<img src="${escapeHTML(item.media_url)}" alt="">`
+          : type === "video"
+            ? "▶"
+            : "🔊";
+
+      return `
+        <div class="media-row">
+
+          <div class="media-thumb">${preview}</div>
+
+          <div>
+            <strong style="font-size:9px;color:var(--navy);">
+              ${escapeHTML(first(item.title, item.media_url, "Media"))}
+            </strong>
+
+            <div class="muted" style="font-size:8px;">
+              ${escapeHTML(first(item.caption, type, ""))}
+            </div>
+          </div>
+
+          <button
+            class="btn btn-danger btn-sm"
+            data-delete-media="${mediaId}"
+          >
+            Delete
+          </button>
+
+        </div>
+      `;
+    }).join("");
+
+    document.querySelectorAll("[data-delete-media]").forEach((button) => {
+      button.addEventListener("click", () => {
+        deleteMedia(button.dataset.deleteMedia);
+      });
+    });
+  }
+
+  $("saveLessonButton").addEventListener("click", saveLesson);
+
+  $("addMediaButton").addEventListener("click", () => {
+    if (!$("lessonOriginalId").value.trim()) {
+      notify("Save the lesson first.", "error");
+      return;
+    }
+
+    $("mediaType").value = "image";
+    $("mediaURL").value = "";
+    $("mediaTitle").value = "";
+    $("mediaCaption").value = "";
+    $("mediaAlt").value = "";
+    $("mediaError").textContent = "";
+
+    openModal("mediaModal");
+  });
+
+  $("saveMediaButton").addEventListener("click", async () => {
+    const lessonId = $("lessonOriginalId").value.trim();
+
+    if (!lessonId) {
+      $("mediaError").textContent = "Save the lesson first.";
+      return;
+    }
+
+    const mediaURL = $("mediaURL").value.trim();
+
+    if (!mediaURL) {
+      $("mediaError").textContent = "Media URL is required.";
+      return;
+    }
+
+    const button = $("saveMediaButton");
+    button.disabled = true;
+    $("mediaError").textContent = "";
+
+    try {
+      await api(
+        `/admin/lessons/${encodeURIComponent(lessonId)}/media`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            media_type: $("mediaType").value,
+            media_url: mediaURL,
+            title: $("mediaTitle").value.trim(),
+            caption: $("mediaCaption").value.trim(),
+            alt_text: $("mediaAlt").value.trim(),
+            order_index: 999,
+            is_published: true
+          })
+        }
+      );
+
+      closeModal("mediaModal");
+      notify("Media added.");
+
+      await editLesson(lessonId);
+
+    } catch (error) {
+      $("mediaError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  async function deleteMedia(mediaId) {
+    const lessonId = $("lessonOriginalId").value.trim();
+
+    if (!confirm("Remove this media?")) return;
+
+    try {
+      await api(
+        `/admin/lessons/${encodeURIComponent(lessonId)}/media/${encodeURIComponent(mediaId)}`,
+        { method: "DELETE" }
+      );
+
+      notify("Media removed.");
+      await editLesson(lessonId);
+
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  $("lessonSearch").addEventListener("input", () => {
+    state.lessonSearch = $("lessonSearch").value;
+    renderLessons();
+  });
+
+  $("lessonLevelFilter").addEventListener("change", () => {
+    state.lessonLevel = $("lessonLevelFilter").value;
+    renderLessons();
+  });
+
+  /* ================= ANALYTICS ================= */
+
+  async function loadAnalytics() {
+    $("analyticsStatus").textContent = "Loading…";
+    $("analyticsStatus").className = "pill yellow";
+
+    try {
+      const data = await api("/admin/analytics");
+
+      if (!data.success) {
+        throw new Error(data.error || "Analytics request failed.");
+      }
+
+      const users = data.users || {};
+      const growth = data.growth || {};
+      const activity = data.activity || {};
+      const learning = data.learning || {};
+      const premium = data.premium || {};
+
+      const set = (id, value) => {
+        $(id).textContent = String(value ?? 0);
+      };
+
+      set("aUsers", users.total);
+      set("aVerified", users.verified);
+      set("aPremium", users.premium);
+      set("aParents", users.parents);
+      set("aStudents", users.students);
+      set("aToday", growth.today);
+      set("a7Days", growth.last_7_days);
+      set("a30Days", growth.last_30_days);
+      set("aActive24", activity.last_24_hours);
+      set("aActive7", activity.last_7_days);
+      set("aActive30", activity.last_30_days);
+      set("aTotalXP", Number(learning.total_xp || 0).toLocaleString());
+      set("aAverageXP", Number(learning.average_xp || 0).toLocaleString());
+      set("aAverageLevel", learning.average_level);
+      set("aAverageStreak", learning.average_streak);
+      set("aLessonsCompleted", Number(learning.total_lessons_completed || 0).toLocaleString());
+      set("aAchievements", Number(learning.total_achievements || 0).toLocaleString());
+      set("aBanned", users.banned);
+
+      $("metricActive").textContent = activity.last_24_hours ?? 0;
+      $("snapshotXP").textContent =
+        Number(learning.total_xp || 0).toLocaleString();
+
+      $("learningAverageXP").textContent =
+        Number(learning.average_xp || 0).toLocaleString();
+
+      $("learningAverageLevel").textContent =
+        learning.average_level ?? 0;
+
+      $("learningAverageStreak").textContent =
+        learning.average_streak ?? 0;
+
+      $("growthToday").textContent = growth.today ?? 0;
+      $("growthWeek").textContent = growth.last_7_days ?? 0;
+      $("growthMonth").textContent = growth.last_30_days ?? 0;
+
+      $("metricPremiumRate").textContent =
+        `${premium.conversion_percent || 0}% conversion`;
+
+      $("analyticsStatus").textContent = "Live";
+      $("analyticsStatus").className = "pill green";
+
+    } catch (error) {
+      $("analyticsStatus").textContent = "Unavailable";
+      $("analyticsStatus").className = "pill red";
+      notify(error.message, "error");
+    }
+  }
+
+  /* ================= EMAIL ================= */
+
+  function emailEscape(value) {
+    return escapeHTML(value);
+  }
+
+  function buildEmailHTML({ subject, message, username }) {
+    const safeSubject = emailEscape(subject || "HanVerse Update");
+    const safeUsername = emailEscape(username || "HanVerse Admin");
+
+    const body = String(message || "")
+      .split(/\n{2,}/)
+      .map((paragraph) => `
+        <p style="
+          margin:0 0 18px;
+          color:#333;
+          font-size:15px;
+          line-height:1.75;
+        ">
+          ${emailEscape(paragraph).replace(/\n/g, "<br>")}
+        </p>
+      `)
+      .join("");
+
+    return `
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${safeSubject}</title>
+</head>
+
+<body style="margin:0;padding:0;background:#FFFDF7;font-family:Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#FFFDF7;">
+<tr>
+<td align="center" style="padding:28px 14px;">
+
+<table width="100%" cellpadding="0" cellspacing="0"
+       style="max-width:680px;background:#fff;border:1px solid #eee8dd;border-radius:20px;overflow:hidden;">
+
+<tr>
+<td style="background:#4EA8DE;padding:24px 30px;">
+  <div style="font-size:25px;font-weight:800;color:#fff;">🐼 HanVerse</div>
+  <div style="font-size:12px;color:#EAF6FD;margin-top:4px;">
+    Learn Chinese. Have fun. Grow.
+  </div>
+</td>
+</tr>
+
+<tr>
+<td style="padding:34px;">
+
+<div style="
+  display:inline-block;
+  background:#FFF4C7;
+  color:#8A6A00;
+  border-radius:999px;
+  padding:6px 11px;
+  font-size:11px;
+  font-weight:700;
+  margin-bottom:16px;
+">
+HANVERSE UPDATE
+</div>
+
+<h1 style="
+  margin:0 0 22px;
+  font-size:26px;
+  line-height:1.25;
+  color:#222;
+">
+${safeSubject}
+</h1>
+
+${body}
+
+<hr style="border:0;border-top:1px solid #eee8dd;margin:28px 0 20px;">
+
+<p style="margin:0;color:#777;font-size:12px;">
+  Written by <strong style="color:#333;">${safeUsername}</strong>
+</p>
+
+</td>
+</tr>
+
+<tr>
+<td style="background:#F7F8FA;padding:20px;text-align:center;">
+  <p style="margin:0;font-size:12px;font-weight:700;color:#555;">HanVerse</p>
+  <p style="margin:6px 0 0;font-size:11px;color:#888;">
+    Your fun, friendly way to learn Mandarin Chinese.
+  </p>
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+`;
+  }
+
+  function refreshRecipientCount() {
+    const audience =
+      document.querySelector('input[name="audience"]:checked')?.value ||
+      "verified";
+
+    let users = state.users.filter(
+      (user) => user.email && !bool(user.is_banned)
+    );
+
+    if (audience === "verified") {
+      users = users.filter((user) => bool(user.is_verified));
+    }
+
+    if (audience === "students") {
+      users = users.filter(
+        (user) => String(user.role || "").toLowerCase() === "student"
+      );
+    }
+
+    if (audience === "parents") {
+      users = users.filter(
+        (user) => String(user.role || "").toLowerCase() === "parent"
+      );
+    }
+
+    if (audience === "premium") {
+      users = users.filter((user) =>
+        bool(first(user.premium, user.is_premium))
+      );
+    }
+
+    if (audience === "non_premium") {
+      users = users.filter((user) =>
+        !bool(first(user.premium, user.is_premium))
+      );
+    }
+
+    $("recipientCount").textContent =
+      `${users.length} recipient${users.length === 1 ? "" : "s"}`;
+  }
+
+  function updateEmailPreview() {
+    const subject =
+      $("broadcastSubject").value.trim() || "HanVerse Update";
+
+    const message =
+      $("broadcastMessage").value || "Your message will appear here.";
+
+    const username = first(
+      state.admin?.full_name,
+      state.admin?.username,
+      "HanVerse Admin"
+    );
+
+    $("emailPreview").srcdoc = buildEmailHTML({
+      subject,
+      message,
+      username
+    });
+  }
+
+  function resetBroadcast() {
+    $("broadcastSubject").value = "";
+    $("broadcastMessage").value = "";
+    $("scheduleDate").value = "";
+    $("scheduleTime").value = "";
+
+    document.querySelector(
+      'input[name="audience"][value="verified"]'
+    ).checked = true;
+
+    document.querySelector(
+      'input[name="timing"][value="now"]'
+    ).checked = true;
+
+    $("scheduleBox").classList.add("hidden");
+    $("broadcastError").textContent = "";
+    $("personalRecipient").classList.add("hidden");
+    $("broadcastAudienceField").classList.remove("hidden");
+    $("broadcastTimingField").classList.remove("hidden");
+
+    state.pendingEmail = null;
+
+    refreshRecipientCount();
+    updateEmailPreview();
+  }
+
+  function openBroadcast() {
+    resetBroadcast();
+    openModal("broadcastModal");
+
+    window.setTimeout(() => {
+      $("broadcastSubject").focus();
+      updateEmailPreview();
+    }, 50);
+  }
+
+  function openPersonalEmail(userId) {
+    const user = state.users.find(
+      (item) => String(item.user_id) === String(userId)
+    );
+
+    if (!user) return;
+
+    resetBroadcast();
+
+    state.pendingEmail = {
+      mode: "personal",
+      campaign_type: "personal",
+      recipient_user_id: user.user_id,
+      recipient_email: user.email,
+      recipient_username: first(user.username, user.full_name, "HanVerse User"),
+      timing: "now",
+      scheduled_for: null,
+      timezone: "Africa/Nairobi"
+    };
+
+    $("personalRecipient").classList.remove("hidden");
+    $("personalRecipientEmail").textContent = user.email;
+
+    $("broadcastAudienceField").classList.add("hidden");
+    $("broadcastTimingField").classList.add("hidden");
+
+    openModal("broadcastModal");
+  }
+
+  $("broadcastForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const subject = $("broadcastSubject").value.trim();
+    const message = $("broadcastMessage").value.trim();
+
+    if (!subject || !message) {
+      $("broadcastError").textContent =
+        "Subject and message are required.";
+      return;
+    }
+
+    const personal = state.pendingEmail?.mode === "personal";
+
+    const timing = personal
+      ? "now"
+      : document.querySelector('input[name="timing"]:checked')?.value || "now";
+
+    const audience =
+      document.querySelector('input[name="audience"]:checked')?.value ||
+      "verified";
+
+    const action = personal
+      ? {
+          ...state.pendingEmail,
+          subject,
+          message
+        }
+      : {
+          mode: "broadcast",
+          campaign_type: "broadcast",
+          audience_type: audience,
+          subject,
+          message,
+          timing,
+          scheduled_for: null,
+          timezone: $("scheduleTimezone").value,
+          recipient_username: first(
+            state.admin?.username,
+            state.admin?.full_name,
+            "HanVerse Admin"
+          )
+        };
+
+    if (!personal && timing === "scheduled") {
+      if (!$("scheduleDate").value || !$("scheduleTime").value) {
+        $("broadcastError").textContent =
+          "Choose a date and time.";
+        return;
+      }
+
+      action.scheduled_for =
+        `${$("scheduleDate").value}T${$("scheduleTime").value}:00`;
+
+      if (new Date(action.scheduled_for) <= new Date()) {
+        $("broadcastError").textContent =
+          "The scheduled time must be in the future.";
+        return;
+      }
+    }
+
+    state.pendingEmail = action;
+
+    $("confirmSummary").textContent =
+      personal
+        ? `Send "${subject}" to ${action.recipient_email}`
+        : timing === "scheduled"
+          ? `Schedule "${subject}"`
+          : `Send "${subject}" now`;
+
+    $("confirmDetails").textContent =
+      personal
+        ? "This will send a personal email to the selected user."
+        : timing === "scheduled"
+          ? `${action.scheduled_for} · ${action.timezone}`
+          : `Audience: ${audience} · ${$("recipientCount").textContent}`;
+
+    $("confirmPassword").value = "";
+    $("emailConfirmError").textContent = "";
+
+    closeModal("broadcastModal");
+    openModal("emailConfirmModal");
+  });
+
+  $("emailConfirmForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const action = state.pendingEmail;
+
+    if (!action) return;
+
+    const password = $("confirmPassword").value.trim();
+
+    if (!password) {
+      $("emailConfirmError").textContent =
+        "Admin password is required.";
+      return;
+    }
+
+    const button = $("confirmEmailButton");
+    button.disabled = true;
+    $("emailConfirmError").textContent = "";
+
+    try {
+      const username = first(
+        action.recipient_username,
+        state.admin?.username,
+        state.admin?.full_name,
+        "HanVerse Admin"
+      );
+
+      const html = buildEmailHTML({
+        subject: action.subject,
+        message: action.message,
+        username
+      });
+
+      let data;
+
+      if (action.mode === "personal") {
+        data = await api(
+          `/admin/users/email/${encodeURIComponent(action.recipient_user_id)}`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              subject: action.subject,
+              message: action.message,
+              html,
+              adminPassword: password
+            })
+          }
+        );
+      } else {
+        data = await api("/admin/email/campaigns", {
+          method: "POST",
+          body: JSON.stringify({
+            ...action,
+            html,
+            adminPassword: password
+          })
+        });
+      }
+
+      closeModal("emailConfirmModal");
+      state.pendingEmail = null;
+
+      notify(data.message || "Email submitted successfully.");
+
+      await loadCampaigns();
+
+    } catch (error) {
+      $("emailConfirmError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  async function loadCampaigns() {
+    $("recentCampaigns").innerHTML =
+      `<div class="loading">Loading campaigns…</div>`;
+
+    try {
+      const data = await api("/admin/email/campaigns");
+
+      state.campaigns = Array.isArray(data.campaigns)
+        ? data.campaigns
+        : [];
+
+      renderCampaignSummary();
+
+    } catch (error) {
+      $("recentCampaigns").innerHTML = `
+        <div class="empty">
+          Could not load campaigns.<br>${escapeHTML(error.message)}
+        </div>
+      `;
+    }
+  }
+
+  function renderCampaignSummary() {
+    const campaigns = state.campaigns;
+
+    const scheduled = campaigns.filter(
+      (campaign) =>
+        String(campaign.status || "").toLowerCase() === "scheduled"
+    ).length;
+
+    const completed = campaigns.filter(
+      (campaign) =>
+        String(campaign.status || "").toLowerCase() === "completed"
+    ).length;
+
+    $("campaignCount").textContent = campaigns.length;
+    $("scheduledCount").textContent = scheduled;
+    $("completedCount").textContent = completed;
+
+    const recent = campaigns.slice(0, 5);
+
+    if (!recent.length) {
+      $("recentCampaigns").innerHTML =
+        `<div class="empty">No broadcasts yet.</div>`;
+      return;
+    }
+
+    $("recentCampaigns").innerHTML =
+      recent.map(renderCampaignRow).join("");
+
+    bindCampaignCancel($("recentCampaigns"));
+  }
+
+  function renderCampaignRow(campaign) {
+    const status = String(campaign.status || "unknown");
+    const statusClass =
+      status === "completed" ? "green" :
+      status === "scheduled" ? "blue" :
+      status === "failed" ? "red" :
+      status === "cancelled" ? "red" :
+      "yellow";
+
+    const date = campaign.scheduled_for
+      ? new Date(campaign.scheduled_for).toLocaleString("en-KE", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        })
+      : "Immediate";
+
+    return `
+      <div class="campaign">
+
+        <div>
+          <strong>${escapeHTML(campaign.subject || "(No subject)")}</strong>
+          <small>
+            ${escapeHTML(campaign.audience_type || "broadcast")}
+            · ${Number(campaign.total_recipients || 0)} recipients
+          </small>
+        </div>
+
+        <div>
+          <span class="pill ${statusClass}">
+            ${escapeHTML(status.replaceAll("_", " "))}
+          </span>
+        </div>
+
+        <div>
+          <small>${escapeHTML(date)}</small>
+        </div>
+
+        <div>
+          ${
+            status === "scheduled"
+              ? `<button class="btn btn-sm" data-cancel-campaign="${escapeHTML(campaign.campaign_id)}">Cancel</button>`
+              : ""
+          }
+        </div>
+
+      </div>
+    `;
+  }
+
+  function bindCampaignCancel(container) {
+    container.querySelectorAll("[data-cancel-campaign]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        if (!confirm("Cancel this scheduled broadcast?")) return;
+
+        try {
+          await api(
+            `/admin/email/campaigns/${encodeURIComponent(button.dataset.cancelCampaign)}/cancel`,
+            { method: "POST" }
+          );
+
+          notify("Broadcast cancelled.");
+          await loadCampaigns();
+
+        } catch (error) {
+          notify(error.message, "error");
+        }
+      });
+    });
+  }
+
+  async function loadCampaignHistory() {
+    $("campaignHistory").innerHTML =
+      `<div class="loading">Loading history…</div>`;
+
+    try {
+      const status = $("campaignStatusFilter").value;
+
+      const path = status
+        ? `/admin/email/campaigns?status=${encodeURIComponent(status)}`
+        : "/admin/email/campaigns";
+
+      const data = await api(path);
+
+      const campaigns = Array.isArray(data.campaigns)
+        ? data.campaigns
+        : [];
+
+      if (!campaigns.length) {
+        $("campaignHistory").innerHTML =
+          `<div class="empty">No campaigns found.</div>`;
+        return;
+      }
+
+      $("campaignHistory").innerHTML =
+        campaigns.map(renderCampaignRow).join("");
+
+      bindCampaignCancel($("campaignHistory"));
+
+    } catch (error) {
+      $("campaignHistory").innerHTML =
+        `<div class="empty">${escapeHTML(error.message)}</div>`;
+    }
+  }
+
+  /* ================= PANDA ================= */
+
+  async function askPanda() {
+    const input = $("pandaInput");
+    const messages = $("pandaMessages");
+    const question = input.value.trim();
+
+    if (!question) return;
+
+    messages.insertAdjacentHTML(
+      "beforeend",
+      `
+        <div class="message me">
+          <div class="bubble">${escapeHTML(question)}</div>
+        </div>
+      `
+    );
+
+    input.value = "";
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+      const data = await api("/panda-chat", {
+        method: "POST",
+        body: JSON.stringify({ message: question })
+      });
+
+      messages.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="message">
+            <span>🐼</span>
+            <div class="bubble">
+              ${escapeHTML(data.reply || "I’m still learning!")}
+            </div>
+          </div>
+        `
+      );
+
+    } catch {
+      messages.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="message">
+            <span>🐼</span>
+            <div class="bubble">
+              I could not reach Panda right now.
+            </div>
+          </div>
+        `
+      );
+    }
+
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  $("pandaSend").addEventListener("click", askPanda);
+
+  $("pandaInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      askPanda();
+    }
+  });
+
+  document.querySelectorAll("[data-prompt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      $("pandaInput").value = button.dataset.prompt;
+      $("pandaInput").focus();
+    });
+  });
+
+  /* ================= GENERAL EVENTS ================= */
+
+  $("quickUsers").addEventListener("click", () => switchSection("users"));
+  $("quickLessons").addEventListener("click", () => switchSection("lessons"));
+  $("quickBroadcast").addEventListener("click", openBroadcast);
+  $("quickPanda").addEventListener("click", () => switchSection("panda"));
+
+  $("dashboardLessonButton").addEventListener("click", () => {
+    newLesson();
+  });
+
+  $("newLessonButton").addEventListener("click", newLesson);
+
+  $("broadcastTopButton").addEventListener("click", openBroadcast);
+  $("newBroadcastButton").addEventListener("click", openBroadcast);
+
+  $("broadcastHistoryButton").addEventListener("click", () => {
+    openModal("historyModal");
+    loadCampaignHistory();
+  });
+
+  $("refreshCampaignsButton").addEventListener(
+    "click",
+    loadCampaigns
+  );
+
+  $("refreshHistoryButton").addEventListener(
+    "click",
+    loadCampaignHistory
+  );
+
+  $("campaignStatusFilter").addEventListener(
+    "change",
+    loadCampaignHistory
+  );
+
+  $("refreshAnalyticsButton").addEventListener(
+    "click",
+    loadAnalytics
+  );
+
+  $("refreshButton").addEventListener("click", async () => {
+    const button = $("refreshButton");
+    button.disabled = true;
+
+    try {
+      await Promise.all([
+        loadUsers(),
+        loadLessons(),
+        loadAnalytics(),
+        loadCampaigns()
+      ]);
+
+      notify("Admin data refreshed.");
+    } catch (error) {
+      notify(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  document.querySelectorAll("[data-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      closeModal(button.dataset.close);
+    });
+  });
+
+  document.querySelectorAll(".modal").forEach((modal) => {
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        closeModal(modal.id);
+      }
+    });
+  });
+
+  document.querySelectorAll('input[name="audience"]').forEach((input) => {
+    input.addEventListener("change", refreshRecipientCount);
+  });
+
+  document.querySelectorAll('input[name="timing"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      $("scheduleBox").classList.toggle(
+        "hidden",
+        input.value !== "scheduled" || !input.checked
+      );
+    });
+  });
+
+  $("broadcastSubject").addEventListener(
+    "input",
+    updateEmailPreview
+  );
+
+  $("broadcastMessage").addEventListener(
+    "input",
+    updateEmailPreview
+  );
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      document.querySelectorAll(".modal.open").forEach((modal) => {
+        closeModal(modal.id);
+      });
+
+      $("sidebar").classList.remove("open");
+    }
+  });
+
+  /* ================= START ================= */
+
+  (async () => {
+    if (!state.token) {
+      showLogin();
+      return;
+    }
+
+    state.admin = getSessionUser();
+    showApp();
+
+    try {
+      await Promise.all([
+        loadUsers(),
+        loadLessons(),
+        loadAnalytics(),
+        loadCampaigns()
+      ]);
+    } catch (error) {
+      console.error("Admin startup error:", error);
+    }
+  })();
+
 })();
 </script>
+
 </body>
 </html>
