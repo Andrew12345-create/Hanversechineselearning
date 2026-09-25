@@ -3,507 +3,642 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#4EA8DE">
 <title>HanVerse Admin</title>
 <link rel="icon" href="hanverse-logo2.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --red:#E63946; --yellow:#F4D35E; --blue:#4EA8DE; --green:#74C69D;
-  --navy:#10213B; --ink:#1E293B; --muted:#64748B; --line:#E2E8F0;
-  --bg:#F7FAFC; --surface:#FFFFFF; --soft:#F8FAFC; --blue-soft:#EFF6FF;
-  --green-soft:#ECFDF5; --yellow-soft:#FFFBEB; --red-soft:#FEF2F2;
-  --shadow:0 12px 34px rgba(15,23,42,.07); --shadow-lg:0 24px 70px rgba(15,23,42,.14);
-  --radius:18px; --ease:.22s cubic-bezier(.2,.8,.2,1);
+  --blue:#4EA8DE;--blue-dark:#247FBA;--blue-deep:#17679B;--blue-soft:#EAF6FD;
+  --red:#E63946;--yellow:#F4D35E;--green:#74C69D;
+  --navy:#10213B;--ink:#1E293B;--muted:#64748B;--line:#E4EAF0;
+  --bg:#F5F8FB;--surface:#FFF;--surface-2:#F8FAFC;
+  --danger:#DC3545;--danger-soft:#FFF0F2;--warning:#B77900;--warning-soft:#FFF8DF;
+  --success:#16845B;--success-soft:#EAF8F1;
+  --shadow:0 8px 28px rgba(16,33,59,.06);--shadow-lg:0 24px 70px rgba(16,33,59,.16);
+  --radius:18px;--ease:.22s cubic-bezier(.2,.8,.2,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:Poppins,system-ui,-apple-system,"Segoe UI",sans-serif;background:
- radial-gradient(circle at 0 0,rgba(78,168,222,.10),transparent 30rem),
- radial-gradient(circle at 100% 0,rgba(116,198,157,.10),transparent 28rem),var(--bg);
- color:var(--ink);min-height:100vh;line-height:1.55;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.45),transparent 35%);z-index:-1}
-button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit}.hidden{display:none!important}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.5}
+button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+.hidden{display:none!important}.muted{color:var(--muted)}
+.app-shell{min-height:100vh;display:flex}
 
-.topbar{position:sticky;top:0;z-index:100;height:72px;padding:0 28px;background:rgba(255,255,255,.90);backdrop-filter:blur(18px);border-bottom:1px solid rgba(226,232,240,.92);display:flex;align-items:center;gap:18px;box-shadow:0 4px 18px rgba(15,23,42,.035)}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto;min-width:0}.brand img{width:40px;height:40px;border-radius:12px;object-fit:contain;transition:transform var(--ease),filter var(--ease)}.brand:hover img{transform:rotate(-4deg) scale(1.06);filter:drop-shadow(0 7px 14px rgba(230,57,70,.18))}.brand strong{font-size:1rem;color:var(--navy);white-space:nowrap}.brand span{color:var(--blue)}
-.admin-identity{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.70rem;font-weight:800}.admin-dot{width:8px;height:8px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 5px rgba(34,197,94,.08);animation:pulse 2s infinite}.top-actions{display:flex;gap:7px}
-.btn{position:relative;overflow:hidden;min-height:38px;border:1px solid #DDE4EC;border-radius:11px;padding:9px 13px;background:#fff;color:var(--ink);font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:transform var(--ease),background var(--ease),border-color var(--ease),box-shadow var(--ease);white-space:nowrap}.btn:hover{transform:translateY(-2px);background:#F8FAFC;border-color:#CBD5E1;box-shadow:0 8px 20px rgba(15,23,42,.08)}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important;box-shadow:none}.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn-primary:hover{background:#1D4ED8;border-color:#1D4ED8}.btn-blue{background:var(--blue-soft);border-color:#BFDBFE;color:#1D4ED8}.btn-green{background:var(--green-soft);border-color:#BBF7D0;color:#15803D}.btn-danger{background:var(--red-soft);border-color:#FECACA;color:#B91C1C}.btn-sm{min-height:34px;padding:7px 10px;font-size:.70rem}
+/* SIDEBAR */
+.sidebar{position:fixed;z-index:100;left:0;top:0;bottom:0;width:252px;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:20px 14px;transition:transform var(--ease),width var(--ease)}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 24px}
+.brand img{width:42px;height:42px;object-fit:contain;border-radius:12px}
+.brand-text strong{display:block;font-family:Poppins;font-size:16px;color:var(--navy);letter-spacing:-.03em}
+.brand-text span{font-size:10px;color:var(--blue);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.nav-label{padding:14px 10px 7px;color:#94A3B8;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.nav{display:grid;gap:3px}
+.nav-btn{border:0;background:transparent;color:#64748B;width:100%;display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;text-align:left;font-size:12px;font-weight:700;transition:all var(--ease)}
+.nav-btn .nav-icon{width:22px;text-align:center;font-size:15px}
+.nav-btn:hover{background:#F5F9FC;color:var(--navy);transform:translateX(2px)}
+.nav-btn.active{background:var(--blue-soft);color:var(--blue-deep)}
+.nav-btn.active .nav-icon{transform:scale(1.05)}
+.sidebar-bottom{margin-top:auto}
+.admin-card{background:linear-gradient(145deg,#F4FAFE,#fff);border:1px solid #DDECF5;border-radius:14px;padding:11px}
+.admin-card-top{display:flex;align-items:center;gap:9px}
+.admin-avatar{width:32px;height:32px;border-radius:10px;background:var(--blue-soft);display:grid;place-items:center;font-size:15px}
+.admin-card strong{font-size:11px;color:var(--navy);display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-card small{font-size:9px;color:var(--muted)}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#20B26B;margin-right:4px}
+.sidebar-logout{width:100%;margin-top:8px}
 
-main{max-width:1440px;margin:auto;padding:30px 28px 70px}.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:20px}.hero h1{font-size:1.75rem;line-height:1.15;color:var(--navy);letter-spacing:-.04em}.hero p{color:var(--muted);font-size:.78rem;margin-top:5px}
-.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:18px;padding:5px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:15px;box-shadow:0 6px 20px rgba(15,23,42,.05);position:sticky;top:80px;z-index:60;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{border:1px solid transparent;background:transparent;color:var(--muted);border-radius:11px;padding:9px 12px;min-height:39px;font-size:.70rem;font-weight:900;transition:all var(--ease);white-space:nowrap}.tab:hover{background:#F8FAFC;color:var(--ink);transform:translateY(-1px)}.tab.active{background:var(--blue);color:#fff;box-shadow:0 6px 14px rgba(37,99,235,.18)}.badge{margin-left:4px;background:rgba(15,23,42,.08);padding:2px 6px;border-radius:99px;font-size:.58rem}.tab.active .badge{background:rgba(255,255,255,.18)}
+/* MAIN */
+.main{margin-left:252px;width:calc(100% - 252px);min-width:0}
+.topbar{height:72px;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:12px;position:sticky;top:0;z-index:80}
+.mobile-menu{display:none}
+.page-title{min-width:0}.page-title h1{font-family:Poppins;font-size:17px;color:var(--navy);letter-spacing:-.035em}.page-title p{font-size:10px;color:var(--muted);margin-top:1px}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
+.btn{min-height:37px;border:1px solid #DCE4EC;background:#fff;color:var(--ink);border-radius:10px;padding:8px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:11px;font-weight:800;transition:all var(--ease);white-space:nowrap}
+.btn:hover{transform:translateY(-1px);border-color:#C5D1DC;box-shadow:0 7px 18px rgba(16,33,59,.08)}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-dark);border-color:var(--blue-dark)}
+.btn-soft{background:var(--blue-soft);border-color:#C9E7F7;color:var(--blue-deep)}
+.btn-green{background:var(--success-soft);border-color:#BFE8D2;color:var(--success)}
+.btn-danger{background:var(--danger-soft);border-color:#FFD0D6;color:#B42332}
+.btn-sm{min-height:32px;padding:6px 9px;font-size:10px}
+.content{max-width:1500px;margin:auto;padding:25px 28px 60px}
 
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}.stat{position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:var(--shadow);transition:transform var(--ease),box-shadow var(--ease),border-color var(--ease)}.stat:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(15,23,42,.10);border-color:#CBD5E1}.stat::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--green));opacity:.75}.stat-label{color:var(--muted);font-size:.64rem;text-transform:uppercase;font-weight:900;letter-spacing:.04em}.stat-value{font-size:1.5rem;font-weight:900;color:var(--navy);margin-top:4px}
-.panel{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow);overflow:hidden;animation:fadeUp .45s both}.panel-head{padding:16px 18px;border-bottom:1px solid #E8EDF3;display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-head h2{font-size:.98rem;color:var(--navy);line-height:1.2}.panel-body{padding:18px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:15px}.search{position:relative;flex:1;min-width:220px}.search i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94A3B8}.input,.select,.textarea{width:100%;background:#fff;border:1px solid #D7DEE8;border-radius:11px;color:var(--ink);padding:10px 12px;outline:none;transition:border-color var(--ease),box-shadow var(--ease),background var(--ease)}.search .input{padding-left:38px}.input:hover,.select:hover,.textarea:hover{background:#FCFDFE}.input:focus,.select:focus,.textarea:focus{border-color:rgba(37,99,235,.55);box-shadow:0 0 0 3px rgba(37,99,235,.10)}.input::placeholder,.textarea::placeholder{color:#94A3B8}.textarea{min-height:130px;resize:vertical}.field{margin-bottom:13px}.field label{display:block;font-size:.68rem;font-weight:900;color:#475569;margin-bottom:6px}.error,.auth-error{color:#B91C1C;font-size:.68rem;margin:8px 0}.small-note{font-size:.63rem;color:var(--muted)}.muted{color:var(--muted)}
+/* SECTIONS */
+.section{display:none;animation:pageIn .32s ease both}.section.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin-bottom:18px}
+.section-head h2{font-family:Poppins;color:var(--navy);font-size:22px;letter-spacing:-.045em}
+.section-head p{color:var(--muted);font-size:11px;margin-top:3px}
+.head-actions{display:flex;gap:7px;flex-wrap:wrap}
 
-.user-grid,.lesson-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:13px}.card{position:relative;overflow:hidden;background:linear-gradient(145deg,#fff,#F8FAFC);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 5px 18px rgba(15,23,42,.045);transition:transform var(--ease),box-shadow var(--ease),border-color var(--ease)}.card:hover{transform:translateY(-4px);box-shadow:0 18px 42px rgba(15,23,42,.11);border-color:#CBD5E1}.user-top{display:flex;gap:11px;align-items:center}.avatar{width:45px;height:45px;border-radius:13px;background:#F1F5F9;display:grid;place-items:center;font-size:1.25rem;transition:transform var(--ease),background var(--ease)}.card:hover .avatar{transform:scale(1.07) rotate(-2deg);background:#EAF2FF}.user-info{min-width:0}.user-info h3{font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--navy)}.email{font-size:.67rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pills{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0}.pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:.58rem;font-weight:900;background:#F1F5F9;color:#475569}.pill.green{color:#15803D;background:var(--green-soft)}.pill.yellow{color:#A16207;background:var(--yellow-soft)}.pill.blue{color:#1D4ED8;background:var(--blue-soft)}.pill.red{color:#B91C1C;background:var(--red-soft)}.pill.purple{color:#7E22CE;background:#FAF5FF}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions .btn{flex:0 0 auto}
-.lesson-cover{height:145px;border-radius:13px;overflow:hidden;background:linear-gradient(135deg,#EFF6FF,#ECFDF5);position:relative;display:grid;place-items:center;font-size:45px}.lesson-cover img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}.card:hover .lesson-cover img{transform:scale(1.045)}.lesson-order,.lesson-status{position:absolute;top:9px}.lesson-order{left:9px;background:rgba(15,23,42,.72);color:#fff;padding:3px 7px;border-radius:8px;font-size:.58rem}.lesson-status{right:9px}.lesson-content{padding-top:12px}.lesson-content h3{font-size:.9rem;color:var(--navy)}.lesson-content p{font-size:.68rem;color:var(--muted);margin:6px 0 12px;min-height:38px}.empty{padding:45px 15px;text-align:center;color:var(--muted);border:1px dashed #CBD5E1;border-radius:14px;background:#FAFCFE}.empty i{font-size:1.5rem;margin-bottom:8px;display:block}
+/* METRICS */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.metric{position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow);transition:all var(--ease)}
+.metric:hover{transform:translateY(-2px);box-shadow:0 15px 35px rgba(16,33,59,.09)}
+.metric::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue)}
+.metric:nth-child(2)::before{background:var(--green)}.metric:nth-child(3)::before{background:var(--yellow)}.metric:nth-child(4)::before{background:var(--red)}
+.metric-top{display:flex;justify-content:space-between;align-items:center}
+.metric-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:var(--muted)}
+.metric-icon{width:30px;height:30px;border-radius:9px;background:var(--blue-soft);display:grid;place-items:center;font-size:14px}
+.metric strong{display:block;font-family:Poppins;font-size:25px;color:var(--navy);margin-top:8px;letter-spacing:-.05em}
+.metric small{display:block;color:#94A3B8;font-size:9px;margin-top:2px}
 
-.dashboard-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:13px;margin-bottom:18px}.mini-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.mini-metrics>div{padding:12px;border:1px solid var(--line);border-radius:13px;background:#fff}.mini-metrics strong{display:block;color:var(--navy);font-size:1.15rem}.mini-metrics span{display:block;color:var(--muted);font-size:.57rem;margin-top:2px}.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.quick-actions .btn{width:100%}.safety-list{display:grid;gap:8px}.safety-list>div{padding:9px 10px;border-radius:10px;background:#F8FAFC;border:1px solid #EDF2F7;font-size:.64rem}
-.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.analytics-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:14px;border:1px solid var(--line);border-radius:14px;background:#F8FAFC}.analytics-card{min-height:112px;padding:16px;border:1px solid var(--line);border-radius:17px;background:#fff;box-shadow:0 5px 16px rgba(15,23,42,.04);transition:transform var(--ease),box-shadow var(--ease)}.analytics-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,23,42,.08)}.analytics-card:nth-child(4n+1){background:linear-gradient(145deg,#fff,#EFF6FF)}.analytics-card:nth-child(4n+2){background:linear-gradient(145deg,#fff,#ECFEFF)}.analytics-card:nth-child(4n+3){background:linear-gradient(145deg,#fff,#FFFBEB)}.analytics-card:nth-child(4n){background:linear-gradient(145deg,#fff,#ECFDF5)}.analytics-card span{font-size:.61rem;color:var(--muted);font-weight:800}.analytics-card strong{display:block;font-size:1.48rem;line-height:1.15;color:var(--navy);margin:7px 0}.analytics-card small{font-size:.56rem;color:var(--muted)}
-.communications-grid{display:grid;gap:14px}.communication-hero{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid #BFDBFE;border-radius:17px;background:linear-gradient(135deg,#EFF6FF,#F8FBFF)}.communication-icon{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;font-size:1.45rem;background:#fff;border:1px solid #DBEAFE;box-shadow:0 6px 16px rgba(37,99,235,.08)}.communication-hero strong{display:block;font-size:.92rem;color:var(--navy)}.communication-hero p{font-size:.67rem;color:var(--muted);margin-top:3px}.communication-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.communication-stats>div{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}.communication-stats span{display:block;font-size:.59rem;color:var(--muted);font-weight:700}.communication-stats strong{display:block;margin-top:4px;font-size:1.25rem;color:var(--navy)}.communications-actions{display:flex;gap:8px;flex-wrap:wrap}.history{margin-top:20px}.history-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.campaign-list{display:grid;gap:8px}.campaign-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 150px 80px;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:all var(--ease)}.campaign-row:hover{transform:translateX(2px);border-color:#CBD5E1;background:#FCFDFE}.campaign-row strong{font-size:.71rem;color:var(--navy)}.campaign-row small{display:block;color:var(--muted);font-size:.60rem;margin-top:2px}.campaign-status{text-transform:capitalize;font-size:.63rem;font-weight:900}.sender-card{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid var(--line);border-radius:12px;background:#F8FAFC;margin-bottom:14px}.sender-avatar{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;background:#EFF6FF}.media-list{margin-top:12px}.media-row{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:11px;margin-bottom:7px;background:#fff;transition:all var(--ease)}.media-row:hover{background:#F8FAFC;transform:translateX(2px)}.media-thumb{width:52px;height:42px;border-radius:8px;overflow:hidden;background:#F1F5F9;display:grid;place-items:center}.media-thumb img{width:100%;height:100%;object-fit:cover}
+/* PANELS */
+.grid-2{display:grid;grid-template-columns:1.35fr .8fr;gap:13px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{min-height:55px;padding:13px 16px;border-bottom:1px solid #EDF1F5;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-head h3{font-family:Poppins;font-size:12px;color:var(--navy)}
+.panel-head small{font-size:9px;color:var(--muted)}
+.panel-body{padding:15px}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quick{min-height:72px;border:1px solid var(--line);background:#FAFCFE;border-radius:12px;padding:11px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:3px;transition:all var(--ease)}
+.quick:hover{border-color:#BBDFF2;background:var(--blue-soft);transform:translateY(-2px)}
+.quick b{font-size:11px;color:var(--navy)}.quick span{font-size:9px;color:var(--muted)}
+.activity-list{display:grid;gap:10px}.activity{display:flex;gap:9px;align-items:flex-start}
+.activity-icon{width:28px;height:28px;border-radius:9px;background:var(--blue-soft);display:grid;place-items:center;font-size:12px;flex:0 0 auto}
+.activity b{font-size:10px;color:var(--navy);display:block}.activity span{font-size:9px;color:var(--muted);display:block;margin-top:1px}
+.safety{display:grid;gap:8px}.safety-row{padding:10px 11px;border-radius:10px;background:#FAFCFE;border:1px solid #EDF2F6;font-size:9px;color:#475569}.safety-row strong{color:var(--navy)}
 
-.composer-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.82fr);gap:20px;align-items:start}.preview-wrap{position:sticky;top:82px}.preview-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:.69rem;font-weight:900;color:#475569}.email-preview{width:100%;height:560px;border:1px solid var(--line);border-radius:14px;background:#fff;display:block;box-shadow:0 10px 28px rgba(15,23,42,.07)}.preview-note{font-size:.59rem;color:var(--muted);margin-top:6px}.personal-recipient{padding:10px 12px;margin-bottom:14px;border:1px solid #BFDBFE;background:#EFF6FF;border-radius:11px;font-size:.67rem}.audience-grid,.timing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.choice{display:flex;gap:8px;align-items:center;border:1px solid #DDE4EC;border-radius:11px;padding:10px;font-size:.66rem;cursor:pointer;background:#fff;transition:all var(--ease)}.choice:hover{border-color:#BFDBFE;background:#F8FBFF}.choice:has(input:checked){border-color:#93C5FD;background:#EFF6FF}.recipient-count{padding:10px 12px;margin-top:9px;border-radius:11px;background:#ECFDF5;border:1px solid #BBF7D0;font-size:.67rem;font-weight:900;color:#15803D}.schedule-box{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#FAFCFE}
+/* CHART */
+.chart-wrap{height:235px;position:relative}.chart{width:100%;height:100%;display:block}
+.chart-legend{display:flex;gap:14px;margin-top:5px}.legend{font-size:9px;color:var(--muted);display:flex;align-items:center;gap:5px}.legend i{width:7px;height:7px;border-radius:50%;background:var(--blue)}
 
-.modal{position:fixed;inset:0;background:rgba(15,23,42,.50);backdrop-filter:blur(7px);z-index:500;display:flex;visibility:hidden;opacity:0;pointer-events:none;align-items:center;justify-content:center;padding:18px;transition:opacity .22s ease,visibility .22s ease}.modal.open{visibility:visible;opacity:1;pointer-events:auto}.dialog{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border:1px solid #E2E8F0;border-radius:20px;box-shadow:var(--shadow-lg);transform:translateY(16px) scale(.98);opacity:0;transition:transform .28s var(--ease),opacity .22s ease}.modal.open .dialog{transform:translateY(0) scale(1);opacity:1}.dialog-head{padding:16px 18px;border-bottom:1px solid #E8EDF3;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);z-index:2}.dialog-head h2{font-size:1rem;color:var(--navy)}.close{border:0;background:#F1F5F9;color:#475569;width:32px;height:32px;border-radius:9px;font-size:1rem;transition:all var(--ease)}.close:hover{background:#E2E8F0;transform:rotate(90deg)}.dialog-body{padding:18px}.dialog-foot{padding:14px 18px;border-top:1px solid #E8EDF3;display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(10px)}.confirm-box{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#F8FAFC;margin-bottom:14px}.confirm-box strong{font-size:.75rem;color:var(--navy)}.confirm-box span{font-size:.64rem;color:var(--muted)}
+/* TOOLBAR / TABLE */
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:13px}
+.search{position:relative;flex:1;min-width:230px}.search span{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#94A3B8;font-size:13px}.input,.select,.textarea{width:100%;border:1px solid #D8E1E9;background:#fff;color:var(--ink);border-radius:10px;padding:9px 11px;outline:0;font-size:11px;transition:all var(--ease)}
+.search .input{padding-left:32px}.input:focus,.select:focus,.textarea:focus{border-color:#8CCBEA;box-shadow:0 0 0 3px rgba(78,168,222,.12)}
+.textarea{min-height:120px;resize:vertical}.field{margin-bottom:12px}.field label{display:block;font-size:9px;font-weight:800;color:#475569;margin-bottom:5px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{background:#F8FAFC;color:#64748B;text-transform:uppercase;letter-spacing:.06em;font-size:8px;text-align:left;padding:10px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 11px;border-bottom:1px solid #EEF2F5;font-size:10px;vertical-align:middle}
+tr:last-child td{border-bottom:0}tbody tr{transition:background var(--ease)}tbody tr:hover{background:#FBFDFF}
+.user-cell{display:flex;align-items:center;gap:9px;min-width:190px}.avatar{width:34px;height:34px;border-radius:10px;background:#EFF7FC;display:grid;place-items:center;font-size:15px;flex:0 0 auto}.user-cell strong{display:block;color:var(--navy);font-size:10px}.user-cell small{display:block;color:var(--muted);font-size:8px;margin-top:1px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 7px;font-size:8px;font-weight:800;white-space:nowrap;background:#F1F5F9;color:#475569}
+.pill.blue{background:var(--blue-soft);color:var(--blue-deep)}.pill.green{background:var(--success-soft);color:var(--success)}.pill.yellow{background:var(--warning-soft);color:var(--warning)}.pill.red{background:var(--danger-soft);color:#B42332}.pill.purple{background:#F7F0FF;color:#7E22CE}
+.row-actions{display:flex;gap:4px;flex-wrap:wrap}.empty{padding:40px 15px;text-align:center;color:var(--muted);font-size:10px;border:1px dashed #CBD5E1;border-radius:12px;background:#FBFDFF}
+.filter.active{background:var(--blue);border-color:var(--blue);color:#fff}
 
-.auth-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 0,rgba(78,168,222,.12),transparent 30rem),#F7FAFC}.auth-box{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:var(--shadow-lg)}.auth-logo{text-align:center;margin-bottom:22px}.auth-logo img{width:64px;height:64px;border-radius:17px;object-fit:contain;animation:float 3s ease-in-out infinite}.auth-logo h1{font-size:1.25rem;color:var(--navy);margin-top:10px}.auth-logo p{color:var(--muted);font-size:.72rem}
+/* LESSONS */
+.lesson-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.lesson-card{border:1px solid var(--line);border-radius:15px;background:#fff;overflow:hidden;box-shadow:0 5px 17px rgba(16,33,59,.045);transition:all var(--ease)}
+.lesson-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(16,33,59,.09)}
+.lesson-cover{height:135px;background:linear-gradient(135deg,#EAF6FD,#F2FBF7);position:relative;display:grid;place-items:center;font-size:42px;overflow:hidden}
+.lesson-cover img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}.lesson-card:hover .lesson-cover img{transform:scale(1.04)}
+.lesson-badge{position:absolute;top:9px;left:9px;background:rgba(16,33,59,.78);color:#fff;border-radius:7px;padding:4px 6px;font-size:8px;font-weight:800}.lesson-status{position:absolute;top:9px;right:9px}
+.lesson-body{padding:13px}.lesson-body h3{font-family:Poppins;color:var(--navy);font-size:12px}.lesson-body p{font-size:9px;color:var(--muted);min-height:30px;margin:5px 0 10px}
+.lesson-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
 
-.chat{position:fixed;right:20px;bottom:78px;width:340px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(15,23,42,.18);z-index:200;visibility:hidden;opacity:0;transform:translateY(14px) scale(.97);transition:all .28s var(--ease);overflow:hidden}.chat.open{visibility:visible;opacity:1;transform:translateY(0) scale(1)}.chat-head{padding:12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:#F8FAFC}.chat-body{height:270px;overflow:auto;padding:12px;background:#fff}.msg{display:flex;gap:7px;margin-bottom:9px;font-size:.67rem}.msg.me{justify-content:flex-end}.bubble{max-width:82%;padding:8px 10px;border-radius:11px;background:#F1F5F9;color:var(--ink);white-space:pre-wrap}.msg.me .bubble{background:#EFF6FF;color:#1D4ED8}.chat-foot{padding:9px;border-top:1px solid var(--line);display:flex;gap:6px;background:#F8FAFC}.chat-foot input{flex:1}.chat-admin{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#fff}.admin-panda-messages{min-height:260px;max-height:480px;overflow:auto;padding:14px;background:#FAFCFE}.admin-panda-messages .msg{align-items:flex-start}.admin-panda-messages .bubble{max-width:88%}#pandaToggle{position:fixed;right:20px;bottom:20px;border-radius:50%;width:48px;height:48px;z-index:210;background:var(--blue);border-color:var(--blue);box-shadow:0 12px 28px rgba(37,99,235,.22);font-size:1.15rem;animation:float 3s ease-in-out infinite}
-#toastStack{position:fixed;right:20px;top:84px;z-index:1000;display:grid;gap:8px;pointer-events:none}.hv-toast{min-width:260px;max-width:380px;padding:11px 13px;border:1px solid #DDE4EC;border-radius:12px;background:rgba(255,255,255,.97);color:var(--ink);box-shadow:0 16px 40px rgba(15,23,42,.14);font-size:.68rem;font-weight:800;animation:toastIn .3s var(--ease) both}.hv-toast.ok{border-left:4px solid var(--green)}.hv-toast.error{border-left:4px solid var(--red)}
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.analytics-card{border:1px solid var(--line);border-radius:14px;padding:13px;background:linear-gradient(145deg,#fff,#F7FBFE)}.analytics-card span{font-size:8px;color:var(--muted);font-weight:800}.analytics-card strong{display:block;font-family:Poppins;color:var(--navy);font-size:20px;margin-top:5px}.analytics-card small{font-size:8px;color:#94A3B8}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(34,197,94,.04)}}@keyframes float{50%{transform:translateY(-5px)}}@keyframes toastIn{from{opacity:0;transform:translateY(-8px) translateX(8px)}to{opacity:1;transform:none}}
-.btn.is-refreshing i{animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:1100px){.dashboard-grid{grid-template-columns:1fr 1fr}.dashboard-grid>.panel:last-child{grid-column:1/-1}.analytics-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){.composer-grid{grid-template-columns:1fr}.preview-wrap{position:static}.email-preview{height:500px}.tabs{top:72px}.analytics-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.admin-identity{display:none}.dashboard-grid{grid-template-columns:1fr}.dashboard-grid>.panel:last-child{grid-column:auto}.campaign-row{grid-template-columns:1fr 100px}.campaign-row>:nth-child(3),.campaign-row>:nth-child(4){display:none}.mini-metrics{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:620px){.topbar{height:64px;padding:0 12px}.brand strong{display:none}.top-actions .btn span{display:none}main{padding:18px 12px 50px}.hero{align-items:flex-start;flex-direction:column}.hero h1{font-size:1.5rem}.tabs{top:64px;width:100%;overflow-x:auto;flex-wrap:nowrap}.tab{flex:0 0 auto}.stats{grid-template-columns:1fr 1fr;gap:8px}.analytics-grid{grid-template-columns:1fr 1fr}.analytics-card{min-height:100px;padding:12px}.quick-actions{grid-template-columns:1fr}.audience-grid,.timing-grid{grid-template-columns:1fr}.communication-stats{grid-template-columns:1fr 1fr}.communication-stats>div:last-child{grid-column:1/-1}.chat{left:10px;right:10px;width:auto}.campaign-row{grid-template-columns:1fr}.campaign-row>:nth-child(3),.campaign-row>:nth-child(4){display:block}#toastStack{left:12px;right:12px;top:70px}.hv-toast{min-width:0;max-width:none}.dialog{max-height:94vh}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+/* COMMUNICATIONS */
+.communication-banner{padding:18px;border:1px solid #CDE7F5;background:linear-gradient(135deg,#EDF8FE,#fff);border-radius:15px;display:flex;align-items:center;gap:13px;margin-bottom:12px}
+.comm-icon{width:46px;height:46px;border-radius:13px;background:#fff;border:1px solid #D9EDF8;display:grid;place-items:center;font-size:21px;box-shadow:0 5px 14px rgba(78,168,222,.1)}
+.communication-banner strong{font-family:Poppins;font-size:13px;color:var(--navy)}.communication-banner p{font-size:9px;color:var(--muted);margin-top:2px}
+.comm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}.comm-stat{padding:13px;border:1px solid var(--line);border-radius:12px}.comm-stat span{font-size:8px;color:var(--muted)}.comm-stat strong{display:block;font-family:Poppins;font-size:19px;color:var(--navy);margin-top:4px}
+.campaign-list{display:grid;gap:7px}.campaign-row{display:grid;grid-template-columns:minmax(0,1fr) 100px 145px auto;gap:10px;align-items:center;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:#fff}.campaign-row strong{font-size:9px;color:var(--navy)}.campaign-row small{display:block;font-size:8px;color:var(--muted);margin-top:2px}.campaign-status{text-transform:capitalize;font-size:8px;font-weight:800}
+
+/* PANDA */
+.panda-shell{display:grid;grid-template-columns:1fr 290px;gap:13px}.chat-panel{min-height:520px;display:flex;flex-direction:column}.chat-messages{flex:1;min-height:420px;padding:16px;background:#FBFDFF;overflow:auto}.msg{display:flex;gap:8px;margin-bottom:12px}.msg.me{justify-content:flex-end}.bubble{max-width:75%;padding:9px 11px;border-radius:12px;background:#F0F4F8;color:var(--ink);font-size:10px;white-space:pre-wrap}.msg.me .bubble{background:var(--blue-soft);color:var(--blue-deep)}.chat-foot{padding:10px;border-top:1px solid var(--line);display:flex;gap:7px}.chat-foot .input{flex:1}.panda-side{display:grid;gap:13px;align-content:start}.panda-hero{padding:20px;text-align:center;background:linear-gradient(145deg,#EAF6FD,#fff);border:1px solid #CDE7F5;border-radius:17px}.panda-hero .panda{font-size:65px;animation:float 3s ease-in-out infinite}.panda-hero h3{font-family:Poppins;color:var(--navy);font-size:15px}.panda-hero p{font-size:9px;color:var(--muted);margin-top:4px}.prompt-list{display:grid;gap:6px}.prompt{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;font-size:9px;color:#475569;text-align:left}.prompt:hover{border-color:#BBDFF2;background:var(--blue-soft)}
+@keyframes float{50%{transform:translateY(-5px)}}
+
+/* MODALS */
+.modal{position:fixed;inset:0;background:rgba(16,33,59,.48);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;pointer-events:none;transition:all .2s ease}.modal.open{opacity:1;visibility:visible;pointer-events:auto}
+.dialog{width:min(720px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:19px;border:1px solid #E0E7EF;box-shadow:var(--shadow-lg);transform:translateY(12px) scale(.98);transition:transform .25s var(--ease)}.modal.open .dialog{transform:none}
+.dialog-head{position:sticky;top:0;z-index:2;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);padding:14px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.dialog-head h2{font-family:Poppins;font-size:14px;color:var(--navy)}.close{border:0;background:#F1F5F9;width:31px;height:31px;border-radius:9px;color:#64748B;font-size:15px}.close:hover{background:#E2E8F0}
+.dialog-body{padding:17px}.dialog-foot{position:sticky;bottom:0;padding:12px 17px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:7px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.full{grid-column:1/-1}
+.audience-grid,.timing-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.choice{border:1px solid #DDE5EC;border-radius:10px;padding:9px;font-size:9px;font-weight:700;color:#475569;display:flex;gap:7px;align-items:center;background:#fff}.choice:has(input:checked){border-color:#8CCBEA;background:var(--blue-soft);color:var(--blue-deep)}
+.composer-grid{display:grid;grid-template-columns:1fr .8fr;gap:16px}.preview-wrap{position:sticky;top:70px}.preview-label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:9px;font-weight:800;color:#475569}.email-preview{height:500px;width:100%;border:1px solid var(--line);border-radius:12px;background:#fff}.recipient-count{margin-top:8px;padding:9px;background:var(--success-soft);border:1px solid #BFE8D2;color:var(--success);border-radius:10px;font-size:9px;font-weight:800}.confirm-box{padding:11px;border:1px solid var(--line);border-radius:11px;background:#F8FAFC;margin-bottom:13px}.confirm-box strong{font-size:10px;color:var(--navy)}.confirm-box span{display:block;font-size:9px;color:var(--muted);margin-top:3px}
+.media-list{display:grid;gap:6px;margin-top:10px}.media-row{display:grid;grid-template-columns:45px 1fr auto;align-items:center;gap:8px;padding:8px;border:1px solid var(--line);border-radius:9px}.media-thumb{width:45px;height:36px;border-radius:7px;background:#F1F5F9;overflow:hidden;display:grid;place-items:center;font-size:14px}.media-thumb img{width:100%;height:100%;object-fit:cover}
+
+/* AUTH */
+.auth-screen{min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 0,#EAF6FD,transparent 32rem),var(--bg);padding:20px}.auth-box{width:min(410px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:var(--shadow-lg)}.auth-logo{text-align:center;margin-bottom:22px}.auth-logo img{width:65px;height:65px;object-fit:contain;border-radius:17px}.auth-logo h1{font-family:Poppins;font-size:20px;color:var(--navy);margin-top:9px}.auth-logo p{font-size:9px;color:var(--muted);margin-top:2px}.error{font-size:9px;color:#B42332;margin:7px 0}.auth-lock{width:100%;margin-top:4px}
+
+/* TOAST / LOADING */
+#toastStack{position:fixed;right:20px;top:84px;z-index:1000;display:grid;gap:7px}.toast{min-width:240px;max-width:360px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);box-shadow:var(--shadow-lg);border-radius:11px;padding:10px 12px;font-size:9px;font-weight:800;animation:toastIn .25s ease both}.toast.error{border-left-color:var(--red)}.toast.ok{border-left-color:var(--green)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.skeleton{background:linear-gradient(90deg,#F1F5F8 25%,#E8EEF2 50%,#F1F5F8 75%);background-size:200% 100%;animation:shimmer 1.3s infinite;border-radius:7px}@keyframes shimmer{to{background-position:-200% 0}}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.sidebar{width:220px}.main{margin-left:220px;width:calc(100% - 220px)}.metric-grid{grid-template-columns:repeat(2,1fr)}.analytics-grid{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:1fr}.panda-shell{grid-template-columns:1fr}.panda-side{grid-template-columns:1fr 1fr}}
+@media(max-width:800px){.sidebar{transform:translateX(-100%);box-shadow:20px 0 50px rgba(16,33,59,.15)}.sidebar.open{transform:none}.main{margin-left:0;width:100%}.mobile-menu{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:17px}.topbar{padding:0 15px}.content{padding:20px 15px 50px}.top-actions .label{display:none}.analytics-grid{grid-template-columns:repeat(2,1fr)}.composer-grid{grid-template-columns:1fr}.preview-wrap{position:static}.email-preview{height:420px}.panda-side{grid-template-columns:1fr}.campaign-row{grid-template-columns:1fr 100px}.campaign-row>:nth-child(3){display:none}}
+@media(max-width:560px){.metric-grid{grid-template-columns:1fr 1fr;gap:8px}.metric{padding:12px}.metric strong{font-size:21px}.section-head{align-items:flex-start;flex-direction:column}.form-grid,.audience-grid,.timing-grid{grid-template-columns:1fr}.full{grid-column:auto}.topbar{height:64px}.page-title h1{font-size:15px}.page-title p{display:none}.head-actions{width:100%}.head-actions .btn{flex:1}.analytics-grid{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr}.quick-grid{grid-template-columns:1fr 1fr}.dialog{max-height:95vh}.chat-messages{min-height:330px}.campaign-row{grid-template-columns:1fr}.campaign-row>:nth-child(2){display:none}#toastStack{left:12px;right:12px;top:70px}.toast{min-width:0;max-width:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
+</head>
 <body>
-<div id="toastStack" aria-live="polite" aria-atomic="true"></div>
+<div id="toastStack" aria-live="polite"></div>
 
+<!-- AUTH -->
 <div id="authScreen" class="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
       <img src="hanverse-logo2.png" alt="HanVerse">
       <h1>HanVerse Admin</h1>
-      <p>Secure administrator dashboard</p>
+      <p>Secure administrator workspace</p>
     </div>
     <form id="authForm">
       <div class="field">
         <label for="adminPassword">Admin password</label>
-        <input class="input" id="adminPassword" type="password" autocomplete="current-password" required placeholder="Enter admin password">
+        <input class="input" id="adminPassword" type="password" autocomplete="current-password" required placeholder="Enter your admin password">
       </div>
-      <div id="authError" class="auth-error"></div>
-      <button class="btn btn-primary" style="width:100%" type="submit"><i class="fa-solid fa-lock-open"></i> Unlock dashboard</button>
+      <div id="authError" class="error"></div>
+      <button class="btn btn-primary auth-lock" type="submit"><span>🔐</span> Unlock Admin</button>
     </form>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app" class="hidden">
-<header class="topbar">
-  <a class="brand" href="index.html"><img src="hanverse-logo2.png" alt="HanVerse"><strong>HanVerse <span>Admin</span></strong></a>
-  <div class="admin-identity"><span class="admin-dot"></span><span id="adminIdentityName">Administrator</span></div>
-  <div class="top-actions">
-    <button class="btn btn-sm" id="broadcastBtn"><i class="fa-solid fa-bullhorn"></i><span>Broadcast</span></button>
-    <button class="btn btn-primary btn-sm" id="createUserBtn"><i class="fa-solid fa-user-plus"></i><span>New user</span></button>
-    <button class="btn btn-sm" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></button>
-  </div>
-</header>
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="index.html">
+      <img src="hanverse-logo2.png" alt="HanVerse">
+      <div class="brand-text"><strong>HanVerse</strong><span>Admin Studio</span></div>
+    </a>
 
-<main>
-  <section class="hero">
-    <div><h1>Admin dashboard</h1><p>Manage HanVerse users, lessons, media and email broadcasts.</p></div>
-    <button class="btn btn-sm" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
-  </section>
+    <div class="nav-label">Overview</div>
+    <nav class="nav">
+      <button class="nav-btn active" data-section="dashboard"><span class="nav-icon">⌂</span>Dashboard</button>
+      <button class="nav-btn" data-section="analytics"><span class="nav-icon">⌁</span>Analytics</button>
+    </nav>
 
-  <div class="stats">
-    <div class="stat"><div class="stat-label">Total users</div><div class="stat-value" id="totalUsers">—</div></div>
-    <div class="stat"><div class="stat-label">Pending verification</div><div class="stat-value" id="pendingUsers">—</div></div>
-    <div class="stat"><div class="stat-label">Parents</div><div class="stat-value" id="parentUsers">—</div></div>
-    <div class="stat"><div class="stat-label">Premium</div><div class="stat-value" id="premiumUsers">—</div></div>
-  </div>
+    <div class="nav-label">People</div>
+    <nav class="nav">
+      <button class="nav-btn" data-section="users"><span class="nav-icon">♙</span>Users <span class="pill blue" style="margin-left:auto" id="userBadge">0</span></button>
+    </nav>
 
-  <div class="tabs">
-    <button class="tab active" data-section="users"><i class="fa-solid fa-users"></i> Users <span class="badge" id="userBadge">0</span></button>
-    <button class="tab" data-section="lessons"><i class="fa-solid fa-book-open"></i> Lessons <span class="badge" id="lessonBadge">0</span></button>
-  <button class="tab" data-section="dashboard">📊 Dashboard</button><button class="tab" data-section="analytics">📈 Analytics</button><button class="tab" data-section="panda">🐼 Panda</button><button class="tab" id="communicationsTab" data-section="communications">📣 Communications</button></div>
+    <div class="nav-label">Learning</div>
+    <nav class="nav">
+      <button class="nav-btn" data-section="lessons"><span class="nav-icon">▤</span>Lessons <span class="pill blue" style="margin-left:auto" id="lessonBadge">0</span></button>
+    </nav>
 
-  <section id="dashboardSection" class="dashboard-grid">
-<div class="panel"><div class="panel-head"><h2>📊 Today at a glance</h2></div><div class="panel-body"><div class="mini-metrics">
-<div><strong id="dashVerified">—</strong><span>Verified</span></div><div><strong id="dashUnverified">—</strong><span>Unverified</span></div><div><strong id="dashPremiumRate">—</strong><span>Premium rate</span></div><div><strong id="dashBanned">—</strong><span>Banned</span></div>
-</div></div></div>
-<div class="panel"><div class="panel-head"><h2>⚡ Quick actions</h2></div><div class="panel-body quick-actions">
-<button class="btn btn-blue" id="dashNewUser">➕ Create user</button><button class="btn" id="dashNewLesson">📖 New lesson</button><button class="btn" id="dashBroadcast">📣 Broadcast</button><button class="btn" id="dashPanda">🐼 Ask Panda</button>
-</div></div>
-<div class="panel"><div class="panel-head"><h2>🛡️ Admin safety</h2></div><div class="panel-body safety-list">
-<div>🟢 Admin session required</div><div>🟢 Normal accounts cannot unlock Admin</div><div>🟢 Sensitive broadcasts require confirmation</div><div>🟢 Server-side authorization required</div>
-</div></div></section>
-<section id="usersSection" class="panel">
-    <div class="panel-head"><h2>Users</h2></div>
-    <div class="panel-body">
-      <div class="toolbar">
-        <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input class="input" id="userSearch" placeholder="Search name, username or email"></div>
-        <button class="btn btn-sm" data-filter="all">All</button>
-        <button class="btn btn-sm" data-filter="pending">Pending</button>
-        <button class="btn btn-sm" data-filter="parents">Parents</button>
-        <button class="btn btn-sm" data-filter="premium">Premium</button>
-        <button class="btn btn-sm" data-filter="banned">Banned</button>
-      </div>
-      <div class="user-grid" id="userGrid"><div class="empty">Loading users…</div></div>
-    </div>
-  </section>
+    <div class="nav-label">Communications</div>
+    <nav class="nav">
+      <button class="nav-btn" data-section="communications"><span class="nav-icon">✦</span>Broadcasts</button>
+    </nav>
 
-  <section id="analyticsSection" class="panel hidden">
-<div class="panel-head"><div><h2>📈 Analytics</h2><button type="button" class="btn btn-blue btn-sm" id="refreshAnalytics">↻ Refresh</button><span class="small-note">Live metrics from Neon via the Admin API.</span></div></div>
-<div class="panel-body"><div class="analytics-toolbar"><div><strong style="color:#0F172A;font-size:.78rem">Platform performance</strong><div style="color:#64748B;font-size:.58rem;margin-top:2px">Live metrics from Neon</div></div><span class="pill green" id="analyticsStatus">Ready</span></div><div class="analytics-grid">
-<div class="analytics-card"><span>Total users</span><strong id="analyticsUsers">—</strong><small>All accounts</small></div>
-<div class="analytics-card"><span>Verified</span><strong id="analyticsVerified">—</strong><small>Verified accounts</small></div>
-<div class="analytics-card"><span>Premium</span><strong id="analyticsPremium">—</strong><small>Premium accounts</small></div>
-<div class="analytics-card"><span>Parents</span><strong id="analyticsParents">—</strong><small>Parent accounts</small></div>
-<div class="analytics-card"><span>Students</span><strong id="analyticsStudents">—</strong><small>Student accounts</small></div>
-<div class="analytics-card"><span>New today</span><strong id="analyticsNewToday">—</strong><small>Created today</small></div>
-<div class="analytics-card"><span>New this week</span><strong id="analyticsNew7Days">—</strong><small>Last 7 days</small></div>
-<div class="analytics-card"><span>New this month</span><strong id="analyticsNew30Days">—</strong><small>Last 30 days</small></div>
-<div class="analytics-card"><span>Active today</span><strong id="analyticsActive24h">—</strong><small>Last 24 hours</small></div>
-<div class="analytics-card"><span>Active this week</span><strong id="analyticsActive7d">—</strong><small>Last 7 days</small></div>
-<div class="analytics-card"><span>Active this month</span><strong id="analyticsActive30d">—</strong><small>Last 30 days</small></div>
-<div class="analytics-card"><span>Total XP</span><strong id="analyticsTotalXP">—</strong><small>Non-banned users</small></div>
-<div class="analytics-card"><span>Average XP</span><strong id="analyticsAverageXP">—</strong><small>Per user</small></div>
-<div class="analytics-card"><span>Average level</span><strong id="analyticsAverageLevel">—</strong><small>Current average</small></div>
-<div class="analytics-card"><span>Average streak</span><strong id="analyticsAverageStreak">—</strong><small>Days</small></div>
-<div class="analytics-card"><span>Lessons completed</span><strong id="analyticsLessonsCompleted">—</strong><small>Total</small></div>
-<div class="analytics-card"><span>Achievements</span><strong id="analyticsAchievements">—</strong><small>Total earned</small></div>
-</div></div></section>
+    <div class="nav-label">HanVerse AI</div>
+    <nav class="nav">
+      <button class="nav-btn" data-section="panda"><span class="nav-icon">🐼</span>Panda</button>
+    </nav>
 
-<section id="pandaSection" class="panel hidden">
-<div class="panel-head"><div><h2>🐼 Panda Admin Assistant</h2><span class="small-note">Admin-only Panda workspace.</span></div></div>
-<div class="panel-body"><div class="chat-admin"><div id="adminPandaMessages" class="admin-panda-messages"><div class="msg"><div class="bubble">Hi! I'm Panda. Ask me about HanVerse users, lessons or admin workflow.</div></div></div>
-<div class="chat-foot"><input class="input" id="adminPandaInput" placeholder="Ask Panda…" aria-label="Ask Panda"><button class="btn btn-primary" id="adminPandaSend">➤ Ask</button></div></div></div></section>
-
-<section id="communicationsSection" class="panel hidden">
-  <div class="panel-head">
-    <div>
-      <h2>📣 Communications</h2>
-      <span class="small-note">Create, send and manage HanVerse email campaigns.</span>
-    </div>
-    <div class="actions">
-      <button class="btn btn-sm" id="communicationsHistoryBtn"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
-      <button class="btn btn-primary btn-sm" id="communicationsComposeBtn"><i class="fa-solid fa-pen"></i> New broadcast</button>
-    </div>
-  </div>
-  <div class="panel-body">
-    <div class="communications-grid">
-      <div class="communication-hero">
-        <div class="communication-icon">📣</div>
-        <div>
-          <strong>HanVerse Broadcasts</strong>
-          <p>Send announcements to verified users, students, parents, premium members or your whole community.</p>
+    <div class="sidebar-bottom">
+      <div class="admin-card">
+        <div class="admin-card-top">
+          <div class="admin-avatar">🛡️</div>
+          <div><strong id="sideAdminName">Administrator</strong><small><span class="status-dot"></span>Admin session active</small></div>
         </div>
       </div>
-      <div class="communication-stats">
-        <div><span>Campaigns loaded</span><strong id="communicationsCampaignCount">—</strong></div>
-        <div><span>Scheduled</span><strong id="communicationsScheduledCount">—</strong></div>
-        <div><span>Completed</span><strong id="communicationsCompletedCount">—</strong></div>
+      <button class="btn sidebar-logout" id="logoutBtn">↪ Log out</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="mobile-menu" id="mobileMenu">☰</button>
+      <div class="page-title"><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Your HanVerse command centre</p></div>
+      <div class="top-actions">
+        <button class="btn" id="refreshBtn">↻ <span class="label">Refresh</span></button>
+        <button class="btn btn-soft" id="topBroadcast">✦ <span class="label">Broadcast</span></button>
+        <button class="btn btn-primary" id="topNewUser">＋ <span class="label">New user</span></button>
       </div>
-      <div class="communications-actions">
-        <button class="btn btn-blue" id="communicationsComposeBtn2">✉️ Compose email</button>
-        <button class="btn" id="communicationsRefreshBtn">↻ Refresh history</button>
-      </div>
-      <div class="history">
-        <div class="history-head">
-          <div>
-            <strong style="font-size:.8rem">Recent broadcasts</strong>
-            <div class="small-note">Your latest campaigns appear here.</div>
+    </header>
+
+    <main class="content">
+
+      <!-- DASHBOARD -->
+      <section id="dashboardSection" class="section active">
+        <div class="section-head">
+          <div><h2>Good morning 👋</h2><p>Here’s what’s happening across HanVerse.</p></div>
+          <div class="head-actions"><button class="btn btn-soft" id="dashNewLesson">＋ New lesson</button></div>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric"><div class="metric-top"><span class="metric-label">Total users</span><span class="metric-icon">♙</span></div><strong id="totalUsers">—</strong><small>All registered accounts</small></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">Active today</span><span class="metric-icon">◉</span></div><strong id="dashActive">—</strong><small>Users active in 24h</small></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">Premium</span><span class="metric-icon">★</span></div><strong id="premiumUsers">—</strong><small id="dashPremiumRate">— conversion rate</small></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">Lessons</span><span class="metric-icon">▤</span></div><strong id="totalLessons">—</strong><small>Available in the CMS</small></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><div><h3>User growth</h3><small>Recent platform growth</small></div><span class="pill green" id="dashGrowthStatus">Live</span></div>
+            <div class="panel-body">
+              <div class="chart-wrap"><canvas id="growthChart" class="chart"></canvas></div>
+              <div class="chart-legend"><span class="legend"><i></i>Registered users</span></div>
+            </div>
           </div>
-          <button class="btn btn-sm" id="communicationsHistoryBtn2">View all</button>
-        </div>
-        <div class="campaign-list" id="communicationsRecentList">
-          <div class="empty">Loading communications…</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="lessonsSection" class="panel hidden">
-    <div class="panel-head">
-      <h2>Lessons</h2>
-      <button class="btn btn-primary btn-sm" id="newLessonBtn"><i class="fa-solid fa-plus"></i> New lesson</button>
-    </div>
-    <div class="panel-body">
-      <div class="toolbar">
-        <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input class="input" id="lessonSearch" placeholder="Search lessons"></div>
-        <select class="select" id="lessonLevelFilter" style="width:150px"><option value="">All levels</option><option value="1">YCT 1</option><option value="2">YCT 2</option><option value="3">YCT 3</option><option value="4">YCT 4</option></select>
-      </div>
-      <div class="lesson-grid" id="lessonGrid"><div class="empty">Loading lessons…</div></div>
-    </div>
-  </section>
-</main>
-</div>
-
-<!-- BROADCAST / EMAIL COMPOSER -->
-<div class="modal" id="broadcastModal">
-  <div class="dialog" style="width:min(1120px,100%)">
-    <div class="dialog-head">
-      <h2><i class="fa-solid fa-envelope"></i> Email composer</h2>
-      <button class="close" data-close="broadcastModal">✕</button>
-    </div>
-    <form id="broadcastForm">
-      <div class="dialog-body">
-        <div class="sender-card">
-          <div class="sender-avatar">🐼</div>
-          <div><strong id="broadcastSenderName">Administrator</strong><br><span class="small-note" id="broadcastSenderEmail"></span></div>
-        </div>
-
-        <div id="personalRecipientBox" class="personal-recipient hidden">
-          <i class="fa-solid fa-user"></i> Personal email to <strong id="personalRecipientEmail"></strong>
-        </div>
-
-        <div class="composer-grid">
-          <div>
-            <div id="broadcastAudienceField" class="field">
-              <label>Audience</label>
-              <div class="audience-grid">
-                <label class="choice"><input type="radio" name="broadcastAudience" value="all"> All users</label>
-                <label class="choice"><input type="radio" name="broadcastAudience" value="verified" checked> Verified users</label>
-                <label class="choice"><input type="radio" name="broadcastAudience" value="students"> Students</label>
-                <label class="choice"><input type="radio" name="broadcastAudience" value="parents"> Parents</label>
-                <label class="choice"><input type="radio" name="broadcastAudience" value="premium"> Premium users</label>
-                <label class="choice"><input type="radio" name="broadcastAudience" value="non_premium"> Non-premium users</label>
-              </div>
-              <div class="recipient-count" id="broadcastRecipientCount">0 recipients</div>
+          <div class="panel">
+            <div class="panel-head"><div><h3>Quick actions</h3><small>Common admin tasks</small></div></div>
+            <div class="panel-body quick-grid">
+              <button class="quick" id="quickUser"><b>＋ Create user</b><span>Add a student, parent or admin</span></button>
+              <button class="quick" id="quickLesson"><b>▤ New lesson</b><span>Add YCT learning content</span></button>
+              <button class="quick" id="quickBroadcast"><b>✦ Broadcast</b><span>Send a HanVerse announcement</span></button>
+              <button class="quick" id="quickPanda"><b>🐼 Ask Panda</b><span>Get admin assistance</span></button>
             </div>
+          </div>
+        </div>
 
-            <div class="field">
-              <label for="broadcastSubject">Subject</label>
-              <input class="input" id="broadcastSubject" maxlength="180" required placeholder="Email subject">
-            </div>
-
-            <div class="field">
-              <label for="broadcastMessage">Message</label>
-              <textarea class="textarea" id="broadcastMessage" style="min-height:240px" required placeholder="Write your HanVerse announcement…"></textarea>
-            </div>
-
-            <div class="field" id="broadcastTimingField">
-              <label>When should it be sent?</label>
-              <div class="timing-grid">
-                <label class="choice"><input type="radio" name="broadcastTiming" value="now" checked> Send immediately</label>
-                <label class="choice"><input type="radio" name="broadcastTiming" value="scheduled"> Schedule for later</label>
+        <div class="grid-3" style="margin-top:13px">
+          <div class="panel">
+            <div class="panel-head"><div><h3>Learning snapshot</h3><small>Current learning activity</small></div></div>
+            <div class="panel-body">
+              <div class="activity-list">
+                <div class="activity"><div class="activity-icon">✓</div><div><b id="dashVerified">— verified accounts</b><span>Verified members</span></div></div>
+                <div class="activity"><div class="activity-icon">⚡</div><div><b id="dashXp">— XP</b><span>Total XP earned</span></div></div>
+                <div class="activity"><div class="activity-icon">🔥</div><div><b id="dashStreak">— days</b><span>Average streak</span></div></div>
               </div>
             </div>
-
-            <div class="schedule-box hidden" id="broadcastScheduleBox">
-              <div class="field"><label for="broadcastDate">Date</label><input class="input" id="broadcastDate" type="date"></div>
-              <div class="field"><label for="broadcastTime">Time</label><input class="input" id="broadcastTime" type="time"></div>
-              <div class="field"><label for="broadcastTimezone">Timezone</label><select class="select" id="broadcastTimezone"><option value="Africa/Nairobi">Africa/Nairobi (EAT)</option></select></div>
-            </div>
-
-            <div class="error" id="broadcastError"></div>
           </div>
-
-          <div class="preview-wrap">
-            <div class="preview-label">
-              <span><i class="fa-solid fa-eye"></i> Live email preview</span>
-              <span class="small-note">HanVerse template</span>
+          <div class="panel">
+            <div class="panel-head"><div><h3>Account health</h3><small>Important account states</small></div></div>
+            <div class="panel-body">
+              <div class="activity-list">
+                <div class="activity"><div class="activity-icon">⏳</div><div><b id="dashUnverified">—</b><span>Pending verification</span></div></div>
+                <div class="activity"><div class="activity-icon">👪</div><div><b id="parentUsers">—</b><span>Parent accounts</span></div></div>
+                <div class="activity"><div class="activity-icon">🚫</div><div><b id="dashBanned">—</b><span>Banned accounts</span></div></div>
+              </div>
             </div>
-            <iframe id="emailPreview" class="email-preview" title="Email preview"></iframe>
-            <div class="preview-note">The preview shows the same HanVerse HTML template that will be submitted to the email server.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h3>Admin safety</h3><small>Protection status</small></div></div>
+            <div class="panel-body safety">
+              <div class="safety-row"><strong>🟢 Session</strong> · Admin token required</div>
+              <div class="safety-row"><strong>🟢 Authorization</strong> · Server-side protected</div>
+              <div class="safety-row"><strong>🟢 Broadcasts</strong> · Password confirmation</div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="dialog-foot">
-        <button class="btn" type="button" data-close="broadcastModal">Cancel</button>
-        <button class="btn btn-primary" type="submit"><i class="fa-solid fa-arrow-right"></i> Review & authorise</button>
-      </div>
-    </form>
-  </div>
-</div>
+      <!-- USERS -->
+      <section id="usersSection" class="section">
+        <div class="section-head"><div><h2>Users</h2><p>Manage HanVerse accounts, roles and access.</p></div><div class="head-actions"><button class="btn btn-primary" id="usersNewUser">＋ New user</button></div></div>
+        <div class="panel">
+          <div class="panel-body">
+            <div class="toolbar">
+              <div class="search"><span>⌕</span><input class="input" id="userSearch" placeholder="Search name, username or email"></div>
+              <button class="btn btn-sm filter active" data-filter="all">All</button>
+              <button class="btn btn-sm filter" data-filter="pending">Pending</button>
+              <button class="btn btn-sm filter" data-filter="parents">Parents</button>
+              <button class="btn btn-sm filter" data-filter="premium">Premium</button>
+              <button class="btn btn-sm filter" data-filter="banned">Banned</button>
+            </div>
+            <div class="table-wrap" id="userTableWrap"><div class="empty">Loading users…</div></div>
+          </div>
+        </div>
+      </section>
 
-<!-- EMAIL CONFIRMATION -->
-<div class="modal" id="emailConfirmModal">
-  <div class="dialog" style="max-width:520px">
-    <div class="dialog-head">
-      <h2><i class="fa-solid fa-shield-halved"></i> Authorise broadcast</h2>
-      <button class="close" data-close="emailConfirmModal">✕</button>
-    </div>
-    <form id="emailConfirmForm">
-      <div class="dialog-body">
-        <div class="confirm-box">
-          <strong>Sending as <span id="confirmSenderName">Administrator</span></strong>
-          <span id="confirmActionText">Review the broadcast before sending.</span>
+      <!-- LESSONS -->
+      <section id="lessonsSection" class="section">
+        <div class="section-head"><div><h2>Lessons</h2><p>Build and manage the HanVerse learning library.</p></div><div class="head-actions"><button class="btn btn-primary" id="newLessonBtn">＋ New lesson</button></div></div>
+        <div class="panel"><div class="panel-body">
+          <div class="toolbar"><div class="search"><span>⌕</span><input class="input" id="lessonSearch" placeholder="Search lesson title, ID or description"></div><select class="select" id="lessonLevelFilter" style="width:150px"><option value="">All YCT levels</option><option value="1">YCT 1</option><option value="2">YCT 2</option><option value="3">YCT 3</option><option value="4">YCT 4</option></select></div>
+          <div class="lesson-grid" id="lessonGrid"><div class="empty">Loading lessons…</div></div>
+        </div></div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section id="analyticsSection" class="section">
+        <div class="section-head"><div><h2>Analytics</h2><p>Live platform metrics from the HanVerse Admin API.</p></div><button class="btn btn-soft" id="refreshAnalytics">↻ Refresh analytics</button></div>
+        <div class="panel"><div class="panel-body">
+          <div class="toolbar" style="justify-content:space-between"><div><strong style="font-size:11px;color:var(--navy)">Platform performance</strong><div class="muted" style="font-size:9px">Live metrics from Neon</div></div><span class="pill green" id="analyticsStatus">Ready</span></div>
+          <div class="analytics-grid">
+            <div class="analytics-card"><span>Total users</span><strong id="analyticsUsers">—</strong><small>All accounts</small></div>
+            <div class="analytics-card"><span>Verified</span><strong id="analyticsVerified">—</strong><small>Verified accounts</small></div>
+            <div class="analytics-card"><span>Premium</span><strong id="analyticsPremium">—</strong><small>Premium accounts</small></div>
+            <div class="analytics-card"><span>Parents</span><strong id="analyticsParents">—</strong><small>Parent accounts</small></div>
+            <div class="analytics-card"><span>Students</span><strong id="analyticsStudents">—</strong><small>Student accounts</small></div>
+            <div class="analytics-card"><span>New today</span><strong id="analyticsNewToday">—</strong><small>Created today</small></div>
+            <div class="analytics-card"><span>New this week</span><strong id="analyticsNew7Days">—</strong><small>Last 7 days</small></div>
+            <div class="analytics-card"><span>New this month</span><strong id="analyticsNew30Days">—</strong><small>Last 30 days</small></div>
+            <div class="analytics-card"><span>Active today</span><strong id="analyticsActive24h">—</strong><small>Last 24 hours</small></div>
+            <div class="analytics-card"><span>Active this week</span><strong id="analyticsActive7d">—</strong><small>Last 7 days</small></div>
+            <div class="analytics-card"><span>Active this month</span><strong id="analyticsActive30d">—</strong><small>Last 30 days</small></div>
+            <div class="analytics-card"><span>Total XP</span><strong id="analyticsTotalXP">—</strong><small>Non-banned users</small></div>
+            <div class="analytics-card"><span>Average XP</span><strong id="analyticsAverageXP">—</strong><small>Per user</small></div>
+            <div class="analytics-card"><span>Average level</span><strong id="analyticsAverageLevel">—</strong><small>Current average</small></div>
+            <div class="analytics-card"><span>Average streak</span><strong id="analyticsAverageStreak">—</strong><small>Days</small></div>
+            <div class="analytics-card"><span>Lessons completed</span><strong id="analyticsLessonsCompleted">—</strong><small>Total</small></div>
+            <div class="analytics-card"><span>Achievements</span><strong id="analyticsAchievements">—</strong><small>Total earned</small></div>
+          </div>
+        </div></div>
+      </section>
+
+      <!-- COMMUNICATIONS -->
+      <section id="communicationsSection" class="section">
+        <div class="section-head"><div><h2>Broadcasts</h2><p>Create, schedule and manage HanVerse email campaigns.</p></div><div class="head-actions"><button class="btn" id="communicationsHistoryBtn">◷ History</button><button class="btn btn-primary" id="communicationsComposeBtn">✦ New broadcast</button></div></div>
+        <div class="communication-banner"><div class="comm-icon">📣</div><div><strong>HanVerse Broadcasts</strong><p>Reach verified users, students, parents, premium members or the wider community.</p></div></div>
+        <div class="comm-stats"><div class="comm-stat"><span>Campaigns loaded</span><strong id="communicationsCampaignCount">—</strong></div><div class="comm-stat"><span>Scheduled</span><strong id="communicationsScheduledCount">—</strong></div><div class="comm-stat"><span>Completed</span><strong id="communicationsCompletedCount">—</strong></div></div>
+        <div class="panel"><div class="panel-head"><div><h3>Recent broadcasts</h3><small>Your latest campaigns</small></div><button class="btn btn-sm" id="communicationsRefreshBtn">↻ Refresh</button></div><div class="panel-body"><div class="campaign-list" id="communicationsRecentList"><div class="empty">Loading communications…</div></div></div></div>
+      </section>
+
+      <!-- PANDA -->
+      <section id="pandaSection" class="section">
+        <div class="section-head"><div><h2>Panda AI</h2><p>Your admin-only HanVerse assistant.</p></div></div>
+        <div class="panda-shell">
+          <div class="panel chat-panel">
+            <div class="panel-head"><div><h3>🐼 Panda workspace</h3><small>Ask about HanVerse administration</small></div><span class="pill blue">Admin only</span></div>
+            <div class="chat-messages" id="adminPandaMessages"><div class="msg"><span>🐼</span><div class="bubble">Hi! I’m Panda. Ask me about HanVerse users, lessons, analytics or admin workflow.</div></div></div>
+            <div class="chat-foot"><input class="input" id="adminPandaInput" placeholder="Ask Panda…" aria-label="Ask Panda"><button class="btn btn-primary" id="adminPandaSend">Ask →</button></div>
+          </div>
+          <div class="panda-side">
+            <div class="panda-hero"><div class="panda">🐼</div><h3>What can I help with?</h3><p>Use Panda for quick admin questions.</p></div>
+            <div class="panel"><div class="panel-head"><h3>Try asking</h3></div><div class="panel-body prompt-list">
+              <button class="prompt" data-prompt="How many users do we have?">How many users do we have?</button>
+              <button class="prompt" data-prompt="How many premium users are there?">How many premium users are there?</button>
+              <button class="prompt" data-prompt="How many lessons are published?">How many lessons are published?</button>
+              <button class="prompt" data-prompt="Give me a quick platform summary.">Give me a quick platform summary.</button>
+            </div></div>
+          </div>
         </div>
-        <div class="field">
-          <label for="emailConfirmPassword">Confirm with your admin password</label>
-          <input class="input" id="emailConfirmPassword" type="password" autocomplete="current-password" required placeholder="Admin password">
-        </div>
-        <div class="error" id="emailConfirmError"></div>
-        <div class="small-note"><i class="fa-solid fa-lock"></i> This is an additional confirmation before the campaign is submitted.</div>
-      </div>
-      <div class="dialog-foot">
-        <button class="btn" type="button" data-close="emailConfirmModal">Back</button>
-        <button class="btn btn-primary" id="confirmEmailBtn" type="submit"><i class="fa-solid fa-paper-plane"></i> Confirm & send</button>
-      </div>
-    </form>
+      </section>
+
+    </main>
   </div>
 </div>
 
 <!-- USER MODAL -->
-<div class="modal" id="userModal">
-  <div class="dialog">
-    <div class="dialog-head"><h2 id="userModalTitle">Create user</h2><button class="close" data-close="userModal">✕</button></div>
-    <form id="userForm">
-      <div class="dialog-body">
-        <input type="hidden" id="formUserId">
-        <div class="field"><label>Full name</label><input class="input" id="formFullName" required></div>
-        <div class="field"><label>Username</label><input class="input" id="formUsername" required></div>
-        <div class="field"><label>Email</label><input class="input" id="formEmail" type="email" required></div>
-        <div class="field"><label>Password</label><input class="input" id="formPassword" type="password"></div>
-        <div class="audience-grid">
-          <div class="field"><label>Level</label><input class="input" id="formLevel" type="number" min="1" value="1"></div>
-          <div class="field"><label>XP</label><input class="input" id="formXp" type="number" min="0" value="0"></div>
-        </div>
-        <div class="field"><label>Role</label><select class="select" id="formRole"><option value="student">Student</option><option value="parent">Parent</option><option value="admin">Admin</option></select></div>
-        <div class="audience-grid">
-          <div class="field"><label>Banned</label><select class="select" id="formBanned"><option value="false">No</option><option value="true">Yes</option></select></div>
-          <div class="field"><label>Premium</label><select class="select" id="formPremium"><option value="false">No</option><option value="true">Yes</option></select></div>
-        </div>
-        <div class="field"><label>Verified</label><select class="select" id="formVerified"><option value="false">No</option><option value="true">Yes</option></select></div>
-        <div class="error" id="userError"></div>
-      </div>
-      <div class="dialog-foot"><button class="btn" type="button" data-close="userModal">Cancel</button><button class="btn btn-primary" type="submit">Save user</button></div>
-    </form>
-  </div>
-</div>
+<div class="modal" id="userModal"><div class="dialog">
+  <div class="dialog-head"><h2 id="userModalTitle">Create user</h2><button class="close" data-close="userModal">×</button></div>
+  <form id="userForm"><div class="dialog-body">
+    <input type="hidden" id="formUserId">
+    <div class="form-grid">
+      <div class="field"><label>Full name</label><input class="input" id="formFullName" required></div>
+      <div class="field"><label>Username</label><input class="input" id="formUsername" required></div>
+      <div class="field"><label>Email</label><input class="input" id="formEmail" type="email" required></div>
+      <div class="field"><label>Password</label><input class="input" id="formPassword" type="password"><small class="muted" style="font-size:8px" id="passwordHint"></small></div>
+      <div class="field"><label>Level</label><input class="input" id="formLevel" type="number" min="1" value="1"></div>
+      <div class="field"><label>XP</label><input class="input" id="formXp" type="number" min="0" value="0"></div>
+      <div class="field"><label>Role</label><select class="select" id="formRole"><option value="student">Student</option><option value="parent">Parent</option><option value="admin">Admin</option></select></div>
+      <div class="field"><label>Banned</label><select class="select" id="formBanned"><option value="false">No</option><option value="true">Yes</option></select></div>
+      <div class="field"><label>Premium</label><select class="select" id="formPremium"><option value="false">No</option><option value="true">Yes</option></select></div>
+      <div class="field"><label>Verified</label><select class="select" id="formVerified"><option value="false">No</option><option value="true">Yes</option></select></div>
+    </div>
+    <div class="error" id="userError"></div>
+  </div><div class="dialog-foot"><button class="btn" type="button" data-close="userModal">Cancel</button><button class="btn btn-primary" type="submit">Save user</button></div></form>
+</div></div>
 
 <!-- LESSON MODAL -->
-<div class="modal" id="lessonModal">
-  <div class="dialog">
-    <div class="dialog-head"><h2 id="lessonModalTitle">Lesson</h2><button class="close" data-close="lessonModal">✕</button></div>
-    <div class="dialog-body">
-      <form id="lessonForm">
-        <input type="hidden" id="lessonId">
+<div class="modal" id="lessonModal"><div class="dialog">
+  <div class="dialog-head"><h2 id="lessonModalTitle">Lesson</h2><button class="close" data-close="lessonModal">×</button></div>
+  <div class="dialog-body">
+    <form id="lessonForm">
+      <input type="hidden" id="lessonId">
+      <div class="form-grid">
         <div class="field"><label>Lesson ID</label><input class="input" id="lessonIdInput" required></div>
         <div class="field"><label>Title</label><input class="input" id="lessonTitle" required></div>
-        <div class="audience-grid">
-          <div class="field"><label>YCT level</label><input class="input" id="lessonLevel" type="number" min="1" max="4" value="1"></div>
-          <div class="field"><label>Order</label><input class="input" id="lessonOrder" type="number" min="1" value="1"></div>
-        </div>
-        <div class="field"><label>Description</label><textarea class="textarea" id="lessonDescription"></textarea></div>
-        <div class="field"><label>Cover URL</label><input class="input" id="lessonCover"></div>
+        <div class="field"><label>YCT level</label><input class="input" id="lessonLevel" type="number" min="1" max="4" value="1"></div>
+        <div class="field"><label>Order</label><input class="input" id="lessonOrder" type="number" min="1" value="1"></div>
+        <div class="field full"><label>Description</label><textarea class="textarea" id="lessonDescription"></textarea></div>
+        <div class="field full"><label>Cover URL</label><input class="input" id="lessonCover"></div>
         <div class="field"><label>Video URL</label><input class="input" id="lessonVideo"></div>
         <div class="field"><label>Audio URL</label><input class="input" id="lessonAudio"></div>
-        <div class="field"><label>Published</label><select class="select" id="lessonPublished"><option value="true">Published</option><option value="false">Draft</option></select></div>
-        <div class="error" id="lessonError"></div>
-      </form>
-      <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
-      <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:.8rem">Lesson media</strong><button class="btn btn-sm" id="addMediaBtn" type="button"><i class="fa-solid fa-plus"></i> Add media</button></div>
-      <div class="media-list" id="mediaList"><div class="small-note">Save the lesson first, then add media.</div></div>
+        <div class="field"><label>Publishing</label><select class="select" id="lessonPublished"><option value="true">Published</option><option value="false">Draft</option></select></div>
+      </div>
+      <div class="error" id="lessonError"></div>
+    </form>
+    <div style="border-top:1px solid var(--line);margin-top:5px;padding-top:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:10px;color:var(--navy)">Lesson media</strong><button class="btn btn-sm" id="addMediaBtn" type="button">＋ Add media</button></div>
+      <div class="media-list" id="mediaList"><small class="muted">Save the lesson first, then add media.</small></div>
     </div>
-    <div class="dialog-foot"><button class="btn" type="button" data-close="lessonModal">Close</button><button class="btn btn-primary" id="saveLessonBtn" type="button">Save lesson</button></div>
   </div>
-</div>
+  <div class="dialog-foot"><button class="btn" type="button" data-close="lessonModal">Close</button><button class="btn btn-primary" id="saveLessonBtn" type="button">Save lesson</button></div>
+</div></div>
 
 <!-- MEDIA MODAL -->
-<div class="modal" id="mediaModal">
-  <div class="dialog" style="max-width:500px">
-    <div class="dialog-head"><h2>Add media</h2><button class="close" data-close="mediaModal">✕</button></div>
-    <div class="dialog-body">
-      <div class="field"><label>Media type</label><select class="select" id="mediaType"><option value="image">Image</option><option value="video">Video</option><option value="audio">Audio</option></select></div>
-      <div class="field"><label>Media URL</label><input class="input" id="mediaUrl" placeholder="https://..."></div>
-      <div class="field"><label>Title</label><input class="input" id="mediaTitle"></div>
-      <div class="field"><label>Caption</label><input class="input" id="mediaCaption"></div>
-      <div class="error" id="mediaError"></div>
-    </div>
-    <div class="dialog-foot"><button class="btn" type="button" data-close="mediaModal">Cancel</button><button class="btn btn-primary" id="saveMediaBtn" type="button">Add media</button></div>
+<div class="modal" id="mediaModal"><div class="dialog" style="max-width:500px">
+  <div class="dialog-head"><h2>Add media</h2><button class="close" data-close="mediaModal">×</button></div>
+  <div class="dialog-body">
+    <div class="field"><label>Media type</label><select class="select" id="mediaType"><option value="image">Image</option><option value="video">Video</option><option value="audio">Audio</option></select></div>
+    <div class="field"><label>Media URL</label><input class="input" id="mediaUrl" placeholder="https://..."></div>
+    <div class="field"><label>Title</label><input class="input" id="mediaTitle"></div>
+    <div class="field"><label>Caption</label><input class="input" id="mediaCaption"></div>
+    <div class="error" id="mediaError"></div>
   </div>
-</div>
+  <div class="dialog-foot"><button class="btn" type="button" data-close="mediaModal">Cancel</button><button class="btn btn-primary" id="saveMediaBtn" type="button">Add media</button></div>
+</div></div>
 
-<!-- CAMPAIGN HISTORY IS SHOWN BELOW THE MAIN PANELS WHEN BROADCAST IS OPEN -->
-<div class="modal" id="broadcastHistoryModal">
-  <div class="dialog" style="max-width:900px">
-    <div class="dialog-head"><h2><i class="fa-solid fa-clock-rotate-left"></i> Broadcast history</h2><button class="close" data-close="broadcastHistoryModal">✕</button></div>
-    <div class="dialog-body">
-      <div class="toolbar">
-        <select class="select" id="broadcastStatusFilter" style="width:180px">
-          <option value="">All statuses</option><option value="processing">Processing</option><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="failed">Failed</option><option value="cancelled">Cancelled</option>
-        </select>
-        <button class="btn btn-sm" id="broadcastRefreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+<!-- BROADCAST MODAL -->
+<div class="modal" id="broadcastModal"><div class="dialog" style="width:min(1100px,100%)">
+  <div class="dialog-head"><h2>✦ Email composer</h2><button class="close" data-close="broadcastModal">×</button></div>
+  <form id="broadcastForm"><div class="dialog-body">
+    <div id="personalRecipientBox" class="hidden" style="padding:9px 11px;margin-bottom:12px;background:var(--blue-soft);border:1px solid #C9E7F7;border-radius:10px;font-size:9px">✉ Personal email to <strong id="personalRecipientEmail"></strong></div>
+    <div class="composer-grid">
+      <div>
+        <div class="field" id="broadcastAudienceField"><label>Audience</label><div class="audience-grid">
+          <label class="choice"><input type="radio" name="broadcastAudience" value="all"> All users</label>
+          <label class="choice"><input type="radio" name="broadcastAudience" value="verified" checked> Verified users</label>
+          <label class="choice"><input type="radio" name="broadcastAudience" value="students"> Students</label>
+          <label class="choice"><input type="radio" name="broadcastAudience" value="parents"> Parents</label>
+          <label class="choice"><input type="radio" name="broadcastAudience" value="premium"> Premium users</label>
+          <label class="choice"><input type="radio" name="broadcastAudience" value="non_premium"> Non-premium users</label>
+        </div><div class="recipient-count" id="broadcastRecipientCount">0 recipients</div></div>
+        <div class="field"><label for="broadcastSubject">Subject</label><input class="input" id="broadcastSubject" maxlength="180" required placeholder="Email subject"></div>
+        <div class="field"><label for="broadcastMessage">Message</label><textarea class="textarea" id="broadcastMessage" style="min-height:230px" required placeholder="Write your HanVerse announcement…"></textarea></div>
+        <div class="field" id="broadcastTimingField"><label>Send timing</label><div class="timing-grid">
+          <label class="choice"><input type="radio" name="broadcastTiming" value="now" checked> Send immediately</label>
+          <label class="choice"><input type="radio" name="broadcastTiming" value="scheduled"> Schedule for later</label>
+        </div></div>
+        <div id="broadcastScheduleBox" class="hidden" style="padding:11px;border:1px solid var(--line);border-radius:11px;background:#FAFCFE">
+          <div class="form-grid"><div class="field"><label>Date</label><input class="input" id="broadcastDate" type="date"></div><div class="field"><label>Time</label><input class="input" id="broadcastTime" type="time"></div></div>
+          <div class="field"><label>Timezone</label><select class="select" id="broadcastTimezone"><option value="Africa/Nairobi">Africa/Nairobi (EAT)</option></select></div>
+        </div>
+        <div class="error" id="broadcastError"></div>
       </div>
-      <div class="campaign-list" id="broadcastCampaignList"><div class="empty">Loading history…</div></div>
+      <div class="preview-wrap"><div class="preview-label"><span>Live preview</span><span class="muted">HanVerse template</span></div><iframe id="emailPreview" class="email-preview" title="Email preview"></iframe></div>
     </div>
-  </div>
-</div>
+  </div><div class="dialog-foot"><button class="btn" type="button" data-close="broadcastModal">Cancel</button><button class="btn btn-primary" type="submit">Review & authorise →</button></div></form>
+</div></div>
 
-<!-- PANDA -->
-<div class="chat" id="chat">
-  <div class="chat-head"><strong>🐼 Panda Admin Helper</strong><button class="close" id="chatClose">✕</button></div>
-  <div class="chat-body" id="chatBody"><div class="msg"><span>🐼</span><div class="bubble">Hi! How can I help?</div></div></div>
-  <div class="chat-foot"><input class="input" id="chatInput" placeholder="Ask Panda…"><button class="btn btn-primary btn-sm" id="chatSend">Send</button></div>
-</div>
-<button class="btn btn-primary" id="pandaToggle" style="position:fixed;right:20px;bottom:20px;border-radius:50%;width:48px;height:48px;z-index:210">🐼</button>
+<!-- CONFIRM EMAIL -->
+<div class="modal" id="emailConfirmModal"><div class="dialog" style="max-width:510px">
+  <div class="dialog-head"><h2>🛡 Authorise broadcast</h2><button class="close" data-close="emailConfirmModal">×</button></div>
+  <form id="emailConfirmForm"><div class="dialog-body">
+    <div class="confirm-box"><strong>Sending as <span id="confirmSenderName">Administrator</span></strong><span id="confirmActionText">Review the broadcast before sending.</span></div>
+    <div class="field"><label>Confirm with admin password</label><input class="input" id="emailConfirmPassword" type="password" required placeholder="Admin password"></div>
+    <div class="error" id="emailConfirmError"></div>
+    <small class="muted" style="font-size:8px">🔒 Additional confirmation is required before submission.</small>
+  </div><div class="dialog-foot"><button class="btn" type="button" data-close="emailConfirmModal">Back</button><button class="btn btn-primary" id="confirmEmailBtn" type="submit">Confirm & send</button></div></form>
+</div></div>
+
+<!-- HISTORY -->
+<div class="modal" id="broadcastHistoryModal"><div class="dialog" style="max-width:900px">
+  <div class="dialog-head"><h2>◷ Broadcast history</h2><button class="close" data-close="broadcastHistoryModal">×</button></div>
+  <div class="dialog-body"><div class="toolbar"><select class="select" id="broadcastStatusFilter" style="width:180px"><option value="">All statuses</option><option value="processing">Processing</option><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="failed">Failed</option><option value="cancelled">Cancelled</option></select><button class="btn btn-sm" id="broadcastRefreshBtn">↻ Refresh</button></div><div class="campaign-list" id="broadcastCampaignList"><div class="empty">Loading history…</div></div></div>
+</div></div>
 
 <script>
 (() => {
 'use strict';
-const $ = id => document.getElementById(id);
-const API='/api', TOKEN_KEY='hanverse_admin_token', SESSION_KEY='hanverse_user';
+const $=id=>document.getElementById(id);
+const API='/api',TOKEN_KEY='hanverse_admin_token',SESSION_KEY='hanverse_user';
 const state={token:localStorage.getItem(TOKEN_KEY)||'',adminUser:null,users:[],lessons:[],section:'dashboard',userFilter:'all',userQuery:'',lessonQuery:'',lessonLevel:'',pendingEmail:null,campaigns:[]};
 const first=(...v)=>v.find(x=>x!==undefined&&x!==null&&x!=='');
 const yes=v=>v===true||v===1||v==='1'||String(v).toLowerCase()==='true';
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-const notify=(message,type='ok')=>{const stack=$('toastStack');if(!stack){alert(message);return}const t=document.createElement('div');t.className=`hv-toast ${type==='error'?'error':'ok'}`;t.textContent=message;stack.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-5px)';setTimeout(()=>t.remove(),220)},3200)};
+const notify=(message,type='ok')=>{const s=$('toastStack');const t=document.createElement('div');t.className='toast '+type;t.textContent=message;s.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),250)},3200)};
 function sessionUser(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'{}')}catch{return {}}}
-function headers(){const h={'Content-Type':'application/json'};if(state.token)h.Authorization=`Bearer ${state.token}`;return h}
-async function api(path,options={}){const res=await fetch(API+path,{...options,headers:{...headers(),...(options.headers||{})}});const raw=await res.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{data={raw}}if(res.status===401){state.token='';localStorage.removeItem(TOKEN_KEY);showLogin('Your admin session has expired. Please sign in again.');throw new Error('Unauthorised admin session.')}if(!res.ok)throw new Error(data.error||data.message||data.raw||`Request failed (${res.status})`);return data}
-function openModal(id){$(id)?.classList.add('open')}
-function closeModal(id){$(id)?.classList.remove('open')}
-function showLogin(message=''){$('authScreen').classList.remove('hidden');$('app').classList.add('hidden');$('authError').textContent=message;$('adminPassword').focus()}
-function setIdentity(user){state.adminUser=user||sessionUser()||{};const name=first(state.adminUser.full_name,state.adminUser.username,state.adminUser.email,'Administrator');$('adminIdentityName').textContent=name;$('broadcastSenderName').textContent=name;$('broadcastSenderEmail').textContent=state.adminUser.email||'';$('confirmSenderName').textContent=name}
-function updateStats(){const u=state.users,l=state.lessons,verified=u.filter(x=>yes(x.is_verified)).length,premium=u.filter(x=>yes(first(x.premium,x.is_premium))).length,parents=u.filter(x=>String(x.role||'').toLowerCase()==='parent').length,banned=u.filter(x=>yes(x.is_banned)).length;const set=(id,v)=>{if($(id))$(id).textContent=String(v)};set('totalUsers',u.length);set('pendingUsers',u.filter(x=>!yes(x.is_verified)).length);set('parentUsers',parents);set('premiumUsers',premium);set('userBadge',u.length);set('lessonBadge',l.length);set('dashVerified',verified);set('dashUnverified',Math.max(u.length-verified,0));set('dashPremiumRate',u.length?Math.round(premium/u.length*100)+'%':'0%');set('dashBanned',banned)}
-async function login(password){const user=sessionUser();if(!user.user_id)throw new Error('Please log in to HanVerse first.');const res=await fetch(`${API}/admin/verify-password`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:user.user_id,adminPassword:password})});const data=await res.json().catch(()=>({}));if(!res.ok||!data.adminToken)throw new Error(data.error||'Admin authentication failed.');state.token=data.adminToken;state.adminUser=data.user||user;localStorage.setItem(TOKEN_KEY,state.token);setIdentity(state.adminUser);showApp();await Promise.all([loadUsers(),loadLessons(),loadAdminAnalytics(),refreshCommunications()])}
-function showApp(){$('authScreen').classList.add('hidden');$('app').classList.remove('hidden');setIdentity(state.adminUser||sessionUser());switchSection('dashboard');}
-$('authForm').addEventListener('submit',async e=>{e.preventDefault();const btn=e.submitter;btn.disabled=true;$('authError').textContent='';try{await login($('adminPassword').value);$('adminPassword').value=''}catch(err){$('authError').textContent=err.message}finally{btn.disabled=false}});
+function headers(){const h={'Content-Type':'application/json'};if(state.token)h.Authorization='Bearer '+state.token;return h}
+async function api(path,options={}){const res=await fetch(API+path,{...options,headers:{...headers(),...(options.headers||{})}});const raw=await res.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{data={raw}}if(res.status===401){state.token='';localStorage.removeItem(TOKEN_KEY);showLogin('Your admin session has expired.');throw new Error('Unauthorised admin session.')}if(!res.ok)throw new Error(data.error||data.message||data.raw||`Request failed (${res.status})`);return data}
+function openModal(id){$(id)?.classList.add('open')}function closeModal(id){$(id)?.classList.remove('open')}
+function showLogin(msg=''){$('authScreen').classList.remove('hidden');$('app').classList.add('hidden');$('authError').textContent=msg;$('adminPassword').focus()}
+function setIdentity(user){state.adminUser=user||sessionUser()||{};const name=first(state.adminUser.full_name,state.adminUser.username,state.adminUser.email,'Administrator');$('sideAdminName').textContent=name;$('confirmSenderName').textContent=name}
+const titles={dashboard:['Dashboard','Your HanVerse command centre'],users:['Users','Manage HanVerse accounts, roles and access'],lessons:['Lessons','Build and manage the HanVerse learning library'],analytics:['Analytics','Live platform metrics'],communications:['Broadcasts','Create and manage HanVerse communications'],panda:['Panda AI','Your admin-only HanVerse assistant']};
+function switchSection(section){state.section=section;document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===section+'Section'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.section===section));$('pageTitle').textContent=titles[section]?.[0]||'Dashboard';$('pageSubtitle').textContent=titles[section]?.[1]||'';$('sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});if(section==='users')loadUsers();if(section==='lessons')loadLessons();if(section==='analytics')loadAdminAnalytics();if(section==='communications')refreshCommunications()}
+function showApp(){$('authScreen').classList.add('hidden');$('app').classList.remove('hidden');setIdentity(state.adminUser||sessionUser());switchSection('dashboard')}
+
+async function login(password){
+ const user=sessionUser();if(!user.user_id)throw new Error('Please log in to HanVerse first.');
+ const res=await fetch(API+'/admin/verify-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:user.user_id,adminPassword:password})});
+ const data=await res.json().catch(()=>({}));if(!res.ok||!data.adminToken)throw new Error(data.error||'Admin authentication failed.');
+ state.token=data.adminToken;state.adminUser=data.user||user;localStorage.setItem(TOKEN_KEY,state.token);setIdentity(state.adminUser);showApp();await Promise.all([loadUsers(),loadLessons(),loadAdminAnalytics(),refreshCommunications()]);
+}
+$('authForm').onsubmit=async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;$('authError').textContent='';try{await login($('adminPassword').value);$('adminPassword').value=''}catch(err){$('authError').textContent=err.message}finally{b.disabled=false}};
 $('logoutBtn').onclick=()=>{if(!confirm('Log out of the admin panel?'))return;state.token='';state.adminUser=null;localStorage.removeItem(TOKEN_KEY);showLogin()};
 
 /* USERS */
-async function loadUsers(){try{const d=await api('/admin/overview');state.users=Array.isArray(d.users)?d.users:[];renderUsers();updateStats();refreshRecipientCount()}catch(e){if($('userGrid'))$('userGrid').innerHTML=`<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>${esc(e.message)}</div>`}}
 function userMatches(u){if(state.userFilter==='pending'&&yes(u.is_verified))return false;if(state.userFilter==='parents'&&String(u.role||'').toLowerCase()!=='parent')return false;if(state.userFilter==='premium'&&!yes(first(u.premium,u.is_premium)))return false;if(state.userFilter==='banned'&&!yes(u.is_banned))return false;const q=state.userQuery.toLowerCase().trim();return !q||[u.full_name,u.username,u.email].some(x=>String(x||'').toLowerCase().includes(q))}
-function renderUsers(){const grid=$('userGrid');if(!grid)return;const users=state.users.filter(userMatches);if(!users.length){grid.innerHTML='<div class="empty"><i class="fa-solid fa-user-slash"></i>No users match this filter.</div>';return}grid.innerHTML=users.map(u=>{const id=esc(u.user_id),name=esc(first(u.full_name,u.username,'User')),verified=yes(u.is_verified),banned=yes(u.is_banned),premium=yes(first(u.premium,u.is_premium)),icon=String(u.role||'student').toLowerCase()==='admin'?'👑':String(u.role||'').toLowerCase()==='parent'?'👪':'🎓';return `<article class="card"><div class="user-top"><div class="avatar">${icon}</div><div class="user-info"><h3>${name}</h3><div class="email muted">${esc(u.email)}</div></div></div><div class="pills"><span class="pill ${verified?'green':'yellow'}">${verified?'✓ Verified':'⏳ Pending'}</span><span class="pill blue">${esc(u.role||'student')}</span>${premium?'<span class="pill purple">★ Premium</span>':''}${banned?'<span class="pill red">🚫 Banned</span>':''}</div><div class="actions"><button class="btn btn-blue btn-sm" data-edit-user="${id}"><i class="fa-solid fa-pen"></i>Edit</button><button class="btn btn-sm" data-email-user="${id}"><i class="fa-solid fa-envelope"></i>Email</button>${!verified?`<button class="btn btn-green btn-sm" data-verify-user="${id}"><i class="fa-solid fa-check"></i>Verify</button>`:''}<button class="btn btn-danger btn-sm" data-delete-user="${id}" aria-label="Delete user"><i class="fa-solid fa-trash"></i></button></div></article>`}).join('');grid.querySelectorAll('[data-edit-user]').forEach(b=>b.onclick=()=>editUser(b.dataset.editUser));grid.querySelectorAll('[data-email-user]').forEach(b=>b.onclick=()=>openPersonalEmail(b.dataset.emailUser));grid.querySelectorAll('[data-verify-user]').forEach(b=>b.onclick=()=>verifyUser(b.dataset.verifyUser));grid.querySelectorAll('[data-delete-user]').forEach(b=>b.onclick=()=>deleteUser(b.dataset.deleteUser))}
-function editUser(id){const u=state.users.find(x=>String(x.user_id)===String(id));if(!u)return;$('userModalTitle').textContent='Edit user';$('formUserId').value=u.user_id;$('formFullName').value=u.full_name||'';$('formUsername').value=u.username||'';$('formEmail').value=u.email||'';$('formPassword').value='';$('formPassword').required=false;$('formPassword').placeholder='Leave blank to keep current password';$('formLevel').value=first(u.level,1);$('formXp').value=first(u.xp,0);$('formRole').value=u.role||'student';$('formBanned').value=String(yes(u.is_banned));$('formPremium').value=String(yes(first(u.premium,u.is_premium)));$('formVerified').value=String(yes(u.is_verified));$('userError').textContent='';openModal('userModal')}
-function newUser(){$('userModalTitle').textContent='Create user';$('userForm').reset();$('formUserId').value='';$('formLevel').value=1;$('formXp').value=0;$('formPassword').required=true;$('formPassword').placeholder='Create password';$('userError').textContent='';openModal('userModal');setTimeout(()=>$('formFullName').focus(),100)}
+async function loadUsers(){try{const d=await api('/admin/overview');state.users=Array.isArray(d.users)?d.users:[];renderUsers();updateStats();refreshRecipientCount()}catch(e){$('userTableWrap').innerHTML=`<div class="empty">⚠ ${esc(e.message)}</div>`}}
+function updateStats(){
+ const u=state.users,l=state.lessons,verified=u.filter(x=>yes(x.is_verified)).length,premium=u.filter(x=>yes(first(x.premium,x.is_premium))).length,parents=u.filter(x=>String(x.role||'').toLowerCase()==='parent').length,banned=u.filter(x=>yes(x.is_banned)).length;
+ const set=(id,v)=>{if($(id))$(id).textContent=String(v)};
+ set('totalUsers',u.length);set('premiumUsers',premium);set('parentUsers',parents);set('dashVerified',verified+' verified accounts');set('dashUnverified',Math.max(u.length-verified,0));set('dashBanned',banned);set('userBadge',u.length);set('lessonBadge',l.length);set('totalLessons',l.length);set('dashPremiumRate',u.length?Math.round(premium/u.length*100)+'% conversion rate':'0%');
+}
+function renderUsers(){
+ const users=state.users.filter(userMatches);
+ if(!users.length){$('userTableWrap').innerHTML='<div class="empty">No users match this filter.</div>';return}
+ $('userTableWrap').innerHTML=`<table><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Progress</th><th>Premium</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${users.map(u=>{
+ const id=esc(u.user_id),name=esc(first(u.full_name,u.username,'User')),role=String(u.role||'student').toLowerCase(),verified=yes(u.is_verified),banned=yes(u.is_banned),premium=yes(first(u.premium,u.is_premium)),icon=role==='admin'?'👑':role==='parent'?'👪':'🎓',joined=first(u.created_at,u.createdAt,'');
+ return `<tr><td><div class="user-cell"><div class="avatar">${icon}</div><div><strong>${name}</strong><small>${esc(u.email)}</small></div></div></td><td><span class="pill blue">${esc(role)}</span></td><td>${banned?'<span class="pill red">🚫 Banned</span>':verified?'<span class="pill green">✓ Verified</span>':'<span class="pill yellow">⏳ Pending</span>'}</td><td><strong style="font-size:10px;color:var(--navy)">${Number(first(u.xp,0)).toLocaleString()} XP</strong><small class="muted" style="display:block;font-size:8px">Level ${esc(first(u.level,1))}</small></td><td>${premium?'<span class="pill purple">★ Premium</span>':'<span class="muted" style="font-size:8px">Standard</span>'}</td><td><span class="muted" style="font-size:8px">${joined?new Date(joined).toLocaleDateString('en-KE'):'—'}</span></td><td><div class="row-actions"><button class="btn btn-sm btn-soft" data-edit-user="${id}">Edit</button><button class="btn btn-sm" data-email-user="${id}">Email</button>${!verified?`<button class="btn btn-sm btn-green" data-verify-user="${id}">Verify</button>`:''}<button class="btn btn-sm btn-danger" data-delete-user="${id}">Delete</button></div></td></tr>`;
+ }).join('')}</tbody></table>`;
+ document.querySelectorAll('[data-edit-user]').forEach(b=>b.onclick=()=>editUser(b.dataset.editUser));
+ document.querySelectorAll('[data-email-user]').forEach(b=>b.onclick=()=>openPersonalEmail(b.dataset.emailUser));
+ document.querySelectorAll('[data-verify-user]').forEach(b=>b.onclick=()=>verifyUser(b.dataset.verifyUser));
+ document.querySelectorAll('[data-delete-user]').forEach(b=>b.onclick=()=>deleteUser(b.dataset.deleteUser));
+}
+function editUser(id){const u=state.users.find(x=>String(x.user_id)===String(id));if(!u)return;$('userModalTitle').textContent='Edit user';$('formUserId').value=u.user_id;$('formFullName').value=u.full_name||'';$('formUsername').value=u.username||'';$('formEmail').value=u.email||'';$('formPassword').value='';$('formPassword').required=false;$('passwordHint').textContent='Leave blank to keep the current password.';$('formLevel').value=first(u.level,1);$('formXp').value=first(u.xp,0);$('formRole').value=u.role||'student';$('formBanned').value=String(yes(u.is_banned));$('formPremium').value=String(yes(first(u.premium,u.is_premium)));$('formVerified').value=String(yes(u.is_verified));$('userError').textContent='';openModal('userModal')}
+function newUser(){$('userModalTitle').textContent='Create user';$('userForm').reset();$('formUserId').value='';$('formLevel').value=1;$('formXp').value=0;$('formPassword').required=true;$('passwordHint').textContent='A password is required for new accounts.';$('userError').textContent='';openModal('userModal');setTimeout(()=>$('formFullName').focus(),100)}
 async function verifyUser(id){if(!confirm('Verify this user?'))return;try{await api(`/admin/toggle-verification/${encodeURIComponent(id)}`,{method:'POST',body:JSON.stringify({verified:true})});notify('User verified.');await loadUsers()}catch(e){notify(e.message,'error')}}
 async function deleteUser(id){if(!confirm('Delete this user permanently? This cannot be undone.'))return;try{await api(`/admin/users/delete/${encodeURIComponent(id)}`,{method:'DELETE'});notify('User deleted.');await loadUsers()}catch(e){notify(e.message,'error')}}
-$('userForm').onsubmit=async e=>{e.preventDefault();const id=$('formUserId').value,password=$('formPassword').value.trim(),btn=e.submitter;const payload={full_name:$('formFullName').value.trim(),username:$('formUsername').value.trim(),email:$('formEmail').value.trim(),level:Number($('formLevel').value)||1,xp:Number($('formXp').value)||0,role:$('formRole').value,is_banned:$('formBanned').value==='true',premium:$('formPremium').value==='true',is_verified:$('formVerified').value==='true'};if(password)payload.password=password;if(!id&&!password){$('userError').textContent='Password is required for a new user.';return}btn.disabled=true;$('userError').textContent='';try{if(id)await api(`/admin/users/update/${encodeURIComponent(id)}`,{method:'POST',body:JSON.stringify(payload)});else await api('/signup',{method:'POST',body:JSON.stringify({...payload,password})});closeModal('userModal');notify(id?'User updated.':'User created.');await loadUsers()}catch(err){$('userError').textContent=err.message}finally{btn.disabled=false}};
+$('userForm').onsubmit=async e=>{e.preventDefault();const id=$('formUserId').value,password=$('formPassword').value.trim(),b=e.submitter;const payload={full_name:$('formFullName').value.trim(),username:$('formUsername').value.trim(),email:$('formEmail').value.trim(),level:Number($('formLevel').value)||1,xp:Number($('formXp').value)||0,role:$('formRole').value,is_banned:$('formBanned').value==='true',premium:$('formPremium').value==='true',is_verified:$('formVerified').value==='true'};if(password)payload.password=password;if(!id&&!password){$('userError').textContent='Password is required for a new user.';return}b.disabled=true;try{if(id)await api(`/admin/users/update/${encodeURIComponent(id)}`,{method:'POST',body:JSON.stringify(payload)});else await api('/signup',{method:'POST',body:JSON.stringify({...payload,password})});closeModal('userModal');notify(id?'User updated.':'User created.');await loadUsers()}catch(err){$('userError').textContent=err.message}finally{b.disabled=false}};
 
 /* LESSONS */
-async function loadLessons(){try{const d=await api('/admin/lessons');state.lessons=Array.isArray(d)?d:(d.lessons||[]);renderLessons();updateStats()}catch(e){state.lessons=[];$('lessonGrid').innerHTML=`<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>Could not load lessons.<br><span class="small-note">${esc(e.message)}</span></div>`;updateStats()}}
-function renderLessons(){const q=state.lessonQuery.toLowerCase().trim(),level=String(state.lessonLevel||'');const list=state.lessons.filter(l=>{const ll=String(first(l.level,l.course_level,''));return(!level||ll===level)&&(!q||[l.lesson_id,l.title,l.description].some(x=>String(x||'').toLowerCase().includes(q)))}).sort((a,b)=>Number(first(a.order_index,a.order,999))-Number(first(b.order_index,b.order,999)));if(!list.length){$('lessonGrid').innerHTML='<div class="empty"><i class="fa-solid fa-book-open"></i>No lessons found.</div>';return}$('lessonGrid').innerHTML=list.map(l=>{const id=String(first(l.lesson_id,l.id,'')),cover=first(l.cover_url,l.cover_image_url,l.image_url,l.thumbnail_url);return `<article class="card"><div class="lesson-cover">${cover?`<img src="${esc(cover)}" alt="">`:'🐼'}<span class="lesson-order">#${esc(first(l.order_index,l.order,'—'))}</span><span class="lesson-status pill ${yes(l.is_published)?'green':'yellow'}">${yes(l.is_published)?'Published':'Draft'}</span></div><div class="lesson-content"><h3>${esc(first(l.title,id,'Untitled lesson'))}</h3><div class="pills"><span class="pill blue">YCT ${esc(first(l.level,l.course_level,'—'))}</span><span class="pill purple">${esc(first(l.media_count,Array.isArray(l.media)?l.media.length:0,0))} media</span></div><p>${esc(first(l.description,'No description yet.'))}</p><div class="actions"><button class="btn btn-primary btn-sm" data-edit-lesson="${esc(id)}"><i class="fa-solid fa-pen"></i>Edit</button><button class="btn btn-danger btn-sm" data-delete-lesson="${esc(id)}"><i class="fa-solid fa-trash"></i></button></div></div></article>`}).join('');$('lessonGrid').querySelectorAll('[data-edit-lesson]').forEach(b=>b.onclick=()=>editLesson(b.dataset.editLesson));$('lessonGrid').querySelectorAll('[data-delete-lesson]').forEach(b=>b.onclick=()=>deleteLesson(b.dataset.deleteLesson))}
-async function editLesson(id){try{const d=await api(`/admin/lessons/${encodeURIComponent(id)}`),l=d.lesson||d;state.editingLesson=l;$('lessonModalTitle').textContent='Edit lesson';$('lessonId').value=l.lesson_id||id;$('lessonIdInput').value=l.lesson_id||id;$('lessonTitle').value=l.title||'';$('lessonLevel').value=first(l.level,l.course_level,1);$('lessonOrder').value=first(l.order_index,l.order,1);$('lessonDescription').value=l.description||'';$('lessonCover').value=first(l.cover_url,l.cover_image_url,l.image_url,'');$('lessonVideo').value=l.video_url||'';$('lessonAudio').value=l.audio_url||'';$('lessonPublished').value=String(yes(l.is_published));$('lessonError').textContent='';renderMedia(d.media||l.media||[]);openModal('lessonModal')}catch(e){notify(e.message,'error')}}
-function newLesson(){$('lessonModalTitle').textContent='Create lesson';$('lessonForm').reset();$('lessonId').value='';$('lessonLevel').value=1;$('lessonOrder').value=state.lessons.length+1;$('lessonPublished').value='true';$('lessonError').textContent='';$('mediaList').innerHTML='<div class="small-note">Save the lesson first, then add media.</div>';openModal('lessonModal');setTimeout(()=>$('lessonIdInput').focus(),100)}
-async function saveLesson(){const oldId=$('lessonId').value,payload={lesson_id:$('lessonIdInput').value.trim(),title:$('lessonTitle').value.trim(),level:Number($('lessonLevel').value)||1,order_index:Number($('lessonOrder').value)||1,description:$('lessonDescription').value.trim(),cover_url:$('lessonCover').value.trim(),video_url:$('lessonVideo').value.trim(),audio_url:$('lessonAudio').value.trim(),is_published:$('lessonPublished').value==='true'};if(!payload.lesson_id||!payload.title){$('lessonError').textContent='Lesson ID and title are required.';return}$('saveLessonBtn').disabled=true;$('lessonError').textContent='';try{const d=oldId?await api(`/admin/lessons/${encodeURIComponent(oldId)}`,{method:'PUT',body:JSON.stringify(payload)}):await api('/admin/lessons',{method:'POST',body:JSON.stringify(payload)});const savedId=d.lesson?.lesson_id||d.lesson_id||payload.lesson_id;notify('Lesson saved.');await loadLessons();await editLesson(savedId)}catch(e){$('lessonError').textContent=e.message}finally{$('saveLessonBtn').disabled=false}}
+async function loadLessons(){try{const d=await api('/admin/lessons');state.lessons=Array.isArray(d)?d:(d.lessons||[]);renderLessons();updateStats()}catch(e){state.lessons=[];$('lessonGrid').innerHTML=`<div class="empty">⚠ Could not load lessons.<br>${esc(e.message)}</div>`;updateStats()}}
+function renderLessons(){
+ const q=state.lessonQuery.toLowerCase().trim(),level=String(state.lessonLevel||'');
+ const list=state.lessons.filter(l=>{const ll=String(first(l.level,l.course_level,''));return(!level||ll===level)&&(!q||[l.lesson_id,l.title,l.description].some(x=>String(x||'').toLowerCase().includes(q)))}).sort((a,b)=>Number(first(a.order_index,a.order,999))-Number(first(b.order_index,b.order,999)));
+ if(!list.length){$('lessonGrid').innerHTML='<div class="empty">No lessons found.</div>';return}
+ $('lessonGrid').innerHTML=list.map(l=>{const id=String(first(l.lesson_id,l.id,'')),cover=first(l.cover_url,l.cover_image_url,l.image_url,l.thumbnail_url),published=yes(l.is_published),media=first(l.media_count,Array.isArray(l.media)?l.media.length:0,0);return `<article class="lesson-card"><div class="lesson-cover">${cover?`<img src="${esc(cover)}" alt="">`:'🐼'}<span class="lesson-badge">#${esc(first(l.order_index,l.order,'—'))} · YCT ${esc(first(l.level,l.course_level,'—'))}</span><span class="lesson-status pill ${published?'green':'yellow'}">${published?'Published':'Draft'}</span></div><div class="lesson-body"><h3>${esc(first(l.title,id,'Untitled lesson'))}</h3><div class="lesson-meta"><span class="pill blue">YCT ${esc(first(l.level,l.course_level,'—'))}</span><span class="pill purple">${esc(media)} media</span></div><p>${esc(first(l.description,'No description yet.'))}</p><div class="row-actions"><button class="btn btn-sm btn-soft" data-edit-lesson="${esc(id)}">Edit lesson</button><button class="btn btn-sm btn-danger" data-delete-lesson="${esc(id)}">Delete</button></div></div></article>`}).join('');
+ document.querySelectorAll('[data-edit-lesson]').forEach(b=>b.onclick=()=>editLesson(b.dataset.editLesson));document.querySelectorAll('[data-delete-lesson]').forEach(b=>b.onclick=()=>deleteLesson(b.dataset.deleteLesson));
+}
+async function editLesson(id){try{const d=await api(`/admin/lessons/${encodeURIComponent(id)}`),l=d.lesson||d;$('lessonModalTitle').textContent='Edit lesson';$('lessonId').value=l.lesson_id||id;$('lessonIdInput').value=l.lesson_id||id;$('lessonTitle').value=l.title||'';$('lessonLevel').value=first(l.level,l.course_level,1);$('lessonOrder').value=first(l.order_index,l.order,1);$('lessonDescription').value=l.description||'';$('lessonCover').value=first(l.cover_url,l.cover_image_url,l.image_url,'');$('lessonVideo').value=l.video_url||'';$('lessonAudio').value=l.audio_url||'';$('lessonPublished').value=String(yes(l.is_published));$('lessonError').textContent='';renderMedia(d.media||l.media||[]);openModal('lessonModal')}catch(e){notify(e.message,'error')}}
+function newLesson(){$('lessonModalTitle').textContent='Create lesson';$('lessonForm').reset();$('lessonId').value='';$('lessonLevel').value=1;$('lessonOrder').value=state.lessons.length+1;$('lessonPublished').value='true';$('lessonError').textContent='';$('mediaList').innerHTML='<small class="muted">Save the lesson first, then add media.</small>';openModal('lessonModal');setTimeout(()=>$('lessonIdInput').focus(),100)}
+async function saveLesson(){const oldId=$('lessonId').value,payload={lesson_id:$('lessonIdInput').value.trim(),title:$('lessonTitle').value.trim(),level:Number($('lessonLevel').value)||1,order_index:Number($('lessonOrder').value)||1,description:$('lessonDescription').value.trim(),cover_url:$('lessonCover').value.trim(),video_url:$('lessonVideo').value.trim(),audio_url:$('lessonAudio').value.trim(),is_published:$('lessonPublished').value==='true'};if(!payload.lesson_id||!payload.title){$('lessonError').textContent='Lesson ID and title are required.';return}$('saveLessonBtn').disabled=true;try{const d=oldId?await api(`/admin/lessons/${encodeURIComponent(oldId)}`,{method:'PUT',body:JSON.stringify(payload)}):await api('/admin/lessons',{method:'POST',body:JSON.stringify(payload)});const savedId=d.lesson?.lesson_id||d.lesson_id||payload.lesson_id;notify('Lesson saved.');await loadLessons();await editLesson(savedId)}catch(e){$('lessonError').textContent=e.message}finally{$('saveLessonBtn').disabled=false}}
 async function deleteLesson(id){if(!confirm('Delete this lesson? This cannot be undone.'))return;try{await api(`/admin/lessons/${encodeURIComponent(id)}`,{method:'DELETE'});notify('Lesson deleted.');await loadLessons()}catch(e){notify(e.message,'error')}}
-function renderMedia(media){if(!Array.isArray(media)||!media.length){$('mediaList').innerHTML='<div class="small-note">No media added yet.</div>';return}$('mediaList').innerHTML=media.map(m=>`<div class="media-row"><div class="media-thumb">${m.media_type==='image'?`<img src="${esc(m.media_url)}" alt="">`:m.media_type==='video'?'▶':'🔊'}</div><div><strong style="font-size:.7rem;color:var(--navy)">${esc(first(m.title,m.media_url,'Media'))}</strong><div class="small-note">${esc(m.caption||m.media_type||'')}</div></div><button class="btn btn-danger btn-sm" data-delete-media="${esc(m.media_id)}" aria-label="Remove media">🗑</button></div>`).join('');$('mediaList').querySelectorAll('[data-delete-media]').forEach(b=>b.onclick=()=>deleteMedia(b.dataset.deleteMedia))}
-async function addMedia(){const id=$('lessonId').value;if(!id){notify('Save the lesson first.','error');return}const payload={media_type:$('mediaType').value,media_url:$('mediaUrl').value.trim(),title:$('mediaTitle').value.trim(),caption:$('mediaCaption').value.trim(),order_index:999,is_published:true};if(!payload.media_url){$('mediaError').textContent='Enter a media URL.';return}$('saveMediaBtn').disabled=true;$('mediaError').textContent='';try{await api(`/admin/lessons/${encodeURIComponent(id)}/media`,{method:'POST',body:JSON.stringify(payload)});closeModal('mediaModal');$('mediaUrl').value='';$('mediaTitle').value='';$('mediaCaption').value='';notify('Media added.');await editLesson(id)}catch(e){$('mediaError').textContent=e.message}finally{$('saveMediaBtn').disabled=false}}
+function renderMedia(media){if(!Array.isArray(media)||!media.length){$('mediaList').innerHTML='<small class="muted">No media added yet.</small>';return}$('mediaList').innerHTML=media.map(m=>`<div class="media-row"><div class="media-thumb">${m.media_type==='image'?`<img src="${esc(m.media_url)}" alt="">`:m.media_type==='video'?'▶':'🔊'}</div><div><strong style="font-size:9px;color:var(--navy)">${esc(first(m.title,m.media_url,'Media'))}</strong><small style="display:block;font-size:8px;color:var(--muted)">${esc(m.caption||m.media_type||'')}</small></div><button class="btn btn-danger btn-sm" data-delete-media="${esc(m.media_id)}">Delete</button></div>`).join('');document.querySelectorAll('[data-delete-media]').forEach(b=>b.onclick=()=>deleteMedia(b.dataset.deleteMedia))}
+async function addMedia(){const id=$('lessonId').value;if(!id){notify('Save the lesson first.','error');return}const payload={media_type:$('mediaType').value,media_url:$('mediaUrl').value.trim(),title:$('mediaTitle').value.trim(),caption:$('mediaCaption').value.trim(),order_index:999,is_published:true};if(!payload.media_url){$('mediaError').textContent='Enter a media URL.';return}$('saveMediaBtn').disabled=true;try{await api(`/admin/lessons/${encodeURIComponent(id)}/media`,{method:'POST',body:JSON.stringify(payload)});closeModal('mediaModal');$('mediaUrl').value='';$('mediaTitle').value='';$('mediaCaption').value='';notify('Media added.');await editLesson(id)}catch(e){$('mediaError').textContent=e.message}finally{$('saveMediaBtn').disabled=false}}
 async function deleteMedia(id){const lessonId=$('lessonId').value;if(!confirm('Remove this media?'))return;try{await api(`/admin/lessons/${encodeURIComponent(lessonId)}/media/${encodeURIComponent(id)}`,{method:'DELETE'});notify('Media removed.');await editLesson(lessonId)}catch(e){notify(e.message,'error')}}
 
 /* ANALYTICS */
-async function loadAdminAnalytics(){const status=$('analyticsStatus');if(status){status.textContent='Loading…';status.className='pill yellow'}try{const data=await api('/admin/analytics');if(!data?.success)throw new Error(data?.error||'Analytics request failed');const set=(id,v)=>{if($(id))$(id).textContent=String(v)};const u=data.users||{},g=data.growth||{},a=data.activity||{},l=data.learning||{},p=data.premium||{};set('dashVerified',u.verified||0);set('dashUnverified',u.unverified||0);set('dashPremiumRate',(p.conversion_percent||0)+'%');set('dashBanned',u.banned||0);set('analyticsUsers',u.total||0);set('analyticsVerified',u.verified||0);set('analyticsPremium',u.premium||0);set('analyticsParents',u.parents||0);set('analyticsStudents',u.students||0);set('analyticsNewToday',g.today||0);set('analyticsNew7Days',g.last_7_days||0);set('analyticsNew30Days',g.last_30_days||0);set('analyticsActive24h',a.last_24_hours||0);set('analyticsActive7d',a.last_7_days||0);set('analyticsActive30d',a.last_30_days||0);set('analyticsTotalXP',Number(l.total_xp||0).toLocaleString());set('analyticsAverageXP',Number(l.average_xp||0).toLocaleString());set('analyticsAverageLevel',l.average_level||0);set('analyticsAverageStreak',l.average_streak||0);set('analyticsLessonsCompleted',Number(l.total_lessons_completed||0).toLocaleString());set('analyticsAchievements',Number(l.total_achievements||0).toLocaleString());if(status){status.textContent='Live';status.className='pill green'}return data}catch(e){console.error(e);if(status){status.textContent='Unavailable';status.className='pill red'}return null}}
+async function loadAdminAnalytics(){
+ const status=$('analyticsStatus');if(status){status.textContent='Loading…';status.className='pill yellow'}
+ try{const data=await api('/admin/analytics');if(!data?.success)throw new Error(data?.error||'Analytics request failed');const u=data.users||{},g=data.growth||{},a=data.activity||{},l=data.learning||{},p=data.premium||{},set=(id,v)=>{if($(id))$(id).textContent=String(v)};
+ set('dashVerified',(u.verified||0)+' verified accounts');set('dashUnverified',u.unverified||0);set('dashBanned',u.banned||0);set('dashPremiumRate',(p.conversion_percent||0)+'% conversion rate');set('dashActive',a.last_24_hours||0);set('dashXp',Number(l.total_xp||0).toLocaleString()+' XP');set('dashStreak',Number(l.average_streak||0)+' average');set('analyticsUsers',u.total||0);set('analyticsVerified',u.verified||0);set('analyticsPremium',u.premium||0);set('analyticsParents',u.parents||0);set('analyticsStudents',u.students||0);set('analyticsNewToday',g.today||0);set('analyticsNew7Days',g.last_7_days||0);set('analyticsNew30Days',g.last_30_days||0);set('analyticsActive24h',a.last_24_hours||0);set('analyticsActive7d',a.last_7_days||0);set('analyticsActive30d',a.last_30_days||0);set('analyticsTotalXP',Number(l.total_xp||0).toLocaleString());set('analyticsAverageXP',Number(l.average_xp||0).toLocaleString());set('analyticsAverageLevel',l.average_level||0);set('analyticsAverageStreak',l.average_streak||0);set('analyticsLessonsCompleted',Number(l.total_lessons_completed||0).toLocaleString());set('analyticsAchievements',Number(l.total_achievements||0).toLocaleString());drawGrowth(g);if(status){status.textContent='Live';status.className='pill green'}}catch(e){if(status){status.textContent='Unavailable';status.className='pill red'}console.error(e)}
+}
+function drawGrowth(g){
+ const canvas=$('growthChart');if(!canvas)return;const rect=canvas.getBoundingClientRect(),dpr=devicePixelRatio||1;canvas.width=Math.max(300,rect.width*dpr);canvas.height=Math.max(180,rect.height*dpr);const c=canvas.getContext('2d');c.scale(dpr,dpr);const w=rect.width,h=rect.height;
+ c.clearRect(0,0,w,h);const values=[Number(g.last_30_days||0),Number(g.last_7_days||0),Number(g.today||0)];const max=Math.max(...values,1),pad=28,step=(w-pad*2)/Math.max(values.length-1,1);
+ c.strokeStyle='#E8EEF3';c.lineWidth=1;for(let i=0;i<4;i++){const y=20+i*(h-45)/3;c.beginPath();c.moveTo(pad,y);c.lineTo(w-pad,y);c.stroke()}
+ c.beginPath();values.forEach((v,i)=>{const x=pad+i*step,y=h-25-(v/max)*(h-55);i?c.lineTo(x,y):c.moveTo(x,y)});c.strokeStyle='#4EA8DE';c.lineWidth=3;c.lineCap='round';c.lineJoin='round';c.stroke();
+ values.forEach((v,i)=>{const x=pad+i*step,y=h-25-(v/max)*(h-55);c.beginPath();c.arc(x,y,4,0,Math.PI*2);c.fillStyle='#4EA8DE';c.fill();c.fillStyle='#64748B';c.font='9px Inter';c.textAlign='center';c.fillText(String(v),x,y-10)});c.textAlign='center';c.fillStyle='#94A3B8';c.font='8px Inter';['30 days','7 days','Today'].forEach((t,i)=>c.fillText(t,pad+i*step,h-5));
+}
+window.addEventListener('resize',()=>{if(state.section==='dashboard')loadAdminAnalytics()});
 
 /* EMAIL */
 function emailSafeText(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function buildHanverseEmail({subject,message,username}){const safeSubject=emailSafeText(subject||'HanVerse Update'),safeUsername=emailSafeText(username||'HanVerse Admin'),body=String(message||'').split(/\n{2,}/).map(p=>`<p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#333333;">${emailSafeText(p).replace(/\n/g,'<br>')}</p>`).join('');return `<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${safeSubject}</title></head><body style="margin:0;padding:0;background:#FFFDF7;font-family:Arial,Helvetica,sans-serif;color:#333333;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFFDF7"><tr><td align="center" style="padding:28px 14px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:680px;background:#fff;border:1px solid #eee8dd;border-radius:20px;overflow:hidden"><tr><td style="background:#E63946;padding:24px 30px"><div style="font-size:25px;font-weight:800;color:#fff">🐼 HanVerse</div><div style="font-size:12px;color:#ffe8ea;margin-top:4px">Learn Chinese. Have fun. Grow.</div></td></tr><tr><td style="padding:34px 34px 24px"><div style="display:inline-block;background:#FFF4C7;color:#8A6A00;border-radius:999px;padding:6px 11px;font-size:11px;font-weight:700;margin-bottom:16px">HANVERSE UPDATE</div><h1 style="margin:0 0 22px;font-size:26px;line-height:1.25;color:#222">${safeSubject}</h1>${body}<div style="height:1px;background:#eee8dd;margin:28px 0 20px"></div><p style="margin:0;color:#777;font-size:12px;line-height:1.6">Written by <strong style="color:#333">${safeUsername}</strong></p></td></tr><tr><td style="background:#F7F8FA;padding:20px 30px;border-top:1px solid #eee8dd;text-align:center"><p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#555">HanVerse</p><p style="margin:0;font-size:11px;line-height:1.6;color:#888">Your fun, friendly way to learn Mandarin Chinese.</p><p style="margin:10px 0 0;font-size:10px;color:#aaa">© ${new Date().getFullYear()} HanVerse. All rights reserved.</p></td></tr></table></td></tr></table></body></html>`}
-function refreshRecipientCount(){const audience=document.querySelector('input[name="broadcastAudience"]:checked')?.value||'verified';let users=state.users.filter(u=>u.email&&!yes(u.is_banned));if(audience==='verified')users=users.filter(u=>yes(u.is_verified));if(audience==='students')users=users.filter(u=>String(u.role||'').toLowerCase()==='student');if(audience==='parents')users=users.filter(u=>String(u.role||'').toLowerCase()==='parent');if(audience==='premium')users=users.filter(u=>yes(first(u.premium,u.is_premium)));if(audience==='non_premium')users=users.filter(u=>!yes(first(u.premium,u.is_premium)));if($('broadcastRecipientCount'))$('broadcastRecipientCount').textContent=`${users.length} recipient${users.length===1?'':'s'}`}
-function updateEmailPreview(){if(!$('emailPreview'))return;const subject=$('broadcastSubject').value.trim()||'HanVerse Update',message=$('broadcastMessage').value||'Your message will appear here.',username=first(state.adminUser?.full_name,state.adminUser?.username,'HanVerse Admin');$('emailPreview').srcdoc=buildHanverseEmail({subject,message,username})}
+function buildHanverseEmail({subject,message,username}){const s=emailSafeText(subject||'HanVerse Update'),u=emailSafeText(username||'HanVerse Admin'),body=String(message||'').split(/\n{2,}/).map(p=>`<p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#333">${emailSafeText(p).replace(/\n/g,'<br>')}</p>`).join('');return `<!doctype html><html><body style="margin:0;padding:0;background:#FFFDF7;font-family:Arial;color:#333"><table width="100%" cellpadding="0" cellspacing="0" style="background:#FFFDF7"><tr><td align="center" style="padding:28px 14px"><table width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;background:#fff;border:1px solid #eee8dd;border-radius:20px;overflow:hidden"><tr><td style="background:#4EA8DE;padding:24px 30px"><div style="font-size:25px;font-weight:800;color:#fff">🐼 HanVerse</div><div style="font-size:12px;color:#EAF6FD;margin-top:4px">Learn Chinese. Have fun. Grow.</div></td></tr><tr><td style="padding:34px"><div style="display:inline-block;background:#FFF4C7;color:#8A6A00;border-radius:999px;padding:6px 11px;font-size:11px;font-weight:700;margin-bottom:16px">HANVERSE UPDATE</div><h1 style="margin:0 0 22px;font-size:26px;color:#222">${s}</h1>${body}<hr style="border:0;border-top:1px solid #eee8dd;margin:28px 0 20px"><p style="margin:0;color:#777;font-size:12px">Written by <strong style="color:#333">${u}</strong></p></td></tr><tr><td style="background:#F7F8FA;padding:20px;text-align:center"><p style="margin:0;font-size:12px;font-weight:700;color:#555">HanVerse</p><p style="margin:6px 0 0;font-size:11px;color:#888">Your fun, friendly way to learn Mandarin Chinese.</p></td></tr></table></td></tr></table></body></html>`}
+function refreshRecipientCount(){let audience=document.querySelector('input[name="broadcastAudience"]:checked')?.value||'verified',users=state.users.filter(u=>u.email&&!yes(u.is_banned));if(audience==='verified')users=users.filter(u=>yes(u.is_verified));if(audience==='students')users=users.filter(u=>String(u.role||'').toLowerCase()==='student');if(audience==='parents')users=users.filter(u=>String(u.role||'').toLowerCase()==='parent');if(audience==='premium')users=users.filter(u=>yes(first(u.premium,u.is_premium)));if(audience==='non_premium')users=users.filter(u=>!yes(first(u.premium,u.is_premium)));$('broadcastRecipientCount').textContent=`${users.length} recipient${users.length===1?'':'s}`}
+function updateEmailPreview(){const subject=$('broadcastSubject').value.trim()||'HanVerse Update',message=$('broadcastMessage').value||'Your message will appear here.',username=first(state.adminUser?.full_name,state.adminUser?.username,'HanVerse Admin');$('emailPreview').srcdoc=buildHanverseEmail({subject,message,username})}
 function resetBroadcastComposer(){$('broadcastSubject').value='';$('broadcastMessage').value='';$('broadcastDate').value='';$('broadcastTime').value='';document.querySelector('input[name="broadcastAudience"][value="verified"]').checked=true;document.querySelector('input[name="broadcastTiming"][value="now"]').checked=true;$('broadcastScheduleBox').classList.add('hidden');$('broadcastError').textContent='';$('personalRecipientBox').classList.add('hidden');$('broadcastAudienceField').classList.remove('hidden');$('broadcastTimingField').classList.remove('hidden');updateEmailPreview()}
-function openBroadcast(){resetBroadcastComposer();state.pendingEmail=null;setIdentity(state.adminUser);refreshRecipientCount();openModal('broadcastModal');setTimeout(updateEmailPreview,20)}
-function openPersonalEmail(id){const u=state.users.find(x=>String(x.user_id)===String(id));if(!u)return;resetBroadcastComposer();state.pendingEmail={mode:'personal',campaign_type:'personal',recipient_user_id:u.user_id,recipient_email:u.email,recipient_username:first(u.username,u.full_name,'HanVerse User'),timing:'now',scheduled_for:null,timezone:'Africa/Nairobi'};$('personalRecipientBox').classList.remove('hidden');$('personalRecipientEmail').textContent=u.email;$('broadcastAudienceField').classList.add('hidden');$('broadcastTimingField').classList.add('hidden');openModal('broadcastModal');setTimeout(()=>$('broadcastSubject').focus(),100)}
-$('broadcastForm').onsubmit=e=>{e.preventDefault();const subject=$('broadcastSubject').value.trim(),message=$('broadcastMessage').value.trim();if(!subject||!message){$('broadcastError').textContent='Subject and message are required.';return}const isPersonal=state.pendingEmail?.mode==='personal',timing=isPersonal?'now':(document.querySelector('input[name="broadcastTiming"]:checked')?.value||'now'),audience=document.querySelector('input[name="broadcastAudience"]:checked')?.value||'verified';const action=isPersonal?{...state.pendingEmail,subject,message,timing:'now',scheduled_for:null}:{mode:'broadcast',campaign_type:'broadcast',audience_type:audience,subject,message,timing,scheduled_for:null,timezone:$('broadcastTimezone').value,recipient_username:first(state.adminUser?.username,state.adminUser?.full_name,'HanVerse Admin')};if(!isPersonal&&timing==='scheduled'){if(!$('broadcastDate').value||!$('broadcastTime').value){$('broadcastError').textContent='Choose a date and time.';return}action.scheduled_for=`${$('broadcastDate').value}T${$('broadcastTime').value}:00`;if(new Date(action.scheduled_for)<=new Date()){$('broadcastError').textContent='Scheduled time must be in the future.';return}}state.pendingEmail=action;$('confirmSenderName').textContent=first(state.adminUser?.full_name,state.adminUser?.username,state.adminUser?.email,'Administrator');$('confirmActionText').textContent=isPersonal?`Send "${subject}" to ${action.recipient_email}.`:timing==='scheduled'?`Schedule "${subject}" for ${action.scheduled_for} (${action.timezone}).`:`Send "${subject}" immediately to ${$('broadcastRecipientCount').textContent}.`;$('emailConfirmPassword').value='';$('emailConfirmError').textContent='';closeModal('broadcastModal');openModal('emailConfirmModal');setTimeout(()=>$('emailConfirmPassword').focus(),100)};
-$('emailConfirmForm').onsubmit=async e=>{e.preventDefault();const action=state.pendingEmail;if(!action)return;const password=$('emailConfirmPassword').value.trim();if(!password){$('emailConfirmError').textContent='Admin password is required.';return}const btn=$('confirmEmailBtn');btn.disabled=true;$('emailConfirmError').textContent='';try{const subject=action.subject,message=action.message,username=first(action.recipient_username,state.adminUser?.username,state.adminUser?.full_name,'HanVerse Admin'),html=buildHanverseEmail({subject,message,username});let data;if(action.mode==='personal')data=await api(`/admin/users/email/${encodeURIComponent(action.recipient_user_id)}`,{method:'POST',body:JSON.stringify({subject,message,html,adminPassword:password})});else data=await api('/admin/email/campaigns',{method:'POST',body:JSON.stringify({...action,subject,message,html,adminPassword:password})});closeModal('emailConfirmModal');state.pendingEmail=null;notify(data.message||'Broadcast submitted successfully.');await refreshCommunications()}catch(err){$('emailConfirmError').textContent=err.message}finally{btn.disabled=false}};
+function openBroadcast(){resetBroadcastComposer();state.pendingEmail=null;refreshRecipientCount();openModal('broadcastModal')}
+function openPersonalEmail(id){const u=state.users.find(x=>String(x.user_id)===String(id));if(!u)return;resetBroadcastComposer();state.pendingEmail={mode:'personal',campaign_type:'personal',recipient_user_id:u.user_id,recipient_email:u.email,recipient_username:first(u.username,u.full_name,'HanVerse User'),timing:'now',scheduled_for:null,timezone:'Africa/Nairobi'};$('personalRecipientBox').classList.remove('hidden');$('personalRecipientEmail').textContent=u.email;$('broadcastAudienceField').classList.add('hidden');$('broadcastTimingField').classList.add('hidden');openModal('broadcastModal')}
+$('broadcastForm').onsubmit=e=>{e.preventDefault();const subject=$('broadcastSubject').value.trim(),message=$('broadcastMessage').value.trim();if(!subject||!message){$('broadcastError').textContent='Subject and message are required.';return}const personal=state.pendingEmail?.mode==='personal',timing=personal?'now':(document.querySelector('input[name="broadcastTiming"]:checked')?.value||'now'),audience=document.querySelector('input[name="broadcastAudience"]:checked')?.value||'verified';const action=personal?{...state.pendingEmail,subject,message,timing:'now',scheduled_for:null}:{mode:'broadcast',campaign_type:'broadcast',audience_type:audience,subject,message,timing,scheduled_for:null,timezone:$('broadcastTimezone').value,recipient_username:first(state.adminUser?.username,state.adminUser?.full_name,'HanVerse Admin')};if(!personal&&timing==='scheduled'){if(!$('broadcastDate').value||!$('broadcastTime').value){$('broadcastError').textContent='Choose a date and time.';return}action.scheduled_for=`${$('broadcastDate').value}T${$('broadcastTime').value}:00`;if(new Date(action.scheduled_for)<=new Date()){$('broadcastError').textContent='Scheduled time must be in the future.';return}}state.pendingEmail=action;$('confirmActionText').textContent=personal?`Send "${subject}" to ${action.recipient_email}.`:timing==='scheduled'?`Schedule "${subject}" for ${action.scheduled_for} (${action.timezone}).`:`Send "${subject}" immediately to ${$('broadcastRecipientCount').textContent}.`;$('emailConfirmPassword').value='';$('emailConfirmError').textContent='';closeModal('broadcastModal');openModal('emailConfirmModal')};
+$('emailConfirmForm').onsubmit=async e=>{e.preventDefault();const action=state.pendingEmail;if(!action)return;const password=$('emailConfirmPassword').value.trim();if(!password){$('emailConfirmError').textContent='Admin password is required.';return}const b=$('confirmEmailBtn');b.disabled=true;try{const html=buildHanverseEmail({subject:action.subject,message:action.message,username:first(action.recipient_username,state.adminUser?.username,'HanVerse Admin')});let data;if(action.mode==='personal')data=await api(`/admin/users/email/${encodeURIComponent(action.recipient_user_id)}`,{method:'POST',body:JSON.stringify({subject:action.subject,message:action.message,html,adminPassword:password})});else data=await api('/admin/email/campaigns',{method:'POST',body:JSON.stringify({...action,html,adminPassword:password})});closeModal('emailConfirmModal');state.pendingEmail=null;notify(data.message||'Broadcast submitted successfully.');await refreshCommunications()}catch(err){$('emailConfirmError').textContent=err.message}finally{b.disabled=false}};
 
 /* COMMUNICATIONS */
-function renderCommunicationSummary(campaigns){const list=Array.isArray(campaigns)?campaigns:[],scheduled=list.filter(c=>String(c.status||'').toLowerCase()==='scheduled').length,completed=list.filter(c=>String(c.status||'').toLowerCase()==='completed').length;if($('communicationsCampaignCount'))$('communicationsCampaignCount').textContent=list.length;if($('communicationsScheduledCount'))$('communicationsScheduledCount').textContent=scheduled;if($('communicationsCompletedCount'))$('communicationsCompletedCount').textContent=completed;const recent=$('communicationsRecentList');if(!recent)return;if(!list.length){recent.innerHTML='<div class="empty"><i class="fa-solid fa-bullhorn"></i>No broadcasts yet.</div>';return}recent.innerHTML=list.slice(0,5).map(c=>campaignRow(c)).join('');bindCampaignCancel(recent)}
-function campaignRow(c){const date=c.scheduled_for?new Date(c.scheduled_for).toLocaleString('en-KE',{dateStyle:'medium',timeStyle:'short'}):'Immediate';const status=String(c.status||'unknown').replaceAll('_',' ');return `<div class="campaign-row"><div><strong>${esc(c.subject||'(No subject)')}</strong><small>${esc(c.audience_type||'broadcast')} · ${Number(c.total_recipients||0)} recipients</small></div><div class="campaign-status">${esc(status)}</div><div><small>${esc(date)}</small></div><div>${c.status==='scheduled'?`<button class="btn btn-sm" data-cancel-campaign="${esc(c.campaign_id)}">Cancel</button>`:''}</div></div>`}
+function campaignRow(c){const date=c.scheduled_for?new Date(c.scheduled_for).toLocaleString('en-KE',{dateStyle:'medium',timeStyle:'short'}):'Immediate',status=String(c.status||'unknown').replaceAll('_',' ');return `<div class="campaign-row"><div><strong>${esc(c.subject||'(No subject)')}</strong><small>${esc(c.audience_type||'broadcast')} · ${Number(c.total_recipients||0)} recipients</small></div><div><span class="campaign-status">${esc(status)}</span></div><div><small>${esc(date)}</small></div><div>${c.status==='scheduled'?`<button class="btn btn-sm" data-cancel-campaign="${esc(c.campaign_id)}">Cancel</button>`:''}</div></div>`}
 function bindCampaignCancel(box){box.querySelectorAll('[data-cancel-campaign]').forEach(b=>b.onclick=async()=>{if(!confirm('Cancel this scheduled broadcast?'))return;try{await api(`/admin/email/campaigns/${encodeURIComponent(b.dataset.cancelCampaign)}/cancel`,{method:'POST'});notify('Broadcast cancelled.');await refreshCommunications()}catch(e){notify(e.message,'error')}})}
-async function refreshCommunications(){if(!state.token)return;const box=$('communicationsRecentList');if(box)box.innerHTML='<div class="small-note">Loading communications…</div>';try{const d=await api('/admin/email/campaigns');state.campaigns=Array.isArray(d.campaigns)?d.campaigns.filter(c=>c.campaign_type==='broadcast'||!c.campaign_type):[];renderCommunicationSummary(state.campaigns);return state.campaigns}catch(e){if(box)box.innerHTML=`<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>${esc(e.message)}</div>`;return[]}}
-async function refreshCampaigns(){const box=$('broadcastCampaignList');if(!state.token)return;if(box)box.innerHTML='<div class="small-note">Loading history…</div>';try{const status=$('broadcastStatusFilter').value,d=await api(`/admin/email/campaigns${status?`?status=${encodeURIComponent(status)}`:''}`),list=(d.campaigns||[]).filter(c=>c.campaign_type==='broadcast'||!c.campaign_type);state.campaigns=list;if(!list.length){box.innerHTML='<div class="empty">No broadcasts yet.</div>';return}box.innerHTML=list.map(c=>campaignRow(c)).join('');bindCampaignCancel(box)}catch(e){box.innerHTML=`<div class="empty">${esc(e.message)}</div>`}}
-
-/* NAVIGATION */
-function switchSection(section){if(!section)return;state.section=section;['dashboard','users','lessons','analytics','panda','communications'].forEach(name=>$(name+'Section')?.classList.toggle('hidden',name!==section));document.querySelectorAll('.tab[data-section]').forEach(t=>t.classList.toggle('active',t.dataset.section===section));if(section==='users')loadUsers();if(section==='lessons')loadLessons();if(section==='analytics')loadAdminAnalytics();if(section==='communications')refreshCommunications();window.scrollTo({top:0,behavior:'smooth'})}
-document.querySelectorAll('.tab[data-section]').forEach(t=>t.addEventListener('click',()=>switchSection(t.dataset.section)));
-$('communicationsComposeBtn')?.addEventListener('click',openBroadcast);$('communicationsComposeBtn2')?.addEventListener('click',openBroadcast);$('communicationsHistoryBtn')?.addEventListener('click',()=>{openModal('broadcastHistoryModal');refreshCampaigns()});$('communicationsHistoryBtn2')?.addEventListener('click',()=>{openModal('broadcastHistoryModal');refreshCampaigns()});$('communicationsRefreshBtn')?.addEventListener('click',refreshCommunications);$('broadcastBtn').onclick=openBroadcast;$('createUserBtn').onclick=newUser;$('dashNewUser').onclick=newUser;$('dashNewLesson').onclick=newLesson;$('dashBroadcast').onclick=openBroadcast;$('dashPanda').onclick=()=>switchSection('panda');$('newLessonBtn').onclick=newLesson;$('saveLessonBtn').onclick=saveLesson;$('addMediaBtn').onclick=()=>{$('mediaError').textContent='';openModal('mediaModal')};$('saveMediaBtn').onclick=addMedia;$('refreshAnalytics')?.addEventListener('click',loadAdminAnalytics);
-$('refreshBtn').onclick=async()=>{const btn=$('refreshBtn');btn.classList.add('is-refreshing');btn.disabled=true;try{if(state.section==='users')await loadUsers();else if(state.section==='lessons')await loadLessons();else if(state.section==='analytics')await loadAdminAnalytics();else if(state.section==='dashboard')await Promise.all([loadUsers(),loadLessons(),loadAdminAnalytics()]);else if(state.section==='communications')await refreshCommunications();else notify('Panda is ready — ask him anything.')}finally{btn.disabled=false;setTimeout(()=>btn.classList.remove('is-refreshing'),180)}};
-document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{state.userFilter=b.dataset.filter;renderUsers()});$('userSearch').oninput=()=>{state.userQuery=$('userSearch').value;renderUsers()};$('lessonSearch').oninput=()=>{state.lessonQuery=$('lessonSearch').value;renderLessons()};$('lessonLevelFilter').onchange=()=>{state.lessonLevel=$('lessonLevelFilter').value;renderLessons()};document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)closeModal(m.id)});document.querySelectorAll('input[name="broadcastAudience"]').forEach(x=>x.onchange=refreshRecipientCount);document.querySelectorAll('input[name="broadcastTiming"]').forEach(x=>x.onchange=e=>$('broadcastScheduleBox').classList.toggle('hidden',e.target.value!=='scheduled'));$('broadcastSubject').addEventListener('input',updateEmailPreview);$('broadcastMessage').addEventListener('input',updateEmailPreview);$('broadcastRefreshBtn').onclick=refreshCampaigns;$('broadcastStatusFilter').onchange=refreshCampaigns;
+function renderCommunicationSummary(list){list=Array.isArray(list)?list:[];$('communicationsCampaignCount').textContent=list.length;$('communicationsScheduledCount').textContent=list.filter(c=>String(c.status).toLowerCase()==='scheduled').length;$('communicationsCompletedCount').textContent=list.filter(c=>String(c.status).toLowerCase()==='completed').length;const box=$('communicationsRecentList');box.innerHTML=list.length?list.slice(0,5).map(c=>campaignRow(c)).join(''):'<div class="empty">No broadcasts yet.</div>';bindCampaignCancel(box)}
+async function refreshCommunications(){if(!state.token)return;try{const d=await api('/admin/email/campaigns');state.campaigns=Array.isArray(d.campaigns)?d.campaigns.filter(c=>c.campaign_type==='broadcast'||!c.campaign_type):[];renderCommunicationSummary(state.campaigns)}catch(e){$('communicationsRecentList').innerHTML=`<div class="empty">⚠ ${esc(e.message)}</div>`}}
+async function refreshCampaigns(){const box=$('broadcastCampaignList');try{const status=$('broadcastStatusFilter').value,d=await api(`/admin/email/campaigns${status?'?status='+encodeURIComponent(status):''}`),list=(d.campaigns||[]).filter(c=>c.campaign_type==='broadcast'||!c.campaign_type);box.innerHTML=list.length?list.map(c=>campaignRow(c)).join(''):'<div class="empty">No broadcasts yet.</div>';bindCampaignCancel(box)}catch(e){box.innerHTML=`<div class="empty">${esc(e.message)}</div>`}}
 
 /* PANDA */
-async function pandaReply(inputEl,messagesEl){const message=inputEl.value.trim();if(!message)return;messagesEl.insertAdjacentHTML('beforeend',`<div class="msg me"><div class="bubble">${esc(message)}</div></div>`);inputEl.value='';messagesEl.scrollTop=messagesEl.scrollHeight;try{const d=await api('/panda-chat',{method:'POST',body:JSON.stringify({message})});messagesEl.insertAdjacentHTML('beforeend',`<div class="msg"><span>🐼</span><div class="bubble">${esc(d.reply||'I am still learning!')}</div></div>`)}catch(e){messagesEl.insertAdjacentHTML('beforeend',`<div class="msg"><span>🐼</span><div class="bubble">I could not reach Panda right now.</div></div>`)}messagesEl.scrollTop=messagesEl.scrollHeight}
-$('adminPandaSend')?.addEventListener('click',()=>pandaReply($('adminPandaInput'),$('adminPandaMessages')));$('adminPandaInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();pandaReply($('adminPandaInput'),$('adminPandaMessages'))}});$('pandaToggle').onclick=()=>{$('chat').classList.toggle('open');if($('chat').classList.contains('open'))$('chatInput').focus()};$('chatClose').onclick=()=>$('chat').classList.remove('open');$('chatSend').onclick=()=>pandaReply($('chatInput'),$('chatBody'));$('chatInput').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();pandaReply($('chatInput'),$('chatBody'))}};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal.open').forEach(m=>closeModal(m.id));$('chat')?.classList.remove('open')}});document.querySelectorAll('.modal').forEach(m=>{m.setAttribute('role','dialog');m.setAttribute('aria-modal','true')});
+async function pandaReply(input,messages){const message=input.value.trim();if(!message)return;messages.insertAdjacentHTML('beforeend',`<div class="msg me"><div class="bubble">${esc(message)}</div></div>`);input.value='';messages.scrollTop=messages.scrollHeight;try{const d=await api('/panda-chat',{method:'POST',body:JSON.stringify({message})});messages.insertAdjacentHTML('beforeend',`<div class="msg"><span>🐼</span><div class="bubble">${esc(d.reply||'I am still learning!')}</div></div>`)}catch(e){messages.insertAdjacentHTML('beforeend','<div class="msg"><span>🐼</span><div class="bubble">I could not reach Panda right now.</div></div>')}messages.scrollTop=messages.scrollHeight}
 
-(async()=>{if(!state.token){showLogin();return}setIdentity(sessionUser());showApp();})();
+/* EVENTS */
+document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>switchSection(b.dataset.section));
+$('mobileMenu').onclick=()=>$('sidebar').classList.toggle('open');
+$('topBroadcast').onclick=openBroadcast;$('topNewUser').onclick=newUser;$('usersNewUser').onclick=newUser;$('quickUser').onclick=newUser;$('quickLesson').onclick=newLesson;$('quickBroadcast').onclick=openBroadcast;$('quickPanda').onclick=()=>switchSection('panda');$('dashNewLesson').onclick=newLesson;$('newLessonBtn').onclick=newLesson;
+$('refreshBtn').onclick=async()=>{const b=$('refreshBtn');b.disabled=true;try{await Promise.all([loadUsers(),loadLessons(),loadAdminAnalytics(),refreshCommunications()]);notify('Admin data refreshed.')}finally{b.disabled=false}};
+$('refreshAnalytics').onclick=loadAdminAnalytics;
+document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.userFilter=b.dataset.filter;renderUsers()});
+$('userSearch').oninput=()=>{state.userQuery=$('userSearch').value;renderUsers()};$('lessonSearch').oninput=()=>{state.lessonQuery=$('lessonSearch').value;renderLessons()};$('lessonLevelFilter').onchange=()=>{state.lessonLevel=$('lessonLevelFilter').value;renderLessons()};
+$('saveLessonBtn').onclick=saveLesson;$('addMediaBtn').onclick=()=>{if(!$('lessonId').value){notify('Save the lesson first.','error');return}$('mediaError').textContent='';openModal('mediaModal')};$('saveMediaBtn').onclick=addMedia;
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)closeModal(m.id)});
+document.querySelectorAll('input[name="broadcastAudience"]').forEach(x=>x.onchange=refreshRecipientCount);document.querySelectorAll('input[name="broadcastTiming"]').forEach(x=>x.onchange=e=>$('broadcastScheduleBox').classList.toggle('hidden',e.target.value!=='scheduled'));
+$('broadcastSubject').oninput=updateEmailPreview;$('broadcastMessage').oninput=updateEmailPreview;$('communicationsComposeBtn').onclick=openBroadcast;$('communicationsHistoryBtn').onclick=()=>{openModal('broadcastHistoryModal');refreshCampaigns()};$('communicationsRefreshBtn').onclick=refreshCommunications;$('broadcastRefreshBtn').onclick=refreshCampaigns;$('broadcastStatusFilter').onchange=refreshCampaigns;
+$('adminPandaSend').onclick=()=>pandaReply($('adminPandaInput'),$('adminPandaMessages'));$('adminPandaInput').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();pandaReply($('adminPandaInput'),$('adminPandaMessages'))}};document.querySelectorAll('[data-prompt]').forEach(b=>b.onclick=()=>{$('adminPandaInput').value=b.dataset.prompt;$('adminPandaInput').focus()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal.open').forEach(m=>closeModal(m.id));$('sidebar').classList.remove('open')}});
+
+/* START */
+(async()=>{if(!state.token){showLogin();return}setIdentity(sessionUser());showApp();try{await Promise.all([loadUsers(),loadLessons(),loadAdminAnalytics(),refreshCommunications()])}catch(e){console.error(e)}})();
 })();
 </script>
 </body>
