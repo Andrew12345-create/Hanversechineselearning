@@ -2016,8 +2016,27 @@
 
           <div class="panel-body">
             <div id="recentCampaigns" class="campaign-list">
-              <div class="loading">Loading campaigns…</div>
+              <div class="loading">Loading campaigns...</div>
             </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Parent weekly digest</h3>
+              <p>Emails each parent a report of their children's XP, lessons and streaks for the last 7 days.</p>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <input id="digestParentId" class="input" type="number" min="1" placeholder="Optional parent ID (blank = all parents)" style="max-width:280px;">
+              <button id="sendDigestButton" class="btn btn-primary btn-sm">✉ Send digest now</button>
+            </div>
+            <p id="digestStatus" style="margin-top:10px;color:#5D7A9A;font-size:13px;">
+              Safe to re-run — each parent receives at most one report per run.
+            </p>
           </div>
         </div>
 
@@ -4057,6 +4076,41 @@ ${body}
     }
   });
 
+  async function sendParentDigest() {
+    const button = $("sendDigestButton");
+    const status = $("digestStatus");
+    const parentInput = $("digestParentId");
+    const parentId = parentInput && parentInput.value ? Number(parentInput.value) : null;
+
+    button.disabled = true;
+    if (status) {
+      status.textContent = "Sending weekly digest…";
+      status.style.color = "#5D7A9A";
+    }
+
+    try {
+      const data = await api("/parents/digest/send", {
+        method: "POST",
+        body: parentId ? { parentId } : {}
+      });
+
+      const msg = `Digest complete — emailed to ${data.sent ?? 0} parent(s), skipped ${data.skipped ?? 0}.`;
+      if (status) {
+        status.textContent = `✅ ${msg}`;
+        status.style.color = "#16A34A";
+      }
+      notify(msg);
+    } catch (error) {
+      if (status) {
+        status.textContent = `❌ ${error.message}`;
+        status.style.color = "#DC2626";
+      }
+      notify(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   async function loadCampaigns() {
     $("recentCampaigns").innerHTML =
       `<div class="loading">Loading campaigns…</div>`;
@@ -4311,6 +4365,8 @@ ${body}
     "click",
     loadCampaigns
   );
+
+  $("sendDigestButton").addEventListener("click", sendParentDigest);
 
   $("refreshHistoryButton").addEventListener(
     "click",

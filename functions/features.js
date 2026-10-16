@@ -118,8 +118,11 @@ const fail = (res, code, error) => res.status(code).json({ success: false, error
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
-export function registerFeatureRoutes(router, pgPool) {
+export function registerFeatureRoutes(router, pgPool, opts = {}) {
   pool = pgPool;
+  // Optional admin guard (server.js passes its verifyAdminToken middleware).
+  // Falls back to open access when not provided (local dev).
+  const requireAdmin = opts.verifyAdminToken || ((_req, _res, next) => next());
   /* =========================================================
      1. DAILY QUESTS  (reuses daily_goals + speaking goal)
   ========================================================= */
@@ -549,7 +552,7 @@ export function registerFeatureRoutes(router, pgPool) {
   /* =========================================================
      9. PARENT WEEKLY DIGEST (admin-triggered)
   ========================================================= */
-  router.post('/parents/digest/send', async (req, res) => {
+  router.post('/parents/digest/send', requireAdmin, async (req, res) => {
     try {
       await ensureFeatureSchema();
       const parentId = uid(req.body, 'parentId', 'parent_id');

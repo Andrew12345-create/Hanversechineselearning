@@ -6878,7 +6878,7 @@ console.log('✅ Admin routes registered successfully!');
 // ===== FEATURE PACK: quests, streaks, review, games, leaderboard, referrals, trial, classroom =====
 try {
   await ensureFeatureSchema(pool);
-  registerFeatureRoutes(router, pool);
+  registerFeatureRoutes(router, pool, { verifyAdminToken });
   console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
 } catch (e) {
   console.warn('⚠️ Feature pack setup failed (non-fatal):', e.message);
