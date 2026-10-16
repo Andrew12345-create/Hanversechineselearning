@@ -196,7 +196,7 @@ try{
  if(q.allDone&&!q.chestClaimed){$("questChestBtn").style.display="inline-flex";
   $("questChestBtn").onclick=async()=>{try{const r=await F.quests.claimChest(uid2);window.HanVerseSound.chest();$("questChestBtn").style.display="none";$("questSummary").textContent=`Chest opened! +${r.bonusXp} XP 💎${r.bonusGems}`;}catch(e){alert(e.message)}};}
 }catch(e){console.warn("quests:",e.message)}
-// --- Free-trial banner (feature pack) ---
+// --- Free-trial banner (feature pack): offers trial OR shows days left ---
 try{
  const F=window.HanVerseFeatures;const uid2=uid();
  const t=await F.trial.status(uid2);
@@ -207,6 +207,15 @@ try{
   b.innerHTML=`<div><b>✨ Try Premium free for 7 days</b><br><span>All lessons, videos and games — no payment needed.</span></div>`;
   const link=document.createElement("a");
   link.href="payment.html";link.className="trial-banner-btn";link.textContent="Start trial →";
+  b.appendChild(link);anchor.parentNode.insertBefore(b,anchor);
+ }else if(anchor&&t.trialActive&&t.trialEndsAt){
+  const days=Math.max(0,Math.ceil((new Date(t.trialEndsAt)-Date.now())/86400000));
+  const b=document.createElement("div");
+  b.className="trial-banner";
+  b.style.borderLeft="5px solid #16A34A";
+  b.innerHTML=`<div><b>🎉 Free trial active — ${days} day${days===1?"":"s"} left</b><br><span>All premium content is unlocked. Your progress is saved forever.</span></div>`;
+  const link=document.createElement("a");
+  link.href="payment.html";link.className="trial-banner-btn";link.textContent="Keep it →";
   b.appendChild(link);anchor.parentNode.insertBefore(b,anchor);
  }
 }catch(e){console.warn("trial banner:",e.message)}

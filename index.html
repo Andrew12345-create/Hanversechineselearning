@@ -367,6 +367,40 @@ main { padding-top: 100px; }
 
 .hero { padding: 60px 0 100px; position: relative; overflow: hidden; }
 
+/* ── Trial ribbon (first thing a visitor sees) ── */
+.trial-ribbon {
+  display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 9px 18px; margin: 0 0 18px; border-radius: 999px;
+  background: linear-gradient(90deg, #FFEDD5, #FDF2F8 60%, #EFF6FF);
+  border: 1.5px solid #FDBA74; box-shadow: 0 8px 22px rgba(249,115,22,.16);
+}
+.trial-ribbon b { font: 900 13px/1 var(--font-head, Nunito, sans-serif); color: #C2410C; letter-spacing: .06em; }
+.trial-ribbon-spark { font-size: 16px; animation: floatY 2.5s ease-in-out infinite; display: inline-block; }
+.trial-ribbon-sub { font-size: 12px; color: #9A3412; font-weight: 700; }
+.hero-nocard { margin: 12px 0 0; font-size: 12.5px; color: var(--muted, #5D7A9A); font-weight: 600; }
+.trial-spot-btn { display:inline-block; margin-left:10px; padding:6px 16px; border-radius:999px; background:var(--coral,#F97316); color:#fff; font-weight:800; font-size:12px; text-decoration:none; }
+
+/* ── Word of the Day ── */
+.wotd-section { padding: 8px 0 26px; }
+.wotd-card {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 22px 26px; border-radius: 22px; border: 1.5px solid #BFDBFE;
+  background: linear-gradient(100deg, #EFF6FF, #FDF2F8); box-shadow: 0 12px 30px rgba(37,99,235,.08);
+}
+.wotd-hanzi {
+  font-family: 'Noto Sans SC', var(--font-head, Nunito, sans-serif);
+  font-size: 56px; line-height: 1.1; color: var(--navy, #0F2340); font-weight: 700;
+}
+.wotd-meta { flex: 1 1 200px; min-width: 180px; }
+.wotd-kicker { font: 900 11px/1 var(--font-head, Nunito, sans-serif); letter-spacing: .12em; color: var(--coral, #F97316); }
+.wotd-py { font-size: 18px; color: var(--blue, #2563EB); font-weight: 800; margin: 6px 0 2px; }
+.wotd-mean { font-size: 14px; color: var(--muted, #5D7A9A); }
+.wotd-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.wotd-btn { padding: 10px 18px; border-radius: 999px; border: 0; font-weight: 800; font-size: 13px; cursor: pointer; transition: transform .2s; }
+.wotd-btn:active { transform: scale(.96); }
+.wotd-btn.speak { background: var(--blue, #2563EB); color: #fff; }
+.wotd-btn.share { background: #fff; color: var(--navy, #0F2340); border: 1.5px solid #D5E3F0; }
+
 /* Animated morphing blobs */
 .hero-blob {
   position: absolute; pointer-events: none; z-index: 0;
@@ -1152,6 +1186,11 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
   <div class="container hero-layout">
     <!-- LEFT -->
     <div class="hero-copy">
+      <div class="trial-ribbon" id="trialRibbon">
+        <span class="trial-ribbon-spark">🎉</span>
+        <b>7-DAY FREE TRIAL</b>
+        <span class="trial-ribbon-sub">Full access · No card needed</span>
+      </div>
       <div class="hero-badge">
         <span>🐼</span> Mandarin for children ages 5–12 · YCT 1–4
       </div>
@@ -1167,15 +1206,17 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
         by their side.
       </p>
       <div class="hero-actions">
-        <a class="btn-coral" href="signup.html">Start Learning Free <span aria-hidden="true">→</span></a>
+        <a class="btn-coral" id="heroTrialCta" href="signup.html">Start 7-Day Free Trial <span aria-hidden="true">→</span></a>
         <a class="btn-ghost" href="#worlds">Explore HanVerse ↓</a>
       </div>
+      <p class="hero-nocard" id="heroNoCard">✓ No credit card required &nbsp;·&nbsp; ✓ Cancel anytime &nbsp;·&nbsp; ✓ Keep your progress</p>
       <div class="hero-trust">
         <span class="hero-trust-item"><span class="dot"></span><span>📚 <strong>YCT 1–4</strong></span></span>
         <span class="hero-trust-item"><span class="dot"></span><span>⭐ <strong>XP &amp; Achievements</strong></span></span>
         <span class="hero-trust-item"><span class="dot"></span><span>🐼 <strong>Panda Practice</strong></span></span>
       </div>
       <div class="auth-banner" id="authBanner"></div>
+      <div class="auth-banner" id="trialSpot" style="display:none"></div>
     </div>
 
     <!-- RIGHT -->
@@ -1219,6 +1260,24 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
         <div class="panda-orb" aria-label="HanPan waving">
           <img src="assets/mascot/states/hanpan-waving.png" alt="HanPan waving" width="96" height="96" fetchpriority="high" decoding="async">
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WORD OF THE DAY ── -->
+<section class="wotd-section" aria-label="Word of the Day">
+  <div class="container">
+    <div class="wotd-card" id="wotdCard">
+      <div class="wotd-hanzi" id="wotdHanzi">字</div>
+      <div class="wotd-meta">
+        <div class="wotd-kicker">字 · WORD OF THE DAY · <span id="wotdDate"></span></div>
+        <div class="wotd-py" id="wotdPinyin">—</div>
+        <div class="wotd-mean" id="wotdMean">—</div>
+      </div>
+      <div class="wotd-actions">
+        <button class="wotd-btn speak" id="wotdSpeak">🔊 Hear it</button>
+        <button class="wotd-btn share" id="wotdShare">📤 Share</button>
       </div>
     </div>
   </div>
@@ -1893,6 +1952,94 @@ if ("IntersectionObserver" in window) {
     if ("requestIdleCallback" in window) requestIdleCallback(warm, { timeout: 1800 });
     else setTimeout(warm, 900);
   })();
+</script>
+<script src="features-client.js"></script>
+<script>
+/* ── WORD OF THE DAY (same word for everyone, changes daily) ── */
+(function () {
+  const WORDS = [
+    { h: "你好", p: "nǐ hǎo", m: "Hello" },
+    { h: "谢谢", p: "xiè xie", m: "Thank you" },
+    { h: "老师", p: "lǎo shī", m: "Teacher" },
+    { h: "学校", p: "xué xiào", m: "School" },
+    { h: "朋友", p: "péng you", m: "Friend" },
+    { h: "水", p: "shuǐ", m: "Water" },
+    { h: "猫", p: "māo", m: "Cat" },
+    { h: "狗", p: "gǒu", m: "Dog" },
+    { h: "熊猫", p: "xióng māo", m: "Panda 🐼" },
+    { h: "爱", p: "ài", m: "Love" },
+    { h: "家", p: "jiā", m: "Home / family" },
+    { h: "吃饭", p: "chī fàn", m: "To eat (a meal)" },
+    { h: "水果", p: "shuǐ guǒ", m: "Fruit" },
+    { h: "苹果", p: "píng guǒ", m: "Apple" },
+    { h: "茶", p: "chá", m: "Tea" },
+    { h: "红", p: "hóng", m: "Red" },
+    { h: "月亮", p: "yuè liang", m: "Moon" },
+    { h: "太阳", p: "tài yang", m: "Sun" },
+    { h: "雨", p: "yǔ", m: "Rain" },
+    { h: "山", p: "shān", m: "Mountain" },
+    { h: "书", p: "shū", m: "Book" },
+    { h: "写字", p: "xiě zì", m: "To write characters" },
+    { h: "中文", p: "zhōng wén", m: "Chinese (language)" },
+    { h: "中国", p: "zhōng guó", m: "China" },
+    { h: "快乐", p: "kuài lè", m: "Happy" },
+    { h: "再见", p: "zài jiàn", m: "Goodbye" },
+    { h: "对不起", p: "duì bù qǐ", m: "Sorry" },
+    { h: "七", p: "qī", m: "Seven" },
+    { h: "百合", p: "bǎi hé", m: "Lily" },
+    { h: "龙", p: "lóng", m: "Dragon" },
+    { h: "新年", p: "xīn nián", m: "New year" },
+    { h: "灯笼", p: "dēng long", m: "Lantern" },
+    { h: "星期一", p: "xīng qī yī", m: "Monday" },
+    { h: "游戏", p: "yóu xì", m: "Game" },
+    { h: "加油", p: "jiā yóu", m: "Keep going! You got this!" }
+  ];
+  const day = Math.floor(Date.now() / 86400000);
+  const w = WORDS[day % WORDS.length];
+  const $ = id => document.getElementById(id);
+  if (!$("wotdHanzi")) return;
+  $("wotdHanzi").textContent = w.h;
+  $("wotdPinyin").textContent = w.p;
+  $("wotdMean").textContent = w.m;
+  $("wotdDate").textContent = new Date().toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  $("wotdSpeak").onclick = () => {
+    try {
+      const u = new SpeechSynthesisUtterance(w.h);
+      u.lang = "zh-CN"; u.rate = 0.75;
+      speechSynthesis.speak(u);
+    } catch (e) { console.warn("tts unavailable"); }
+  };
+  $("wotdShare").onclick = async () => {
+    const text = `🐼 Today's HanVerse word: ${w.h} (${w.p}) — "${w.m}". Learn Chinese free: ` + location.origin;
+    try {
+      if (navigator.share) { await navigator.share({ text }); return; }
+      await navigator.clipboard.writeText(text);
+      const btn = $("wotdShare"); const old = btn.textContent;
+      btn.textContent = "✓ Copied!";
+      setTimeout(() => { btn.textContent = old; }, 1600);
+    } catch (e) { /* user cancelled */ }
+  };
+})();
+
+/* ── TRIAL-AWARE HERO (signed-in visitors) ── */
+(function () {
+  let stored = null;
+  try { stored = JSON.parse(localStorage.getItem("hanverse_user") || "null"); } catch (e) {}
+  if (!stored || !stored.user_id || !window.HanVerseFeatures) return;
+  const spot = document.getElementById("trialSpot");
+  if (!spot) return;
+  HanVerseFeatures.trial.status(stored.user_id).then(t => {
+    spot.style.display = "block";
+    if (t.trialActive && t.trialEndsAt) {
+      const days = Math.max(0, Math.ceil((new Date(t.trialEndsAt) - Date.now()) / 86400000));
+      spot.textContent = `🎉 Your free trial is on — ${days} day${days === 1 ? "" : "s"} of full access left. Enjoy!`;
+    } else if (!t.trialUsed && !t.isPremium) {
+      spot.innerHTML = `Your 7-day free trial is ready to start. <a class="trial-spot-btn" href="payment.html">Start free trial</a>`;
+    } else {
+      spot.innerHTML = `Trial finished — keep the adventure going. <a class="trial-spot-btn" href="payment.html">See plans</a>`;
+    }
+  }).catch(() => { /* quietly ignore — logged-out or offline */ });
+})();
 </script>
 </body>
 </html>

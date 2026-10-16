@@ -1096,6 +1096,11 @@ if (!databaseAdmin) {
 // SIGNUP 🚀
 // Basic brute-force guard on sensitive auth endpoints (per warm instance).
 const authLimiter = rateLimit({
+  keyGenerator: req => {
+    const h = req.headers || {};
+    return (req.ip || h['x-nf-client-connection-ip'] || h['x-forwarded-for'] || 'anon').split(',')[0].trim();
+  },
+  validate: false,
   windowMs: 15 * 60 * 1000,
   max: 30,
   standardHeaders: true,

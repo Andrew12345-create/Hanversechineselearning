@@ -68,6 +68,22 @@ Notes for the reviewer:
 - If a section shows the HanPan error box where data should be, note the page and
   what you clicked — that usually means the server function returned an error.
 
+## Trial spotlight + Word of the Day + Panda buddy — QA
+
+1. **Trial proof:** run `node scripts/trial-selftest.mjs` — 7/7: trial starts
+   (exactly 7 days), re-start blocked, scheduled sweep expires it, no re-trial.
+2. **index.html hero:** ribbon "7-DAY FREE TRIAL" is the first element; primary
+   button says "Start 7-Day Free Trial"; "No credit card required" line under
+   CTAs. Signed-in users additionally see a trial-spot chip (days left / start /
+   see plans).
+3. **Word of the Day card** under the hero: same word for all users each day,
+   🔊 Hear it (TTS) + 📤 Share (native share / clipboard).
+4. **learn.html banner:** shows "Free trial active — N days left" with a green
+   edge while the trial runs (previously it vanished after starting).
+5. **Panda buddy (practice.html):** 🐼 bottom-left reacts to every answer
+   (cheers, 🔥 streak every 5-in-a-row, encouragement on misses) across all
+   games via the sound-event hook.
+
 ## Visibility + Speak Aloud — QA after deploying this batch
 
 1. **Old sessions must re-login once.** If feature cards were missing, you'll now

@@ -182,7 +182,15 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   };
 
   // Basic abuse guard on game/quest/classroom writes (per warm instance).
+  // Netlify runs behind a proxy: req.ip is often undefined there, so key the
+  // limiter on Netlify's real client-IP header with safe fallbacks.
+  const clientKey = req => {
+    const h = req.headers || {};
+    return (req.ip || h['x-nf-client-connection-ip'] || h['x-forwarded-for'] || 'anon').split(',')[0].trim();
+  };
   const writeLimiter = rateLimit({
+    keyGenerator: clientKey,
+    validate: false,
     windowMs: 5 * 60 * 1000,
     max: 120,
     standardHeaders: true,

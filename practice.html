@@ -6660,6 +6660,55 @@
         if (id && FV()) FV().games.session(id, game, score, correct, total).catch(() => {});
     };
 
+    /* ---------- 0b. HANPAN BUDDY — panda reacts to your answers ---------- */
+    let pandaStreak = 0;
+    function pandaBuddy() {
+        if (document.getElementById("hvPandaBuddy")) return document.getElementById("hvPandaBuddy");
+        const b = document.createElement("div");
+        b.id = "hvPandaBuddy";
+        b.style.cssText = "position:fixed;left:16px;bottom:16px;z-index:975;display:flex;align-items:flex-end;gap:6px;pointer-events:none;opacity:0;transition:opacity .3s";
+        b.innerHTML = `
+            <div id="hvPandaBubble" style="max-width:190px;background:#fff;border:1.5px solid #D5E3F0;border-radius:14px 14px 14px 4px;padding:8px 12px;font-weight:800;font-size:12.5px;color:#0F2340;box-shadow:0 6px 18px rgba(15,35,64,.14);opacity:0;transform:translateY(6px);transition:all .25s"></div>
+            <div id="hvPandaFace" style="font-size:44px;line-height:1;transition:transform .25s">🐼</div>`;
+        document.body.appendChild(b);
+        return b;
+    }
+    function pandaSay(face, text, mood) {
+        const b = pandaBuddy();
+        if (!b) return;
+        b.style.opacity = "1";
+        const faceEl = b.querySelector("#hvPandaFace"), bubble = b.querySelector("#hvPandaBubble");
+        faceEl.textContent = face;
+        faceEl.style.transform = "scale(1.15) rotate(" + (mood === "sad" ? "-8deg" : "6deg") + ")";
+        bubble.textContent = text;
+        bubble.style.opacity = "1"; bubble.style.transform = "translateY(0)";
+        clearTimeout(b._hideTimer);
+        b._hideTimer = setTimeout(() => {
+            b.style.opacity = "0";
+            bubble.style.opacity = "0"; bubble.style.transform = "translateY(6px)";
+            setTimeout(() => { faceEl.style.transform = ""; }, 350);
+        }, mood === "streak" ? 2600 : 1900);
+    }
+    function pandaReact(ok) {
+        if (ok) {
+            pandaStreak++;
+            if (pandaStreak > 0 && pandaStreak % 5 === 0) pandaSay("🤩", `${pandaStreak} in a row! 加油! 🔥`, "streak");
+            else pandaSay(["🐼", "😃", "🎉"][pandaStreak % 3], ["真棒! Great job!", "太好了! Awesome!", "Perfect! ✓", "Panda is proud!"][pandaStreak % 4], "happy");
+        } else {
+            pandaStreak = 0;
+            pandaSay("😟", ["Almost! Try again 💪", "没关系 — mistakes teach us!", "Keep going, you got this!"][Math.floor(Math.random() * 3)], "sad");
+        }
+    }
+    // Universal hook: every game already plays correct/wrong sounds — the panda reacts to the same events.
+    setTimeout(() => {
+        if (window.HanVerseSound && !window.HanVerseSound.__pandaHooked) {
+            const origCorrect = window.HanVerseSound.correct, origWrong = window.HanVerseSound.wrong;
+            window.HanVerseSound.correct = function (...a) { pandaReact(true); return origCorrect && origCorrect.apply(this, a); };
+            window.HanVerseSound.wrong = function (...a) { pandaReact(false); return origWrong && origWrong.apply(this, a); };
+            window.HanVerseSound.__pandaHooked = true;
+        }
+    }, 800);
+
     /* ---------- 0. HEARTS (Duolingo-style lives) ---------- */
     let heartsState = null;
     function heartsUI() {
