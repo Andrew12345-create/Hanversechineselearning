@@ -33,9 +33,10 @@
     >
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
+    <link rel="stylesheet" href="hanverse.css">
 
     <style>
 
@@ -45,6 +46,8 @@
 
         :root {
 
+            /* Shared HanVerse palette (hanverse.css) + page-local aliases.
+               Page variable names are kept so the layout CSS works unchanged. */
             --blue: #2563EB;
             --blue-dark: #1D4ED8;
             --blue-light: #DBEAFE;
@@ -55,12 +58,12 @@
             --amber: #F59E0B;
             --amber-light: #FDE68A;
 
-            --ink: #0F172A;
-            --muted: #64748B;
+            --ink: #0F2340;
+            --muted: #5D7A9A;
 
             --white: #FFFFFF;
-            --surface: #F8FAFC;
-            --border: #E2E8F0;
+            --surface: #F5F9FF;
+            --border: #D5E3F0;
 
             --green: #16A34A;
             --green-light: #DCFCE7;
@@ -68,24 +71,18 @@
             --red: #DC2626;
             --red-light: #FEE2E2;
 
-            --purple: #7C3AED;
+            --purple: #8B5CF6;
             --purple-light: #EDE9FE;
 
             --radius-sm: 12px;
             --radius-md: 18px;
-            --radius-lg: 24px;
-            --radius-xl: 30px;
+            --radius-lg: 26px;
+            --radius-xl: 36px;
 
-            --shadow-sm:
-                0 4px 16px rgba(15,23,42,.05);
-
-            --shadow:
-                0 12px 35px rgba(15,23,42,.08);
-
-            --shadow-lg:
-                0 25px 65px rgba(15,23,42,.14);
+            --shadow-sm: 0 2px 8px rgba(15,35,64,.07);
+            --shadow: 0 16px 48px rgba(15,35,64,.12);
+            --shadow-lg: 0 28px 72px rgba(15,35,64,.16);
         }
-
 
         * {
             box-sizing: border-box;
@@ -96,7 +93,7 @@
 
         body {
 
-            font-family: "Poppins", sans-serif;
+            font-family: "Inter", sans-serif;
 
             background: var(--surface);
 
@@ -130,248 +127,6 @@
 
 
         /* =========================================================
-           NAVIGATION
-        ========================================================= */
-
-        .navbar {
-
-            position: sticky;
-
-            top: 0;
-
-            z-index: 1000;
-
-            background:
-                rgba(255,255,255,.96);
-
-            backdrop-filter:
-                blur(18px);
-
-            border-bottom:
-                1px solid var(--border);
-        }
-
-
-        .nav-inner {
-
-            width:
-                min(
-                    1200px,
-                    calc(100% - 32px)
-                );
-
-            height: 72px;
-
-            margin: auto;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 28px;
-        }
-
-
-        .brand {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-            font-size: 1.1rem;
-
-            font-weight: 800;
-
-            white-space: nowrap;
-        }
-
-
-        .brand-mark {
-
-            width: 42px;
-            height: 42px;
-
-            display: grid;
-
-            place-items: center;
-
-            background: var(--blue);
-
-            color: white;
-
-            border-radius: 13px;
-
-            font-weight: 800;
-        }
-
-
-        .nav-links {
-
-            flex: 1;
-
-            display: flex;
-
-            justify-content: center;
-
-            gap: 4px;
-        }
-
-
-        .nav-link {
-
-            padding:
-                9px 13px;
-
-            border-radius: 11px;
-
-            color: var(--muted);
-
-            font-size: .84rem;
-
-            font-weight: 600;
-
-            transition: .2s;
-        }
-
-
-        .nav-link:hover {
-
-            background: var(--surface);
-
-            color: var(--blue);
-        }
-
-
-        .nav-link.active {
-
-            background:
-                var(--blue-light);
-
-            color:
-                var(--blue-dark);
-        }
-
-
-        .nav-user {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 9px;
-
-            padding:
-                7px 11px;
-
-            background: white;
-
-            border:
-                1px solid var(--border);
-
-            border-radius: 13px;
-
-            font-size: .8rem;
-
-            font-weight: 700;
-        }
-
-
-        .nav-avatar {
-
-            width: 32px;
-            height: 32px;
-
-            display: grid;
-
-            place-items: center;
-
-            overflow: hidden;
-
-            border-radius: 10px;
-
-            background:
-                var(--blue-light);
-        }
-
-
-        .nav-avatar img {
-
-            width: 100%;
-            height: 100%;
-
-            object-fit: cover;
-        }
-
-
-        .mobile-toggle {
-
-            display: none;
-
-            margin-left: auto;
-
-            width: 43px;
-            height: 43px;
-
-            border:
-                1px solid var(--border);
-
-            border-radius: 12px;
-
-            background: white;
-
-            cursor: pointer;
-
-            font-size: 1.1rem;
-        }
-
-
-        .mobile-menu {
-
-            display: none;
-
-            padding:
-                8px 16px 18px;
-
-            border-top:
-                1px solid var(--border);
-        }
-
-
-        .mobile-menu.open {
-
-            display: block;
-        }
-
-
-        .mobile-menu a {
-
-            display: block;
-
-            padding: 12px;
-
-            border-radius: 11px;
-
-            color: var(--muted);
-
-            font-size: .88rem;
-
-            font-weight: 600;
-        }
-
-
-        .mobile-menu a.active {
-
-            background:
-                var(--blue-light);
-
-            color:
-                var(--blue-dark);
-        }
-
-
-        /* =========================================================
            PAGE
         ========================================================= */
 
@@ -386,7 +141,7 @@
             margin: auto;
 
             padding:
-                46px 0 80px;
+                120px 0 80px;
         }
 
 
@@ -707,6 +462,31 @@
 
             border-right:
                 0;
+        }
+
+
+        @media (max-width: 620px) {
+
+            .game-stats {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+
+            .game-stat:nth-child(2) {
+
+                border-right:
+                    0;
+            }
+
+
+            .game-stat:nth-child(-n+2) {
+
+                border-bottom:
+                    1px solid
+                    var(--border);
+            }
         }
 
 
@@ -2410,7 +2190,7 @@
                 none;
 
             font-family:
-                "Poppins", sans-serif;
+                "Inter", sans-serif;
         }
 
 
@@ -2482,65 +2262,11 @@
            FOOTER
         ========================================================= */
 
-        footer {
-
-            padding:
-                25px 0;
-
-            border-top:
-                1px solid
-                var(--border);
-
-            background:
-                white;
-        }
-
-
-        .footer-inner {
-
-            width:
-                min(
-                    1200px,
-                    calc(100% - 32px)
-                );
-
-            margin:
-                auto;
-
-            display:
-                flex;
-
-            justify-content:
-                space-between;
-
-            color:
-                var(--muted);
-
-            font-size:
-                .67rem;
-        }
-
-
         /* =========================================================
            RESPONSIVE
         ========================================================= */
 
         @media (max-width: 950px) {
-
-            .nav-links,
-            .nav-user {
-
-                display:
-                    none;
-            }
-
-
-            .mobile-toggle {
-
-                display:
-                    block;
-            }
-
 
             .mode-grid {
 
@@ -2563,7 +2289,7 @@
             .page {
 
                 padding-top:
-                    32px;
+                    110px;
             }
 
 
@@ -2705,140 +2431,33 @@
      NAVIGATION
 ============================================================ -->
 
-<header class="navbar">
-
-    <div class="nav-inner">
-
-
-        <a
-            href="index.html"
-            class="brand"
-        >
-
-            <span class="brand-mark">
-                汉
-            </span>
-
-            <span>
-                HanVerse
-            </span>
-
-        </a>
-
-
-        <nav class="nav-links">
-
-            <a
-                class="nav-link"
-                href="index.html"
-            >
-                🏠 Home
-            </a>
-
-            <a
-                class="nav-link"
-                href="learn.html"
-            >
-                📚 Learn
-            </a>
-
-            <a
-                class="nav-link active"
-                href="practice.html"
-            >
-                🎮 Play
-            </a>
-
-            <a
-                class="nav-link"
-                href="explore.html"
-            >
-                🌏 Explore
-            </a>
-
-            <a
-                class="nav-link"
-                href="panda.html"
-            >
-                🐼 Panda
-            </a>
-
-            <a
-                class="nav-link"
-                href="me.html"
-            >
-                👤 Me
-            </a>
-
-        </nav>
-
-
-        <a
-            href="me.html"
-            class="nav-user"
-        >
-
-            <span
-                class="nav-avatar"
-                id="navAvatar"
-            >
-                👤
-            </span>
-
-            <span id="navUserName">
-                Learner
-            </span>
-
-        </a>
-
-
-        <button
-            class="mobile-toggle"
-            id="mobileToggle"
-            type="button"
-            aria-label="Open menu"
-        >
-            ☰
-        </button>
-
-    </div>
-
-
-    <nav
-        class="mobile-menu"
-        id="mobileMenu"
-    >
-
-        <a href="index.html">
-            🏠 Home
-        </a>
-
-        <a href="learn.html">
-            📚 Learn
-        </a>
-
-        <a
-            href="practice.html"
-            class="active"
-        >
-            🎮 Play
-        </a>
-
-        <a href="explore.html">
-            🌏 Explore
-        </a>
-
-        <a href="panda.html">
-            🐼 Panda
-        </a>
-
-        <a href="me.html">
-            👤 Me
-        </a>
-
-    </nav>
-
-</header>
+<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">
+  <a class="brand" href="index.html" aria-label="HanVerse home">
+    <img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">
+    <span>HanVerse</span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="learn.html">Learn</a>
+    <a href="practice.html">Practice</a>
+    <a href="explore.html">Explore</a>
+    <a href="roadmap.html">Roadmap</a>
+  </div>
+  <div class="nav-actions">
+    <a href="profile.html" class="nav-user"><span class="avatar" id="navAvatar">👤</span><span id="navUserName">Learner</span></a>
+  </div>
+  <button class="nav-hamburger" id="mobileToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+  <a href="index.html">Home</a>
+  <a href="learn.html">Learn</a>
+  <a href="practice.html">Practice</a>
+  <a href="explore.html">Explore</a>
+  <a href="roadmap.html">Roadmap</a>
+  <a href="profile.html">👤 Me</a>
+</nav>
 
 
 
@@ -3440,23 +3059,25 @@
 ============================================================ -->
 
 <footer>
-
-    <div class="footer-inner">
-
-        <span>
-            © 2026 HanVerse
-        </span>
-
-        <span>
-            Learn Chinese. Play more.
-        </span>
-
+  <div class="container footer-inner">
+    <div>
+      <div class="footer-brand">HanVerse</div>
+      <p>Learn Chinese. Play more.</p>
     </div>
-
+    <div class="footer-links">
+      <a href="learn.html">Learn</a>
+      <a href="practice.html">Practice</a>
+      <a href="explore.html">Explore</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="settings.html">Settings</a>
+    </div>
+  </div>
 </footer>
 
 
 
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
 <script>
 
     /* =========================================================
@@ -5545,7 +5166,7 @@
                     <span
                         style="
                             font-size:.7rem;
-                            color:#64748B;
+                            color:#5D7A9A;
                         "
                     >
                         ${flashcardIndex + 1}
@@ -5750,7 +5371,7 @@
                         display:flex;
                         justify-content:space-between;
                         margin-bottom:16px;
-                        color:#64748B;
+                        color:#5D7A9A;
                         font-size:.7rem;
                         font-weight:700;
                     "
@@ -6080,7 +5701,7 @@
                     <p
                         style="
                             margin-top:8px;
-                            color:#64748B;
+                            color:#5D7A9A;
                             font-size:.8rem;
                         "
                     >
@@ -6174,7 +5795,7 @@
                     <p
                         style="
                             text-align:center;
-                            color:#64748B;
+                            color:#5D7A9A;
                             font-size:.72rem;
                         "
                     >
@@ -6192,7 +5813,7 @@
                     <p
                         style="
                             text-align:center;
-                            color:#64748B;
+                            color:#5D7A9A;
                             font-size:.75rem;
                         "
                     >
@@ -6224,7 +5845,7 @@
 
                         <span
                             style="
-                                color:#64748B;
+                                color:#5D7A9A;
                                 font-size:.7rem;
                             "
                         >

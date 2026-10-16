@@ -1,337 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Hanverse</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #F4D35E;
-            --primary-light: #FF6B6B;
-            --background: #FAFBFC;
-            --surface: #FFFFFF;
-            --text-primary: #1A1A2E;
-            --text-secondary: #6B7280;
-            --border: #E5E7EB;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--background);
-            min-height: 100vh;
-        }
-        .app-container {
-            max-width: 430px;
-            margin: 0 auto;
-            min-height: 100vh;
-            background: var(--surface);
-        }
-        .app-header {
-            background: white;
-            padding: 1rem 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .back-btn {
-            width: 40px;
-            height: 40px;
-            background: var(--background);
-            border: none;
-            border-radius: 12px;
-            font-size: 1.25rem;
-            cursor: pointer;
-        }
-        .header-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        .main-content {
-            padding: 1.25rem;
-        }
-        .section-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 1.5rem 0 0.75rem;
-        }
-        .section-title:first-child {
-            margin-top: 0;
-        }
-        .setting-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1rem 1.25rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        .setting-item:hover{
-            border-color: var(--primary);
-            background: #FFFDF7;
-        }
-        .setting-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .setting-icon {
-            font-size: 1.5rem;
-        }
-        .setting-info h3 {
-            font-size: 0.9375rem;
-            font-weight: 500;
-            margin-bottom: 0.125rem;
-        }
-        .setting-info p {
-            font-size: 0.8125rem;
-            color: var(--text-secondary);
-        }
-        .toggle-switch {
-            position: relative;
-            width: 48px;
-            height: 28px;
-            background: #E5E7EB;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .toggle-switch.active {
-            background: var(--primary);
-        }
-        .toggle-switch::after {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: all 0.3s;
-        }
-        .toggle-switch.active::after {
-            left: 22px;
-        }
-        .setting-value {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        select {
-            padding: 0.5rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.875rem;
-        }
-        .save-btn {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #1A1A2E 0%, #4EA8DE 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(78,168,222,0.35);
-        }
-    </style>
-  <script src="device-redirect.js"></script>
-  <link rel="stylesheet" href="app.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2563EB">
+<title>Settings | HanVerse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hanverse.css">
+<script src="device-redirect.js"></script>
+<style>
+:root{--blue:#2563EB;--blue-dark:#1D4ED8;--blue-deep:#1D4ED8;--blue-soft:#EFF6FF;--blue-pale:#EFF6FF;--green:#16A34A;--yellow:#F59E0B;--red:#DC2626;--ink:#0F2340;--muted:#5D7A9A;--soft:#8BA8C4;--line:#D5E3F0;--surface:#fff;--page:#F5F9FF;--shadow:0 16px 48px rgba(15,35,64,.12)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,sans-serif;color:var(--ink);background:radial-gradient(circle at 85% 0%,rgba(37,99,235,.14),transparent 28rem),var(--page);min-height:100vh}button,select{font:inherit}button{-webkit-tap-highlight-color:transparent}.shell{width:min(100%,980px);margin:auto;min-height:100vh;padding-bottom:100px}.header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.header-inner{width:min(100%,980px);margin:auto;min-height:76px;padding:14px 22px;display:flex;align-items:center;gap:14px}.back{width:44px;height:44px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:14px;display:grid;place-items:center;cursor:pointer;font-size:25px;transition:.2s}.back:hover{background:var(--blue-soft);border-color:#c7e7f7;transform:translateX(-2px)}.brand{display:flex;align-items:center;gap:9px}.brand-panda{width:40px;height:40px;border-radius:13px;background:var(--blue-soft);display:grid;place-items:center;font-size:24px}.brand-name{font-size:15px;font-weight:800}.brand-sub{color:var(--soft);font-size:10px;margin-top:3px}.header-title{margin-left:auto;font-size:17px;font-weight:700}main.content{padding:28px 22px 0}.hero{position:relative;overflow:hidden;border-radius:28px;padding:28px 30px;background:linear-gradient(135deg,var(--blue-deep),var(--blue));color:#fff;box-shadow:0 18px 42px rgba(37,99,235,.22);margin-bottom:24px}.hero:before,.hero:after{content:"";position:absolute;border-radius:999px;background:rgba(255,255,255,.09)}.hero:before{width:210px;height:210px;right:-70px;top:-105px}.hero:after{width:130px;height:130px;right:90px;bottom:-90px}.hero-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px}.hero h1,.heading h2,.brand-name,.header-title{font-family:'Nunito',sans-serif}.hero h1{margin:0 0 7px;font-size:clamp(25px,4vw,34px);line-height:1.12;letter-spacing:-.8px}.hero p{margin:0;color:rgba(255,255,255,.84);font-size:13px;line-height:1.65;max-width:570px}.hero-panda{width:76px;height:76px;flex:0 0 auto;border-radius:24px;display:grid;place-items:center;background:rgba(255,255,255,.15);font-size:43px;transform:rotate(3deg)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}.full{grid-column:1/-1}.heading{padding:20px 22px 14px;display:flex;align-items:center;gap:12px}.heading-icon{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--blue-soft);font-size:19px}.heading h2{margin:0;font-size:15px;font-weight:800}.heading p{margin:3px 0 0;color:var(--muted);font-size:11px}.body{padding:0 14px 14px}.row{min-height:72px;padding:13px 8px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:1px solid #F0F4F7}.main{min-width:0;display:flex;align-items:center;gap:13px}.icon{width:42px;height:42px;border-radius:13px;background:#F8FBFD;border:1px solid #EDF3F6;display:grid;place-items:center;font-size:19px;flex:0 0 auto}.copy{min-width:0}.title{margin:0;font-size:13px;font-weight:700}.desc{margin:3px 0 0;color:var(--muted);font-size:10.5px;line-height:1.45}.control{flex:0 0 auto}.toggle{width:50px;height:29px;padding:2px;border:0;border-radius:999px;background:#DDE5EA;cursor:pointer;position:relative;transition:.22s}.toggle:after{content:"";width:25px;height:25px;border-radius:50%;position:absolute;top:2px;left:2px;background:#fff;box-shadow:0 2px 7px rgba(25,55,72,.18);transition:.22s}.toggle.on{background:var(--blue)}.toggle.on:after{transform:translateX(21px)}.select{min-width:110px;padding:9px 28px 9px 11px;color:var(--ink);background:#F8FBFD;border:1px solid var(--line);border-radius:11px;font-size:11px;font-weight:600;cursor:pointer}.select:hover{border-color:#bfdff0;background:var(--blue-pale)}.action{width:100%;border:0;background:transparent;text-align:left;cursor:pointer}.action:hover .title{color:var(--blue-deep)}.action:hover .icon{background:var(--blue-soft);border-color:#d5ecf8}.chevron{color:#A0ADB7;font-size:22px}.membership{margin-top:18px;border:1px solid #D8EDF9;border-radius:20px;background:linear-gradient(135deg,#F4FBFF,#fff);padding:17px;display:flex;align-items:center;gap:14px}.membership-badge{width:45px;height:45px;border-radius:14px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:21px}.membership-copy{flex:1}.membership-copy strong{display:block;font-size:12px}.membership-copy span{display:block;margin-top:3px;color:var(--muted);font-size:10px}.membership button{border:0;border-radius:10px;background:var(--blue);color:#fff;padding:9px 12px;font-size:10px;font-weight:700;cursor:pointer}.danger{border-color:#f4d4d7}.danger .heading-icon{background:#fff0f1}.danger .title{color:#b4232f}.savebar{position:fixed;left:50%;bottom:18px;z-index:100;width:min(calc(100% - 36px),936px);transform:translate(-50%,120px);opacity:0;transition:.28s;pointer-events:none}.savebar.visible{transform:translate(-50%,0);opacity:1;pointer-events:auto}.saveinner{background:rgba(22,42,58,.95);color:#fff;border-radius:18px;padding:10px 12px 10px 17px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 16px 42px rgba(15,35,50,.22)}.savemsg{font-size:11px;color:rgba(255,255,255,.82)}.savebtn{border:0;background:var(--blue);color:#fff;border-radius:11px;padding:10px 17px;font-size:11px;font-weight:700;cursor:pointer}.toast{position:fixed;left:50%;top:92px;z-index:200;transform:translate(-50%,-15px);opacity:0;pointer-events:none;background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:11px;box-shadow:0 12px 32px rgba(20,42,58,.2);transition:.25s}.toast.show{transform:translate(-50%,0);opacity:1}
+@media(max-width:720px){body{background:var(--page)}.header-inner{min-height:68px;padding:11px 15px}.brand{display:none}.header-title{font-size:15px}.content{padding:17px 13px 0}.hero{border-radius:22px;padding:22px 20px;margin-bottom:17px}.hero h1{font-size:24px}.hero p{font-size:11px;max-width:260px}.hero-panda{width:62px;height:62px;font-size:34px;border-radius:20px}.grid{display:block}.card{margin-bottom:15px;border-radius:19px}.heading{padding:17px 17px 11px}.body{padding:0 10px 10px}.row{min-height:68px;padding:11px 7px}.main{gap:10px}.icon{width:38px;height:38px;border-radius:11px;font-size:17px}.title{font-size:12px}.desc{font-size:9.5px}.select{min-width:100px;font-size:10px}.membership{margin-top:14px}.savebar{width:calc(100% - 26px);bottom:12px}}@media(max-width:390px){.hero-panda{display:none}.desc{max-width:185px}.membership button{padding:8px 9px}}
+</style>
 </head>
 <body class="app-page">
-    <div class="app-container">
-        <header class="app-header">
-            <button class="back-btn" onclick="history.length>1?history.back():window.location.href='profile.html'">←</button>
-            <h1 class="header-title">Settings</h1>
-        </header>
-        <main class="main-content">
-            <h2 class="section-title">Notifications</h2>
-            <div class="setting-item">
-                <div class="setting-left">
-                    <span class="setting-icon">🔔</span>
-                    <div class="setting-info">
-                        <h3>Push Notifications</h3>
-                        <p>Receive learning reminders</p>
-                    </div>
-                </div>
-                <div class="toggle-switch active" id="togglePushNotifications"
-                     onclick="toggleSetting(this, 'Push Notifications')"></div>
-            </div>
-            <div class="setting-item">
-                <div class="setting-left">
-                    <span class="setting-icon">⏰</span>
-                    <div class="setting-info">
-                        <h3>Daily Reminder</h3>
-                        <p>Set your study time</p>
-                    </div>
-                </div>
-                <div class="setting-value">
-                    <select>
-                        <option>9:00 AM</option>
-                        <option>12:00 PM</option>
-                        <option>6:00 PM</option>
-                        <option>8:00 PM</option>
-                    </select>
-                </div>
-            </div>
-
-            <h2 class="section-title">Learning</h2>
-            <div class="setting-item">
-                <div class="setting-left">
-                    <span class="setting-icon">🎯</span>
-                    <div class="setting-info">
-                        <h3>Daily Goal</h3>
-                        <p>Lessons per day</p>
-                    </div>
-                </div>
-                <div class="setting-value">
-                    <select>
-                        <option>10 lessons</option>
-                        <option selected>20 lessons</option>
-                        <option>30 lessons</option>
-                        <option>50 lessons</option>
-                    </select>
-                </div>
-            </div>
-            <div class="setting-item">
-                <div class="setting-left">
-                    <span class="setting-icon">🔊</span>
-                    <div class="setting-info">
-                        <h3>Sound Effects</h3>
-                        <p>Play sounds during lessons</p>
-                    </div>
-                </div>
-                <div class="toggle-switch active" id="toggleSoundEffects"
-                     onclick="toggleSetting(this, 'Sound Effects')"></div>
-            </div>
-
-            <h2 class="section-title">Account</h2>
-            <div class="setting-item" onclick="window.location.href='profile.html'">
-                <div class="setting-left">
-                    <span class="setting-icon">👤</span>
-                    <div class="setting-info">
-                        <h3>Edit Profile</h3>
-                        <p>Update your information</p>
-                    </div>
-                </div>
-                <span>›</span>
-            </div>
-            <div class="setting-item">
-                <div class="setting-left">
-                    <span class="setting-icon">🌐</span>
-                    <div class="setting-info">
-                        <h3>Language</h3>
-                        <p>App language</p>
-                    </div>
-                </div>
-                <div class="setting-value">
-                    <select>
-                        <option selected>English</option>
-                        <option>中文</option>
-                        <option>Español</option>
-                    </select>
-                </div>
-            </div>
-
-            <h2 class="section-title">About</h2>
-            <div class="setting-item">
-                <div class="setting-left">
-                    <span class="setting-icon">ℹ️</span>
-                    <div class="setting-info">
-                        <h3>Version</h3>
-                        <p>1.0.0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="setting-item">
-                <div class="setting-left">
-                    <span class="setting-icon">📄</span>
-                    <div class="setting-info">
-                        <h3>Privacy Policy</h3>
-                    </div>
-                </div>
-                <span>›</span>
-            </div>
-            <div class="setting-item">
-                <div class="setting-left">
-                    <span class="setting-icon">📋</span>
-                    <div class="setting-info">
-                        <h3>Terms of Service</h3>
-                    </div>
-                </div>
-                <span>›</span>
-            </div>
-
-<button class="save-btn" id="saveSettingsBtn">Save Settings</button>
-         </main>
-     </div>
-     <nav class="bottom-nav">
-         <a href="index.html" class="nav-item">
-             <div class="nav-icon" style="position:relative;">🏠</div>
-             <span>Home</span>
-         </a>
-         <a href="learn.html" class="nav-item">
-             <div class="nav-icon" style="position:relative;">📚</div>
-             <span>Learn</span>
-         </a>
-         <a href="practice.html" class="nav-item">
-             <div class="nav-icon" style="position:relative;">🎯</div>
-             <span>Practice</span>
-         </a>
-         <a href="profile.html" class="nav-item">
-             <div class="nav-icon" style="position:relative;">👤</div>
-             <span>Profile</span>
-         </a>
-     </nav>
-     <script src="notifications-client.js"></script>
-    <script src="notifications.js"></script>
-    <script>
-        function toggleSetting(toggleEl, settingName) {
-            var isActive = toggleEl.classList.toggle('active');
-            var msg = isActive
-                ? settingName + ' turned ON ✓'
-                : settingName + ' turned OFF';
-            var type = isActive ? 'success' : 'warn';
-            Notify.toast(msg, type, 3000);
-        }
-
-        document.getElementById('saveSettingsBtn').addEventListener('click', function() {
-            var selects = document.querySelectorAll('select');
-            var settings = {};
-            selects.forEach(function(s) {
-                settings[s.parentElement.parentElement.querySelector('h3').textContent] = s.value;
-            });
-            Notify.toast('Settings saved successfully! ✅', 'success', 3500);
-            Notify.miniConfetti();
-        });
-
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                Notify.toast('Settings loaded — tap the toggles to change preferences ✨', 'info', 4000);
-            }, 800);
-        });
-    </script>
-</body>
-</html>
+<div class="shell">
+<header class="header"><div class="header-inner"><button class="back" type="button" aria-label="Go back" onclick="history.length>1?history.back():window.location.href='profile.html'">‹</button><div class="brand"><div class="brand-panda"><img src="Hanverse-logo2.png" alt="HanVerse logo" width="34" height="34" style="border-radius:10px"></div><div><div class="brand-name">HanVerse</div><div class="brand-sub">Mandarin • Stories • Games • AI</div></div></div><div class="header-title">Settings</div></div></header>
+<main class="content">
+<section class="hero"><div class="hero-content"><div><h1>Make HanVerse yours.</h1><p>Choose how you learn, when HanVerse reminds you, and how the app feels while you build your Mandarin skills.</p></div><div class="hero-panda">🐼</div></div></section>
+<div class="grid">
+<section class="card"><div class="heading"><div class="heading-icon">🔔</div><div><h2>Notifications</h2><p>Stay on track without the noise.</p></div></div><div class="body">
+<div class="row"><div class="main"><div class="icon">🔔</div><div class="copy"><h3 class="title">Learning reminders</h3><p class="desc">Get gentle reminders to keep your streak going.</p></div></div><button class="toggle on control" data-setting="notifications" type="button" aria-label="Toggle learning reminders" aria-pressed="true"></button></div>
+<div class="row"><div class="main"><div class="icon">⏰</div><div class="copy"><h3 class="title">Daily reminder</h3><p class="desc">Choose your preferred study time.</p></div></div><select class="select" data-setting="reminderTime" aria-label="Daily reminder time"><option value="09:00">9:00 AM</option><option value="12:00">12:00 PM</option><option value="18:00">6:00 PM</option><option value="20:00">8:00 PM</option></select></div>
+</div></section>
+<section class="card"><div class="heading"><div class="heading-icon">📚</div><div><h2>Learning</h2><p>Set your pace and practice style.</p></div></div><div class="body">
+<div class="row"><div class="main"><div class="icon">🎯</div><div class="copy"><h3 class="title">Daily goal</h3><p class="desc">How much practice do you want each day?</p></div></div><select class="select" data-setting="dailyGoal" aria-label="Daily learning goal"><option value="10">10 XP</option><option value="20" selected>20 XP</option><option value="30">30 XP</option><option value="50">50 XP</option></select></div>
+<div class="row"><div class="main"><div class="icon">🔊</div><div class="copy"><h3 class="title">Sound effects</h3><p class="desc">Play sounds for answers, rewards and actions.</p></div></div><button class="toggle on control" data-setting="sound" type="button" aria-label="Toggle sound effects" aria-pressed="true"></button></div>
+<div class="row"><div class="main"><div class="icon">✨</div><div class="copy"><h3 class="title">Hanzi display</h3><p class="desc">Show simplified Chinese characters during learning.</p></div></div><button class="toggle on control" data-setting="hanzi" type="button" aria-label="Toggle Hanzi display" aria-pressed="true"></button></div>
+</div></section>
+<section class="card"><div class="heading"><div class="heading-icon">⚙️</div><div><h2>Preferences</h2><p>Personalise your HanVerse experience.</p></div></div><div class="body">
+<div class="row"><div class="main"><div class="icon">🌐</div><div class="copy"><h3 class="title">App language</h3><p class="desc">Language used throughout HanVerse.</p></div></div><select class="select" data-setting="language" aria-label="App language"><option value="English" selected>English</option><option value="Chinese">中文</option><option value="Spanish">Español</option></select></div>
+<div class="row"><div class="main"><div class="icon">🎨</div><div class="copy"><h3 class="title">Appearance</h3><p class="desc">Choose how HanVerse looks on your device.</p></div></div><select class="select" data-setting="appearance" aria-label="Appearance"><option value="light" selected>Light</option><option value="system">System</option></select></div>
+</div></section>
+<section class="card"><div class="heading"><div class="heading-icon">👤</div><div><h2>Account</h2><p>Manage your profile and account access.</p></div></div><div class="body">
+<button class="row action" type="button" onclick="window.location.href='profile.html'"><div class="main"><div class="icon">👤</div><div class="copy"><h3 class="title">Edit profile</h3><p class="desc">Update your name, photo and learner information.</p></div></div><span class="chevron">›</span></button>
+<button class="row action" type="button" onclick="window.location.href='forgot-password.html'"><div class="main"><div class="icon">🔐</div><div class="copy"><h3 class="title">Change password</h3><p class="desc">Keep your HanVerse account secure.</p></div></div><span class="chevron">›</span></button>
+<div class="membership"><div class="membership-badge">⭐</div><div class="membership-copy"><strong>HanVerse Membership</strong><span>Manage your premium learning benefits.</span></div><button type="button" onclick="window.location.href='payment.html'">View plans</button></div>
+</div></section>
+<section class="card full"><div class="heading"><div class="heading-icon">🐼</div><div><h2>About HanVerse</h2><p>Everything you need to know about the app.</p></div></div><div class="body">
+<div class="row"><div class="main"><div class="icon">🚀</div><div class="copy"><h3 class="title">HanVerse version</h3><p class="desc">You are using HanVerse 1.0.0.</p></div></div><span class="chevron">✓</span></div>
+<button class="row action" type="button" onclick="window.location.href='privacy.html'"><div class="main"><div class="icon">🛡️</div><div class="copy"><h3 class="title">Privacy policy</h3><p class="desc">Learn how HanVerse handles your information.</p></div></div><span class="chevron">›</span></button>
+<button class="row action" type="button" onclick="window.location.href='terms.html'"><div class="main"><div class="icon">📄</div><div class="copy"><h3 class="title">Terms of service</h3><p class="desc">Read the rules for using HanVerse.</p></div></div><span class="chevron">›</span></button>
+</div></section>
+<section class="card full danger"><div class="heading"><div class="heading-icon">⚠️</div><div><h2>Account actions</h2><p>Actions that affect your account.</p></div></div><div class="body"><button class="row action" type="button" id="logoutButton"><div class="main"><div class="icon">↪️</div><div class="copy"><h3 class="title">Log out</h3><p class="desc">Sign out of HanVerse on this device.</p></div></div><span class="chevron">›</span></button></div></section>
+</div></main></div>
+<div class="savebar" id="saveBar"><div class="saveinner"><span class="savemsg">You have unsaved changes.</span><button class="savebtn" id="saveSettingsBtn" type="button">Save changes</button></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="notifications-client.js"></script><script src="notifications.js"></script>
+<script>
+(function(){'use strict';
+var KEY='hanverse_settings_v2';
+var defaults={notifications:true,reminderTime:'09:00',dailyGoal:'20',sound:true,hanzi:true,language:'English',appearance:'light'};
+var saved=Object.assign({},defaults),pending=Object.assign({},defaults);
+var bar=document.getElementById('saveBar'),toast=document.getElementById('toast');
+function toastMsg(message){if(window.Notify&&typeof window.Notify.toast==='function'){window.Notify.toast(message,'success',2800);return}toast.textContent=message;toast.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){toast.classList.remove('show')},2800)}
+function setToggle(el,on){el.classList.toggle('on',!!on);el.setAttribute('aria-pressed',String(!!on))}
+function changed(){return JSON.stringify(saved)!==JSON.stringify(pending)}
+function updateBar(){bar.classList.toggle('visible',changed())}
+function load(){try{var raw=localStorage.getItem(KEY);if(raw){saved=Object.assign({},defaults,JSON.parse(raw));pending=Object.assign({},saved)}}catch(e){}document.querySelectorAll('.toggle[data-setting]').forEach(function(el){setToggle(el,!!pending[el.dataset.setting])});document.querySelectorAll('.select[data-setting]').forEach(function(el){if(pending[el.dataset.setting]!==undefined)el.value=pending[el.dataset.setting]});updateBar()}
+document.querySelectorAll('.toggle[data-setting]').forEach(function(el){el.addEventListener('click',function(){var key=el.dataset.setting;pending[key]=!pending[key];setToggle(el,pending[key]);updateBar()})});
+document.querySelectorAll('.select[data-setting]').forEach(function(el){el.addEventListener('change',function(){pending[el.dataset.setting]=el.value;updateBar()})});
+document.getElementById('saveSettingsBtn').addEventListener('click',function(){try{localStorage.setItem(KEY,JSON.stringify(pending));saved=Object.assign({},pending);updateBar();toastMsg('Your HanVerse settings are saved ✓')}catch(e){toastMsg('Could not save settings on this device.')}});
+document.getElementById('logoutButton').addEventListener('click',function(){if(!confirm('Log out of HanVerse on this device?'))return;['hanverse_token','hanverse_user','token','user','authToken','hanverse_admin_token'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}try{sessionStorage.removeItem(k)}catch(e){}});window.location.href='login.html'});
+load();
+})();
+</script>
+</body></html>
