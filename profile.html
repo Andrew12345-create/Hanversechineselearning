@@ -1,2549 +1,1199 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>HanVerse | Your Learning Profile</title>
-
-    <!-- ===== FAVICON ===== -->
-    <link rel="icon" type="image/png" sizes="32x32" href="hanverse-logo2.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="hanverse-logo2.png" />
-    <link rel="apple-touch-icon" href="hanverse-logo2.png" />
-
-    <!-- ===== GSAP + SCROLLTRIGGER ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <style>
-        /* ============================================
-           ROOT VARIABLES
-        ============================================ */
-        :root {
-            --primary: #2563EB;
-            --primary-dark: #1D4ED8;
-            --primary-light: #DBEAFE;
-            --secondary: #14B8A6;
-            --secondary-light: #99F6E4;
-            --accent: #F59E0B;
-            --accent-light: #FDE68A;
-            --dark: #0F172A;
-            --text: #1E293B;
-            --text-secondary: #475569;
-            --muted: #64748B;
-            --bg: #F8FAFC;
-            --white: #FFFFFF;
-            --success: #10B981;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --border: #E2E8F0;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
-            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
-            --radius-sm: 12px;
-            --radius-md: 20px;
-            --radius-lg: 28px;
-            --radius-full: 9999px;
-            --nav-height: 72px;
-            --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        /* ============================================
-           RESET & BASE
-        ============================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--dark);
-            overflow-x: hidden;
-            padding-bottom: calc(90px + env(safe-area-inset-bottom));
-            padding-top: calc(var(--nav-height) + 28px);
-            min-height: 100vh;
-        }
-
-        /* Background Orbs */
-        body::before,
-        body::after {
-            content: '';
-            position: fixed;
-            z-index: -1;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        body::before {
-            width: 500px;
-            height: 500px;
-            top: -100px;
-            right: -100px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 70%);
-        }
-
-        body::after {
-            width: 400px;
-            height: 400px;
-            bottom: -50px;
-            left: -50px;
-            background: radial-gradient(circle, rgba(20, 184, 166, 0.10), transparent 70%);
-        }
-
-        /* ===== SELECTION ===== */
-        ::selection {
-            background: var(--primary);
-            color: white;
-        }
-
-        ::-moz-selection {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* ============================================
-           TOAST NOTIFICATIONS
-        ============================================ */
-        .toast-container {
-            position: fixed;
-            top: 100px;
-            right: 24px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 380px;
-            width: calc(100% - 48px);
-        }
-
-        .toast {
-            padding: 16px 20px;
-            border-radius: var(--radius-sm);
-            background: white;
-            box-shadow: var(--shadow-lg);
-            border-left: 4px solid var(--primary);
-            animation: slideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.9rem;
-        }
-
-        .toast-success {
-            border-left-color: #22C55E;
-        }
-        .toast-error {
-            border-left-color: #EF4444;
-        }
-        .toast-warning {
-            border-left-color: var(--accent);
-        }
-        .toast-info {
-            border-left-color: var(--primary);
-        }
-
-        .toast-icon {
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-        .toast-message {
-            flex: 1;
-            color: var(--dark);
-            line-height: 1.5;
-        }
-        .toast-close {
-            background: none;
-            border: none;
-            color: var(--muted);
-            font-size: 18px;
-            cursor: pointer;
-            padding: 0 4px;
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideOutRight {
-            from {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateX(40px);
-            }
-        }
-
-        .toast.removing {
-            animation: slideOutRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        /* ============================================
-           FLOATING NAVBAR with logo image
-        ============================================ */
-        nav.top-nav {
-            position: fixed;
-            top: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 28px;
-            width: calc(100% - 36px);
-            max-width: 1200px;
-            height: var(--nav-height);
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(24px) saturate(1.3);
-            -webkit-backdrop-filter: blur(24px) saturate(1.3);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
-            transition: var(--transition-smooth);
-            will-change: transform, height, border-radius, padding, box-shadow, top, background;
-        }
-
-        nav.top-nav.shrunk {
-            top: 14px;
-            height: 58px;
-            padding: 0 20px;
-            width: calc(100% - 48px);
-            max-width: 900px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(28px) saturate(1.5);
-            -webkit-backdrop-filter: blur(28px) saturate(1.5);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
-        }
-
-        nav.top-nav:hover {
-            box-shadow: 0 8px 40px rgba(37, 99, 235, 0.08), 0 0 0 1px rgba(37, 99, 235, 0.05);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--dark);
-            text-decoration: none;
-            transition: var(--transition-smooth);
-            flex-shrink: 0;
-        }
-
-        .logo img {
-            width: 38px;
-            height: 38px;
-            object-fit: contain;
-            border-radius: 10px;
-            transition: var(--transition-smooth);
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        nav.top-nav.shrunk .logo img {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-        }
-
-        nav.top-nav.shrunk .logo {
-            gap: 0;
-        }
-
-        .logo-text {
-            transition: var(--transition-smooth);
-            background: linear-gradient(135deg, var(--dark), var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        nav.top-nav.shrunk .logo-text {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-            margin: 0;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 28px;
-            list-style: none;
-            margin: 0 16px;
-            flex: 1;
-            justify-content: center;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            font-weight: 600;
-            color: var(--text-secondary);
-            transition: var(--transition-smooth);
-            font-size: 0.9rem;
-            position: relative;
-            padding: 4px 0;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%) scaleX(0);
-            width: 100%;
-            height: 2.5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 2px;
-            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .nav-links a:hover::after,
-        .nav-links a.active::after {
-            transform: translateX(-50%) scaleX(1);
-        }
-
-        .nav-links a.active,
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        nav.top-nav.shrunk .nav-links {
-            gap: 20px;
-        }
-
-        nav.top-nav.shrunk .nav-links a {
-            font-size: 0.8rem;
-        }
-
-        .logout-btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            background: rgba(239, 68, 68, 0.08);
-            color: var(--danger);
-            transition: var(--transition-smooth);
-            border: 1px solid rgba(239, 68, 68, 0.15);
-            flex-shrink: 0;
-        }
-
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.15);
-            transform: translateY(-2px);
-        }
-
-        nav.top-nav.shrunk .logout-btn {
-            padding: 6px 14px;
-            font-size: 0.75rem;
-        }
-
-        /* ============================================
-           PROFILE HERO
-        ============================================ */
-        .profile-hero {
-            margin: 0 5% 30px;
-            padding: 36px 28px;
-            border-radius: var(--radius-lg);
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 24px;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-            animation: fadeUp 0.8s ease;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .profile-hero::before {
-            content: '你';
-            position: absolute;
-            font-size: 120px;
-            font-weight: 900;
-            opacity: .06;
-            top: -20px;
-            right: -10px;
-            pointer-events: none;
-        }
-
-        .profile-hero::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.08), transparent 60%);
-            pointer-events: none;
-        }
-
-        .avatar {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 56px;
-            overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-            flex-shrink: 0;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            position: relative;
-            z-index: 1;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-info {
-            width: 100%;
-            position: relative;
-            z-index: 1;
-        }
-
-        .profile-info h1 {
-            font-size: 1.8rem;
-            margin-bottom: 4px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .profile-info>p {
-            opacity: .85;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            margin-bottom: 16px;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .profile-badges {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-
-        .badge {
-            padding: 6px 16px;
-            border-radius: var(--radius-full);
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: 700;
-            font-size: .75rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.2s ease;
-        }
-
-        .badge:hover {
-            transform: translateY(-2px);
-        }
-
-        .badge-premium {
-            background: rgba(245, 158, 11, 0.3);
-            border-color: rgba(245, 158, 11, 0.2);
-        }
-
-        .badge-admin {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: rgba(239, 68, 68, 0.15);
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .hero-stat {
-            padding: 6px 16px;
-            border-radius: var(--radius-full);
-            background: rgba(255, 255, 255, 0.12);
-            font-weight: 600;
-            font-size: 0.8rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: transform 0.2s ease;
-        }
-
-        .hero-stat:hover {
-            transform: translateY(-2px);
-        }
-
-        /* ============================================
-           QUICK STATS
-        ============================================ */
-        .quick-grid {
-            margin: 0 5% 30px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .quick-card {
-            background: white;
-            padding: 20px 16px;
-            border-radius: var(--radius-md);
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0, 0, 0, 0.02);
-            transition: var(--transition-smooth);
-        }
-
-        .quick-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
-        }
-
-        .quick-icon {
-            font-size: 1.8rem;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        .quick-card h3 {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 2px;
-            font-weight: 800;
-        }
-
-        .quick-card p {
-            font-size: .75rem;
-            color: var(--muted);
-            font-weight: 500;
-        }
-
-        /* ============================================
-           CONTENT SECTIONS
-        ============================================ */
-        .content-card {
-            background: white;
-            padding: 24px 20px;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            margin: 0 5% 20px;
-            border: 1px solid rgba(0, 0, 0, 0.02);
-            transition: var(--transition-smooth);
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-            opacity: 1;
-        }
-
-        .content-card:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        .content-card h2 {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--dark);
-        }
-
-        .content-card>p {
-            font-size: 0.85rem;
-            color: var(--muted);
-            margin-bottom: 12px;
-        }
-
-        /* ============================================
-           PROGRESS BARS
-        ============================================ */
-        .progress-track {
-            height: 10px;
-            background: #F1F5F9;
-            border-radius: var(--radius-full);
-            overflow: hidden;
-            margin-top: 12px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: var(--radius-full);
-            transition: none;
-        }
-
-        /* ============================================
-           HEATMAP
-        ============================================ */
-        .heatmap-container {
-            width: 100%;
-            overflow-x: auto;
-            padding-bottom: 4px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .heatmap-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 38px);
-            gap: 8px;
-            margin-top: 14px;
-            width: max-content;
-        }
-
-        .heat {
-            width: 38px;
-            height: 38px;
-            border-radius: var(--radius-sm);
-            background: #F1F5F9;
-            transition: var(--transition-smooth);
-            cursor: pointer;
-        }
-
-        .heat:hover {
-            transform: scale(1.1);
-        }
-
-        .heat.active {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
-
-        .heat.high {
-            background: linear-gradient(135deg, var(--accent), var(--warning));
-        }
-
-        .heat.low {
-            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
-        }
-
-        /* ============================================
-           GRIDS
-        ============================================ */
-        .certificate-grid,
-        .achievement-grid,
-        .ai-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 14px;
-        }
-
-        .certificate-card,
-        .achievement-card,
-        .ai-card {
-            background: var(--bg);
-            padding: 16px 12px;
-            border-radius: var(--radius-sm);
-            text-align: center;
-            border: 1px solid var(--border);
-            transition: var(--transition-smooth);
-        }
-
-        .certificate-card:hover,
-        .achievement-card:hover,
-        .ai-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary-light);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .certificate-card,
-        .achievement-card {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .certificate-card .cert-icon,
-        .achievement-card .ach-icon {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .ai-card h3 {
-            font-size: 1.6rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 2px;
-            font-weight: 800;
-        }
-
-        .ai-card p {
-            font-size: 0.75rem;
-            color: var(--muted);
-            font-weight: 500;
-        }
-
-        /* ============================================
-           ACTIVITY FEED
-        ============================================ */
-        .activity-item {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--text-secondary);
-            transition: background 0.2s ease;
-            border-radius: var(--radius-sm);
-            padding: 12px 8px;
-        }
-
-        .activity-item:hover {
-            background: var(--bg);
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-item .act-icon {
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-
-        .activity-item .act-time {
-            margin-left: auto;
-            font-size: 0.75rem;
-            color: var(--muted);
-        }
-
-        /* ============================================
-           MEMBERSHIP
-        ============================================ */
-        .membership-premium {
-            padding: 20px;
-            border-radius: var(--radius-sm);
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.3s ease;
-        }
-
-        .membership-premium:hover {
-            transform: translateY(-2px);
-        }
-
-        .membership-free {
-            padding: 20px;
-            border-radius: var(--radius-sm);
-            background: var(--bg);
-            border: 2px dashed var(--border);
-            transition: transform 0.3s ease;
-        }
-
-        .membership-free:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary-light);
-        }
-
-        .membership-premium h3,
-        .membership-free h3 {
-            font-size: 1.1rem;
-            margin-bottom: 4px;
-            font-weight: 700;
-        }
-
-        .membership-premium p,
-        .membership-free p {
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
-
-        .membership-premium .upgrade-btn,
-        .membership-free .upgrade-btn {
-            margin-top: 12px;
-            padding: 10px 24px;
-            border: none;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-        }
-
-        .membership-premium .upgrade-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .membership-premium .upgrade-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .membership-free .upgrade-btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
-        }
-
-        .membership-free .upgrade-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
-        }
-
-        /* ============================================
-           ADMIN SECTION
-        ============================================ */
-        .admin-btn {
-            display: block;
-            text-align: center;
-            padding: 14px 24px;
-            border-radius: var(--radius-full);
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 0.95rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            margin-top: 12px;
-            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
-            transition: var(--transition-smooth);
-        }
-
-        .admin-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
-        }
-
-        /* ============================================
-           PANDA CHAT
-        ============================================ */
-        .panda-fab {
-            position: fixed;
-            bottom: calc(90px + env(safe-area-inset-bottom));
-            right: 24px;
-            z-index: 998;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 28px;
-            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition-smooth);
-            color: white;
-        }
-
-        .panda-fab:hover {
-            transform: scale(1.1) rotate(-5deg);
-            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.4);
-        }
-
-        .panda-fab:active {
-            transform: scale(0.92);
-        }
-
-        .panda-chat {
-            display: none;
-            position: fixed;
-            bottom: calc(100px + env(safe-area-inset-bottom));
-            right: 24px;
-            width: 360px;
-            max-width: calc(100vw - 48px);
-            height: 440px;
-            max-height: 65vh;
-            background: white;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-xl);
-            z-index: 999;
-            flex-direction: column;
-            overflow: hidden;
-            animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .panda-chat.active {
-            display: flex;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .panda-header {
-            padding: 16px 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        .panda-title {
-            font-weight: 700;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .panda-close {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition-smooth);
-        }
-
-        .panda-close:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: rotate(90deg);
-        }
-
-        .panda-body {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            background: #F8FAFC;
-        }
-
-        .panda-body::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .panda-body::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .panda-body::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 10px;
-        }
-
-        .message-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-            align-items: flex-start;
-            animation: fadeUp 0.3s ease;
-        }
-
-        .message-row.user {
-            flex-direction: row-reverse;
-        }
-
-        .panda-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 10px 16px;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .panda-message {
-            background: white;
-            color: var(--dark);
-            border-bottom-left-radius: 4px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .user-message {
-            background: var(--primary);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .panda-input {
-            display: flex;
-            gap: 10px;
-            padding: 12px 16px;
-            background: white;
-            border-top: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-
-        .panda-input textarea {
-            flex: 1;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 8px 14px;
-            font-size: 14px;
-            resize: none;
-            font-family: 'Poppins', sans-serif;
-            min-height: 40px;
-            max-height: 80px;
-            outline: none;
-            transition: var(--transition-smooth);
-            background: var(--bg);
-        }
-
-        .panda-input textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .panda-send {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-
-        .panda-send:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
-        }
-
-        .panda-send:active {
-            transform: scale(0.92);
-        }
-
-        /* ============================================
-           BOTTOM NAV
-        ============================================ */
-        .bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            justify-content: space-around;
-            padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
-            z-index: 999;
-            border-top: 1px solid rgba(0, 0, 0, 0.04);
-        }
-
-        .bottom-nav a {
-            text-decoration: none;
-            color: var(--muted);
-            font-size: .65rem;
-            font-weight: 500;
-            text-align: center;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            padding: 4px 0;
-            transition: var(--transition-smooth);
-            border-radius: var(--radius-sm);
-        }
-
-        .bottom-nav a.active {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .bottom-nav a:hover {
-            color: var(--primary);
-        }
-
-        .nav-icon {
-            font-size: 22px;
-        }
-
-        /* ============================================
-           RESPONSIVE
-        ============================================ */
-        @media (min-width: 901px) {
-            .bottom-nav {
-                display: none !important;
-            }
-
-            .profile-hero {
-                flex-direction: row;
-                text-align: left;
-                padding: 44px 40px;
-                gap: 40px;
-            }
-
-            .profile-info>p {
-                margin-left: 0;
-                margin-right: 0;
-            }
-
-            .profile-badges {
-                justify-content: flex-start;
-            }
-
-            .hero-stats {
-                justify-content: flex-start;
-            }
-
-            .quick-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
-            }
-
-            .certificate-grid,
-            .achievement-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .ai-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 900px) {
-            body {
-                padding-top: calc(var(--nav-height) + 20px);
-            }
-
-            nav.top-nav {
-                top: 12px;
-                padding: 0 16px;
-                width: calc(100% - 24px);
-                border-radius: 18px;
-                height: 64px;
-            }
-
-            nav.top-nav.shrunk {
-                top: 10px;
-                height: 54px;
-                padding: 0 14px;
-                width: calc(100% - 32px);
-                border-radius: 14px;
-            }
-
-            .logo {
-                font-size: 18px;
-                gap: 8px;
-            }
-
-            .logo img {
-                width: 34px;
-                height: 34px;
-            }
-
-            nav.top-nav.shrunk .logo img {
-                width: 28px;
-                height: 28px;
-            }
-
-            nav.top-nav .nav-links {
-                display: none;
-            }
-
-            .bottom-nav {
-                display: flex;
-            }
-
-            .profile-hero {
-                padding: 28px 20px;
-                margin: 0 4% 20px;
-                gap: 16px;
-            }
-
-            .avatar {
-                width: 80px;
-                height: 80px;
-                font-size: 40px;
-            }
-
-            .profile-info h1 {
-                font-size: 1.4rem;
-            }
-
-            .quick-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-                margin: 0 4% 20px;
-            }
-
-            .quick-card {
-                padding: 16px 12px;
-            }
-
-            .quick-card h3 {
-                font-size: 1.4rem;
-            }
-
-            .content-card {
-                padding: 20px 16px;
-                margin: 0 4% 16px;
-            }
-
-            .certificate-grid,
-            .achievement-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .ai-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .panda-fab {
-                right: 16px;
-                bottom: calc(85px + env(safe-area-inset-bottom));
-                width: 56px;
-                height: 56px;
-                font-size: 24px;
-            }
-
-            .panda-chat {
-                width: calc(100vw - 32px);
-                right: 16px;
-                bottom: calc(95px + env(safe-area-inset-bottom));
-                height: 380px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .quick-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-
-            .certificate-grid,
-            .achievement-grid,
-            .ai-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .profile-hero {
-                padding: 20px 16px;
-            }
-
-            .avatar {
-                width: 70px;
-                height: 70px;
-                font-size: 34px;
-            }
-
-            .profile-info h1 {
-                font-size: 1.2rem;
-            }
-
-            .hero-stats {
-                gap: 8px;
-            }
-
-            .hero-stat {
-                padding: 4px 12px;
-                font-size: 0.7rem;
-            }
-
-            .badge {
-                font-size: 0.65rem;
-                padding: 4px 12px;
-            }
-
-            .content-card {
-                padding: 16px 14px;
-            }
-
-            .content-card h2 {
-                font-size: 1rem;
-            }
-
-            .toast-container {
-                top: 80px;
-                right: 12px;
-                max-width: calc(100% - 24px);
-            }
-
-            .toast {
-                padding: 12px 16px;
-                font-size: 0.8rem;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .certificate-grid,
-            .achievement-grid,
-            .ai-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .quick-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-    </style>
-
-<style id="hanverse-profile-blue-theme">
-/* ============================================================
-   HANVERSE PROFILE — BLUE-FORWARD MASTER THEME
-   Matches the new HanVerse index/login/signup visual system.
-   Visual layer only: existing HTML + JavaScript preserved.
-   ============================================================ */
-
-:root {
-    --primary: #4EA8DE;
-    --primary-dark: #347FAF;
-    --primary-deep: #245B82;
-    --primary-light: #EAF6FD;
-    --secondary: #74C69D;
-    --secondary-light: #EEF9F3;
-    --accent: #F4D35E;
-    --accent-light: #FFF8E5;
-    --dark: #18324D;
-    --text: #40566B;
-    --text-secondary: #60758A;
-    --muted: #7A8A9A;
-    --bg: #F8FBFF;
-    --white: #FFFFFF;
-    --success: #74C69D;
-    --danger: #E63946;
-    --warning: #F4D35E;
-    --border: #E1EAF1;
-    --shadow-sm: 0 3px 12px rgba(24,50,77,.055);
-    --shadow-md: 0 8px 26px rgba(24,50,77,.075);
-    --shadow-lg: 0 16px 45px rgba(24,50,77,.10);
-    --shadow-xl: 0 24px 65px rgba(24,50,77,.13);
-}
-
-/* ===== BASE ===== */
-body {
-    background:
-        radial-gradient(circle at 5% 3%, rgba(78,168,222,.13), transparent 25rem),
-        radial-gradient(circle at 94% 18%, rgba(244,211,94,.08), transparent 23rem),
-        radial-gradient(circle at 85% 92%, rgba(116,198,157,.08), transparent 25rem),
-        var(--bg);
-    color: var(--dark);
-}
-
-::selection {
-    background: var(--primary);
-    color: #fff;
-}
-
-/* ===== NOTIFICATIONS ===== */
-.toast {
-    background: rgba(255,255,255,.98);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--primary);
-    box-shadow: var(--shadow-lg);
-}
-
-.toast-success { border-left-color: var(--secondary); }
-.toast-error { border-left-color: var(--danger); }
-.toast-warning { border-left-color: var(--accent); }
-.toast-info { border-left-color: var(--primary); }
-
-.toast-message {
-    color: var(--dark);
-}
-
-.toast-close {
-    color: var(--muted);
-}
-
-/* ===== TOP NAV ===== */
-nav.top-nav {
-    background: rgba(255,255,255,.91);
-    border: 1px solid rgba(24,50,77,.09);
-    box-shadow: 0 6px 28px rgba(24,50,77,.07);
-}
-
-nav.top-nav.shrunk {
-    background: rgba(255,255,255,.96);
-    box-shadow: 0 10px 38px rgba(24,50,77,.09);
-}
-
-nav.top-nav:hover {
-    box-shadow: 0 9px 38px rgba(78,168,222,.10);
-}
-
-.logo {
-    color: var(--dark);
-}
-
-.logo-text {
-    background: linear-gradient(135deg, var(--dark), var(--primary-deep));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.nav-links a {
-    color: var(--text-secondary);
-}
-
-.nav-links a::after {
-    background: var(--primary);
-}
-
-.nav-links a.active,
-.nav-links a:hover {
-    color: var(--primary-deep);
-}
-
-.logout-btn {
-    background: rgba(230,57,70,.055);
-    color: var(--danger);
-    border-color: rgba(230,57,70,.12);
-}
-
-.logout-btn:hover {
-    background: rgba(230,57,70,.10);
-}
-
-/* ===== PROFILE HERO =====
-   Deep blue is used for maturity; sky blue and green soften it.
-   Red/yellow are kept as tiny accents only. */
-.profile-hero {
-    background:
-        radial-gradient(circle at 15% 25%, rgba(78,168,222,.34), transparent 30%),
-        radial-gradient(circle at 86% 75%, rgba(116,198,157,.18), transparent 28%),
-        linear-gradient(135deg, #18324D 0%, #245B82 56%, #347FAF 100%);
-    box-shadow: 0 20px 55px rgba(24,50,77,.16);
-}
-
-.profile-hero::after {
-    background:
-        radial-gradient(circle at 38% 35%, rgba(255,255,255,.10), transparent 55%);
-}
-
-.profile-hero::before {
-    color: rgba(255,255,255,.05);
-}
-
-.avatar {
-    background: rgba(255,255,255,.14);
-    border-color: rgba(255,255,255,.28);
-    box-shadow: 0 10px 30px rgba(0,0,0,.14);
-}
-
-.profile-info h1 {
-    color: #fff;
-}
-
-.profile-info > p {
-    color: rgba(255,255,255,.78);
-}
-
-.badge {
-    background: rgba(255,255,255,.13);
-    border-color: rgba(255,255,255,.15);
-}
-
-.badge-premium {
-    background: rgba(244,211,94,.20);
-    border-color: rgba(244,211,94,.20);
-}
-
-.badge-admin {
-    background: rgba(230,57,70,.16);
-    border-color: rgba(230,57,70,.15);
-}
-
-.hero-stat {
-    background: rgba(255,255,255,.10);
-    border-color: rgba(255,255,255,.10);
-}
-
-/* ===== QUICK STATS ===== */
-.quick-card {
-    background: rgba(255,255,255,.92);
-    border: 1px solid rgba(24,50,77,.075);
-    box-shadow: var(--shadow-sm);
-}
-
-.quick-card:hover {
-    border-color: rgba(78,168,222,.22);
-    box-shadow: var(--shadow-md);
-}
-
-.quick-card h3 {
-    background: linear-gradient(135deg, var(--primary-deep), var(--primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.quick-card p {
-    color: var(--muted);
-}
-
-/* ===== CONTENT CARDS ===== */
-.content-card {
-    background: rgba(255,255,255,.94);
-    border: 1px solid rgba(24,50,77,.075);
-    box-shadow: var(--shadow-sm);
-}
-
-.content-card:hover {
-    box-shadow: var(--shadow-md);
-}
-
-.content-card h2 {
-    color: var(--dark);
-}
-
-.content-card > p {
-    color: var(--muted);
-}
-
-/* ===== PROGRESS ===== */
-.progress-track {
-    background: #E8F0F5;
-}
-
-.progress-fill {
-    background: linear-gradient(90deg, var(--primary), #73C3E9);
-}
-
-/* ===== HEATMAP ===== */
-.heat {
-    background: #E9F0F5;
-}
-
-.heat.active {
-    background: linear-gradient(135deg, var(--primary), #73C3E9);
-}
-
-.heat.high {
-    background: linear-gradient(135deg, #F4D35E, #EBC85A);
-}
-
-.heat.low {
-    background: linear-gradient(135deg, #DDF1FB, #DDF3E8);
-}
-
-/* ===== CERTIFICATES / ACHIEVEMENTS / AI ===== */
-.certificate-card,
-.achievement-card,
-.ai-card {
-    background: #F7FBFE;
-    border-color: var(--border);
-}
-
-.certificate-card:hover,
-.achievement-card:hover,
-.ai-card:hover {
-    border-color: rgba(78,168,222,.25);
-    box-shadow: var(--shadow-sm);
-}
-
-.certificate-card,
-.achievement-card {
-    color: var(--text);
-}
-
-.ai-card h3 {
-    background: linear-gradient(135deg, var(--primary-deep), var(--primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.ai-card p {
-    color: var(--muted);
-}
-
-/* ===== ACTIVITY ===== */
-.activity-item {
-    border-bottom-color: var(--border);
-    color: var(--text);
-}
-
-.activity-item:hover {
-    background: #F5FAFD;
-}
-
-.activity-item .act-time {
-    color: var(--muted);
-}
-
-/* ===== MEMBERSHIP ===== */
-.membership-premium {
-    background:
-        radial-gradient(circle at 85% 20%, rgba(244,211,94,.18), transparent 25%),
-        linear-gradient(135deg, #18324D, #347FAF);
-    box-shadow: var(--shadow-md);
-}
-
-.membership-free {
-    background: #F6FAFD;
-    border-color: #D9E6EF;
-}
-
-.membership-free:hover {
-    border-color: rgba(78,168,222,.35);
-}
-
-.membership-free .upgrade-btn {
-    background: var(--primary);
-    box-shadow: 0 5px 18px rgba(78,168,222,.22);
-}
-
-.membership-free .upgrade-btn:hover {
-    background: var(--primary-dark);
-    box-shadow: 0 8px 24px rgba(78,168,222,.28);
-}
-
-/* ===== ADMIN ===== */
-.admin-btn {
-    background: var(--primary);
-    box-shadow: 0 5px 18px rgba(78,168,222,.22);
-}
-
-.admin-btn:hover {
-    background: var(--primary-dark);
-    box-shadow: 0 8px 24px rgba(78,168,222,.28);
-}
-
-/* ===== PANDA FAB ===== */
-.panda-fab {
-    background: linear-gradient(145deg, var(--primary), var(--primary-dark));
-    box-shadow: 0 10px 30px rgba(78,168,222,.28);
-}
-
-.panda-fab:hover {
-    box-shadow: 0 13px 38px rgba(78,168,222,.34);
-}
-
-/* ===== PANDA CHAT ===== */
-.panda-chat {
-    background: #fff;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-xl);
-}
-
-.panda-header {
-    background: linear-gradient(135deg, #18324D, #347FAF);
-}
-
-.panda-body {
-    background: #F6FAFD;
-}
-
-.panda-avatar {
-    background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
-}
-
-.panda-message {
-    background: #fff;
-    color: var(--dark);
-}
-
-.user-message {
-    background: var(--primary);
-}
-
-.panda-input {
-    border-top-color: var(--border);
-}
-
-.panda-input textarea {
-    background: #F8FBFD;
-    border-color: var(--border);
-}
-
-.panda-input textarea:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(78,168,222,.10);
-}
-
-.panda-send {
-    background: var(--primary);
-    box-shadow: 0 5px 15px rgba(78,168,222,.20);
-}
-
-.panda-send:hover {
-    box-shadow: 0 7px 20px rgba(78,168,222,.28);
-}
-
-/* ===== BOTTOM NAV ===== */
-.bottom-nav {
-    background: rgba(255,255,255,.96);
-    border-top-color: rgba(24,50,77,.07);
-    box-shadow: 0 -5px 25px rgba(24,50,77,.06);
-}
-
-.bottom-nav a {
-    color: var(--muted);
-}
-
-.bottom-nav a.active,
-.bottom-nav a:hover {
-    color: var(--primary-deep);
-}
-
-/* ===== MOBILE ===== */
-@media (max-width: 900px) {
-    .profile-hero {
-        background:
-            radial-gradient(circle at 15% 20%, rgba(78,168,222,.30), transparent 35%),
-            linear-gradient(145deg, #18324D, #347FAF);
-    }
-}
-
-@media (max-width: 480px) {
-    .profile-hero {
-        box-shadow: 0 15px 38px rgba(24,50,77,.13);
-    }
-}
-
-/* Keep reduced-motion accessibility intact. */
-@media (prefers-reduced-motion: reduce) {
-    .avatar {
-        animation: none !important;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563EB">
+<title>HanVerse | My Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hanverse.css">
+<style>
+/* =========================================================
+   HANVERSE PROFILE V2
+   Real data only. No generated progress or fake achievements.
+   ========================================================= */
+
+:root{
+  /* Shared HanVerse palette (hanverse.css) mapped onto this page's
+     variable names so the layout CSS keeps working unchanged. */
+  --blue:#2563EB;
+  --blue-dark:#1D4ED8;
+  --blue-deep:#1D4ED8;
+  --blue-soft:#EFF6FF;
+  --blue-pale:#F5F9FF;
+  --green:#16A34A;
+  --green-soft:#ECFDF5;
+  --yellow:#F59E0B;
+  --yellow-soft:#FFFBEB;
+  --red:#DC2626;
+  --red-soft:#FEF2F2;
+  --ink:#0F2340;
+  --muted:#5D7A9A;
+  --light:#8BA8C4;
+  --bg:#F5F9FF;
+  --surface:#FFFFFF;
+  --surface-2:#EFF6FF;
+  --border:#D5E3F0;
+  --shadow-sm:0 2px 8px rgba(15,35,64,.07);
+  --shadow-md:0 16px 48px rgba(15,35,64,.12);
+  --shadow-lg:0 28px 72px rgba(15,35,64,.16);
+  --r-sm:12px;
+  --r-md:18px;
+  --r-lg:26px;
+  --r-xl:36px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+
+[data-theme="dark"]{
+  --bg:#0C1B29;
+  --surface:#12283A;
+  --surface-2:#102233;
+  --ink:#F3F8FC;
+  --muted:#A9BDCC;
+  --light:#7F98AA;
+  --border:#244458;
+  --blue-soft:#123B56;
+  --blue-pale:#0E2C40;
+  --green-soft:#12392B;
+  --yellow-soft:#403916;
+  --red-soft:#411F25;
+  --shadow-sm:0 4px 16px rgba(0,0,0,.18);
+  --shadow-md:0 12px 35px rgba(0,0,0,.25);
+  --shadow-lg:0 22px 60px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(37,99,235,.09),transparent 28rem),
+    radial-gradient(circle at 100% 15%,rgba(116,198,157,.07),transparent 25rem),
+    var(--bg);
+  color:var(--ink);
+  font-family:'Inter','Noto Sans SC',sans-serif;
+}
+h1,h2,h3,h4{font-family:'Nunito','Noto Sans SC',sans-serif}
+button,a{font:inherit}
+button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+img{max-width:100%;display:block}
+.hidden{display:none!important}
+
+.icon-btn,.logout-btn{
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--ink);
+  border-radius:12px;
+  min-height:40px;
+  padding:0 12px;
+  transition:.2s var(--ease);
+}
+.icon-btn:hover,.logout-btn:hover{border-color:var(--blue);transform:translateY(-1px)}
+.logout-btn{font-size:12px;font-weight:700}
+
+.page{
+  width:min(1180px,calc(100% - 36px));
+  margin:30px auto 70px;
+}
+
+.hero{
+  position:relative;
+  overflow:hidden;
+  min-height:310px;
+  padding:38px;
+  border:1px solid rgba(37,99,235,.22);
+  border-radius:var(--r-xl);
+  background:
+    radial-gradient(circle at 92% 12%,rgba(255,255,255,.62),transparent 18rem),
+    linear-gradient(135deg,var(--blue-soft),var(--surface));
+  box-shadow:var(--shadow-md);
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:28px;
+}
+.hero:after{
+  content:"";
+  position:absolute;
+  right:-70px;
+  bottom:-100px;
+  width:280px;height:280px;
+  border-radius:50%;
+  background:rgba(37,99,235,.10);
+}
+.hero-panda{
+  position:absolute;
+  right:35px;
+  bottom:15px;
+  width:125px;
+  opacity:.17;
+  pointer-events:none;
+}
+.avatar-wrap{position:relative;z-index:2}
+.avatar{
+  width:126px;height:126px;
+  border-radius:36px;
+  border:6px solid var(--surface);
+  background:linear-gradient(145deg,var(--blue),var(--blue-deep));
+  box-shadow:var(--shadow-md);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  color:#fff;
+  font-size:50px;
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.hero-copy{position:relative;z-index:2}
+.eyebrow{
+  display:inline-flex;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.72);
+  color:var(--blue-deep);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.hero h1{
+  margin:12px 0 5px;
+  font-size:clamp(30px,4vw,48px);
+  line-height:1.05;
+  letter-spacing:-1.8px;
+}
+.hero-sub{margin:0;color:var(--muted);font-size:14px;max-width:560px}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-size:11px;font-weight:700;
+}
+.badge.premium{color:#8B6B00;background:var(--yellow-soft);border-color:#F0D76B}
+.badge.admin{color:#7A2430;background:var(--red-soft);border-color:#F0AAB1}
+.hero-actions{position:relative;z-index:2;display:flex;flex-direction:column;gap:10px;min-width:180px}
+.btn{
+  border:0;
+  min-height:46px;
+  padding:0 18px;
+  border-radius:14px;
+  font-weight:800;
+  font-size:12px;
+  transition:.22s var(--ease);
+}
+.btn.primary{color:#fff;background:linear-gradient(135deg,var(--blue),var(--blue-deep));box-shadow:0 10px 22px rgba(37,99,235,.24)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(37,99,235,.3)}
+.btn.ghost{background:var(--surface);border:1px solid var(--border);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--blue);color:var(--blue-deep);transform:translateY(-1px)}
+
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin:18px 0;
+}
+.quick{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  padding:17px;
+  display:flex;align-items:center;gap:13px;
+  box-shadow:var(--shadow-sm);
+  transition:.22s var(--ease);
+}
+.quick:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.quick-icon{
+  width:43px;height:43px;border-radius:14px;
+  display:grid;place-items:center;
+  background:var(--blue-soft);font-size:20px;
+}
+.quick strong{display:block;font-size:22px;line-height:1.05}
+.quick span{display:block;margin-top:3px;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+
+.main-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(300px,.9fr);
+  gap:18px;
+  align-items:start;
+}
+.column{display:grid;gap:18px}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:24px;
+  box-shadow:var(--shadow-sm);
+}
+.card-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:15px;
+  margin-bottom:18px;
+}
+.card-head h2{margin:0;font-size:18px;letter-spacing:-.4px}
+.card-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.card-head .link{font-size:12px;font-weight:800;color:var(--blue-deep)}
+
+.level-box{
+  padding:20px;
+  border-radius:20px;
+  background:linear-gradient(135deg,var(--blue-soft),var(--surface-2));
+  border:1px solid rgba(37,99,235,.2);
+}
+.level-top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.level-number{
+  width:64px;height:64px;border-radius:50%;
+  display:grid;place-items:center;
+  background:var(--surface);
+  border:7px solid rgba(37,99,235,.25);
+  color:var(--blue-deep);
+  font-size:18px;font-weight:800;
+}
+.level-info strong{display:block;font-size:16px}
+.level-info span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.level-track{height:12px;border-radius:999px;background:rgba(255,255,255,.7);overflow:hidden;margin:19px 0 9px}
+.level-fill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--blue-deep));transition:width 1s var(--ease)}
+.level-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;font-weight:700}
+.level-note{margin-top:13px;color:var(--muted);font-size:11px}
+
+.course-list{display:grid;gap:12px}
+.course{
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:17px;
+  background:var(--surface-2);
+}
+.course-top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.course-name{font-weight:800;font-size:13px}
+.course-meta{font-size:11px;color:var(--muted);font-weight:700}
+.progress-track{height:9px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:12px}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue-deep));border-radius:inherit;transition:width 1s var(--ease)}
+.course-bottom{display:flex;justify-content:space-between;margin-top:8px;color:var(--muted);font-size:10px}
+
+.continue{
+  display:flex;align-items:center;justify-content:space-between;gap:15px;
+  padding:18px;
+  border-radius:19px;
+  background:linear-gradient(135deg,var(--blue-deep),var(--blue));
+  color:#fff;
+  box-shadow:0 14px 30px rgba(37,99,235,.22);
+}
+.continue-copy small{opacity:.75;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.continue-copy strong{display:block;margin-top:4px;font-size:16px}
+.continue-copy span{display:block;margin-top:4px;font-size:11px;opacity:.84}
+.continue .btn{background:#fff;color:var(--blue-deep);min-width:100px}
+
+.week-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.metric{
+  padding:14px;border-radius:15px;background:var(--surface-2);border:1px solid var(--border)
+}
+.metric strong{display:block;font-size:20px}
+.metric span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+
+.bars{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:130px;padding-top:8px}
+.bar-col{height:100%;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:6px}
+.bar{width:100%;max-width:24px;min-height:5px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,var(--blue),var(--blue-deep));transition:height .8s var(--ease)}
+.bar-col span{font-size:9px;color:var(--muted);font-weight:700}
+
+.heatmap{
+  display:grid;
+  grid-template-columns:24px repeat(13,1fr);
+  gap:5px;
+  overflow:hidden;
+}
+.heat-label{font-size:8px;color:var(--muted);display:flex;align-items:center}
+.heat-cell{
+  aspect-ratio:1;
+  min-width:9px;
+  border-radius:4px;
+  background:var(--border);
+}
+.heat-cell.l1{background:#CDEBFA}
+.heat-cell.l2{background:#9DD4F0}
+.heat-cell.l3{background:#69B8E3}
+.heat-cell.l4{background:#1D4ED8}
+.heat-legend{display:flex;justify-content:flex-end;gap:4px;align-items:center;margin-top:10px;color:var(--muted);font-size:9px}
+.heat-legend i{width:9px;height:9px;border-radius:3px;background:var(--border)}
+.heat-legend i:nth-child(2){background:#CDEBFA}
+.heat-legend i:nth-child(3){background:#9DD4F0}
+.heat-legend i:nth-child(4){background:#69B8E3}
+.heat-legend i:nth-child(5){background:#1D4ED8}
+
+.streak-card{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--yellow-soft),var(--surface));
+}
+.streak-card:after{content:"🔥";position:absolute;right:-8px;bottom:-22px;font-size:90px;opacity:.08}
+.streak-number{font-size:42px;font-weight:800;line-height:1;color:#B98200}
+.streak-label{font-size:11px;color:var(--muted);font-weight:700}
+.streak-message{margin-top:12px;font-size:11px;color:var(--muted)}
+
+.achievement-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.achievement{
+  padding:14px;border:1px solid var(--border);border-radius:16px;background:var(--surface-2);
+  display:flex;gap:11px;align-items:center;
+}
+.achievement.locked{opacity:.52;filter:saturate(.4)}
+.achievement-icon{width:42px;height:42px;border-radius:13px;background:var(--surface);display:grid;place-items:center;font-size:20px;flex:0 0 auto}
+.achievement strong{display:block;font-size:11px}
+.achievement span{display:block;color:var(--muted);font-size:9px;margin-top:3px;line-height:1.4}
+
+.activity{display:grid;gap:0}
+.activity-row{
+  display:grid;grid-template-columns:40px 1fr auto;gap:11px;align-items:center;
+  padding:13px 0;border-bottom:1px solid var(--border);
+}
+.activity-row:last-child{border-bottom:0}
+.activity-icon{width:36px;height:36px;border-radius:11px;background:var(--blue-soft);display:grid;place-items:center}
+.activity-text strong{display:block;font-size:11px}
+.activity-text span{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+.activity-time{color:var(--light);font-size:9px;white-space:nowrap}
+
+.membership{
+  padding:20px;
+  border-radius:20px;
+  background:linear-gradient(135deg,var(--blue-deep),#2389BE);
+  color:#fff;
+  box-shadow:0 14px 30px rgba(23,103,155,.22);
+}
+.membership .eyebrow{background:rgba(255,255,255,.13);color:#fff}
+.membership h3{margin:10px 0 4px;font-size:20px}
+.membership p{margin:0;color:rgba(255,255,255,.78);font-size:10px;line-height:1.6}
+.membership ul{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:7px}
+.membership li{font-size:10px;color:rgba(255,255,255,.9)}
+.membership li:before{content:"✓";margin-right:7px;font-weight:800}
+.membership .btn{margin-top:15px;background:#fff;color:var(--blue-deep);width:100%}
+
+.panda-card{
+  background:linear-gradient(135deg,var(--blue-soft),var(--surface));
+  overflow:hidden;position:relative;
+}
+.panda-art{width:90px;margin:-4px auto 5px;animation:pandaFloat 4s ease-in-out infinite}
+@keyframes pandaFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.panda-card h3{text-align:center;margin:0;font-size:17px}
+.panda-card p{text-align:center;color:var(--muted);font-size:10px;line-height:1.5;margin:5px auto 13px;max-width:240px}
+.panda-input{display:flex;gap:7px}
+.panda-input input{
+  min-width:0;flex:1;height:42px;border:1px solid var(--border);border-radius:12px;
+  background:var(--surface);color:var(--ink);padding:0 11px;font-size:11px;outline:none;
+}
+.panda-input input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.panda-input button{width:44px;border:0;border-radius:12px;background:var(--blue);color:#fff;font-weight:800}
+.panda-reply{
+  margin-top:10px;padding:11px;border-radius:13px;background:var(--surface);border:1px solid var(--border);
+  font-size:10px;line-height:1.55;color:var(--muted);min-height:42px;
+}
+
+.cert-empty,.empty{
+  padding:18px;text-align:center;border:1px dashed var(--border);border-radius:16px;color:var(--muted);font-size:10px;background:var(--surface-2)
+}
+.cert-empty strong,.empty strong{display:block;color:var(--ink);font-size:11px;margin-bottom:4px}
+
+.admin-card{border-color:rgba(230,57,70,.22);background:var(--red-soft)}
+.admin-card .btn{margin-top:10px}
+
+.toast{
+  position:fixed;right:22px;bottom:22px;z-index:100;
+  background:var(--ink);color:#fff;padding:12px 15px;border-radius:13px;
+  box-shadow:var(--shadow-lg);font-size:11px;opacity:0;transform:translateY(12px);pointer-events:none;transition:.25s var(--ease)
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.skeleton{
+  background:linear-gradient(90deg,var(--surface-2),var(--blue-soft),var(--surface-2));
+  background-size:200% 100%;animation:shimmerBg 1.4s infinite;border-radius:8px;height:18px
+}
+@keyframes shimmerBg{to{background-position:-200% 0}}
+
+.xp-pop{
+  position:fixed;z-index:120;color:var(--blue-deep);font-weight:800;font-size:14px;
+  pointer-events:none;animation:xpPop 1.1s var(--ease) forwards
+}
+@keyframes xpPop{0%{opacity:0;transform:translateY(8px) scale(.8)}20%{opacity:1}100%{opacity:0;transform:translateY(-65px) scale(1.05)}}
+
+.reduced-motion *, .reduced-motion *:before, .reduced-motion *:after{
+  animation:none!important;transition:none!important;scroll-behavior:auto!important
+}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:auto 1fr}
+  .hero-actions{grid-column:1/-1;flex-direction:row}
+  .hero-actions .btn{flex:1}
+  .main-grid{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .page{width:min(100% - 22px,1180px)}
+  .logout-btn{font-size:10px}
+  .hero{padding:24px 20px;grid-template-columns:1fr;text-align:center;justify-items:center;border-radius:25px}
+  .avatar{width:100px;height:100px;border-radius:30px}
+  .hero-copy{display:flex;flex-direction:column;align-items:center}
+  .badges{justify-content:center}
+  .hero-actions{width:100%;grid-column:auto}
+  .hero-panda{right:-10px;width:105px}
+  .quick-grid{grid-template-columns:repeat(2,1fr)}
+  .quick{padding:13px}
+  .quick strong{font-size:19px}
+  .card{padding:18px;border-radius:21px}
+  .achievement-grid{grid-template-columns:1fr}
+  .heatmap{grid-template-columns:19px repeat(13,1fr);gap:3px}
+  .activity-row{grid-template-columns:35px 1fr}
+  .activity-time{grid-column:2}
+}
+@media(max-width:420px){
+  .quick-grid{gap:9px}
+  .quick-icon{width:37px;height:37px;font-size:17px}
+  .quick strong{font-size:17px}
+  .week-stats{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:31px}
 }
 </style>
-
 </head>
-
 <body>
+<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">
+  <a class="brand" href="index.html" aria-label="HanVerse home">
+    <img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">
+    <span>HanVerse</span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="learn.html">Learn</a>
+    <a href="practice.html">Practice</a>
+    <a href="explore.html">Explore</a>
+    <a href="roadmap.html">Roadmap</a>
+  </div>
+  <div class="nav-actions">
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">☾</button>
+    <button class="logout-btn" id="logoutBtn">Log Out</button>
+  </div>
+  <button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+  <a href="index.html">Home</a>
+  <a href="learn.html">Learn</a>
+  <a href="practice.html">Practice</a>
+  <a href="explore.html">Explore</a>
+  <a href="roadmap.html">Roadmap</a>
+  <a href="settings.html">⚙ Settings</a>
+  <div class="nav-user-row">
+    <button class="icon-btn" id="themeBtnMobile" aria-label="Toggle theme">☾ Theme</button>
+    <button class="logout-btn" id="logoutBtnMobile">Log Out</button>
+  </div>
+</nav>
 
-    <!-- ===== TOAST CONTAINER ===== -->
-    <div id="toast-container" class="toast-container"></div>
+<main class="page">
+  <section class="hero" id="hero">
+    <img class="hero-panda" src="panda.png" alt="" onerror="this.style.display='none'">
+    <div class="avatar-wrap">
+      <div class="avatar" id="avatar" aria-label="Profile picture">🐼</div>
+    </div>
+    <div class="hero-copy">
+      <span class="eyebrow">Your HanVerse journey</span>
+      <h1 id="profileName">Loading…</h1>
+      <p class="hero-sub" id="heroSub">Your Mandarin progress, goals and learning moments in one place.</p>
+      <div class="badges">
+        <span id="premiumBadge" class="badge premium hidden">⭐ Premium</span>
+        <span id="adminBadge" class="badge admin hidden">👑 Admin</span>
+        <span id="yctBadge" class="badge">🏮 YCT —</span>
+        <span id="hskBadge" class="badge">🐉 HSK —</span>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a class="btn primary" href="learn.html">Continue Learning →</a>
+      <a class="btn ghost" href="settings.html">⚙ Settings</a>
+    </div>
+  </section>
 
-    <!-- ===== FLOATING NAVBAR with logo image ===== -->
-    <nav class="top-nav" id="topNav">
-        <a href="index.html" class="logo">
-            <img src="hanverse-logo.png" alt="Hanverse" width="38" height="38" />
-            <span class="logo-text">Hanverse</span>
-        </a>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="learn.html">Learn</a></li>
-            <li><a href="profile.html" class="active">Profile</a></li>
-        </ul>
-        <button class="logout-btn" id="logoutBtn">Log Out</button>
-    </nav>
+  <section class="quick-grid" aria-label="Learning summary">
+    <div class="quick"><div class="quick-icon">🔥</div><div><strong id="quickStreak">0</strong><span>Day Streak</span></div></div>
+    <div class="quick"><div class="quick-icon">⭐</div><div><strong id="quickXP">0</strong><span>Total XP</span></div></div>
+    <div class="quick"><div class="quick-icon">🏆</div><div><strong id="quickLevel">1</strong><span>Level</span></div></div>
+    <div class="quick"><div class="quick-icon">📚</div><div><strong id="quickLessons">0</strong><span>Lessons</span></div></div>
+  </section>
 
-    <!-- ===== PROFILE HERO ===== -->
-    <section class="profile-hero">
-        <div class="avatar" id="avatar">🐼</div>
-        <div class="profile-info">
-            <h1 id="profileName">Loading...</h1>
-            <p>Track your progress, achievements, learning streaks and Chinese proficiency.</p>
-
-            <div class="profile-badges">
-                <div id="premiumBadge" class="badge badge-premium" style="display:none;">⭐ Premium</div>
-                <div id="adminBadge" class="badge badge-admin" style="display:none;">👑 Admin</div>
-                <div id="yctBadge" class="badge">🏮 YCT 1</div>
-                <div id="hskBadge" class="badge">🐉 HSK 0</div>
+  <div class="main-grid">
+    <div class="column">
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Level progress</h2><p>Your XP journey</p></div>
+          <strong id="levelTitle">Level 1</strong>
+        </div>
+        <div class="level-box">
+          <div class="level-top">
+            <div class="level-number" id="levelCircle">1</div>
+            <div class="level-info">
+              <strong id="levelName">Growing your Mandarin</strong>
+              <span id="levelSummary">0 XP earned</span>
             </div>
+          </div>
+          <div class="level-track"><div class="level-fill" id="levelFill"></div></div>
+          <div class="level-meta"><span id="levelStart">0 XP</span><span id="levelEnd">100 XP</span></div>
+          <div class="level-note" id="levelNote">Complete lessons to earn XP. HanVerse levels are calculated from the server's XP system.</div>
+        </div>
+      </section>
 
-            <div class="hero-stats">
-                <div class="hero-stat">🔥 <span id="heroStreak">0</span> Day Streak</div>
-                <div class="hero-stat">⭐ <span id="heroXP">0</span> XP</div>
-                <div class="hero-stat">🏆 <span id="heroLevel">1</span> Level</div>
-            </div>
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Learning progress</h2><p>Use actual course progress—not just your current level.</p></div>
+          <a class="link" href="learn.html">Open Learn →</a>
         </div>
-    </section>
+        <div class="course-list">
+          <div class="course">
+            <div class="course-top"><span class="course-name">🏮 YCT</span><span class="course-meta" id="yctProgressText">Loading…</span></div>
+            <div class="progress-track"><div class="progress-fill" id="yctFill"></div></div>
+            <div class="course-bottom"><span id="yctDetail">Current level unavailable</span><span id="yctPct">0%</span></div>
+          </div>
+          <div class="course">
+            <div class="course-top"><span class="course-name">🐉 HSK</span><span class="course-meta" id="hskProgressText">Loading…</span></div>
+            <div class="progress-track"><div class="progress-fill" id="hskFill"></div></div>
+            <div class="course-bottom"><span id="hskDetail">Current level unavailable</span><span id="hskPct">0%</span></div>
+          </div>
+        </div>
+      </section>
 
-    <!-- ===== QUICK STATS ===== -->
-    <div class="quick-grid">
-        <div class="quick-card">
-            <span class="quick-icon">🔥</span>
-            <h3 id="quickStreak">0</h3>
-            <p>Current Streak</p>
+      <section class="card" id="continueCard">
+        <div class="card-head"><div><h2>Continue learning</h2><p>Pick up where your lesson journey actually leaves off.</p></div></div>
+        <div class="continue">
+          <div class="continue-copy">
+            <small>Next lesson</small>
+            <strong id="nextLessonTitle">Finding your next lesson…</strong>
+            <span id="nextLessonMeta">Loading your saved lesson progress.</span>
+          </div>
+          <a class="btn" id="nextLessonBtn" href="learn.html">Open →</a>
         </div>
-        <div class="quick-card">
-            <span class="quick-icon">⭐</span>
-            <h3 id="quickXP">0</h3>
-            <p>Total XP</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>This week</h2><p>Calculated from real saved lesson-progress records.</p></div></div>
+        <div class="week-stats">
+          <div class="metric"><strong id="weekXP">0</strong><span>XP earned</span></div>
+          <div class="metric"><strong id="weekLessons">0</strong><span>Lessons touched</span></div>
+          <div class="metric"><strong id="weekTime">0m</strong><span>Learning time</span></div>
+          <div class="metric"><strong id="weekScore">—</strong><span>Average quiz score</span></div>
         </div>
-        <div class="quick-card">
-            <span class="quick-icon">🏆</span>
-            <h3 id="quickLevel">1</h3>
-            <p>Current Level</p>
-        </div>
-        <div class="quick-card">
-            <span class="quick-icon">📚</span>
-            <h3 id="quickLessons">0</h3>
-            <p>Lessons Completed</p>
-        </div>
+        <div class="bars" id="weekBars" aria-label="Learning activity by day"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Learning activity</h2><p>Recent activity from your saved progress.</p></div></div>
+        <div class="activity" id="activity"><div class="empty"><strong>Loading activity…</strong>Reading your lesson history.</div></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Learning heatmap</h2><p>A 13-week view based only on recorded lesson activity.</p></div></div>
+        <div class="heatmap" id="heatmap"></div>
+        <div class="heat-legend"><span>Less</span><i></i><i></i><i></i><i></i><span>More</span></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Achievements</h2><p>Milestones are unlocked from real HanVerse account data.</p></div></div>
+        <div class="achievement-grid" id="achievements"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Certificates</h2><p>Official certificates will appear here when HanVerse records them.</p></div></div>
+        <div id="certificates"><div class="cert-empty"><strong>No certificates recorded yet</strong>Complete the relevant course and certificate system when available.</div></div>
+      </section>
     </div>
 
-    <!-- ===== PROGRESS SECTION ===== -->
-    <section class="content-card">
-        <h2>🏮 YCT Progress</h2>
-        <p id="yctProgressText">Loading...</p>
-        <div class="progress-track">
-            <div id="yctProgressBar" class="progress-fill"></div>
+    <aside class="column">
+      <section class="card streak-card">
+        <div class="card-head"><div><h2>Streak</h2><p>Your current consecutive learning days.</p></div></div>
+        <div class="streak-number" id="streakNumber">0</div>
+        <div class="streak-label">DAYS</div>
+        <div class="streak-message" id="streakMessage">Start a learning streak by completing lessons regularly.</div>
+      </section>
+
+      <section class="card panda-card">
+        <img class="panda-art" src="panda.png" alt="Panda" onerror="this.style.display='none'">
+        <h3>Ask Panda 🐼</h3>
+        <p>Your real HanVerse AI tutor. Ask about Mandarin words, tones, characters or YCT-style practice.</p>
+        <form class="panda-input" id="pandaForm">
+          <input id="pandaInput" maxlength="500" autocomplete="off" placeholder="Ask Panda something…">
+          <button type="submit" aria-label="Ask Panda">→</button>
+        </form>
+        <div class="panda-reply" id="pandaReply">Panda is ready when you are. Try: “How do I say hello in Chinese?”</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Membership</h2><p>Your current HanVerse access.</p></div></div>
+        <div id="membership"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Recently learned</h2><p>Words and lesson content are shown here when lesson data provides them.</p></div></div>
+        <div id="recentWords"><div class="empty"><strong>No vocabulary feed yet</strong>Your lesson vocabulary can be surfaced here once the learning history is connected.</div></div>
+      </section>
+
+      <section class="card" id="adminCard" style="display:none">
+        <div class="card-head"><div><h2>Admin</h2><p>Administrator access detected.</p></div></div>
+        <div class="admin-card" style="padding:16px;border-radius:16px">
+          <strong>HanVerse Administration</strong>
+          <div style="font-size:10px;color:var(--muted);margin-top:5px">Manage users, lessons, communications and platform analytics.</div>
+          <a class="btn ghost" href="admin.html" style="display:block;text-align:center;padding-top:14px">Open Admin →</a>
         </div>
-    </section>
-
-    <section class="content-card">
-        <h2>🐉 HSK Progress</h2>
-        <p id="hskProgressText">Loading...</p>
-        <div class="progress-track">
-            <div id="hskProgressBar" class="progress-fill"></div>
-        </div>
-    </section>
-
-    <!-- ===== HEATMAP ===== -->
-    <section class="content-card">
-        <h2>🔥 Learning Heatmap</h2>
-        <p>Your activity over the last 35 days</p>
-        <div class="heatmap-container">
-            <div id="heatmapGrid" class="heatmap-grid"></div>
-        </div>
-    </section>
-
-    <!-- ===== CERTIFICATES ===== -->
-    <section class="content-card">
-        <h2>📜 Certificates</h2>
-        <div id="certificateGrid" class="certificate-grid"></div>
-    </section>
-
-    <!-- ===== ACHIEVEMENTS ===== -->
-    <section class="content-card">
-        <h2>🏆 Achievements</h2>
-        <div id="achievementGrid" class="achievement-grid"></div>
-    </section>
-
-    <!-- ===== AI USAGE ===== -->
-    <section class="content-card">
-        <h2>🤖 Panda AI Usage</h2>
-        <div class="ai-grid">
-            <div class="ai-card">
-                <h3 id="aiQuestions">0</h3>
-                <p>Questions Asked</p>
-            </div>
-            <div class="ai-card">
-                <h3 id="aiSessions">0</h3>
-                <p>Practice Sessions</p>
-            </div>
-            <div class="ai-card">
-                <h3 id="aiHours">0</h3>
-                <p>Hours Learned</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== ACTIVITY FEED ===== -->
-    <section class="content-card">
-        <h2>📈 Recent Activity</h2>
-        <div id="activityFeed">Loading...</div>
-    </section>
-
-    <!-- ===== MEMBERSHIP ===== -->
-    <section id="premiumSection" class="content-card">
-        <h2>⭐ Membership</h2>
-        <div id="membershipCard">Loading...</div>
-    </section>
-
-    <!-- ===== ADMIN SECTION ===== -->
-    <section id="adminSection" class="content-card" style="display:none;">
-        <h2>👑 Administrator Panel</h2>
-        <p style="color: var(--muted); margin-bottom: 16px;">Access the admin dashboard to manage users, content, and system settings.</p>
-        <a href="admin.html" class="admin-btn">⚙️ Open Admin Dashboard</a>
-    </section>
-
-    <!-- ===== BOTTOM NAV ===== -->
-    <nav class="bottom-nav">
-        <a href="index.html">
-            <span class="nav-icon">🏠</span>
-            Home
-        </a>
-        <a href="learn.html">
-            <span class="nav-icon">📚</span>
-            Learn
-        </a>
-        <a href="profile.html" class="active">
-            <span class="nav-icon">👤</span>
-            Profile
-        </a>
-        <a href="settings.html">
-            <span class="nav-icon">⚙️</span>
-            Settings
-        </a>
-    </nav>
-
-    <!-- ===== PANDA FAB ===== -->
-    <button class="panda-fab" onclick="togglePanda()">🐼</button>
-
-    <!-- ===== PANDA CHAT ===== -->
-    <div id="pandaChat" class="panda-chat">
-        <div class="panda-header">
-            <div class="panda-title">🐼 Panda AI Tutor</div>
-            <button class="panda-close" onclick="togglePanda()">✕</button>
-        </div>
-        <div id="pandaBody" class="panda-body">
-            <div class="message-row">
-                <div class="panda-avatar">🐼</div>
-                <div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div>
-            </div>
-        </div>
-        <div class="panda-input">
-            <textarea id="pandaInput" placeholder="Ask Panda..." rows="1"></textarea>
-            <button class="panda-send" onclick="sendPandaMessage()">➤</button>
-        </div>
-    </div>
-
-    <!-- ============================================================ -->
-    <!-- ===== JAVASCRIPT ===== -->
-    <!-- ============================================================ -->
-    <script>
-        // ============================================================
-        // REGISTER SCROLLTRIGGER PLUGIN
-        // ============================================================
-        gsap.registerPlugin(ScrollTrigger);
-
-        // ============================================================
-        // TOAST NOTIFICATIONS
-        // ============================================================
-        function showToast(type, message, duration = 4000) {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-
-            const icons = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️',
-                info: 'ℹ️'
-            };
-
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = `
-                        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
-                        <span class="toast-message">${message}</span>
-                        <button class="toast-close" aria-label="Close notification">✕</button>
-                    `;
-
-            toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
-            container.appendChild(toast);
-
-            const timer = setTimeout(() => removeToast(toast), duration);
-            toast.dataset.timer = timer;
-        }
-
-        function removeToast(toast) {
-            if (toast.classList.contains('removing')) return;
-            toast.classList.add('removing');
-            if (toast.dataset.timer) {
-                clearTimeout(parseInt(toast.dataset.timer));
-            }
-            setTimeout(() => toast.remove(), 300);
-        }
-
-        // ============================================================
-        // FORCE CLEAR SERVICE WORKER CACHE
-        // ============================================================
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for (let registration of registrations) {
-                    registration.unregister();
-                    console.log('✅ Service Worker unregistered');
-                }
-            });
-        }
-
-        // ============================================================
-        // CONSTANTS
-        // ============================================================
-        const SESSION_KEY = 'hanverse_user';
-        const VERSION = '1.0.1';
-
-        // ============================================================
-        // API BASE
-        // ============================================================
-        // HanVerse exposes the Express router through /api in both
-        // local Netlify development and production. Using /api here
-        // avoids bypassing Netlify's local function/redirect layer.
-        const API_URL = "/api";
-
-        console.log(`🐼 Hanverse Profile v${VERSION} loaded`);
-
-        // ============================================================
-        // FLOATING NAVBAR - SCROLL EFFECT
-        // ============================================================
-        const nav = document.getElementById('topNav');
-        let lastScrollY = 0;
-        let ticking = false;
-
-        function handleNavScroll() {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const scrollY = window.scrollY;
-
-                    if (scrollY > 40) {
-                        nav.classList.add('shrunk');
-                    } else {
-                        nav.classList.remove('shrunk');
-                    }
-
-                    lastScrollY = scrollY;
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        }
-
-        window.addEventListener('scroll', handleNavScroll, { passive: true });
-
-        // ============================================================
-        // PANDA CHAT
-        // ============================================================
-        function togglePanda() {
-            const chat = document.getElementById('pandaChat');
-            chat.classList.toggle('active');
-            if (chat.classList.contains('active')) {
-                setTimeout(() => document.getElementById('pandaInput').focus(), 100);
-            }
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function sendPandaMessage() {
-            const input = document.getElementById('pandaInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const body = document.getElementById('pandaBody');
-
-            const userRow = document.createElement('div');
-            userRow.className = 'message-row user';
-            userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
-            body.appendChild(userRow);
-            input.value = '';
-            body.scrollTop = body.scrollHeight;
-
-            setTimeout(() => {
-                const responses = [
-                    "That's a great question! Let me help you with that. 🐼",
-                    "Interesting! Would you like to practice more? 📚",
-                    "Good job! Keep practicing and you'll improve quickly! 🌟",
-                    "Let me explain that in a simple way... 🎯",
-                    "You're doing amazing! Want to try a quiz? 🎮",
-                    "That's a fun one! Let's learn together! 🤗",
-                    "I love that question! Here's what I think... 💭",
-                    "You're making great progress! Keep going! 🚀"
-                ];
-                const reply = responses[Math.floor(Math.random() * responses.length)];
-
-                const aiRow = document.createElement('div');
-                aiRow.className = 'message-row';
-                aiRow.innerHTML = `
-                            <div class="panda-avatar">🐼</div>
-                            <div class="message panda-message">${reply}</div>
-                        `;
-                body.appendChild(aiRow);
-                body.scrollTop = body.scrollHeight;
-            }, 600 + Math.random() * 400);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const input = document.getElementById('pandaInput');
-            if (input) {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendPandaMessage();
-                    }
-                });
-                input.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-                });
-            }
-        });
-
-        // ============================================================
-        // GSAP ANIMATIONS
-        // ============================================================
-        window.addEventListener("load", () => {
-            // === AVATAR FLOATING ===
-            const avatar = document.querySelector('.avatar');
-            if (avatar) {
-                gsap.to(avatar, {
-                    y: -6,
-                    rotation: 2,
-                    duration: 2,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut"
-                });
-
-                // Hover interactions
-                avatar.addEventListener("mouseenter", () => {
-                    gsap.to(avatar, {
-                        scale: 1.08,
-                        duration: 0.25,
-                        ease: "power2.out"
-                    });
-                });
-
-                avatar.addEventListener("mouseleave", () => {
-                    gsap.to(avatar, {
-                        scale: 1,
-                        duration: 0.25,
-                        ease: "power2.out"
-                    });
-                });
-            }
-
-            // === ANIMATE CARDS ON SCROLL ===
-            const cards = document.querySelectorAll('.quick-card, .content-card');
-            cards.forEach((card, index) => {
-                gsap.from(card, {
-                    opacity: 0,
-                    y: 30,
-                    duration: 0.6,
-                    delay: index * 0.08,
-                    scrollTrigger: {
-                        trigger: card,
-                        start: "top 85%",
-                        toggleActions: "play none none none"
-                    }
-                });
-            });
-
-            // === PROGRESS BARS - Animate after data loads ===
-            // These will be triggered by the loadProfile function
-        });
-
-        // ============================================================
-        // ANIMATE PROGRESS BARS (called after data loads)
-        // ============================================================
-        function animateProgressBars(yctPct, hskPct) {
-            // YCT Progress Bar
-            gsap.fromTo(
-                "#yctProgressBar", { width: "0%" }, {
-                    width: yctPct + "%",
-                    duration: 1.2,
-                    ease: "power2.out",
-                    delay: 0.2
-                }
-            );
-
-            // HSK Progress Bar
-            gsap.fromTo(
-                "#hskProgressBar", { width: "0%" }, {
-                    width: hskPct + "%",
-                    duration: 1.2,
-                    ease: "power2.out",
-                    delay: 0.4
-                }
-            );
-        }
-
-        // ============================================================
-        // LOAD PROFILE
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            loadProfile();
-            generateHeatmap();
-
-            document.getElementById('logoutBtn')?.addEventListener('click', () => {
-                if (confirm('Are you sure you want to log out?')) {
-                    localStorage.removeItem(SESSION_KEY);
-                    window.location.href = 'login.html';
-                }
-            });
-        });
-
-        async function loadProfile() {
-            try {
-                const sessionData = localStorage.getItem(SESSION_KEY);
-                if (!sessionData) {
-                    console.warn("No session found.");
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                const session = JSON.parse(sessionData);
-                if (!session || !session.user_id) {
-                    console.error("Invalid session data.");
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                const userId = encodeURIComponent(session.user_id);
-                const profileEndpoint = `${API_URL}/user/${userId}`;
-
-                console.log(`📡 Fetching user data: ${profileEndpoint}`);
-
-                let response = await fetch(profileEndpoint, {
-                    method: "GET",
-                    credentials: "same-origin",
-                    cache: "no-store",
-                    headers: {
-                        "Accept": "application/json"
-                    }
-                });
-
-                /*
-                 * Fallback: the same server also exposes /auth/refresh.
-                 * This helps older local Netlify function builds while
-                 * keeping the normal profile endpoint as the primary path.
-                 */
-                if (!response.ok && response.status === 404) {
-                    console.warn("⚠️ /api/user/:id returned 404. Trying /api/auth/refresh...");
-                    response = await fetch(`${API_URL}/auth/refresh`, {
-                        method: "POST",
-                        credentials: "same-origin",
-                        cache: "no-store",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
-                        body: JSON.stringify({ userId: session.user_id })
-                    });
-                }
-
-                const contentType = response.headers.get("content-type") || "";
-                let data = null;
-
-                if (contentType.includes("application/json")) {
-                    data = await response.json();
-                } else {
-                    const raw = await response.text().catch(() => "");
-                    console.error("❌ Profile API returned non-JSON:", raw.slice(0, 300));
-                }
-
-                if (!response.ok) {
-                    throw new Error(
-                        `Server error: ${response.status} (${response.statusText})`
-                    );
-                }
-
-                if (!data || !data.user) {
-                    throw new Error("Invalid user data received.");
-                }
-
-                const user = data.user;
-
-                if (user.is_banned) {
-                    window.location.href = 'banned.html';
-                    return;
-                }
-
-                // ============================================================
-                // ADMIN CHECK - Shows admin panel if user is admin
-                // ============================================================
-                const isAdmin = user.is_admin === true ||
-                    user.is_admin === 1 ||
-                    user.is_admin === "true" ||
-                    user.isAdmin === true;
-
-                if (isAdmin) {
-                    document.getElementById('adminBadge').style.display = 'inline-block';
-                    const adminSection = document.getElementById('adminSection');
-                    if (adminSection) {
-                        adminSection.style.display = 'block';
-                        console.log('👑 Admin panel activated');
-                    }
-                } else {
-                    const adminSection = document.getElementById('adminSection');
-                    if (adminSection) {
-                        adminSection.style.display = 'none';
-                    }
-                }
-
-                // Profile name
-                document.getElementById('profileName').textContent = user.full_name || user.username || 'Learner';
-
-                // Avatar
-                if (user.profile_picture) {
-                    document.getElementById('avatar').innerHTML = `<img src="${user.profile_picture}" alt="Profile picture">`;
-                }
-
-                // Premium badge
-                if (user.premium || user.premium_until) {
-                    document.getElementById('premiumBadge').style.display = 'inline-block';
-                }
-
-                // YCT & HSK badges
-                document.getElementById('yctBadge').textContent = `🏮 YCT ${user.current_yct || 1}`;
-                document.getElementById('hskBadge').textContent = `🐉 HSK ${user.current_hsk || 0}`;
-
-                // Hero stats
-                document.getElementById('heroXP').textContent = user.xp || 0;
-                document.getElementById('heroStreak').textContent = user.streak_days || 0;
-                document.getElementById('heroLevel').textContent = user.level || 1;
-
-                // Quick stats
-                document.getElementById('quickXP').textContent = user.xp || 0;
-                document.getElementById('quickStreak').textContent = user.streak_days || 0;
-                document.getElementById('quickLevel').textContent = user.level || 1;
-                document.getElementById('quickLessons').textContent = user.lessons_completed || 0;
-
-                // Render all sections
-                renderProfileExtras(user, data);
-
-                // === ANIMATE PROGRESS BARS AFTER DATA LOADS ===
-                const yct = parseInt(user.current_yct) || 1;
-                const yctPct = Math.min((yct / 4) * 100, 100);
-                const hsk = parseInt(user.current_hsk) || 0;
-                const hskPct = Math.min((hsk / 6) * 100, 100);
-                animateProgressBars(yctPct, hskPct);
-
-                console.log('✅ Profile loaded successfully');
-
-                showToast('success', `Welcome back, ${user.full_name || user.username || 'Learner'}! 🎉`);
-
-            } catch (error) {
-                console.error('❌ Profile load error:', error);
-                showToast('error', 'Failed to load profile. Please refresh the page.');
-            }
-        }
-
-        // ============================================================
-        // RENDER PROFILE EXTRAS
-        // ============================================================
-        function renderProfileExtras(user, data) {
-            // Membership
-            const membership = document.getElementById('membershipCard');
-            if (user.premium || user.premium_until) {
-                membership.innerHTML = `
-                            <div class="membership-premium">
-                                <h3>⭐ Premium Active</h3>
-                                <p>Valid until: ${user.premium_until ? new Date(user.premium_until).toLocaleDateString() : 'Lifetime'}</p>
-                                <button class="upgrade-btn" onclick="window.location.href='payment.html'">Manage Subscription</button>
-                            </div>
-                        `;
-            } else {
-                membership.innerHTML = `
-                            <div class="membership-free">
-                                <h3>🆓 Free Account</h3>
-                                <p>Upgrade to unlock premium lessons, AI features, and more.</p>
-                                <button class="upgrade-btn" onclick="window.location.href='payment.html'">🚀 Upgrade Now</button>
-                            </div>
-                        `;
-            }
-
-            // YCT Progress
-            const yct = parseInt(user.current_yct) || 1;
-            const yctPct = Math.min((yct / 4) * 100, 100);
-            document.getElementById('yctProgressText').textContent = `YCT ${yct} - ${Math.round(yctPct)}% complete`;
-
-            // HSK Progress
-            const hsk = parseInt(user.current_hsk) || 0;
-            const hskPct = Math.min((hsk / 6) * 100, 100);
-            document.getElementById('hskProgressText').textContent = `HSK ${hsk} - ${Math.round(hskPct)}% complete`;
-
-            // Certificates
-            const certGrid = document.getElementById('certificateGrid');
-            if (data.certificates && data.certificates.length > 0) {
-                certGrid.innerHTML = data.certificates.map(cert => `
-                            <div class="certificate-card">
-                                <span class="cert-icon">📜</span>
-                                ${cert}
-                            </div>
-                        `).join('');
-            } else {
-                certGrid.innerHTML = `
-                            <div class="certificate-card">
-                                <span class="cert-icon">📜</span>
-                                YCT Certificate
-                            </div>
-                            <div class="certificate-card">
-                                <span class="cert-icon">🏆</span>
-                                Vocabulary Champion
-                            </div>
-                            <div class="certificate-card">
-                                <span class="cert-icon">🌟</span>
-                                Hanverse Explorer
-                            </div>
-                        `;
-            }
-
-            // Achievements
-            const achGrid = document.getElementById('achievementGrid');
-            if (data.achievements && data.achievements.length > 0) {
-                achGrid.innerHTML = data.achievements.map(ach => `
-                            <div class="achievement-card">
-                                <span class="ach-icon">🏆</span>
-                                ${ach}
-                            </div>
-                        `).join('');
-            } else {
-                achGrid.innerHTML = `
-                            <div class="achievement-card">
-                                <span class="ach-icon">🔥</span>
-                                7 Day Streak
-                            </div>
-                            <div class="achievement-card">
-                                <span class="ach-icon">📚</span>
-                                50 Lessons
-                            </div>
-                            <div class="achievement-card">
-                                <span class="ach-icon">🎯</span>
-                                First Quiz
-                            </div>
-                        `;
-            }
-
-            // AI Usage
-            document.getElementById('aiQuestions').textContent = data.ai_questions || 0;
-            document.getElementById('aiSessions').textContent = data.ai_sessions || 0;
-            document.getElementById('aiHours').textContent = data.ai_hours || 0;
-
-            // Activity Feed
-            const feed = document.getElementById('activityFeed');
-            if (data.activities && data.activities.length > 0) {
-                feed.innerHTML = data.activities.map(act => `
-                            <div class="activity-item">
-                                <span class="act-icon">📌</span>
-                                ${act}
-                                <span class="act-time">just now</span>
-                            </div>
-                        `).join('');
-            } else {
-                feed.innerHTML = `
-                            <div class="activity-item">
-                                <span class="act-icon">🌟</span>
-                                Welcome to Hanverse! Start your first lesson.
-                                <span class="act-time">today</span>
-                            </div>
-                            <div class="activity-item">
-                                <span class="act-icon">📚</span>
-                                Complete your profile setup.
-                                <span class="act-time">today</span>
-                            </div>
-                            <div class="activity-item">
-                                <span class="act-icon">🐼</span>
-                                Try the Panda AI tutor for practice.
-                                <span class="act-time">today</span>
-                            </div>
-                        `;
-            }
-        }
-
-        // ============================================================
-        // GENERATE HEATMAP
-        // ============================================================
-        function generateHeatmap() {
-            const grid = document.getElementById('heatmapGrid');
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            for (let i = 0; i < 35; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'heat';
-
-                const rand = Math.random();
-                if (rand > 0.7) {
-                    cell.classList.add('high');
-                } else if (rand > 0.4) {
-                    cell.classList.add('active');
-                } else if (rand > 0.2) {
-                    cell.classList.add('low');
-                }
-
-                const day = i + 1;
-                const activity = ['✨', '🔥', '📚', '⭐', '🎯', '🌟', '💪'][Math.floor(Math.random() * 7)];
-                cell.title = `Day ${day}: ${activity} ${Math.floor(Math.random() * 50 + 10)} XP`;
-
-                // Animate heat cells with GSAP
-                gsap.from(cell, {
-                    scale: 0,
-                    duration: 0.3,
-                    delay: i * 0.02,
-                    ease: "back.out(1.7)"
-                });
-
-                grid.appendChild(cell);
-            }
-        }
-
-        // ============================================================
-        // EXPOSE FUNCTIONS GLOBALLY
-        // ============================================================
-        window.togglePanda = togglePanda;
-        window.sendPandaMessage = sendPandaMessage;
-        window.showToast = showToast;
-    </script>
-
+      </section>
+    </aside>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
+<script>
+(() => {
+"use strict";
+
+const API="/api";
+const SESSION_KEYS=[
+  "hanverse_user","hanverseUser","hanverse_session","hanverseSession",
+  "user","currentUser","authUser"
+];
+
+const state={
+  user:null,
+  lessons:[],
+  progress:[],
+  theme:localStorage.getItem("hanverse_theme")||"light"
+};
+
+const $=id=>document.getElementById(id);
+
+function esc(value){
+  const d=document.createElement("div");
+  d.textContent=String(value??"");
+  return d.innerHTML;
+}
+
+function number(value,fallback=0){
+  const n=Number(value);
+  return Number.isFinite(n)?n:fallback;
+}
+
+function userId(user){
+  return user?.user_id??user?.userId??user?.id??user?._id??null;
+}
+
+function lessonId(lesson){
+  return lesson?.id??lesson?.lesson_id??lesson?.lessonId??lesson?._id??null;
+}
+
+function numericLessonId(value){
+  const match=String(value??"").match(/(\d+)$/);
+  return match?match[1]:String(value??"");
+}
+
+function lessonLevel(lesson){
+  const n=number(lesson?.level??lesson?.course_level??lesson?.yct_level,1);
+  return Math.max(1,n);
+}
+
+function lessonXP(lesson){
+  return number(lesson?.xp,10);
+}
+
+function progressPercent(record){
+  if(!record)return 0;
+  if(record.completed===true||record.is_completed===true)return 100;
+  return Math.max(0,Math.min(100,number(
+    record.progress_pct??record.progressPercent??record.completed_pct??
+    record.completedPercent??record.progress??record.percent,0
+  )));
+}
+
+function getStoredUser(){
+  for(const key of SESSION_KEYS){
+    try{
+      const raw=localStorage.getItem(key);
+      if(!raw)continue;
+      const parsed=JSON.parse(raw);
+      const candidate=parsed?.user??parsed;
+      if(candidate && userId(candidate))return candidate;
+    }catch{}
+  }
+  return null;
+}
+
+async function api(path,options={}){
+  const response=await fetch(API+"/"+String(path).replace(/^\/+/,""),{
+    credentials:"include",
+    cache:"no-store",
+    ...options,
+    headers:{Accept:"application/json",...(options.headers||{})}
+  });
+  const raw=await response.text();
+  let data=null;
+  try{data=raw?JSON.parse(raw):null}
+  catch{throw new Error("HanVerse returned an invalid response.");}
+  if(!response.ok)throw new Error(data?.error||data?.message||("Request failed: "+response.status));
+  return data;
+}
+
+function toast(message){
+  const el=$("toast");
+  el.textContent=message;
+  el.classList.add("show");
+  clearTimeout(window.__hvToast);
+  window.__hvToast=setTimeout(()=>el.classList.remove("show"),2600);
+}
+
+function applyTheme(){
+  document.documentElement.dataset.theme=state.theme;
+  $("themeBtn").textContent=state.theme==="dark"?"☀":"☾";
+  localStorage.setItem("hanverse_theme",state.theme);
+}
+
+function formatNumber(n){return number(n).toLocaleString()}
+function formatDate(value){
+  if(!value)return "Recently";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime()))return "Recently";
+  return new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",year:"numeric"}).format(d);
+}
+function relativeDate(value){
+  if(!value)return "Recently";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime()))return "Recently";
+  const diff=Math.max(0,Date.now()-d.getTime());
+  const mins=Math.floor(diff/60000);
+  if(mins<1)return "Just now";
+  if(mins<60)return mins+"m ago";
+  const hrs=Math.floor(mins/60);
+  if(hrs<24)return hrs+"h ago";
+  const days=Math.floor(hrs/24);
+  if(days<7)return days+"d ago";
+  return formatDate(value);
+}
+function minutes(value){return Math.max(0,Math.round(number(value)/60))}
+function dateKey(date){
+  const d=new Date(date);
+  return Number.isNaN(d.getTime())?"":d.toISOString().slice(0,10);
+}
+
+function renderUser(){
+  const u=state.user;
+  const name=u?.full_name||u?.username||"Learner";
+  $("profileName").textContent=name;
+  $("heroSub").textContent=u?.username?("@"+u.username+" · Keep building your Mandarin journey."):
+    "Keep building your Mandarin journey one lesson at a time.";
+
+  const yct=number(u?.current_yct,0);
+  const hsk=number(u?.current_hsk,0);
+  $("yctBadge").textContent=yct?`🏮 YCT ${yct}`:"🏮 YCT —";
+  $("hskBadge").textContent=hsk?`🐉 HSK ${hsk}`:"🐉 HSK —";
+
+  if(u?.premium===true){
+    $("premiumBadge").classList.remove("hidden");
+  }
+  if(u?.is_admin===true){
+    $("adminBadge").classList.remove("hidden");
+    $("adminCard").style.display="";
+  }
+
+  const picture=String(u?.profile_picture||"");
+  if(/^https?:\/\//i.test(picture)||/^data:image\//i.test(picture)){
+    $("avatar").innerHTML=`<img src="${esc(picture)}" alt="${esc(name)}">`;
+  }
+
+  const xp=number(u?.xp);
+  const level=Math.max(1,number(u?.level,1));
+  const streak=Math.max(0,number(u?.streak_days));
+  const lessons=number(u?.lessons_completed);
+
+  $("quickStreak").textContent=formatNumber(streak);
+  $("quickXP").textContent=formatNumber(xp);
+  $("quickLevel").textContent=level;
+  $("quickLessons").textContent=formatNumber(lessons);
+
+  $("streakNumber").textContent=formatNumber(streak);
+  $("streakMessage").textContent=streak>=30
+    ?"Incredible consistency. Keep protecting your learning habit."
+    :streak>=7
+      ?"Great work. Keep the streak alive with another lesson."
+      :"Build your streak by returning regularly and completing lessons.";
+
+  renderLevel(xp,level);
+  renderMembership(u);
+  renderMilestones(u);
+}
+
+function renderLevel(xp,level){
+  /*
+    Server.js calculates:
+    level = floor(xp / 100) + 1
+    Therefore the correct level range is 100 XP.
+  */
+  const start=Math.max(0,(level-1)*100);
+  const end=level*100;
+  const pct=Math.max(0,Math.min(100,((xp-start)/(end-start))*100));
+
+  $("levelTitle").textContent="Level "+level;
+  $("levelCircle").textContent=level;
+  $("levelStart").textContent=formatNumber(start)+" XP";
+  $("levelEnd").textContent=formatNumber(end)+" XP";
+  $("levelSummary").textContent=formatNumber(xp)+" XP earned";
+  $("levelFill").style.width=pct+"%";
+
+  const remaining=Math.max(0,end-xp);
+  $("levelNote").textContent=remaining===0
+    ?"You have reached the next level threshold."
+    :`${formatNumber(remaining)} XP until Level ${level+1}.`;
+  $("levelName").textContent=
+    level===1?"Getting started":
+    level<=3?"Building foundations":
+    level<=6?"Growing your Mandarin":
+    "Expanding your Mandarin";
+}
+
+function renderCourseProgress(){
+  const yct=number(state.user?.current_yct,0);
+  const hsk=number(state.user?.current_hsk,0);
+
+  /*
+    We do NOT treat YCT 3 as 75% or HSK 3 as 50%.
+    Level number and course completion are different things.
+    Course progress below is calculated from actual lesson levels.
+  */
+  const yctLessons=state.lessons.filter(l=>lessonLevel(l)>=1&&lessonLevel(l)<=4);
+  const hskLessons=state.lessons.filter(l=>lessonLevel(l)>=5&&lessonLevel(l)<=7);
+
+  const yctPct=coursePct(yctLessons);
+  const hskPct=coursePct(hskLessons);
+
+  $("yctFill").style.width=yctPct+"%";
+  $("hskFill").style.width=hskPct+"%";
+  $("yctPct").textContent=yctPct+"%";
+  $("hskPct").textContent=hskPct+"%";
+  $("yctProgressText").textContent=yct?`Current: YCT ${yct}`:"Not set";
+  $("hskProgressText").textContent=hsk?`Current: HSK ${hsk}`:"Not set";
+  $("yctDetail").textContent=yctLessons.length?`${yctLessons.filter(l=>isDone(l)).length} of ${yctLessons.length} lessons complete`:"No YCT lesson data";
+  $("hskDetail").textContent=hskLessons.length?`${hskLessons.filter(l=>isDone(l)).length} of ${hskLessons.length} lessons complete`:"No HSK lesson data";
+}
+
+function progressForLesson(lesson){
+  const id=lessonId(lesson);
+  const numeric=numericLessonId(id);
+  const candidates=state.progress.filter(r=>{
+    const raw=String(r?.lesson_id??r?.lessonId??"");
+    return raw===String(id)||raw===numeric||numericLessonId(raw)===numeric;
+  });
+  if(!candidates.length)return null;
+  candidates.sort((a,b)=>new Date(b.updated_at||b.created_at||0)-new Date(a.updated_at||a.created_at||0));
+  return candidates[0];
+}
+
+function isDone(lesson){return progressPercent(progressForLesson(lesson))>=100}
+
+function coursePct(lessons){
+  if(!lessons.length)return 0;
+  return Math.round(lessons.reduce((sum,l)=>sum+progressPercent(progressForLesson(l)),0)/lessons.length);
+}
+
+function renderContinue(){
+  const sorted=[...state.lessons].sort((a,b)=>number(a.order_index)-number(b.order_index));
+  const next=sorted.find(l=>!isDone(l));
+  if(!next){
+    $("nextLessonTitle").textContent=sorted.length?"All available lessons completed 🎉":"No lessons available";
+    $("nextLessonMeta").textContent=sorted.length?"Your current lesson library is complete.":"Open Learn to explore when lessons are published.";
+    $("nextLessonBtn").href="learn.html";
+    return;
+  }
+  const id=lessonId(next);
+  const p=progressPercent(progressForLesson(next));
+  $("nextLessonTitle").textContent=next.title||"Next lesson";
+  $("nextLessonMeta").textContent=`${p}% complete · ${lessonLevel(next)<=4?"YCT":"HSK"} · ${lessonXP(next)} XP`;
+  $("nextLessonBtn").href=`lesson.html?id=${encodeURIComponent(id)}`;
+}
+
+function renderWeek(){
+  const now=new Date();
+  const start=new Date(now);
+  start.setHours(0,0,0,0);
+  start.setDate(start.getDate()-6);
+
+  const rows=state.progress.filter(r=>{
+    const value=r.updated_at||r.completed_at||r.created_at||r.started_at;
+    if(!value)return false;
+    const d=new Date(value);
+    return !Number.isNaN(d.getTime())&&d>=start;
+  });
+
+  const xp=rows.reduce((s,r)=>s+number(r.xp_earned),0);
+  const time=rows.reduce((s,r)=>s+number(r.time_spent),0);
+  const scores=rows.map(r=>number(r.quiz_score,null)).filter(v=>v!==null&&v>0);
+  const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null;
+
+  $("weekXP").textContent=formatNumber(xp);
+  $("weekLessons").textContent=formatNumber(rows.length);
+  $("weekTime").textContent=time>=3600?`${Math.floor(time/3600)}h ${Math.round((time%3600)/60)}m`:`${minutes(time)}m`;
+  $("weekScore").textContent=avg===null?"—":avg+"%";
+
+  const labels=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(now);
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate()-i);
+    labels.push({date:dateKey(d),label:d.toLocaleDateString(undefined,{weekday:"narrow"})});
+  }
+  const values=labels.map(x=>rows.filter(r=>dateKey(r.updated_at||r.completed_at||r.created_at||r.started_at)===x.date).length);
+  const max=Math.max(1,...values);
+  $("weekBars").innerHTML=values.map((v,i)=>`<div class="bar-col"><div class="bar" style="height:${Math.max(5,(v/max)*100)}%"></div><span>${labels[i].label}</span></div>`).join("");
+}
+
+function renderActivity(){
+  const rows=[...state.progress]
+    .filter(r=>r.updated_at||r.completed_at||r.created_at||r.started_at)
+    .sort((a,b)=>new Date(b.updated_at||b.completed_at||b.created_at||0)-new Date(a.updated_at||a.completed_at||a.created_at||0))
+    .slice(0,8);
+
+  if(!rows.length){
+    $("activity").innerHTML=`<div class="empty"><strong>No lesson activity recorded yet</strong>Complete a lesson and your saved progress will appear here.</div>`;
+    return;
+  }
+
+  $("activity").innerHTML=rows.map(r=>{
+    const id=String(r.lesson_id??"");
+    const lesson=state.lessons.find(l=>numericLessonId(lessonId(l))===numericLessonId(id));
+    const title=lesson?.title||`Lesson ${id}`;
+    const completed=r.completed===true;
+    const score=number(r.quiz_score,null);
+    return `<div class="activity-row">
+      <div class="activity-icon">${completed?"✓":"📖"}</div>
+      <div class="activity-text"><strong>${esc(completed?"Completed "+title:"Worked on "+title)}</strong><span>${score!==null&&score>0?`Quiz score ${score}% · `:""}${number(r.xp_earned)?`+${number(r.xp_earned)} XP`:"Progress saved"}</span></div>
+      <div class="activity-time">${esc(relativeDate(r.updated_at||r.completed_at||r.created_at))}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderHeatmap(){
+  const end=new Date();
+  end.setHours(0,0,0,0);
+  const start=new Date(end);
+  start.setDate(start.getDate()-90);
+
+  const counts={};
+  state.progress.forEach(r=>{
+    const value=r.updated_at||r.completed_at||r.created_at||r.started_at;
+    if(!value)return;
+    const d=new Date(value);
+    if(Number.isNaN(d.getTime())||d<start||d>end)return;
+    const key=dateKey(d);
+    counts[key]=(counts[key]||0)+1;
+  });
+
+  const max=Math.max(1,...Object.values(counts));
+  const cells=[];
+  const first=new Date(start);
+  first.setDate(first.getDate()-first.getDay());
+
+  for(let i=0;i<13*7;i++){
+    const d=new Date(first);
+    d.setDate(first.getDate()+i);
+    const key=dateKey(d);
+    const value=counts[key]||0;
+    const ratio=value/max;
+    const level=value===0?0:ratio<=.25?1:ratio<=.5?2:ratio<=.75?3:4;
+    cells.push(`<div class="heat-cell ${level?"l"+level:""}" title="${esc(key)}: ${value} recorded activit${value===1?"y":"ies"}"></div>`);
+  }
+
+  $("heatmap").innerHTML=
+    `<div class="heat-label">S</div>${cells.slice(0,13).map(x=>x).join("")}`+
+    `<div class="heat-label">M</div>${cells.slice(13,26).join("")}`+
+    `<div class="heat-label">T</div>${cells.slice(26,39).join("")}`+
+    `<div class="heat-label">W</div>${cells.slice(39,52).join("")}`+
+    `<div class="heat-label">T</div>${cells.slice(52,65).join("")}`+
+    `<div class="heat-label">F</div>${cells.slice(65,78).join("")}`+
+    `<div class="heat-label">S</div>${cells.slice(78,91).join("")}`;
+}
+
+function renderMilestones(u){
+  const lessons=number(u?.lessons_completed);
+  const xp=number(u?.xp);
+  const streak=number(u?.streak_days);
+  const level=number(u?.level,1);
+
+  const items=[
+    {icon:"📖",title:"First lesson",desc:"Complete your first lesson.",earned:lessons>=1},
+    {icon:"🔥",title:"7-day streak",desc:"Maintain a 7-day learning streak.",earned:streak>=7},
+    {icon:"⭐",title:"500 XP",desc:"Earn at least 500 XP.",earned:xp>=500},
+    {icon:"🏆",title:"Level 5",desc:"Reach Level 5.",earned:level>=5},
+    {icon:"📚",title:"10 lessons",desc:"Complete 10 lessons.",earned:lessons>=10},
+    {icon:"🔥",title:"30-day streak",desc:"Maintain a 30-day learning streak.",earned:streak>=30}
+  ];
+
+  $("achievements").innerHTML=items.map(x=>`
+    <div class="achievement ${x.earned?"":"locked"}">
+      <div class="achievement-icon">${x.earned?x.icon:"🔒"}</div>
+      <div><strong>${esc(x.title)}</strong><span>${esc(x.earned?"Unlocked":"Locked · "+x.desc)}</span></div>
+    </div>`).join("");
+}
+
+function renderMembership(u){
+  const premium=u?.premium===true;
+  const until=u?.premium_until;
+  if(premium){
+    $("membership").innerHTML=`
+      <div class="membership">
+        <span class="eyebrow">Premium member</span>
+        <h3>HanVerse Premium ⭐</h3>
+        <p>${until?`Active until ${esc(formatDate(until))}.`:"Your premium access is active."}</p>
+        <ul><li>Premium learning content</li><li>Enhanced HanVerse experience</li><li>Progress and achievements</li></ul>
+        <a class="btn" href="settings.html">Manage account</a>
+      </div>`;
+  }else{
+    $("membership").innerHTML=`
+      <div class="membership">
+        <span class="eyebrow">Free plan</span>
+        <h3>Keep growing with HanVerse</h3>
+        <p>Your account is currently on the free plan.</p>
+        <ul><li>Continue your learning journey</li><li>Build XP and streaks</li><li>Explore available lessons</li></ul>
+        <a class="btn" href="payment.html">Explore Premium</a>
+      </div>`;
+  }
+}
+
+function renderRecentWords(){
+  const completed=state.lessons.filter(isDone).slice(-3);
+  const words=[];
+  completed.forEach(l=>{
+    const vocab=l.vocabulary||l.vocabulary_list||[];
+    if(Array.isArray(vocab))vocab.slice(0,2).forEach(v=>{
+      if(typeof v==="string")words.push({text:v});
+      else if(v)words.push({text:v.word||v.chinese||v.term||"",meaning:v.meaning||v.translation||""});
+    });
+  });
+  if(!words.length){
+    $("recentWords").innerHTML=`<div class="empty"><strong>No vocabulary feed yet</strong>Complete lessons containing vocabulary to surface recent words here.</div>`;
+    return;
+  }
+  $("recentWords").innerHTML=words.slice(0,6).map(v=>`
+    <div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:11px">
+      <strong>${esc(v.text)}</strong><span style="color:var(--muted)">${esc(v.meaning||"")}</span>
+    </div>`).join("");
+}
+
+function showXP(){
+  const el=document.createElement("div");
+  el.className="xp-pop";
+  el.textContent="+XP";
+  el.style.left=(window.innerWidth/2-15)+"px";
+  el.style.top=(window.innerHeight/2)+"px";
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1200);
+}
+
+async function askPanda(message){
+  const reply=$("pandaReply");
+  reply.textContent="🐼 Panda is thinking…";
+  try{
+    const data=await api("panda-chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message})
+    });
+    reply.textContent=data?.reply||"🐼 I couldn't answer that just now. Try again.";
+  }catch(error){
+    console.error(error);
+    reply.textContent="🐼 Panda couldn't connect right now. You can try again in a moment.";
+  }
+}
+
+async function loadProfile(){
+  state.user=getStoredUser();
+  const id=userId(state.user);
+  if(!id){
+    window.location.href="login.html";
+    return;
+  }
+
+  renderUser();
+
+  try{
+    const data=await api(`user/${encodeURIComponent(id)}`);
+    if(data?.user){
+      state.user=data.user;
+      try{
+        localStorage.setItem("hanverse_user",JSON.stringify(data.user));
+      }catch{}
+      renderUser();
+    }
+  }catch(error){
+    console.warn("Profile refresh failed:",error);
+  }
+
+  try{
+    const data=await api("lessons");
+    state.lessons=Array.isArray(data?.lessons)?data.lessons:Array.isArray(data)?data:[];
+  }catch(error){
+    console.warn("Lessons unavailable:",error);
+    state.lessons=[];
+  }
+
+  const requests=state.lessons.map(async lesson=>{
+    const id=numericLessonId(lessonId(lesson));
+    if(!id)return null;
+    try{
+      const data=await api(`progress/${encodeURIComponent(userId(state.user))}/${encodeURIComponent(id)}`);
+      return data?.progress||null;
+    }catch(error){
+      console.warn("Progress unavailable for",id,error);
+      return null;
+    }
+  });
+
+  state.progress=(await Promise.all(requests)).filter(Boolean);
+
+  renderCourseProgress();
+  renderContinue();
+  renderWeek();
+  renderActivity();
+  renderHeatmap();
+  renderRecentWords();
+}
+
+const toggleTheme=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme()};
+$("themeBtn").addEventListener("click",toggleTheme);
+$("themeBtnMobile").addEventListener("click",toggleTheme);
+
+async function doLogout(){
+  try{
+    await api("auth/logout",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+  }catch{}
+  [
+    "hanverse_token","hanverse_user","token","user","authToken",
+    "hanverse_admin_token","hanverseUser","hanverse_session","hanverseSession"
+  ].forEach(k=>localStorage.removeItem(k));
+  window.location.href="login.html";
+}
+$("logoutBtn").addEventListener("click",doLogout);
+$("logoutBtnMobile").addEventListener("click",doLogout);
+
+$("pandaForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const input=$("pandaInput");
+  const message=input.value.trim();
+  if(!message)return;
+  input.value="";
+  await askPanda(message);
+});
+
+applyTheme();
+
+if(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches){
+  document.documentElement.classList.add("reduced-motion");
+}
+
+loadProfile().catch(error=>{
+  console.error("HanVerse profile failed:",error);
+  toast("We couldn't load your profile. Please refresh.");
+});
+})();
+</script>
 </body>
-
 </html>
