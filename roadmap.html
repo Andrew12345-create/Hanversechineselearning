@@ -156,12 +156,16 @@ function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 $("levelSelect").onchange=e=>{selected=e.target.value;render();window.scrollTo({top:document.querySelector(".pathbox").offsetTop-90,behavior:"smooth"})};
 $("retry").onclick=()=>location.reload();
 async function showWeeklyLeaderboard(){
+ const card=$("leaderboardCard"),rows=$("lbRows");if(!card||!rows)return;
+ const signedOut=()=>{rows.innerHTML='<div style="text-align:center;padding:14px 8px"><p style="margin:0 0 10px;font-size:.8rem;color:var(--muted)">🔑 Sign in to join this week\'s league</p><a href="login.html" style="display:inline-block;padding:10px 22px;background:#2563EB;color:#fff;border-radius:999px;font-weight:700;text-decoration:none">Sign in</a></div>';card.hidden=false};
+ const failed=()=>{rows.innerHTML='<div style="text-align:center;padding:14px 8px"><p style="margin:0 0 10px;font-size:.8rem;color:var(--muted)">⚠️ Couldn\'t load the league — check your connection or sign in again.</p><button onclick="showWeeklyLeaderboard()" style="padding:10px 22px;background:#2563EB;color:#fff;border:0;border-radius:999px;font-weight:700;cursor:pointer">↻ Retry</button></div>';card.hidden=false};
  try{
-  if(!window.HanVerseFeatures)return;
-  const card=$("leaderboardCard"),rows=$("lbRows");if(!card||!rows)return;
+  if(!window.HanVerseFeatures){signedOut();return}
+  const me=uid();
+  if(!me){signedOut();return}
   try{
    // Duolingo-style weekly league (promote top 5, demote bottom 5)
-   const lg=await window.HanVerseFeatures.leagues.get(uid());
+   const lg=await window.HanVerseFeatures.leagues.get(me);
    const head=card.querySelector(".pathhead .kicker"),h2=card.querySelector("h2"),p=card.querySelector("p");
    if(head)head.textContent="WEEK OF "+lg.weekStart;
    if(h2)h2.textContent=`${lg.meta.emoji} ${lg.meta.name}`;
@@ -172,11 +176,12 @@ async function showWeeklyLeaderboard(){
   }catch(e){console.warn("league:",e.message)}
   // fallback: global weekly top-20
   const data=await window.HanVerseFeatures.leaderboard.weekly(uid());
-  if(!data||data.optedOut)return;
+  if(!data||data.optedOut){rows.innerHTML='<p style="color:var(--muted);font-size:.72rem">You\'ve opted out of the leaderboard. Turn sharing back on in Settings → Privacy.</p>';card.hidden=false;return}
   rows.innerHTML=data.leaders.length?data.leaders.map((l,i)=>`<div class="lb-row${l.user_id===uid()?' me':''}"><span class="lb-rank">${["🥇","🥈","🥉"][i]||`${i+1}.`}</span><span class="lb-name">${esc(l.full_name||l.username||"Learner")}</span><span class="lb-xp">${l.week_xp} XP</span></div>`).join(""):'<p style="color:var(--muted);font-size:.72rem">No XP this week yet — be the first!</p>';
   card.hidden=false;
- }catch(e){console.warn("leaderboard:",e.message)}
+ }catch(e){console.warn("leaderboard:",e.message);failed()}
 }
+window.showWeeklyLeaderboard=showWeeklyLeaderboard;
 (async()=>{try{await load();$("loading").style.display="none";$("main").hidden=false;showWeeklyLeaderboard()}catch(e){console.error(e);$("loading").style.display="none";$("error").style.display="grid";$("errorText").textContent=e.message}})();
 </script>
 </body>

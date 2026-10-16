@@ -68,6 +68,20 @@ Notes for the reviewer:
 - If a section shows the HanPan error box where data should be, note the page and
   what you clicked — that usually means the server function returned an error.
 
+## Visibility + Speak Aloud — QA after deploying this batch
+
+1. **Old sessions must re-login once.** If feature cards were missing, you'll now
+   *see* "🔑 Sign in to join this week's league" on the leaderboard card instead
+   of nothing. After logging in, the league card shows your cohort.
+2. **League card always visible:** signed-out CTA → loaded league → empty state →
+   explicit error with ↻ Retry. On practice.html AND roadmap.html.
+3. **Speak Aloud (new, replaces the old redirect):** Practice → 🗣️ card →
+   hear the model → tap mic → say the word in Mandarin → scored 0-100%.
+   Needs Chrome/Edge + mic permission; other browsers get a clear notice +
+   Panda-chat fallback. XP feeds this week's league. Failing (<50%) costs a ❤️.
+4. **Session expiry mid-use:** any 401 clears the stale session, the nav chip
+   disappears, and cards show the sign-in CTA next time they render.
+
 ## Security hardening (P0) — QA after deploying this batch
 
 1. **Re-login required once.** Feature endpoints now demand a real session.

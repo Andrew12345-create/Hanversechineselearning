@@ -3084,16 +3084,16 @@
                 </div>
 
                 <h3>
-                    Speaking
+                    Speak Aloud
                 </h3>
 
                 <p>
-                    Practise Mandarin aloud with
-                    Panda.
+                    Say the word — get scored.
+                    Real pronunciation practice.
                 </p>
 
                 <div class="mode-arrow">
-                    Speak with Panda →
+                    Start speaking →
                 </div>
 
             </article>
@@ -6198,11 +6198,143 @@
        SPEAKING
     ========================================================= */
 
+    /* ---------- SPEAK ALOUD — real pronunciation scoring (Web Speech API) ---------- */
+    let speakRounds = 0, speakCorrect = 0, speakScore = 0, speakWord = null, speakRecognizer = null, speakTimer = null;
+
     function startSpeaking() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) {
+            openModal("Speak Aloud 🗣️");
+            $("modalContent").innerHTML = `
+                <div class="empty">
+                    <h3>Voice not supported here 🎤</h3>
+                    <p>Pronunciation scoring needs Chrome or Edge (desktop or Android).</p>
+                    <p style="font-size:.8rem;color:var(--muted)">Meanwhile you can practise with Panda in free chat:</p>
+                    <button class="cta" onclick="window.location.href='talk.html'">Open Panda chat</button>
+                </div>`;
+            return;
+        }
+        speakRounds = 0; speakCorrect = 0; speakScore = 0;
+        openModal("Speak Aloud 🗣️");
+        nextSpeakRound();
+    }
 
-        window.location.href =
-            "talk.html";
+    function stopSpeakMic() {
+        if (speakTimer) { clearTimeout(speakTimer); speakTimer = null; }
+        try { speakRecognizer && speakRecognizer.stop(); } catch {}
+        speakRecognizer = null;
+    }
 
+    function speakSimilarity(said, target) {
+        const a = String(said || "").replace(/[\s\u3000，。！？、．,.!?~〜·]/g, "");
+        const t = String(target || "").replace(/[\s\u3000，。！？、．,.!?~〜·]/g, "");
+        if (!a || !t) return 0;
+        let hits = 0;
+        const pool = a.split("");
+        for (const ch of t) {
+            const i = pool.indexOf(ch);
+            if (i >= 0) { hits++; pool.splice(i, 1); }
+        }
+        return hits / t.length;
+    }
+
+    function nextSpeakRound() {
+        stopSpeakMic();
+        speakRounds++;
+        if (speakRounds > 10) {
+            saveSession("speak_aloud", speakScore, speakCorrect, 10);
+            if (window.HanVerseSound) window.HanVerseSound.levelUp();
+            $("modalContent").innerHTML = `
+                <div class="empty">
+                    <h3>Session complete! 🗣️</h3>
+                    <p>${speakCorrect}/10 strong matches — ${speakScore} points earned.</p>
+                    <p style="font-size:.8rem;color:var(--muted)">Your pronunciation XP counts toward this week's league!</p>
+                    <button class="cta" id="speakAgain">Practise again</button>
+                </div>`;
+            $("speakAgain").onclick = () => startSpeaking();
+            return;
+        }
+
+        const vocab = getGameVocabulary();
+        if (!vocab.length) {
+            $("modalContent").innerHTML = `<div class="empty"><h3>Learn a lesson first 🌱</h3><p>Speak Aloud practises words from your lessons.</p></div>`;
+            return;
+        }
+        const w = typeof normalizeWord === "function" ? normalizeWord(vocab[Math.floor(Math.random() * vocab.length)]) : vocab[Math.floor(Math.random() * vocab.length)];
+        speakWord = { hanzi: w.hanzi || "", pinyin: w.pinyin || "", meaning: w.meaning || w.english || "" };
+        if (!speakWord.hanzi) { nextSpeakRound(); return; }
+
+        $("modalContent").innerHTML = `
+            <div style="text-align:center;padding:10px">
+                <p style="color:var(--muted);font-size:.85rem">Say this word in Mandarin:</p>
+                <div class="cn" style="font-size:3.2rem;color:var(--navy);margin:6px 0">${speakWord.hanzi}</div>
+                <p style="margin:0;color:var(--muted);font-size:1rem">${speakWord.pinyin || ""}</p>
+                <p style="margin:2px 0 0;font-size:.85rem;color:var(--muted)">${speakWord.meaning || ""}</p>
+                <button class="btn-ghost" id="speakModel" style="margin:12px auto 6px">🔊 Hear the model</button>
+                <div id="speakMicWrap" style="margin:10px 0">
+                    <button class="cta" id="speakMicBtn" style="min-width:170px">🎤 Tap and speak</button>
+                </div>
+                <p id="speakHeard" style="min-height:1.2em;font-size:.9rem;color:var(--navy)"></p>
+                <p id="speakResult" style="min-height:1.2em;font-size:.85rem"></p>
+                <p style="margin-top:8px;font-size:.75rem;color:var(--muted)">Round ${speakRounds}/10 · Score ${speakScore}</p>
+            </div>`;
+
+        $("speakModel").onclick = () => speakHz(speakWord.hanzi, 0.75);
+        setTimeout(() => speakHz(speakWord.hanzi, 0.75), 350);
+
+        $("speakMicBtn").onclick = () => {
+            const btn = $("speakMicBtn");
+            btn.disabled = true; btn.textContent = "🎙 Listening…";
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const rec = new SR();
+            speakRecognizer = rec;
+            rec.lang = "zh-CN"; rec.interimResults = true; rec.maxAlternatives = 3;
+            let finalText = "";
+
+            const evaluate = () => {
+                stopSpeakMic();
+                const acc = Math.max(...(speakHeardAlts.length ? speakHeardAlts : [""]).map(t => speakSimilarity(t, speakWord.hanzi)));
+                const strong = acc >= 0.8, ok = acc >= 0.5;
+                if (strong) { speakCorrect++; speakScore += 10; }
+                else if (ok) { speakScore += 5; }
+                else if (window.HanVerseLoseHeart) window.HanVerseLoseHeart();
+                if (window.HanVerseSound) (strong || ok) ? window.HanVerseSound.correct() : window.HanVerseSound.wrong();
+
+                const res = $("speakResult");
+                if (res) res.innerHTML = strong
+                    ? `<span style="color:var(--green,#16A34A);font-weight:800">太棒了! Perfect match (+10)</span>`
+                    : ok
+                        ? `<span style="color:#F97316;font-weight:800">Close! Try to hit every tone (+5)</span>`
+                        : `<span style="color:var(--red,#DC2626);font-weight:800">Not quite — listen once more (-1 ❤️)</span>`;
+                const heard = $("speakHeard");
+                if (heard && !strong) heard.insertAdjacentHTML("beforeend", ` <span style="color:var(--muted);font-size:.75rem">(heard: ${finalText || "…"})</span>`);
+                setTimeout(nextSpeakRound, strong ? 900 : 1600);
+            };
+
+            let speakHeardAlts = [];
+            rec.onresult = ev => {
+                let interim = "";
+                speakHeardAlts = [];
+                for (let i = ev.resultIndex; i < ev.results.length; i++) {
+                    const r = ev.results[i];
+                    for (let j = 0; j < r.length; j++) speakHeardAlts.push(r[j].transcript);
+                    if (r.isFinal) finalText += r[0].transcript; else interim += r[0].transcript;
+                }
+                const heard = $("speakHeard");
+                if (heard) heard.textContent = `🗣 ${finalText || interim}`;
+            };
+            rec.onerror = ev => {
+                stopSpeakMic();
+                const heard = $("speakHeard");
+                if (heard) heard.textContent = ev.error === "not-allowed"
+                    ? "🎤 Microphone blocked — allow mic access and try again."
+                    : "🎤 Didn't catch that — tap the mic and try again.";
+                const btn2 = $("speakMicBtn");
+                if (btn2) { btn2.disabled = false; btn2.textContent = "🎤 Try again"; }
+            };
+            rec.onend = () => { if (speakRecognizer === rec) evaluate(); };
+            try { rec.start(); speakTimer = setTimeout(() => { try { rec.stop(); } catch {} }, 8000); } catch {}
+        };
     }
 
 
@@ -6822,14 +6954,32 @@
     }
 
     /* ---------- 4. WEEKLY LEAGUE + LEADERBOARD + WORKSHEET PRINTER ---------- */
-    async function showLeaderboard() {
-        const id = FUID();
-        if (!id || !FV()) return;
+    function lbState(title, sub, bodyHtml) {
         const lb = document.getElementById("leaderboardCard");
         if (!lb) return;
+        lb.style.display = "";
+        lb.querySelector(".section-title").innerHTML = title + (sub ? `<p style="color:var(--muted);font-size:.75rem;margin:4px 0 0">${sub}</p>` : "");
+        lb.querySelector(".lb-rows").innerHTML = bodyHtml;
+    }
+    const SIGNIN_CTA = `<div style="text-align:center;padding:14px 8px">
+            <p style="margin:0 0 10px;font-size:.85rem;color:var(--muted)">🔑 Sign in to join this week's league</p>
+            <a href="login.html" class="btn btn-primary" style="display:inline-block;padding:10px 22px;background:#2563EB;color:#fff;border-radius:999px;font-weight:700;text-decoration:none">Sign in</a>
+        </div>`;
+
+    async function showLeaderboard() {
+        const id = FUID();
+        const fv = FV();
+        const lb = document.getElementById("leaderboardCard");
+        if (!lb) return;
+
+        // Signed out: the card is still VISIBLE, with a clear call to action.
+        if (!id || !fv) {
+            lbState(`<small>Weekly league</small><h2>🏆 This week's league</h2>`, "", SIGNIN_CTA);
+            return;
+        }
         try {
             // Prefer the Duolingo-style weekly league (falls back to global top-20)
-            const data = await FV().leagues.get(id);
+            const data = await fv.leagues.get(id);
             lb.style.display = "";
             lb.querySelector(".section-title").innerHTML = `
                 <small>Week of ${data.weekStart}</small>
@@ -6850,8 +7000,8 @@
         } catch (e) {
             console.warn("league:", e.message);
             try {
-                const data = await FV().leaderboard.weekly(id);
-                if (data.optedOut) return;
+                const data = await fv.leaderboard.weekly(id);
+                if (data.optedOut) { lbState(`<small>Leaderboard</small><h2>🏆 Weekly Leaderboard</h2>`, "", `<p style="color:var(--muted);font-size:.8rem">You've opted out. Turn sharing back on in Settings → Privacy.</p>`); return; }
                 lb.style.display = "";
                 lb.querySelector(".section-title").innerHTML = `<small>This week</small><h2>🏆 Weekly Leaderboard</h2>`;
                 lb.querySelector(".lb-rows").innerHTML = data.leaders.length
@@ -6862,9 +7012,18 @@
                             <span class="lb-xp">${l.week_xp} XP</span>
                         </div>`).join("")
                     : `<p style="color:var(--muted);font-size:.8rem">No XP this week yet — be the first!</p>`;
-            } catch (e2) { console.warn("leaderboard:", e2.message); }
+            } catch (e2) {
+                console.warn("leaderboard:", e2.message);
+                // Visible failure state with a retry — never a silent blank card.
+                lbState(`<small>Leaderboard</small><h2>⚠️ Couldn't load the league</h2>`, "",
+                    `<div style="text-align:center;padding:14px 8px">
+                        <p style="margin:0 0 10px;font-size:.85rem;color:var(--muted)">Check your connection${e2.message.includes('sign in') || e2.message.includes('expired') ? ' — or sign in again' : ''}.</p>
+                        <button onclick="showLeaderboard()" style="padding:10px 22px;background:#2563EB;color:#fff;border:0;border-radius:999px;font-weight:700;cursor:pointer">↻ Retry</button>
+                    </div>`);
+            }
         }
     }
+    window.showLeaderboard = showLeaderboard;
     setTimeout(showLeaderboard, 1200);
 
     function printWorksheet() {

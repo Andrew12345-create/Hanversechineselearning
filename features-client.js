@@ -33,7 +33,18 @@
       body: opts.body ? JSON.stringify(opts.body) : undefined
     });
     const data = await res.json().catch(() => ({}));
-    if (res.status === 401) console.warn('HanVerse features: session expired — sign in again to continue.');
+    if (res.status === 401) {
+      // Stale pre-token session: clear it so the whole UI falls back to
+      // signed-out state, and tell the page so it can show sign-in CTAs.
+      try {
+        if (localStorage.getItem('hanverse_user')) {
+          localStorage.removeItem('hanverse_user');
+          localStorage.removeItem('hanverse_token');
+          document.dispatchEvent(new CustomEvent('hanverse:session-expired'));
+        }
+      } catch {}
+      console.warn('HanVerse features: session expired — sign in again to continue.');
+    }
     if (!res.ok || data.success === false) throw new Error(data.error || `Request failed (${res.status})`);
     return data;
   }
