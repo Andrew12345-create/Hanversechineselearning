@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import OpenAI from 'openai';
+import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
 import jwt from 'jsonwebtoken';
 
 dotenv.config();
@@ -6874,6 +6875,16 @@ console.log('✅ Admin routes registered successfully!');
 /* ==========================================
   NETLIFY MOUNT & EXPORT ENGINE 🚀
 ========================================== */
+// ===== FEATURE PACK: quests, streaks, review, games, leaderboard, referrals, trial, classroom =====
+try {
+  await ensureFeatureSchema(pool);
+  registerFeatureRoutes(router, pool);
+  console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
+} catch (e) {
+  console.warn('⚠️ Feature pack setup failed (non-fatal):', e.message);
+}
+console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
+
 app.use('/api', router);
 app.use('/.netlify/functions/server', router);
 
