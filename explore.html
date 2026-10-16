@@ -9,9 +9,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   >
+  <link rel="stylesheet" href="hanverse.css">
 
   <style>
     :root {
@@ -25,23 +26,23 @@
       --amber: #F59E0B;
       --amber-light: #FDE68A;
 
-      --text: #0F172A;
-      --muted: #64748B;
-      --soft: #F8FAFC;
-      --border: #E2E8F0;
+      --text: #0F2340;
+      --muted: #5D7A9A;
+      --soft: #F5F9FF;
+      --border: #D5E3F0;
       --white: #FFFFFF;
 
-      --success: #10B981;
-      --danger: #EF4444;
+      --success: #16A34A;
+      --danger: #DC2626;
 
-      --radius-lg: 24px;
-      --radius-md: 16px;
+      --radius-lg: 26px;
+      --radius-md: 18px;
 
       --shadow:
-        0 10px 30px rgba(15, 23, 42, .07);
+        0 16px 48px rgba(15, 35, 64, .12);
 
       --shadow-lg:
-        0 20px 55px rgba(15, 23, 42, .13);
+        0 28px 72px rgba(15, 35, 64, .16);
     }
 
     * {
@@ -54,7 +55,7 @@
 
     body {
       margin: 0;
-      font-family: "Poppins", sans-serif;
+      font-family: "Inter", sans-serif;
       color: var(--text);
       background: var(--soft);
     }
@@ -76,71 +77,12 @@
        NAVIGATION
     ========================================================= */
 
-    .topbar {
-      height: 72px;
-      background: rgba(255, 255, 255, .96);
-      border-bottom: 1px solid var(--border);
-
-      display: flex;
-      align-items: center;
-
-      padding: 0 32px;
-
-      position: sticky;
-      top: 0;
-      z-index: 100;
-
-      backdrop-filter: blur(14px);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-
-      color: var(--text);
-      text-decoration: none;
-
-      font-size: 21px;
-      font-weight: 800;
-    }
-
-    .brand-panda {
-      font-size: 30px;
-      line-height: 1;
-    }
-
-    .nav {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-left: auto;
-    }
-
-    .nav a {
-      text-decoration: none;
-      color: var(--muted);
-
-      font-size: 14px;
-      font-weight: 600;
-
-      padding: 9px 13px;
-      border-radius: 10px;
-
-      transition: .2s ease;
-    }
-
-    .nav a:hover,
-    .nav a.active {
-      color: var(--blue);
-      background: var(--blue-light);
-    }
-
     /* =========================================================
        HERO
     ========================================================= */
 
     .hero {
+      margin-top: 100px;
       background:
         radial-gradient(
           circle at 80% 30%,
@@ -1100,31 +1042,6 @@
 
     @media (max-width: 680px) {
 
-      .topbar {
-        padding: 0 15px;
-      }
-
-      .brand {
-        font-size: 18px;
-      }
-
-      .brand-panda {
-        font-size: 26px;
-      }
-
-      .nav {
-        gap: 0;
-      }
-
-      .nav a {
-        font-size: 0;
-        padding: 8px;
-      }
-
-      .nav a::first-letter {
-        font-size: 18px;
-      }
-
       .hero-inner {
         padding:
           42px 18px 38px;
@@ -1179,42 +1096,33 @@
        NAVIGATION
   ======================================================== -->
 
-  <header class="topbar">
-
-    <a href="index.html" class="brand">
-      <span class="brand-panda">🐼</span>
+  <nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">
+    <a class="brand" href="index.html" aria-label="HanVerse home">
+      <img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">
       <span>HanVerse</span>
     </a>
-
-    <nav class="nav">
-
-      <a href="index.html">
-        🏠 Home
-      </a>
-
-      <a href="learn.html">
-        📚 Learn
-      </a>
-
-      <a href="practice.html">
-        🎮 Play
-      </a>
-
-      <a href="explore.html" class="active">
-        🌏 Explore
-      </a>
-
-      <a href="talk.html">
-        🐼 Panda
-      </a>
-
-      <a href="profile.html">
-        👤 Me
-      </a>
-
-    </nav>
-
-  </header>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="learn.html">Learn</a>
+      <a href="practice.html">Practice</a>
+      <a href="explore.html">Explore</a>
+      <a href="roadmap.html">Roadmap</a>
+    </div>
+    <div class="nav-actions">
+      <a class="nav-login" href="login.html">Log In</a>
+      <a class="nav-cta" href="signup.html">Start Free</a>
+    </div>
+    <button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+    <a href="index.html">Home</a>
+    <a href="learn.html">Learn</a>
+    <a href="practice.html">Practice</a>
+    <a href="explore.html">Explore</a>
+    <a href="roadmap.html">Roadmap</a>
+  </nav>
 
 
   <!-- =======================================================
@@ -1537,6 +1445,8 @@
        JAVASCRIPT
   ======================================================== -->
 
+  <script src="hanverse.js"></script>
+  <script src="nav-user.js"></script>
   <script>
 
     /*
