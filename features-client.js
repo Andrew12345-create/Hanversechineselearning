@@ -10,13 +10,30 @@
     return cachedUser && cachedUser.user_id ? cachedUser.user_id : null;
   }
 
+  function getAuthToken() {
+    try {
+      const t = localStorage.getItem('hanverse_token');
+      if (t) return t;
+    } catch {}
+    try {
+      const u = JSON.parse(localStorage.getItem('hanverse_user') || 'null');
+      if (u && u.token) return u.token;
+    } catch {}
+    return null;
+  }
+
   async function api(path, opts = {}) {
+    const token = getAuthToken();
     const res = await fetch(`/api${path}`, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
       ...opts,
       body: opts.body ? JSON.stringify(opts.body) : undefined
     });
     const data = await res.json().catch(() => ({}));
+    if (res.status === 401) console.warn('HanVerse features: session expired — sign in again to continue.');
     if (!res.ok || data.success === false) throw new Error(data.error || `Request failed (${res.status})`);
     return data;
   }

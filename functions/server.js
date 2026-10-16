@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
+import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 
 dotenv.config();
@@ -1093,7 +1094,16 @@ if (!databaseAdmin) {
 ========================================== */
 
 // SIGNUP 🚀
-router.post('/signup', async (req, res) => {
+// Basic brute-force guard on sensitive auth endpoints (per warm instance).
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many attempts — please wait 15 minutes and try again.' }
+});
+
+router.post('/signup', authLimiter, async (req, res) => {
   try {
     console.log('📥 Signup request received');
     
@@ -1275,7 +1285,7 @@ router.post('/signup', async (req, res) => {
 });
 
 // LOGIN 🔑
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -1787,7 +1797,7 @@ router.get('/auth/verification-status/:userId', async (req, res) => {
 });
 
 // FORGOT PASSWORD
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', authLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -6876,14 +6886,16 @@ console.log('✅ Admin routes registered successfully!');
   NETLIFY MOUNT & EXPORT ENGINE 🚀
 ========================================== */
 // ===== FEATURE PACK: quests, streaks, review, games, leaderboard, referrals, trial, classroom =====
-try {
-  await ensureFeatureSchema(pool);
-  registerFeatureRoutes(router, pool, { verifyAdminToken });
-  console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
-} catch (e) {
-  console.warn('⚠️ Feature pack setup failed (non-fatal):', e.message);
-}
-console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
+// NOTE: registered synchronously; schema setup runs async in the background
+// to avoid a top-level await (not supported by Netlify's cjs function bundler).
+  registerFeatureRoutes(router, pool, { verifyAdminToken, verifyJWTToken });
+ensureFeatureSchema(pool)
+  .then(() => {
+    console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
+  })
+  .catch((e) => {
+    console.warn('⚠️ Feature pack setup failed (non-fatal):', e.message);
+  });
 
 app.use('/api', router);
 app.use('/.netlify/functions/server', router);

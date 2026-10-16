@@ -67,3 +67,17 @@ Notes for the reviewer:
 - Flows marked "live" (community, broadcasts) need two devices or a friend to test fully.
 - If a section shows the HanPan error box where data should be, note the page and
   what you clicked — that usually means the server function returned an error.
+
+## Security hardening (P0) — QA after deploying this batch
+
+1. **Re-login required once.** Feature endpoints now demand a real session.
+   Anyone who was signed in before this deploy must log out and back in
+   (quests/streak/review/leaderboard cards stay hidden until then).
+2. **Leaderboard cheating is closed.** Post a game score from the app — it works;
+   posting someone else's userId via curl now returns 401.
+3. **Trial actually ends.** Start the 7-day trial, then (or on the admin panel)
+   confirm `GET /api/trial/status` reports expired after `trial_ends_at`.
+4. **Rate limits.** Hammer login with a wrong password ~30 times — you should see
+   "Too many attempts" (per serverless instance).
+5. Local check: `node scripts/smoke-features.mjs` (21/21) and
+   `node .tmpcheck/authz-test.mjs` (7/7) must pass.

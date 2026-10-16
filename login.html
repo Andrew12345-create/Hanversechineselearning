@@ -630,6 +630,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
         if (response.success && response.user) {
             const user = normalizeUser(response.user);
+            if (response.token) {
+                try { localStorage.setItem('hanverse_token', response.token); } catch {}
+                user.token = response.token;
+            }
             setSession(user);
 
             const rememberMe = document.getElementById('rememberMe');

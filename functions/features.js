@@ -5,12 +5,14 @@
    All schema changes are idempotent (safe to run on boot).
    ========================================================= */
 import crypto from 'node:crypto';
+import rateLimit from 'express-rate-limit';
 
 let pool = null;
 let schemaReady = false;
 
 export async function ensureFeatureSchema(pgPool) {
   if (schemaReady) return;
+  pgPool = pgPool || pool; // handlers may call with no args — use the pool registered at boot
   if (!pgPool) throw new Error('No database pool provided');
   pool = pgPool;
   const q = async (sql) => pool.query(sql);
@@ -101,6 +103,20 @@ export async function ensureFeatureSchema(pgPool) {
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
+  // --- TRIAL EXPIRY SWEEP: once per cold instance. Only clears trial
+  // premium; Stripe premium lives in the separate `premium`/`premium_until`
+  // columns and is unaffected.
+  try {
+    const sweep = await pool.query(
+      `UPDATE users SET is_premium = FALSE, updated_at = NOW()
+       WHERE is_premium = TRUE AND trial_used = TRUE
+         AND trial_ends_at IS NOT NULL AND trial_ends_at < NOW()`
+    );
+    if (sweep.rowCount) console.log(`⏰ Trial sweep: expired premium for ${sweep.rowCount} user(s)`);
+  } catch (e) {
+    console.warn('⚠️ Trial sweep failed (non-fatal):', e.message);
+  }
+
   schemaReady = true;
   console.log('✅ Feature-pack schema ensured');
 }
@@ -123,10 +139,39 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   // Optional admin guard (server.js passes its verifyAdminToken middleware).
   // Falls back to open access when not provided (local dev).
   const requireAdmin = opts.verifyAdminToken || ((_req, _res, next) => next());
+
+  /* --- AUTH: every user-scoped route must present a valid JWT. ---
+     The verified token identity is injected into req.body/req.params so
+     handlers always operate on the signed-in user, never a client-claimed id. */
+  if (!opts.verifyJWTToken) {
+    throw new Error('features.js requires opts.verifyJWTToken — refusing to mount unauthenticated user routes');
+  }
+  const requireAuth = (req, res, next) => {
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+    if (!token) return fail(res, 401, 'Sign in required');
+    const decoded = opts.verifyJWTToken(token);
+    const id = decoded && (decoded.user_id || decoded.id);
+    if (!id) return fail(res, 401, 'Session expired — please sign in again');
+    req.userId = Number(id);
+    req.body = { ...(req.body || {}), userId: req.userId };
+    req.params = { ...req.params, userId: String(req.userId) };
+    next();
+  };
+
+  // Basic abuse guard on game/quest/classroom writes (per warm instance).
+  const writeLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 120,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'Too many requests — take a short break 🐼' }
+  });
+
   /* =========================================================
      1. DAILY QUESTS  (reuses daily_goals + speaking goal)
   ========================================================= */
-  router.get('/quests/daily/:userId', async (req, res) => {
+  router.get('/quests/daily/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       if (!userId) return fail(res, 400, 'userId required');
@@ -169,7 +214,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
-  router.post('/quests/progress', async (req, res) => {
+  router.post('/quests/progress', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       if (!userId) return fail(res, 400, 'userId required');
@@ -208,7 +253,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   });
 
   // Claim the daily chest: bonus XP + gems once per day when all quests done
-  router.post('/quests/claim-chest', async (req, res) => {
+  router.post('/quests/claim-chest', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       if (!userId) return fail(res, 400, 'userId required');
@@ -248,7 +293,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      2. STREAK + STREAK FREEZE
   ========================================================= */
-  router.get('/streak/:userId', async (req, res) => {
+  router.get('/streak/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const row = (await pool.query(
@@ -263,7 +308,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   });
 
   // Consume one streak freeze for a missed day (premium: granted monthly, else buy with gems)
-  router.post('/streak/freeze', async (req, res) => {
+  router.post('/streak/freeze', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       const useGem = req.body.payWithGems === true;
@@ -310,7 +355,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      3. SPACED-REVIEW DECK (SM-2 lite over vocabulary_progress)
   ========================================================= */
-  router.get('/review/deck/:userId', async (req, res) => {
+  router.get('/review/deck/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       if (!userId) return fail(res, 400, 'userId required');
@@ -327,7 +372,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
-  router.post('/review/answer', async (req, res) => {
+  router.post('/review/answer', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       const word = String(req.body.word || '');
@@ -383,7 +428,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      4. PLACEMENT QUIZ (real answers, stored)
   ========================================================= */
-  router.post('/placement/submit', async (req, res) => {
+  router.post('/placement/submit', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       const correct = Math.max(0, Number(req.body.correct || 0));
@@ -410,7 +455,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      5. TONE-PAIR GAME + GAME SESSIONS
   ========================================================= */
-  router.post('/games/session', async (req, res) => {
+  router.post('/games/session', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       const game = String(req.body.game || '').slice(0, 40);
@@ -440,7 +485,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      6. WEEKLY LEADERBOARD (opt-in, privacy-aware)
   ========================================================= */
-  router.get('/leaderboard/weekly/:userId', async (req, res) => {
+  router.get('/leaderboard/weekly/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       if (!userId) return fail(res, 400, 'userId required');
@@ -470,7 +515,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
-  router.post('/leaderboard/optin', async (req, res) => {
+  router.post('/leaderboard/optin', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       const optIn = req.body.optIn === true;
@@ -487,7 +532,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      7. REFERRAL REWARDS
   ========================================================= */
-  router.get('/referrals/stats/:userId', async (req, res) => {
+  router.get('/referrals/stats/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       if (!userId) return fail(res, 400, 'userId required');
@@ -516,7 +561,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      8. PREMIUM TRIAL
   ========================================================= */
-  router.post('/trial/start', async (req, res) => {
+  router.post('/trial/start', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       if (!userId) return fail(res, 400, 'userId required');
@@ -534,7 +579,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
-  router.get('/trial/status/:userId', async (req, res) => {
+  router.get('/trial/status/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const u = (await pool.query(
@@ -552,7 +597,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      9. PARENT WEEKLY DIGEST (admin-triggered)
   ========================================================= */
-  router.post('/parents/digest/send', requireAdmin, async (req, res) => {
+  router.post('/parents/digest/send', requireAdmin, writeLimiter, async (req, res) => {
     try {
       await ensureFeatureSchema();
       const parentId = uid(req.body, 'parentId', 'parent_id');
@@ -631,7 +676,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      10. VIRTUAL CLASSROOM (minimal: join code + roster)
   ========================================================= */
-  router.post('/classroom/join', async (req, res) => {
+  router.post('/classroom/join', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       const code = String(req.body.classCode || '').trim().toUpperCase();
@@ -647,11 +692,11 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
-  router.post('/classroom/create', async (req, res) => {
+  router.post('/classroom/create', requireAuth, writeLimiter,async (req, res) => {
     try {
-      const teacherId = uid(req.body, 'teacherId', 'userId');
+      const teacherId = req.userId; // always the signed-in user — never client-claimed
       const name = String(req.body.className || '').slice(0, 100);
-      if (!teacherId || !name) return fail(res, 400, 'teacherId and className required');
+      if (!name) return fail(res, 400, 'className required');
       await ensureFeatureSchema();
       const code = 'HV' + crypto.randomBytes(3).toString('hex').toUpperCase();
       await pool.query(`INSERT INTO classrooms (teacher_id, class_code, class_name) VALUES ($1,$2,$3)`, [teacherId, code, name]);
@@ -662,7 +707,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
-  router.get('/classroom/roster/:classCode', async (req, res) => {
+  router.get('/classroom/roster/:classCode', requireAuth, async (req, res) => {
     try {
       await ensureFeatureSchema();
       const code = String(req.params.classCode || '').toUpperCase();
@@ -680,7 +725,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      11. HANPAN PET STAGE (derived from XP; no table needed)
   ========================================================= */
-  router.get('/pet/:userId', async (req, res) => {
+  router.get('/pet/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const u = (await pool.query(`SELECT xp FROM users WHERE user_id = $1`, [userId])).rows[0];
@@ -708,7 +753,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      12. GEMS BALANCE
   ========================================================= */
-  router.get('/gems/:userId', async (req, res) => {
+  router.get('/gems/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
       const u = (await pool.query(`SELECT gems FROM users WHERE user_id = $1`, [userId])).rows[0];

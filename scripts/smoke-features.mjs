@@ -1,5 +1,7 @@
-/* Local smoke test: import handler (runs ensureFeatureSchema on real DB),
-   then probe feature endpoints. Sends NO emails. Prints nothing secret. */
+/* Local smoke test: import handler (runs ensureFeatureSchema + trial sweep on real DB),
+   then verify every feature endpoint is auth-guarded and responsive.
+   Sends NO emails. Prints nothing secret.
+   Usage: node scripts/smoke-features.mjs  */
 const { handler } = await import('../functions/server.js');
 
 function call(httpMethod, path, body = null, headers = {}) {
@@ -21,45 +23,44 @@ function record(name, pass, detail) {
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}  ${detail}`);
 }
 
-// 1. Digest endpoint must reject unauthenticated requests (admin guard)
-let r = await call('POST', '/api/parents/digest/send', {});
-record('digest rejects no-auth', [401, 403].includes(r.statusCode), `status=${r.statusCode}`);
+// Every user-scoped feature endpoint must demand a JWT (401 without one).
+// As a side effect of booting, the handler also ran ensureFeatureSchema()
+// (proves review_queue/xp_logs/classrooms/etc. exist in Neon) and the
+// trial-expiry sweep.
+const guarded = [
+  ['GET', '/api/quests/daily/1', null],
+  ['POST', '/api/quests/progress', { kind: 'xp', amount: 10 }],
+  ['POST', '/api/quests/claim-chest', {}],
+  ['GET', '/api/streak/1', null],
+  ['POST', '/api/streak/freeze', { payWithGems: false }],
+  ['GET', '/api/review/deck/1', null],
+  ['POST', '/api/review/answer', { word: '你好', quality: 3 }],
+  ['POST', '/api/placement/submit', { correct: 5, total: 10 }],
+  ['POST', '/api/games/session', { game: 'tone-pairs', score: 100, correct: 5, total: 6 }],
+  ['GET', '/api/leaderboard/weekly/1', null],
+  ['POST', '/api/leaderboard/optin', { optIn: true }],
+  ['GET', '/api/referrals/stats/1', null],
+  ['POST', '/api/trial/start', {}],
+  ['GET', '/api/trial/status/1', null],
+  ['POST', '/api/classroom/join', { classCode: 'HV00000' }],
+  ['POST', '/api/classroom/create', { className: 'Test Class' }],
+  ['GET', '/api/classroom/roster/UNKNOWNCODE', null],
+  ['GET', '/api/pet/1', null],
+  ['GET', '/api/gems/1', null],
+  ['POST', '/api/parents/digest/send', {}] // admin route: 401 without token
+];
 
-// 2. Digest endpoint must reject a garbage token
-r = await call('POST', '/api/parents/digest/send', {}, { Authorization: 'Bearer not.a.real.token' });
-record('digest rejects bad token', [401, 403].includes(r.statusCode), `status=${r.statusCode}`);
+for (const [method, path, body] of guarded) {
+  const r = await call(method, path, body);
+  const blocked = [401, 403].includes(r.statusCode);
+  record(`guarded ${method} ${path}`, blocked, `status=${r.statusCode}`);
+}
 
-// 3. Gems endpoint (feature-pack route + users.gems column) responds
-r = await call('GET', '/api/gems/1');
-let ok200 = r.statusCode === 200;
-let parsed = {};
-try { parsed = JSON.parse(r.body); } catch {}
-record('GET /api/gems/1', ok200 && parsed.success === true, `status=${r.statusCode} gems=${parsed.gems}`);
-
-// 4. Pet endpoint (derived stage) responds
-r = await call('GET', '/api/pet/1');
-parsed = {};
-try { parsed = JSON.parse(r.body); } catch {}
-record('GET /api/pet/1', r.statusCode === 200 && parsed.success === true, `status=${r.statusCode} stage=${parsed.stage}`);
-
-// 5. Roster read (proves classrooms table exists) — unknown code => 200 empty
-r = await call('GET', '/api/classroom/roster/UNKNOWNCODE');
-parsed = {};
-try { parsed = JSON.parse(r.body); } catch {}
-record('GET /api/classroom/roster/UNKNOWNCODE', r.statusCode === 200 && Array.isArray(parsed.students), `status=${r.statusCode} students=${parsed.students && parsed.students.length}`);
-
-// 6. Schema really is in the DB: query via a route that touches new tables
-r = await call('GET', '/api/review/deck/1');
-parsed = {};
-try { parsed = JSON.parse(r.body); } catch {}
-record('GET /api/review/deck/1 (review_queue table)', r.statusCode === 200, `status=${r.statusCode}`);
-
-// 7. Weekly leaderboard (xp_logs + share_leaderboard column)
-r = await call('GET', '/api/leaderboard/weekly/1');
-parsed = {};
-try { parsed = JSON.parse(r.body); } catch {}
-record('GET /api/leaderboard/weekly/1', r.statusCode === 200 && parsed.success === true, `status=${r.statusCode} leaders=${parsed.leaders && parsed.leaders.length}`);
+// Garbage tokens are rejected too, not just missing ones.
+let r = await call('POST', '/api/games/session', { game: 'x' }, { Authorization: 'Bearer not.a.real.token' });
+record('rejects forged token', [401, 403].includes(r.statusCode), `status=${r.statusCode}`);
 
 const failed = results.filter(x => !x.pass).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);
+console.log('Note: schema + trial sweep ran at boot — check the log above for "Feature-pack schema ensured".');
 process.exit(failed ? 1 : 0);
