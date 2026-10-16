@@ -4,6 +4,8 @@
    family/class codes, parent digest.
    All schema changes are idempotent (safe to run on boot).
    ========================================================= */
+import crypto from 'node:crypto';
+
 let pool = null;
 let schemaReady = false;
 
@@ -14,6 +16,7 @@ export async function ensureFeatureSchema(pgPool) {
   const q = async (sql) => pool.query(sql);
 
   // --- users: soft currency, premium/trial, family/class links, gamification
+  await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'student'`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS gems INTEGER DEFAULT 0`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS streak_freezes INTEGER DEFAULT 0`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE`);
