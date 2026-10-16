@@ -14,16 +14,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <style>
+  <link rel="stylesheet" href="hanverse.css">
+<style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Inter', sans-serif;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #F8FAFC;
+      background: #F5F9FF;
       padding: 24px;
       position: relative;
       overflow-x: hidden;
@@ -86,7 +87,7 @@
       font-weight: 800;
       font-size: 1.4rem;
       letter-spacing: -0.3px;
-      color: #0F172A;
+      color: #0F2340;
     }
     .logo-header .logo-text span {
       color: #2563EB;
@@ -109,28 +110,28 @@
       text-transform: uppercase;
     }
 
-    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; color: #0F172A; margin-bottom: 8px; letter-spacing: -0.5px; }
-    .subhead { font-size: 1.05rem; color: #475569; margin-bottom: 24px; line-height: 1.6; font-weight: 400; }
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; color: #0F2340; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .subhead { font-size: 1.05rem; color: #5D7A9A; margin-bottom: 24px; line-height: 1.6; font-weight: 400; }
 
     .ban-reason {
       background: #F1F5F9;
       border-radius: 20px;
       padding: 18px 20px;
       margin-bottom: 28px;
-      border-left: 4px solid #EF4444;
+      border-left: 4px solid #DC2626;
       text-align: left;
     }
 
-    .ban-reason strong { display: block; font-weight: 700; color: #0F172A; font-size: 0.9rem; margin-bottom: 4px; }
+    .ban-reason strong { display: block; font-weight: 700; color: #0F2340; font-size: 0.9rem; margin-bottom: 4px; }
     .ban-reason p { color: #334155; font-size: 0.9rem; line-height: 1.5; margin: 0; }
     .ban-reason .code {
       display: inline-block;
-      background: #E2E8F0;
+      background: #D5E3F0;
       padding: 0 10px;
       border-radius: 6px;
       font-family: monospace;
       font-size: 0.85rem;
-      color: #1E293B;
+      color: #1E3A5F;
       margin-top: 6px;
     }
 
@@ -161,14 +162,14 @@
 
     .btn-outline {
       background: transparent;
-      color: #1E293B;
+      color: #1E3A5F;
       border: 1.5px solid #CBD5E1;
     }
     .btn-outline:hover { background: #F1F5F9; border-color: #94A3B8; transform: translateY(-2px); }
     .btn-outline:active { transform: scale(0.96); }
 
     .btn-danger {
-      background: linear-gradient(135deg, #EF4444, #DC2626);
+      background: linear-gradient(135deg, #DC2626, #DC2626);
       color: white;
       box-shadow: 0 6px 20px rgba(239, 68, 68, 0.25);
     }
@@ -177,8 +178,8 @@
     .support-note {
       margin-top: 28px;
       font-size: 0.85rem;
-      color: #64748B;
-      border-top: 1px solid #E2E8F0;
+      color: #5D7A9A;
+      border-top: 1px solid #D5E3F0;
       padding-top: 24px;
     }
     .support-note a { color: #2563EB; font-weight: 600; text-decoration: none; }
@@ -257,11 +258,11 @@
         This could include inappropriate behaviour, spam, or repeated rule violations.
       </p>
       <div style="margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <span style="font-size:0.85rem; color:#475569;">Reference ID</span>
+        <span style="font-size:0.85rem; color:#5D7A9A;">Reference ID</span>
         <span class="code" id="banReference">#BAN-2026-07-23</span>
       </div>
       <div style="margin-top: 8px;">
-        <span style="font-size:0.85rem; color:#475569;">Reason:</span>
+        <span style="font-size:0.85rem; color:#5D7A9A;">Reason:</span>
         <span class="reason-text" id="banReasonDisplay">Policy Violation</span>
       </div>
     </div>
@@ -509,7 +510,7 @@
       toast.style.cssText = `
         padding: 16px 20px;
         border-radius: 12px;
-        background: ${type === 'success' ? '#22C55E' : '#EF4444'};
+        background: ${type === 'success' ? '#22C55E' : '#DC2626'};
         color: white;
         box-shadow: 0 8px 32px rgba(0,0,0,0.15);
         animation: slideInRight 0.4s cubic-bezier(0.22,1,0.36,1);
