@@ -1,5 +1,22 @@
 /* HanVerse shared behaviour: nav scroll state, mobile menu, current-page highlight.
    Safe to load on every page. Does nothing if the nav is absent. */
+
+// PWA: manifest + service worker (offline support). Swallowed on http:// or file://.
+(() => {
+  if (!/^https?:$/.test(location.protocol)) return;
+  const manifest = document.createElement('link');
+  manifest.rel = 'manifest';
+  manifest.href = 'manifest.json';
+  document.head.appendChild(manifest);
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err =>
+        console.warn('[HanVerse] SW registration skipped:', err)
+      );
+    });
+  }
+})();
+
 (() => {
   const navbar = document.getElementById("navbar");
   const menuBtn = document.getElementById("menu");

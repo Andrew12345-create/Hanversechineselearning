@@ -3,22 +3,22 @@
 // Designed for Netlify + Offline Support
 // ============================================================
 
-const CACHE_NAME = 'hanverse-v2';
+const CACHE_NAME = 'hanverse-v3';
 
+// Real files only — every entry must exist at the site root.
+// (The previous list referenced /css/styles.css, /js/app.js and /images/*,
+// which never existed, so cache.addAll() rejected and the SW never installed.)
 const STATIC_ASSETS = [
     '/offline.html',
-
-    // CSS
-    '/css/styles.css',
-
-    // JavaScript
-    '/js/app.js',
-    '/js/auth.js',
-    '/js/offline-manager.js',
-
-    // Images
-    '/images/logo.png',
-    '/images/panda-icon.png'
+    '/hanverse.css',
+    '/hanverse.js',
+    '/nav-user.js',
+    '/Hanverse-logo2.png',
+    '/assets/mascot/states/hanpan-waving.png',
+    '/assets/mascot/states/hanpan-happy.png',
+    '/assets/mascot/states/hanpan-idle.png',
+    '/assets/mascot/states/hanpan-thinking.png',
+    '/assets/mascot/states/hanpan-listening.png'
 ];
 
 
@@ -34,7 +34,15 @@ self.addEventListener('install', event => {
             .then(cache => {
                 console.log('[HanVerse SW] Caching static assets...');
 
-                return cache.addAll(STATIC_ASSETS);
+                // Cache each file individually so one bad asset
+                // can never break the whole installation.
+                return Promise.all(
+                    STATIC_ASSETS.map(asset =>
+                        cache.add(asset).catch(err =>
+                            console.warn('[HanVerse SW] Skipped:', asset, err)
+                        )
+                    )
+                );
             })
             .then(() => {
                 console.log('[HanVerse SW] Installation complete.');
@@ -114,7 +122,7 @@ self.addEventListener('fetch', event => {
     // Never cache API requests
     // --------------------------------------------------------
 
-    if (url.pathname.startsWith('/api/')) {
+    if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/.netlify/')) {
         return;
     }
 
