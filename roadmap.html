@@ -158,9 +158,21 @@ $("retry").onclick=()=>location.reload();
 async function showWeeklyLeaderboard(){
  try{
   if(!window.HanVerseFeatures)return;
+  const card=$("leaderboardCard"),rows=$("lbRows");if(!card||!rows)return;
+  try{
+   // Duolingo-style weekly league (promote top 5, demote bottom 5)
+   const lg=await window.HanVerseFeatures.leagues.get(uid());
+   const head=card.querySelector(".pathhead .kicker"),h2=card.querySelector("h2"),p=card.querySelector("p");
+   if(head)head.textContent="WEEK OF "+lg.weekStart;
+   if(h2)h2.textContent=`${lg.meta.emoji} ${lg.meta.name}`;
+   if(p)p.textContent="Top 5 promote · bottom 5 demote · resets Monday";
+   const medal=r=>r===1?"🥇":r===2?"🥈":r===3?"🥉":`${r}.`;
+   rows.innerHTML=lg.leaders.length?lg.leaders.map(l=>`<div class="lb-row${l.isMe?' me':''}" style="${l.rank<=5?'border-left:3px solid var(--green,#16A34A)':''}"><span class="lb-rank">${medal(l.rank)}</span><span class="lb-name">${esc(l.name)}${l.isMe?" (you)":""}</span><span class="lb-xp">${l.weeklyXp} XP</span></div>`).join("")+(lg.me.rank>lg.leaders.length?`<div class="lb-row me"><span class="lb-rank">${medal(lg.me.rank)}</span><span class="lb-name">You</span><span class="lb-xp">${lg.me.weeklyXp} XP</span></div>`:""):'<p style="color:var(--muted);font-size:.72rem">No XP in your league yet — earn some in any game!</p>';
+   card.hidden=false;return;
+  }catch(e){console.warn("league:",e.message)}
+  // fallback: global weekly top-20
   const data=await window.HanVerseFeatures.leaderboard.weekly(uid());
   if(!data||data.optedOut)return;
-  const card=$("leaderboardCard"),rows=$("lbRows");if(!card||!rows)return;
   rows.innerHTML=data.leaders.length?data.leaders.map((l,i)=>`<div class="lb-row${l.user_id===uid()?' me':''}"><span class="lb-rank">${["🥇","🥈","🥉"][i]||`${i+1}.`}</span><span class="lb-name">${esc(l.full_name||l.username||"Learner")}</span><span class="lb-xp">${l.week_xp} XP</span></div>`).join(""):'<p style="color:var(--muted);font-size:.72rem">No XP this week yet — be the first!</p>';
   card.hidden=false;
  }catch(e){console.warn("leaderboard:",e.message)}

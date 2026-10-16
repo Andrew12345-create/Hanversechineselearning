@@ -29,6 +29,10 @@ for (const [m, p, b] of [
   ['GET', '/api/leaderboard/weekly/1', null],
   ['GET', '/api/classroom/roster/UNKNOWNCODE', null],
   ['GET', '/api/trial/status/1', null],
+  ['GET', '/api/hearts/1', null],
+  ['GET', '/api/leaderboard/league/1', null],
+  ['GET', '/api/review/mistakes/1', null],
+  ['GET', '/api/achievements/1', null],
 ]) {
   const r = await call(m, p, b);
   let d = {}; try { d = JSON.parse(r.body); } catch {}
@@ -36,5 +40,6 @@ for (const [m, p, b] of [
   if (!pass) fails++;
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${m} ${p}  status=${r.statusCode}`);
 }
-console.log(fails ? `\n${7 - fails}/7 passed` : '\n7/7 passed — authorized access works');
+const total = 11;
+console.log(`\n${total - fails}/${total} passed` + (fails ? '' : ' — authorized access works'));
 process.exit(fails ? 1 : 0);

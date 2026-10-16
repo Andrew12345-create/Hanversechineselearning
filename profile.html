@@ -834,6 +834,7 @@ function renderUser(){
   renderLevel(xp,level);
   renderMembership(u);
   renderMilestones(u);
+  renderServerAchievements();
 }
 
 function renderLevel(xp,level){
@@ -1045,6 +1046,25 @@ function renderMilestones(u){
       <div class="achievement-icon">${x.earned?x.icon:"🔒"}</div>
       <div><strong>${esc(x.title)}</strong><span>${esc(x.earned?"Unlocked":"Locked · "+x.desc)}</span></div>
     </div>`).join("");
+}
+
+// Server-earned badges (games, quests, practice) merged into the grid
+async function renderServerAchievements(){
+  try{
+    if(!window.HanVerseFeatures)return;
+    const uid=window.HanVerseFeatures.currentUserId();
+    if(!uid)return;
+    const data=await window.HanVerseFeatures.achievements.list(uid);
+    const earned=(data.catalog||[]).filter(a=>a.earned);
+    if(!earned.length)return;
+    const grid=$("achievements");
+    if(!grid)return;
+    grid.insertAdjacentHTML("beforeend",earned.map(a=>`
+      <div class="achievement">
+        <div class="achievement-icon">🏅</div>
+        <div><strong>${esc(a.name)}</strong><span>Unlocked · ${esc(a.desc)}</span></div>
+      </div>`).join(""));
+  }catch(e){console.warn("server achievements:",e.message)}
 }
 
 function renderMembership(u){

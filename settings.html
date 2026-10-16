@@ -108,4 +108,30 @@ btn.addEventListener('click',async function(){
 input.addEventListener('keypress',function(e){if(e.key==='Enter')btn.click()});
 })();
 </script>
+<script>
+/* Daily goal picker — sets target_xp on today's daily_goals row */
+(function(){'use strict';
+function toastMsg(message){var t=document.getElementById('toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){t.classList.remove('show')},2800)}
+var GOALS=[{xp:20,label:'🌱 Chill — 20 XP/day'},{xp:50,label:'📗 Regular — 50 XP/day'},{xp:100,label:'⚡ Serious — 100 XP/day'},{xp:200,label:'🔥 Intense — 200 XP/day'}];
+var F=window.HanVerseFeatures;
+if(!F)return;
+var uidVal=F.currentUserId();
+if(!uidVal)return;
+var section=document.createElement('section');
+section.className='card full';
+section.innerHTML='<div class="heading"><div class="heading-icon">🎯</div><div><h2>Daily goal</h2><p>How much XP do you want to earn each day?</p></div></div><div class="body"><div class="row"><div class="main"><div class="icon">🎯</div><div class="copy"><h3 class="title">Daily XP target</h3><p class="desc">Drives your daily quest card and streak reminders.</p></div></div><select id="dailyGoalSelect" aria-label="Daily XP goal" style="min-height:40px;padding:8px 12px;border:1px solid var(--line,#D5E3F0);border-radius:10px;font:700 13px Inter,sans-serif;background:#fff">'+GOALS.map(function(g){return '<option value="'+g.xp+'">'+g.label+'</option>'}).join('')+'</select></div></div>';
+var about=document.querySelector('.card.full:nth-of-type(2)');
+if(about&&about.parentNode)about.parentNode.insertBefore(section,about);else document.body.appendChild(section);
+var sel=document.getElementById('dailyGoalSelect');
+sel.addEventListener('change',async function(){
+ sel.disabled=true;
+ try{
+  await F.goals.setTarget(uidVal,Number(sel.value));
+  if(window.HanVerseSound)window.HanVerseSound.correct();
+  toastMsg('Daily goal set to '+sel.value+' XP ✓');
+ }catch(e){toastMsg(e.message||'Could not save goal — are you logged in?');}
+ finally{sel.disabled=false}
+});
+})();
+</script>
 </body></html>

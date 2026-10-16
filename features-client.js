@@ -52,7 +52,23 @@
     },
     review: {
       deck: uid => api(`/review/deck/${uid}`),
-      answer: (uid, word, quality, extra) => api('/review/answer', { method: 'POST', body: { userId: uid, word, quality, ...extra } })
+      answer: (uid, word, quality, extra) => api('/review/answer', { method: 'POST', body: { userId: uid, word, quality, ...extra } }),
+      mistakes: uid => api(`/review/mistakes/${uid}`)
+    },
+    hearts: {
+      get: uid => api(`/hearts/${uid}`),
+      lose: uid => api('/hearts/lose', { method: 'POST', body: { userId: uid } }),
+      refill: (uid, mode = 'gems') => api('/hearts/refill', { method: 'POST', body: { userId: uid, mode } })
+    },
+    leagues: {
+      get: uid => api(`/leaderboard/league/${uid}`)
+    },
+    achievements: {
+      list: uid => api(`/achievements/${uid}`),
+      check: uid => api(`/achievements/check/${uid}`, { method: 'POST', body: { userId: uid } })
+    },
+    goals: {
+      setTarget: (uid, targetXp) => api('/goals/target', { method: 'POST', body: { userId: uid, targetXp } })
     },
     placement: {
       submit: (uid, correct, total, answers) => api('/placement/submit', { method: 'POST', body: { userId: uid, correct, total, answers } })

@@ -79,5 +79,23 @@ Notes for the reviewer:
    confirm `GET /api/trial/status` reports expired after `trial_ends_at`.
 4. **Rate limits.** Hammer login with a wrong password ~30 times — you should see
    "Too many attempts" (per serverless instance).
-5. Local check: `node scripts/smoke-features.mjs` (21/21) and
-   `node .tmpcheck/authz-test.mjs` (7/7) must pass.
+5. Local check: `node scripts/smoke-features.mjs` (29/29) and
+   `node scripts/authz-test.mjs` (11/11) must pass.
+
+## P1 retention pack — QA checklist
+
+1. **Hearts** (practice page): floating ❤️ pill bottom-right shows 5 hearts.
+   Answer wrong in tones/builder/review/quiz → one heart empties. At 0 hearts a
+   modal offers gem refill (100) or mistake practice (+1). Clearing the review
+   deck grants +1 ❤️. Premium accounts show ❤️ ∞.
+2. **Leagues** (practice + roadmap leaderboard cards): now shows your Bamboo →
+   Diamond league cohort (top 5 = green promote zone), not the global board.
+   Rotation runs hourly via `functions/league-rotate.js` (top 5 promote,
+   bottom 5 demote each Monday).
+3. **Achievements** (profile): server-earned badges (First Steps, Sharp Ear,
+   Week Warrior, Treasure Hunter, Word Collector, Level Placed…) append to the
+   existing milestone grid with 🏅.
+4. **Daily goal** (settings): new 🎯 card — pick 20/50/100/200 XP/day; feeds
+   the daily quest card on Learn.
+5. New tables created automatically: `user_hearts`, `leagues` (+ unique index
+   on `achievements(user_id, achievement_type)`).

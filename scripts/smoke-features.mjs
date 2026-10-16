@@ -47,6 +47,14 @@ const guarded = [
   ['GET', '/api/classroom/roster/UNKNOWNCODE', null],
   ['GET', '/api/pet/1', null],
   ['GET', '/api/gems/1', null],
+  ['GET', '/api/hearts/1', null],
+  ['POST', '/api/hearts/lose', {}],
+  ['POST', '/api/hearts/refill', { mode: 'gems' }],
+  ['GET', '/api/leaderboard/league/1', null],
+  ['GET', '/api/review/mistakes/1', null],
+  ['GET', '/api/achievements/1', null],
+  ['POST', '/api/achievements/check/1', {}],
+  ['POST', '/api/goals/target', { targetXp: 50 }],
   ['POST', '/api/parents/digest/send', {}] // admin route: 401 without token
 ];
 

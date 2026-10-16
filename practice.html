@@ -5705,6 +5705,7 @@
                                     );
 
                                 if (window.HanVerseSound) window.HanVerseSound.wrong();
+                                if (window.HanVerseLoseHeart) window.HanVerseLoseHeart();
 
 
                                 const correctButton =
@@ -6216,11 +6217,14 @@
         .forEach(
             card => {
 
-                const activate =
-                    () => {
+                    const activate =
+                        async () => {
 
-                        const mode =
-                            card.dataset.mode;
+                            const mode =
+                                card.dataset.mode;
+
+                            if (!(await heartsGate())) return;
+
 
 
                         if (
@@ -6524,6 +6528,87 @@
         if (id && FV()) FV().games.session(id, game, score, correct, total).catch(() => {});
     };
 
+    /* ---------- 0. HEARTS (Duolingo-style lives) ---------- */
+    let heartsState = null;
+    function heartsUI() {
+        if (document.getElementById("hvHeartsPill")) return;
+        const pill = document.createElement("div");
+        pill.id = "hvHeartsPill";
+        pill.style.cssText = "position:fixed;bottom:18px;right:18px;z-index:980;display:none;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:#fff;border:1px solid var(--border,#D5E3F0);box-shadow:0 4px 14px rgba(15,35,64,.12);font-weight:800;font-size:13px;color:#0F2340;cursor:pointer";
+        pill.title = "Hearts — wrong answers cost one. Refill with gems or mistake practice.";
+        pill.onclick = openHeartsModal;
+        document.body.appendChild(pill);
+
+        const modal = document.createElement("div");
+        modal.id = "hvHeartsModal";
+        modal.style.cssText = "position:fixed;inset:0;z-index:990;display:none;align-items:center;justify-content:center;background:rgba(15,35,64,.55);padding:20px";
+        modal.innerHTML = `
+          <div style="max-width:340px;width:100%;background:#fff;border-radius:20px;padding:24px;text-align:center;font-family:inherit">
+            <div style="font-size:40px">💔</div>
+            <h3 style="margin:8px 0 4px;color:#0F2340">You're out of hearts!</h3>
+            <p style="margin:0 0 16px;color:#5D7A9A;font-size:14px">Refill to keep playing — or practise your weakest words to earn one back.</p>
+            <button id="hvHeartsGem" style="display:block;width:100%;margin-bottom:10px;padding:12px;border:0;border-radius:12px;background:#F97316;color:#fff;font-weight:800;font-size:14px;cursor:pointer">💎 Refill full bar — 100 gems</button>
+            <button id="hvHeartsPractice" style="display:block;width:100%;margin-bottom:10px;padding:12px;border:0;border-radius:12px;background:#2563EB;color:#fff;font-weight:800;font-size:14px;cursor:pointer">📖 Practise mistakes — earn +1 ❤️</button>
+            <button id="hvHeartsClose" style="display:block;width:100%;padding:12px;border:1px solid #D5E3F0;border-radius:12px;background:#fff;color:#0F2340;font-weight:800;font-size:14px;cursor:pointer">Later</button>
+            <p id="hvHeartsMsg" style="margin:10px 0 0;color:#5D7A9A;font-size:12px"></p>
+          </div>`;
+        document.body.appendChild(modal);
+
+        modal.querySelector("#hvHeartsClose").onclick = () => { modal.style.display = "none"; };
+        modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
+        modal.querySelector("#hvHeartsGem").onclick = async () => {
+            const msg = modal.querySelector("#hvHeartsMsg");
+            try {
+                heartsState = await FV().hearts.refill(FUID(), "gems");
+                msg.textContent = "✅ Hearts refilled!";
+                renderHearts();
+                setTimeout(() => { modal.style.display = "none"; }, 700);
+            } catch (e) { msg.textContent = e.message; }
+        };
+        modal.querySelector("#hvHeartsPractice").onclick = () => {
+            modal.style.display = "none";
+            // launch the review (mistake practice) mode — safest path that exists on this page
+            const reviewCard = document.querySelector('.mode-card[data-mode="review"]');
+            if (reviewCard) reviewCard.click();
+        };
+    }
+    function renderHearts() {
+        heartsUI();
+        const pill = document.getElementById("hvHeartsPill");
+        if (!pill || !heartsState) return;
+        pill.style.display = "flex";
+        pill.innerHTML = heartsState.unlimited
+            ? `<span>❤️</span><span>∞</span>`
+            : `<span>${"❤️".repeat(heartsState.hearts)}${"🤍".repeat(Math.max(0, heartsState.max - heartsState.hearts))}</span>`;
+        pill.style.opacity = heartsState.hearts === 0 ? ".75" : "1";
+    }
+    async function heartsInit() {
+        const id = FUID();
+        if (!id || !FV()) return;
+        try { heartsState = await FV().hearts.get(id); renderHearts(); } catch (e) { console.warn("hearts:", e.message); }
+    }
+    async function heartsGate() {
+        if (!FV() || !FUID()) return true; // signed-out: no hearts system
+        if (!heartsState) await heartsInit();
+        if (!heartsState) return true;
+        renderHearts();
+        if (heartsState.unlimited || heartsState.hearts > 0) return true;
+        document.getElementById("hvHeartsModal").style.display = "flex";
+        if (window.HanVerseSound) window.HanVerseSound.wrong();
+        return false;
+    }
+    async function loseHeart() {
+        if (!FV() || !FUID() || !heartsState || heartsState.unlimited) return;
+        if (heartsState.hearts <= 0) return;
+        try {
+            heartsState = await FV().hearts.lose(FUID());
+            renderHearts();
+            if (heartsState.hearts === 0 && window.HanVerseSound) window.HanVerseSound.wrong();
+        } catch (e) { console.warn("hearts/lose:", e.message); }
+    }
+    setTimeout(heartsInit, 1500);
+    window.HanVerseLoseHeart = loseHeart;
+
     /* ---------- 1. TONE-PAIR LISTENING GAME ---------- */
     const TONE_WORDS = [
         { hz: "妈妈", py: "māma", en: "mother", tone: 1 },
@@ -6610,6 +6695,7 @@
                     btn.style.borderColor = "var(--green)"; btn.style.background = "var(--green-50)";
                 } else {
                     if (window.HanVerseSound) window.HanVerseSound.wrong();
+                    if (window.HanVerseLoseHeart) window.HanVerseLoseHeart();
                     btn.style.borderColor = "var(--red)"; btn.style.background = "var(--red-light)";
                 }
                 setTimeout(nextToneRound, 700);
@@ -6660,6 +6746,7 @@
                         b.disabled = true; b.style.opacity = .4;
                     } else {
                         if (window.HanVerseSound) window.HanVerseSound.wrong();
+                        if (window.HanVerseLoseHeart) window.HanVerseLoseHeart();
                         $("builderMsg").textContent = "Not quite — try that piece later!";
                         built = built.slice(0, -1);
                     }
@@ -6697,7 +6784,13 @@
     function reviewNext(id, cards, idx) {
         if (idx >= cards.length) {
             if (window.HanVerseSound) window.HanVerseSound.levelUp();
-            $("modalContent").innerHTML = `<div class="empty"><h3>Deck cleared! 🔁</h3><p>See you next time — these words will come back when you're ready to forget them.</p></div>`;
+            // Mistake practice reward: +1 heart (Duolingo-style practice refill)
+            (async () => {
+                try {
+                    if (FV() && FUID()) { heartsState = await FV().hearts.refill(FUID(), "practice"); renderHearts(); }
+                } catch (e) { console.warn("hearts practice refill:", e.message); }
+            })();
+            $("modalContent").innerHTML = `<div class="empty"><h3>Deck cleared! 🔁</h3><p>+1 ❤️ for practising! These words will come back when you're ready to forget them.</p></div>`;
             return;
         }
         const c = cards[idx];
@@ -6721,31 +6814,56 @@
                 const q = Number(b.dataset.q);
                 if (q >= 4 && window.HanVerseSound) window.HanVerseSound.correct();
                 if (q < 3 && window.HanVerseSound) window.HanVerseSound.wrong();
+                if (q < 3 && window.HanVerseLoseHeart) window.HanVerseLoseHeart();
                 try { await FV().review.answer(id, c.word, q, { pinyin: c.pinyin, meaning: c.meaning }); } catch (e) {}
                 reviewNext(id, cards, idx + 1);
             };
         });
     }
 
-    /* ---------- 4. WEEKLY LEADERBOARD + WORKSHEET PRINTER ---------- */
+    /* ---------- 4. WEEKLY LEAGUE + LEADERBOARD + WORKSHEET PRINTER ---------- */
     async function showLeaderboard() {
         const id = FUID();
         if (!id || !FV()) return;
+        const lb = document.getElementById("leaderboardCard");
+        if (!lb) return;
         try {
-            const data = await FV().leaderboard.weekly(id);
-            if (data.optedOut) return;
-            const lb = document.getElementById("leaderboardCard");
-            if (!lb) return;
+            // Prefer the Duolingo-style weekly league (falls back to global top-20)
+            const data = await FV().leagues.get(id);
             lb.style.display = "";
+            lb.querySelector(".section-title").innerHTML = `
+                <small>Week of ${data.weekStart}</small>
+                <h2>${data.meta.emoji} ${data.meta.name}</h2>
+                <p style="color:var(--muted);font-size:.75rem;margin:4px 0 0">Top 5 promote · bottom 5 demote · resets Monday</p>`;
+            const medal = r => r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : `${r}.`;
             lb.querySelector(".lb-rows").innerHTML = data.leaders.length
-                ? data.leaders.map((l, i) => `
-                    <div class="lb-row${l.user_id === id ? ' me' : ''}">
-                        <span class="lb-rank">${["🥇", "🥈", "🥉"][i] || `${i + 1}.`}</span>
-                        <span class="lb-name">${l.full_name || l.username || "Learner"}</span>
-                        <span class="lb-xp">${l.week_xp} XP</span>
+                ? data.leaders.map(l => `
+                    <div class="lb-row${l.isMe ? ' me' : ''}" style="${l.rank <= 5 ? 'border-left:3px solid var(--green,#16A34A)' : ''}">
+                        <span class="lb-rank">${medal(l.rank)}</span>
+                        <span class="lb-name">${l.name}${l.isMe ? " (you)" : ""}</span>
+                        <span class="lb-xp">${l.weeklyXp} XP</span>
                     </div>`).join("")
-                : `<p style="color:var(--muted);font-size:.8rem">No XP this week yet — be the first!</p>`;
-        } catch (e) { console.warn("leaderboard:", e.message); }
+                + (data.me.rank > data.leaders.length
+                    ? `<div class="lb-row me"><span class="lb-rank">${medal(data.me.rank)}</span><span class="lb-name">You</span><span class="lb-xp">${data.me.weeklyXp} XP</span></div>`
+                    : "")
+                : `<p style="color:var(--muted);font-size:.8rem">No XP in your league yet — earn some in any game!</p>`;
+        } catch (e) {
+            console.warn("league:", e.message);
+            try {
+                const data = await FV().leaderboard.weekly(id);
+                if (data.optedOut) return;
+                lb.style.display = "";
+                lb.querySelector(".section-title").innerHTML = `<small>This week</small><h2>🏆 Weekly Leaderboard</h2>`;
+                lb.querySelector(".lb-rows").innerHTML = data.leaders.length
+                    ? data.leaders.map((l, i) => `
+                        <div class="lb-row${l.user_id === id ? ' me' : ''}">
+                            <span class="lb-rank">${["🥇", "🥈", "🥉"][i] || `${i + 1}.`}</span>
+                            <span class="lb-name">${l.full_name || l.username || "Learner"}</span>
+                            <span class="lb-xp">${l.week_xp} XP</span>
+                        </div>`).join("")
+                    : `<p style="color:var(--muted);font-size:.8rem">No XP this week yet — be the first!</p>`;
+            } catch (e2) { console.warn("leaderboard:", e2.message); }
+        }
     }
     setTimeout(showLeaderboard, 1200);
 

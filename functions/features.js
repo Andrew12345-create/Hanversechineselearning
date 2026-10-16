@@ -103,6 +103,28 @@ export async function ensureFeatureSchema(pgPool) {
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
+  // --- hearts (P1 retention): 5 max, +1 per 30 min, premium = unlimited
+  await q(`CREATE TABLE IF NOT EXISTS user_hearts (
+    user_id INTEGER PRIMARY KEY REFERENCES users(user_id),
+    hearts INTEGER DEFAULT 5,
+    last_refill TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+  )`);
+
+  // --- weekly leagues (P1 retention): bronze → diamond cohorts
+  await q(`CREATE TABLE IF NOT EXISTS leagues (
+    league_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    week_start DATE NOT NULL,
+    league VARCHAR(20) NOT NULL DEFAULT 'bronze',
+    UNIQUE(user_id, week_start)
+  )`);
+  await q(`CREATE INDEX IF NOT EXISTS idx_leagues_week ON leagues(week_start, league)`);
+
+  // --- achievements catalog writes (base table exists; make grants idempotent)
+  await q(`CREATE UNIQUE INDEX IF NOT EXISTS idx_achievements_unique
+           ON achievements(user_id, achievement_type)`);
+
   // --- TRIAL EXPIRY SWEEP: once per cold instance. Only clears trial
   // premium; Stripe premium lives in the separate `premium`/`premium_until`
   // columns and is unaffected.
@@ -283,6 +305,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
          VALUES ($1, '🎁 Daily chest opened!', $2, 'reward')`,
         [userId, `All quests complete! +${bonusXp} XP and ${bonusGems} gems.`]);
 
+      await grant(userId, 'treasure_hunter');
       ok(res, { bonusXp, bonusGems });
     } catch (e) {
       console.error('quests/claim-chest error:', e);
@@ -444,6 +467,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
          VALUES ($1,$2,$3,$4,$5)`,
         [userId, level, correct, total, JSON.stringify(req.body.answers || [])]
       );
+      await grant(userId, 'placed');
       ok(res, { recommendedLevel: level,
         message: `We recommend starting at YCT ${level}.` });
     } catch (e) {
@@ -475,6 +499,8 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
         await pool.query(`UPDATE users SET xp = xp + $1, updated_at = NOW() WHERE user_id = $2`, [xp, userId]);
         await pool.query(`INSERT INTO xp_logs (user_id, amount, source) VALUES ($1, $2, $3)`, [userId, xp, `game:${game}`]);
       }
+      await grant(userId, 'first_game');
+      if (total >= 10 && correct / total >= 0.9) await grant(userId, 'sharp_ear');
       ok(res, { xpEarned: xp });
     } catch (e) {
       console.error('games/session error:', e);
@@ -762,6 +788,311 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     } catch (e) {
       console.error('gems error:', e);
       fail(res, 500, 'Failed to load gems');
+    }
+  });
+
+  /* =========================================================
+     13. HEARTS  (5 max · +1 per 30 min · mistakes cost hearts ·
+         premium unlimited · refill with gems or mistake practice)
+  ========================================================= */
+  const HEART_MAX = 5;
+  const HEART_REFILL_MS = 30 * 60 * 1000; // 30 minutes per heart
+  const HEART_REFILL_GEM_COST = 100;
+
+  async function heartState(userId) {
+    const u = (await pool.query(
+      `SELECT is_premium, premium FROM users WHERE user_id = $1`, [userId]
+    )).rows[0];
+    if (!u) return null;
+    const unlimited = !!(u.is_premium || u.premium);
+    let row = (await pool.query(
+      `SELECT hearts, last_refill FROM user_hearts WHERE user_id = $1`, [userId]
+    )).rows[0];
+    if (!row) {
+      row = (await pool.query(
+        `INSERT INTO user_hearts (user_id, hearts, last_refill) VALUES ($1,$2,NOW()) RETURNING hearts, last_refill`,
+        [userId, HEART_MAX]
+      )).rows[0];
+    }
+    let { hearts, last_refill } = row;
+    hearts = Number(hearts) || 0;
+    let last = new Date(last_refill).getTime();
+    if (!unlimited && hearts < HEART_MAX) {
+      // bank the elapsed refills
+      const elapsed = Date.now() - last;
+      const gained = Math.floor(elapsed / HEART_REFILL_MS);
+      if (gained > 0) {
+        hearts = Math.min(HEART_MAX, hearts + gained);
+        const carried = elapsed % HEART_REFILL_MS;
+        last = hearts >= HEART_MAX ? Date.now() : Date.now() - carried;
+        await pool.query(
+          `UPDATE user_hearts SET hearts=$1, last_refill=$2, updated_at=NOW() WHERE user_id=$3`,
+          [hearts, new Date(last), userId]
+        );
+      }
+    }
+    const nextRefillAt = hearts >= HEART_MAX ? null : last + HEART_REFILL_MS;
+    return { unlimited, hearts, nextRefillAt };
+  }
+
+  router.get('/hearts/:userId', requireAuth, async (req, res) => {
+    try {
+      const s = await heartState(req.userId);
+      if (!s) return fail(res, 404, 'User not found');
+      ok(res, {
+        hearts: s.unlimited ? HEART_MAX : s.hearts,
+        max: HEART_MAX,
+        unlimited: s.unlimited,
+        nextRefillAt: s.nextRefillAt,
+        refillGemCost: HEART_REFILL_GEM_COST
+      });
+    } catch (e) {
+      console.error('hearts error:', e);
+      fail(res, 500, 'Failed to load hearts');
+    }
+  });
+
+  // Lose one heart (a wrong answer). 402 when already empty → client shows refill modal.
+  router.post('/hearts/lose', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const s = await heartState(req.userId);
+      if (!s) return fail(res, 404, 'User not found');
+      if (s.unlimited) return ok(res, { unlimited: true, hearts: HEART_MAX });
+      if (s.hearts <= 0) return fail(res, 402, 'Out of hearts — refill to keep playing');
+      const updated = (await pool.query(
+        `UPDATE user_hearts SET hearts = hearts - 1, updated_at = NOW() WHERE user_id = $1 RETURNING hearts`,
+        [req.userId]
+      )).rows[0];
+      ok(res, { unlimited: false, hearts: updated.hearts, max: HEART_MAX, refillGemCost: HEART_REFILL_GEM_COST });
+    } catch (e) {
+      console.error('hearts/lose error:', e);
+      fail(res, 500, 'Failed to update hearts');
+    }
+  });
+
+  // Refill: pay gems for a full bar, or grant +1 after a mistake-practice session.
+  router.post('/hearts/refill', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const mode = String(req.body.mode || 'gems');
+      const s = await heartState(req.userId);
+      if (!s) return fail(res, 404, 'User not found');
+      if (s.unlimited) return ok(res, { unlimited: true, hearts: HEART_MAX });
+
+      if (mode === 'gems') {
+        const u = (await pool.query(`SELECT gems FROM users WHERE user_id = $1`, [req.userId])).rows[0];
+        if ((u.gems || 0) < HEART_REFILL_GEM_COST) return fail(res, 402, `Not enough gems (${HEART_REFILL_GEM_COST} needed)`);
+        await pool.query(`UPDATE users SET gems = gems - $1 WHERE user_id = $2`, [HEART_REFILL_GEM_COST, req.userId]);
+        await pool.query(`UPDATE user_hearts SET hearts = $1, last_refill = NOW(), updated_at = NOW() WHERE user_id = $2`, [HEART_MAX, req.userId]);
+        return ok(res, { hearts: HEART_MAX, max: HEART_MAX, gemsSpent: HEART_REFILL_GEM_COST });
+      }
+
+      if (mode === 'practice') {
+        if (s.hearts >= HEART_MAX) return ok(res, { hearts: s.hearts, max: HEART_MAX });
+        const updated = (await pool.query(
+          `UPDATE user_hearts SET hearts = LEAST($1, hearts + 1), updated_at = NOW() WHERE user_id = $2 RETURNING hearts`,
+          [HEART_MAX, req.userId]
+        )).rows[0];
+        return ok(res, { hearts: updated.hearts, max: HEART_MAX, granted: 1 });
+      }
+
+      return fail(res, 400, 'Unknown refill mode');
+    } catch (e) {
+      console.error('hearts/refill error:', e);
+      fail(res, 500, 'Failed to refill hearts');
+    }
+  });
+
+  /* =========================================================
+     14. WEEKLY LEAGUES  (bronze → silver → gold → sapphire → diamond)
+         ~30-user cohorts, top 5 promote, bottom 5 demote, weekly.
+  ========================================================= */
+  const LEAGUE_TIERS = ['bronze', 'silver', 'gold', 'sapphire', 'diamond'];
+  const LEAGUE_META = {
+    bronze:   { name: 'Bamboo League',   emoji: '🎋', min: 0, max: 1 },
+    silver:   { name: 'Bronze League',   emoji: '🥉', min: 1, max: 2 },
+    gold:     { name: 'Silver League',   emoji: '🥈', min: 2, max: 3 },
+    sapphire: { name: 'Gold League',     emoji: '🥇', min: 3, max: 4 },
+    diamond:  { name: 'Diamond League',  emoji: '💎', min: 4, max: 4 }
+  };
+  const weekStartOf = (d = new Date()) => {
+    // Monday 00:00 UTC
+    const day = d.getUTCDay();
+    const diff = (day + 6) % 7;
+    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - diff))
+      .toISOString().slice(0, 10);
+  };
+
+  router.get('/leaderboard/league/:userId', requireAuth, async (req, res) => {
+    try {
+      const userId = Number(req.params.userId);
+      const weekStart = weekStartOf();
+
+      // current-week row, seeded from last week's tier (or bronze)
+      const existing = (await pool.query(
+        `SELECT league FROM leagues WHERE user_id = $1 AND week_start = $2`, [userId, weekStart]
+      )).rows[0];
+      if (!existing) {
+        const prev = (await pool.query(
+          `SELECT league FROM leagues WHERE user_id = $1 AND week_start < $2 ORDER BY week_start DESC LIMIT 1`,
+          [userId, weekStart]
+        )).rows[0];
+        await pool.query(
+          `INSERT INTO leagues (user_id, week_start, league) VALUES ($1,$2,$3)
+           ON CONFLICT (user_id, week_start) DO NOTHING`,
+          [userId, weekStart, prev ? prev.league : 'bronze']
+        );
+      }
+      const myLeague = (existing || (await pool.query(
+        `SELECT league FROM leagues WHERE user_id = $1 AND week_start = $2`, [userId, weekStart]
+      ))).rows[0].league;
+
+      // cohort standings for this week (xp banked since Monday)
+      const rows = (await pool.query(
+        `SELECT u.user_id, u.full_name, u.username, u.is_premium,
+                COALESCE(SUM(x.amount), 0) AS weekly_xp
+         FROM leagues l
+         JOIN users u ON u.user_id = l.user_id
+         LEFT JOIN xp_logs x ON x.user_id = u.user_id AND x.timestamp >= $1::date
+         WHERE l.week_start = $1::date AND l.league = $2 AND u.share_leaderboard = TRUE
+         GROUP BY u.user_id, u.full_name, u.username, u.is_premium
+         ORDER BY weekly_xp DESC, u.user_id ASC
+         LIMIT 30`,
+        [weekStart, myLeague]
+      )).rows;
+
+      const leaders = rows.map((r, i) => ({
+        rank: i + 1,
+        userId: r.user_id,
+        name: r.full_name || r.username || 'Panda',
+        weeklyXp: Number(r.weekly_xp) || 0,
+        isMe: r.user_id === userId
+      }));
+      const my = leaders.find(l => l.isMe);
+      ok(res, {
+        weekStart,
+        league: myLeague,
+        meta: LEAGUE_META[myLeague],
+        me: my || { rank: leaders.length + 1, weeklyXp: 0 },
+        promoteCut: 5,
+        demoteCut: Math.max(0, leaders.length - 5),
+        leaders,
+        nextRotation: weekStartOf(new Date(Date.now() + 7 * 86400000))
+      });
+    } catch (e) {
+      console.error('league error:', e);
+      fail(res, 500, 'Failed to load league');
+    }
+  });
+
+  /* =========================================================
+     15. MISTAKES HUB  (weakest words first — lapses & low ease)
+  ========================================================= */
+  router.get('/review/mistakes/:userId', requireAuth, async (req, res) => {
+    try {
+      const userId = Number(req.params.userId);
+      const rows = (await pool.query(
+        `SELECT word, pinyin, meaning, lapses, ease, due_at
+         FROM review_queue WHERE user_id = $1
+         ORDER BY lapses DESC, ease ASC, due_at ASC
+         LIMIT 20`, [userId]
+      )).rows;
+      ok(res, { mistakes: rows, count: rows.length });
+    } catch (e) {
+      console.error('review/mistakes error:', e);
+      fail(res, 500, 'Failed to load mistakes');
+    }
+  });
+
+  /* =========================================================
+     16. ACHIEVEMENTS  (writes to the existing base table)
+  ========================================================= */
+  const ACHIEVEMENTS = [
+    { type: 'first_game',     name: 'First Steps 🎮',    desc: 'Finish your first practice game' },
+    { type: 'sharp_ear',      name: 'Sharp Ear 👂',      desc: 'Score 90%+ in a listening game' },
+    { type: 'week_warrior',   name: 'Week Warrior 🔥',   desc: 'Keep a 7-day streak' },
+    { type: 'month_master',   name: 'Month Master 🗓️',  desc: 'Keep a 30-day streak' },
+    { type: 'treasure_hunter',name: 'Treasure Hunter 🧰',desc: 'Claim your first quest chest' },
+    { type: 'word_collector', name: 'Word Collector 📚', desc: 'Add 25 words to your review deck' },
+    { type: 'placed',         name: 'Level Placed 🎯',   desc: 'Complete the placement quiz' }
+  ];
+
+  async function grant(userId, type) {
+    try {
+      const def = ACHIEVEMENTS.find(a => a.type === type);
+      if (!def) return;
+      await pool.query(
+        `INSERT INTO achievements (user_id, achievement_type, achievement_name)
+         SELECT $1, $2, $3 WHERE NOT EXISTS (
+           SELECT 1 FROM achievements WHERE user_id = $1 AND achievement_type = $2)`,
+        [userId, type, def.name]
+      );
+    } catch (e) {
+      console.warn('achievement grant failed (non-fatal):', e.message);
+    }
+  }
+
+  router.get('/achievements/:userId', requireAuth, async (req, res) => {
+    try {
+      const userId = Number(req.params.userId);
+      const earned = (await pool.query(
+        `SELECT achievement_type, achievement_name, earned_at FROM achievements WHERE user_id = $1`,
+        [userId]
+      )).rows;
+      const earnedSet = new Set(earned.map(a => a.achievement_type));
+      ok(res, {
+        catalog: ACHIEVEMENTS.map(a => ({ ...a, earned: earnedSet.has(a.type) })),
+        earned: earned.map(a => ({ type: a.achievement_type, name: a.achievement_name, at: a.earned_at }))
+      });
+    } catch (e) {
+      console.error('achievements error:', e);
+      fail(res, 500, 'Failed to load achievements');
+    }
+  });
+
+  // Achievement hooks — non-blocking checks on existing flows
+  router.post('/achievements/check/:userId', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const userId = req.userId;
+      const u = (await pool.query(
+        `SELECT streak_days FROM users WHERE user_id = $1`, [userId]
+      )).rows[0];
+      if (u) {
+        if ((u.streak_days || 0) >= 7) await grant(userId, 'week_warrior');
+        if ((u.streak_days || 0) >= 30) await grant(userId, 'month_master');
+      }
+      const words = (await pool.query(
+        `SELECT COUNT(*) AS c FROM review_queue WHERE user_id = $1`, [userId]
+      )).rows[0];
+      if (Number(words.c) >= 25) await grant(userId, 'word_collector');
+      const earned = (await pool.query(
+        `SELECT achievement_type, achievement_name FROM achievements WHERE user_id = $1`,
+        [userId]
+      )).rows;
+      ok(res, { earned });
+    } catch (e) {
+      console.error('achievements/check error:', e);
+      fail(res, 500, 'Failed to check achievements');
+    }
+  });
+
+  /* =========================================================
+     17. DAILY GOAL TARGET  (onboarding: pick 20 / 50 / 100 / 200 XP)
+  ========================================================= */
+  router.post('/goals/target', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const targetXp = Number(req.body.targetXp);
+      if (![20, 50, 100, 200].includes(targetXp)) return fail(res, 400, 'targetXp must be 20, 50, 100 or 200');
+      const today = todayISO();
+      await pool.query(
+        `INSERT INTO daily_goals (user_id, goal_date, target_xp)
+         VALUES ($1,$2,$3)
+         ON CONFLICT (user_id, goal_date) DO UPDATE SET target_xp = $3`,
+        [req.userId, today, targetXp]
+      );
+      ok(res, { targetXp });
+    } catch (e) {
+      console.error('goals/target error:', e);
+      fail(res, 500, 'Failed to set daily goal');
     }
   });
 }
