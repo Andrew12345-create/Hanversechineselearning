@@ -28,43 +28,33 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
     rel="stylesheet"
 >
+<link rel="stylesheet" href="hanverse.css">
 
 <style id="hanverse-layout-css">
  :root{
   --blue:#2563EB;--blue-dark:#1D4ED8;--blue-soft:#DBEAFE;
   --teal:#14B8A6;--teal-soft:#CCFBF1;
   --amber:#F59E0B;--amber-soft:#FEF3C7;
-  --green:#10B981;--green-soft:#ECFDF5;
-  --red:#E63946;--red-dark:#C92F3B;
+  --green:#16A34A;--green-soft:#ECFDF5;
+  --red:#DC2626;--red-dark:#C92F3B;
   --primary:#2563EB;--secondary:#F59E0B;--accent:#2563EB;
-  --navy:#0F172A;--ink:#1E293B;--text:#1E293B;--muted:#64748B;
-  --bg:#F8FAFC;--white:#FFFFFF;--line:#E2E8F0;
-  --card:#FFFFFF;--shadow:0 18px 55px rgba(15,23,42,.10);
-  --soft-shadow:0 8px 30px rgba(15,23,42,.06);
+  --navy:#0F2340;--ink:#1E3A5F;--text:#1E3A5F;--muted:#5D7A9A;
+  --bg:#F5F9FF;--white:#FFFFFF;--line:#D5E3F0;
+  --card:#FFFFFF;--shadow:0 16px 48px rgba(15,35,64,.12);
+  --soft-shadow:0 6px 20px rgba(15,35,64,.09);
   --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:linear-gradient(180deg,#FFFDF7 0%,#F8FAFC 100%);color:var(--ink);font-family:Poppins,system-ui,sans-serif;min-height:100vh}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;min-height:100vh}
 button,a{font:inherit}
 button{border:0}
 img{max-width:100%}
 .hidden{display:none!important}
-.nav{position:sticky;top:0;z-index:900;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(226,232,240,.85)}
-.navin{max-width:1180px;margin:auto;min-height:70px;padding:0 22px;display:flex;align-items:center;gap:24px}
-.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:900;font-size:1.08rem}
-.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--primary);color:#fff;font-size:1.25rem;box-shadow:0 8px 20px rgba(230,57,70,.2)}
-.links{display:flex;align-items:center;gap:6px;margin-left:auto}
-.links a,.mobile a{padding:9px 12px;border-radius:10px;color:#475569;text-decoration:none;font-size:.84rem;font-weight:700}
-.links a:hover,.links a.active,.mobile a:hover{background:#fff4f4;color:var(--primary)}
-.profile{padding:9px 13px;border-radius:999px;background:#f8fafc;color:#334155;text-decoration:none;font-size:.82rem;font-weight:800;white-space:nowrap}
-.menu{display:none;background:#f8fafc;border-radius:10px;padding:9px 11px;cursor:pointer}
-.mobile{display:none;max-width:1180px;margin:auto;padding:0 22px 14px;gap:6px;flex-wrap:wrap}
-.mobile.open{display:flex}
-.wrap{width:min(1100px,calc(100% - 32px));margin:0 auto;padding:34px 0 130px}
+.wrap{width:min(1100px,calc(100% - 32px));margin:0 auto;padding:120px 0 130px}
 .lesson-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:18px}
 .eyebrow,.kicker{font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
 .lesson-head h1{margin:7px 0 6px;font-size:clamp(2rem,4vw,3.35rem);line-height:1.05;letter-spacing:-.04em}
@@ -117,7 +107,7 @@ img{max-width:100%}
 .toast{position:fixed;right:20px;bottom:20px;z-index:3000;padding:12px 16px;border-radius:13px;background:#0f172a;color:#fff;font-weight:800;box-shadow:var(--shadow)}.toast.success{background:#166534}.toast.error{background:#9f1239}.xp-burst{position:fixed;left:50%;top:25%;z-index:2500;transform:translateX(-50%);font-weight:950;color:#92400e;animation:xpBurst 1s var(--ease) forwards}@keyframes xpBurst{0%{opacity:0;transform:translate(-50%,15px) scale(.8)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-75px) scale(1.12)}}
 .lesson-complete-modal{position:fixed;inset:0;z-index:5000;display:none;place-items:center;padding:20px;background:rgba(15,23,42,.5);backdrop-filter:blur(8px)}.lesson-complete-modal.open{display:grid}.complete-modal-card{width:min(520px,100%);padding:32px;border-radius:28px;background:#fff;box-shadow:0 30px 90px rgba(15,23,42,.25);text-align:center;position:relative}.modal-close{position:absolute;right:15px;top:12px;background:#f8fafc;border-radius:50%;width:35px;height:35px;cursor:pointer;font-size:1.4rem}.complete-modal-icon{font-size:3.5rem}.modal-rewards{display:flex;gap:10px;justify-content:center;margin:22px 0;flex-wrap:wrap}.modal-reward{min-width:105px;padding:12px;background:#f8fafc;border-radius:14px}.modal-reward strong,.modal-reward span{display:block}.modal-reward span{font-size:.65rem;color:var(--muted)}.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .community-tab{position:fixed;right:0;top:42%;z-index:1200;width:62px;min-height:86px;padding:10px 8px;border:1px solid #dbe4ef;border-right:0;border-radius:18px 0 0 18px;background:rgba(255,255,255,.98);display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 12px 34px rgba(15,23,42,.16);cursor:pointer;color:var(--ink)}.community-tab-dot{width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 0 4px rgba(116,198,157,.15)}.community-tab-icon{font-size:1.25rem}.community-tab-count{font-size:.62rem;font-weight:900}.community-backdrop{position:fixed;inset:0;z-index:1250;background:rgba(15,23,42,.22);opacity:0;pointer-events:none;transition:opacity .25s}.community-backdrop.open{opacity:1;pointer-events:auto}.community-drawer{position:fixed;right:14px;top:82px;z-index:1300;width:min(360px,calc(100vw - 28px));max-height:calc(100vh - 100px);overflow:auto;padding:18px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.98);box-shadow:0 24px 70px rgba(15,23,42,.2);transform:translateX(calc(100% + 30px));opacity:0;pointer-events:none;transition:transform .3s var(--ease),opacity .25s}.community-drawer.open{transform:none;opacity:1;pointer-events:auto}.community-drawer-head{display:flex;justify-content:space-between;gap:12px}.community-drawer-head h2{margin:3px 0;font-size:1.15rem}.community-drawer-head p{margin:0;color:var(--muted);font-size:.72rem}.community-kicker,.community-feed-title{font-size:.6rem;letter-spacing:.12em;font-weight:950;color:var(--primary)}.community-close{width:34px;height:34px;border-radius:50%;background:#f8fafc;cursor:pointer;font-size:1.3rem}.community-live-note{display:flex;align-items:center;gap:8px;margin:15px 0;padding:10px 12px;border-radius:13px;background:#ecfdf5;color:#166534;font-size:.72rem;font-weight:800}.community-pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:hanpanStatusPulse 1.5s infinite}.community-learners{display:flex;gap:7px;flex-wrap:wrap}.community-learner{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;background:#f8fafc;border:1px solid var(--line);border-radius:999px;font-size:.65rem;font-weight:700}.community-learner-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}.community-empty{font-size:.7rem;color:#94a3b8}.community-feed-wrap{margin-top:18px}.community-feed{display:grid;gap:7px;margin-top:8px}.community-feed-item{padding:10px;border-radius:12px;background:#f8fafc;font-size:.68rem;font-weight:700;color:#475569}
-@media(max-width:760px){.links{display:none}.menu{display:block;margin-left:auto}.profile{margin-left:auto}.wrap{width:min(100% - 20px,1100px);padding-top:22px}.lesson-head{align-items:flex-start;flex-direction:column}.xp{align-self:flex-start}.stage{padding:24px 18px}.journey{padding:14px}.controls{padding:15px}.community-tab{width:54px;min-height:76px}.community-drawer{top:70px}.hanzi{font-size:3.4rem}}
+@media(max-width:760px){.wrap{width:min(100% - 20px,1100px);padding-top:105px}.lesson-head{align-items:flex-start;flex-direction:column}.xp{align-self:flex-start}.stage{padding:24px 18px}.journey{padding:14px}.controls{padding:15px}.community-tab{width:54px;min-height:76px}.community-drawer{top:92px}.hanzi{font-size:3.4rem}}
 @media(max-width:430px){.wrap{width:calc(100% - 14px)}.journey{gap:11px}.panda-avatar{flex-basis:82px!important;width:82px!important;height:82px!important}.panda-reaction{display:none}.stage{min-height:430px;padding:20px 13px}.controls{gap:8px}.btn{padding:10px 12px}.counter{font-size:.7rem}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
 
@@ -139,21 +129,6 @@ body{
     var(--bg);
   color:var(--text);
 }
-.nav{
-  background:rgba(255,255,255,.94);
-  border-bottom:1px solid rgba(226,232,240,.9);
-  box-shadow:0 8px 32px rgba(15,23,42,.06);
-}
-.brand{color:var(--navy)}
-.logo{
-  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
-  box-shadow:0 8px 20px rgba(37,99,235,.22);
-}
-.links a:hover,.links a.active,.mobile a:hover{
-  background:var(--blue-soft);
-  color:var(--blue);
-}
-.profile{background:#F8FAFC;color:var(--navy)}
 .eyebrow,.kicker{color:var(--blue)}
 .lesson-head h1{color:var(--navy)}
 .xp{
@@ -716,7 +691,7 @@ button:focus-visible,a:focus-visible{
   outline-offset:3px;
 }
 @media(max-width:760px){
-  .wrap{width:calc(100% - 22px);padding-top:24px}
+  .wrap{width:calc(100% - 22px);padding-top:105px}
   .lesson-head{align-items:flex-start;flex-direction:column}
   .xp{align-self:flex-start}
   .stage{padding:22px}
@@ -1325,59 +1300,33 @@ button:focus-visible,a:focus-visible{
      NAV
      ======================================================= -->
 
-<header class="nav">
-
-    <div class="navin">
-
-        <a
-            class="brand"
-            href="index.html"
-        >
-
-            <span class="logo">
-                汉
-            </span>
-
-            <span>
-                Hanverse
-            </span>
-
-        </a>
-
-
-        <nav
-            class="links"
-            id="links"
-        ></nav>
-
-
-        <a
-            class="profile"
-            id="profile"
-            href="profile.html"
-        >
-            👤 Me
-        </a>
-
-
-        <button
-            class="menu"
-            id="menu"
-            type="button"
-            aria-label="Open navigation"
-        >
-            ☰
-        </button>
-
-    </div>
-
-
-    <nav
-        class="mobile"
-        id="mobile"
-    ></nav>
-
-</header>
+<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">
+  <a class="brand" href="index.html" aria-label="HanVerse home">
+    <img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">
+    <span>HanVerse</span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="learn.html">Learn</a>
+    <a href="practice.html">Practice</a>
+    <a href="explore.html">Explore</a>
+    <a href="roadmap.html">Roadmap</a>
+  </div>
+  <div class="nav-actions">
+    <a class="nav-user" id="profile" href="profile.html"><span class="avatar">👤</span><span id="profileName">Learner</span></a>
+  </div>
+  <button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+  <a href="index.html">Home</a>
+  <a href="learn.html">Learn</a>
+  <a href="practice.html">Practice</a>
+  <a href="explore.html">Explore</a>
+  <a href="roadmap.html">Roadmap</a>
+  <div class="nav-user-row"><a href="profile.html">👤 <span id="profileNameMobile">Learner</span></a></div>
+</nav>
 
 
 
@@ -1757,6 +1706,8 @@ button:focus-visible,a:focus-visible{
 
 
 
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
 <script>
 
 "use strict";
@@ -2006,77 +1957,10 @@ function userName(){
 
 function renderNav(){
 
-    const links = [
+    $("profileName").textContent =
+        userName();
 
-        ["🏠 Home","index.html"],
-
-        ["📚 Learn","learn.html"],
-
-        ["🎮 Play","practice.html"],
-
-        ["🌏 Explore","explore.html"],
-
-        ["🐼 Panda","talk.html"],
-
-        ["👤 Me","profile.html"]
-
-    ];
-
-
-    $("links").innerHTML =
-        "";
-
-    $("mobile").innerHTML =
-        "";
-
-
-    links.forEach(
-        ([text,href]) => {
-
-            const desktop =
-                document.createElement(
-                    "a"
-                );
-
-
-            desktop.href =
-                href;
-
-            desktop.textContent =
-                text;
-
-
-            if(
-                href ===
-                "learn.html"
-            ){
-
-                desktop.classList.add(
-                    "active"
-                );
-
-            }
-
-
-            $("links")
-                .appendChild(
-                    desktop
-                );
-
-
-            $("mobile")
-                .appendChild(
-                    desktop.cloneNode(
-                        true
-                    )
-                );
-
-        }
-    );
-
-
-    $("profile").textContent =
-        "👤 " +
+    $("profileNameMobile").textContent =
         userName();
 
 }
@@ -5820,27 +5704,6 @@ $("back").onclick =
 $("retry").onclick =
     () =>
         location.reload();
-
-
-$("menu").onclick =
-    () => {
-
-        const mobile =
-            $("mobile");
-
-
-        const open =
-            mobile
-                .classList
-                .toggle("open");
-
-
-        $("menu").textContent =
-            open
-                ? "✕"
-                : "☰";
-
-    };
 
 
 /* =========================================================
