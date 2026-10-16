@@ -524,6 +524,8 @@ img{max-width:100%;display:block}
     <div class="quick"><div class="quick-icon">⭐</div><div><strong id="quickXP">0</strong><span>Total XP</span></div></div>
     <div class="quick"><div class="quick-icon">🏆</div><div><strong id="quickLevel">1</strong><span>Level</span></div></div>
     <div class="quick"><div class="quick-icon">📚</div><div><strong id="quickLessons">0</strong><span>Lessons</span></div></div>
+    <div class="quick" id="petCard" style="display:none"><div class="quick-icon" id="petEmoji">🐼</div><div><strong id="petName">—</strong><span id="petSub">HanPan</span></div></div>
+    <div class="quick" id="referralCard" style="display:none"><div class="quick-icon">💌</div><div><strong id="referralCount">0</strong><span>Friends joined · <b id="referralMonths">0</b>★ earned</span></div></div>
   </section>
 
   <div class="main-grid">
@@ -656,6 +658,7 @@ img{max-width:100%;display:block}
 
 <script src="hanverse.js"></script>
 <script src="nav-user.js"></script>
+<script src="features-client.js"></script>
 <script>
 (() => {
 "use strict";
@@ -1165,6 +1168,28 @@ async function loadProfile(){
   renderActivity();
   renderHeatmap();
   renderRecentWords();
+
+  // ===== Feature pack: pet evolution + referral progress =====
+  if (window.HanVerseFeatures) {
+    const pid = userId(state.user) || (() => { try { return JSON.parse(localStorage.getItem("hanverse_user")||"null")?.user_id; } catch { return null; } })();
+    if (pid) {
+      try {
+        const pet = (await window.HanVerseFeatures.pet.get(pid));
+        $("petCard").style.display = "";
+        $("petEmoji").textContent = pet.emoji;
+        $("petName").textContent = pet.name;
+        $("petSub").textContent = pet.next
+          ? `${pet.next.xpNeeded} XP to ${pet.next.name}`
+          : "Max stage — legendary!";
+      } catch (e) { console.warn("pet:", e.message); }
+      try {
+        const ref = (await window.HanVerseFeatures.referrals.stats(pid));
+        $("referralCard").style.display = "";
+        $("referralCount").textContent = ref.joined;
+        $("referralMonths").textContent = ref.premiumMonthsEarned;
+      } catch (e) { console.warn("referrals:", e.message); }
+    }
+  }
 }
 
 const toggleTheme=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme()};

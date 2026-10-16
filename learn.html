@@ -85,7 +85,12 @@
 
 <section class="stats">
 <div class="stat"><div class="icon">⭐</div><small>XP earned</small><b id="xp">0</b></div>
-<div class="stat"><div class="icon">🔥</div><small>Day streak</small><b id="streak">0</b></div>
+  <div class="stat"><div class="icon">🔥</div><small>Day streak</small><b id="streak">0</b></div>
+  <div class="stat" id="questCard" style="display:none">
+    <div class="icon">🎯</div><small>Daily quests</small>
+    <b id="questSummary">—</b>
+    <button id="questChestBtn" class="btn-primary" style="display:none;margin-top:8px;min-height:36px;padding:0 14px;font-size:12px;">🎁 Claim chest</button>
+  </div>
 <div class="stat"><div class="icon">📚</div><small>Lessons completed</small><b id="done">0</b></div>
 <div class="stat"><div class="icon">🎯</div><small>Overall progress</small><b id="overall">0%</b></div>
 </section>
@@ -127,6 +132,7 @@
 </footer>
 
 <script src="hanverse.js"></script>
+<script src="features-client.js"></script>
 <script src="nav-user.js"></script>
 <script>
 "use strict";
@@ -179,7 +185,17 @@ function render(){
  for(let i=1;i<=4;i++){const s=stats(i),current=i===l,c=info[i];const card=document.createElement("article");card.className="course"+(current?" current":"");card.innerHTML=`<div class="course-top"><div class="course-icon">${c.icon}</div><span class="status">${s.total?(s.done===s.total?"Complete":current?"Your level":"Available"):"Coming soon"}</span></div><h3>YCT ${i}</h3><div class="cn">${c.cn}</div><p>${c.desc}</p><div class="prog"><div class="protext"><span>${s.done} of ${s.total} lessons</span><span>${s.pct}%</span></div><div class="prowr"><span style="width:${s.pct}%"></span></div></div><div class="course-foot"><span>${s.total?s.total+" published lessons":"No lessons yet"}</span><a href="roadmap.html?level=${i}">${current?"Continue":"Explore"} →</a></div>`;grid.appendChild(card)}
 }
 $("retry").onclick=()=>{location.reload()};
-(async()=>{try{await load();$("loading").style.display="none";$("main").hidden=false}catch(e){console.error(e);$("loading").style.display="none";$("error").style.display="grid";$("errorText").textContent=e.message}})();
+(async()=>{try{await load();$("loading").style.display="none";$("main").hidden=false;
+// --- Daily quests card (feature pack) ---
+try{
+ const F=window.HanVerseFeatures;const uid2=uid();
+ const q=(await F.quests.get(uid2)).quest;
+ $("questCard").style.display="block";
+ $("questSummary").textContent=`${Math.min(q.xp.done,q.xp.target)}/${q.xp.target} XP · ${q.lessons.done}/${q.lessons.target} lesson`;
+ if(q.allDone&&!q.chestClaimed){$("questChestBtn").style.display="inline-flex";
+  $("questChestBtn").onclick=async()=>{try{const r=await F.quests.claimChest(uid2);window.HanVerseSound.chest();$("questChestBtn").style.display="none";$("questSummary").textContent=`Chest opened! +${r.bonusXp} XP 💎${r.bonusGems}`;}catch(e){alert(e.message)}};}
+}catch(e){console.warn("quests:",e.message)}
+}catch(e){console.error(e);$("loading").style.display="none";$("error").style.display="grid";$("errorText").textContent=e.message}})();
 </script>
 </body>
 </html>

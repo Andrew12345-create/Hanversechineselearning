@@ -1718,6 +1718,7 @@ button:focus-visible,a:focus-visible{
 
 <script src="hanverse.js"></script>
 <script src="nav-user.js"></script>
+<script src="features-client.js"></script>
 <script>
 
 "use strict";
@@ -4688,6 +4689,10 @@ function bind(){
                             "listen"
                         );
 
+                        // Feature pack: count speaking/listening reps for daily quests
+                        if (window.HanVerseFeatures && uid(state.user)) {
+                          window.HanVerseFeatures.quests.progress(uid(state.user), "speaking", 1).catch(() => {});
+                        }
 
                         speak(
                             button.dataset.speak
@@ -4800,6 +4805,13 @@ function bind(){
                             successChime();
                             playSound("xp");
                             xpBurst(2);
+
+                            // Feature pack: sound + daily-quest XP tick
+                            if (window.HanVerseSound) window.HanVerseSound.correct();
+                            if (window.HanVerseFeatures) {
+                              const qid = uid(state.user);
+                              if (qid) window.HanVerseFeatures.quests.progress(qid, "xp", 2).catch(() => {});
+                            }
 
 
                             toast(

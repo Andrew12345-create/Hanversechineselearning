@@ -1603,6 +1603,62 @@
         }
 
 
+        /* Weekly leaderboard */
+        .lb-rows {
+            display: grid;
+            gap: 8px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lb-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            background: var(--blue-light);
+        }
+
+        .lb-row.me {
+            background: linear-gradient(90deg, var(--blue-light), #FEF3C7);
+            outline: 2px solid var(--blue);
+        }
+
+        .lb-rank {
+            min-width: 34px;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        .lb-name {
+            flex: 1;
+            font-weight: 700;
+            color: var(--ink);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .lb-xp {
+            font-weight: 800;
+            font-size: .8rem;
+            color: var(--blue-dark);
+            white-space: nowrap;
+        }
+
+        .worksheet-header-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+
         .worksheet-grid {
 
             display:
@@ -2859,6 +2915,84 @@
 
             <article
                 class="mode-card"
+                data-mode="tones"
+                tabindex="0"
+                role="button"
+            >
+
+                <div class="mode-icon blue">
+                    🎵
+                </div>
+
+                <h3>
+                    Tone Pairs
+                </h3>
+
+                <p>
+                    Hear two similar words and pick the one you heard. Train your ear for tones.
+                </p>
+
+                <div class="mode-arrow">
+                    →
+                </div>
+
+            </article>
+
+
+            <article
+                class="mode-card"
+                data-mode="builder"
+                tabindex="0"
+                role="button"
+            >
+
+                <div class="mode-icon teal">
+                    🧩
+                </div>
+
+                <h3>
+                    Character Builder
+                </h3>
+
+                <p>
+                    Assemble characters from their parts — like puzzles for 汉字.
+                </p>
+
+                <div class="mode-arrow">
+                    →
+                </div>
+
+            </article>
+
+
+            <article
+                class="mode-card"
+                data-mode="review"
+                tabindex="0"
+                role="button"
+            >
+
+                <div class="mode-icon purple">
+                    🔁
+                </div>
+
+                <h3>
+                    Smart Review
+                </h3>
+
+                <p>
+                    Words you met before come back right before you forget them.
+                </p>
+
+                <div class="mode-arrow">
+                    →
+                </div>
+
+            </article>
+
+
+            <article
+                class="mode-card"
                 data-mode="flashcards"
                 tabindex="0"
                 role="button"
@@ -2972,21 +3106,68 @@
 
 
     <!-- ========================================================
+         WEEKLY LEADERBOARD
+    ========================================================= -->
+
+    <section
+        class="worksheet-section"
+        id="leaderboardCard"
+        style="display:none"
+        aria-label="Weekly leaderboard"
+    >
+
+
+        <div class="section-title">
+
+            <small>
+                This week
+            </small>
+
+            <h2>
+                🏆 Weekly Leaderboard
+            </h2>
+
+        </div>
+
+
+        <div class="lb-rows"></div>
+
+
+    </section>
+
+
+
+    <!-- ========================================================
          WORKSHEETS
     ========================================================= -->
 
     <section class="worksheet-section">
 
 
-        <div class="section-title">
+        <div class="worksheet-header-row">
 
-            <small>
-                Study resources
-            </small>
+            <div class="section-title">
 
-            <h2>
-                Worksheets
-            </h2>
+                <small>
+                    Study resources
+                </small>
+
+                <h2>
+                    Worksheets
+                </h2>
+
+            </div>
+
+
+            <button
+                class="btn-primary"
+                id="printWorksheetBtn"
+                type="button"
+                onclick="printWorksheet()"
+                style="min-height:46px;margin-bottom:4px"
+            >
+                🖨 Generate Worksheet
+            </button>
 
         </div>
 
@@ -3087,6 +3268,7 @@
 
 
 <script src="hanverse.js"></script>
+<script src="features-client.js"></script>
 <script src="nav-user.js"></script>
 <script>
 
@@ -6039,6 +6221,36 @@
 
                         }
 
+
+                        if (
+                            mode ===
+                            "tones"
+                        ) {
+
+                            startTonePairs();
+
+                        }
+
+
+                        if (
+                            mode ===
+                            "builder"
+                        ) {
+
+                            startBuilder();
+
+                        }
+
+
+                        if (
+                            mode ===
+                            "review"
+                        ) {
+
+                            startReview();
+
+                        }
+
                     };
 
 
@@ -6261,8 +6473,264 @@
 
 
     /* =========================================================
-       MOBILE NAV
+       FEATURE PACK GAMES — tones, builder, review, leaderboard
     ========================================================= */
+
+    const FV = () => window.HanVerseFeatures;
+    const FUID = () => (FV() ? FV().currentUserId() : null);
+    const saveSession = (game, score, correct, total) => {
+        const id = FUID();
+        if (id && FV()) FV().games.session(id, game, score, correct, total).catch(() => {});
+    };
+
+    /* ---------- 1. TONE-PAIR LISTENING GAME ---------- */
+    const TONE_WORDS = [
+        { hz: "妈妈", py: "māma", en: "mother", tone: 1 },
+        { hz: "骂", py: "mà", en: "scold", tone: 4 },
+        { hz: "马", py: "mǎ", en: "horse", tone: 3 },
+        { hz: "大", py: "dà", en: "big", tone: 4 },
+        { hz: "答", py: "dá", en: "answer", tone: 2 },
+        { hz: "搭", py: "dā", en: "build", tone: 1 },
+        { hz: "买", py: "mǎi", en: "buy", tone: 3 },
+        { hz: "卖", py: "mài", en: "sell", tone: 4 },
+        { hz: "四", py: "sì", en: "four", tone: 4 },
+        { hz: "十", py: "shí", en: "ten", tone: 2 },
+        { hz: "是", py: "shì", en: "to be", tone: 4 },
+        { hz: "他", py: "tā", en: "he", tone: 1 },
+        { hz: "她", py: "tā", en: "she", tone: 1 },
+        { hz: "塔", py: "tǎ", en: "tower", tone: 3 },
+        { hz: "糖", py: "táng", en: "sugar", tone: 2 },
+        { hz: "汤", py: "tāng", en: "soup", tone: 1 }
+    ];
+
+    let toneRounds = 0, toneCorrect = 0, toneScore = 0, tonePair = null;
+
+    function speakHz(text, rate) {
+        try {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = "zh-CN";
+            u.rate = rate || 0.8;
+            speechSynthesis.speak(u);
+        } catch (e) { console.warn("speech unavailable"); }
+    }
+
+    function startTonePairs() {
+        toneRounds = 0; toneCorrect = 0; toneScore = 0;
+        openModal("Tone Pairs 🎵");
+        nextToneRound();
+    }
+
+    function nextToneRound() {
+        toneRounds++;
+        if (toneRounds > 10) {
+            saveSession("tone_pairs", toneScore, toneCorrect, 10);
+            if (window.HanVerseSound) window.HanVerseSound.levelUp();
+            $("modalContent").innerHTML = `
+                <div class="empty">
+                    <h3>Round complete! 🎵</h3>
+                    <p>${toneCorrect}/10 correct — ${toneScore} points earned.</p>
+                    <button class="cta" id="toneAgain">Play again</button>
+                </div>`;
+            $("toneAgain").onclick = () => startTonePairs();
+            return;
+        }
+
+        const a = TONE_WORDS[Math.floor(Math.random() * TONE_WORDS.length)];
+        let b;
+        do { b = TONE_WORDS[Math.floor(Math.random() * TONE_WORDS.length)]; } while (b.hz === a.hz);
+        const options = Math.random() < 0.5 ? [a, b] : [b, a];
+        tonePair = a;
+
+        $("modalContent").innerHTML = `
+            <div style="text-align:center;padding:10px">
+                <p style="color:var(--muted);font-size:.85rem">Listen carefully… which word did you hear?</p>
+                <button class="btn-ghost" id="toneReplay" style="margin:12px auto">🔊 Hear it again</button>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+                    ${options.map((o, i) => `
+                        <button class="btn-ghost tone-opt" data-i="${i}" style="min-height:110px;flex-direction:column;gap:6px">
+                            <span class="cn" style="font-size:2rem;color:var(--navy)">${o.hz}</span>
+                            <span style="font-size:.75rem;color:var(--muted)">${o.py}</span>
+                        </button>`).join("")}
+                </div>
+                <p style="margin-top:14px;font-size:.78rem;color:var(--muted)">Round ${toneRounds}/10 · Score ${toneScore}</p>
+            </div>`;
+
+        const play = () => speakHz(a.hz, 0.75);
+        $("toneReplay").onclick = play;
+        setTimeout(play, 400);
+
+        document.querySelectorAll(".tone-opt").forEach(btn => {
+            btn.onclick = () => {
+                const chosen = options[Number(btn.dataset.i)];
+                const right = chosen.hz === a.hz;
+                if (right) {
+                    toneCorrect++; toneScore += 10;
+                    if (window.HanVerseSound) window.HanVerseSound.correct();
+                    btn.style.borderColor = "var(--green)"; btn.style.background = "var(--green-50)";
+                } else {
+                    if (window.HanVerseSound) window.HanVerseSound.wrong();
+                    btn.style.borderColor = "var(--red)"; btn.style.background = "var(--red-light)";
+                }
+                setTimeout(nextToneRound, 700);
+            };
+        });
+    }
+
+    /* ---------- 2. CHARACTER BUILDER ---------- */
+    const BUILDER_DATA = [
+        { char: "国", parts: ["囗", "玉"], fact: "A jade (玉) inside an enclosure (囗) makes 'country'." },
+        { char: "好", parts: ["女", "子"], fact: "Woman + child — the original meaning of 'good'." },
+        { char: "明", parts: ["日", "月"], fact: "Sun + moon together make 'bright'." },
+        { char: "休", parts: ["人", "木"], fact: "A person leaning on a tree is 'rest'." },
+        { char: "你", parts: ["亻", "尔"], fact: "The person radical 亻 plus 尔 makes 'you'." },
+        { char: "饿", parts: ["饣", "我"], fact: "The food radical 饣 plus 我 means 'hungry'." }
+    ];
+
+    function startBuilder() {
+        const item = BUILDER_DATA[Math.floor(Math.random() * BUILDER_DATA.length)];
+        const shuffled = [...item.parts].sort(() => Math.random() - 0.5);
+        let built = "";
+
+        openModal("Character Builder 🧩");
+        const render = () => {
+            $("modalContent").innerHTML = `
+                <div style="text-align:center;padding:8px">
+                    <p style="color:var(--muted);font-size:.85rem">Tap the pieces in order to build:</p>
+                    <div class="cn" style="font-size:3.2rem;color:var(--blue);margin:6px 0">${item.char}</div>
+                    <div style="min-height:64px;background:var(--blue-50);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:12px 0" class="cn" id="builtArea">${built || "&nbsp;"}</div>
+                    <div style="display:flex;gap:12px;justify-content:center">
+                        ${shuffled.map(p => `<button class="btn-ghost cn builder-part" data-p="${p}" style="font-size:1.8rem;min-width:76px">${p}</button>`).join("")}
+                    </div>
+                    <p style="margin-top:12px;font-size:.78rem;color:var(--muted)" id="builderMsg"></p>
+                </div>`;
+
+            document.querySelectorAll(".builder-part").forEach(b => {
+                b.onclick = () => {
+                    built += b.dataset.p;
+                    if (window.HanVerseSound) window.HanVerseSound.tap();
+                    if (built === item.char) {
+                        if (window.HanVerseSound) window.HanVerseSound.correct();
+                        saveSession("builder", 10, 1, 1);
+                        $("builtArea").textContent = built;
+                        $("builderMsg").innerHTML = `✅ ${item.fact} <button class="btn-primary" id="bNext" style="min-height:38px;padding:0 16px;font-size:12px;margin-left:8px">Next →</button>`;
+                        $("bNext").onclick = () => startBuilder();
+                    } else if (item.char.startsWith(built)) {
+                        $("builtArea").textContent = built;
+                        b.disabled = true; b.style.opacity = .4;
+                    } else {
+                        if (window.HanVerseSound) window.HanVerseSound.wrong();
+                        $("builderMsg").textContent = "Not quite — try that piece later!";
+                        built = built.slice(0, -1);
+                    }
+                };
+            });
+        };
+        render();
+    }
+
+    /* ---------- 3. SMART REVIEW (spaced repetition) ---------- */
+    async function startReview() {
+        openModal("Smart Review 🔁");
+        const id = FUID();
+
+        if (!id || !FV()) {
+            $("modalContent").innerHTML = `<div class="empty">Log in to review your personal word deck.</div>`;
+            return;
+        }
+
+        let cards;
+        try { cards = (await FV().review.deck(id)).cards; }
+        catch (e) { $("modalContent").innerHTML = `<div class="empty">${e.message}</div>`; return; }
+
+        if (!cards.length) {
+            $("modalContent").innerHTML = `
+                <div class="empty">
+                    <h3>Nothing due right now 🎉</h3>
+                    <p>Words you meet in lessons and games land here for review at the perfect time.</p>
+                </div>`;
+            return;
+        }
+        reviewNext(id, cards, 0);
+    }
+
+    function reviewNext(id, cards, idx) {
+        if (idx >= cards.length) {
+            if (window.HanVerseSound) window.HanVerseSound.levelUp();
+            $("modalContent").innerHTML = `<div class="empty"><h3>Deck cleared! 🔁</h3><p>See you next time — these words will come back when you're ready to forget them.</p></div>`;
+            return;
+        }
+        const c = cards[idx];
+        $("modalContent").innerHTML = `
+            <div style="text-align:center;padding:8px">
+                <p style="color:var(--muted);font-size:.78rem">Card ${idx + 1} of ${cards.length}</p>
+                <div class="cn" style="font-size:3.4rem;color:var(--navy);margin:10px 0">${c.word}</div>
+                <button class="btn-ghost" id="revSpeak" style="margin:0 auto 10px">🔊 Listen</button>
+                <p style="color:var(--muted);font-size:.85rem">How well did you remember it?</p>
+                <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+                    <button class="btn-ghost" data-q="1" style="min-height:46px">😐 Forgot</button>
+                    <button class="btn-ghost" data-q="4" style="min-height:46px">🙂 Okay</button>
+                    <button class="btn-ghost" data-q="5" style="min-height:46px">😄 Easy</button>
+                </div>
+            </div>`;
+
+        $("revSpeak").onclick = () => speakHz(c.word, 0.8);
+        setTimeout(() => speakHz(c.word, 0.8), 300);
+        document.querySelectorAll("[data-q]").forEach(b => {
+            b.onclick = async () => {
+                const q = Number(b.dataset.q);
+                if (q >= 4 && window.HanVerseSound) window.HanVerseSound.correct();
+                if (q < 3 && window.HanVerseSound) window.HanVerseSound.wrong();
+                try { await FV().review.answer(id, c.word, q, { pinyin: c.pinyin, meaning: c.meaning }); } catch (e) {}
+                reviewNext(id, cards, idx + 1);
+            };
+        });
+    }
+
+    /* ---------- 4. WEEKLY LEADERBOARD + WORKSHEET PRINTER ---------- */
+    async function showLeaderboard() {
+        const id = FUID();
+        if (!id || !FV()) return;
+        try {
+            const data = await FV().leaderboard.weekly(id);
+            if (data.optedOut) return;
+            const lb = document.getElementById("leaderboardCard");
+            if (!lb) return;
+            lb.style.display = "";
+            lb.querySelector(".lb-rows").innerHTML = data.leaders.length
+                ? data.leaders.map((l, i) => `
+                    <div class="lb-row${l.user_id === id ? ' me' : ''}">
+                        <span class="lb-rank">${["🥇", "🥈", "🥉"][i] || `${i + 1}.`}</span>
+                        <span class="lb-name">${l.full_name || l.username || "Learner"}</span>
+                        <span class="lb-xp">${l.week_xp} XP</span>
+                    </div>`).join("")
+                : `<p style="color:var(--muted);font-size:.8rem">No XP this week yet — be the first!</p>`;
+        } catch (e) { console.warn("leaderboard:", e.message); }
+    }
+    setTimeout(showLeaderboard, 1200);
+
+    function printWorksheet() {
+        const words = getGameVocabulary().slice(0, 12);
+        if (!words.length) { alert("Learn a lesson first to generate a worksheet from its words!"); return; }
+        const w = window.open("", "_blank");
+        if (!w) { alert("Please allow pop-ups to print worksheets."); return; }
+        w.document.write(`<!DOCTYPE html><html><head><title>HanVerse Practice Worksheet</title>
+        <style>
+          body{font-family:Arial,sans-serif;padding:36px;color:#0F2340}
+          h1{color:#2563EB;font-size:22px} p{color:#5D7A9A;font-size:12px}
+          .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:22px}
+          .cell .cn{font-size:34px}.box{border:1.5px dashed #8BA8C4;height:70px;border-radius:8px;margin-top:6px}
+          .py{color:#5D7A9A;font-size:12px}
+          @media print{.no-print{display:none}}
+        </style></head><body>
+        <h1>🐼 HanVerse Writing Practice</h1>
+        <p>Name: ______________________  Date: ____________</p>
+        <div class="grid">${words.map(x => `<div class="cell"><div class="cn">${x.hanzi}</div><div class="py">${x.pinyin || ""} — ${x.meaning || ""}</div><div class="box"></div><div class="box"></div></div>`).join("")}</div>
+        <button class="no-print" onclick="window.print()" style="margin-top:24px;padding:12px 22px;background:#2563EB;color:#fff;border:0;border-radius:12px;font-weight:700;cursor:pointer">🖨 Print</button>
+        </body></html>`);
+        w.document.close();
+    }
+    window.printWorksheet = printWorksheet;
+
 
     $("mobileToggle")
         .addEventListener(
