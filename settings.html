@@ -50,6 +50,9 @@
 <button class="row action" type="button" onclick="window.location.href='forgot-password.html'"><div class="main"><div class="icon">🔐</div><div class="copy"><h3 class="title">Change password</h3><p class="desc">Keep your HanVerse account secure.</p></div></div><span class="chevron">›</span></button>
 <div class="membership"><div class="membership-badge">⭐</div><div class="membership-copy"><strong>HanVerse Membership</strong><span>Manage your premium learning benefits.</span></div><button type="button" onclick="window.location.href='payment.html'">View plans</button></div>
 </div></section>
+<section class="card full"><div class="heading"><div class="heading-icon">🏫</div><div><h2>Classroom</h2><p>Join your teacher's class with a code.</p></div></div><div class="body">
+<div class="row"><div class="main"><div class="icon">🔑</div><div class="copy"><h3 class="title">Class code</h3><p class="desc">Enter the code your teacher shared (e.g. HV1A2B3C).</p></div></div><div style="display:flex;gap:8px;align-items:center"><input type="text" id="classCodeInput" maxlength="12" placeholder="HV-XXXXXX" aria-label="Class code" style="min-height:40px;padding:8px 12px;border:1px solid var(--line,#D5E3F0);border-radius:10px;font:700 13px Inter,sans-serif;text-transform:uppercase;width:130px"><button class="savebtn" id="joinClassBtn" type="button">Join class</button></div></div>
+</div></section>
 <section class="card full"><div class="heading"><div class="heading-icon">🐼</div><div><h2>About HanVerse</h2><p>Everything you need to know about the app.</p></div></div><div class="body">
 <div class="row"><div class="main"><div class="icon">🚀</div><div class="copy"><h3 class="title">HanVerse version</h3><p class="desc">You are using HanVerse 1.0.0.</p></div></div><span class="chevron">✓</span></div>
 <button class="row action" type="button" onclick="window.location.href='privacy.html'"><div class="main"><div class="icon">🛡️</div><div class="copy"><h3 class="title">Privacy policy</h3><p class="desc">Learn how HanVerse handles your information.</p></div></div><span class="chevron">›</span></button>
@@ -60,6 +63,7 @@
 <div class="savebar" id="saveBar"><div class="saveinner"><span class="savemsg">You have unsaved changes.</span><button class="savebtn" id="saveSettingsBtn" type="button">Save changes</button></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="notifications-client.js"></script><script src="notifications.js"></script>
+<script src="features-client.js"></script>
 <script>
 (function(){'use strict';
 var KEY='hanverse_settings_v2';
@@ -76,6 +80,32 @@ document.querySelectorAll('.select[data-setting]').forEach(function(el){el.addEv
 document.getElementById('saveSettingsBtn').addEventListener('click',function(){try{localStorage.setItem(KEY,JSON.stringify(pending));saved=Object.assign({},pending);updateBar();toastMsg('Your HanVerse settings are saved ✓')}catch(e){toastMsg('Could not save settings on this device.')}});
 document.getElementById('logoutButton').addEventListener('click',function(){if(!confirm('Log out of HanVerse on this device?'))return;['hanverse_token','hanverse_user','token','user','authToken','hanverse_admin_token'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}try{sessionStorage.removeItem(k)}catch(e){}});window.location.href='login.html'});
 load();
+})();
+</script>
+<script>
+(function(){'use strict';
+function toastMsg(message){var t=document.getElementById('toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){t.classList.remove('show')},2800)}
+var btn=document.getElementById('joinClassBtn'),input=document.getElementById('classCodeInput');
+if(!btn||!input)return;
+btn.addEventListener('click',async function(){
+ var code=(input.value||'').trim().toUpperCase();
+ if(!code){toastMsg('Enter a class code first.');input.focus();return}
+ var F=window.HanVerseFeatures;
+ var uidVal=F?F.currentUserId():null;
+ if(!F||!uidVal){toastMsg('Please log in to join a class.');return}
+ btn.disabled=true;var old=btn.textContent;btn.textContent='Joining...';
+ try{
+  var r=await F.classroom.join(uidVal,code);
+  if(window.HanVerseSound)window.HanVerseSound.chest();
+  toastMsg('You joined '+(r.className||'the class')+' ✓');
+  input.value='';
+ }catch(e){
+  toastMsg(e.message||'Could not join the class.');
+ }finally{
+  btn.disabled=false;btn.textContent=old;
+ }
+});
+input.addEventListener('keypress',function(e){if(e.key==='Enter')btn.click()});
 })();
 </script>
 </body></html>

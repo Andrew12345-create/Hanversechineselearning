@@ -34,7 +34,7 @@ export async function api(
         controller.abort();
     }, timeout);
 
-    try {
+    try { 
 
         const response = await fetch(
             `${API_BASE}${endpoint}`,

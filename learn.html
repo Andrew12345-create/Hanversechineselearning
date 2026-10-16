@@ -41,6 +41,7 @@
 @media(max-width:1000px){.courses{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr 210px}.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.hero{grid-template-columns:1fr;padding:27px 23px}.hanpan{text-align:left;display:flex;align-items:center;gap:14px}.hanpan img{width:105px;height:105px}.next{grid-template-columns:1fr}.cta{width:100%}.courses,.stepgrid{grid-template-columns:1fr}.hero h1{font-size:2.25rem}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.trial-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 18px;padding:15px 20px;background:linear-gradient(90deg,#EFF6FF,#FFF7ED);border:1px solid #BFDBFE;border-radius:18px;font-size:.78rem;line-height:1.5}.trial-banner b{font:900 .95rem var(--font-head);color:#1D4ED8}.trial-banner span{color:var(--muted)}.trial-banner-btn{padding:9px 18px;border-radius:999px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;font-weight:800;font-size:.75rem;white-space:nowrap;box-shadow:0 8px 20px rgba(249,115,22,.25)}
 </style>
 </head>
 <body>
@@ -195,6 +196,20 @@ try{
  if(q.allDone&&!q.chestClaimed){$("questChestBtn").style.display="inline-flex";
   $("questChestBtn").onclick=async()=>{try{const r=await F.quests.claimChest(uid2);window.HanVerseSound.chest();$("questChestBtn").style.display="none";$("questSummary").textContent=`Chest opened! +${r.bonusXp} XP 💎${r.bonusGems}`;}catch(e){alert(e.message)}};}
 }catch(e){console.warn("quests:",e.message)}
+// --- Free-trial banner (feature pack) ---
+try{
+ const F=window.HanVerseFeatures;const uid2=uid();
+ const t=await F.trial.status(uid2);
+ const anchor=document.querySelector(".next");
+ if(anchor&&!t.isPremium&&!t.trialUsed){
+  const b=document.createElement("div");
+  b.className="trial-banner";
+  b.innerHTML=`<div><b>✨ Try Premium free for 7 days</b><br><span>All lessons, videos and games — no payment needed.</span></div>`;
+  const link=document.createElement("a");
+  link.href="payment.html";link.className="trial-banner-btn";link.textContent="Start trial →";
+  b.appendChild(link);anchor.parentNode.insertBefore(b,anchor);
+ }
+}catch(e){console.warn("trial banner:",e.message)}
 }catch(e){console.error(e);$("loading").style.display="none";$("error").style.display="grid";$("errorText").textContent=e.message}})();
 </script>
 </body>

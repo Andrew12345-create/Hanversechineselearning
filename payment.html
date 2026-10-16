@@ -352,6 +352,38 @@ body{
   transform:none;
 }
 
+.trial-divider{
+  margin-top:18px;
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+}
+
+.btn-trial{
+  margin-top:12px;
+  background:white;
+  color:var(--blue-deep);
+  border:2px solid var(--blue);
+}
+
+.btn-trial:hover{
+  background:var(--blue-soft, #EFF6FF);
+  color:var(--blue-deep);
+}
+
+.trial-note{
+  margin-top:12px;
+  padding:11px 14px;
+  border-radius:12px;
+  background:#ECFDF5;
+  border:1px solid #A7F3D0;
+  color:#39745A;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.5;
+}
+
 .secure{
   text-align:center;
   font-size:11px;
@@ -745,6 +777,22 @@ Continue to Payment
 
 </button>
 
+<div class="trial-divider">
+— or —
+</div>
+
+<button
+class="btn btn-trial"
+id="trialButton"
+onclick="startTrial()"
+style="display:none">
+
+Start 7-Day Free Trial
+
+</button>
+
+<div class="trial-note" id="trialNote" style="display:none"></div>
+
 <div class="secure">
 🔒 Secure Payment Processing
 </div>
@@ -858,7 +906,9 @@ Start Learning
 
 </div>
 
+<script src="features-client.js"></script>
 <script>
+
 const SESSION_KEY = 'hanverse_user';
 
 const PLANS = {
@@ -1260,10 +1310,73 @@ function handlePaymentResult() {
     }
 }
 
+/* ---------- 7-day free trial ---------- */
+async function initTrial() {
+    if (!window.HanVerseFeatures || !currentUser) return;
+
+    const btn = document.getElementById('trialButton');
+    const note = document.getElementById('trialNote');
+
+    try {
+        const s = await window.HanVerseFeatures.trial.status(currentUser.user_id);
+
+        if (s.trialActive) {
+            note.style.display = 'block';
+            note.textContent = `✨ Your free trial is active until ${new Date(s.trialEndsAt).toLocaleDateString()}.`;
+            return;
+        }
+
+        if (s.isPremium || s.trialUsed) {
+            btn.style.display = 'none';
+            return;
+        }
+
+        btn.style.display = '';
+    } catch (e) {
+        console.warn('trial status:', e.message);
+    }
+}
+
+async function startTrial() {
+    if (!window.HanVerseFeatures) return;
+
+    if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const btn = document.getElementById('trialButton');
+    const note = document.getElementById('trialNote');
+
+    btn.disabled = true;
+    btn.textContent = 'Activating your trial...';
+
+    try {
+        const r = await window.HanVerseFeatures.trial.start(currentUser.user_id);
+
+        if (r.already) {
+            btn.style.display = 'none';
+            return;
+        }
+
+        btn.textContent = 'Trial Active ✓';
+        note.style.display = 'block';
+        note.textContent = `✨ Free Premium trial active until ${new Date(r.trialEndsAt).toLocaleDateString()} — enjoy!`;
+
+        if (window.HanVerseSound) window.HanVerseSound.chest();
+    } catch (e) {
+        showError(e.message || 'Could not start the free trial.');
+        btn.disabled = false;
+        btn.textContent = 'Start 7-Day Free Trial';
+    }
+}
+
+window.startTrial = startTrial;
+
 document.addEventListener(
     'DOMContentLoaded',
     () => {
-        loadMembership();
+        loadMembership().then(initTrial).catch(initTrial);
         handlePaymentResult();
     }
 );

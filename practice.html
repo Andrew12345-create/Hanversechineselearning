@@ -3297,7 +3297,6 @@
     ========================================================= */
 
     let flashcardIndex = 0;
-
     let flashcardFlipped = false;
 
     let quizIndex = 0;
@@ -5388,6 +5387,8 @@
                     flashcardFlipped =
                         !flashcardFlipped;
 
+                    if (window.HanVerseSound) window.HanVerseSound.tap();
+
                     renderFlashcard();
 
                 }
@@ -5430,10 +5431,16 @@
                         ) %
                         vocabulary.length;
 
-
                     flashcardFlipped =
                         false;
 
+                    if (flashcardIndex === 0) {
+
+                        saveSession("flashcards", vocabulary.length * 5, vocabulary.length, vocabulary.length);
+
+                        if (window.HanVerseSound) window.HanVerseSound.levelUp();
+
+                    }
 
                     renderFlashcard();
 
@@ -5687,6 +5694,8 @@
 
                                 quizScore++;
 
+                                if (window.HanVerseSound) window.HanVerseSound.correct();
+
                             } else {
 
                                 button
@@ -5694,6 +5703,8 @@
                                     .add(
                                         "wrong"
                                     );
+
+                                if (window.HanVerseSound) window.HanVerseSound.wrong();
 
 
                                 const correctButton =
@@ -5866,6 +5877,10 @@
                 10
             );
 
+        saveSession("quiz", quizScore * 10, quizScore, total);
+
+        if (window.HanVerseSound) window.HanVerseSound.levelUp();
+
 
         $("modalContent")
             .innerHTML = `
@@ -5969,8 +5984,17 @@
         let index =
             0;
 
+        let solvedThisCard =
+            false;
+
+        let writingCorrect =
+            0;
+
 
         function render() {
+
+            solvedThisCard =
+                false;
 
             const word =
                 normalizeWord(
@@ -6090,6 +6114,16 @@
                                 .background =
                                 "#DCFCE7";
 
+                            if (!solvedThisCard) {
+
+                                solvedThisCard = true;
+
+                                writingCorrect++;
+
+                                if (window.HanVerseSound) window.HanVerseSound.correct();
+
+                            }
+
                         } else {
 
                             event.target.style
@@ -6138,6 +6172,13 @@
                             ) %
                             characters.length;
 
+                        if (index === 0) {
+
+                            saveSession("writing", writingCorrect * 10, writingCorrect, characters.length);
+
+                            if (window.HanVerseSound) window.HanVerseSound.levelUp();
+
+                        }
 
                         render();
 

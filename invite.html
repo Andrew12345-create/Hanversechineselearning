@@ -457,6 +457,75 @@
             background: white;
         }
 
+        /* Referral progress card */
+        .referral-stats {
+            margin-top: 18px;
+            padding: 16px 18px;
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: var(--radius-md);
+        }
+
+        .rs-head {
+            font-weight: 800;
+            font-size: 14px;
+            color: #1D4ED8;
+        }
+
+        .rs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .rs-item {
+            text-align: center;
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 10px 6px;
+        }
+
+        .rs-item b {
+            display: block;
+            font-size: 20px;
+            font-weight: 800;
+            color: #0F2340;
+        }
+
+        .rs-item span {
+            font-size: 11px;
+            color: #5D7A9A;
+            font-weight: 600;
+        }
+
+        .rs-bar {
+            height: 8px;
+            background: #DBEAFE;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .rs-bar span {
+            display: block;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #2563EB, #F97316);
+            border-radius: inherit;
+            transition: width .7s;
+        }
+
+        .rs-hint {
+            margin: 10px 0 0;
+            font-size: 12px;
+            color: #5D7A9A;
+        }
+
+        @media (max-width: 480px) {
+            .rs-grid { grid-template-columns: 1fr; }
+        }
+
         .invite-copy-btn {
             padding: 10px 24px;
             background: linear-gradient(135deg, #2563EB, #3B82F6);
@@ -745,10 +814,32 @@
             <div id="copyMessage">✅ Copied to clipboard!</div>
         </div>
 
+        <!-- ===== REFERRAL PROGRESS ===== -->
+        <div class="referral-stats" id="referralStats" hidden>
+            <div class="rs-head">🎁 Your referral progress</div>
+            <div class="rs-grid">
+                <div class="rs-item">
+                    <b id="rsJoined">0</b>
+                    <span>Friends joined</span>
+                </div>
+                <div class="rs-item">
+                    <b id="rsMonths">0</b>
+                    <span>Months earned</span>
+                </div>
+                <div class="rs-item">
+                    <b id="rsNext">3</b>
+                    <span>Next reward at</span>
+                </div>
+            </div>
+            <div class="rs-bar"><span id="rsBar"></span></div>
+            <p class="rs-hint" id="rsHint">Every 3 friends who join earn you a free month of Premium.</p>
+        </div>
+
         <!-- ===== BACK LINK ===== -->
         <a href="index.html" class="back-link">← Back to Home</a>
     </div>
 
+    <script src="features-client.js"></script>
     <script>
         // ==========================================
         // REFERRAL LINK
@@ -868,11 +959,43 @@
         }
 
         // ==========================================
+        // REFERRAL PROGRESS STATS
+        // ==========================================
+        async function loadReferralStats() {
+            const card = document.getElementById('referralStats');
+            if (!window.HanVerseFeatures) return;
+
+            try {
+                const uid = window.HanVerseFeatures.currentUserId();
+                if (!uid) return;
+
+                const s = await window.HanVerseFeatures.referrals.stats(uid);
+
+                document.getElementById('rsJoined').textContent = s.joined;
+                document.getElementById('rsMonths').textContent = s.premiumMonthsEarned;
+                document.getElementById('rsNext').textContent = s.nextRewardAt;
+
+                const step = s.progress / (s.target || 3);
+                document.getElementById('rsBar').style.width = Math.min(100, Math.round(step * 100)) + '%';
+
+                if (s.progress > 0) {
+                    document.getElementById('rsHint').textContent =
+                        `${s.target - s.progress} more friend${s.target - s.progress === 1 ? '' : 's'} until your next free month of Premium!`;
+                }
+
+                card.hidden = false;
+            } catch (e) {
+                console.warn('referral stats:', e.message);
+            }
+        }
+
+        // ==========================================
         // INIT
         // ==========================================
         document.addEventListener('DOMContentLoaded', function() {
             setReferralLink();
-            
+            loadReferralStats();
+
             // Enter key support
             document.getElementById('inviteEmail').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') sendInvite();
