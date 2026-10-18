@@ -19,6 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="hanverse.css">
+<script src="js/auth-fetch.js"></script>
 <script src="device-redirect.js"></script>
 <style>
 :root{--blue:#2563EB;--blue-dark:#1D4ED8;--blue-deep:#1D4ED8;--blue-soft:#EFF6FF;--blue-pale:#EFF6FF;--green:#16A34A;--yellow:#F59E0B;--red:#DC2626;--ink:#0F2340;--muted:#5D7A9A;--soft:#8BA8C4;--line:#D5E3F0;--surface:#fff;--page:#F5F9FF;--shadow:0 16px 48px rgba(15,35,64,.12)}
@@ -58,7 +59,7 @@
 <button class="row action" type="button" onclick="window.location.href='privacy.html'"><div class="main"><div class="icon">🛡️</div><div class="copy"><h3 class="title">Privacy policy</h3><p class="desc">Learn how HanVerse handles your information.</p></div></div><span class="chevron">›</span></button>
 <button class="row action" type="button" onclick="window.location.href='terms.html'"><div class="main"><div class="icon">📄</div><div class="copy"><h3 class="title">Terms of service</h3><p class="desc">Read the rules for using HanVerse.</p></div></div><span class="chevron">›</span></button>
 </div></section>
-<section class="card full danger"><div class="heading"><div class="heading-icon">⚠️</div><div><h2>Account actions</h2><p>Actions that affect your account.</p></div></div><div class="body"><button class="row action" type="button" id="logoutButton"><div class="main"><div class="icon">↪️</div><div class="copy"><h3 class="title">Log out</h3><p class="desc">Sign out of HanVerse on this device.</p></div></div><span class="chevron">›</span></button></div></section>
+<section class="card full danger"><div class="heading"><div class="heading-icon">⚠️</div><div><h2>Account actions</h2><p>Actions that affect your account.</p></div></div><div class="body"><button class="row action" type="button" id="logoutButton"><div class="main"><div class="icon">↪️</div><div class="copy"><h3 class="title">Log out</h3><p class="desc">Sign out of HanVerse on this device.</p></div></div><span class="chevron">›</span></button><button class="row action" type="button" id="deleteAccountButton"><div class="main"><div class="icon">🗑️</div><div class="copy"><h3 class="title">Delete account</h3><p class="desc">Permanently erase your account, progress and personal data. This cannot be undone.</p></div></div><span class="chevron">›</span></button></div></section>
 </div></main></div>
 <div class="savebar" id="saveBar"><div class="saveinner"><span class="savemsg">You have unsaved changes.</span><button class="savebtn" id="saveSettingsBtn" type="button">Save changes</button></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -79,6 +80,34 @@ document.querySelectorAll('.toggle[data-setting]').forEach(function(el){el.addEv
 document.querySelectorAll('.select[data-setting]').forEach(function(el){el.addEventListener('change',function(){pending[el.dataset.setting]=el.value;updateBar()})});
 document.getElementById('saveSettingsBtn').addEventListener('click',function(){try{localStorage.setItem(KEY,JSON.stringify(pending));saved=Object.assign({},pending);updateBar();toastMsg('Your HanVerse settings are saved ✓')}catch(e){toastMsg('Could not save settings on this device.')}});
 document.getElementById('logoutButton').addEventListener('click',function(){if(!confirm('Log out of HanVerse on this device?'))return;['hanverse_token','hanverse_user','token','user','authToken','hanverse_admin_token'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}try{sessionStorage.removeItem(k)}catch(e){}});window.location.href='login.html'});
+
+/* Self-service account deletion (GDPR/POPIA). Two typed confirms, then the
+   server wipes every row tied to this user and cancels any subscription. */
+document.getElementById('deleteAccountButton').addEventListener('click',async function(){
+  var btn=this;
+  var stored=null;
+  try{stored=JSON.parse(localStorage.getItem('hanverse_user')||'null')}catch(e){}
+  var uid=stored&&(stored.user_id||stored.id);
+  if(!uid){window.location.href='login.html';return;}
+  var step1=confirm('Delete your HanVerse account permanently?\n\nAll lessons, XP, streaks and personal data will be erased. This cannot be undone.');
+  if(!step1)return;
+  var typed=prompt('This is final. Type DELETE to confirm:');
+  if(typed!=='DELETE')return;
+  try{
+    btn.disabled=true;
+    if(window.HanVerseFeatures&&window.HanVerseFeatures.account&&window.HanVerseFeatures.account.delete){
+      await window.HanVerseFeatures.account.delete(uid);
+    }else{
+      throw new Error('Deletion service unavailable');
+    }
+    ['hanverse_token','hanverse_user','token','user','authToken'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}try{sessionStorage.removeItem(k)}catch(e){}});
+    alert('Your account has been deleted. We are sorry to see you go. 🐼');
+    window.location.href='index.html';
+  }catch(e){
+    btn.disabled=false;
+    alert('Could not delete your account right now. Please try again, or contact support if the problem continues.');
+  }
+});
 load();
 })();
 </script>

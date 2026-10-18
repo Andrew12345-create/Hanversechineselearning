@@ -437,10 +437,25 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   ========================================================= */
   router.post('/account/delete', requireAuth, writeLimiter, async (req, res) => {
     const client = await pool.connect();
+    let subscriptionToCancel = null;
+    let customerId = null;
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       if (!userId) { client.release(); return fail(res, 400, 'userId required'); }
       await ensureFeatureSchema();
+
+      // Read billing identity BEFORE the deletion removes the row.
+      try {
+        const billing = await client.query(
+          `SELECT stripe_customer_id, stripe_subscription_id FROM users WHERE user_id=$1`,
+          [userId]
+        );
+        if (billing.rows[0]) {
+          customerId = billing.rows[0].stripe_customer_id || null;
+          subscriptionToCancel = billing.rows[0].stripe_subscription_id || null;
+        }
+      } catch (_) { /* users table may not have stripe columns */ }
+
       await client.query('BEGIN');
       // Delete rows from every table that has a user_id column (children first via FK discovery)
       const tables = await client.query(`
@@ -478,6 +493,21 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       }
       const del = await client.query('DELETE FROM users WHERE user_id=$1', [userId]);
       await client.query('COMMIT');
+
+      // Best-effort: cancel any active Stripe subscription so a deleted
+      // account is never billed again. Failure here must not fail the
+      // deletion — billing can also be cancelled from the Stripe dashboard.
+      if (subscriptionToCancel) {
+        try {
+          const { default: Stripe } = await import('stripe');
+          const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+          await stripe.subscriptions.cancel(subscriptionToCancel);
+          console.log(`✅ Cancelled Stripe subscription ${subscriptionToCancel} for deleted user ${userId}`);
+        } catch (stripeErr) {
+          console.warn(`⚠️ Could not cancel Stripe subscription ${subscriptionToCancel}:`, stripeErr.message);
+        }
+      }
+
       ok(res, { deleted: del.rowCount > 0 });
     } catch (e) {
       await client.query('ROLLBACK').catch(() => {});

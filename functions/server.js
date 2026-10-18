@@ -1108,6 +1108,63 @@ const authLimiter = rateLimit({
   message: { success: false, error: 'Too many attempts — please wait 15 minutes and try again.' }
 });
 
+/* Per-request user authentication for user-scoped routes.
+   Requires a Bearer JWT; the verified token identity (never a client-claimed
+   id) is attached as req.authUser. */
+async function requireUser(req, res) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) {
+    res.status(401).json({ success: false, error: 'Sign in required.' });
+    return null;
+  }
+
+  const decoded = verifyJWTToken(token);
+  const id = decoded && (decoded.user_id || decoded.id);
+  if (!id) {
+    res.status(401).json({ success: false, error: 'Session expired — please sign in again.' });
+    return null;
+  }
+
+  const r = await pool.query(
+    'SELECT user_id, is_admin, is_banned, role, parent_id FROM users WHERE user_id = $1',
+    [id]
+  );
+  const user = r.rows[0];
+  if (!user) {
+    res.status(401).json({ success: false, error: 'User not found.' });
+    return null;
+  }
+  if (user.is_banned) {
+    res.status(403).json({ success: false, error: 'Account is banned.' });
+    return null;
+  }
+
+  req.authUser = user;
+  return user;
+}
+
+/* Whether the authenticated user may act on data belonging to targetUserId:
+   themselves, an admin, or their own child. */
+async function canAccessUser(req, res, targetUserId) {
+  const auth = req.authUser;
+  const target = Number(targetUserId);
+  if (!auth || !Number.isInteger(target)) {
+    res.status(403).json({ success: false, error: 'Access denied.' });
+    return false;
+  }
+  if (Number(auth.user_id) === target || auth.is_admin) return true;
+
+  const child = await pool.query(
+    'SELECT 1 FROM users WHERE user_id = $1 AND parent_id = $2',
+    [target, auth.user_id]
+  );
+  if (child.rows.length) return true;
+
+  res.status(403).json({ success: false, error: 'Access denied.' });
+  return false;
+}
+
 router.post('/signup', authLimiter, async (req, res) => {
   try {
     console.log('📥 Signup request received');
@@ -1262,15 +1319,15 @@ router.post('/signup', authLimiter, async (req, res) => {
       console.warn("⚠️ Verification email could not be sent:", mailError.message);
     }
 
-    try {
-      await sendWelcomeEmail({
-        to: cleanEmail,
-        username: cleanUsername,
-        fullName: cleanFullName
-      });
-      console.log('✅ Welcome email sent');
-    } catch (mailError) {
-      console.warn("⚠️ Welcome email could not be sent:", mailError.message);
+    // Optional self-reported age (children's product compliance). Best-effort:
+    // the column may not exist in older deployments.
+    const ageValue = Number(body.age);
+    if (Number.isInteger(ageValue) && ageValue >= 3 && ageValue <= 18) {
+      try {
+        await pool.query(`UPDATE users SET age = $1 WHERE user_id = $2`, [ageValue, newUser.user_id]);
+      } catch (ageError) {
+        console.warn('⚠️ Could not store age:', ageError.message);
+      }
     }
 
     return res.status(201).json({
@@ -1370,12 +1427,16 @@ router.post('/login', authLimiter, async (req, res) => {
   }
 });
 
-// GET USER PROFILE
+// GET USER PROFILE (authenticated — self, admin, or own parent only)
 router.get('/user/:userId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const { userId } = req.params;
+    if (!(await canAccessUser(req, res, userId))) return;
 
     const result = await pool.query(
       `SELECT user_id, username, full_name, email, xp, level, streak_days, 
@@ -1410,15 +1471,41 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 // SESSION REFRESH
+// Mints a fresh token ONLY for the identity in a valid Bearer JWT. A short
+// grace window after expiry lets active sessions renew; a bare userId in the
+// body is never trusted (that was an account-takeover vector).
+const REFRESH_GRACE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
 router.post('/auth/refresh', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-    
-    const { userId } = req.body || {};
-    if (!userId) {
-      return res.status(400).json({ success: false, error: 'User ID required' });
+
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'Sign in required.' });
     }
-    
+
+    // Verify signature; ignore expiry here because renewing is the point,
+    // then enforce our own grace window manually.
+    let decoded = null;
+    try {
+      const secret = process.env.JWT_SECRET;
+      if (secret) decoded = jwt.verify(token, secret, { ignoreExpiration: true });
+    } catch (e) {
+      decoded = null;
+    }
+
+    const userId = decoded && (decoded.user_id || decoded.id);
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Session expired — please sign in again.' });
+    }
+
+    const expiredAgoMs = decoded.exp ? Date.now() - decoded.exp * 1000 : 0;
+    if (expiredAgoMs > REFRESH_GRACE_MS) {
+      return res.status(401).json({ success: false, error: 'Session expired — please sign in again.' });
+    }
+
     const result = await pool.query(
       `SELECT user_id, username, full_name, email, xp, level, streak_days,
               profile_picture, is_admin, is_banned, is_verified,
@@ -1426,28 +1513,28 @@ router.post('/auth/refresh', async (req, res) => {
       FROM users WHERE user_id = $1 AND is_banned = false`,
       [userId]
     );
-    
+
     if (!result.rows.length) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }
-    
+
     await pool.query(
       `UPDATE users SET last_active = NOW(), updated_at = NOW() WHERE user_id = $1`,
       [userId]
     );
 
-    // Generate fresh token
-    const token = generateToken({
+    // Generate fresh token for the verified identity
+    const newToken = generateToken({
       user_id: result.rows[0].user_id,
       email: result.rows[0].email,
       role: result.rows[0].role || 'student',
       is_admin: result.rows[0].is_admin || false
     });
-    
-    return res.json({ 
+
+    return res.json({
       success: true,
-      token,
-      user: safeUser(result.rows[0]) 
+      token: newToken,
+      user: safeUser(result.rows[0])
     });
   } catch (error) {
     console.error('❌ Session refresh error:', error);
@@ -1464,28 +1551,29 @@ router.post('/auth/logout', async (req, res) => {
 });
 
 // FIND USER BY EMAIL
-router.post('/auth/user-by-email', async (req, res) => {
+// Pre-auth helper for the "resend verification" flow. Returns the bare user id
+// only — no name, username, or status — and is rate-limited against enumeration.
+router.post('/auth/user-by-email', authLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-    
+
     const { email } = req.body || {};
     if (!email) {
       return res.status(400).json({ success: false, error: 'Email required' });
     }
-    
+
     const result = await pool.query(
-      `SELECT user_id, username, full_name, email, is_verified, is_banned, role
-      FROM users WHERE email = $1`,
+      `SELECT user_id FROM users WHERE email = $1`,
       [email.trim().toLowerCase()]
     );
-    
+
     if (!result.rows.length) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }
-    
-    return res.json({ 
-      success: true, 
-      user: safeUser(result.rows[0]) 
+
+    return res.json({
+      success: true,
+      user: { user_id: result.rows[0].user_id }
     });
   } catch (error) {
     console.error('❌ User by email error:', error);
@@ -1497,7 +1585,7 @@ router.post('/auth/user-by-email', async (req, res) => {
 });
 
 // SEND VERIFICATION EMAIL
-router.post('/auth/send-verification', async (req, res) => {
+router.post('/auth/send-verification', authLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -1580,7 +1668,7 @@ router.post('/auth/send-verification', async (req, res) => {
 });
 
 // RESEND VERIFICATION EMAIL
-router.post('/auth/resend-verification', async (req, res) => {
+router.post('/auth/resend-verification', authLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -1694,6 +1782,20 @@ router.get('/verify-email', async (req, res) => {
 
     console.log(`✅ Email verified for user ${record.user_id}`);
 
+    // Welcome email is sent once, after verification (not at signup).
+    try {
+      const verifiedUser = await pool.query(
+        `SELECT email, username, full_name FROM users WHERE user_id = $1`,
+        [record.user_id]
+      );
+      if (verifiedUser.rows.length) {
+        const v = verifiedUser.rows[0];
+        await sendWelcomeEmail({ to: v.email, username: v.username, fullName: v.full_name });
+      }
+    } catch (mailError) {
+      console.warn('⚠️ Welcome email could not be sent:', mailError.message);
+    }
+
     return res.redirect(`${getFrontendBaseUrl()}/login.html?verified=true`);
 
   } catch (error) {
@@ -1741,6 +1843,20 @@ router.post('/verify-email', async (req, res) => {
       [token]
     );
 
+    // Welcome email is sent once, after verification (not at signup).
+    try {
+      const verifiedUser = await pool.query(
+        `SELECT email, username, full_name FROM users WHERE user_id = $1`,
+        [user_id]
+      );
+      if (verifiedUser.rows.length) {
+        const v = verifiedUser.rows[0];
+        await sendWelcomeEmail({ to: v.email, username: v.username, fullName: v.full_name });
+      }
+    } catch (mailError) {
+      console.warn('⚠️ Welcome email could not be sent:', mailError.message);
+    }
+
     return res.json({
       success: true,
       message: 'Email verified successfully.'
@@ -1755,10 +1871,13 @@ router.post('/verify-email', async (req, res) => {
   }
 });
 
-// CHECK VERIFICATION STATUS
+// CHECK VERIFICATION STATUS (authenticated — self or admin)
 router.get('/auth/verification-status/:userId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
 
     const { userId } = req.params;
 
@@ -1767,6 +1886,10 @@ router.get('/auth/verification-status/:userId', async (req, res) => {
         success: false,
         error: 'User ID is required.'
       });
+    }
+
+    if (Number(userId) !== Number(auth.user_id) && !auth.is_admin) {
+      return res.status(403).json({ success: false, error: 'Access denied.' });
     }
 
     const result = await pool.query(
@@ -1819,9 +1942,10 @@ router.post('/forgot-password', authLimiter, async (req, res) => {
     );
 
     if (!userResult.rows.length) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'No account found with that email address.' 
+      // Do not reveal whether the account exists (anti-enumeration).
+      return res.json({
+        success: true,
+        message: 'If an account exists for that email, a password reset link has been sent.'
       });
     }
 
@@ -1997,7 +2121,15 @@ router.get('/parents/children/:parentId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const { parentId } = req.params;
+
+    // A parent may only list their own children (admins excepted).
+    if (Number(parentId) !== Number(auth.user_id) && !auth.is_admin) {
+      return res.status(403).json({ success: false, error: 'Access denied.' });
+    }
 
     const parentResult = await pool.query(
       `SELECT parent_id FROM parents WHERE user_id = $1`,
@@ -2077,8 +2209,12 @@ router.get('/parents/child/:childId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const { childId } = req.params;
-    const parentId = req.query.parentId || req.headers['x-parent-id'];
+    // The requesting identity comes from the signed token, never the client.
+    const parentId = auth.user_id;
 
     if (!parentId) {
       return res.status(400).json({
@@ -2205,7 +2341,12 @@ router.post('/parents/children', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const { parentId, full_name, age, level, username, email, password } = req.body || {};
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const { full_name, age, level, username, email, password } = req.body || {};
+    // The parent identity comes from the signed token, never the body.
+    const parentId = auth.user_id;
 
     if (!parentId || !full_name || !age || !username || !password) {
       return res.status(400).json({
@@ -2365,8 +2506,13 @@ router.put('/parents/child/:childId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const { childId } = req.params;
-    const { name, age, level, email, parentId } = req.body || {};
+    const { name, age, level, email } = req.body || {};
+    // The parent identity comes from the signed token, never the body.
+    const parentId = auth.user_id;
 
     if (!parentId) {
       return res.status(400).json({
@@ -2480,7 +2626,22 @@ router.put('/parents/child/:childId/progress', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const { childId } = req.params;
+
+    // Only the child's own parent (or an admin) may update progress.
+    const ownerCheck = await pool.query(
+      `SELECT 1 FROM children c
+       JOIN parents p ON p.parent_id = c.parent_id
+       WHERE c.child_id = $1 AND (p.user_id = $2 OR $3 = true)`,
+      [childId, auth.user_id, auth.is_admin]
+    );
+    if (!ownerCheck.rows.length) {
+      return res.status(403).json({ success: false, error: 'Access denied.' });
+    }
+
     const { lessons_completed, achievements, progress, xp, level, last_lesson_at } = req.body;
 
     const result = await pool.query(`
@@ -2542,8 +2703,22 @@ router.get('/parents/child/:childId/activities', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const { childId } = req.params;
     const { limit = 10 } = req.query;
+
+    // Only the child's own parent (or an admin) may read activities.
+    const ownerCheck = await pool.query(
+      `SELECT 1 FROM children c
+       JOIN parents p ON p.parent_id = c.parent_id
+       WHERE c.child_id = $1 AND (p.user_id = $2 OR $3 = true)`,
+      [childId, auth.user_id, auth.is_admin]
+    );
+    if (!ownerCheck.rows.length) {
+      return res.status(403).json({ success: false, error: 'Access denied.' });
+    }
 
     const result = await pool.query(`
       SELECT 
@@ -2577,7 +2752,15 @@ router.get('/parents/activity/:parentId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const { parentId } = req.params;
+
+    // A parent may only read their own feed (admins excepted).
+    if (Number(parentId) !== Number(auth.user_id) && !auth.is_admin) {
+      return res.status(403).json({ success: false, error: 'Access denied.' });
+    }
 
     const parentResult = await pool.query(
       `SELECT parent_id FROM parents WHERE user_id = $1`,
@@ -2877,7 +3060,7 @@ Be Panda.
    PANDA CHAT ENDPOINT
 ========================================== */
 
-router.post('/panda-chat', async (req, res) => {
+router.post('/panda-chat', authLimiter, async (req, res) => {
 
   try {
 
@@ -4192,7 +4375,12 @@ router.get('/progress/:userId/:lessonId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const { userId, lessonId } = req.params;
+
+    if (!(await canAccessUser(req, res, userId))) return;
 
     const result = await pool.query(`
       SELECT
@@ -4247,6 +4435,9 @@ router.post('/progress', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const body = req.body || {};
     const userId = body.userId ?? body.user_id;
     const lessonId = body.lessonId ?? body.lesson_id;
@@ -4274,7 +4465,13 @@ router.post('/progress', async (req, res) => {
       });
     }
 
+    if (!(await canAccessUser(req, res, userId))) return;
+
     const normalizedLessonId = String(lessonId);
+
+    // Authenticated + authorized: the token identity must be the learner, an
+    // admin, or the learner's parent.
+    if (!(await canAccessUser(req, res, userId))) return;
 
     // Find existing progress
     const existing = await pool.query(`
@@ -4591,9 +4788,13 @@ router.post('/placement', async (req, res) => {
 router.post('/sync/quizzes', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-    
+
     const { userId, quizzes } = req.body;
-    
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!(await canAccessUser(req, res, userId))) return;
+
     const userResult = await pool.query(
       `SELECT user_id FROM users WHERE user_id = $1`,
       [userId]
@@ -4627,9 +4828,13 @@ router.post('/sync/quizzes', async (req, res) => {
 router.post('/sync/progress', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-    
+
     const { userId, progress } = req.body;
-    
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!(await canAccessUser(req, res, userId))) return;
+
     for (const item of progress) {
       const existing = await pool.query(`
         SELECT progress_id FROM user_progress 
@@ -4661,9 +4866,13 @@ router.post('/sync/progress', async (req, res) => {
 router.post('/sync/xp', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-    
+
     const { userId, xp, entries } = req.body;
-    
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!(await canAccessUser(req, res, userId))) return;
+
     await pool.query(`
       UPDATE users SET xp = xp + $1, updated_at = NOW() WHERE user_id = $2
     `, [xp, userId]);
@@ -4686,9 +4895,13 @@ router.post('/sync/xp', async (req, res) => {
 router.post('/sync/achievements', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-    
+
     const { userId, achievements } = req.body;
-    
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!(await canAccessUser(req, res, userId))) return;
+
     for (const achievement of achievements) {
       const existing = await pool.query(`
         SELECT 1 FROM user_achievements 
@@ -4719,9 +4932,13 @@ router.post('/sync/achievements', async (req, res) => {
 router.post('/sync/streak', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-    
+
     const { userId, count, lastDate } = req.body;
-    
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!(await canAccessUser(req, res, userId))) return;
+
     await pool.query(`
       UPDATE users 
       SET streak_days = $1, last_active = $2, updated_at = NOW()
@@ -4744,7 +4961,7 @@ router.post('/sync/streak', async (req, res) => {
    ADMIN AUTHENTICATION
 ========================================================= */
 
-router.post('/admin/verify-password', async (req, res) => {
+router.post('/admin/verify-password', authLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -4758,7 +4975,7 @@ router.post('/admin/verify-password', async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT * FROM users WHERE user_id = $1`,
+      `SELECT user_id, email, password_hash, is_admin FROM users WHERE user_id = $1`,
       [userId]
     );
 

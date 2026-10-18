@@ -276,36 +276,6 @@ export function logout() {
 }
 
 /* ==========================================
-   API PATHS
-========================================== */
-
-export const ENDPOINTS = {
-
-    login: "/login",
-
-    signup: "/signup",
-
-    profile: (id) => `/user/${id}`,
-
-    panda: "/panda-chat",
-
-    verifyEmail: "/verify-email",
-
-    resendVerification: "/resend-verification",
-
-    forgotPassword: "/forgot-password",
-
-    resetPassword: "/reset-password",
-
-    checkPremium: "/check-premium",
-
-    createCheckout: "/create-checkout-session",
-
-    saveLevel: "/savelevel"
-
-};
-
-/* ==========================================
    DEBUG
 ========================================== */
 

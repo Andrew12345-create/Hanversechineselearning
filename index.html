@@ -23,6 +23,7 @@
 <link rel="preload" as="image" href="assets/mascot/states/hanpan-happy.png">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="hanverse.css">
+<script src="js/auth-fetch.js"></script>
 
 <style>
 /* =============================================
@@ -1744,7 +1745,12 @@ async function loadUser() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: id })
     });
-    if (refreshed?.user) return refreshed.user;
+    if (refreshed?.user) {
+      if (refreshed.token) {
+        try { localStorage.setItem("hanverse_token", refreshed.token); } catch (e) {}
+      }
+      return refreshed.user;
+    }
   } catch (err) { console.warn("HanVerse auth refresh unavailable:", err.message); }
   try {
     const profile = await request("user/" + encodeURIComponent(id));

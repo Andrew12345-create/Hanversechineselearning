@@ -3,7 +3,7 @@
 // Designed for Netlify + Offline Support
 // ============================================================
 
-const CACHE_NAME = 'hanverse-v3';
+const CACHE_NAME = 'hanverse-v4';
 
 // Real files only — every entry must exist at the site root.
 // (The previous list referenced /css/styles.css, /js/app.js and /images/*,

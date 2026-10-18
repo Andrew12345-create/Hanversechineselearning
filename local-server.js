@@ -25,7 +25,7 @@ app.use(express.static(__dirname, { extensions: ['html'] }));
 
 // Clean URLs matching netlify.toml redirects
 const CLEAN_PAGES = [
-  'parents', 'learn', 'profile', 'admin', 'worksheets', 'verify-email',
+  'parents', 'learn', 'profile', 'admin', 'verify-email',
 ];
 for (const page of CLEAN_PAGES) {
   app.get(`/${page}`, (req, res) => res.sendFile(path.join(__dirname, `${page}.html`)));
@@ -35,6 +35,45 @@ for (const page of CLEAN_PAGES) {
 // so its own 404 handler never shadows the static site.
 const API_PREFIX = /^\/(api|\.netlify\/functions\/server)(\/|$)/;
 app.use((req, res, next) => (API_PREFIX.test(req.path) ? apiApp(req, res, next) : next()));
+
+// Standalone Netlify functions (CommonJS handlers) — mounted locally so the
+// payment flow (.netlify/functions/check-premium, create-checkout-session,
+// auth-signup, savelevel, stripe-webhook) works in dev exactly like prod.
+import { createRequire } from 'module';
+const requireCjs = createRequire(import.meta.url);
+
+const LAMBDA_FNS = ['auth-signup', 'check-premium', 'create-checkout-session', 'savelevel', 'stripe-webhook'];
+
+function toLambdaEvent(req) {
+  return {
+    httpMethod: req.method,
+    headers: req.headers,
+    rawHeaders: undefined,
+    queryStringParameters: Object.fromEntries(
+      Object.entries(req.query || {}).map(([k, v]) => [k, String(v)])
+    ),
+    rawQueryString: req.url.includes('?') ? req.url.slice(req.url.indexOf('?') + 1) : '',
+    body: req.body !== undefined ? JSON.stringify(req.body) : null,
+    isBase64Encoded: false
+  };
+}
+
+for (const name of LAMBDA_FNS) {
+  app.post(`/.netlify/functions/${name}`, express.json({ limit: '1mb' }), async (req, res) => {
+    try {
+      const handler = requireCjs(`./functions/${name}.cjs`);
+      const fn = handler.handler || handler.default || handler;
+      const event = toLambdaEvent(req);
+      const result = await fn(event, {});
+      const body = typeof result.body === 'string' ? result.body : JSON.stringify(result.body);
+      res.set(result.headers || {});
+      return res.status(result.statusCode || 200).send(body);
+    } catch (e) {
+      console.error(`Local function ${name} failed:`, e);
+      return res.status(500).json({ success: false, error: 'Function error' });
+    }
+  });
+}
 
 // Fallback to index.html (mirrors netlify.toml 404 -> index.html)
 app.use((req, res) => {

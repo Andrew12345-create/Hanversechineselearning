@@ -9,6 +9,46 @@ const audioPath = (text) =>
 
 
 const LESSONS = {
+  lesson_1: {
+    xp: 20,
+    objectives: [
+      'Say 你好 (nǐ hǎo) to greet someone.',
+      'Recognise and say 你 (nǐ).',
+      'Recognise and say 好 (hǎo).',
+      'Greet a teacher using 老师好 (lǎoshī hǎo).',
+      'Say 再见 (zàijiàn) when saying goodbye.'
+    ],
+    content: [
+      ['introduction', 'Welcome to your first Chinese lesson!', 'In this lesson, you will learn how to say hello, greet your teacher and say goodbye.'],
+      ['explanation', '你好', '你好 means Hello. It is one of the most useful greetings in Mandarin.'],
+      ['explanation', '老师好', '老师 means teacher. 老师好 is used to greet your teacher.'],
+      ['explanation', '再见', '再见 means Goodbye. Use it when you leave someone.']
+    ],
+    vocabulary: [
+      ['你', 'nǐ', 'you', 'pronoun', '你好！', 'Nǐ hǎo!', 'Hello!'],
+      ['好', 'hǎo', 'good', 'adjective', '你好！', 'Nǐ hǎo!', 'Hello!'],
+      ['你好', 'nǐ hǎo', 'hello', 'greeting', '你好！', 'Nǐ hǎo!', 'Hello!'],
+      ['老师', 'lǎoshī', 'teacher', 'noun', '老师好！', 'Lǎoshī hǎo!', 'Hello, teacher!'],
+      ['再见', 'zàijiàn', 'goodbye', 'greeting', '再见！', 'Zàijiàn!', 'Goodbye!']
+    ],
+    examples: [
+      ['A', '你好！', 'Nǐ hǎo!', 'Hello!'],
+      ['B', '你好！', 'Nǐ hǎo!', 'Hello!'],
+      ['Student', '老师好！', 'Lǎoshī hǎo!', 'Hello, teacher!'],
+      ['Teacher', '你好！', 'Nǐ hǎo!', 'Hello!'],
+      ['A', '再见！', 'Zàijiàn!', 'Goodbye!'],
+      ['B', '再见！', 'Zàijiàn!', 'Goodbye!']
+    ],
+    quiz: [
+      ['What does 你好 mean?', ['Hello', 'Goodbye', 'Teacher', 'You'], 0, '你好 is a greeting meaning Hello.'],
+      ['Which phrase means Goodbye?', ['你好', '再见', '老师', '你'], 1, '再见 means Goodbye.'],
+      ['How do you greet your teacher?', ['你好', '再见', '老师好', '你'], 2, '老师好 means Hello, teacher.'],
+      ['What does 你 mean?', ['I', 'You', 'Teacher', 'Good'], 1, '你 means you.'],
+      ['What does 老师 mean?', ['Student', 'Teacher', 'Friend', 'Parent'], 1, '老师 means teacher.'],
+      { type:'listening', audio:'你好', question:'Listen. Which greeting did you hear?', options:['Hello','Goodbye','Hello, teacher','You'], correct:0, explanation:'你好 (nǐ hǎo) means hello.' },
+      { type:'sentence_build', question:'Tap the words in order: "Hello, teacher."', tiles:['老师','好'], explanation:'老师好 (lǎoshī hǎo) — Hello, teacher.' }
+    ]
+  },
   lesson_2: {
     xp: 15,
     objectives: [

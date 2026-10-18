@@ -42,6 +42,7 @@
     rel="stylesheet"
 >
 <link rel="stylesheet" href="hanverse.css">
+<script src="js/auth-fetch.js"></script>
 
 <style id="hanverse-layout-css">
  :root{
@@ -3985,8 +3986,11 @@ function quizSlide(
 
     const meter =
         total
-            ? Math.round(
+            ? Math.min(
+                100,
+                Math.round(
                 ((index + 1) / total) * 100
+              )
               )
             : 0;
 
@@ -4083,11 +4087,7 @@ function quizSlide(
                             ${
                                 qOptions(question)
                                     .map((option, optionIndex) => ({ option, optionIndex }))
-                                    .sort(
-                                        (a, b) =>
-                                            ((a.optionIndex * 13 + index * 7) % 97) -
-                                            ((b.optionIndex * 13 + index * 7) % 97)
-                                    )
+                                    .sort(() => Math.random() - 0.5)
                                     .map(
                                         ({ option, optionIndex }) => {
 
@@ -5146,6 +5146,12 @@ function bind(){
                             slide.item?.question_type ===
                             "sentence_build";
 
+                        // Retried questions record their answer against the
+                        // original question slot so calculateScore() sees the
+                        // corrected result.
+                        const answerIndex =
+                            slide.originIndex ??
+                            quizIndex;
 
                         let selected;
                         let correct;
@@ -5195,13 +5201,13 @@ function bind(){
 
 
                             const sequenceOk =
-                                tiles
-                                    .map(
-                                        (o,p) =>
-                                            Number(o?.order_index) ===
+                                seq.length === tiles.length &&
+                                seq
+                                    .every(
+                                        (tileIdx, p) =>
+                                            Number(tiles[tileIdx]?.order_index) ===
                                             p + 1
-                                    )
-                                    .every(Boolean);
+                                    );
 
 
                             selected =
@@ -5213,7 +5219,7 @@ function bind(){
                                 "ok";
 
                             state.answers[
-                                quizIndex
+                                answerIndex
                             ] =
                                 sequenceOk
                                     ? 0
@@ -5234,7 +5240,7 @@ function bind(){
 
 
                             state.answers[
-                                quizIndex
+                                answerIndex
                             ] =
                                 selected;
 
@@ -5245,6 +5251,8 @@ function bind(){
                             selected ===
                             correct;
 
+                        const isFirstAttempt =
+                            slide.originIndex === undefined;
 
                         state.score =
                             calculateScore();
@@ -5261,7 +5269,10 @@ function bind(){
                             !wasCorrect
                         ){
 
-                            // Wrong answer: re-queue the question at the end of the lesson
+                            // Wrong answer: re-queue the question at the end of the
+                            // lesson. originIndex keeps it scored against the
+                            // original question slot so a corrected retry can
+                            // still earn full marks.
                             const retryIndex =
                                 state.activities
                                     .filter(a => a?.type === "quiz")
@@ -5273,7 +5284,9 @@ function bind(){
 
                                 item: slide.item,
 
-                                index: retryIndex
+                                index: retryIndex,
+
+                                originIndex: quizIndex
 
                             });
 
@@ -5292,21 +5305,36 @@ function bind(){
                             );
 
                             successChime();
-                            playSound("xp");
-                            xpBurst(2);
 
-                            // Feature pack: sound + daily-quest XP tick
-                            if (window.HanVerseSound) window.HanVerseSound.correct();
-                            if (window.HanVerseFeatures) {
-                              const qid = uid(state.user);
-                              if (qid) window.HanVerseFeatures.quests.progress(qid, "xp", 2).catch(() => {});
+                            // First-attempt correct answers only: XP, quest
+                            // progress and the +2 toast. Retry corrections are
+                            // celebrated but never re-rewarded.
+                            if(isFirstAttempt){
+
+                                playSound("xp");
+                                xpBurst(2);
+
+                                // Feature pack: sound + daily-quest XP tick
+                                if (window.HanVerseSound) window.HanVerseSound.correct();
+                                if (window.HanVerseFeatures) {
+                                  const qid = uid(state.user);
+                                  if (qid) window.HanVerseFeatures.quests.progress(qid, "xp", 2).catch(() => {});
+                                }
+
+
+                                toast(
+                                    "success",
+                                    "Correct! 🎉 +2 XP"
+                                );
+
+                            }else{
+
+                                toast(
+                                    "success",
+                                    "You got it this time! 🎉"
+                                );
+
                             }
-
-
-                            toast(
-                                "success",
-                                "Correct! 🎉 +2 XP"
-                            );
 
                         }else{
 

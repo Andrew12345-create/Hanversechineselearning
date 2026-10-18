@@ -67,6 +67,9 @@
       enroll: (uid, words) => api('/review/enroll', { method: 'POST', body: { userId: uid, words } }),
       mistakes: uid => api(`/review/mistakes/${uid}`)
     },
+    account: {
+      delete: uid => api('/account/delete', { method: 'POST', body: { userId: uid } })
+    },
     hearts: {
       get: uid => api(`/hearts/${uid}`),
       lose: uid => api('/hearts/lose', { method: 'POST', body: { userId: uid } }),
