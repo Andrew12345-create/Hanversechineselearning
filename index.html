@@ -1996,21 +1996,43 @@ if ("IntersectionObserver" in window) {
   ];
   const day = Math.floor(Date.now() / 86400000);
   const w = WORDS[day % WORDS.length];
+  let wotd = { h: w.h, p: w.p, m: w.m, audio: null };
+  // Prefer the real curriculum word for today (same for everyone, changes daily)
+  (async () => {
+    try {
+      const res = await fetch("/api/lessons/daily-word");
+      const data = await res.json();
+      if (data?.success && data.word?.chinese) {
+        wotd = {
+          h: data.word.chinese,
+          p: data.word.pinyin || w.p,
+          m: data.word.english || w.m,
+          audio: data.word.audio_url || null
+        };
+        if ($("wotdHanzi")) {
+          $("wotdHanzi").textContent = wotd.h;
+          $("wotdPinyin").textContent = wotd.p;
+          $("wotdMean").textContent = wotd.m;
+        }
+      }
+    } catch (e) { /* keep static fallback word */ }
+  })();
   const $ = id => document.getElementById(id);
   if (!$("wotdHanzi")) return;
-  $("wotdHanzi").textContent = w.h;
-  $("wotdPinyin").textContent = w.p;
-  $("wotdMean").textContent = w.m;
+  $("wotdHanzi").textContent = wotd.h;
+  $("wotdPinyin").textContent = wotd.p;
+  $("wotdMean").textContent = wotd.m;
   $("wotdDate").textContent = new Date().toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
   $("wotdSpeak").onclick = () => {
+    if (wotd.audio) { try { new Audio(wotd.audio).play(); return; } catch (e) {} }
     try {
-      const u = new SpeechSynthesisUtterance(w.h);
+      const u = new SpeechSynthesisUtterance(wotd.h);
       u.lang = "zh-CN"; u.rate = 0.75;
       speechSynthesis.speak(u);
     } catch (e) { console.warn("tts unavailable"); }
   };
   $("wotdShare").onclick = async () => {
-    const text = `🐼 Today's HanVerse word: ${w.h} (${w.p}) — "${w.m}". Learn Chinese free: ` + location.origin;
+    const text = `🐼 Today's HanVerse word: ${wotd.h} (${wotd.p}) — "${wotd.m}". Learn Chinese free: ` + location.origin;
     try {
       if (navigator.share) { await navigator.share({ text }); return; }
       await navigator.clipboard.writeText(text);

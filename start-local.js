@@ -34,7 +34,7 @@ if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_NAME) {
 console.log('----------------------------------------');
 
 // Start the main server
-const serverProcess = spawn('node', ['server.js'], {
+const serverProcess = spawn('node', ['local-server.js'], {
   stdio: 'inherit',
   env: process.env
 });

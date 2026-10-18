@@ -403,6 +403,35 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
+  /* =========================================================
+     3b. ENROLL WORDS INTO REVIEW QUEUE (no reschedule)
+  ========================================================= */
+  router.post('/review/enroll', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const userId = uid(req.body, 'userId', 'user_id');
+      const words = Array.isArray(req.body.words) ? req.body.words : [];
+      if (!userId) return fail(res, 400, 'userId required');
+      if (!words.length) return fail(res, 400, 'words required');
+      await ensureFeatureSchema();
+      let enrolled = 0;
+      for (const w of words.slice(0, 50)) {
+        const word = String(w?.word || '').trim();
+        if (!word) continue;
+        const r = await pool.query(
+          `INSERT INTO review_queue (user_id, word, pinyin, meaning, interval_days, ease, due_at, lapses)
+           VALUES ($1,$2,$3,$4,1,2.3,NOW(),0)
+           ON CONFLICT (user_id, word) DO NOTHING`,
+          [userId, word.slice(0, 100), w?.pinyin ? String(w.pinyin).slice(0, 150) : null, w?.meaning ? String(w.meaning).slice(0, 200) : null]
+        );
+        enrolled += r.rowCount || 0;
+      }
+      ok(res, { enrolled });
+    } catch (e) {
+      console.error('review/enroll error:', e);
+      fail(res, 500, 'Failed to enroll words');
+    }
+  });
+
   router.post('/review/answer', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');

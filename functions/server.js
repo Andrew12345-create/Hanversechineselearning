@@ -3775,6 +3775,35 @@ router.get('/lessons', async (req, res) => {
 // EVERYTHING is returned in order_index order.
 // ============================================================
 
+router.get('/lessons/daily-word', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT chinese, pinyin, english, audio_url
+            FROM lesson_vocabulary
+            WHERE chinese IS NOT NULL AND chinese <> ''
+            ORDER BY lesson_id, order_index, vocabulary_id
+        `);
+        const words = result.rows;
+        if (!words.length) {
+            return res.status(404).json({ success: false, error: 'No vocabulary yet' });
+        }
+        const day = Math.floor(Date.now() / 86400000);
+        const word = words[day % words.length];
+        res.json({
+            success: true,
+            word: {
+                chinese: word.chinese,
+                pinyin: word.pinyin,
+                english: word.english,
+                audio_url: word.audio_url || null
+            }
+        });
+    } catch (error) {
+        console.error('❌ Daily word error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch daily word' });
+    }
+});
+
 router.get('/lessons/:lessonId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -3940,6 +3969,7 @@ router.get('/lessons/:lessonId', async (req, res) => {
         question_type,
         explanation,
         points,
+        audio_url,
         order_index
       FROM lesson_quiz_questions
       WHERE lesson_id = $1
@@ -6906,7 +6936,7 @@ app.use('/api', router);
 app.use('/.netlify/functions/server', router);
 
 const handler = serverless(app);
-export { handler };
+export { handler, app };
 
 console.log('✅ HanVerse API v2.0.1 ready! 🐼');
 console.log('📧 Email templates updated with HanVerse branding');

@@ -64,6 +64,7 @@
     review: {
       deck: uid => api(`/review/deck/${uid}`),
       answer: (uid, word, quality, extra) => api('/review/answer', { method: 'POST', body: { userId: uid, word, quality, ...extra } }),
+      enroll: (uid, words) => api('/review/enroll', { method: 'POST', body: { userId: uid, words } }),
       mistakes: uid => api(`/review/mistakes/${uid}`)
     },
     hearts: {

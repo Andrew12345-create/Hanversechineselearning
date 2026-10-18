@@ -110,6 +110,13 @@ img{max-width:100%}
 .media img,.media video{display:block;width:100%;max-height:520px;object-fit:contain;border-radius:20px;background:#f8fafc}.media audio{width:100%}
 .quiz-header{display:flex;justify-content:space-between;align-items:center}.quiz-badge{padding:7px 11px;border-radius:999px;background:#fff4d1;font-weight:900;font-size:.7rem}.quiz-count{font-weight:900;color:var(--muted)}.quiz-meter{height:8px;background:#eef2f7;border-radius:99px;overflow:hidden;margin:12px 0 22px}.quiz-meter-fill{height:100%;background:var(--primary)}
 .question-card{padding:22px;border-radius:20px;background:#f8fafc;border:1px solid var(--line)}.question-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--primary);font-weight:900}.question{font-size:1.25rem;font-weight:800;line-height:1.5;margin-top:7px}.options{display:grid;gap:10px;margin-top:16px}.option{padding:15px;text-align:left;border:1px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;font-weight:700;transition:.18s}.option:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent);box-shadow:0 8px 18px rgba(78,168,222,.12)}.option.correct{border-color:#74c69d;background:#ecfdf5}.option.wrong{border-color:#e63946;background:#fff1f2}.feedback{margin-top:15px;padding:13px 15px;border-radius:14px;font-weight:700}.feedback.good{background:#ecfdf5;color:#166534}.feedback.bad{background:#fff1f2;color:#9f1239}
+.listen-prompt{margin-top:16px}.listen-prompt audio{width:100%}
+.sentence-answer{min-height:64px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px;border:2px dashed var(--line);border-radius:16px;background:#fff;margin-top:16px}
+.sentence-hint{color:var(--muted,#5d7a9a);font-weight:700;font-size:.9rem}
+.sentence-pool{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.sentence-tile{padding:12px 18px;border:1px solid var(--line);border-radius:14px;background:#f8fbff;font-weight:800;font-size:1.05rem;cursor:pointer;transition:.15s}
+button.sentence-tile:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent);box-shadow:0 8px 18px rgba(78,168,222,.12)}
+.sentence-tile.placed{background:var(--accent,#4ea8de);color:#fff;border-color:transparent;cursor:default}
 .complete{text-align:center;padding:20px;position:relative}.complete-icon{font-size:4rem}.result-ring{width:150px;height:150px;margin:20px auto;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--score),#edf2f7 0);position:relative}.result-ring:after{content:"";position:absolute;inset:12px;background:#fff;border-radius:50%}.result-ring strong{position:relative;z-index:2;font-size:2rem}.rewards{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.reward{min-width:110px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;display:flex;flex-direction:column}.reward strong{font-size:1.2rem}.reward span{font-size:.65rem;color:var(--muted)}.action-row{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap}
 .controls{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:18px 24px;border-top:1px solid var(--line)}.counter{font-size:.8rem;color:var(--muted)}.btn{padding:11px 17px;border-radius:13px;font-weight:900;cursor:pointer;transition:.18s}.btn.primary{background:var(--primary);color:#fff;box-shadow:0 8px 18px rgba(230,57,70,.18)}.btn.secondary{background:#f8fafc;color:#334155;border:1px solid var(--line)}.btn:hover:not(:disabled){transform:translateY(-2px)}.btn:disabled{opacity:.45;cursor:not-allowed}
 .save-status{margin:12px 0;padding:11px 14px;border-radius:12px;font-size:.8rem;font-weight:800}.save-status.success{background:#ecfdf5;color:#166534}.save-status.error{background:#fff1f2;color:#9f1239}
@@ -311,6 +318,7 @@ body{
 .hanpan-companion-bubble::after{border-color:#BFDBFE;background:#fff}
 
 /* Community floating tab */
+.community-tab.is-offline{display:none!important}
 .community-tab{
   position:fixed;
   right:22px;
@@ -1751,6 +1759,8 @@ const state = {
 
     answers:{},
 
+    sentences:{},
+
     score:0,
 
     startedAt:
@@ -2883,23 +2893,19 @@ function buildActivities(){
     ];
 
 
-    state.lesson.objectives
-        .filter(validObjective)
-        .forEach(
-            (item,index) => {
+    const objectives = state.lesson.objectives.filter(validObjective);
 
-                slides.push({
+    if(objectives.length){
 
-                    type:"objective",
+        slides.push({
 
-                    item,
+            type:"objective",
 
-                    index
+            items: objectives
 
-                });
+        });
 
-            }
-        );
+    }
 
 
     state.lesson.content
@@ -3249,15 +3255,45 @@ function welcome(){
    ========================================================= */
 
 function objectiveSlide(
-    item,
-    index
+    items
 ){
 
-    const text =
-        item?.objective ||
-        item?.text ||
-        item?.title ||
-        "";
+    const list =
+        Array.isArray(items)
+            ? items
+            : [];
+
+
+    const cards = list
+        .map(
+            (item,index) => {
+
+                const text =
+                    item?.objective ||
+                    item?.text ||
+                    item?.title ||
+                    "";
+
+
+                return `
+
+                    <div class="objective-card">
+
+                        <div class="obj-number">
+                            ${index + 1}
+                        </div>
+
+                        <div class="obj-copy">
+                            ${esc(text)}
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        )
+        .join("");
 
 
     return `
@@ -3265,31 +3301,16 @@ function objectiveSlide(
         <div class="objective-hero">
 
             <div class="kicker">
-                Mission ${index + 1}
+                Today's mission 🎯
             </div>
 
 
             <h2>
-                Today's mission 🎯
+                Here's what Panda wants you to master.
             </h2>
 
 
-            <p class="desc">
-                Here's what Panda wants you to master.
-            </p>
-
-
-            <div class="objective-card">
-
-                <div class="obj-number">
-                    ${index + 1}
-                </div>
-
-                <div class="obj-copy">
-                    ${esc(text)}
-                </div>
-
-            </div>
+            ${cards}
 
 
             <div class="panda-speech">
@@ -3613,7 +3634,7 @@ function exampleSlide(
 
                                     <button
                                         class="speak"
-                                        data-speak="${attr(chinese)}"
+                                        ${item?.audio_url ? `data-speak-audio="${attr(item.audio_url)}" data-speak-text="${attr(chinese)}"` : `data-speak="${attr(chinese)}"`}
                                         type="button"
                                         style="margin-top:13px"
                                     >
@@ -3713,6 +3734,181 @@ function correctOptionIndex(
 }
 
 
+/* =========================================================
+   REVIEW WIRING
+   ========================================================= */
+
+function questionWord(
+    question
+){
+
+    const vocab =
+        state.lesson?.vocabulary ||
+        [];
+
+
+    const optionTexts =
+        qOptions(question)
+            .map(
+                option =>
+                    String(
+                        option?.option_text ||
+                        option?.text ||
+                        ""
+                    )
+            );
+
+
+    const haystack =
+        [
+            question?.question ||
+            question?.prompt ||
+            "",
+
+            question?.explanation ||
+            "",
+
+            ...optionTexts
+        ]
+            .join(" ")
+            .toLowerCase();
+
+
+    let best = null;
+    let bestScore = 0;
+
+
+    vocab.forEach(
+        item => {
+
+            const zh =
+                item?.chinese ||
+                "";
+
+            const en =
+                String(
+                    item?.english ||
+                    ""
+                ).toLowerCase();
+
+
+            let score = 0;
+
+            const questionText = String(
+                question?.question ||
+                question?.prompt ||
+                ""
+            );
+
+            if(
+                zh.length > 1 &&
+                haystack.includes(zh)
+            ){
+
+                score = 40 + zh.length;
+
+            }else if(
+                zh.length === 1 &&
+                questionText.includes(zh)
+            ){
+
+                score = 35;
+
+            }else if(
+                zh.length === 1 &&
+                optionTexts.some(t => t === zh)
+            ){
+
+                score = 30;
+
+            }else if(
+                en &&
+                optionTexts.some(
+                    t => t.toLowerCase() === en
+                )
+            ){
+
+                score = 20;
+
+            }else if(
+                en.length > 3 &&
+                haystack.includes(en)
+            ){
+
+                score = 10;
+
+            }
+
+
+            if(
+                score > bestScore
+            ){
+
+                bestScore = score;
+
+                best = item;
+
+            }
+
+        }
+    );
+
+
+    return bestScore
+        ? best
+        : null;
+
+}
+
+
+function scheduleReview(
+    question,
+    wasCorrect
+){
+
+    try{
+
+        const userId =
+            uid(state.user);
+
+        const features =
+            window.HanVerseFeatures;
+
+        if(
+            !userId ||
+            !features?.review?.answer
+        ){
+
+            return;
+
+        }
+
+        const word =
+            questionWord(question);
+
+        if(
+            !word?.chinese
+        ){
+
+            return;
+
+        }
+
+        features.review.answer(
+            userId,
+            word.chinese,
+            wasCorrect ? 5 : 1,
+            {
+                pinyin: word.pinyin || null,
+                meaning: word.english || null
+            }
+        ).catch(() => {});
+
+    }catch{}
+
+}
+
+
 function quizSlide(
     question,
     index
@@ -3793,82 +3989,174 @@ function quizSlide(
             </div>
 
 
-            <div class="options">
+            ${
+                question?.question_type === "listening" && question?.audio_url
+                    ? `
 
-                ${
-                    options
-                        .map(
-                            (
-                                option,
-                                optionIndex
-                            ) => {
+                        <div class="listen-prompt">
 
-                                let className =
-                                    "option";
+                            <audio
+                                controls
+                                preload="none"
+                                src="${attr(question.audio_url)}"
+                            ></audio>
 
+                        </div>
 
-                                if(
-                                    selected !==
-                                    undefined
-                                ){
-
-                                    if(
-                                        optionIndex ===
-                                        correct
-                                    ){
-
-                                        className +=
-                                            " correct";
-
-                                    }else if(
-                                        optionIndex ===
-                                        selected
-                                    ){
-
-                                        className +=
-                                            " wrong";
-
-                                    }
-
-                                }
+                      `
+                    : ""
+            }
 
 
-                                return `
+            ${
+                question?.question_type === "sentence_build"
+                    ? `
 
-                                    <button
+                        <div class="sentence-answer" data-sentence-answer>
 
-                                        class="${className}"
+                            ${
+                                (state.sentences[index] || [])
+                                    .map(optIdx => `
 
-                                        data-option="${optionIndex}"
+                                        <span class="sentence-tile placed">
+                                            ${esc(qOptions(question)[optIdx]?.option_text || "")}
+                                        </span>
 
-                                        type="button"
-
-                                        ${
-                                            selected !==
-                                            undefined
-                                                ? "disabled"
-                                                : ""
-                                        }
-
-                                    >
-
-                                        ${esc(
-                                            option?.option_text ||
-                                            option?.text ||
-                                            option?.label ||
-                                            ""
-                                        )}
-
-                                    </button>
-
-                                `;
-
+                                    `)
+                                    .join("") ||
+                                `<span class="sentence-hint">Tap the words below in order</span>`
                             }
-                        )
-                        .join("")
-                }
 
-            </div>
+                        </div>
+
+                        <div class="sentence-pool">
+
+                            ${
+                                qOptions(question)
+                                    .map((option, optionIndex) => ({ option, optionIndex }))
+                                    .sort(
+                                        (a, b) =>
+                                            ((a.optionIndex * 13 + index * 7) % 97) -
+                                            ((b.optionIndex * 13 + index * 7) % 97)
+                                    )
+                                    .map(
+                                        ({ option, optionIndex }) => {
+
+                                            const used =
+                                                (state.sentences[index] || []).includes(optionIndex);
+
+
+                                            return `
+
+                                                <button
+
+                                                    class="sentence-tile"
+
+                                                    data-tile="${optionIndex}"
+
+                                                    type="button"
+
+                                                    ${used || selected !== undefined ? "disabled" : ""}
+
+                                                    ${used ? "hidden" : ""}
+
+                                                >
+
+                                                    ${esc(option?.option_text || "")}
+
+                                                </button>
+
+                                            `;
+
+                                        }
+                                    )
+                                    .join("")
+                            }
+
+                        </div>
+
+                      `
+                    : `
+
+                        <div class="options">
+
+                            ${
+                                options
+                                    .map(
+                                        (
+                                            option,
+                                            optionIndex
+                                        ) => {
+
+                                            let className =
+                                                "option";
+
+
+                                            if(
+                                                selected !==
+                                                undefined
+                                            ){
+
+                                                if(
+                                                    optionIndex ===
+                                                    correct
+                                                ){
+
+                                                    className +=
+                                                        " correct";
+
+                                                }else if(
+                                                    optionIndex ===
+                                                    selected
+                                                ){
+
+                                                    className +=
+                                                        " wrong";
+
+                                                }
+
+                                            }
+
+
+                                            return `
+
+                                                <button
+
+                                                    class="${className}"
+
+                                                    data-option="${optionIndex}"
+
+                                                    type="button"
+
+                                                    ${
+                                                        selected !==
+                                                        undefined
+                                                            ? "disabled"
+                                                            : ""
+                                                    }
+
+                                                >
+
+                                                    ${esc(
+                                                        option?.option_text ||
+                                                        option?.text ||
+                                                        option?.label ||
+                                                        ""
+                                                    )}
+
+                                                </button>
+
+                                            `;
+
+                                        }
+                                    )
+                                    .join("")
+                            }
+
+                        </div>
+
+                      `
+            }
 
 
             ${
@@ -4419,8 +4707,7 @@ function render(){
 
             html =
                 objectiveSlide(
-                    slide.item,
-                    slide.index
+                    slide.items
                 );
 
             break;
@@ -4677,7 +4964,7 @@ function bind(){
 
     document
         .querySelectorAll(
-            "[data-speak]"
+            "[data-speak]:not([data-speak-audio])"
         )
         .forEach(
             button => {
@@ -4697,6 +4984,44 @@ function bind(){
                         speak(
                             button.dataset.speak
                         );
+
+                    };
+
+            }
+        );
+
+    // Example sentences: play the generated MP3 when available, fall back to TTS
+    document
+        .querySelectorAll(
+            "[data-speak-audio]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () => {
+
+                        pandaReact(
+                            "listen"
+                        );
+
+                        // Feature pack: count speaking/listening reps for daily quests
+                        if (window.HanVerseFeatures && uid(state.user)) {
+                          window.HanVerseFeatures.quests.progress(uid(state.user), "speaking", 1).catch(() => {});
+                        }
+
+                        const audio =
+                            new Audio(
+                                button.dataset.speakAudio
+                            );
+
+                        audio
+                            .play()
+                            .catch(
+                                () => speak(
+                                    button.dataset.speakText || ""
+                                )
+                            );
 
                     };
 
@@ -4728,7 +5053,7 @@ function bind(){
 
     document
         .querySelectorAll(
-            "[data-option]"
+            "[data-option], [data-tile]"
         )
         .forEach(
             button => {
@@ -4768,34 +5093,149 @@ function bind(){
                         }
 
 
-                        const selected =
-                            Number(
-                                button.dataset.option
-                            );
+                        const isSentence =
+                            slide.item?.question_type ===
+                            "sentence_build";
 
 
-                        const correct =
-                            correctOptionIndex(
-                                slide.item
-                            );
+                        let selected;
+                        let correct;
+
+                        if(isSentence){
+
+                            const seq =
+                                state.sentences[
+                                    quizIndex
+                                ] || [];
+
+                            const tile =
+                                Number(
+                                    button.dataset.tile
+                                );
+
+                            if(
+                                seq.includes(tile)
+                            ){
+
+                                return;
+
+                            }
+
+                            seq.push(tile);
+
+                            state.sentences[
+                                quizIndex
+                            ] = seq;
 
 
-                        state.answers[
-                            quizIndex
-                        ] =
-                            selected;
+                            const tiles =
+                                qOptions(
+                                    slide.item
+                                );
+
+                            if(
+                                seq.length <
+                                tiles.length
+                            ){
+
+                                render();
+
+                                return;
+
+                            }
+
+
+                            const sequenceOk =
+                                tiles
+                                    .map(
+                                        (o,p) =>
+                                            Number(o?.order_index) ===
+                                            p + 1
+                                    )
+                                    .every(Boolean);
+
+
+                            selected =
+                                sequenceOk
+                                    ? "ok"
+                                    : "no";
+
+                            correct =
+                                "ok";
+
+                            state.answers[
+                                quizIndex
+                            ] =
+                                sequenceOk
+                                    ? 0
+                                    : 1;
+
+                        }else{
+
+                            selected =
+                                Number(
+                                    button.dataset.option
+                                );
+
+
+                            correct =
+                                correctOptionIndex(
+                                    slide.item
+                                );
+
+
+                            state.answers[
+                                quizIndex
+                            ] =
+                                selected;
+
+                        }
+
+
+                        const wasCorrect =
+                            selected ===
+                            correct;
 
 
                         state.score =
                             calculateScore();
 
 
+                        // Spaced review: grade the word this question tests
+                        scheduleReview(
+                            slide.item,
+                            wasCorrect
+                        );
+
+
+                        if(
+                            !wasCorrect
+                        ){
+
+                            // Wrong answer: re-queue the question at the end of the lesson
+                            const retryIndex =
+                                state.activities
+                                    .filter(a => a?.type === "quiz")
+                                    .length;
+
+                            state.activities.push({
+
+                                type:"quiz",
+
+                                item: slide.item,
+
+                                index: retryIndex
+
+                            });
+
+                        }
+
+
                         render();
 
 
                         if(
-                            selected ===
-                            correct
+                            wasCorrect
                         ){
 
                             pandaReact(
@@ -4856,6 +5296,10 @@ function bind(){
 
             }
         );
+
+                        // The instant the final quiz answer is submitted, show the
+                        // perfect-score celebration. The learner does NOT need to
+                        // click Next or Save first.
 
 
     const redo =
@@ -5204,6 +5648,18 @@ async function saveProgress(){
         );
         emitLearnerActivity("lesson_complete",{score:state.score,xp});
 
+        // Enroll this lesson's words into spaced review (first time only per word)
+        try{
+            if (window.HanVerseFeatures?.review?.enroll) {
+                const words = (state.lesson?.vocabulary || [])
+                    .filter(v => v?.chinese)
+                    .map(v => ({ word: v.chinese, pinyin: v.pinyin || null, meaning: v.english || null }));
+                if (words.length) {
+                    window.HanVerseFeatures.review.enroll(userId, words).catch(() => {});
+                }
+            }
+        }catch(e){}
+
         // The perfect-score celebration has already happened immediately after
         // the final quiz. Saving now must ONLY save progress and show the normal
         // completion result — never replay the celebration.
@@ -5487,6 +5943,9 @@ function updateOnline(count){
     if(community)community.textContent=`${state.live.online} online`;
     if(modal)modal.textContent=String(state.live.online);
     if(tab)tab.textContent=String(state.live.online);
+    // Hide the floating tab when nobody else is online (no fake "0 online" noise)
+    const toggle=$("communityToggle");
+    if(toggle)toggle.classList.toggle("is-offline", state.live.online<1);
 }
 
 function resolveRealtimeUrl(){const meta=document.querySelector('meta[name="hanverse-realtime-url"]');return String(meta?.content||"").trim().replace(/\/$/,"");}
