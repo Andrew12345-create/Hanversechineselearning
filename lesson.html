@@ -319,6 +319,27 @@ body{
 
 /* Community floating tab */
 .community-tab.is-offline{display:none!important}
+
+/* Games floating tab (universal in every lesson) */
+.games-tab{position:fixed;right:22px;top:calc(50% + 72px);transform:translateY(-50%);z-index:1200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:54px;height:54px;border:0;border-radius:50%;background:linear-gradient(135deg,#F97316,#f59e0b);color:#fff;cursor:pointer;box-shadow:0 10px 24px rgba(249,115,22,.35);font-family:inherit}
+.games-tab:hover{transform:translateY(-50%) scale(1.06)}
+.games-tab-icon{font-size:1.15rem;line-height:1}
+.games-tab-label{font-size:.5rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.games-backdrop{position:fixed;inset:0;z-index:1290;background:rgba(15,35,64,.5);opacity:0;pointer-events:none;transition:.2s}
+.games-backdrop.is-visible{opacity:1;pointer-events:auto}
+.games-drawer{position:fixed;right:0;top:0;bottom:0;z-index:1300;width:min(360px,92vw);background:#fff;box-shadow:-18px 0 40px rgba(15,35,64,.18);transform:translateX(105%);transition:.25s;display:flex;flex-direction:column;padding:22px}
+.games-drawer.is-visible{transform:translateX(0)}
+.games-drawer-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.games-kicker{font-size:.62rem;font-weight:900;letter-spacing:.12em;color:#F97316}
+.games-drawer-head h2{font-size:1.2rem;margin:5px 0 3px;color:#0F2340}
+.games-drawer-head p{font-size:.8rem;color:#5D7A9A;margin:0}
+.games-close{border:0;background:#f1f5f9;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;color:#0F2340}
+.games-list{display:grid;gap:10px;margin-top:18px;overflow-y:auto}
+.games-item{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid #e2e8f0;border-radius:16px;text-decoration:none;color:#0F2340;font-size:1.05rem;transition:.15s}
+.games-item:hover{border-color:#4ea8de;background:#f8fbff;transform:translateY(-1px)}
+.games-item strong{display:block;font-size:.9rem}
+.games-item span{display:block;font-size:.72rem;font-weight:600;color:#5D7A9A}
+
 .community-tab{
   position:fixed;
   right:22px;
@@ -1451,6 +1472,34 @@ button:focus-visible,a:focus-visible{
         <span class="community-tab-icon">👥</span>
         <span class="community-tab-count" id="communityToggleCount">0</span>
     </button>
+
+    <!-- Games quick-launch (universal: shows in every lesson) -->
+    <button class="games-tab" id="gamesToggle" type="button" aria-label="Play a game" title="Play a game">
+        <span class="games-tab-icon">🎮</span>
+        <span class="games-tab-label">Play</span>
+    </button>
+
+    <div class="games-backdrop" id="gamesBackdrop" aria-hidden="true"></div>
+
+    <aside class="games-drawer" id="gamesDrawer" aria-label="Games" aria-hidden="true">
+        <div class="games-drawer-head">
+            <div>
+                <div class="games-kicker">PLAY & PRACTISE</div>
+                <h2>Games with HanPan 🐼</h2>
+                <p>Take a break and play — you'll still be learning.</p>
+            </div>
+            <button class="games-close" id="gamesClose" type="button" aria-label="Close games">×</button>
+        </div>
+
+        <nav class="games-list">
+            <a class="games-item" href="practice.html?game=catch">🎯 <div><strong>Character Catch</strong><span>Catch the character Panda asks for</span></div></a>
+            <a class="games-item" href="practice.html?game=tones">🎵 <div><strong>Tone Pairs</strong><span>Train your ear for tones</span></div></a>
+            <a class="games-item" href="practice.html?game=builder">🧩 <div><strong>Character Builder</strong><span>Assemble characters from parts</span></div></a>
+            <a class="games-item" href="practice.html?game=review">📖 <div><strong>Review Reps</strong><span>Practise your weakest words</span></div></a>
+            <a class="games-item" href="practice.html?game=flashcards">🃏 <div><strong>Flashcards</strong><span>Quick word recall</span></div></a>
+            <a class="games-item" href="practice.html?game=speaking">🎤 <div><strong>Speak Aloud</strong><span>Say it — Panda listens</span></div></a>
+        </nav>
+    </aside>
 
     <div class="community-backdrop" id="communityBackdrop" aria-hidden="true"></div>
 
@@ -5975,6 +6024,34 @@ function initPandaImageGuard(){
     });
 }
 
+function initGamesDrawer(){
+    const toggle = $("gamesToggle");
+    const drawer = $("gamesDrawer");
+    const backdrop = $("gamesBackdrop");
+    const close = $("gamesClose");
+    if(!toggle || !drawer) return;
+
+    const open = () => {
+        drawer.classList.add("is-visible");
+        backdrop?.classList.add("is-visible");
+        drawer.setAttribute("aria-hidden","false");
+    };
+    const shut = () => {
+        drawer.classList.remove("is-visible");
+        backdrop?.classList.remove("is-visible");
+        drawer.setAttribute("aria-hidden","true");
+    };
+
+    toggle.addEventListener("click", () => {
+        drawer.classList.contains("is-visible") ? shut() : open();
+    });
+    close?.addEventListener("click", shut);
+    backdrop?.addEventListener("click", shut);
+    document.addEventListener("keydown", event => {
+        if(event.key === "Escape" && drawer.classList.contains("is-visible")) shut();
+    });
+}
+
 function initCommunityDrawer(){
     const toggle = $("communityToggle");
     const drawer = $("communityDrawer");
@@ -6093,6 +6170,7 @@ async function init(){
     initCompleteModal();
     initPandaImageGuard();
     initCommunityDrawer();
+    initGamesDrawer();
     initHanPanCompanion();
 
 

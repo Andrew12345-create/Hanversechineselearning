@@ -6462,6 +6462,66 @@
 
 
     /* =========================================================
+       DEEP LINK (?game=tones opens a game directly)
+    ========================================================= */
+
+    (function () {
+
+        const game =
+            new URLSearchParams(
+                location.search
+            ).get("game");
+
+
+        if (!game) return;
+
+
+        const activate = () => {
+
+            // Character Catch lives outside the mode grid
+            if (game === "catch") {
+
+                const start =
+                    $("startGame");
+
+                if (start) start.click();
+
+                return true;
+
+            }
+
+
+            const card =
+                document.querySelector(
+                    `.mode-card[data-mode="${game}"]`
+                );
+
+            if (card) {
+
+                card.click();
+
+                return true;
+
+            }
+
+            return false;
+
+        };
+
+
+        // The games depend on the feature pack + hearts state, which load
+        // asynchronously — retry briefly instead of firing once at parse time.
+        let tries = 0;
+
+        const timer = setInterval(() => {
+
+            if (activate() || ++tries > 9) clearInterval(timer);
+
+        }, 500);
+
+    })();
+
+    /* =========================================================
        GAME CONTROLS
     ========================================================= */
 
