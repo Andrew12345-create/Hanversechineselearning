@@ -48,11 +48,19 @@ export async function sendEmail({ to, subject, html, text = null }) {
     return { success: false, error: 'No recipient specified' };
   }
   try {
+    // Every email carries a notice + unsubscribe/footer link (compliance).
+    const footer = `
+      <div style="margin-top:24px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:11px;color:#6b7280;font-family:Arial,sans-serif">
+        You received this email because you have a Hanverse account.
+        <a href="${process.env.PUBLIC_SITE_URL || ''}/settings.html" style="color:#2563EB">Unsubscribe or manage emails</a> ·
+        <a href="${process.env.PUBLIC_SITE_URL || ''}/privacy.html" style="color:#2563EB">Privacy Policy</a><br>
+        [Your business name], [address]
+      </div>`;
     const result = await transport.sendMail({
       from: EMAIL_FROM,
       to,
       subject,
-      html,
+      html: html + footer,
       text: text || undefined
     });
     console.log(`✅ email.js: email sent to ${to}`);

@@ -1538,9 +1538,33 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
       <a href="roadmap.html">Roadmap</a>
       <a href="parents.html">Parents</a>
       <a href="login.html">Log in</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="refund-policy.html">Refunds</a>
+      <a href="cookie-policy.html">Cookies</a>
     </div>
   </div>
 </footer>
+
+<!-- Cookie / local-storage notice (no ad-tracking cookies are used) -->
+<div id="cookieNotice" style="display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:1500;max-width:640px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 12px 32px rgba(15,35,64,.18);padding:14px 18px;font-size:.8rem;color:#0F2340">
+  We use browser local storage to keep you signed in. No ad-tracking cookies. Details in our <a href="cookie-policy.html">Cookie Policy</a> and <a href="privacy.html">Privacy Policy</a>.
+  <button id="cookieOk" style="margin-left:10px;padding:7px 16px;border:0;border-radius:999px;background:#2563EB;color:#fff;font-weight:800;cursor:pointer">OK</button>
+</div>
+<script>
+(function () {
+  try {
+    if (!localStorage.getItem('hanverse_cookie_ok')) {
+      var n = document.getElementById('cookieNotice');
+      n.style.display = 'block';
+      document.getElementById('cookieOk').onclick = function () {
+        localStorage.setItem('hanverse_cookie_ok', '1');
+        n.style.display = 'none';
+      };
+    }
+  } catch (e) {}
+})();
+</script>
 
 <!-- =====================================================
      JAVASCRIPT

@@ -432,6 +432,62 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
+  /* =========================================================
+     3c. DELETE MY ACCOUNT (data-deletion request, self-service)
+  ========================================================= */
+  router.post('/account/delete', requireAuth, writeLimiter, async (req, res) => {
+    const client = await pool.connect();
+    try {
+      const userId = uid(req.body, 'userId', 'user_id');
+      if (!userId) { client.release(); return fail(res, 400, 'userId required'); }
+      await ensureFeatureSchema();
+      await client.query('BEGIN');
+      // Delete rows from every table that has a user_id column (children first via FK discovery)
+      const tables = await client.query(`
+        SELECT c.table_name, c.data_type FROM information_schema.columns c
+        JOIN information_schema.tables t ON t.table_schema='public' AND t.table_name=c.table_name
+        WHERE c.table_schema='public' AND c.column_name='user_id' AND t.table_type='BASE TABLE' AND c.table_name <> 'users'
+      `);
+      for (const t of tables.rows) {
+        // Mixed id systems: some tables key by integer users.user_id, others by uuid.
+        const isUuid = /uuid/.test(t.data_type);
+        const isInt = /int/.test(t.data_type);
+        if (isUuid && Number.isInteger(Number(userId))) continue; // different id namespace
+        const cast = isInt ? '$1::int' : '$1';
+        await client.query(`DELETE FROM "${t.table_name}" WHERE user_id=${cast}`, [userId]);
+      }
+
+      // Relationship/attribution FKs that reference users but aren't named user_id
+      // (parent links, referrals, invites, classroom teacher, campaign authors...).
+      // Pure link rows are deleted; attribution columns are set NULL so shared
+      // records (e.g. classrooms, campaigns) survive the deletion.
+      const fks = await client.query(`
+        SELECT con.conrelid::regclass AS tbl, a.attname AS col
+        FROM pg_constraint con
+        JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = ANY(con.conkey)
+        WHERE con.confrelid = 'users'::regclass AND con.contype = 'f'
+      `);
+      const NULL_COLS = new Set(['parent_id','teacher_id','performed_by','verified_by','banned_by','sender_user_id','created_by','authorised_by']);
+      for (const fk of fks.rows) {
+        const tbl = String(fk.tbl);
+        if (NULL_COLS.has(fk.col)) {
+          await client.query(`UPDATE "${tbl}" SET "${fk.col}"=NULL WHERE "${fk.col}"=$1`, [userId]);
+        } else {
+          await client.query(`DELETE FROM "${tbl}" WHERE "${fk.col}"=$1`, [userId]);
+        }
+      }
+      const del = await client.query('DELETE FROM users WHERE user_id=$1', [userId]);
+      await client.query('COMMIT');
+      ok(res, { deleted: del.rowCount > 0 });
+    } catch (e) {
+      await client.query('ROLLBACK').catch(() => {});
+      console.error('account/delete error:', e);
+      fail(res, 500, 'Failed to delete account');
+    } finally {
+      client.release();
+    }
+  });
+
   router.post('/review/answer', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
