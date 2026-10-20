@@ -109,7 +109,9 @@
       get: uid => api(`/gems/${uid}`)
     },
     classroom: {
-      join: (uid, classCode) => api('/classroom/join', { method: 'POST', body: { userId: uid, classCode } })
+      join: (uid, classCode) => api('/classroom/join', { method: 'POST', body: { userId: uid, classCode } }),
+      create: (className) => api('/classroom/create', { method: 'POST', body: { className } }),
+      roster: (classCode) => api('/classroom/roster/' + encodeURIComponent(classCode))
     }
   };
 

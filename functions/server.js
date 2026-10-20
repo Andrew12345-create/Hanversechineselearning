@@ -3057,6 +3057,62 @@ Be Panda.
 
 
 /* ==========================================
+   INVITE A FRIEND
+========================================== */
+
+router.post('/send-invite', authLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    const inviterId = auth.user_id;
+    const { inviteeEmail, inviteeName, customMessage } = req.body || {};
+    if (!inviteeEmail) return res.status(400).json({ success: false, error: 'Recipient email is required.' });
+
+    const existing = await pool.query(`SELECT user_id FROM users WHERE email = $1`, [String(inviteeEmail).trim().toLowerCase()]);
+    if (existing.rows.length) return res.status(409).json({ success: false, error: 'That person already has a HanVerse account!' });
+
+    const inviter = await pool.query(`SELECT username, full_name FROM users WHERE user_id = $1`, [inviterId]);
+    const name = inviter.rows[0]?.full_name || inviter.rows[0]?.username || 'A HanVerse learner';
+
+    await pool.query(
+      `INSERT INTO invitations (sender_id, recipient_email, recipient_name, custom_message, status, created_at)
+       VALUES ($1, $2, $3, $4, 'sent', NOW())
+       ON CONFLICT DO NOTHING`,
+      [inviterId, inviteeEmail.trim().toLowerCase(), inviteeName || null, customMessage || null]
+    );
+
+    try {
+      const { sendEmail } = await import('./email.js');
+      const msg = customMessage ? `<p style="margin:16px 0;color:#374151;font-style:italic;">"${customMessage.replace(/</g,'&lt;')}"</p>` : '';
+      await sendEmail({
+        to: inviteeEmail.trim(),
+        subject: `${name} invited you to learn Mandarin on HanVerse!`,
+        html: `<div style="font-family:Nunito,sans-serif;max-width:520px;margin:0 auto;padding:24px;">
+          <h1 style="color:#2563EB;">You've been invited to HanVerse! 🐼</h1>
+          <p style="font-size:16px;color:#374151;"><strong>${name}</strong> thinks you'd love learning Mandarin Chinese with HanPan the panda.</p>
+          ${msg}
+          <p style="font-size:15px;color:#374151;">HanVerse makes learning Mandarin fun for kids and families with interactive lessons, games, and YCT exam prep.</p>
+          <a href="https://hanverse.netlify.app/signup" style="display:inline-block;margin:20px 0;padding:14px 32px;background:#2563EB;color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;">Join HanVerse Free</a>
+          <p style="font-size:13px;color:#9CA3AF;margin-top:24px;">If you didn't expect this email, just ignore it.</p>
+        </div>`
+      });
+    } catch (mailErr) { console.warn('Invite email failed:', mailErr.message); }
+
+    await pool.query(
+      `INSERT INTO referral_rewards (referrer_id, invited_email, status, created_at)
+       VALUES ($1, $2, 'invited', NOW()) ON CONFLICT DO NOTHING`,
+      [inviterId, inviteeEmail.trim().toLowerCase()]
+    );
+
+    res.json({ success: true, message: 'Invitation sent! Your friend will receive an email.' });
+  } catch (error) {
+    console.error('send-invite error:', error);
+    res.status(500).json({ success: false, error: 'Failed to send invitation.' });
+  }
+});
+
+/* ==========================================
    PANDA CHAT ENDPOINT
 ========================================== */
 

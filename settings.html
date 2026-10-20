@@ -51,8 +51,10 @@
 <button class="row action" type="button" onclick="window.location.href='forgot-password.html'"><div class="main"><div class="icon">🔐</div><div class="copy"><h3 class="title">Change password</h3><p class="desc">Keep your HanVerse account secure.</p></div></div><span class="chevron">›</span></button>
 <div class="membership"><div class="membership-badge">⭐</div><div class="membership-copy"><strong>HanVerse Membership</strong><span>Manage your premium learning benefits.</span></div><button type="button" onclick="window.location.href='payment.html'">View plans</button></div>
 </div></section>
-<section class="card full"><div class="heading"><div class="heading-icon">🏫</div><div><h2>Classroom</h2><p>Join your teacher's class with a code.</p></div></div><div class="body">
-<div class="row"><div class="main"><div class="icon">🔑</div><div class="copy"><h3 class="title">Class code</h3><p class="desc">Enter the code your teacher shared (e.g. HV1A2B3C).</p></div></div><div style="display:flex;gap:8px;align-items:center"><input type="text" id="classCodeInput" maxlength="12" placeholder="HV-XXXXXX" aria-label="Class code" style="min-height:40px;padding:8px 12px;border:1px solid var(--line,#D5E3F0);border-radius:10px;font:700 13px Inter,sans-serif;text-transform:uppercase;width:130px"><button class="savebtn" id="joinClassBtn" type="button">Join class</button></div></div>
+<section class="card full"><div class="heading"><div class="heading-icon">🏫</div><div><h2>Classroom</h2><p>Join or create a class.</p></div></div><div class="body">
+<div class="row"><div class="main"><div class="icon">🔑</div><div class="copy"><h3 class="title">Join a class</h3><p class="desc">Enter the code your teacher shared (e.g. HV1A2B3C).</p></div></div><div style="display:flex;gap:8px;align-items:center"><input type="text" id="classCodeInput" maxlength="12" placeholder="HV-XXXXXX" aria-label="Class code" style="min-height:40px;padding:8px 12px;border:1px solid var(--line,#D5E3F0);border-radius:10px;font:700 13px Inter,sans-serif;text-transform:uppercase;width:130px"><button class="savebtn" id="joinClassBtn" type="button">Join class</button></div></div>
+<div class="row"><div class="main"><div class="icon">📋</div><div class="copy"><h3 class="title">Create a class</h3><p class="desc">Teachers: create a class and share the code with your students.</p></div></div><div style="display:flex;gap:8px;align-items:center"><input type="text" id="classNameInput" maxlength="60" placeholder="e.g. Year 3 Mandarin" aria-label="Class name" style="min-height:40px;padding:8px 12px;border:1px solid var(--line,#D5E3F0);border-radius:10px;font:700 13px Inter,sans-serif;width:170px"><button class="savebtn" id="createClassBtn" type="button">Create</button></div></div>
+<div id="classResult" style="display:none;margin-top:8px;padding:12px;border-radius:10px;background:rgba(34,197,94,.08);font-weight:700;font-size:14px;"></div>
 </div></section>
 <section class="card full"><div class="heading"><div class="heading-icon">🐼</div><div><h2>About HanVerse</h2><p>Everything you need to know about the app.</p></div></div><div class="body">
 <div class="row"><div class="main"><div class="icon">🚀</div><div class="copy"><h3 class="title">HanVerse version</h3><p class="desc">You are using HanVerse 1.0.0.</p></div></div><span class="chevron">✓</span></div>
@@ -135,6 +137,24 @@ btn.addEventListener('click',async function(){
  }
 });
 input.addEventListener('keypress',function(e){if(e.key==='Enter')btn.click()});
+var cBtn=document.getElementById('createClassBtn'),cInput=document.getElementById('classNameInput'),cResult=document.getElementById('classResult');
+if(cBtn&&cInput){
+ cBtn.addEventListener('click',async function(){
+  var name=(cInput.value||'').trim();
+  if(!name){toastMsg('Enter a class name first.');cInput.focus();return}
+  var F=window.HanVerseFeatures;
+  if(!F){toastMsg('Please log in first.');return}
+  cBtn.disabled=true;var old=cBtn.textContent;cBtn.textContent='Creating...';
+  try{
+   var r=await F.classroom.create(name);
+   if(cResult){cResult.style.display='block';cResult.textContent='Class created! Share this code with your students: '+r.classCode;cResult.style.userSelect='all';}
+   toastMsg('Class "'+name+'" created ✓');
+   cInput.value='';
+  }catch(e){toastMsg(e.message||'Could not create class.');}
+  finally{cBtn.disabled=false;cBtn.textContent=old;}
+ });
+ cInput.addEventListener('keypress',function(e){if(e.key==='Enter')cBtn.click()});
+}
 })();
 </script>
 <script>

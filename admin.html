@@ -1559,6 +1559,10 @@
         <span class="nav-icon">✦</span>
         Broadcasts
       </button>
+      <button class="nav-button" data-section="parents">
+        <span class="nav-icon">👨‍👩‍👧</span>
+        Parents
+      </button>
     </nav>
 
     <div class="nav-label">HanVerse AI</div>
@@ -2042,7 +2046,25 @@
 
       </section>
 
-      <!-- ================= PANDA ================= -->
+      <!-- ================= PARENTS ================= -->
+
+      <section id="parentsSection" class="section">
+        <div class="section-header">
+          <div>
+            <h2>Parent Verification</h2>
+            <p>Review pending parent accounts and approve or deny them.</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-sm" id="parentFilterAll">All</button>
+            <button class="btn btn-sm filter active" id="parentFilterPending">Pending</button>
+            <button class="btn btn-sm" id="parentFilterVerified">Verified</button>
+          </div>
+        </div>
+
+        <div id="parentsList" class="loading">Loading parent accounts...</div>
+      </section>
+
+<!-- ================= PANDA ================= -->
 
       <section id="pandaSection" class="section">
 
@@ -2769,7 +2791,8 @@
     lessons: ["Lessons", "Manage the HanVerse learning library"],
     analytics: ["Analytics", "Live HanVerse platform metrics"],
     communications: ["Broadcasts", "Create and review email campaigns"],
-    panda: ["Panda AI", "Your admin-only HanVerse assistant"]
+    panda: ["Panda AI", "Your admin-only HanVerse assistant"],
+    parents: ["Parent Verification", "Review and approve parent accounts"]
   };
 
   function switchSection(section) {
@@ -2796,6 +2819,7 @@
     if (section === "lessons") loadLessons();
     if (section === "analytics") loadAnalytics();
     if (section === "communications") loadCampaigns();
+    if (section === "parents") loadParentQueue();
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -4267,6 +4291,65 @@ ${body}
         `<div class="empty">${escapeHTML(error.message)}</div>`;
     }
   }
+
+  /* ================= PARENT VERIFICATION ================= */
+
+  let parentFilter = "pending";
+  let parentsCache = [];
+
+  async function loadParentQueue() {
+    const container = $("parentsList");
+    container.innerHTML = '<div class="loading">Loading parents...</div>';
+    try {
+      const endpoint = parentFilter === "pending" ? "/admin/parents/pending" : "/admin/parents";
+      const data = await api(endpoint);
+      let list = data.parents || data.pendingParents || [];
+      if (parentFilter === "verified") list = list.filter(p => p.is_verified);
+      parentsCache = list;
+      renderParents();
+    } catch (e) {
+      container.innerHTML = '<p style="color:#EF4444;">Failed to load parents: ' + escapeHTML(e.message) + '</p>';
+    }
+  }
+
+  function renderParents() {
+    const container = $("parentsList");
+    if (!parentsCache.length) {
+      container.innerHTML = '<p style="color:var(--muted);padding:24px;">No parent accounts match this filter.</p>';
+      return;
+    }
+    container.innerHTML = parentsCache.map(p => `
+      <div class="user-card" style="display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid rgba(0,0,0,.06);">
+        <div>
+          <strong>${escapeHTML(p.full_name || p.email)}</strong>
+          <div style="font-size:13px;color:var(--muted);">${escapeHTML(p.email)} · Joined ${new Date(p.created_at).toLocaleDateString()}</div>
+          <div style="font-size:13px;margin-top:2px;">${p.is_verified ? '<span style="color:#22C55E;">✓ Verified</span>' : '<span style="color:#F59E0B;">⏳ Pending</span>'} · ${p.children_count || 0} children linked</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          ${!p.is_verified ? `<button class="btn btn-sm" style="background:#22C55E;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, true)">Approve</button>
+          <button class="btn btn-sm" style="background:#EF4444;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, false)">Deny</button>` : ''}
+        </div>
+      </div>`).join("");
+  }
+
+  async function verifyParent(parentId, approve) {
+    try {
+      const endpoint = approve ? "/admin/parents/verify/" : "/admin/parents/deny/";
+      await api(endpoint + parentId, { method: "POST" });
+      loadParentQueue();
+    } catch (e) { alert("Failed: " + e.message); }
+  }
+  window.verifyParent = verifyParent;
+
+  ["All", "Pending", "Verified"].forEach(label => {
+    const btn = $("parentFilter" + label);
+    if (btn) btn.addEventListener("click", () => {
+      parentFilter = label.toLowerCase();
+      document.querySelectorAll("#parentsSection .btn-sm").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadParentQueue();
+    });
+  });
 
   /* ================= PANDA ================= */
 
