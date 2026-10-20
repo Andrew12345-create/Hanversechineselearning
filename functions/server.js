@@ -1321,7 +1321,7 @@ router.post('/signup', authLimiter, async (req, res) => {
 
     // Optional self-reported age (children's product compliance). Best-effort:
     // the column may not exist in older deployments.
-    const ageValue = Number(body.age);
+    const ageValue = Number(req.body?.age);
     if (Number.isInteger(ageValue) && ageValue >= 3 && ageValue <= 18) {
       try {
         await pool.query(`UPDATE users SET age = $1 WHERE user_id = $2`, [ageValue, newUser.user_id]);
