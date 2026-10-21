@@ -219,19 +219,7 @@ button{cursor:pointer}
 
 </head>
 <body>
-<nav class="hv-nav" aria-label="Main navigation">
-  <a class="hv-brand" href="index.html" aria-label="HanVerse home">
-    <span class="hv-brand-panda">🐼</span><span class="hv-brand-name">Han<span>Verse</span></span>
-  </a>
-  <div class="hv-links">
-    <a href="index.html">Home</a><a href="learn.html">Learn</a><a href="practice.html">Practice</a><a href="parent-dashboard.html">Parents</a>
-  </div>
-  <div class="hv-actions"><a class="nav-login" href="signup.html">Sign Up</a></div>
-  <button class="nav-menu" id="navMenuBtn" aria-label="Open navigation" aria-expanded="false">☰</button>
-</nav>
-<div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">🏠 Home</a><a href="learn.html">📚 Learn</a><a href="practice.html">📝 Practice</a><a href="parent-dashboard.html">👨‍👩‍👧 Parents</a><a href="signup.html">✨ Sign Up</a>
-</div>
+<div id="app-nav"></div>
 
 <div id="loading-overlay"><div class="loader"></div><div class="loader-text">🐼 Loading HanVerse...</div></div>
 <div id="toast-container" class="toast-container"></div>
@@ -949,5 +937,8 @@ document.addEventListener('DOMContentLoaded', function(){
         window.showLoading = showLoading;
         window.hideLoading = hideLoading;
     </script>
+<script src="shared-nav.js#auth"></script>
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
 </body>
 </html>

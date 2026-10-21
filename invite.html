@@ -16,7 +16,7 @@
   <meta name="twitter:image" content="/Hanverse-logo2.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Sans+MS&family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="hanverse.css">
 <script src="js/auth-fetch.js"></script>
@@ -37,9 +37,9 @@
             --text: #1E3A5F;
             --text-secondary: #5D7A9A;
             --muted: #5D7A9A;
-            --bg: #F5F3FF;
+            --bg: #F5F9FF;
             --white: #FFFFFF;
-            --success: #22C55E;
+            --success: #16A34A;
             --error: #DC2626;
             --border: #D5E3F0;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
@@ -65,12 +65,12 @@
         }
 
         body {
-            background: linear-gradient(135deg, #F5F3FF 0%, #DBEAFE 50%, #D1FAE5 100%);
+            background: #F5F9FF;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 110px 20px 40px;
             margin: 0;
             position: relative;
             overflow-x: hidden;
@@ -735,6 +735,7 @@
     </style>
 </head>
 <body>
+    <div id="app-nav"></div>
     <!-- Floating particles -->
     <div class="particle">🌸</div>
     <div class="particle">🎋</div>
@@ -744,10 +745,6 @@
     <div class="invite-page">
         <!-- ===== HEADER ===== -->
         <div class="invite-page-header">
-            <div class="logo-wrapper">
-                <span class="logo-icon">🐼</span>
-                <span class="brand">HanVerse</span>
-            </div>
             <div class="invite-badge">✨ Share the Fun!</div>
             <h1>Invite <span class="highlight">Friends</span></h1>
             <p>Share the joy of learning Mandarin! 🎉</p>
@@ -1007,5 +1004,8 @@
         window.sendInvite = sendInvite;
         window.copyReferralLink = copyReferralLink;
     </script>
+    <script src="shared-nav.js"></script>
+    <script src="hanverse.js"></script>
+    <script src="nav-user.js"></script>
 </body>
 </html>

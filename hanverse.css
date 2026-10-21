@@ -171,6 +171,8 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 14px 44px rgba(15,35,64,.12), 0 1px 0 rgba(255,255,255,.9) inset;
   background: rgba(255,255,255,.96);
 }
+/* Auth-brand variant (login/signup/reset): brand + hamburger only, brand centred. */
+.nav-auth .brand { margin-inline: auto; }
 .brand {
   display: flex; align-items: center; gap: 10px;
   font-family: var(--font-head); font-size: 20px; font-weight: 900;
@@ -257,6 +259,23 @@ img { max-width: 100%; display: block; }
 
 /* Pages using the shared nav reserve space for it */
 main { padding-top: 100px; }
+@media (max-width: 660px) {
+  main { padding-top: 90px; }
+}
+
+/* Shared legal-page prose wrapper (terms/privacy/cookies/refunds). */
+.legal { max-width: 760px; margin: 0 auto; padding: 28px 22px 90px; }
+.legal h1 { font-family: var(--font-head); font-size: 1.9rem; font-weight: 900; color: var(--navy); margin-bottom: 6px; }
+.legal h2 { font-family: var(--font-head); font-size: 1.15rem; font-weight: 800; color: var(--navy); margin-top: 32px; }
+.legal p { font-size: 0.95rem; line-height: 1.75; color: var(--ink); margin-top: 12px; }
+.legal ul { margin: 12px 0 0 20px; }
+.legal li { font-size: 0.95rem; line-height: 1.7; color: var(--ink); margin-top: 6px; }
+.legal a { color: var(--blue); font-weight: 600; }
+.legal a:hover { text-decoration: underline; }
+.legal .muted { color: var(--muted); font-size: .85rem; }
+.legal .note { background: var(--coral-50, #FFF7ED); border: 1px solid #FDBA74; border-radius: 12px; padding: 12px 16px; font-size: .85rem; margin-top: 14px; }
+.legal .back-link { display: inline-block; margin-bottom: 16px; color: var(--muted); font-weight: 700; font-size: .85rem; }
+.legal .back-link:hover { color: var(--blue); }
 
 /* ─── FOOTER (shared) ─── */
 footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid var(--line); }

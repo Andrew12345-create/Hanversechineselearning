@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#F8FBFF">
+<meta name="theme-color" content="#F5F9FF">
 <title>HanVerse Premium</title>
 <meta name="description" content="Upgrade to HanVerse Premium: unlimited lessons, advanced practice games and the full Mandarin adventure.">
   <meta property="og:type" content="website">
@@ -30,17 +30,17 @@
   --red:#DC2626;
   --yellow:#F59E0B;
   --blue:#2563EB;
-  --blue-dark:#347FAF;
+  --blue-dark:#1D4ED8;
   --blue-deep:#245B82;
   --green:#16A34A;
 
-  --bg:#F8FBFF;
+  --bg:#F5F9FF;
   --surface:#FFFFFF;
   --surface-soft:#F3F9FD;
 
   --text:#18324D;
   --text-soft:#40566B;
-  --muted:#718397;
+  --muted:#5D7A9A;
 
   --border:#DFE9F0;
 
@@ -64,7 +64,7 @@ html{scroll-behavior:smooth}
 
 body{
   min-height:100vh;
-  padding:28px 20px;
+  padding:110px 20px 28px;
   background:
     radial-gradient(circle at 4% 4%,rgba(78,168,222,.14),transparent 25rem),
     radial-gradient(circle at 94% 12%,rgba(244,211,94,.10),transparent 22rem),
@@ -107,7 +107,7 @@ body{
   background:
     radial-gradient(circle at 12% 10%,rgba(255,255,255,.16),transparent 16rem),
     radial-gradient(circle at 92% 84%,rgba(116,198,157,.17),transparent 18rem),
-    linear-gradient(145deg,#18324D 0%,#245B82 58%,#347FAF 100%);
+    linear-gradient(145deg,#18324D 0%,#245B82 58%,#2563EB 100%);
 }
 
 .left::after{
@@ -644,6 +644,8 @@ body{
 
 <body>
 
+<div id="app-nav"></div>
+
 <div class="payment-shell">
 
 <div class="payment-container">
@@ -908,6 +910,9 @@ Start Learning
 </div>
 
 <script src="features-client.js"></script>
+<script src="shared-nav.js"></script>
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
 <script>
 
 const SESSION_KEY = 'hanverse_user';

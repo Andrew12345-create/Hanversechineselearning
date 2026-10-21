@@ -197,7 +197,7 @@
     }
 
     .nav-button:hover {
-      background: #F7FAFC;
+      background: #EFF6FF;
       color: var(--navy);
       transform: translateX(2px);
     }
@@ -277,7 +277,7 @@
       height: 7px;
       margin-right: 4px;
       border-radius: 50%;
-      background: #22C55E;
+      background: #16A34A;
     }
 
     .sidebar-logout {
@@ -754,7 +754,7 @@
       padding: 10px 11px;
       background: #F8FAFC;
       border-bottom: 1px solid var(--line);
-      color: #64748B;
+      color: #5D7A9A;
       text-align: left;
       font-size: 8px;
       text-transform: uppercase;
@@ -1257,7 +1257,7 @@
       border: 0;
       border-radius: 9px;
       background: #F1F5F9;
-      color: #64748B;
+      color: #5D7A9A;
       font-size: 15px;
     }
 
@@ -4323,10 +4323,10 @@ ${body}
         <div>
           <strong>${escapeHTML(p.full_name || p.email)}</strong>
           <div style="font-size:13px;color:var(--muted);">${escapeHTML(p.email)} · Joined ${new Date(p.created_at).toLocaleDateString()}</div>
-          <div style="font-size:13px;margin-top:2px;">${p.is_verified ? '<span style="color:#22C55E;">✓ Verified</span>' : '<span style="color:#F59E0B;">⏳ Pending</span>'} · ${p.children_count || 0} children linked</div>
+          <div style="font-size:13px;margin-top:2px;">${p.is_verified ? '<span style="color:#16A34A;">✓ Verified</span>' : '<span style="color:#F59E0B;">⏳ Pending</span>'} · ${p.children_count || 0} children linked</div>
         </div>
         <div style="display:flex;gap:8px;">
-          ${!p.is_verified ? `<button class="btn btn-sm" style="background:#22C55E;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, true)">Approve</button>
+          ${!p.is_verified ? `<button class="btn btn-sm" style="background:#16A34A;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, true)">Approve</button>
           <button class="btn btn-sm" style="background:#EF4444;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, false)">Deny</button>` : ''}
         </div>
       </div>`).join("");

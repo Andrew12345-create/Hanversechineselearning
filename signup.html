@@ -24,8 +24,7 @@ a{color:inherit}button,input{font:inherit}.hidden{display:none!important}
 @media(max-width:600px){body{padding-top:94px;padding-bottom:90px}.signup-shell{width:calc(100% - 18px);border-radius:24px}.intro{padding:25px 21px 20px;border-radius:24px 24px 0 0}.intro h1{font-size:2.15rem}.intro-copy{font-size:.83rem}.benefits{grid-template-columns:1fr;gap:8px;margin-top:20px}.benefit{padding:11px}.intro-panda{font-size:62px;margin-top:12px}.form-panel{padding:25px 20px 24px}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.role-selector{gap:8px}.role-option{padding:11px 9px}.role-desc{font-size:.61rem}.toast-container{right:16px;top:92px;width:calc(100% - 32px)}#verification-banner{top:84px}.panda-fab{right:16px;bottom:78px;width:52px;height:52px}.panda-chat{right:16px;bottom:140px;height:430px}.bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(4,1fr);left:10px;right:10px;bottom:10px;z-index:800;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-lg);padding:7px}.bottom-nav a{text-decoration:none;text-align:center;color:var(--muted);font-size:.59rem;font-weight:700;padding:5px 2px;border-radius:12px}.bottom-nav a.active{color:var(--primary);background:var(--primary-light)}.nav-icon{font-size:17px;display:block;line-height:1.2;margin-bottom:2px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 </style></head><body>
-<nav class="top-nav" id="topNav" aria-label="Primary navigation"><a href="index.html" class="logo"><div class="logo-badge">🐼</div><span class="logo-text">Hanverse</span></a><ul><li><a href="index.html">Home</a></li><li><a href="learn.html">Learn</a></li><li><a href="practice.html">Practice</a></li><li><a href="parents.html">Parents</a></li></ul><div class="nav-buttons"><a href="login.html" class="nav-login">Log In</a></div><button class="nav-menu" id="signupNavMenu" type="button" aria-label="Open navigation" aria-expanded="false">☰</button></nav>
-<div class="signup-mobile-menu" id="signupMobileMenu"><a href="index.html">Home</a><a href="learn.html">Learn</a><a href="practice.html">Practice</a><a href="parents.html">Parents</a><a href="login.html">Log In</a></div>
+<div id="app-nav"></div>
 <div id="loading-overlay"><div class="loader"></div><div class="loader-text">🐼 Creating your account...</div></div><div id="toast-container" class="toast-container"></div><div id="verification-banner">⚠️ Please verify your email to access all features. <span class="resend-link" id="resendVerificationBanner">Resend verification</span><button class="close-banner" id="closeVerificationBanner" aria-label="Close banner">✕</button></div>
 <main class="signup-shell">
 <section class="intro"><span class="eyebrow">🐼 Join HanVerse</span><h1>Start your <span>Mandarin</span> journey.</h1><p class="intro-copy">Create your free HanVerse account and learn Mandarin through structured YCT lessons, stories, games, AI and progress tracking.</p><div class="benefits"><div class="benefit"><div class="benefit-icon">🌱</div><div><strong>Start free</strong><span>Begin your learning journey today.</span></div></div><div class="benefit"><div class="benefit-icon">⭐</div><div><strong>Earn XP</strong><span>Build momentum from Lesson 1.</span></div></div><div class="benefit"><div class="benefit-icon">📈</div><div><strong>Track progress</strong><span>See your learning grow over time.</span></div></div><div class="benefit"><div class="benefit-icon">🤖</div><div><strong>Panda AI Tutor</strong><span>Get help while you learn.</span></div></div></div><div class="intro-panda" onclick="togglePanda()" role="button" aria-label="Open Panda Chat">🐼</div></section>
@@ -320,7 +319,7 @@ a{color:inherit}button,input{font:inherit}.hidden{display:none!important}
             let color = '#DC2626';
             if (score >= 80) {
                 strengthText = 'Strong 💪';
-                color = '#22C55E';
+                color = '#16A34A';
             } else if (score >= 50) {
                 strengthText = 'Medium 👍';
                 color = '#F59E0B';
@@ -962,4 +961,7 @@ async function signupUser() {
 })();
 
 </script>
+<script src="shared-nav.js#auth"></script>
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
 </body></html>
