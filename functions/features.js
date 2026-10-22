@@ -590,9 +590,22 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
          VALUES ($1,$2,$3,$4,$5)`,
         [userId, level, correct, total, JSON.stringify(req.body.answers || [])]
       );
+
+      // Lock in the placed level server-side. Level changes from here on are
+      // gatekept by the end-of-year exam (coming soon) — the client cannot
+      // raise or lower it.
+      const placed = await pool.query(
+        `UPDATE users SET current_yct = $1, level = $2, updated_at = NOW()
+         WHERE user_id = $3
+         RETURNING current_yct, level`,
+        [level, level, userId]
+      );
+
       await grant(userId, 'placed');
       ok(res, { recommendedLevel: level,
-        message: `We recommend starting at YCT ${level}.` });
+        savedLevel: placed.rows[0] ? placed.rows[0].current_yct : level,
+        lockedIn: true,
+        message: `You're in! Starting at YCT ${level}.` });
     } catch (e) {
       console.error('placement/submit error:', e);
       fail(res, 500, 'Failed to save placement');

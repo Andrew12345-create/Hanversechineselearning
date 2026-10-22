@@ -271,6 +271,7 @@ img{max-width:100%;display:block}
 .level-fill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--blue-deep));transition:width 1s var(--ease)}
 .level-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;font-weight:700}
 .level-note{margin-top:13px;color:var(--muted);font-size:11px}
+.level-note.exam-lock{margin-top:8px;background:var(--blue-50);border:1px solid var(--blue-mid);border-radius:12px;padding:9px 12px;color:var(--blue);font-size:11.5px}
 
 .course-list{display:grid;gap:12px}
 .course{
@@ -536,6 +537,7 @@ img{max-width:100%;display:block}
           <div class="level-track"><div class="level-fill" id="levelFill"></div></div>
           <div class="level-meta"><span id="levelStart">0 XP</span><span id="levelEnd">100 XP</span></div>
           <div class="level-note" id="levelNote">Complete lessons to earn XP. HanVerse levels are calculated from the server's XP system.</div>
+          <div class="level-note exam-lock" id="examLockNote" hidden>🔒 Your YCT level was set by your placement quiz. Jumping levels requires the <strong>End-of-Year Exam</strong> — coming soon!</div>
         </div>
       </section>
 
@@ -848,6 +850,8 @@ function renderLevel(xp,level){
   $("levelNote").textContent=remaining===0
     ?"You have reached the next level threshold."
     :`${formatNumber(remaining)} XP until Level ${level+1}.`;
+  const lockedNote=$("examLockNote");
+  if(lockedNote)lockedNote.hidden=false;
   $("levelName").textContent=
     level===1?"Getting started":
     level<=3?"Building foundations":

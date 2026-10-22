@@ -41,6 +41,7 @@ h1{font-size:28px;font-weight:900;margin-bottom:6px;}
 .result .level-badge{display:inline-flex;align-items:center;justify-content:center;width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--coral));color:#fff;font-size:36px;font-weight:900;margin:16px 0;}
 .result h2{font-size:26px;margin-bottom:8px;}
 .result .rec{font-size:16px;color:var(--muted);margin-bottom:24px;}
+.result .locked-note{margin:-12px auto 20px;max-width:420px;background:var(--blue-50);border:1px solid var(--blue-mid);border-radius:14px;padding:10px 14px;font-size:.8rem;color:var(--blue);}
 .result .score-detail{font-size:14px;color:var(--muted);margin-bottom:20px;}
 .btn-primary{display:inline-block;padding:14px 36px;background:var(--blue);color:#fff;border:none;border-radius:14px;font:800 16px Nunito,sans-serif;cursor:pointer;text-decoration:none;transition:transform .15s;}
 .btn-primary:hover{transform:scale(1.03);}
@@ -134,11 +135,12 @@ async function submitAndShowResult() {
   card.innerHTML = `
     <div class="result">
       <div class="panda">🎉</div>
-      <h2>Your Recommended Level</h2>
+      <h2>Your Level — Locked In!</h2>
       <div class="level-badge">YCT ${level}</div>
       <p style="font-size:18px;font-weight:800;margin-bottom:4px;">${labels[level]}</p>
       <p class="rec">${msgs[level]}</p>
       <p class="score-detail">You got ${correct} out of ${QUESTIONS.length} correct (${Math.round(pct*100)}%)</p>
+      <div class="locked-note">🔒 Your level is saved to your account. Want to jump levels? The <strong>End-of-Year Exam</strong> is coming soon!</div>
       <a class="btn-primary" href="learn.html${new URLSearchParams(location.search).get("first") === "1" ? "?placed=1" : ""}">Start Learning →</a>
       <button class="btn-ghost" onclick="current=0;correct=0;answers=[];renderIntro();">Retake Quiz</button>
     </div>`;
@@ -146,7 +148,12 @@ async function submitAndShowResult() {
   try {
     const user = JSON.parse(localStorage.getItem("hanverse_user") || "{}");
     if (user.user_id && window.HanVerseFeatures) {
-      await window.HanVerseFeatures.placement.submit(user.user_id, correct, QUESTIONS.length, answers);
+      const saved = await window.HanVerseFeatures.placement.submit(user.user_id, correct, QUESTIONS.length, answers);
+      if (saved && saved.savedLevel) {
+        user.current_yct = saved.savedLevel;
+        user.level = saved.savedLevel;
+        localStorage.setItem("hanverse_user", JSON.stringify(user));
+      }
     }
   } catch (e) { console.warn("placement save:", e.message); }
 }
