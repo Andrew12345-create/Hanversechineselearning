@@ -825,6 +825,20 @@
                 <div id="childrenGrid" class="children-grid"></div>
 
                 <div class="section-header" style="margin-top:10px;">
+                    <h2><i class="fas fa-link"></i> Family Connect</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="window.location.href='parents.html#family-connect'">
+                        <i class="fas fa-user-plus"></i> Reconnect a Child
+                    </button>
+                </div>
+                <p style="font-size:.8rem;color:var(--text-light, #64748B);margin-bottom:10px;">
+                    Keep your family's learning connected. Has your child created a separate
+                    HanVerse account? Reconnect it from the Parent Hub — their progress stays intact.
+                </p>
+                <div id="familyConnectCard" class="card" style="padding:14px 16px;">
+                    <div class="skel" style="width:70%;height:14px"></div>
+                </div>
+
+                <div class="section-header" style="margin-top:10px;">
                     <h2><i class="fas fa-clock"></i> Recent Activity</h2>
                 </div>
                 <div id="activityFeed" class="activity-feed"></div>
@@ -1214,6 +1228,7 @@
                 } catch (e) { state.activities = []; }
 
                 renderDashboard();
+                renderFamilyConnect();
 
             } catch (error) {
                 console.error('❌ Dashboard load error:', error);
@@ -1228,6 +1243,64 @@
         // RENDER FUNCTIONS
         // ==========================================
         function renderDashboard() {
+            // Family Connect: pending invitations + linked-children statuses.
+            // All data comes from the server; nothing here is assumed client-side.
+            window.renderFamilyConnect = async function () {
+                const box = document.getElementById('familyConnectCard');
+                if (!box) return;
+                try {
+                    const d = await authFetch('/family/invitations');
+                    const reqs = (d && d.invitations) || [];
+                    const pend = reqs.filter(r => r.status === 'pending');
+                    const linked = state.children || [];
+
+                    let html = '';
+                    if (pend.length) {
+                        html += '<p style="font-size:.78rem;font-weight:700;margin-bottom:8px;">Pending invitations</p>';
+                        html += pend.map(r => `
+                            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border, #E2E8F0);font-size:.8rem;">
+                                <span style="flex:1">⏳ ${escapeHtml(r.child_email || 'Invitation sent')}</span>
+                                <span style="color:var(--text-light,#64748B)">expires ${new Date(r.expires_at).toLocaleDateString()}</span>
+                                <button class="btn btn-secondary btn-xs" onclick="cancelFamilyInvite(${r.link_id})">Cancel</button>
+                            </div>`).join('');
+                    }
+                    if (linked.length) {
+                        html += '<p style="font-size:.78rem;font-weight:700;margin:10px 0 8px;">Connected learners</p>';
+                        html += linked.map(c => `
+                            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border, #E2E8F0);font-size:.8rem;">
+                                <span style="flex:1">👧 <a href="child-profile.html?id=${c.child_id || c.user_id}" style="font-weight:700;color:inherit">${escapeHtml(c.full_name || 'Learner')}</a></span>
+                                <button class="btn btn-secondary btn-xs" onclick="window.location.href='child-profile.html?id=${c.child_id || c.user_id}'">Progress</button>
+                                <button class="btn btn-secondary btn-xs" style="color:#B91C1C;border-color:#FECACA" onclick="unlinkChild(${c.child_id || c.user_id}, '${escapeHtml(c.full_name || 'this learner')}')">Disconnect</button>
+                            </div>`).join('');
+                    } else if (!pend.length) {
+                        html = '<p style="font-size:.8rem;color:var(--text-light,#64748B)">No pending invitations. All set! 🎉</p>';
+                    }
+                    box.innerHTML = html;
+                } catch (e) {
+                    box.innerHTML = '<p style="font-size:.8rem;color:var(--text-light,#64748B)">Family Connect is unavailable right now.</p>';
+                }
+            };
+
+            window.cancelFamilyInvite = async function (linkId) {
+                if (!confirm('Cancel this invitation? The link code will stop working.')) return;
+                try {
+                    await authFetch('/family/link-requests/' + linkId + '/cancel', { method: 'POST' });
+                    showToast('Invitation cancelled.', 'success');
+                    renderFamilyConnect();
+                } catch (e) { showToast(e.message || 'Could not cancel the invitation.', 'error'); }
+            };
+
+            window.unlinkChild = async function (childUserId, name) {
+                if (!confirm('Disconnect ' + name + ' from your family account?\n\nThey keep their account, XP, streak and all learning history — you will just no longer see their progress.')) return;
+                try {
+                    await authFetch('/family/unlink/' + childUserId, { method: 'POST' });
+                    showToast(name + ' was disconnected. Their learning history is safe.', 'success');
+                    await loadDashboard();
+                    renderDashboard();
+                    renderFamilyConnect();
+                } catch (e) { showToast(e.message || 'Could not remove the connection.', 'error'); }
+            };
+
             const totalChildren = state.children.length;
             const totalLessons = state.children.reduce((sum, c) => sum + (c.lessons_completed || 0), 0);
             const totalAchievements = state.children.reduce((sum, c) => sum + (c.achievements || 0), 0);
