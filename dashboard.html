@@ -50,6 +50,61 @@
         @keyframes sh { to { transform: translateX(100%); } }
         @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } .hero h1 { font-size: 1.1rem; } }
 
+        /* ─── Premium layer: motion, depth, delight ─── */
+        .dash-wrap > * { animation: rise .55s var(--ease-out) backwards; }
+        .dash-wrap > *:nth-child(1) { animation-delay: .04s; }
+        .dash-wrap > *:nth-child(2) { animation-delay: .1s; }
+        .dash-wrap > *:nth-child(3) { animation-delay: .16s; }
+        .dash-wrap > *:nth-child(4) { animation-delay: .22s; }
+        .dash-wrap > *:nth-child(5) { animation-delay: .28s; }
+        .dash-wrap > *:nth-child(6) { animation-delay: .34s; }
+        @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+        .hero { position: relative; overflow: hidden; }
+        .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+        .hero::before { width: 190px; height: 190px; right: -55px; top: -75px; background: radial-gradient(circle, rgba(255,255,255,.22), transparent 70%); animation: drift 9s ease-in-out infinite; }
+        .hero::after { width: 120px; height: 120px; right: 90px; bottom: -60px; background: radial-gradient(circle, rgba(255,255,255,.14), transparent 70%); animation: drift 7s ease-in-out infinite reverse; }
+        @keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .hero .panda { position: relative; z-index: 1; }
+        .hero .panda img { animation: bob 3.4s ease-in-out infinite; }
+        @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .hero h1 { letter-spacing: -.2px; text-shadow: 0 2px 12px rgba(15,35,64,.18); }
+
+        .ring-card, .fam-card, .wotd-card, .asg-card, .ach-card { transition: transform .2s var(--ease-out), box-shadow .2s var(--ease-out); }
+        .ring-card:hover, .fam-card:hover, .wotd-card:hover, .asg-card:hover, .ach-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+
+        .continue-card { position: relative; overflow: hidden; }
+        .continue-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.5) 50%, transparent 58%); transform: translateX(-130%); transition: transform .65s var(--ease-out); pointer-events: none; }
+        .continue-card:hover::after { transform: translateX(130%); }
+        .continue-card:hover .go { transform: translateX(3px); }
+        .go { transition: transform .2s var(--ease-out); }
+
+        .xp-bar { transform-origin: bottom; animation: grow .7s cubic-bezier(.2,.7,.3,1) backwards; }
+        .xp-bar:nth-child(1) { animation-delay: .05s; } .xp-bar:nth-child(2) { animation-delay: .1s; }
+        .xp-bar:nth-child(3) { animation-delay: .15s; } .xp-bar:nth-child(4) { animation-delay: .2s; }
+        .xp-bar:nth-child(5) { animation-delay: .25s; } .xp-bar:nth-child(6) { animation-delay: .3s; }
+        .xp-bar:nth-child(7) { animation-delay: .35s; }
+        @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+        .xp-bar.today { background: linear-gradient(90deg, var(--coral), var(--coral-dark)); box-shadow: 0 0 12px rgba(249,115,22,.35); }
+        .xp-days span.today { color: var(--coral-dark); font-weight: 900; }
+
+        .badge-n { animation: beat 2.2s var(--ease-out) infinite; }
+        @keyframes beat { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,.4); } 70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+
+        .ach span { transition: transform .2s var(--ease-out); }
+        .ach:hover span { transform: scale(1.08) rotate(-3deg); }
+        .ach.earned span { box-shadow: 0 6px 14px rgba(245,158,11,.28); }
+        .ach:not(.earned) { opacity: .55; filter: saturate(.6); }
+
+        .wotd-h { background: linear-gradient(120deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .continue-card:focus-visible, .fam-link:focus-visible { outline: 3px solid var(--blue-mid); outline-offset: 3px; border-radius: 22px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ring .fg, .continue-card, .skel::after, .go { transition: none; animation: none; }
+            .dash-wrap > *, .hero::before, .hero::after, .hero .panda img, .xp-bar, .badge-n { animation: none; }
+        }
+
         /* Dark theme (same opt-in recipe as learn.html) */
         [data-theme="dark"] .dash-wrap { color: #E8F1FA; }
         [data-theme="dark"] .sub { color: var(--soft); }
@@ -262,8 +317,9 @@
             for (var i = 6; i >= 0; i--) {
                 var dd2 = new Date(today.getTime() - i * 86400000).toISOString().slice(0, 10);
                 var v = week[dd2] || 0;
-                bars.push('<div class="xp-bar" style="height:' + Math.max(4, Math.round(v / max * 100)) + '%" title="' + dd2 + ': ' + v + ' XP"></div>');
-                days.push('<span>' + (i % 2 === 0 ? dd2.slice(8) : '') + '</span>');
+                var t = new Date(dd2);
+                bars.push('<div class="xp-bar' + (i === 0 ? ' today' : '') + '" style="height:' + Math.max(4, Math.round(v / max * 100)) + '%" title="' + dd2 + ': ' + v + ' XP"></div>');
+                days.push('<span' + (i === 0 ? ' class="today"' : '') + '>' + 'SMTWTFS'[t.getDay()] + '</span>');
             }
             document.getElementById("xpChart").innerHTML = bars.join("");
             document.getElementById("xpDays").innerHTML = days.join("");
