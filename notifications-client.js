@@ -1,308 +1,363 @@
+/* =====================================================
+   Hanverse Notifications — real, DB-backed.
+   Bell on every learner page:
+     • desktop: docks into the shared top nav (before the user chip)
+     • mobile (<= 1024px): floats top-right
+   Drawer + toasts read /api/notifications/:userId; read state is
+   persisted server-side (notifications table), not in localStorage.
+   Opt a page out with <body data-notifications="off">.
+   ===================================================== */
 (function () {
-  const STORAGE_KEY = 'hanverse_notifications_dismissed';
-  const LS_USER_KEY = 'hanverse_user';
+  'use strict';
 
-  function safeJsonParse(str, fallback) {
+  var API_BASE = (window.location.hostname === 'localhost')
+    ? '/.netlify/functions/server'
+    : '/api';
+
+  var SKIP = /login|signup|verify-email|reset-password|forgot-password|banned|admin|offline|parent-dashboard/i;
+  if (SKIP.test(location.pathname)) return;
+
+  function currentUser() {
     try {
-      return JSON.parse(str);
-    } catch {
-      return fallback;
-    }
+      var raw = localStorage.getItem('hanverse_user');
+      var u = raw ? JSON.parse(raw) : null;
+      return (u && (u.user_id || u.userId)) ? u : null;
+    } catch (e) { return null; }
   }
 
-  function getDismissedSet() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const arr = safeJsonParse(raw, []);
-    return new Set(Array.isArray(arr) ? arr : []);
-  }
-
-  function setDismissedSet(set) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set)));
-  }
-
-  function formatRelativeTime(ts) {
-    if (!ts) return '';
-    const d = new Date(ts);
-    const diffMs = Date.now() - d.getTime();
-    const mins = Math.floor(diffMs / 60000);
-    if (mins < 1) return 'just now';
-    if (mins < 60) return `${mins} min ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours} hours ago`;
-    const days = Math.floor(hours / 24);
-    return `${days} day${days === 1 ? '' : 's'} ago`;
-  }
-
-  async function fetchNotificationsFromDB() {
-    const user = safeJsonParse(localStorage.getItem(LS_USER_KEY) || '{}', {});
-    const userId = user.user_id || user.userId;
-    if (!userId) return [];
-
-    // uses /api/user/:userId since it already joins notifications
-    const API_URL =
-    window.location.hostname === "localhost"
-        ? "/.netlify/functions/server"
-        : "/api";
-        fetch(`${API_URL}/user/${userId}`)
-    const data = await resp.json();
-    if (!resp.ok || !data || !Array.isArray(data.notifications)) return [];
-
-    return data.notifications.slice(0, 20);
-  }
-
-  function ensureUI() {
-    if (document.getElementById('hn-notifications-bell')) return;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      #hn-toasts-wrap{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
-      .hn-toast{pointer-events:auto;min-width:280px;max-width:92vw;background:white;border:1px solid #E5E7EB;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,.08);padding:12px 12px 12px 14px;display:flex;gap:10px;align-items:flex-start;animation:hnPop .18s ease-out;}
-      @keyframes hnPop{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
-      .hn-toast-ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFE5E5 0%,#FFCDD2 100%);flex:0 0 auto;font-size:18px;}
-      .hn-toast-title{font-weight:700;font-size:14px;margin-bottom:2px;}
-      .hn-toast-msg{color:#6B7280;font-size:13px;line-height:1.35;}
-      .hn-toast-actions{margin-left:auto;display:flex;gap:8px;align-items:center;}
-      .hn-toast-btn{border:none;background:#fff0f0;color:#E63946;border-radius:999px;padding:6px 10px;font-weight:700;font-size:12px;cursor:pointer;}
-      .hn-toast-btn:hover{background:#FFE5E5;}
-      #hn-notifications-drawer{position:fixed;inset:0;z-index:9998;display:none;}
-      #hn-notifications-drawer.open{display:block;}
-      #hn-notifications-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);}
-      #hn-drawer-panel{position:absolute;right:0;top:0;bottom:0;width:360px;max-width:92vw;background:white;border-left:1px solid #E5E7EB;padding:16px;display:flex;flex-direction:column;}
-      #hn-drawer-head{display:flex;gap:12px;align-items:center;margin-bottom:10px;}
-      #hn-drawer-title{font-weight:800;font-size:16px;flex:1;}
-      #hn-drawer-close{border:none;background:#F4F4F4;border-radius:12px;padding:8px 10px;font-weight:800;cursor:pointer;}
-      #hn-drawer-list{overflow:auto;flex:1;}
-      .hn-card{border:1px solid #E5E7EB;border-radius:16px;padding:12px;margin-bottom:10px;background:#fff;}
-      .hn-card.unread{border-color:#FF6B6B;background:#FFF9F9;}
-      .hn-card-row{display:flex;gap:10px;align-items:flex-start;}
-      .hn-card-ic{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#E3F2FD;flex:0 0 auto;}
-      .hn-card-title{font-weight:800;font-size:14px;margin-bottom:2px;}
-      .hn-card-msg{color:#6B7280;font-size:13px;line-height:1.35;}
-      .hn-bell-wrap{position:fixed;top:12px;right:12px;z-index:10000;}
-      #hn-notifications-bell{position:relative;border:none;background:white;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid #E5E7EB;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-      #hn-notifications-bell .hn-bell-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#E63946;color:white;font-weight:900;font-size:12px;display:none;align-items:center;justify-content:center;}
-    `;
-    document.head.appendChild(style);
-
-    const bellWrap = document.createElement('div');
-    bellWrap.className = 'hn-bell-wrap';
-    bellWrap.innerHTML = `
-      <button id="hn-notifications-bell" aria-label="Notifications">
-        <span style="font-size:18px">🔔</span>
-        <span class="hn-bell-badge" id="hn-bell-badge">0</span>
-      </button>
-    `;
-    document.body.appendChild(bellWrap);
-
-    const drawer = document.createElement('div');
-    drawer.id = 'hn-notifications-drawer';
-    drawer.innerHTML = `
-      <div id="hn-notifications-overlay" onclick="window.__hnCloseDrawer && window.__hnCloseDrawer()"></div>
-      <div id="hn-drawer-panel">
-        <div id="hn-drawer-head">
-          <div style="font-size:20px">✨</div>
-          <div id="hn-drawer-title">Notifications</div>
-          <button id="hn-drawer-close" onclick="window.__hnCloseDrawer && window.__hnCloseDrawer()">Close</button>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
-          <button id="hn-mark-all" class="hn-toast-btn" style="background:#E8F5E9;color:#2E7D32" onclick="window.__hnMarkAllRead && window.__hnMarkAllRead()">Mark all read</button>
-        </div>
-        <div id="hn-drawer-list"></div>
-      </div>
-    `;
-    document.body.appendChild(drawer);
-
-    window.__hnCloseDrawer = function () {
-      const el = document.getElementById('hn-notifications-drawer');
-      if (el) el.classList.remove('open');
-    };
-
-    window.__hnOpenDrawer = function () {
-      const el = document.getElementById('hn-notifications-drawer');
-      if (el) el.classList.add('open');
-    };
-
-    document.getElementById('hn-notifications-bell').addEventListener('click', () => {
-      window.__hnOpenDrawer();
-      renderDrawer();
-    });
-  }
-
-  function pickIcon() {
-    const icons = ['🔥', '🏆', '📚', '⏰', '🎉', '💡'];
-    return icons[Math.floor(Math.random() * icons.length)];
-  }
-
-  function getUnreadNotifications(notifs, dismissedSet) {
-    // if notifications table has is_read, we honor it; else treat all as unread except dismissed
-    return notifs.filter(n => {
-      const id = n.notification_id || n.id || `${n.created_at || ''}${n.title || ''}`;
-      const isRead = n.is_read === true || n.is_read === 1 || n.read === true;
-      if (dismissedSet.has(String(id))) return false;
-      return !isRead;
-    });
-  }
-
-  let cachedNotifs = [];
-
-  async function renderToasts() {
-    ensureUI();
-
-    const wrapId = 'hn-toasts-wrap';
-    let wrap = document.getElementById(wrapId);
-    if (!wrap) {
-      wrap = document.createElement('div');
-      wrap.id = wrapId;
-      document.body.appendChild(wrap);
-    }
-
-    const dismissedSet = getDismissedSet();
-    let notifs = cachedNotifs;
-    if (!notifs || notifs.length === 0) {
-      try {
-        notifs = await fetchNotificationsFromDB();
-      } catch {
-        notifs = [];
-      }
-    }
-    cachedNotifs = notifs;
-
-    const unread = getUnreadNotifications(notifs, dismissedSet);
-    const bellBadge = document.getElementById('hn-bell-badge');
-    if (bellBadge) {
-      const count = unread.length;
-      bellBadge.textContent = String(count);
-      bellBadge.style.display = count > 0 ? 'flex' : 'none';
-    }
-
-    // show up to 3 toasts
-    const toShow = unread.slice(0, 3);
-    if (toShow.length === 0) return;
-
-    for (const n of toShow) {
-      const id = n.notification_id || n.id || `${n.created_at || ''}${n.title || ''}`;
-      // avoid re-showing immediately on repeated load: dismiss when shown
-      dismissedSet.add(String(id));
-      setDismissedSet(dismissedSet);
-
-      const toast = document.createElement('div');
-      toast.className = 'hn-toast';
-      toast.innerHTML = `
-        <div class="hn-toast-ic">${pickIcon()}</div>
-        <div>
-          <div class="hn-toast-title">${escapeHtml(n.title || 'New notification')}</div>
-          <div class="hn-toast-msg">${escapeHtml(n.message || n.body || n.content || '')}</div>
-          <div class="hn-toast-msg" style="margin-top:4px;color:#9CA3AF;font-size:12px">${escapeHtml(formatRelativeTime(n.created_at || n.createdAt))}</div>
-        </div>
-        <div class="hn-toast-actions">
-          <button class="hn-toast-btn" onclick="window.__hnDismissToast && window.__hnDismissToast()">OK</button>
-        </div>
-      `;
-      wrap.appendChild(toast);
-
-      window.__hnDismissToast = () => {
-        try { toast.remove(); } catch {}
-      };
-
-      setTimeout(() => {
-        try { toast.remove(); } catch {}
-      }, 5500);
-    }
-  }
+  function uid() { var u = currentUser(); return u ? (u.user_id || u.userId) : null; }
 
   function escapeHtml(str) {
-    return String(str ?? '')
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '<')
-      .replaceAll('>', '>')
-      .replaceAll('"', '"')
-      .replaceAll("'", '&#039;');
+    return String(str == null ? '' : str)
+      .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
   }
 
-  async function renderDrawer() {
-    ensureUI();
-    const list = document.getElementById('hn-drawer-list');
-    if (!list) return;
+  function relativeTime(ts) {
+    if (!ts) return '';
+    var mins = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + ' min ago';
+    var h = Math.floor(mins / 60);
+    if (h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago');
+    var d = Math.floor(h / 24);
+    return d + (d === 1 ? ' day ago' : ' days ago');
+  }
 
-    const dismissedSet = getDismissedSet();
+  var TYPE_META = {
+    achievement: { icon: '🏆', tint: '#EFF6FF' },
+    streak:      { icon: '🔥', tint: '#FFF7ED' },
+    reminder:    { icon: '⏰', tint: '#F5F3FF' },
+    system:      { icon: '🐼', tint: '#ECFEFF' }
+  };
 
-    let notifs = cachedNotifs;
-    if (!notifs || notifs.length === 0) {
-      try {
-        notifs = await fetchNotificationsFromDB();
-      } catch {
-        notifs = [];
-      }
-    }
-    cachedNotifs = notifs;
+  var BELL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
 
-    const unread = getUnreadNotifications(notifs, dismissedSet);
-    const toRender = (notifs || []).slice(0, 20);
+  var state = { items: [], unread: 0, loaded: false };
 
-    list.innerHTML = '';
-
-    if (!toRender.length) {
-      const empty = document.createElement('div');
-      empty.className = 'hn-card';
-      empty.innerHTML = `<div style="color:#6B7280;font-weight:700">No notifications yet.</div>`;
-      list.appendChild(empty);
-      return;
-    }
-
-    toRender.forEach(n => {
-      const id = n.notification_id || n.id || `${n.created_at || ''}${n.title || ''}`;
-      const isDismissed = dismissedSet.has(String(id));
-      const isRead = n.is_read === true || n.is_read === 1 || n.read === true || isDismissed;
-
-      const card = document.createElement('div');
-      card.className = 'hn-card' + (isRead ? '' : ' unread');
-      card.innerHTML = `
-        <div class="hn-card-row">
-          <div class="hn-card-ic">${pickIcon()}</div>
-          <div style="flex:1">
-            <div class="hn-card-title">${escapeHtml(n.title || 'Notification')}</div>
-            <div class="hn-card-msg">${escapeHtml(n.message || n.body || n.content || '')}</div>
-            <div class="hn-card-msg" style="margin-top:6px;color:#9CA3AF;font-size:12px">${escapeHtml(formatRelativeTime(n.created_at || n.createdAt))}</div>
-            <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
-              <button class="hn-toast-btn" onclick="window.__hnDismissOne('${String(id).replace(/'/g, "\\'")}')">Dismiss</button>
-            </div>
-          </div>
-        </div>
-      `;
-      list.appendChild(card);
+  /* ── API ── */
+  function api(path, options) {
+    return fetch(API_BASE + path, Object.assign({
+      credentials: 'include', cache: 'no-store',
+      headers: { Accept: 'application/json' }
+    }, options || {})).then(function (r) {
+      return r.json().then(function (d) {
+        if (!r.ok) throw new Error(d && d.error || 'HTTP ' + r.status);
+        return d;
+      });
     });
   }
 
-  window.__hnDismissOne = function (id) {
-    const dismissedSet = getDismissedSet();
-    dismissedSet.add(String(id));
-    setDismissedSet(dismissedSet);
-    renderToasts();
-    renderDrawer();
-  };
+  function refresh() {
+    var id = uid();
+    if (!id) return Promise.resolve(null);
+    return api('/notifications/' + encodeURIComponent(id))
+      .then(function (d) {
+        if (!d || !d.success) return null;
+        state.items = Array.isArray(d.notifications) ? d.notifications : [];
+        state.unread = Number(d.unread) || 0;
+        state.loaded = true;
+        paint();
+        return state;
+      })
+      .catch(function () { return null; });
+  }
 
-  window.__hnMarkAllRead = function () {
-    // mark all currently loaded unread as dismissed
-    const dismissedSet = getDismissedSet();
-    const notifs = cachedNotifs || [];
-    for (const n of notifs) {
-      const id = n.notification_id || n.id || `${n.created_at || ''}${n.title || ''}`;
-      const isRead = n.is_read === true || n.is_read === 1 || n.read === true;
-      if (!isRead) dismissedSet.add(String(id));
+  function markAllRead() {
+    var id = uid();
+    if (!id) return Promise.resolve();
+    return api('/notifications/' + encodeURIComponent(id) + '/read-all', { method: 'POST' })
+      .then(refresh).catch(function () {});
+  }
+
+  function markOne(id) {
+    var userId = uid();
+    if (!userId) return Promise.resolve();
+    return api('/notifications/' + encodeURIComponent(userId) + '/' + encodeURIComponent(id) + '/read', { method: 'POST' })
+      .then(refresh).catch(function () {});
+  }
+
+  /* ── UI ── */
+  var ui = {};
+
+  function injectStyles() {
+    if (document.getElementById('hn-style')) return;
+    var s = document.createElement('style');
+    s.id = 'hn-style';
+    s.textContent = [
+      '#hn-bell{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;',
+      'border-radius:999px;border:1px solid rgba(213,227,240,.9);background:rgba(255,255,255,.7);color:#1E3A5F;',
+      'cursor:pointer;transition:background .18s,color .18s,transform .18s;flex-shrink:0;font-family:inherit;}',
+      '#hn-bell svg{width:19px;height:19px;display:block;}',
+      '#hn-bell:hover{background:#EFF6FF;color:#2563EB;}',
+      '#hn-bell:focus-visible{outline:3px solid #7DD3FC;outline-offset:2px;}',
+      '#hn-bell .hn-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;',
+      'border-radius:999px;background:#E63946;color:#fff;font-weight:900;font-size:10.5px;line-height:18px;',
+      'text-align:center;display:none;box-shadow:0 2px 8px rgba(230,57,70,.4);}',
+      '#hn-float-bell{position:fixed;top:calc(12px + env(safe-area-inset-top, 0px));right:12px;z-index:1200;}',
+      '#hn-float-bell #hn-bell{width:46px;height:46px;background:rgba(255,255,255,.94);box-shadow:0 10px 26px rgba(15,35,64,.16);}',
+      '[data-theme="dark"] #hn-bell{background:rgba(18,40,58,.85);border-color:rgba(36,68,88,.85);color:#D9E6F2;}',
+      '[data-theme="dark"] #hn-bell:hover{background:#123B56;color:#93C5FD;}',
+      '#hn-drawer{position:fixed;inset:0;z-index:1300;display:none;}',
+      '#hn-drawer.open{display:block;}',
+      '#hn-drawer-overlay{position:absolute;inset:0;background:rgba(15,35,64,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}',
+      '#hn-panel{position:absolute;right:0;top:0;bottom:0;width:min(400px,100vw);background:#fff;',
+      'box-shadow:-18px 0 50px rgba(15,35,64,.22);display:flex;flex-direction:column;padding:18px 16px calc(16px + env(safe-area-inset-bottom, 0px));',
+      'transform:translateX(100%);transition:transform .3s cubic-bezier(.22,.9,.35,1);}',
+      '#hn-drawer.open #hn-panel{transform:translateX(0);}',
+      '.hn-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}',
+      '.hn-head h2{font-size:18px;font-weight:900;color:#0F2340;margin:0;flex:1;font-family:Nunito,Inter,sans-serif;}',
+      '.hn-btn{border:0;border-radius:999px;padding:9px 14px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s;}',
+      '.hn-btn:focus-visible{outline:3px solid #7DD3FC;outline-offset:2px;}',
+      '.hn-btn-primary{background:#2563EB;color:#fff;box-shadow:0 8px 18px rgba(37,99,235,.22);}',
+      '.hn-btn-primary:hover{background:#1D4ED8;}',
+      '.hn-btn-ghost{background:#F5F9FF;color:#1E3A5F;}',
+      '.hn-btn-ghost:hover{background:#EFF6FF;}',
+      '#hn-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;}',
+      '.hn-item{display:flex;gap:12px;padding:13px 14px;border:1px solid rgba(213,227,240,.9);border-radius:18px;background:#fff;}',
+      '.hn-item.unread{border-color:#BFDBFE;background:#F5F9FF;}',
+      '.hn-item-ic{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}',
+      '.hn-item-title{font-weight:800;font-size:13.5px;color:#0F2340;}',
+      '.hn-item-msg{font-size:12.5px;color:#5D7A9A;line-height:1.5;margin-top:2px;overflow-wrap:break-word;}',
+      '.hn-item-time{font-size:11px;color:#8BA8C4;margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;}',
+      '.hn-item-btn{border:0;background:none;color:#2563EB;font-weight:800;font-size:11px;cursor:pointer;padding:2px 6px;border-radius:8px;font-family:inherit;}',
+      '.hn-item-btn:hover{background:#EFF6FF;}',
+      '.hn-empty{text-align:center;padding:44px 12px;color:#5D7A9A;font-weight:700;font-size:13.5px;}',
+      '.hn-empty span{display:block;font-size:44px;margin-bottom:10px;}',
+      '@media (prefers-reduced-motion: reduce){#hn-panel{transition:none;}}',
+      '[data-theme="dark"] #hn-panel{background:#12283A;}',
+      '[data-theme="dark"] .hn-head h2,[data-theme="dark"] .hn-item-title{color:#F1F5F9;}',
+      '[data-theme="dark"] .hn-item{background:#0E2233;border-color:rgba(36,68,88,.85);}',
+      '[data-theme="dark"] .hn-item.unread{background:#123B56;border-color:#1D4ED8;}',
+      '[data-theme="dark"] .hn-item-msg{color:#A9BDCC;}',
+      '[data-theme="dark"] .hn-btn-ghost{background:#123B56;color:#D9E6F2;}',
+      '[data-theme="dark"] .hn-item-btn{color:#93C5FD;}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function bellMarkup() {
+    return '<button type="button" id="hn-bell" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false">' +
+      BELL_SVG + '<span class="hn-badge" id="hn-badge"></span></button>';
+  }
+
+  function mountBell() {
+    if (ui.bell) return;
+    injectStyles();
+    var hudSlot = document.getElementById('hud-bell-slot');
+    var mobile = window.matchMedia('(max-width: 1024px)').matches;
+
+    if (hudSlot && mobile) {
+      /* Docked into the mobile HUD strip (injected by bottom-nav.js). */
+      ui.bell = hudSlot;
+      ui.floating = false;
+      ui.bell.innerHTML = bellMarkup();
+    } else {
+      var nav = document.querySelector('nav.nav');
+      if (nav && !mobile) {
+        ui.bell = document.createElement('span');
+        ui.bell.style.display = 'inline-flex';
+        ui.floating = false;
+        ui.bell.innerHTML = bellMarkup();
+        var actions = nav.querySelector('.nav-actions');
+        var chip = nav.querySelector('.nav-user-chip');
+        if (actions && actions.parentNode === nav) nav.insertBefore(ui.bell, actions);
+        else if (chip) nav.insertBefore(ui.bell, chip);
+        else nav.appendChild(ui.bell);
+        ui.bell.style.marginRight = '10px';
+      } else {
+        var wrap = document.createElement('div');
+        wrap.id = 'hn-float-bell';
+        wrap.innerHTML = bellMarkup();
+        document.body.appendChild(wrap);
+        ui.bell = wrap;
+        ui.floating = true;
+      }
     }
-    setDismissedSet(dismissedSet);
-    const bellBadge = document.getElementById('hn-bell-badge');
-    if (bellBadge) bellBadge.style.display = 'none';
-    const list = document.getElementById('hn-drawer-list');
-    if (list) renderDrawer();
-  };
+    ui.bellBtn = document.getElementById('hn-bell');
+    ui.badge = document.getElementById('hn-badge');
+    ui.bellBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      openDrawer();
+    });
+  }
 
-  // Expose init
+  function remount() {
+    if (!uid()) return;
+    if (ui.bell) {
+      if (ui.bellBtn) ui.bellBtn.blur();
+      var wasFloating = ui.floating;
+      ui.bell.innerHTML = '';
+      if (wasFloating) ui.bell.remove();
+      ui.bell = null; ui.bellBtn = null; ui.badge = null;
+    }
+    mountBell();
+    paint();
+  }
+  document.addEventListener('hanverse:hud-ready', remount);
+
+  function ensureDrawer() {
+    if (ui.drawer) return;
+    var d = document.createElement('div');
+    d.id = 'hn-drawer';
+    d.setAttribute('role', 'dialog');
+    d.setAttribute('aria-modal', 'true');
+    d.setAttribute('aria-label', 'Notifications');
+    d.innerHTML =
+      '<div id="hn-drawer-overlay"></div>' +
+      '<div id="hn-panel">' +
+        '<div class="hn-head">' +
+          '<h2>Notifications</h2>' +
+          '<button type="button" class="hn-btn hn-btn-ghost" id="hn-mark-all">Mark all read</button>' +
+          '<button type="button" class="hn-btn hn-btn-primary" id="hn-close">Done</button>' +
+        '</div>' +
+        '<div id="hn-list" aria-live="polite"></div>' +
+      '</div>';
+    document.body.appendChild(d);
+    ui.drawer = d;
+    ui.list = d.querySelector('#hn-list');
+    d.querySelector('#hn-drawer-overlay').addEventListener('click', closeDrawer);
+    d.querySelector('#hn-close').addEventListener('click', closeDrawer);
+    d.querySelector('#hn-mark-all').addEventListener('click', markAllRead);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && d.classList.contains('open')) closeDrawer();
+    });
+  }
+
+  function openDrawer() {
+    ensureDrawer();
+    ui.drawer.classList.add('open');
+    ui.bellBtn.setAttribute('aria-expanded', 'true');
+    refresh();
+  }
+
+  function closeDrawer() {
+    if (!ui.drawer) return;
+    ui.drawer.classList.remove('open');
+    if (ui.bellBtn) ui.bellBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function paint() {
+    if (!ui.bellBtn) return;
+    if (ui.badge) {
+      ui.badge.textContent = state.unread > 9 ? '9+' : String(state.unread);
+      ui.badge.style.display = state.unread > 0 ? 'block' : 'none';
+    }
+    if (ui.drawer && ui.drawer.classList.contains('open')) renderList();
+  }
+
+  function renderList() {
+    if (!ui.list) return;
+    if (!state.items.length) {
+      ui.list.innerHTML = '<div class="hn-empty"><span>🐼</span>All quiet! Lesson reminders and achievements land here.</div>';
+      return;
+    }
+    ui.list.innerHTML = '';
+    state.items.forEach(function (n) {
+      var meta = TYPE_META[n.type] || TYPE_META.system;
+      var el = document.createElement('div');
+      el.className = 'hn-item' + ((n.is_read === true || n.is_read === 1) ? '' : ' unread');
+      el.innerHTML =
+        '<div class="hn-item-ic" style="background:' + meta.tint + '">' + meta.icon + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="hn-item-title">' + escapeHtml(n.title) + '</div>' +
+          '<div class="hn-item-msg">' + escapeHtml(n.message) + '</div>' +
+          '<div class="hn-item-time"><span>' + escapeHtml(relativeTime(n.created_at)) + '</span>' +
+          ((n.is_read === true || n.is_read === 1) ? '' :
+            '<button type="button" class="hn-item-btn" data-id="' + escapeHtml(n.notification_id) + '">Mark read</button>') +
+          '</div>' +
+        '</div>';
+      var btn = el.querySelector('.hn-item-btn');
+      if (btn) btn.addEventListener('click', function () { markOne(btn.getAttribute('data-id')); });
+      ui.list.appendChild(el);
+    });
+  }
+
+  /* Toasts for unread items on first load (max 3, auto-dismiss). */
+  var toastWrap = null;
+  function showToast(n) {
+    if (!toastWrap) {
+      toastWrap = document.createElement('div');
+      toastWrap.style.cssText = 'position:fixed;top:74px;left:50%;transform:translateX(-50%);z-index:1299;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(92vw,420px);';
+      document.body.appendChild(toastWrap);
+    }
+    var meta = TYPE_META[n.type] || TYPE_META.system;
+    var t = document.createElement('div');
+    t.className = 'hn-toast';
+    t.setAttribute('role', 'status');
+    t.style.cssText = 'pointer-events:auto;display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid rgba(213,227,240,.9);border-radius:16px;box-shadow:0 14px 34px rgba(15,35,64,.18);padding:12px 14px;width:100%;';
+    t.innerHTML =
+      '<div class="hn-item-ic" style="background:' + meta.tint + ';width:36px;height:36px;font-size:17px">' + meta.icon + '</div>' +
+      '<div style="flex:1;min-width:0"><div class="hn-item-title">' + escapeHtml(n.title) + '</div>' +
+      '<div class="hn-item-msg">' + escapeHtml(n.message) + '</div></div>';
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Dismiss');
+    close.style.cssText = 'border:0;background:none;color:#8BA8C4;font-size:16px;cursor:pointer;padding:2px 4px;';
+    close.textContent = '✕';
+    close.addEventListener('click', function () { t.remove(); });
+    t.appendChild(close);
+    toastWrap.appendChild(t);
+    setTimeout(function () { t.remove(); }, 6000);
+  }
+
+  function boot() {
+    if (document.body && document.body.dataset.notifications === 'off') return;
+    if (!uid()) return;
+    mountBell();
+    refresh().then(function (s) {
+      if (!s) return;
+      /* Only toast notifications that arrived after the visitor's last
+         session — replaying every unread on every page load covered the
+         page header for six seconds each time. */
+      var lastSeen = 0;
+      try { lastSeen = Number(localStorage.getItem('hn_notif_last_seen')) || 0; } catch (e) {}
+      var fresh = state.items.filter(function (n) {
+        return !(n.is_read === true || n.is_read === 1) &&
+          new Date(n.created_at || 0).getTime() > lastSeen;
+      }).slice(0, 2);
+      fresh.forEach(showToast);
+      try { localStorage.setItem('hn_notif_last_seen', String(Date.now())); } catch (e) {}
+    });
+    window.setInterval(refresh, 60000);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  window.addEventListener('resize', function () {
+    if (!ui.bell) return;
+    var mobile = window.matchMedia('(max-width: 1024px)').matches;
+    if (mobile !== !!ui.floating) remount();
+  });
+
   window.HanverseNotifications = {
-    init: async function () {
-      ensureUI();
-      renderToasts();
-    }
+    init: boot,
+    refresh: refresh,
+    markAllRead: markAllRead,
+    get count() { return state.unread; }
   };
 })();
-

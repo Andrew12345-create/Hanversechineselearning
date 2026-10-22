@@ -77,18 +77,21 @@ const $ = id => document.getElementById(id);
 const card = $("card");
 
 function renderIntro() {
+  const first = new URLSearchParams(location.search).get("first") === "1";
   card.innerHTML = `
     <div class="panda">🐼</div>
-    <h1>Find Your Level</h1>
-    <p class="sub">Answer 10 quick questions and HanPan will recommend the perfect YCT level for you.</p>
+    <h1>${first ? "Welcome to HanVerse!" : "Find Your Level"}</h1>
+    <p class="sub">${first
+      ? "Let's do this first: answer 10 quick questions and HanPan will set your perfect starting level."
+      : "Answer 10 quick questions and HanPan will recommend the perfect YCT level for you."}</p>
     <div class="intro-features">
       <div><span>⏱</span> Takes about 2 minutes</div>
       <div><span>🎯</span> Covers YCT levels 1–4</div>
       <div><span>📊</span> Get a personalised recommendation</div>
       <div><span>🏆</span> Earn the "Level Placed" achievement</div>
     </div>
-    <button class="btn-primary" onclick="startQuiz()" style="margin-top:18px;width:100%;">Start the Quiz</button>
-    <a href="index.html" style="display:block;margin-top:14px;font-size:14px;color:var(--muted);text-decoration:none;">← Back to Home</a>`;
+    <button class="btn-primary" onclick="startQuiz()" style="margin-top:18px;width:100%;">${first ? "Set My Level" : "Start the Quiz"}</button>
+    <a href="${first ? "learn.html" : "index.html"}" style="display:block;margin-top:14px;font-size:14px;color:var(--muted);text-decoration:none;">${first ? "Skip for now →" : "← Back to Home"}</a>`;
 }
 
 function renderQuestion() {
@@ -136,7 +139,7 @@ async function submitAndShowResult() {
       <p style="font-size:18px;font-weight:800;margin-bottom:4px;">${labels[level]}</p>
       <p class="rec">${msgs[level]}</p>
       <p class="score-detail">You got ${correct} out of ${QUESTIONS.length} correct (${Math.round(pct*100)}%)</p>
-      <a class="btn-primary" href="learn.html">Start Learning →</a>
+      <a class="btn-primary" href="learn.html${new URLSearchParams(location.search).get("first") === "1" ? "?placed=1" : ""}">Start Learning →</a>
       <button class="btn-ghost" onclick="current=0;correct=0;answers=[];renderIntro();">Retake Quiz</button>
     </div>`;
 
@@ -155,5 +158,7 @@ renderIntro();
 <script src="shared-nav.js"></script>
 <script src="hanverse.js"></script>
 <script src="nav-user.js"></script>
+<script src="notifications-client.js"></script>
+<script src="bottom-nav.js"></script>
 </body>
 </html>

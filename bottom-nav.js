@@ -1,6 +1,6 @@
 /* bottom-nav.js — injects the floating bottom tab bar used on learner pages.
    Styling lives in hanverse.css (.tabbar, .sheet). Shows only on small screens
-   (<= 820px); the desktop top nav stays the primary navigation there.
+   (<= 1024px); the desktop top nav stays the primary navigation above that.
 
    Opt out per page with <body data-tabbar="off">.
 
@@ -122,6 +122,33 @@
   document.body.appendChild(sheet);
   document.body.classList.add('has-tabbar');
 
+  /* ── Mobile HUD strip: fills the band the old top navbar left behind. ──
+     Brand on the left, streak/XP/level from localStorage on the right,
+     bell slot for notifications-client.js. Opt out: <body data-hud="off">. */
+  if (!(document.body && document.body.dataset.hud === 'off') && !document.getElementById('hud')) {
+    var u = null;
+    try { u = JSON.parse(localStorage.getItem('hanverse_user') || 'null'); } catch (e) {}
+    var streak = u && Number(u.streak_days) > 0
+      ? '<a class="hud-chip flame" href="profile.html" aria-label="Streak">🔥 ' + Number(u.streak_days) + '</a>'
+      : '';
+    var xp = u
+      ? '<a class="hud-chip" href="profile.html" aria-label="XP">⭐ ' + Number(u.xp || 0).toLocaleString() + '</a>'
+      : '';
+    var yct = u && String(u.current_yct || '').match(/\d+/);
+    var lvl = u ? (yct ? 'YCT ' + yct[0] : 'Lv ' + (Number(u.level) || 1)) : '';
+    var level = u && lvl ? '<a class="hud-chip" href="profile.html">' + lvl + '</a>' : '';
+    var hud = document.createElement('div');
+    hud.className = 'hud';
+    hud.id = 'hud';
+    hud.innerHTML =
+      '<a class="hud-brand" href="index.html" aria-label="HanVerse home">' +
+        '<img src="Hanverse-logo2.png" alt="" width="30" height="30">HanVerse</a>' +
+      '<div class="hud-stats">' + streak + xp + level +
+        '<span class="hud-bell-slot" id="hud-bell-slot"></span></div>';
+    document.body.appendChild(hud);
+    document.dispatchEvent(new CustomEvent('hanverse:hud-ready'));
+  }
+
   /* ── Sheet behaviour: tap, Esc, backdrop, swipe-down; focus is managed. ── */
   var moreBtn = document.getElementById('tabbarMore');
   var panel = document.getElementById('moreSheet');
@@ -181,4 +208,11 @@
       window.location.href = 'login.html';
     });
   }
+  /* Micro-delight: tiny haptic tap on primary actions (Android; silent no-op elsewhere). */
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t && t.closest && t.closest('.tabbar a, .tabbar-more, .sheet-item, .sheet-auth-item, .cta, .btn-primary, .nav-cta, .hn-btn')) {
+      if (navigator.vibrate) { try { navigator.vibrate(12); } catch (err) {} }
+    }
+  }, true);
 })();

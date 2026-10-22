@@ -484,23 +484,6 @@ img{max-width:100%;display:block}
     <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">☾</button>
     <button class="logout-btn" id="logoutBtn">Log Out</button>
   </div>
-  <button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-  <a href="index.html">Home</a>
-  <a href="learn.html">Learn</a>
-  <a href="practice.html">Practice</a>
-  <a href="explore.html">Explore</a>
-  <a href="placement.html">Find Your Level</a>
-  <a href="roadmap.html">Roadmap</a>
-  <a href="parents.html">For Parents</a>
-  <a href="settings.html">⚙ Settings</a>
-  <div class="nav-user-row">
-    <button class="icon-btn" id="themeBtnMobile" aria-label="Toggle theme">☾ Theme</button>
-    <button class="logout-btn" id="logoutBtnMobile">Log Out</button>
-  </div>
 </nav>
 
 <main class="page" id="main">
@@ -1220,8 +1203,8 @@ async function loadProfile(){
 }
 
 const toggleTheme=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme()};
-$("themeBtn").addEventListener("click",toggleTheme);
-$("themeBtnMobile").addEventListener("click",toggleTheme);
+$("themeBtn")?.addEventListener("click",toggleTheme);
+$("themeBtnMobile")?.addEventListener("click",toggleTheme);
 
 async function doLogout(){
   try{
@@ -1233,8 +1216,8 @@ async function doLogout(){
   ].forEach(k=>localStorage.removeItem(k));
   window.location.href="login.html";
 }
-$("logoutBtn").addEventListener("click",doLogout);
-$("logoutBtnMobile").addEventListener("click",doLogout);
+$("logoutBtn")?.addEventListener("click",doLogout);
+$("logoutBtnMobile")?.addEventListener("click",doLogout);
 
 $("pandaForm").addEventListener("submit",async e=>{
   e.preventDefault();
@@ -1257,6 +1240,7 @@ loadProfile().catch(error=>{
 });
 })();
 </script>
+<script src="notifications-client.js"></script>
 <script src="bottom-nav.js"></script>
 </body>
 </html>

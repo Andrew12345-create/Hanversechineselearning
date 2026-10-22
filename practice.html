@@ -2516,19 +2516,6 @@
   <div class="nav-actions">
     <a href="profile.html" class="nav-user"><span class="avatar" id="navAvatar">👤</span><span id="navUserName">Learner</span></a>
   </div>
-  <button class="nav-hamburger" id="mobileToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-  <a href="index.html">Home</a>
-  <a href="learn.html">Learn</a>
-  <a href="practice.html">Practice</a>
-  <a href="explore.html">Explore</a>
-  <a href="placement.html">Find Your Level</a>
-  <a href="roadmap.html">Roadmap</a>
-  <a href="parents.html">For Parents</a>
-  <a href="profile.html">👤 Me</a>
 </nav>
 
 
@@ -7165,21 +7152,6 @@
     window.printWorksheet = printWorksheet;
 
 
-    $("mobileToggle")
-        .addEventListener(
-            "click",
-            () => {
-
-                $("mobileMenu")
-                    .classList
-                    .toggle(
-                        "open"
-                    );
-
-            }
-        );
-
-
     /* =========================================================
        SECURITY
     ========================================================= */
@@ -7279,6 +7251,7 @@
 </script>
 
 
+<script src="notifications-client.js"></script>
 <script src="bottom-nav.js"></script>
 
 </body>

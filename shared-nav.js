@@ -69,24 +69,6 @@
           '<a href="parents.html">Parents</a>' +
         '</div>' +
         actionsMarkup() +
-        '<button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">' +
-          '<span></span><span></span><span></span>' +
-        '</button>' +
-      '</nav>' +
-      '<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">' +
-        '<a href="learn.html">Learn</a>' +
-        '<a href="explore.html">Explore</a>' +
-        '<a href="practice.html">Practice</a>' +
-        '<a href="placement.html">Find Your Level</a>' +
-        '<a href="invite.html">Invite Friends</a>' +
-        '<a href="roadmap.html">Roadmap</a>' +
-        '<a href="parents.html">For Parents</a>' +
-        (signedIn()
-          ? '<a href="profile.html">My Profile</a>' +
-            '<a href="settings.html">Settings</a>' +
-            '<a href="learn.html" class="mobile-menu-cta">Continue Learning →</a>'
-          : '<a href="login.html">Log in</a>' +
-            '<a href="signup.html" class="mobile-menu-cta">Start Learning →</a>') +
       '</nav>'
     );
   }
@@ -95,18 +77,6 @@
     return (
       '<nav class="nav nav-auth" id="navbar" role="navigation" aria-label="Main navigation">' +
         brandMarkup() +
-        '<button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">' +
-          '<span></span><span></span><span></span>' +
-        '</button>' +
-      '</nav>' +
-      '<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">' +
-        '<a href="index.html">Home</a>' +
-        '<a href="learn.html">Learn</a>' +
-        '<a href="explore.html">Explore</a>' +
-        '<a href="practice.html">Practice</a>' +
-        '<a href="roadmap.html">Roadmap</a>' +
-        '<a href="parents.html">For Parents</a>' +
-        '<a href="signup.html">Start Learning →</a>' +
       '</nav>'
     );
   }

@@ -1165,6 +1165,47 @@ async function canAccessUser(req, res, targetUserId) {
   return false;
 }
 
+/* ==========================================
+  NOTIFICATIONS 🔔
+  Persistent, DB-backed (notifications table).
+  ========================================== */
+
+let notificationsTableReady = false;
+async function ensureNotificationsTable() {
+  if (notificationsTableReady) return;
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        notification_id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        title VARCHAR(100) NOT NULL,
+        message TEXT NOT NULL,
+        type VARCHAR(20) DEFAULT 'system' CHECK (type IN ('achievement', 'reminder', 'streak', 'system')),
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+      )
+    `);
+    notificationsTableReady = true;
+  } catch (tableError) {
+    // Race or permissions: never block the caller on this.
+    console.warn('⚠️ ensureNotificationsTable:', tableError.message);
+  }
+}
+
+// Best-effort write: a failed notification must never fail the main action.
+async function createNotification(userId, title, message, type = 'system') {
+  try {
+    await ensureNotificationsTable();
+    await pool.query(
+      `INSERT INTO notifications (user_id, title, message, type) VALUES ($1, $2, $3, $4)`,
+      [userId, String(title).slice(0, 100), String(message), type]
+    );
+  } catch (error) {
+    console.warn('⚠️ createNotification:', error.message);
+  }
+}
+
 router.post('/signup', authLimiter, async (req, res) => {
   try {
     console.log('📥 Signup request received');
@@ -1330,10 +1371,18 @@ router.post('/signup', authLimiter, async (req, res) => {
       }
     }
 
+    createNotification(
+      newUser.user_id,
+      'Welcome to HanVerse! 🐼',
+      'Your journey starts now. Take the placement quiz to find your level, then finish your first lesson!',
+      'system'
+    );
+
     return res.status(201).json({
       success: true,
       message: "Signup successful. Please check your email for verification.",
-      user: safeUser(newUser)
+      user: safeUser(newUser),
+      isNewUser: true
     });
 
   } catch (error) {
@@ -4619,6 +4668,10 @@ router.post('/progress', async (req, res) => {
 
     // Award XP and lesson completion only once
     if (completed && !wasAlreadyCompleted) {
+      const beforeLevel = Number((await pool.query(`
+        SELECT COALESCE(level, 1) AS lvl FROM users WHERE user_id = $1
+      `, [userId])).rows[0]?.lvl) || 1;
+
       await pool.query(`
         UPDATE users
         SET
@@ -4642,7 +4695,27 @@ router.post('/progress', async (req, res) => {
           SET level = $1
           WHERE user_id = $2 AND (level IS NULL OR level < $1)
         `, [newLevel, userId]);
+
+        if (newLevel > beforeLevel) {
+          createNotification(
+            userId,
+            `Level up! You reached Level ${newLevel} 🌟`,
+            'Your hard work is paying off. Keep learning to unlock more!',
+            'achievement'
+          );
+        }
       }
+
+      const lessonTitle = (await pool.query(`
+        SELECT title FROM lessons WHERE lesson_id = $1 LIMIT 1
+      `, [normalizedLessonId])).rows[0]?.title || normalizedLessonId;
+
+      createNotification(
+        userId,
+        'Lesson complete! 🎉',
+        `You finished "${lessonTitle}" and earned ${xpEarned} XP. On to the next one!`,
+        'achievement'
+      );
     }
 
     return res.json({
@@ -4657,6 +4730,87 @@ router.post('/progress', async (req, res) => {
       success: false,
       error: error.message || 'Failed to save progress'
     });
+  }
+});
+
+router.get('/notifications/:userId', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const userId = req.params.userId;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User ID is required' });
+    }
+
+    if (!(await canAccessUser(req, res, userId))) return;
+
+    await ensureNotificationsTable();
+
+    const result = await pool.query(`
+      SELECT notification_id, title, message, type, is_read, created_at
+      FROM notifications
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+      LIMIT 50
+    `, [userId]);
+
+    const unread = await pool.query(`
+      SELECT COUNT(*)::int AS unread
+      FROM notifications
+      WHERE user_id = $1 AND is_read = false
+    `, [userId]);
+
+    return res.json({
+      success: true,
+      notifications: result.rows,
+      unread: unread.rows[0]?.unread || 0
+    });
+  } catch (error) {
+    console.error('❌ List notifications error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load notifications' });
+  }
+});
+
+router.post('/notifications/:userId/read-all', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const userId = req.params.userId;
+    if (!(await canAccessUser(req, res, userId))) return;
+
+    await ensureNotificationsTable();
+    await pool.query(`
+      UPDATE notifications SET is_read = true WHERE user_id = $1 AND is_read = false
+    `, [userId]);
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Mark all read error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update notifications' });
+  }
+});
+
+router.post('/notifications/:userId/:notificationId/read', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const userId = req.params.userId;
+    const notificationId = Number(req.params.notificationId);
+    if (!Number.isInteger(notificationId)) {
+      return res.status(400).json({ success: false, error: 'Invalid notification ID' });
+    }
+    if (!(await canAccessUser(req, res, userId))) return;
+
+    await ensureNotificationsTable();
+    await pool.query(`
+      UPDATE notifications SET is_read = true
+      WHERE user_id = $1 AND notification_id = $2
+    `, [userId, notificationId]);
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Mark read error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update notification' });
   }
 });
 

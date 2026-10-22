@@ -1359,19 +1359,6 @@ button:focus-visible,a:focus-visible{
   <div class="nav-actions">
     <a class="nav-user" id="profile" href="profile.html"><span class="avatar">👤</span><span id="profileName">Learner</span></a>
   </div>
-  <button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-  <a href="index.html">Home</a>
-  <a href="learn.html">Learn</a>
-  <a href="practice.html">Practice</a>
-  <a href="explore.html">Explore</a>
-  <a href="placement.html">Find Your Level</a>
-  <a href="roadmap.html">Roadmap</a>
-  <a href="parents.html">For Parents</a>
-  <div class="nav-user-row"><a href="profile.html">👤 <span id="profileNameMobile">Learner</span></a></div>
 </nav>
 
 
@@ -2034,11 +2021,25 @@ function userName(){
 
 function renderNav(){
 
-    $("profileName").textContent =
-        userName();
+    const pn =
+        $("profileName");
 
-    $("profileNameMobile").textContent =
-        userName();
+    if(pn){
+
+        pn.textContent =
+            userName();
+
+    }
+
+    const pnm =
+        $("profileNameMobile");
+
+    if(pnm){
+
+        pnm.textContent =
+            userName();
+
+    }
 
 }
 

@@ -877,10 +877,13 @@ async function signupUser() {
             // Show verification banner
             showVerificationBanner(email);
 
-            // Redirect after delay
+            // Redirect after delay. Brand-new learners start with the placement
+            // quiz so their level and roadmap are set before Learn.
             setTimeout(() => {
                 if (selectedRole === 'parent') {
                     window.location.href = 'parent-dashboard.html';
+                } else if (response.isNewUser) {
+                    window.location.href = 'placement.html?first=1';
                 } else {
                     window.location.href = 'learn.html';
                 }

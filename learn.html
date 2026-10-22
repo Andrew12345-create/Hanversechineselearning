@@ -40,7 +40,7 @@
 .course-top,.course h3,.course .cn,.course p,.prog,.course-foot{position:relative;z-index:1}.course-top{display:flex;justify-content:space-between}.course-icon{width:50px;height:50px;border-radius:15px;background:var(--blue-100);display:grid;place-items:center;font-size:1.4rem}.course:nth-child(2) .course-icon{background:var(--teal-50)}.course:nth-child(3) .course-icon{background:var(--amber-50)}.course:nth-child(4) .course-icon{background:var(--purple-50)}.status{padding:5px 8px;height:max-content;border-radius:99px;background:var(--bg);color:var(--muted);font-size:.57rem;font-weight:800}.course h3{font:900 1.35rem var(--font-head);margin:18px 0 0}.course .cn{font-size:.88rem;color:#334155;margin-top:1px}.course p{min-height:58px;color:var(--muted);font-size:.7rem;line-height:1.65;margin:8px 0}.prog{margin-top:17px}.prowr{height:8px;background:#e8eef7;border-radius:99px;overflow:hidden}.prowr span{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b82f6,#1d4ed8);border-radius:inherit;transition:width .7s}.course:nth-child(2) .prowr span{background:linear-gradient(90deg,#2dd4bf,#0f9f91)}.course:nth-child(3) .prowr span{background:linear-gradient(90deg,#fbbf24,#f59e0b)}.course:nth-child(4) .prowr span{background:linear-gradient(90deg,#a78bfa,#7c3aed)}.protext{display:flex;justify-content:space-between;margin-bottom:7px;color:var(--muted);font-size:.6rem;font-weight:700}.course-foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;color:var(--muted);font-size:.6rem;font-weight:700}.course-foot a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border-radius:12px;background:var(--blue-50);color:var(--blue-dark);font-weight:800}
 
 .steps{margin:42px 0 65px}.stepgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.step{padding:20px;background:#fff;border:1px solid var(--line);border-radius:18px}.num{width:35px;height:35px;border-radius:11px;background:var(--blue-100);display:grid;place-items:center;color:var(--blue-dark);font:900 1rem var(--font-head)}.step h3{font:900 1rem var(--font-head);margin:14px 0 4px}.step p{margin:0;color:var(--muted);font-size:.7rem;line-height:1.65}
-.loading,.error{min-height:70vh;display:grid;place-items:center;text-align:center}.loading img{width:105px;height:105px;object-fit:contain}.spinner{width:38px;height:38px;margin:10px auto 15px;border:4px solid var(--blue-100);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.loading h2,.error h2{font:900 1.2rem var(--font-head);margin:0}.loading p,.error p{color:var(--muted);font-size:.76rem}.error{display:none}.errorbox{max-width:520px;padding:32px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.loading,.error{min-height:70vh;display:grid;place-items:center;text-align:center}.error h2{font:900 1.2rem var(--font-head);margin:0}.error p{color:var(--muted);font-size:.76rem}.error{display:none}.errorbox{max-width:520px;padding:32px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
 
 @media(max-width:1000px){.courses{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr 210px}.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.hero{grid-template-columns:1fr;padding:27px 23px}.hanpan{text-align:left;display:flex;align-items:center;gap:14px}.hanpan img{width:105px;height:105px}.next{grid-template-columns:1fr;padding:22px 20px}.cta{width:100%}.courses,.stepgrid{grid-template-columns:1fr}.hero h1{font-size:2.25rem}.hero p{font-size:.82rem}.stat{padding:15px 17px}.stat b{font-size:1.3rem}.course{min-height:0}.course p{min-height:0}}
@@ -66,25 +66,108 @@
   <div class="nav-actions">
     <a class="nav-user" href="profile.html"><span class="avatar" id="avatar">👤</span><span id="userName">Learner</span></a>
   </div>
-  <button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-  <a href="index.html">Home</a>
-  <a href="learn.html">Learn</a>
-  <a href="practice.html">Practice</a>
-  <a href="explore.html">Explore</a>
-  <a href="placement.html">Find Your Level</a>
-  <a href="roadmap.html">Roadmap</a>
-  <a href="parents.html">For Parents</a>
-  <div class="nav-user-row"><a href="profile.html">👤 <span id="userNameMobile">Learner</span></a></div>
 </nav>
 
-<section class="loading" id="loading"><div><img src="assets/mascot/states/hanpan-waving.png" width="105" height="105" fetchpriority="high" decoding="async" alt="HanPan"><div class="spinner"></div><h2>HanPan is opening your classroom…</h2><p>Getting your courses and progress.</p></div></section>
+<section class="loading" id="loading"><div class="sk-load"><div class="sk-row"><div class="sk sk-avatar"></div><div style="flex:1"><div class="sk sk-line" style="width:180px;height:22px"></div><div class="sk sk-line" style="width:260px;height:13px;margin-top:8px"></div></div></div>
+ <div class="sk sk-next">
+  <div class="sk-line" style="width:220px;height:18px"></div>
+  <div class="sk-line" style="width:75%;height:12px;margin-top:10px"></div>
+  <div class="sk sk-btn"></div>
+ </div>
+ <div class="sk-grid">
+  <div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div>
+ </div>
+ <p style="color:var(--muted);font-size:.8rem;font-weight:700;text-align:center">HanPan is opening your classroom…</p></div></section>
 
 <section class="error" id="error"><div class="errorbox"><img src="assets/mascot/states/hanpan-thinking.png" width="100" height="100" alt="HanPan thinking" loading="lazy" decoding="async"><h2>We couldn't load your learning journey.</h2><p id="errorText">Please try again.</p><button class="cta" id="retry">Try again</button></div></section>
 <section class="error" id="signedOut" aria-live="polite"><div class="errorbox"><img src="assets/mascot/states/hanpan-waving.png" width="100" height="100" alt="HanPan waving" loading="lazy" decoding="async"><h2>You're not signed in</h2><p id="signedOutText">Taking you to the log in page…</p><button class="cta" id="signedOutLogin">Log in now</button></div></section>
+<style>
+/* ─── FIRST-RUN TOUR ─── */
+#tour{position:fixed;inset:0;z-index:1400;display:grid;place-items:center;padding:18px}
+#tour[hidden]{display:none}
+#tourBackdrop{position:absolute;inset:0;background:rgba(15,35,64,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.tour-card{position:relative;width:min(400px,100%);background:#fff;border:1px solid rgba(213,227,240,.9);border-radius:26px;box-shadow:var(--shadow-lg);padding:26px 22px 20px;text-align:center;font-family:Nunito,Inter,sans-serif;animation:tour-pop .35s cubic-bezier(.22,.9,.35,1)}
+@keyframes tour-pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.tour-mascot{width:76px;height:76px;border-radius:24px;object-fit:cover;margin:0 auto 10px;display:block;background:var(--blue-50)}
+.tour-emoji{font-size:44px;line-height:1;display:block;margin-bottom:8px}
+.tour-card h2{font-size:1.25rem;font-weight:900;color:var(--navy);margin:0 0 6px}
+.tour-card p{color:var(--muted);font-size:.86rem;line-height:1.6;margin:0}
+.tour-dots{display:flex;gap:7px;justify-content:center;margin:16px 0 14px}
+.tour-dot{width:8px;height:8px;border-radius:999px;background:var(--line);transition:background .2s,width .2s}
+.tour-dot.on{background:var(--blue);width:20px}
+.tour-actions{display:flex;gap:8px}
+.tour-skip{flex:1;border:0;background:var(--bg);color:var(--muted);font-weight:800;font-size:.8rem;border-radius:999px;min-height:46px;cursor:pointer;font-family:inherit;transition:background .18s}
+.tour-skip:hover{background:var(--blue-50);color:var(--blue)}
+.tour-next{flex:2;border:0;background:var(--blue);color:#fff;font-weight:900;font-size:.85rem;border-radius:999px;min-height:46px;cursor:pointer;font-family:Nunito,Inter,sans-serif;box-shadow:0 10px 22px rgba(37,99,235,.25);transition:background .18s,transform .18s}
+.tour-next:hover{background:var(--blue-dark)}
+.tour-next:active{transform:scale(.97)}
+.tour-skip:focus-visible,.tour-next:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+[data-theme="dark"] .tour-card{background:#12283A;border-color:rgba(36,68,88,.85)}
+[data-theme="dark"] .tour-card h2{color:#F1F5F9}
+</style>
+<div id="tour" hidden>
+  <div id="tourBackdrop"></div>
+  <div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+    <img class="tour-mascot" src="assets/mascot/states/hanpan-waving.png" alt="" decoding="async">
+    <span class="tour-emoji" id="tourEmoji" aria-hidden="true">🐼</span>
+    <h2 id="tourTitle">Welcome!</h2>
+    <p id="tourBody"></p>
+    <div class="tour-dots" id="tourDots" aria-hidden="true"></div>
+    <div class="tour-actions">
+      <button type="button" class="tour-skip" id="tourSkip">Skip</button>
+      <button type="button" class="tour-next" id="tourNext">Next</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  "use strict";
+  var KEY="hanverse_tour_done_v1";
+  var STEPS=[
+    {e:"👋",t:"Welcome to HanVerse!",b:"This is your classroom. Everything you learn, earn and unlock is saved right here."},
+    {e:"🧭",t:"One pill for everything",b:"The bar at the bottom is your compass: Home, Learn, Roadmap and Progress. Tap More for Practice, Talk, Parents and settings."},
+    {e:"🔥",t:"Keep your streak alive",b:"Lessons give you XP and light your streak. Learn a little every day — the bell up top tells you when something cool happens."}
+  ];
+  var i=0,el,parts;
+  function show(n){
+    i=n;
+    var s=STEPS[i];
+    parts.e.textContent=s.e;parts.b.textContent=s.b;
+    parts.title.textContent=s.t;
+    var dots="";
+    for(var d=0;d<STEPS.length;d++)dots+='<span class="tour-dot'+(d===i?" on":"")+'"></span>';
+    parts.dots.innerHTML=dots;
+    parts.next.textContent=i===STEPS.length-1?"Got it — let's go! 🚀":"Next";
+  }
+  function close(done){
+    el.hidden=true;
+    document.body.style.overflow="";
+    try{localStorage.setItem(KEY,"1")}catch(e){}
+  }
+  function open(){
+    el.hidden=false;
+    document.body.style.overflow="hidden";
+    show(0);
+    parts.skip.focus();
+  }
+  function boot(){
+    if(window.__hanverseTour)return;
+    window.__hanverseTour=true;
+    el=document.getElementById("tour");
+    if(!el)return;
+    parts={e:document.getElementById("tourEmoji"),title:document.getElementById("tourTitle"),t:document.getElementById("tourTitle"),b:document.getElementById("tourBody"),dots:document.getElementById("tourDots"),next:document.getElementById("tourNext"),skip:document.getElementById("tourSkip")};
+    parts.next.addEventListener("click",function(){i<STEPS.length-1?show(i+1):close()});
+    parts.skip.addEventListener("click",close);
+    document.getElementById("tourBackdrop").addEventListener("click",close);
+    document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&!el.hidden)close()});
+    var replay=new URLSearchParams(location.search).get("tour")==="1";
+    var seen=false;
+    try{seen=!!localStorage.getItem(KEY)}catch(e){}
+    if(replay||!seen){setTimeout(open,900)}
+  }
+  if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",boot)}else{boot()}
+})();
+</script>
 
 <main id="main" hidden>
 <div class="wrap">
@@ -141,6 +224,8 @@
 <script src="hanverse.js"></script>
 <script src="features-client.js"></script>
 <script src="nav-user.js"></script>
+<script src="notifications-client.js"></script>
+<script src="notifications.js"></script>
 <script src="bottom-nav.js"></script>
 <script>
 "use strict";
@@ -190,19 +275,36 @@ function overall(){return lessons.length?Math.round(lessons.filter(completed).le
 function next(){const l=lvl();return [...lessons].filter(x=>lessonLevel(x)===l).sort((a,b)=>(a.order_index||a.id)-(b.order_index||b.id)).find(x=>!completed(x))||[...lessons].sort((a,b)=>(a.order_index||a.id)-(b.order_index||b.id)).find(x=>!completed(x))}
 function render(){
  const n=name(),l=lvl(),pct=overall(),nx=next();
- $("userName").textContent=n;$("userNameMobile").textContent=n;$("heroName").textContent=n;$("heroCopy").textContent=`You're working through YCT ${l}. Follow your roadmap and build your Mandarin step by step.`;
+ const isNew=lessons.length>0&&lessons.filter(completed).length===0;
+ $("userName").textContent=n;if($("userNameMobile"))$("userNameMobile").textContent=n;$("heroName").textContent=n;
+ $("heroCopy").textContent=isNew
+  ?"Welcome! First, let's find your level — HanPan will set your perfect starting point in about two minutes."
+  :`You're working through YCT ${l}. Follow your roadmap and build your Mandarin step by step.`;
+ if(isNew){
+  $("nextTitle").textContent="Let's find your level 🐼";
+  $("nextDesc").textContent="Take the quick placement quiz and your roadmap fills in with the right lessons for you.";
+  $("nextBtn").href="placement.html?first=1";$("nextBtn").textContent="Start placement →";
+  const hs=$("heroStart");if(hs){hs.href="placement.html?first=1";hs.textContent="Find my level →";}
+ }else{
+  $("nextTitle").textContent=nx?(nx.title||"Continue learning"):"Journey complete! 🎉";$("nextDesc").textContent=nx?(nx.description||"Continue with your next HanVerse lesson."):"You've reached the end of the currently published path.";
+  $("nextBtn").href=nx?`lesson.html?id=${encodeURIComponent(nx.id)}`:"roadmap.html";$("nextBtn").textContent=nx?"Start lesson →":"Open roadmap →";
+  const hs=$("heroStart");if(hs){hs.href=$("nextBtn").href;hs.textContent=nx?"Start learning →":"Open roadmap →";}
+ }
  $("xp").textContent=Number(user?.xp||0).toLocaleString();$("streak").textContent=Number(user?.streak_days||0).toLocaleString();
+ const streakCard=$("streak")&&$("streak").closest(".stat");if(streakCard&&Number(user?.streak_days||0)>0)streakCard.classList.add("streak-live");
  $("done").textContent=Number.isFinite(Number(user?.lessons_completed))?Number(user.lessons_completed).toLocaleString():lessons.filter(completed).length.toLocaleString();$("overall").textContent=pct+"%";
- $("nextTitle").textContent=nx?(nx.title||"Continue learning"):"Journey complete! 🎉";$("nextDesc").textContent=nx?(nx.description||"Continue with your next HanVerse lesson."):"You've reached the end of the currently published path.";
- $("nextBtn").href=nx?`lesson.html?id=${encodeURIComponent(nx.id)}`:"roadmap.html";$("nextBtn").textContent=nx?"Start lesson →":"Open roadmap →";
- const hs=$("heroStart");if(hs){hs.href=$("nextBtn").href;hs.textContent=nx?"Start learning →":"Open roadmap →";}
  $("nextPills").innerHTML=nx?`<span class="pill">YCT ${lessonLevel(nx)}</span><span class="pill">${Number(nx.xp||10)} XP</span>`:"<span class=\"pill\">🏆 Path complete</span>";
  const grid=$("courses");grid.innerHTML="";
  for(let i=1;i<=4;i++){const s=stats(i),current=i===l,c=info[i];const card=document.createElement("article");card.className="course"+(current?" current":"");card.innerHTML=`<div class="course-top"><div class="course-icon">${c.icon}</div><span class="status">${s.total?(s.done===s.total?"Complete":current?"Your level":"Available"):"Coming soon"}</span></div><h3>YCT ${i}</h3><div class="cn">${c.cn}</div><p>${c.desc}</p><div class="prog"><div class="protext"><span>${s.done} of ${s.total} lessons</span><span>${s.pct}%</span></div><div class="prowr"><span style="width:${s.pct}%"></span></div></div><div class="course-foot"><span>${s.total?s.total+" published lessons":"No lessons yet"}</span><a href="roadmap.html?level=${i}">${current?"Continue":"Explore"} →</a></div>`;grid.appendChild(card)}
 }
 $("retry").onclick=()=>{location.reload()};
 $("signedOutLogin").onclick=()=>{window.location.href=loginTarget()};
-(async()=>{if(!hasSession()){showSignedOut();return}try{await load();$("loading").style.display="none";$("main").hidden=false;
+(async()=>{if(!hasSession()){showSignedOut();return}try{
+ if(new URLSearchParams(location.search).get("placed")==="1"){
+  history.replaceState({},"","learn.html");
+  try{window.Notify?(Notify.miniConfetti(),Notify.toast("Level set! Your roadmap is ready 🎉","success",4200)):null}catch{}
+ }
+await load();$("loading").style.display="none";$("main").hidden=false;
 // --- Daily quests (feature pack): compact strip, kept out of the main focus ---
 try{
  const F=window.HanVerseFeatures;const uid2=uid();

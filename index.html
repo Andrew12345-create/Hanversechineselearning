@@ -334,34 +334,6 @@ img { content-visibility: auto; max-width: 100%; display: block; }
 .nav-cta:hover { transform: translateY(-1px) scale(1.03); box-shadow: 0 13px 32px rgba(37,99,235,.30); }
 .nav-cta:hover::after { animation: shimmer .5s ease forwards; }
 
-.nav-hamburger {
-  display: none; width: 42px; height: 42px; margin-left: auto;
-  border: 1.5px solid var(--line); background: var(--white);
-  border-radius: 12px; cursor: pointer; align-items: center;
-  justify-content: center; flex-direction: column; gap: 4px;
-  transition: background .2s;
-}
-.nav-hamburger span {
-  display: block; width: 18px; height: 2px;
-  background: var(--navy); border-radius: 2px;
-  transition: transform .22s, opacity .22s, width .22s;
-}
-.nav-hamburger:hover { background: var(--blue-50); }
-.mobile-menu {
-  display: none; position: fixed; z-index: 999;
-  top: 86px; left: 12px; right: 12px;
-  padding: 10px; background: var(--white);
-  border: 1px solid var(--line); border-radius: 20px;
-  box-shadow: var(--shadow);
-  animation: waveIn .25s ease forwards;
-}
-.mobile-menu.open { display: grid; gap: 2px; }
-.mobile-menu a {
-  padding: 13px 14px; border-radius: 12px;
-  font-weight: 700; font-size: 14px; color: var(--ink);
-  transition: background .18s, color .18s, transform .18s, padding-left .18s;
-}
-.mobile-menu a:hover { background: var(--blue-50); color: var(--blue); padding-left: 20px; }
 
 /* ─── HERO ─── */
 main { padding-top: 100px; }
@@ -1094,8 +1066,6 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 980px) {
-  .nav-links, .nav-actions { display: none; }
-  .nav-hamburger { display: flex; }
   .hero-layout, .personal-grid, .challenge-grid, .panda-layout, .parents-layout { grid-template-columns: 1fr; }
   .hero { padding-top: 28px; }
   .hero-visual { min-height: 460px; }
@@ -1162,20 +1132,6 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
     <a class="nav-login" href="login.html">Log in</a>
     <a class="nav-cta" href="signup.html">Start Free <span aria-hidden="true">→</span></a>
   </div>
-  <button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-  <a href="learn.html">Learn</a>
-  <a href="explore.html">Explore</a>
-  <a href="practice.html">Practice</a>
-  <a href="placement.html">Find Your Level</a>
-  <a href="invite.html">Invite Friends</a>
-  <a href="roadmap.html">Roadmap</a>
-  <a href="parents.html">For Parents</a>
-  <a href="login.html">Log in</a>
-  <a href="signup.html">Start Learning →</a>
 </nav>
 
 <main id="main">
@@ -2127,6 +2083,7 @@ if ("IntersectionObserver" in window) {
   }).catch(() => { /* quietly ignore — logged-out or offline */ });
 })();
 </script>
+<script src="notifications-client.js"></script>
 <script src="bottom-nav.js"></script>
 </body>
 </html>

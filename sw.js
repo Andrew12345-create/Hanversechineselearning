@@ -3,7 +3,10 @@
 // Designed for Netlify + Offline Support
 // ============================================================
 
-const CACHE_NAME = 'hanverse-v6';
+const CACHE_NAME = 'hanverse-v9';
+// Lesson content cache survives version bumps so previously studied
+// lessons stay available offline.
+const LESSON_CACHE = 'hanverse-lessons-v1';
 
 // Real files only — every entry must exist at the site root.
 // (The previous list referenced /css/styles.css, /js/app.js and /images/*,
@@ -74,7 +77,7 @@ self.addEventListener('activate', event => {
                 return Promise.all(
                     cacheNames
                         .filter(cacheName => {
-                            return cacheName !== CACHE_NAME;
+                            return cacheName !== CACHE_NAME && cacheName !== LESSON_CACHE;
                         })
                         .map(cacheName => {
                             console.log(
@@ -114,6 +117,69 @@ self.addEventListener('fetch', event => {
     // --------------------------------------------------------
 
     if (request.method !== 'GET') {
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Lesson content API — NETWORK FIRST, cached for offline study
+    // --------------------------------------------------------
+
+    //
+    // GET reads of lesson content are cached in a dedicated cache so a
+    // child can keep studying a visited lesson without a connection.
+    // Everything else in the API stays network-only.
+    //
+
+    if (
+        request.method === 'GET' &&
+        /^\/(api|\.netlify\/functions\/server)\/(lessons|user|progress)(\/|$)/.test(url.pathname)
+    ) {
+
+        event.respondWith(
+            fetch(request)
+                .then(response => {
+
+                    if (response && response.status === 200) {
+
+                        const responseClone = response.clone();
+
+                        caches.open(LESSON_CACHE)
+                            .then(cache => {
+                                cache.put(request, responseClone);
+                            });
+                    }
+
+                    return response;
+                })
+                .catch(() => {
+
+                    console.log(
+                        '[HanVerse SW] Offline. ' +
+                        'Using cached lesson content.'
+                    );
+
+                    return caches.match(request)
+                        .then(cachedResponse => {
+
+                            if (cachedResponse) {
+                                return cachedResponse;
+                            }
+
+                            return new Response(
+                                JSON.stringify({
+                                    success: false,
+                                    error: 'You are offline and this lesson has not been downloaded yet. Open it once while connected.'
+                                }),
+                                {
+                                    status: 503,
+                                    headers: { 'Content-Type': 'application/json' }
+                                }
+                            );
+                        });
+                })
+        );
+
         return;
     }
 
