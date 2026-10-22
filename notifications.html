@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications - Hanverse</title>
+    <meta name="theme-color" content="#2563EB">
+    <title>Notifications | HanVerse</title>
 <meta name="description" content="Your HanVerse notifications: lesson updates, achievements and announcements.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="HanVerse">
@@ -60,10 +61,30 @@
             font-size: 1.25rem;
             cursor: pointer;
         }
+        .app-brand {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        .app-brand img {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+            border-radius: 9px;
+        }
         .header-title {
             font-size: 1.25rem;
             font-weight: 600;
             flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .mark-all-btn {
             font-size: 0.875rem;
@@ -72,6 +93,11 @@
             border: none;
             cursor: pointer;
             font-weight: 500;
+            flex-shrink: 0;
+        }
+        @media (max-width: 360px) {
+            .header-title { font-size: 1.05rem; }
+            .mark-all-btn { font-size: 0.78rem; }
         }
         .main-content {
             padding: 1.25rem;
@@ -139,9 +165,14 @@
 
 </head>
 <body class="app-page">
+    <a class="skip-link" href="#notificationsList">Skip to content</a>
     <div class="app-container">
         <header class="app-header">
             <button class="back-btn" onclick="history.length>1?history.back():window.location.href='index.html'">←</button>
+            <a class="app-brand" href="index.html" aria-label="HanVerse home">
+                <img src="Hanverse-logo2.png" alt="HanVerse logo" width="34" height="34">
+                <span>HanVerse</span>
+            </a>
             <h1 class="header-title">Notifications</h1>
             <button class="mark-all-btn" onclick="markAllRead()">Mark all read</button>
         </header>
@@ -187,23 +218,6 @@
             });
         }
 </script>
-     <nav class="bottom-nav">
-         <a href="index.html" class="nav-item">
-             <div class="nav-icon" style="position:relative;">🏠</div>
-             <span>Home</span>
-         </a>
-         <a href="learn.html" class="nav-item">
-             <div class="nav-icon" style="position:relative;">📚</div>
-             <span>Learn</span>
-         </a>
-         <a href="practice.html" class="nav-item">
-             <div class="nav-icon" style="position:relative;">🎯</div>
-             <span>Practice</span>
-         </a>
-         <a href="profile.html" class="nav-item">
-             <div class="nav-icon" style="position:relative;">👤</div>
-             <span>Profile</span>
-         </a>
-     </nav>
+<script src="bottom-nav.js"></script>
  </body>
  </html>

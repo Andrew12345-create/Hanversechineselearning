@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>HanVerse Parent Hub 👪</title>
 <meta name="description" content="Track your child&#x27;s Mandarin journey: progress reports, weekly activity and learning insights in the HanVerse Parent Hub.">
   <meta property="og:type" content="website">
@@ -620,46 +620,57 @@
         .bottom-nav {
             display: none;
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            justify-content: space-around;
-            padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
-            z-index: 999;
-            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            bottom: calc(10px + env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(470px, calc(100% - 18px));
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            justify-content: space-between;
+            padding: 6px;
+            box-shadow: 0 18px 44px rgba(15, 35, 64, 0.18);
+            z-index: 990;
+            border: 1px solid rgba(213, 227, 240, 0.9);
+            border-radius: 999px;
         }
 
         .bottom-nav a {
             text-decoration: none;
             color: var(--muted);
             font-size: .65rem;
-            font-weight: 500;
+            font-weight: 700;
             text-align: center;
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 3px;
-            padding: 4px 0;
+            padding: 8px 0;
             transition: var(--transition-smooth);
-            border-radius: var(--radius-sm);
+            border-radius: 999px;
+            min-height: 48px;
         }
 
         .bottom-nav a.active {
             color: var(--primary);
-            font-weight: 600;
+            font-weight: 800;
+            background: var(--blue-50, #EFF6FF);
         }
 
         .bottom-nav a:hover {
             color: var(--primary);
         }
 
+        .bottom-nav a:focus-visible {
+            outline: 3px solid var(--sky, #7DD3FC);
+            outline-offset: 2px;
+        }
+
         .nav-icon {
             font-size: 22px;
+            line-height: 1;
         }
 
         /* ============================================
@@ -986,7 +997,7 @@
     <!-- ===== FLOATING NAVBAR ===== -->
     <nav class="top-nav" id="topNav">
         <a href="index.html" class="logo">
-            <img src="Hanverse-logo.png" alt="Hanverse" width="38" height="38" />
+            <img src="Hanverse-logo2.png" alt="HanVerse" width="38" height="38" />
             <span class="logo-text">Hanverse</span>
         </a>
         <ul class="nav-links">

@@ -1132,6 +1132,7 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 </head>
 
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <canvas id="confetti"></canvas>
 
 <!-- LOADING -->
@@ -1177,7 +1178,7 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
   <a href="signup.html">Start Learning →</a>
 </nav>
 
-<main>
+<main id="main">
 
 <!-- ── HERO ── -->
 <section class="hero">
@@ -1581,7 +1582,7 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 </footer>
 
 <!-- Cookie / local-storage notice (no ad-tracking cookies are used) -->
-<div id="cookieNotice" style="display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:1500;max-width:640px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 12px 32px rgba(15,35,64,.18);padding:14px 18px;font-size:.8rem;color:#0F2340">
+<div id="cookieNotice" style="display:none;position:fixed;left:16px;right:16px;bottom:calc(88px + env(safe-area-inset-bottom, 0px));z-index:980;max-width:640px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 12px 32px rgba(15,35,64,.18);padding:14px 18px;font-size:.8rem;color:#0F2340">
   We use browser local storage to keep you signed in. No ad-tracking cookies. Details in our <a href="cookie-policy.html">Cookie Policy</a> and <a href="privacy.html">Privacy Policy</a>.
   <button id="cookieOk" style="margin-left:10px;padding:7px 16px;border:0;border-radius:999px;background:#2563EB;color:#fff;font-weight:800;cursor:pointer">OK</button>
 </div>
@@ -2126,5 +2127,6 @@ if ("IntersectionObserver" in window) {
   }).catch(() => { /* quietly ignore — logged-out or offline */ });
 })();
 </script>
+<script src="bottom-nav.js"></script>
 </body>
 </html>

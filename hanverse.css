@@ -309,6 +309,79 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 [data-theme="dark"] .footer-brand { color: #F3F8FC; }
 [data-theme="dark"] .footer-links a { color: #A9BDCC; }
 
+/* ─── APP SHELL (mobile-first additions) ─── */
+:root {
+  --nav-h: 68px;
+  --tabbar-h: 62px;
+  --tabbar-space: 92px;
+  --touch: 48px;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --z-nav: 1000;
+  --z-menu: 999;
+  --z-tabbar: 990;
+}
+
+/* Skip link: first focusable element on every page. */
+.skip-link {
+  position: fixed; top: -60px; left: 12px; z-index: 2000;
+  padding: 11px 18px; border-radius: 14px;
+  background: var(--navy); color: #fff;
+  font-size: 13px; font-weight: 800;
+  transition: top .2s var(--ease-out);
+}
+.skip-link:focus { top: 12px; }
+
+/* ─── FLOATING BOTTOM TAB BAR (primary destinations, small screens) ─── */
+.tabbar {
+  position: fixed; z-index: var(--z-tabbar);
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  left: 50%; transform: translateX(-50%);
+  width: min(470px, calc(100% - 18px));
+  height: var(--tabbar-h); padding: 6px;
+  display: none; justify-content: space-between;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(213,227,240,.9);
+  border-radius: var(--pill);
+  box-shadow: 0 18px 44px rgba(15,35,64,.18), 0 1px 0 rgba(255,255,255,.9) inset;
+}
+.tabbar a {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; border-radius: var(--pill);
+  color: var(--muted); font-size: 10px; font-weight: 800;
+  transition: color .18s, background .18s, transform .18s;
+}
+.tabbar a svg {
+  width: 22px; height: 22px; display: block;
+  transition: transform .18s var(--ease-out);
+}
+.tabbar a span { line-height: 1; }
+.tabbar a:hover { color: var(--blue); }
+.tabbar a:active svg { transform: scale(.88); }
+.tabbar a[aria-current="page"] { color: var(--blue); background: var(--blue-50); }
+.tabbar a:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+/* Reserve space so the bar never covers content or footers. */
+body.has-tabbar main,
+body.has-tabbar .wrap {
+  padding-bottom: calc(var(--tabbar-space) + env(safe-area-inset-bottom, 0px));
+}
+body.has-tabbar footer {
+  padding-bottom: calc(64px + var(--tabbar-space) + env(safe-area-inset-bottom, 0px));
+}
+@media (max-width: 820px) {
+  .tabbar { display: flex; }
+}
+[data-theme="dark"] .tabbar {
+  background: rgba(18,40,58,.94);
+  border-color: rgba(36,68,88,.85);
+  box-shadow: 0 18px 44px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.06) inset;
+}
+[data-theme="dark"] .tabbar a { color: #A9BDCC; }
+[data-theme="dark"] .tabbar a:hover,
+[data-theme="dark"] .tabbar a[aria-current="page"] { background: #123B56; color: #93C5FD; }
+
 /* ─── REDUCED MOTION ─── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
