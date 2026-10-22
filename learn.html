@@ -84,6 +84,7 @@
 <section class="loading" id="loading"><div><img src="assets/mascot/states/hanpan-waving.png" width="105" height="105" fetchpriority="high" decoding="async" alt="HanPan"><div class="spinner"></div><h2>HanPan is opening your classroom…</h2><p>Getting your courses and progress.</p></div></section>
 
 <section class="error" id="error"><div class="errorbox"><img src="assets/mascot/states/hanpan-thinking.png" width="100" height="100" alt="HanPan thinking" loading="lazy" decoding="async"><h2>We couldn't load your learning journey.</h2><p id="errorText">Please try again.</p><button class="cta" id="retry">Try again</button></div></section>
+<section class="error" id="signedOut" aria-live="polite"><div class="errorbox"><img src="assets/mascot/states/hanpan-waving.png" width="100" height="100" alt="HanPan waving" loading="lazy" decoding="async"><h2>You're not signed in</h2><p id="signedOutText">Taking you to the log in page…</p><button class="cta" id="signedOutLogin">Log in now</button></div></section>
 
 <main id="main" hidden>
 <div class="wrap">
@@ -159,6 +160,13 @@ function session(){
  for(const key of SESSION_KEYS){try{const x=localStorage.getItem(key);if(x){const o=JSON.parse(x);if(o)return o}}catch{}}
  return null;
 }
+function hasSession(){const s=session();return !!(s&&(s.user_id||s.userId||s.id))}
+function loginTarget(){return "login.html?next="+encodeURIComponent(location.pathname+location.search)}
+function showSignedOut(){
+ $("loading").style.display="none";
+ $("signedOut").style.display="grid";
+ setTimeout(()=>{window.location.href=loginTarget()},1600);
+}
 function uid(){return user?.user_id||user?.userId||user?.id}
 function name(){return user?.full_name||user?.fullName||user?.username||user?.name||"Learner"}
 function lvl(x=user){let n=String(x?.current_yct||x?.yct_level||"").match(/\d+/);return n?+n[0]:Math.min(4,Math.max(1,Number(x?.level)||1))}
@@ -193,7 +201,8 @@ function render(){
  for(let i=1;i<=4;i++){const s=stats(i),current=i===l,c=info[i];const card=document.createElement("article");card.className="course"+(current?" current":"");card.innerHTML=`<div class="course-top"><div class="course-icon">${c.icon}</div><span class="status">${s.total?(s.done===s.total?"Complete":current?"Your level":"Available"):"Coming soon"}</span></div><h3>YCT ${i}</h3><div class="cn">${c.cn}</div><p>${c.desc}</p><div class="prog"><div class="protext"><span>${s.done} of ${s.total} lessons</span><span>${s.pct}%</span></div><div class="prowr"><span style="width:${s.pct}%"></span></div></div><div class="course-foot"><span>${s.total?s.total+" published lessons":"No lessons yet"}</span><a href="roadmap.html?level=${i}">${current?"Continue":"Explore"} →</a></div>`;grid.appendChild(card)}
 }
 $("retry").onclick=()=>{location.reload()};
-(async()=>{try{await load();$("loading").style.display="none";$("main").hidden=false;
+$("signedOutLogin").onclick=()=>{window.location.href=loginTarget()};
+(async()=>{if(!hasSession()){showSignedOut();return}try{await load();$("loading").style.display="none";$("main").hidden=false;
 // --- Daily quests (feature pack): compact strip, kept out of the main focus ---
 try{
  const F=window.HanVerseFeatures;const uid2=uid();

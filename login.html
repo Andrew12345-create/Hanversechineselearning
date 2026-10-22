@@ -575,6 +575,12 @@ document.addEventListener('DOMContentLoaded', function(){
         // ============================================================
         // LOGIN FUNCTION
         // ============================================================
+        function safeNextPath() {
+            const n = new URLSearchParams(window.location.search).get('next') || '';
+            if (!n || n.startsWith('//') || n.includes('://') || n.includes('\\') || !/^[\w\/.\-?=&%]+$/.test(n)) return null;
+            return n.charAt(0) === '/' ? n : '/' + n;
+        }
+
        async function loginUser() {
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
@@ -640,7 +646,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 } else if (isAdmin()) {
                     window.location.href = 'admin.html';
                 } else {
-                    window.location.href = 'learn.html';
+                    window.location.href = safeNextPath() || 'learn.html';
                 }
             }, 800);
 
@@ -805,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     } else if (isAdmin()) {
                         window.location.href = 'admin.html';
                     } else {
-                        window.location.href = 'learn.html';
+                        window.location.href = safeNextPath() || 'learn.html';
                     }
                 }, 1500);
                 return;

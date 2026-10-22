@@ -14,6 +14,19 @@
     coral: '#F97316', shadow: '0 16px 48px rgba(15,35,64,.12)'
   };
 
+  const svg = (inner) =>
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+    inner + '</svg>';
+
+  const I = {
+    user: svg('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+    settings: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'),
+    bell: svg('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>'),
+    star: svg('<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>'),
+    logout: svg('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>')
+  };
+
   const style = document.createElement('style');
   style.textContent = `
 .nav-user-chip{cursor:pointer;position:relative;user-select:none;white-space:nowrap}
@@ -26,10 +39,13 @@
 }
 .nav-user-dropdown.open{display:block}
 .nav-user-dropdown a,.nav-user-dropdown button{
-  display:block;width:100%;padding:12px 18px;text-align:left;text-decoration:none;
-  font-weight:700;font-size:13px;color:${C.ink};background:none;border:none;cursor:pointer;
-  transition:background .15s,color .15s;
+  display:flex;align-items:center;gap:10px;width:100%;padding:11px 16px;text-align:left;
+  text-decoration:none;font-weight:700;font-size:13px;color:${C.ink};
+  background:none;border:none;cursor:pointer;transition:background .15s,color .15s;
 }
+.nav-user-dropdown a svg,.nav-user-dropdown button svg{width:16px;height:16px;flex-shrink:0;opacity:.85}
+.nav-user-dropdown a.dd-premium{color:${C.coral};font-weight:800}
+.nav-user-dropdown a.dd-premium svg{opacity:1}
 .nav-user-dropdown a:hover,.nav-user-dropdown button:hover{background:${C.blue50};color:${C.blue}}
 .nav-user-dropdown button.dd-logout:hover{background:#FFF7ED;color:${C.coral}}
 .nav-pfp-spinner{
@@ -46,15 +62,42 @@
     dropdown.className = 'nav-user-dropdown';
     dropdown.id = 'navUserDropdown';
     dropdown.innerHTML = `
-      <a href="profile.html">👤 &nbsp;Profile</a>
+      <a href="profile.html">${I.user}<span>Profile</span></a>
+      <a href="settings.html">${I.settings}<span>Settings</span></a>
+      <a href="notifications.html">${I.bell}<span>Notifications</span></a>
+      <a href="payment.html" class="dd-premium">${I.star}<span>Go Premium</span></a>
       <div class="dd-divider"></div>
-      <button class="dd-logout" id="navLogoutBtn">🚪 &nbsp;Log Out</button>`;
+      <button class="dd-logout" id="navLogoutBtn">${I.logout}<span>Log Out</span></button>`;
+    chip.setAttribute('aria-haspopup', 'true');
+    chip.setAttribute('aria-expanded', 'false');
+    if (!chip.querySelector('.nav-user-caret')) {
+      const caret = document.createElement('span');
+      caret.className = 'nav-user-caret';
+      caret.setAttribute('aria-hidden', 'true');
+      caret.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+      chip.appendChild(caret);
+    }
     chip.appendChild(dropdown);
     chip.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      dropdown.classList.toggle('open');
+      const isOpen = dropdown.classList.toggle('open');
+      chip.classList.toggle('open', isOpen);
+      chip.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
-    document.addEventListener('click', () => dropdown.classList.remove('open'));
+    document.addEventListener('click', () => {
+      dropdown.classList.remove('open');
+      chip.classList.remove('open');
+      chip.setAttribute('aria-expanded', 'false');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+        dropdown.classList.remove('open');
+        chip.classList.remove('open');
+        chip.setAttribute('aria-expanded', 'false');
+        chip.focus();
+      }
+    });
     dropdown.querySelector('#navLogoutBtn').addEventListener('click', () => {
       localStorage.removeItem('hanverse_user');
       window.location.href = 'login.html';

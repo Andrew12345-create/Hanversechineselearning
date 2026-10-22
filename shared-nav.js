@@ -18,6 +18,18 @@
   var source = (document.currentScript && document.currentScript.src) || '';
   var variant = source.split('#')[1] || '';
   var auth = variant === 'auth';
+
+  /* Auth state is read synchronously (same key as nav-user.js) so the nav
+     renders the right variant immediately — no flash of the wrong version. */
+  function signedIn() {
+    try {
+      var raw = localStorage.getItem('hanverse_user');
+      if (!raw) return false;
+      var u = JSON.parse(raw);
+      return !!(u && u.user_id);
+    } catch (e) { return false; }
+  }
+
   var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
 
   var navMount = document.getElementById('app-nav');
@@ -32,6 +44,19 @@
     );
   }
 
+  function actionsMarkup() {
+    /* Signed in: render a skeleton chip immediately; nav-user.js upgrades it
+       with the real name, avatar and account menu. Never flash Log in. */
+    if (signedIn()) {
+      return '<a class="nav-user nav-user-chip nav-user-skeleton" href="profile.html" aria-label="Your account">' +
+        '<span class="avatar" aria-hidden="true">🐼</span></a>';
+    }
+    return '<div class="nav-actions">' +
+      '<a class="nav-login" href="login.html">Log in</a>' +
+      '<a class="nav-cta" href="signup.html">Start Free <span aria-hidden="true">→</span></a>' +
+      '</div>';
+  }
+
   function fullMarkup() {
     return (
       '<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">' +
@@ -43,10 +68,7 @@
           '<a href="roadmap.html">Roadmap</a>' +
           '<a href="parents.html">Parents</a>' +
         '</div>' +
-        '<div class="nav-actions">' +
-          '<a class="nav-login" href="login.html">Log in</a>' +
-          '<a class="nav-cta" href="signup.html">Start Free <span aria-hidden="true">→</span></a>' +
-        '</div>' +
+        actionsMarkup() +
         '<button class="nav-hamburger" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu">' +
           '<span></span><span></span><span></span>' +
         '</button>' +
@@ -59,8 +81,12 @@
         '<a href="invite.html">Invite Friends</a>' +
         '<a href="roadmap.html">Roadmap</a>' +
         '<a href="parents.html">For Parents</a>' +
-        '<a href="login.html">Log in</a>' +
-        '<a href="signup.html">Start Learning →</a>' +
+        (signedIn()
+          ? '<a href="profile.html">My Profile</a>' +
+            '<a href="settings.html">Settings</a>' +
+            '<a href="learn.html" class="mobile-menu-cta">Continue Learning →</a>'
+          : '<a href="login.html">Log in</a>' +
+            '<a href="signup.html" class="mobile-menu-cta">Start Learning →</a>') +
       '</nav>'
     );
   }
