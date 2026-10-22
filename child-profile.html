@@ -79,20 +79,26 @@
                 <div class="stat"><b id="sXp">0</b><span>TOTAL XP</span></div>
                 <div class="stat"><b id="sStreak">0</b><span>DAY STREAK</span></div>
                 <div class="stat"><b id="sLessons">0</b><span>LESSONS DONE</span></div>
+                <div class="stat"><b id="sAch">0</b><span>🏆 BADGES</span></div>
                 <div class="stat"><b id="sActive">—</b><span>LAST ACTIVE</span></div>
             </div>
         </section>
 
         <section class="card">
-            <h2 style="font-size:1rem">XP this period</h2>
+            <h2 style="font-size:1rem">Recent activity</h2>
+            <div id="actFeed" style="margin-top:8px"></div>
+            <h2 style="font-size:1rem;margin-top:18px">XP this period</h2>
             <div class="chart" id="chart"></div>
             <div class="chart-days" id="chartDays"></div>
         </section>
+
+        <div id="sibNav" hidden style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"></div>
 
         <section class="card qa">
             <a class="btn btn-p" id="btnEncourage" href="#">💬 Send encouragement</a>
             <a class="btn btn-s" id="btnAssign" href="#">📝 Assign a lesson</a>
         </section>
+        <p style="text-align:center;margin-top:14px"><a href="parent-dashboard.html" style="font-size:.85rem">← Back to dashboard</a></p>
     </main>
 
     <script>
@@ -133,9 +139,48 @@
                 document.getElementById('sXp').textContent = Number(ch.xp || 0).toLocaleString();
                 document.getElementById('sStreak').textContent = ch.streak ?? 0;
                 document.getElementById('sLessons').textContent = ch.lessons_completed ?? 0;
+                document.getElementById('sAch').textContent = ch.achievements ?? 0;
                 document.getElementById('sActive').textContent = lastActiveLabel(ch.last_active);
                 document.getElementById('btnEncourage').href = 'parent-dashboard.html?message=' + encodeURIComponent(ch.child_id);
                 document.getElementById('btnAssign').href = 'parent-dashboard.html?assign=' + encodeURIComponent(ch.child_id);
+
+                // Recent activity (real child_activities rows; graceful when empty).
+                fetch('/api/parents/child/' + encodeURIComponent(childId) + '/activities', { credentials: 'include', headers: { Accept: 'application/json' } })
+                    .then(r => r.json())
+                    .then(a => {
+                        const box = document.getElementById('actFeed');
+                        if (!box) return;
+                        const rows = (a.success && a.activities) || [];
+                        if (!rows.length) {
+                            box.innerHTML = '<p style="font-size:.8rem;color:var(--text-2)">No recorded activity yet — it will appear here as ' + (ch.full_name || 'your child').split(' ')[0] + ' learns.</p>';
+                            return;
+                        }
+                        const ICON = { lesson: '📚', quiz: '🧠', game: '🎮', achievement: '🏆', streak: '🔥' };
+                        box.innerHTML = rows.slice(0, 8).map(r =>
+                            '<div style="display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line,#EEF2F7);font-size:.8rem">' +
+                            '<span>' + (ICON[r.activity_type] || '•') + '</span>' +
+                            '<span style="flex:1">' + String(r.title || r.detail || r.activity_type).replace(/[<>&]/g, '') + '</span>' +
+                            '<span style="color:var(--text-2);white-space:nowrap">' + lastActiveLabel(r.created_at) + '</span></div>'
+                        ).join('');
+                    })
+                    .catch(() => {});
+
+                // Sibling switcher: other linked children, prev / next chips.
+                fetch('/api/parents/children/' + encodeURIComponent(s.user_id), { credentials: 'include', headers: { Accept: 'application/json' } })
+                    .then(r => r.json())
+                    .then(d => {
+                        const kids = (d.success && d.children) || [];
+                        const others = kids.filter(k => String(k.child_id) !== String(ch.child_id));
+                        const box = document.getElementById('sibNav');
+                        if (!box || !others.length) return;
+                        box.hidden = false;
+                        box.innerHTML = '<span style="font-size:.72rem;color:var(--text-2)">Switch child:</span> ' +
+                            others.slice(0, 4).map(k =>
+                                '<a href="child-profile.html?id=' + encodeURIComponent(k.child_id) + '" style="font-size:.78rem;font-weight:700;text-decoration:none;padding:4px 10px;border:1px solid var(--line,#E2E8F0);border-radius:999px">' +
+                                String(k.full_name || 'Child').replace(/[<>&]/g, '') + '</a>'
+                            ).join(' ');
+                    })
+                    .catch(() => {});
 
                 const chart = document.getElementById('chart');
                 const days = document.getElementById('chartDays');

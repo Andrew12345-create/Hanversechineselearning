@@ -107,6 +107,19 @@
         </div>
 
         <div class="grid2">
+            <section class="asg-card">
+                <h2>🗺️ Roadmap</h2>
+                <p style="font-size:.78rem;color:#64748B;margin-bottom:8px">See the whole journey — what's done and what's unlocked next.</p>
+                <a class="go" style="display:inline-flex;background:#2563EB;color:#fff;font-family:'Nunito',sans-serif;font-weight:900;font-size:.8rem;border-radius:999px;padding:9px 16px;text-decoration:none" href="roadmap.html">Open roadmap →</a>
+            </section>
+
+            <section class="asg-card">
+                <h2>🕒 Recent activity</h2>
+                <div id="actList"><div class="skel" style="width:100%;height:14px"></div></div>
+            </section>
+        </div>
+
+        <div class="grid2">
             <section class="wotd-card">
                 <h2>🀄 Word of the day</h2>
                 <div class="wotd-h" id="wH">…</div>
@@ -186,7 +199,8 @@
         Promise.all([
             request("my/progress").catch(function () { return { progress: [] }; }),
             request("lessons").catch(function () { return { lessons: [], data: [] }; }),
-            request("my/assignments").catch(function () { return { assignments: [] }; })
+            request("my/assignments").catch(function () { return { assignments: [] }; }),
+            request("my/activities").catch(function () { return { activities: [], failed: true }; })
         ]).then(function (res) {
             var rows = (res[0] && (res[0].progress || res[0].data)) || [];
             var lessons = (res[1] && (res[1].lessons || res[1].data || res[1])) || [];
@@ -250,6 +264,22 @@
                 }).join("");
             }
 
+            // Recent activity — real child_activities rows for this user only.
+            var acts = (res[3] && res[3].activities) || [];
+            var actBox = document.getElementById("actList");
+            if (actBox) {
+                if (!acts.length) {
+                    actBox.innerHTML = '<p style="font-size:.75rem;color:#64748B">' + (res[3] && res[3].failed ? 'Activity is unavailable right now — check back soon.' : 'Your learning story starts with the first lesson! 🐼') + '</p>';
+                } else {
+                    var AICON = { lesson: "📚", quiz: "🧠", game: "🎮", achievement: "🏆", streak: "🔥" };
+                    actBox.innerHTML = acts.slice(0, 6).map(function (a) {
+                        var t = new Date(a.created_at);
+                        var when = (Date.now() - t.getTime()) < 86400000 ? t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : t.toLocaleDateString();
+                        return '<div class="asg"><span style="flex:1">' + (AICON[a.activity_type] || "•") + " " + String(a.title || a.detail || a.activity_type).replace(/[<>&]/g, "") + '</span><span style="color:#64748B;white-space:nowrap">' + when + "</span></div>";
+                    }).join("");
+                }
+            }
+
             // Milestones from real numbers
             var xp = Number(user.xp || 0), lv = Number(user.level || user.current_yct || 1);
             var ms = [
@@ -262,6 +292,15 @@
             document.getElementById("achShelf").innerHTML = ms.map(function (m) {
                 return '<div class="ach' + (m.got ? " earned" : "") + '"><span>' + m.icon + "</span>" + m.label + "</div>";
             }).join("");
+        }).catch(function () {
+            var wrap = document.querySelector(".dash-wrap");
+            if (!wrap || document.getElementById("dashErr")) return;
+            var bar = document.createElement("div");
+            bar.id = "dashErr";
+            bar.style.cssText = "background:#FEF2F2;border:1px solid #FECACA;border-radius:14px;padding:12px 16px;font-size:.82rem;color:#B91C1C;display:flex;align-items:center;gap:12px";
+            bar.innerHTML = "Couldn't load your dashboard. <button id='dashRetry' style='margin-left:auto;background:#B91C1C;color:#fff;border:0;border-radius:999px;padding:7px 14px;font-weight:800;cursor:pointer'>Try again</button>";
+            wrap.prepend(bar);
+            document.getElementById("dashRetry").addEventListener("click", function () { location.reload(); });
         });
 
         // Family zone — real unread count from the family endpoint

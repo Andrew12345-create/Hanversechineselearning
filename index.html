@@ -17,7 +17,8 @@
       var u = JSON.parse(raw);
       if (u && u.user) u = u.user;
       if (u && (u.user_id || u.userId || u.id)) {
-        location.replace(String(u.role || '').toLowerCase() === 'parent' ? 'parent-dashboard.html' : 'dashboard.html');
+        var role = String(u.role || '').toLowerCase();
+        location.replace(role === 'parent' ? 'parent-dashboard.html' : role === 'admin' ? 'admin.html' : 'dashboard.html');
         return;
       }
     } catch (e) {}
