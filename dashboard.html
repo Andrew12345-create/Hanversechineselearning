@@ -7,46 +7,64 @@
     <meta name="theme-color" content="#2563EB">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="hanverse.css">
+    <script>try { if (localStorage.getItem("hanverse_theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}</script>
     <style>
         .dash-wrap { max-width: 1060px; margin: 0 auto; padding: 18px 16px 120px; display: grid; gap: 16px; }
-        .hero { background: linear-gradient(135deg, #2563EB, #1D4ED8); border-radius: 22px; padding: 20px; color: #fff; display: flex; align-items: center; gap: 16px; box-shadow: 0 14px 34px rgba(37,99,235,.25); }
+        .hero { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); border-radius: 22px; padding: 20px; color: #fff; display: flex; align-items: center; gap: 16px; box-shadow: 0 14px 34px rgba(37,99,235,.25); }
         .hero .panda { width: 64px; height: 64px; border-radius: 20px; background: rgba(255,255,255,.16); display: grid; place-items: center; flex-shrink: 0; }
         .hero .panda img { width: 52px; height: 52px; object-fit: contain; }
-        .hero h1 { font-family: 'Nunito', sans-serif; font-size: 1.3rem; }
+        .hero h1 { font: 900 1.3rem var(--font-head); }
         .hero p { font-size: .8rem; opacity: .85; margin-top: 3px; }
-        .ring-card, .fam-card, .wotd-card, .asg-card, .ach-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 20px; padding: 18px; }
+        .ring-card, .fam-card, .wotd-card, .asg-card, .ach-card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: 0 4px 16px rgba(15,23,42,.04); }
         .ring-row { display: flex; align-items: center; gap: 18px; }
         .ring { width: 92px; height: 92px; flex-shrink: 0; }
         .ring circle { fill: none; stroke-width: 9; stroke-linecap: round; }
-        .ring .bg { stroke: #E2E8F0; }
-        .ring .fg { stroke: #2563EB; transition: stroke-dashoffset .8s ease; }
-        .ring-num { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.05rem; }
-        .ring-card h2, .fam-card h2, .wotd-card h2, .asg-card h2, .ach-card h2 { font-family: 'Nunito', sans-serif; font-size: 1rem; margin-bottom: 10px; }
-        .continue-card { display: block; background: linear-gradient(135deg, #EFF6FF, #DBEAFE); border: 1px solid #BFDBFE; border-radius: 20px; padding: 18px; text-decoration: none; color: inherit; transition: transform .15s ease; }
-        .continue-card:hover { transform: translateY(-2px); }
-        .continue-card .go { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; background: #2563EB; color: #fff; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .85rem; border-radius: 999px; padding: 10px 18px; }
+        .ring .bg { stroke: var(--line); }
+        .ring .fg { stroke: var(--blue); transition: stroke-dashoffset .8s var(--ease-out); }
+        .ring-num { font: 900 1.05rem var(--font-head); }
+        .ring-card h2, .fam-card h2, .wotd-card h2, .asg-card h2, .ach-card h2 { font: 900 1rem var(--font-head); margin-bottom: 10px; }
+        .sub { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+        .continue-card { display: block; background: linear-gradient(135deg, var(--blue-50), var(--blue-100)); border: 1px solid rgba(37,99,235,.25); border-radius: 22px; padding: 18px; text-decoration: none; color: inherit; transition: .2s; }
+        .continue-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .go { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; background: var(--blue); color: #fff; font: 900 .85rem var(--font-head); border-radius: var(--pill); padding: 10px 18px; }
         .xp-chart { display: flex; align-items: flex-end; gap: 5px; height: 84px; }
-        .xp-bar { flex: 1; background: linear-gradient(180deg, #60A5FA, #2563EB); border-radius: 6px 6px 2px 2px; min-height: 4px; }
+        .xp-bar { flex: 1; background: linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius: 6px 6px 2px 2px; min-height: 4px; }
         .xp-days { display: flex; gap: 5px; margin-top: 5px; }
-        .xp-days span { flex: 1; text-align: center; font-size: .56rem; color: #64748B; }
-        .asg { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: .82rem; }
+        .xp-days span { flex: 1; text-align: center; font-size: .56rem; color: var(--muted); }
+        .asg { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: .82rem; }
         .asg:last-child { border-bottom: 0; }
-        .pill { font-size: .62rem; font-weight: 900; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
-        .pill.due { background: #FEF3C7; color: #B45309; }
-        .pill.ok { background: #D1FAE5; color: #047857; }
+        .pill { font-size: .62rem; font-weight: 900; padding: 4px 10px; border-radius: var(--pill); white-space: nowrap; }
+        .pill.due { background: var(--amber-50); color: #B45309; }
+        .pill.ok { background: var(--green-50); color: var(--green); }
         .fam-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
-        .fam-ava { width: 44px; height: 44px; border-radius: 14px; background: #ECFDF5; display: grid; place-items: center; font-size: 1.3rem; flex-shrink: 0; }
-        .badge-n { background: #EF4444; color: #fff; font-size: .62rem; font-weight: 900; border-radius: 999px; padding: 3px 8px; }
-        .wotd-h { font-family: 'Noto Sans SC', sans-serif; font-size: 1.7rem; font-weight: 700; }
+        .fam-ava { width: 44px; height: 44px; border-radius: 14px; background: var(--green-50); display: grid; place-items: center; font-size: 1.3rem; flex-shrink: 0; }
+        .badge-n { background: #EF4444; color: #fff; font-size: .62rem; font-weight: 900; border-radius: var(--pill); padding: 3px 8px; }
+        .wotd-h { font-family: var(--font-cn); font-size: 1.7rem; font-weight: 700; }
         .ach-shelf { display: flex; gap: 10px; flex-wrap: wrap; }
-        .ach { width: 64px; text-align: center; font-size: .58rem; color: #64748B; }
-        .ach span { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 4px; border-radius: 16px; font-size: 1.4rem; background: #F1F5F9; }
+        .ach { width: 64px; text-align: center; font-size: .58rem; color: var(--muted); }
+        .ach span { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 4px; border-radius: 16px; font-size: 1.4rem; background: var(--bg); }
         .ach.earned span { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
         .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .skel { position: relative; overflow: hidden; background: #EEF2F7; border-radius: 8px; min-height: 12px; }
+        .skel { position: relative; overflow: hidden; background: var(--bg); border-radius: 8px; min-height: 12px; }
         .skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: sh 1.2s infinite; }
         @keyframes sh { to { transform: translateX(100%); } }
         @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } .hero h1 { font-size: 1.1rem; } }
+
+        /* Dark theme (same opt-in recipe as learn.html) */
+        [data-theme="dark"] .dash-wrap { color: #E8F1FA; }
+        [data-theme="dark"] .sub { color: var(--soft); }
+        [data-theme="dark"] .ring-card, [data-theme="dark"] .fam-card, [data-theme="dark"] .wotd-card,
+        [data-theme="dark"] .asg-card, [data-theme="dark"] .ach-card { background: #12283A; border-color: rgba(36,68,88,.85); }
+        [data-theme="dark"] .ring-card h2, [data-theme="dark"] .fam-card h2, [data-theme="dark"] .wotd-card h2,
+        [data-theme="dark"] .asg-card h2, [data-theme="dark"] .ach-card h2 { color: #F1F5F9; }
+        [data-theme="dark"] .ring .bg { stroke: rgba(36,68,88,.85); }
+        [data-theme="dark"] .xp-days span, [data-theme="dark"] .ach { color: var(--soft); }
+        [data-theme="dark"] .asg { border-bottom-color: rgba(36,68,88,.85); }
+        [data-theme="dark"] .continue-card { background: rgba(37,99,235,.14); border-color: rgba(37,99,235,.4); }
+        [data-theme="dark"] .skel { background: #12354D; }
+        [data-theme="dark"] .skel::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); }
+        [data-theme="dark"] .ach span { background: #12354D; }
+        @media (prefers-reduced-motion: reduce) { .ring .fg, .continue-card, .skel::after { transition: none; animation: none; } }
     </style>
 </head>
 <body>
@@ -70,7 +88,7 @@
                     </svg>
                     <div>
                         <div class="ring-num" id="ringNum">— / — XP</div>
-                        <p style="font-size:.72rem;color:#64748B;margin-top:4px" id="ringSub">Finish a lesson to add XP!</p>
+                        <p style="font-size:.72rem;color:var(--muted);margin-top:4px" id="ringSub">Finish a lesson to add XP!</p>
                     </div>
                 </div>
             </section>
@@ -83,8 +101,8 @@
         </div>
 
         <a class="continue-card" id="continueCard" href="learn.html">
-            <h2 style="font-family:'Nunito',sans-serif;font-size:1rem">Continue learning</h2>
-            <p id="contText" style="font-size:.8rem;color:#64748B;margin-top:4px">Finding your next lesson…</p>
+            <h2 style="margin-bottom:10px">Continue learning</h2>
+            <p id="contText" style="font-size:.8rem;color:var(--muted);margin-top:4px">Finding your next lesson…</p>
             <span class="go" id="contGo">Continue →</span>
         </a>
 
@@ -95,7 +113,7 @@
                     <div class="fam-ava">💌</div>
                     <div style="flex:1">
                         <strong style="font-size:.85rem" id="famTitle">Family messages</strong>
-                        <p style="font-size:.7rem;color:#64748B" id="famSub">Check your encouragements</p>
+                        <p style="font-size:.7rem;color:var(--muted)" id="famSub">Check your encouragements</p>
                     </div>
                     <span class="badge-n" id="famBadge" hidden>0</span>
                 </a>
@@ -110,8 +128,8 @@
         <div class="grid2">
             <section class="asg-card">
                 <h2>🗺️ Roadmap</h2>
-                <p style="font-size:.78rem;color:#64748B;margin-bottom:8px">See the whole journey — what's done and what's unlocked next.</p>
-                <a class="go" style="display:inline-flex;background:#2563EB;color:#fff;font-family:'Nunito',sans-serif;font-weight:900;font-size:.8rem;border-radius:999px;padding:9px 16px;text-decoration:none" href="roadmap.html">Open roadmap →</a>
+                <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">See the whole journey — what's done and what's unlocked next.</p>
+                <a class="go" style="font-size:.8rem;padding:9px 16px;margin-top:0" href="roadmap.html">Open roadmap →</a>
             </section>
 
             <section class="asg-card">
@@ -124,7 +142,7 @@
             <section class="wotd-card">
                 <h2>🀄 Word of the day</h2>
                 <div class="wotd-h" id="wH">…</div>
-                <div style="font-size:.72rem;color:#64748B" id="wP">loading</div>
+                <div style="font-size:.72rem;color:var(--muted)" id="wP">loading</div>
                 <p style="font-size:.8rem;margin-top:4px" id="wM"></p>
             </section>
 
@@ -274,7 +292,7 @@
             // Assignments
             var list = document.getElementById("asgList");
             if (!asgs.length) {
-                list.innerHTML = '<p style="font-size:.75rem;color:#64748B">No tasks from your family right now. Keep learning! 🐼</p>';
+                list.innerHTML = '<p style="font-size:.75rem;color:var(--muted)">No tasks from your family right now. Keep learning! 🐼</p>';
             } else {
                 list.innerHTML = asgs.slice(0, 4).map(function (a) {
                     var pend = a.status !== 'completed';
@@ -289,13 +307,13 @@
             var actBox = document.getElementById("actList");
             if (actBox) {
                 if (!acts.length) {
-                    actBox.innerHTML = '<p style="font-size:.75rem;color:#64748B">' + (res[3] && res[3].failed ? 'Activity is unavailable right now — check back soon.' : 'Your learning story starts with the first lesson! 🐼') + '</p>';
+                    actBox.innerHTML = '<p style="font-size:.75rem;color:var(--muted)">' + (res[3] && res[3].failed ? 'Activity is unavailable right now — check back soon.' : 'Your learning story starts with the first lesson! 🐼') + '</p>';
                 } else {
                     var AICON = { lesson: "📚", quiz: "🧠", game: "🎮", achievement: "🏆", streak: "🔥" };
                     actBox.innerHTML = acts.slice(0, 6).map(function (a) {
                         var t = new Date(a.created_at);
                         var when = (Date.now() - t.getTime()) < 86400000 ? t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : t.toLocaleDateString();
-                        return '<div class="asg"><span style="flex:1">' + (AICON[a.activity_type] || "•") + " " + String(a.title || a.detail || a.activity_type).replace(/[<>&]/g, "") + '</span><span style="color:#64748B;white-space:nowrap">' + when + "</span></div>";
+                        return '<div class="asg"><span style="flex:1">' + (AICON[a.activity_type] || "•") + " " + String(a.title || a.detail || a.activity_type).replace(/[<>&]/g, "") + '</span><span style="color:var(--muted);white-space:nowrap">' + when + "</span></div>";
                     }).join("");
                 }
             }
@@ -318,7 +336,7 @@
             var bar = document.createElement("div");
             bar.id = "dashErr";
             bar.style.cssText = "background:#FEF2F2;border:1px solid #FECACA;border-radius:14px;padding:12px 16px;font-size:.82rem;color:#B91C1C;display:flex;align-items:center;gap:12px";
-            bar.innerHTML = "Couldn't load your dashboard. <button id='dashRetry' style='margin-left:auto;background:#B91C1C;color:#fff;border:0;border-radius:999px;padding:7px 14px;font-weight:800;cursor:pointer'>Try again</button>";
+            bar.innerHTML = "Couldn't load your dashboard. <button id='dashRetry' style='margin-left:auto;background:var(--coral);color:#fff;border:0;border-radius:var(--pill);padding:7px 14px;font-weight:800;cursor:pointer'>Try again</button>";
             wrap.prepend(bar);
             document.getElementById("dashRetry").addEventListener("click", function () { location.reload(); });
         });
