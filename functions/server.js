@@ -4949,6 +4949,7 @@ async function ensureLinkTables() {
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_account_links_child ON account_links(child_user_id, status)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_account_links_token ON account_links(token_hash)`);
+  await pool.query(`ALTER TABLE account_links ADD COLUMN IF NOT EXISTS attempts INT NOT NULL DEFAULT 0`).catch(() => {});
   linkTablesReady = true;
 }
 
@@ -5129,6 +5130,17 @@ router.post('/family/link-requests/:linkId/accept', authLimiter, async (req, res
     if (!auth) return;
     await ensureLinkTables();
 
+    // Verification-attempt guard: too many tries on one request locks it.
+    const attemptsRow = await pool.query(
+      `UPDATE account_links SET attempts = COALESCE(attempts, 0) + 1
+        WHERE link_id = $1 AND status = 'pending' AND expires_at > NOW() AND COALESCE(attempts, 0) >= 5
+        RETURNING link_id`,
+      [parseInt(req.params.linkId) || 0]
+    ).catch(() => ({ rows: [] }));
+    if (attemptsRow.rows.length) {
+      return res.status(429).json({ success: false, error: 'Too many attempts. Ask your parent to send a new invitation.' });
+    }
+
     const linkId = parseInt(req.params.linkId);
     if (!Number.isFinite(linkId)) {
       return res.status(400).json({ success: false, error: 'Invalid request id.' });
@@ -5227,6 +5239,133 @@ router.get('/family/link-status/:token', async (req, res) => {
   } catch (error) {
     console.error('link-status error:', error);
     return res.status(500).json({ success: false, error: 'Failed to check link status.' });
+  }
+});
+
+// ── FAMILY CONNECT: the signed-in parent's own sent invitations ──
+router.get('/family/invitations', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    await ensureLinkTables();
+
+    const r = await pool.query(
+      `SELECT link_id, child_email, status, created_at, expires_at, responded_at
+         FROM account_links
+        WHERE parent_user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 20`,
+      [auth.user_id]
+    );
+    return res.json({ success: true, invitations: r.rows });
+  } catch (error) {
+    console.error('family-invitations error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load invitations.' });
+  }
+});
+
+// ── FAMILY CONNECT: parent cancels their own pending invitation ──
+router.post('/family/link-requests/:linkId/cancel', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    await ensureLinkTables();
+
+    const linkId = parseInt(req.params.linkId);
+    if (!Number.isFinite(linkId)) {
+      return res.status(400).json({ success: false, error: 'Invalid request id.' });
+    }
+
+    // Only the inviting parent may cancel, and only while still pending.
+    const r = await pool.query(
+      `UPDATE account_links SET status = 'cancelled', responded_at = NOW()
+        WHERE link_id = $1 AND parent_user_id = $2 AND status = 'pending'
+        RETURNING link_id`,
+      [linkId, auth.user_id]
+    );
+    if (!r.rows.length) {
+      return res.status(404).json({ success: false, error: 'No pending invitation found.' });
+    }
+    console.log(`[family] parent ${auth.user_id} cancelled invitation ${linkId}`);
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('link-cancel error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to cancel the invitation.' });
+  }
+});
+
+// ── FAMILY CONNECT: parent revokes an accepted connection ──
+// The child keeps their account, XP, streak and history untouched — only the
+// parent's visibility into it is removed.
+router.post('/family/unlink/:childUserId', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    await ensureLinkTables();
+
+    const childUserId = parseInt(req.params.childUserId);
+    if (!Number.isFinite(childUserId)) {
+      return res.status(400).json({ success: false, error: 'Invalid child id.' });
+    }
+
+    // The child must currently be linked to THIS parent.
+    const own = await pool.query(
+      `SELECT 1 FROM children c
+        WHERE c.user_id = $1 AND c.parent_id = (SELECT parent_id FROM parents WHERE user_id = $2)`,
+      [childUserId, auth.user_id]
+    );
+    if (!own.rows.length) {
+      return res.status(403).json({ success: false, error: 'This learner is not linked to your account.' });
+    }
+
+    await pool.query('BEGIN');
+    try {
+      // Detach the relationship; learning history is never touched.
+      await pool.query(
+        `UPDATE children SET parent_id = NULL WHERE user_id = $1`,
+        [childUserId]
+      );
+      await pool.query(
+        `UPDATE account_links SET status = 'revoked', responded_at = NOW()
+          WHERE child_user_id = $1 AND status = 'accepted'`,
+        [childUserId]
+      );
+      await pool.query('COMMIT');
+    } catch (txErr) {
+      await pool.query('ROLLBACK');
+      throw txErr;
+    }
+
+    console.log(`[family] parent ${auth.user_id} revoked connection to child ${childUserId}`);
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('family-unlink error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to remove the connection.' });
+  }
+});
+
+// ── MY ACTIVITIES: the signed-in child's own recent activity (token identity) ──
+router.get('/my/activities', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const result = await pool.query(
+      `SELECT activity_id, activity_type, title, detail, created_at
+         FROM child_activities
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 15`,
+      [auth.user_id]
+    );
+    return res.json({ success: true, activities: result.rows });
+  } catch (error) {
+    console.error('my-activities error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load activity.' });
   }
 });
 
