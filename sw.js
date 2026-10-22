@@ -3,7 +3,7 @@
 // Designed for Netlify + Offline Support
 // ============================================================
 
-const CACHE_NAME = 'hanverse-v9';
+const CACHE_NAME = 'hanverse-v11';
 // Lesson content cache survives version bumps so previously studied
 // lessons stay available offline.
 const LESSON_CACHE = 'hanverse-lessons-v1';

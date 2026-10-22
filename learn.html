@@ -128,7 +128,7 @@
     {e:"🧭",t:"One pill for everything",b:"The bar at the bottom is your compass: Home, Learn, Roadmap and Progress. Tap More for Practice, Talk, Parents and settings."},
     {e:"🔥",t:"Keep your streak alive",b:"Lessons give you XP and light your streak. Learn a little every day — the bell up top tells you when something cool happens."}
   ];
-  var i=0,el,parts;
+  var i=0,el,parts,wasPausedByDrawer=false;
   function show(n){
     i=n;
     var s=STEPS[i];
@@ -141,11 +141,29 @@
   }
   function close(done){
     el.hidden=true;
+    wasPausedByDrawer=false;
     document.body.style.overflow="";
     try{localStorage.setItem(KEY,"1")}catch(e){}
   }
+  function pauseByDrawer(){
+    if(el.hidden)return;
+    wasPausedByDrawer=true;
+    el.hidden=true;
+    document.body.style.overflow="";
+  }
+  function resumeFromDrawer(){
+    if(!wasPausedByDrawer)return;
+    wasPausedByDrawer=false;
+    setTimeout(open,300);
+  }
+  document.addEventListener("hanverse:drawer-open",pauseByDrawer);
+  document.addEventListener("hanverse:drawer-close",resumeFromDrawer);
   function open(){
+    /* Don't photobomb an open notification drawer — try again shortly. */
+    var d=document.getElementById("hn-drawer");
+    if(d&&d.classList.contains("open")){setTimeout(open,4000);return;}
     el.hidden=false;
+    wasPausedByDrawer=false;
     document.body.style.overflow="hidden";
     show(0);
     parts.skip.focus();
