@@ -7110,7 +7110,7 @@
                     ? data.leaders.map((l, i) => `
                         <div class="lb-row${l.user_id === id ? ' me' : ''}">
                             <span class="lb-rank">${["🥇", "🥈", "🥉"][i] || `${i + 1}.`}</span>
-                            <span class="lb-name">${l.full_name || l.username || "Learner"}</span>
+                            <span class="lb-name">${l.username || "Learner"}</span>
                             <span class="lb-xp">${l.week_xp} XP</span>
                         </div>`).join("")
                     : `<p style="color:var(--muted);font-size:.8rem">No XP this week yet — be the first!</p>`;

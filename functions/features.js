@@ -661,7 +661,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       }
 
       const rows = (await pool.query(
-        `SELECT u.user_id, u.username, u.full_name, u.profile_picture,
+        `SELECT u.user_id, u.username, u.profile_picture,
                 COALESCE(SUM(x.amount), 0) AS week_xp
          FROM users u
          JOIN xp_logs x ON x.user_id = u.user_id AND x.timestamp >= NOW() - INTERVAL '7 days'

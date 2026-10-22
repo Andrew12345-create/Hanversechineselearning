@@ -6007,7 +6007,7 @@ function renderCommunityLearners(learners){
     const box=$("communityLearners"); if(!box)return;
     const list=Array.isArray(learners)?learners:[];
     if(!list.length){box.innerHTML='<span class="community-empty">No other learners are visible right now.</span>';return;}
-    box.innerHTML=list.slice(0,20).map(l=>{const name=l.username||l.userName||l.name||l.full_name||"Learner";return `<span class="community-learner"><span class="community-learner-dot"></span>${esc(name)}</span>`}).join("");
+    box.innerHTML=list.slice(0,20).map(l=>{const name=l.username||l.userName||"Learner";return `<span class="community-learner"><span class="community-learner-dot"></span>${esc(name)}</span>`}).join("");
 }
 function addCommunityActivity(payload){
     const box=$("communityFeed"); if(!box||!payload)return;

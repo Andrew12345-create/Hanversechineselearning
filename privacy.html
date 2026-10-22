@@ -25,7 +25,7 @@
       <li><strong>Account details:</strong> username, email, password (hashed), full name, age.</li>
       <li><strong>Learning data:</strong> lessons completed, quiz answers, XP, streaks, review-queue words, game scores.</li>
       <li><strong>Payment data:</strong> handled entirely by Stripe. We never see or store card numbers.</li>
-      <li><strong>Panda AI Tutor chats (optional):</strong> if your child chats with Panda, the message text is sent to an AI provider to generate the reply. Chats are kept so the conversation continues across visits, and parents can review recent chats in the Parent Dashboard. Chats are filtered for child-safe topics and are never used to advertise to children.</li>
+      <li><strong>Panda AI Tutor chats (optional):</strong> if your child chats with Panda — including before signing in, from the signup or login pages — the message text is sent to an AI provider to generate each reply. Conversations are held only in temporary server memory (the last 20 messages, to keep context); they are not stored in our database and disappear when the visit ends or the service restarts, so we cannot show parents chat logs. Panda's instructions forbid it from asking for personal details, encouraging children to keep secrets from parents, or discussing unsafe content, and the chat is rate-limited to prevent abuse. Chat content is never used to advertise to children.</li>
       <li><strong>Speech (optional):</strong> in Speak Aloud and pronunciation practice, audio is processed by your browser on your device; we do not store learner audio. Only the pass/fail result of a pronunciation check reaches our servers.</li>
       <li><strong>Technical data:</strong> IP address for rate limiting and security.</li>
     </ul>
@@ -46,7 +46,7 @@
     <p>We do not sell personal information.</p>
 
     <h2>How long we keep data</h2>
-    <p>Account and learning data are kept while the account is active. If an account is unused for 24 months we delete it and its learning data. Panda chats are kept for 12 months, then deleted. If a parent deletes a child's account, the account and learning data are removed from our systems immediately, and from encrypted backups within 30 days.</p>
+    <p>Account and learning data are kept while the account is active. If an account is unused for 24 months we delete it and its learning data. Panda chat text is not persisted at all — it lives only in temporary memory during a visit (see above). If a parent deletes a child's account, the account and learning data are removed from our systems immediately, and from encrypted backups within 30 days.</p>
 
     <h2>Your choices</h2>
     <ul>
