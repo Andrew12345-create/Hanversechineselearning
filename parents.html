@@ -384,6 +384,52 @@
             overflow: hidden;
         }
 
+        /* Getting-started strip under the status card */
+        .hub-steps {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hub-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md, 14px);
+            padding: 16px 18px;
+            text-align: left;
+            box-shadow: var(--shadow-sm, 0 2px 8px rgba(15, 35, 64, 0.05));
+        }
+
+        .hub-step-num {
+            flex-shrink: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            background: var(--primary, #2563EB);
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hub-step strong {
+            display: block;
+            font-size: 0.92rem;
+            margin-bottom: 2px;
+        }
+
+        .hub-step p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--muted, #5D7A9A);
+        }
+
         @keyframes fadeUp {
             from {
                 opacity: 0;
@@ -1090,6 +1136,48 @@
                 </div>
             </div>
         </div>
+
+        <!-- Getting-started strip: fills the hub for parents who are not verified yet -->
+        <div class="hub-steps" aria-label="Getting started">
+            <div class="hub-step">
+                <span class="hub-step-num">1</span>
+                <div>
+                    <strong>Verify your email</strong>
+                    <p>Tap the button above — then check your inbox (and spam folder).</p>
+                </div>
+            </div>
+            <div class="hub-step">
+                <span class="hub-step-num">2</span>
+                <div>
+                    <strong>Add your child</strong>
+                    <p>From the dashboard, create their learner profile in under a minute.</p>
+                </div>
+            </div>
+            <div class="hub-step">
+                <span class="hub-step-num">3</span>
+                <div>
+                    <strong>Watch them grow</strong>
+                    <p>XP, streaks and lesson progress update here in real time.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECONNECT: link a separately-registered child account -->
+        <div class="hub-steps" aria-label="Reconnect" style="margin-top:18px">
+            <div class="hub-step" style="grid-column:1/-1">
+                <span class="hub-step-num">🔗</span>
+                <div style="flex:1">
+                    <strong>Reconnect an existing account</strong>
+                    <p>If your child already made their own HanVerse account, send a link request. They accept in their Family inbox — nothing happens without their yes.</p>
+                    <form id="linkForm" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                        <input type="email" id="linkEmail" placeholder="child@email.com" required aria-label="Child's email"
+                               style="flex:1;min-width:180px;padding:11px 14px;border:1px solid var(--border);border-radius:12px;font-size:.85rem;font-family:inherit">
+                        <button type="submit" id="linkBtn" class="btn btn-s" style="border:0;background:#EFF6FF;color:#1D4ED8">Send request</button>
+                    </form>
+                    <p id="linkMsg" role="status" style="display:none;margin-top:8px;font-size:.78rem;font-weight:700"></p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ===== BOTTOM NAV ===== -->
@@ -1162,6 +1250,40 @@
                 POLL_INTERVAL: 5000, // Check every 5 seconds
                 MAX_POLL_ATTEMPTS: 60, // 5 minutes (60 * 5s = 300s)
             };
+
+            // ── RECONNECT: send a family link request ──
+            (function wireLinkForm() {
+                const form = document.getElementById('linkForm');
+                if (!form) return;
+                const msg = document.getElementById('linkMsg');
+                const btn = document.getElementById('linkBtn');
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const email = document.getElementById('linkEmail').value.trim();
+                    if (!email) return;
+                    msg.style.display = 'none';
+                    btn.disabled = true; btn.textContent = 'Sending…';
+                    try {
+                        const s = JSON.parse(localStorage.getItem('hanverse_user') || 'null');
+                        const r = await fetch(CONFIG.API_URL + '/family/link-request', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (localStorage.getItem('hanverse_token') || '') },
+                            body: JSON.stringify({ email })
+                        });
+                        const d = await r.json();
+                        msg.textContent = d.message || d.error || 'Request sent.';
+                        msg.style.display = 'block';
+                        msg.style.color = r.ok ? '#059669' : '#DC2626';
+                        if (r.ok) form.reset();
+                    } catch (err) {
+                        msg.textContent = 'Network error — please try again.';
+                        msg.style.display = 'block';
+                        msg.style.color = '#DC2626';
+                    } finally {
+                        btn.disabled = false; btn.textContent = 'Send request';
+                    }
+                });
+            })();
 
             // ==========================================
             // STATE

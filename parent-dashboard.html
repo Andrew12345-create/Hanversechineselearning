@@ -76,6 +76,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -118,6 +119,16 @@
         .logo span { color: var(--primary); }
 
         .nav-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        @media (max-width: 480px) {
+            .navbar { height: auto; min-height: 64px; padding: 8px 12px; flex-wrap: wrap; row-gap: 4px; }
+            .logo { font-size: 0.9rem; gap: 8px; min-width: 0; }
+            .logo img { width: 30px; height: 30px; }
+            .logo span { display: block; font-size: 0.72rem; }
+            .nav-actions { gap: 6px; }
+            .nav-actions .btn span { display: none; } /* icons only on small phones */
+            .nav-actions .btn { padding: 8px 10px; }
+        }
 
         /* ============================================
            BUTTONS - LIGHT
@@ -187,6 +198,8 @@
             padding: 0 20px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .tab-btn {
@@ -679,14 +692,15 @@
         }
 
         @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-card { padding: 12px 10px; }
             .stat-card .stat-number { font-size: 1.4rem; }
             .child-card .child-stats { flex-wrap: wrap; gap: 8px; }
             .toast { bottom: 16px; right: 16px; left: 16px; max-width: none; font-size: 0.85rem; }
         }
     </style>
 </head>
-<body>
+<body data-hud="off">
 
     <!-- ========================================== -->
     <!-- NAVBAR with logo                          -->
@@ -830,7 +844,7 @@
             </div>
 
             <!-- ========================================== -->
-            <!-- TAB: ASSIGNMENTS                          -->
+            <!-- TAB: ASSIGNMENTS (DB-backed)               -->
             <!-- ========================================== -->
             <div id="tab-assignments" class="tab-content">
                 <div class="section-header">
@@ -839,33 +853,21 @@
                         <i class="fas fa-plus"></i> New Assignment
                     </button>
                 </div>
-                <div id="assignmentsContainer">
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <h3>No Assignments Yet</h3>
-                        <p>Assign lessons to your children to keep them on track.</p>
-                    </div>
-                </div>
+                <div id="assignmentsContainer"></div>
             </div>
 
             <!-- ========================================== -->
-            <!-- TAB: INSIGHTS                             -->
+            <!-- TAB: INSIGHTS (computed from progress)     -->
             <!-- ========================================== -->
             <div id="tab-insights" class="tab-content">
                 <div class="section-header">
                     <h2><i class="fas fa-lightbulb"></i> Learning Insights</h2>
                 </div>
-                <div id="insightsContainer">
-                    <div class="empty-state">
-                        <div class="empty-icon">🔍</div>
-                        <h3>Loading Insights...</h3>
-                        <p>AI-powered recommendations will appear here.</p>
-                    </div>
-                </div>
+                <div id="insightsContainer"></div>
             </div>
 
             <!-- ========================================== -->
-            <!-- TAB: MESSAGES                             -->
+            <!-- TAB: MESSAGES (DB-backed)                  -->
             <!-- ========================================== -->
             <div id="tab-messages" class="tab-content">
                 <div class="section-header">
@@ -874,13 +876,7 @@
                         <i class="fas fa-pen"></i> New Message
                     </button>
                 </div>
-                <div id="messagesContainer">
-                    <div class="empty-state">
-                        <div class="empty-icon">💬</div>
-                        <h3>No Messages</h3>
-                        <p>Send encouragement or updates to your children.</p>
-                    </div>
-                </div>
+                <div id="messagesContainer"></div>
             </div>
 
         </div>
@@ -935,21 +931,21 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- ASSIGNMENT MODAL                           -->
+    <!-- ASSIGNMENT MODAL (DB-backed)               -->
     <!-- ========================================== -->
     <div class="modal-overlay" id="assignmentModal">
         <div class="modal">
             <h2>📝 New Assignment</h2>
-            <p>Assign a lesson or task to your child.</p>
+            <p>Assign a task for your child to complete.</p>
             <form id="assignmentForm">
                 <label for="assignChild">Select Child *</label>
                 <select id="assignChild" required></select>
 
                 <label for="assignTitle" style="margin-top:12px;">Assignment Title *</label>
-                <input type="text" id="assignTitle" placeholder="e.g., Practice Greetings" required>
+                <input type="text" id="assignTitle" placeholder="e.g., Practice Greetings" maxlength="120" required>
 
                 <label for="assignDescription" style="margin-top:12px;">Description</label>
-                <textarea id="assignDescription" placeholder="What should they practice?"></textarea>
+                <textarea id="assignDescription" placeholder="What should they practice?" maxlength="2000"></textarea>
 
                 <label for="assignDueDate" style="margin-top:12px;">Due Date</label>
                 <input type="date" id="assignDueDate">
@@ -965,7 +961,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- MESSAGE MODAL                              -->
+    <!-- MESSAGE MODAL (DB-backed)                  -->
     <!-- ========================================== -->
     <div class="modal-overlay" id="messageModal">
         <div class="modal">
@@ -976,10 +972,10 @@
                 <select id="msgChild" required></select>
 
                 <label for="msgSubject" style="margin-top:12px;">Subject *</label>
-                <input type="text" id="msgSubject" placeholder="e.g., Great Job!" required>
+                <input type="text" id="msgSubject" placeholder="e.g., Great Job!" maxlength="120" required>
 
                 <label for="msgContent" style="margin-top:12px;">Message *</label>
-                <textarea id="msgContent" placeholder="Write your message here..." required rows="4"></textarea>
+                <textarea id="msgContent" placeholder="Write your message here..." required rows="4" maxlength="4000"></textarea>
 
                 <div id="msgError" style="color:var(--danger);font-size:0.8rem;margin-top:8px;"></div>
 
@@ -1009,6 +1005,29 @@
         const API_URL = '/api';
         const SESSION_KEY = 'hanverse_user';
 
+        // Every dashboard call carries the JWT — the backend rejects
+        // unauthenticated data loads with 401.
+        async function authFetch(path, options = {}) {
+            const token = localStorage.getItem('hanverse_token');
+            const response = await fetch(`${API_URL}${path}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    ...(options.headers || {})
+                }
+            });
+            const data = await response.json().catch(() => ({}));
+            if (response.status === 401) {
+                localStorage.removeItem(SESSION_KEY);
+                localStorage.removeItem('hanverse_token');
+                window.location.href = 'login.html';
+                throw new Error('Session expired — please sign in again.');
+            }
+            if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+            return data;
+        }
+
         // ==========================================
         // STATE
         // ==========================================
@@ -1018,7 +1037,7 @@
             activities: [],
             assignments: [],
             messages: [],
-            insights: [],
+            trend: null,
             currentTab: 'overview',
             selectedChild: null,
         };
@@ -1060,14 +1079,12 @@
             childConfirmPassword: document.getElementById('childConfirmPassword'),
             addChildError: document.getElementById('addChildError'),
             addChildBtn: document.getElementById('addChildBtn'),
-            assignmentModal: document.getElementById('assignmentModal'),
             assignmentForm: document.getElementById('assignmentForm'),
             assignChild: document.getElementById('assignChild'),
             assignTitle: document.getElementById('assignTitle'),
             assignDescription: document.getElementById('assignDescription'),
             assignDueDate: document.getElementById('assignDueDate'),
             assignError: document.getElementById('assignError'),
-            messageModal: document.getElementById('messageModal'),
             messageForm: document.getElementById('messageForm'),
             msgChild: document.getElementById('msgChild'),
             msgSubject: document.getElementById('msgSubject'),
@@ -1141,9 +1158,9 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${tab}`));
             if (tab === 'children') renderChildrenDetail();
-            if (tab === 'assignments') renderAssignments();
-            if (tab === 'insights') renderInsights();
-            if (tab === 'messages') renderMessages();
+            if (tab === 'assignments') loadAssignments();
+            if (tab === 'insights') loadInsights();
+            if (tab === 'messages') loadMessages();
         }
 
         // ==========================================
@@ -1159,7 +1176,7 @@
             }
 
             if (!parentUser.is_verified) {
-                window.location.href = 'parent.html';
+                window.location.href = 'parents.html';
                 return;
             }
 
@@ -1180,23 +1197,21 @@
                 }
 
                 // Fetch children
-                const response = await fetch(`${API_URL}/parents/children/${parentUser.user_id}`);
-                if (!response.ok) throw new Error('Failed to fetch children');
-                const data = await response.json();
+                const data = await authFetch(`/parents/children/${parentUser.user_id}`);
                 state.children = data.children || [];
                 state.parent = parentUser;
 
+                // Fetch week-over-week trend (replaces the old random number)
+                try {
+                    const trendData = await authFetch(`/parents/${parentUser.user_id}/trend`);
+                    state.trend = trendData.trend || null;
+                } catch (e) { state.trend = null; }
+
                 // Fetch activities
                 try {
-                    const actRes = await fetch(`${API_URL}/parents/activity/${parentUser.user_id}`);
-                    if (actRes.ok) {
-                        const actData = await actRes.json();
-                        state.activities = actData.activities || [];
-                    }
+                    const actData = await authFetch(`/parents/activity/${parentUser.user_id}`);
+                    state.activities = actData.activities || [];
                 } catch (e) { state.activities = []; }
-
-                // Load mock assignments, messages, insights for demo
-                loadMockData();
 
                 renderDashboard();
 
@@ -1207,28 +1222,6 @@
             } finally {
                 DOM.loadingState.style.display = 'none';
             }
-        }
-
-        function loadMockData() {
-            // Mock Assignments
-            state.assignments = [
-                { id: 1, childName: 'Emma', title: 'Greetings Practice', description: 'Practice hello, goodbye, and thank you', dueDate: '2026-07-15', status: 'pending' },
-                { id: 2, childName: 'Liam', title: 'Numbers 1-20', description: 'Write numbers 1-20 in Chinese characters', dueDate: '2026-07-10', status: 'completed' },
-                { id: 3, childName: 'Emma', title: 'Family Vocabulary', description: 'Learn family member words', dueDate: '2026-07-20', status: 'pending' },
-            ];
-
-            // Mock Messages
-            state.messages = [
-                { id: 1, childName: 'Emma', subject: 'Great Job!', content: 'You did amazing on your quiz today! Keep it up! 🌟', sentAt: '2026-07-08T10:30:00', read: true },
-                { id: 2, childName: 'Liam', subject: 'Practice Reminder', content: 'Remember to practice your characters for 10 minutes today!', sentAt: '2026-07-07T09:15:00', read: false },
-            ];
-
-            // Mock Insights
-            state.insights = [
-                { child: 'Emma', recommendation: 'Focus on numbers 6-10', reason: 'Struggling with character recognition' },
-                { child: 'Liam', recommendation: 'Review family vocabulary', reason: 'Last practiced 3 days ago' },
-                { child: 'Emma', recommendation: 'Try the "Animals" lesson', reason: 'Shows interest in nature topics' },
-            ];
         }
 
         // ==========================================
@@ -1248,14 +1241,12 @@
             DOM.totalStreak.textContent = totalStreak;
             DOM.totalHours.textContent = totalHours;
             DOM.avgProgress.textContent = avgProg + '%';
-            DOM.lessonTrend.textContent = Math.round(Math.random() * 20 + 5);
+            const t = state.trend;
+            DOM.lessonTrend.textContent = t ? (t.delta >= 0 ? `↑${t.delta}` : `${t.delta}`) : '—';
 
             renderChildren();
             renderActivityFeed();
             renderChildrenDetail();
-            renderAssignments();
-            renderInsights();
-            renderMessages();
             populateChildSelects();
 
             DOM.dashboardContent.style.display = 'block';
@@ -1310,10 +1301,10 @@
                         <button class="btn btn-secondary btn-xs" onclick="viewChildProfile('${child.child_id || child.user_id}')">
                             <i class="fas fa-eye"></i> View
                         </button>
-                        <button class="btn btn-secondary btn-xs" onclick="openMessageModalForChild('${child.child_id || child.user_id}', '${child.full_name}')">
+                        <button class="btn btn-secondary btn-xs" onclick="openMessageModalForChild('${child.user_id}')">
                             <i class="fas fa-comment"></i> Message
                         </button>
-                        <button class="btn btn-secondary btn-xs" onclick="assignForChild('${child.child_id || child.user_id}', '${child.full_name}')">
+                        <button class="btn btn-secondary btn-xs" onclick="assignForChild('${child.user_id}')">
                             <i class="fas fa-tasks"></i> Assign
                         </button>
                     </div>
@@ -1406,97 +1397,9 @@
             }).join('');
         }
 
-        function renderAssignments() {
-            if (!state.assignments || state.assignments.length === 0) {
-                DOM.assignmentsContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <h3>No Assignments Yet</h3>
-                        <p>Assign lessons to your children to keep them on track.</p>
-                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openAssignmentModal()">
-                            <i class="fas fa-plus"></i> Create Assignment
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            DOM.assignmentsContainer.innerHTML = state.assignments.map(a => `
-                <div class="assignment-card">
-                    <div class="assignment-info">
-                        <h4>${a.title}</h4>
-                        <p>${a.description || ''} • <strong>${a.childName}</strong> • Due: ${a.dueDate || 'No due date'}</p>
-                    </div>
-                    <div>
-                        ${getStatusBadge(a.status)}
-                        <button class="btn btn-secondary btn-xs" onclick="markComplete('${a.id}')">
-                            <i class="fas fa-check"></i> Complete
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderInsights() {
-            if (!state.insights || state.insights.length === 0) {
-                DOM.insightsContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🔍</div>
-                        <h3>No Insights Yet</h3>
-                        <p>AI-powered recommendations will appear as your children learn.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            DOM.insightsContainer.innerHTML = state.insights.map(insight => `
-                <div class="recommendation-card">
-                    <div class="rec-icon"><i class="fas fa-lightbulb"></i></div>
-                    <div>
-                        <h4 style="font-size:0.9rem;color:var(--dark);">${insight.child}</h4>
-                        <p style="font-size:0.85rem;color:var(--muted);">${insight.recommendation}</p>
-                        <p style="font-size:0.7rem;color:var(--primary);">${insight.reason}</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderMessages() {
-            if (!state.messages || state.messages.length === 0) {
-                DOM.messagesContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">💬</div>
-                        <h3>No Messages</h3>
-                        <p>Send encouragement or updates to your children.</p>
-                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openMessageModal()">
-                            <i class="fas fa-pen"></i> Send Message
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            DOM.messagesContainer.innerHTML = state.messages.map(m => `
-                <div class="activity-item" style="border-bottom:1px solid var(--border);padding:12px 0;">
-                    <div class="activity-icon message">
-                        <i class="fas fa-comment-dots"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-text"><strong>${m.subject}</strong> • ${m.childName}</div>
-                        <div class="activity-time">${formatDate(m.sentAt)} • ${m.read ? '📖 Read' : '🆕 Unread'}</div>
-                        <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">${m.content}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
         function populateChildSelects() {
-            const options = state.children.map(c => 
-                `<option value="${c.child_id || c.user_id}">${c.full_name}</option>`
-            ).join('');
-
-            DOM.assignChild.innerHTML = `<option value="">Select a child...</option>${options}`;
-            DOM.msgChild.innerHTML = `<option value="">Select a child...</option>${options}`;
+            /* Child selects lived in the removed assignment/message modals;
+               nothing to populate until those features are DB-backed. */
         }
 
         // ==========================================
@@ -1510,25 +1413,6 @@
 
         function viewChildProfile(childId) {
             window.location.href = `child-profile.html?id=${childId}`;
-        }
-
-        function assignForChild(childId, childName) {
-            DOM.assignChild.value = childId;
-            openModal('assignmentModal');
-            showToast(`📝 Creating assignment for ${childName}`, 'info');
-        }
-
-        function openMessageModalForChild(childId, childName) {
-            DOM.msgChild.value = childId;
-            openModal('messageModal');
-            setTimeout(() => DOM.msgSubject.focus(), 300);
-        }
-
-        function markComplete(assignmentId) {
-            showToast('✅ Assignment marked as complete!', 'success');
-            const assignment = state.assignments.find(a => a.id == assignmentId);
-            if (assignment) assignment.status = 'completed';
-            renderAssignments();
         }
 
         // ==========================================
@@ -1615,74 +1499,237 @@
         });
 
         // ==========================================
-        // ASSIGNMENT
+        // ASSIGNMENTS / MESSAGES / INSIGHTS (DB-backed)
         // ==========================================
+        function populateChildSelects() {
+            const options = state.children.map(c =>
+                `<option value="${c.user_id}">${escapeHtml(c.full_name)}</option>`
+            ).join('');
+            DOM.assignChild.innerHTML = `<option value="">Select a child...</option>${options}`;
+            DOM.msgChild.innerHTML = `<option value="">Select a child...</option>${options}`;
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[ch]));
+        }
+
+        async function loadAssignments() {
+            DOM.assignmentsContainer.innerHTML = '<div class="loading-inline">Loading assignments…</div>';
+            try {
+                const data = await authFetch(`/parents/${state.parent.user_id}/assignments`);
+                state.assignments = data.assignments || [];
+                renderAssignments();
+            } catch (e) {
+                DOM.assignmentsContainer.innerHTML = `
+                    <div class="empty-state"><div class="empty-icon">📝</div>
+                    <h3>Couldn't load assignments</h3><p>${escapeHtml(e.message)}</p></div>`;
+            }
+        }
+
+        function renderAssignments() {
+            if (!state.assignments.length) {
+                DOM.assignmentsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>No Assignments Yet</h3>
+                        <p>Assign practice tasks for your children to keep them on track.</p>
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openAssignmentModal()">
+                            <i class="fas fa-plus"></i> Create Assignment
+                        </button>
+                    </div>`;
+                return;
+            }
+            DOM.assignmentsContainer.innerHTML = state.assignments.map(a => `
+                <div class="assignment-card">
+                    <div class="assignment-info">
+                        <h4>${escapeHtml(a.title)}</h4>
+                        <p>${escapeHtml(a.description || '')} • <strong>${escapeHtml(a.child_name)}</strong>
+                        • ${a.status === 'completed' ? 'Completed' : (a.due_date ? `Due: ${a.due_date}` : 'No due date')}</p>
+                    </div>
+                    <div>
+                        ${a.status === 'completed'
+                            ? '<span class="badge badge-success">✅ Done</span>'
+                            : `<button class="btn btn-secondary btn-xs" onclick="markAssignmentComplete(${a.assignment_id})">
+                                 <i class="fas fa-check"></i> Complete</button>`}
+                    </div>
+                </div>`).join('');
+        }
+
+        async function markAssignmentComplete(assignmentId) {
+            try {
+                await authFetch(`/assignments/${assignmentId}/complete`, { method: 'POST' });
+                showToast('✅ Assignment marked as complete!', 'success');
+                await loadAssignments();
+            } catch (e) {
+                showToast(e.message || 'Failed to update assignment', 'error');
+            }
+        }
+
+        async function loadMessages() {
+            DOM.messagesContainer.innerHTML = '<div class="loading-inline">Loading messages…</div>';
+            try {
+                const data = await authFetch(`/parents/${state.parent.user_id}/messages`);
+                state.messages = data.messages || [];
+                renderMessages();
+            } catch (e) {
+                DOM.messagesContainer.innerHTML = `
+                    <div class="empty-state"><div class="empty-icon">💬</div>
+                    <h3>Couldn't load messages</h3><p>${escapeHtml(e.message)}</p></div>`;
+            }
+        }
+
+        function renderMessages() {
+            if (!state.messages.length) {
+                DOM.messagesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">💬</div>
+                        <h3>No Messages</h3>
+                        <p>Send encouragement or updates to your children.</p>
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openMessageModal()">
+                            <i class="fas fa-pen"></i> Send Message
+                        </button>
+                    </div>`;
+                return;
+            }
+            DOM.messagesContainer.innerHTML = state.messages.map(m => `
+                <div class="activity-item" style="border-bottom:1px solid var(--border);padding:12px 0;">
+                    <div class="activity-icon message"><i class="fas fa-comment-dots"></i></div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>${escapeHtml(m.subject)}</strong> • ${escapeHtml(m.child_name)}</div>
+                        <div class="activity-time">${formatDate(m.created_at)} • ${m.is_read ? '📖 Read' : '🆕 Unread'}</div>
+                        <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">${escapeHtml(m.content)}</div>
+                    </div>
+                </div>`).join('');
+        }
+
+        async function loadInsights() {
+            DOM.insightsContainer.innerHTML = '<div class="loading-inline">Analyzing progress…</div>';
+            try {
+                const data = await authFetch(`/parents/${state.parent.user_id}/insights`);
+                renderInsights(data.insights || []);
+            } catch (e) {
+                DOM.insightsContainer.innerHTML = `
+                    <div class="empty-state"><div class="empty-icon">🔍</div>
+                    <h3>Couldn't load insights</h3><p>${escapeHtml(e.message)}</p></div>`;
+            }
+        }
+
+        function renderInsights(rows) {
+            if (!rows.length) {
+                DOM.insightsContainer.innerHTML = `
+                    <div class="empty-state"><div class="empty-icon">🔍</div>
+                    <h3>No Insights Yet</h3>
+                    <p>Insights appear once your children start completing lessons.</p></div>`;
+                return;
+            }
+            DOM.insightsContainer.innerHTML = rows.map(r => {
+                const items = [];
+                if (r.last_completed_at) {
+                    const days = Math.floor((Date.now() - new Date(r.last_completed_at)) / 86400000);
+                    items.push(days === 0 ? 'Practiced today ✨'
+                        : days === 1 ? 'Last practiced yesterday'
+                        : `Last practiced ${days} days ago`);
+                } else {
+                    items.push('No completed lessons yet — start with a short one!');
+                }
+                if (r.avg_quiz_30d != null) items.push(`Avg quiz score (30d): ${r.avg_quiz_30d}%`);
+                if (r.weakest_lesson) items.push(`Worth reviewing: lesson ${escapeHtml(String(r.weakest_lesson))}`);
+                if (r.lessons_7d != null && r.lessons_prev_7d != null) {
+                    const d = r.lessons_7d - r.lessons_prev_7d;
+                    items.push(d >= 0 ? `Lessons up ${d} this week 📈` : `Lessons down ${-d} this week 📉`);
+                }
+                return `
+                    <div class="recommendation-card">
+                        <div class="rec-icon"><i class="fas fa-lightbulb"></i></div>
+                        <div>
+                            <h4 style="font-size:0.9rem;color:var(--dark);">${escapeHtml(r.child_name)}</h4>
+                            ${items.map(i => `<p style="font-size:0.85rem;color:var(--muted);">${i}</p>`).join('')}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
         function openAssignmentModal() {
+            if (!state.children.length) { showToast('Add a child first to assign tasks.', 'info'); return; }
+            populateChildSelects();
             DOM.assignmentForm.reset();
             DOM.assignError.textContent = '';
             openModal('assignmentModal');
         }
 
-        DOM.assignmentForm.addEventListener('submit', function(e) {
+        function openMessageModalForChild(childUserId) {
+            if (!state.children.length) { showToast('Add a child first to send messages.', 'info'); return; }
+            populateChildSelects();
+            DOM.messageForm.reset();
+            DOM.msgError.textContent = '';
+            DOM.msgChild.value = String(childUserId);
+            openModal('messageModal');
+            setTimeout(() => DOM.msgSubject.focus(), 300);
+        }
+
+        function assignForChild(childUserId) {
+            if (!state.children.length) { showToast('Add a child first to assign tasks.', 'info'); return; }
+            populateChildSelects();
+            DOM.assignmentForm.reset();
+            DOM.assignError.textContent = '';
+            DOM.assignChild.value = String(childUserId);
+            openModal('assignmentModal');
+        }
+
+        DOM.assignmentForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const childId = DOM.assignChild.value;
             const title = DOM.assignTitle.value.trim();
-            const description = DOM.assignDescription.value.trim();
-            const dueDate = DOM.assignDueDate.value;
-
             if (!childId) { DOM.assignError.textContent = 'Please select a child.'; return; }
             if (!title) { DOM.assignError.textContent = 'Please enter a title.'; return; }
-
-            const child = state.children.find(c => (c.child_id || c.user_id) == childId);
-            state.assignments.push({
-                id: Date.now(),
-                childName: child ? child.full_name : 'Child',
-                title: title,
-                description: description,
-                dueDate: dueDate || 'No due date',
-                status: 'pending'
-            });
-
-            closeModal('assignmentModal');
-            showToast(`✅ "${title}" assigned successfully!`, 'success');
-            renderAssignments();
-            DOM.assignmentForm.reset();
+            try {
+                await authFetch(`/parents/${state.parent.user_id}/assignments`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        child_user_id: Number(childId),
+                        title,
+                        description: DOM.assignDescription.value.trim(),
+                        due_date: DOM.assignDueDate.value || null
+                    })
+                });
+                closeModal('assignmentModal');
+                showToast(`✅ "${title}" assigned!`, 'success');
+                if (state.currentTab === 'assignments') await loadAssignments();
+            } catch (e2) {
+                DOM.assignError.textContent = e2.message || 'Failed to create assignment.';
+            }
         });
 
-        // ==========================================
-        // MESSAGE
-        // ==========================================
         function openMessageModal() {
+            if (!state.children.length) { showToast('Add a child first to send messages.', 'info'); return; }
+            populateChildSelects();
             DOM.messageForm.reset();
             DOM.msgError.textContent = '';
             openModal('messageModal');
             setTimeout(() => DOM.msgSubject.focus(), 300);
         }
 
-        DOM.messageForm.addEventListener('submit', function(e) {
+        DOM.messageForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const childId = DOM.msgChild.value;
             const subject = DOM.msgSubject.value.trim();
             const content = DOM.msgContent.value.trim();
-
             if (!childId) { DOM.msgError.textContent = 'Please select a child.'; return; }
             if (!subject) { DOM.msgError.textContent = 'Please enter a subject.'; return; }
             if (!content) { DOM.msgError.textContent = 'Please enter a message.'; return; }
-
-            const child = state.children.find(c => (c.child_id || c.user_id) == childId);
-            state.messages.push({
-                id: Date.now(),
-                childName: child ? child.full_name : 'Child',
-                subject: subject,
-                content: content,
-                sentAt: new Date().toISOString(),
-                read: false
-            });
-
-            closeModal('messageModal');
-            showToast(`💬 Message sent to ${child ? child.full_name : 'Child'}!`, 'success');
-            renderMessages();
-            DOM.messageForm.reset();
+            try {
+                await authFetch(`/parents/${state.parent.user_id}/messages`, {
+                    method: 'POST',
+                    body: JSON.stringify({ child_user_id: Number(childId), subject, content })
+                });
+                closeModal('messageModal');
+                showToast('💬 Message sent!', 'success');
+                if (state.currentTab === 'messages') await loadMessages();
+            } catch (e2) {
+                DOM.msgError.textContent = e2.message || 'Failed to send message.';
+            }
         });
 
         // ==========================================
@@ -1723,7 +1770,7 @@
             }
 
             if (!parentUser.is_verified) {
-                window.location.href = 'parent.html';
+                window.location.href = 'parents.html';
                 return;
             }
 
@@ -1732,5 +1779,8 @@
     </script>
 <div id="app-footer"></div>
 <script src="shared-nav.js"></script>
+<script src="nav-user.js"></script>
+<script src="notifications-client.js"></script>
+<script src="bottom-nav.js"></script>
 </body>
 </html>

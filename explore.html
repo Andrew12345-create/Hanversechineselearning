@@ -723,6 +723,18 @@
       margin-bottom: 10px;
     }
 
+    .state-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .state-suggest {
+      pointer-events: auto;
+    }
+
     .state h3 {
       margin: 0 0 7px;
 
@@ -1890,6 +1902,15 @@
 
       if (!filtered.length) {
 
+        const suggestions = [...new Map(
+          allItems.map(item => {
+            const s = item.category_slug || slugify(item.category || item.category_name || "");
+            return [s, { slug: s, name: item.category || item.category_name || s, icon: (item.category_icon || "🌏") }];
+          })
+        ).entries()]
+          .filter(([slug]) => slug && slug !== activeCategory)
+          .slice(0, 4);
+
         area.innerHTML = `
 
           <div class="state">
@@ -1899,16 +1920,31 @@
             </div>
 
             <h3>
-              No discoveries yet
+              No discoveries here yet
             </h3>
 
             <p>
-              Try another category or search.
+              Try one of these instead:
             </p>
+
+            <div class="state-suggestions">
+              ${suggestions.map(([slug, c]) => `
+                <button type="button" class="category-btn state-suggest" data-suggest="${escapeHtml(slug)}">
+                  ${escapeHtml(c.icon)} ${escapeHtml(c.name)}
+                </button>`).join("")}
+            </div>
 
           </div>
 
         `;
+
+        area.querySelectorAll("[data-suggest]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            activeCategory = btn.getAttribute("data-suggest");
+            updateCategoryButtons();
+            render();
+          });
+        });
 
         return;
 
