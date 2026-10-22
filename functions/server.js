@@ -1227,10 +1227,10 @@ router.post('/signup', authLimiter, async (req, res) => {
     const cleanPassword = String(password);
     const userRole = role === 'parent' ? 'parent' : 'student';
 
-    if (cleanPassword.length < 6) {
+    if (cleanPassword.length < 8) {
       return res.status(400).json({
         success: false,
-        error: 'Password must be at least 6 characters.'
+        error: 'Password must be at least 8 characters.'
       });
     }
 
@@ -2047,10 +2047,10 @@ router.post('/reset-password', async (req, res) => {
       });
     }
 
-    if (String(newPassword).length < 6) {
+    if (String(newPassword).length < 8) {
       return res.status(400).json({ 
         success: false, 
-        error: 'The new password must contain at least 6 characters.' 
+        error: 'The new password must contain at least 8 characters.' 
       });
     }
 
@@ -2488,8 +2488,8 @@ router.post('/parents/children', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Username can only contain letters, numbers, and underscores.' });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ success: false, error: 'Password must be at least 6 characters.' });
+    if (password.length < 8) {
+      return res.status(400).json({ success: false, error: 'Password must be at least 8 characters.' });
     }
 
     const cleanUsername = username.trim().toLowerCase();
@@ -5056,22 +5056,70 @@ router.post('/family/link-request', authLimiter, async (req, res) => {
     const expires = new Date(Date.now() + 24 * 3600 * 1000);
 
     const childUser = await pool.query(
-      `SELECT user_id, full_name FROM users WHERE lower(email) = $1 AND role = 'child' AND is_banned = false LIMIT 1`,
+      `SELECT user_id, full_name, age FROM users WHERE lower(email) = $1 AND role = 'child' AND is_banned = false LIMIT 1`,
       [email]
     );
 
+    // Under-13 child accounts: the parent's request stands (with a notice to
+    // the child) instead of requiring a young child to accept their own
+    // parent's oversight. 13+ children must accept/decline themselves.
+    const childIsUnder13 =
+      childUser.rows.length &&
+      Number(childUser.rows[0].age || 99) < 13;
+
     const insert = await pool.query(
-      `INSERT INTO account_links (parent_user_id, child_user_id, child_email, token_hash, status, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING link_id`,
-      [auth.user_id, childUser.rows[0]?.user_id || null, email, tokenHash, childUser.rows.length ? 'pending' : 'invited', expires]
+      `INSERT INTO account_links (parent_user_id, child_user_id, child_email, token_hash, status, expires_at, responded_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING link_id`,
+      [
+        auth.user_id,
+        childUser.rows[0]?.user_id || null,
+        email,
+        tokenHash,
+        childUser.rows.length ? (childIsUnder13 ? 'accepted' : 'pending') : 'invited',
+        expires,
+        childUser.rows.length && childIsUnder13 ? new Date() : null
+      ]
     );
     const linkId = insert.rows[0].link_id;
+
+    if (childIsUnder13) {
+      // Perform the real link immediately (same steps as the accept endpoint).
+      let pr2 = await pool.query(`SELECT parent_id FROM parents WHERE user_id = $1`, [auth.user_id]);
+      let parentId2 = pr2.rows[0]?.parent_id;
+      if (!parentId2) {
+        const ins2 = await pool.query(`INSERT INTO parents (user_id) VALUES ($1) RETURNING parent_id`, [auth.user_id]);
+        parentId2 = ins2.rows[0].parent_id;
+      }
+      const cr2 = await pool.query(`SELECT child_id FROM children WHERE user_id = $1`, [childUser.rows[0].user_id]);
+      if (cr2.rows[0]?.child_id) {
+        await pool.query(`UPDATE children SET parent_id = $1 WHERE child_id = $2`, [parentId2, cr2.rows[0].child_id]);
+      } else {
+        await pool.query(
+          `INSERT INTO children (user_id, parent_id, full_name) VALUES ($1, $2, $3)`,
+          [childUser.rows[0].user_id, parentId2, childUser.rows[0].full_name || 'Learner']
+        );
+      }
+      try {
+        await pool.query(
+          `INSERT INTO parent_messages (parent_user_id, child_user_id, subject, content, is_read)
+           VALUES ($1, $2, $3, $4, false)`,
+          [
+            auth.user_id,
+            childUser.rows[0].user_id,
+            'Your family connected your account',
+            `Hi ${childUser.rows[0].full_name || 'there'}! Your parent or guardian connected this account to theirs so they can follow your learning and send you encouragement. Have fun! — HanVerse`
+          ]
+        );
+      } catch (msgErr) {
+        console.warn('under-13 link notice message failed (non-fatal):', msgErr.message);
+      }
+    }
 
     const parentName = auth.full_name || auth.username || 'Your family';
     const appUrl = `${req.protocol}://${req.get('host')}`;
     const acceptUrl = `${appUrl}/parents.html?link_token=${encodeURIComponent(token)}`;
     const subject = childUser.rows.length
-      ? `${parentName} wants to connect with you on HanVerse`
+      ? (childIsUnder13 ? `${parentName} connected with your HanVerse account` : `${parentName} wants to connect with you on HanVerse`)
       : `You're invited to join ${parentName}'s family on HanVerse`;
 
     try {
@@ -5081,7 +5129,9 @@ router.post('/family/link-request', authLimiter, async (req, res) => {
         html: getInviteEmailHTML({
           inviterName: parentName,
           customMessage: childUser.rows.length
-            ? 'Open HanVerse to accept or decline this family link. You stay in control of your account.'
+            ? (childIsUnder13
+              ? 'Your family is now connected — they can follow your progress and send you encouragement.'
+              : 'Open HanVerse to accept or decline this family link. You stay in control of your account.')
             : 'Create your account, then this link activates automatically — your family can follow your progress.',
           signupLink: acceptUrl
         })
@@ -6154,6 +6204,8 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     }
 
     const valid = await bcrypt.compare(adminPassword, user.password_hash);
+
+    console.log(`[admin-audit] ${new Date().toISOString()} verify-password user=${user.user_id} ip=${req.ip || 'unknown'} result=${valid ? 'ok' : 'fail'}`);
 
     if (!valid) {
       return res.status(401).json({
