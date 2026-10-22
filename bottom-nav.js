@@ -54,8 +54,10 @@
       (paths[name] || '') + '</svg>';
   }
 
+  var loggedIn = false;
+  try { loggedIn = !!localStorage.getItem('hanverse_user'); } catch (e) {}
   var tabs = [
-    { href: 'index.html', label: 'Home', icon: 'home' },
+    { href: loggedIn ? 'dashboard.html' : 'index.html', label: 'Home', icon: 'home' },
     { href: 'learn.html', label: 'Learn', icon: 'learn' },
     { href: 'roadmap.html', label: 'Roadmap', icon: 'roadmap' },
     { href: 'profile.html', label: 'Progress', icon: 'progress' }
@@ -141,7 +143,7 @@
     hud.className = 'hud';
     hud.id = 'hud';
     hud.innerHTML =
-      '<a class="hud-brand" href="index.html" aria-label="HanVerse home">' +
+      '<a class="hud-brand" href="' + (localStorage.getItem('hanverse_user') ? 'dashboard.html' : 'index.html') + '" aria-label="HanVerse home">' +
         '<img src="Hanverse-logo2.png" alt="" width="30" height="30">HanVerse</a>' +
       '<div class="hud-stats">' + streak + xp + level +
         '<span class="hud-bell-slot" id="hud-bell-slot"></span></div>';

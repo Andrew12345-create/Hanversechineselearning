@@ -6,6 +6,24 @@
 <meta name="theme-color" content="#2563EB">
 <meta name="description" content="HanVerse — A Mandarin adventure for children. Learn Chinese through stories, games and Panda.">
 <title>HanVerse | Learn Chinese. One Adventure at a Time.</title>
+<script>
+/* Signed-in users skip the marketing page: parents go to their hub, kids to the dashboard. */
+(function () {
+  var keys = ["hanverse_user", "hanverseUser", "hanverse_session", "hanverseSession", "user", "currentUser", "authUser"];
+  for (var i = 0; i < keys.length; i++) {
+    try {
+      var raw = localStorage.getItem(keys[i]);
+      if (!raw) continue;
+      var u = JSON.parse(raw);
+      if (u && u.user) u = u.user;
+      if (u && (u.user_id || u.userId || u.id)) {
+        location.replace(String(u.role || '').toLowerCase() === 'parent' ? 'parent-dashboard.html' : 'dashboard.html');
+        return;
+      }
+    } catch (e) {}
+  }
+})();
+</script>
 <meta name="description" content="A Mandarin adventure for children. Learn Chinese through stories, games and HanPan the panda. Free to start.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="HanVerse">
