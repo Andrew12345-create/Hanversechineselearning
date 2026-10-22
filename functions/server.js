@@ -2385,6 +2385,74 @@ router.get('/parents/child/:childId', async (req, res) => {
   }
 });
 
+// CHILD TREND (XP per day, real user_progress rows) — parent-only
+router.get('/parents/child/:childId/trend', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const childId = parseInt(req.params.childId);
+    if (!Number.isFinite(childId) || childId <= 0) {
+      return res.status(400).json({ success: false, error: 'Invalid child id.' });
+    }
+
+    // Ownership: the child row must belong to a parents row owned by this user.
+    const own = await pool.query(
+      `SELECT c.child_id, u.full_name, u.xp, u.streak_days, u.current_yct, u.level,
+              c.last_active, c.days_active
+         FROM children c
+         JOIN parents p ON c.parent_id = p.parent_id
+         LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.child_id = $1 AND p.user_id = $2`,
+      [childId, auth.user_id]
+    );
+
+    if (!own.rows.length) {
+      return res.status(403).json({ success: false, error: 'Not your child.' });
+    }
+
+    const child = own.rows[0];
+
+    // Real daily XP from user_progress (xp_earned per completion day).
+    const days = Math.min(90, Math.max(7, parseInt(req.query.days) || 14));
+    const trend = await pool.query(
+      `SELECT to_char(date_trunc('day', up.completed_at), 'YYYY-MM-DD') AS day,
+              COALESCE(SUM(up.xp_earned), 0) AS xp,
+              COUNT(*) AS lessons
+         FROM user_progress up
+        WHERE up.user_id = (
+                SELECT user_id FROM children WHERE child_id = $1
+              )
+          AND up.completed_at >= NOW() - ($2 || ' days')::interval
+        GROUP BY date_trunc('day', up.completed_at)
+        ORDER BY date_trunc('day', up.completed_at)`,
+      [childId, String(days)]
+    );
+
+    return res.json({
+      success: true,
+      trend: trend.rows,
+      child: {
+        full_name: child.full_name,
+        xp: child.xp || 0,
+        streak_days: child.streak_days || 0,
+        current_yct: child.current_yct || 1,
+        level: child.level || 1,
+        last_active: child.last_active,
+        days_active: child.days_active || 0
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching child trend:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch child trend.'
+    });
+  }
+});
+
 // ADD CHILD
 router.post('/parents/children', async (req, res) => {
   try {
@@ -4811,6 +4879,747 @@ router.post('/notifications/:userId/:notificationId/read', async (req, res) => {
   } catch (error) {
     console.error('❌ Mark read error:', error);
     return res.status(500).json({ success: false, error: 'Failed to update notification' });
+  }
+});
+
+/* ==========================================
+  PARENT ASSIGNMENTS / MESSAGES / INSIGHTS 📚
+  DB-backed replacements for the old demo-only
+  parent features. Children are linked through
+  the children table (children.parent_id ->
+  parents.parent_id), never trusted from input.
+  ========================================== */
+
+const parentWriteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many requests — please slow down.' }
+});
+
+let parentTablesReady = false;
+async function ensureParentTables() {
+  if (parentTablesReady) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS parent_assignments (
+      assignment_id SERIAL PRIMARY KEY,
+      parent_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+      child_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+      title VARCHAR(120) NOT NULL,
+      description TEXT,
+      due_date DATE,
+      status VARCHAR(12) DEFAULT 'pending' CHECK (status IN ('pending','completed')),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      completed_at TIMESTAMP
+    )
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_parent_assignments_parent ON parent_assignments(parent_user_id, status)`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS parent_messages (
+      message_id SERIAL PRIMARY KEY,
+      parent_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+      child_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+      subject VARCHAR(120) NOT NULL,
+      content TEXT NOT NULL,
+      is_read BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_parent_messages_child ON parent_messages(child_user_id, created_at DESC)`);
+  parentTablesReady = true;
+}
+
+// ── Account linking: parent ↔ separately-registered child, two-sided consent ──
+let linkTablesReady = false;
+async function ensureLinkTables() {
+  if (linkTablesReady) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS account_links (
+      link_id SERIAL PRIMARY KEY,
+      parent_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+      child_user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+      child_email VARCHAR(255) NOT NULL,
+      token_hash VARCHAR(64) NOT NULL,
+      status VARCHAR(16) NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      responded_at TIMESTAMP,
+      expires_at TIMESTAMP NOT NULL
+    )
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_account_links_child ON account_links(child_user_id, status)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_account_links_token ON account_links(token_hash)`);
+  linkTablesReady = true;
+}
+
+function sha256(s) {
+  return crypto.createHash('sha256').update(String(s)).digest('hex');
+}
+
+// ── MY PROGRESS: the signed-in learner's own user_progress rows (token identity) ──
+router.get('/my/progress', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const r = await pool.query(
+      `SELECT lesson_id, course_type, course_level, completed, score,
+              xp_earned, time_spent, completed_at
+         FROM user_progress
+        WHERE user_id = $1
+        ORDER BY completed_at DESC NULLS LAST
+        LIMIT 400`,
+      [auth.user_id]
+    );
+
+    return res.json({ success: true, progress: r.rows });
+  } catch (error) {
+    console.error('my-progress error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load progress.' });
+  }
+});
+
+// ── MY ASSIGNMENTS: assignments set for the signed-in child (token identity) ──
+router.get('/my/assignments', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const r = await pool.query(
+      `SELECT assignment_id, title, description, due_date, status, created_at, completed_at
+         FROM parent_assignments
+        WHERE child_user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 50`,
+      [auth.user_id]
+    );
+
+    return res.json({ success: true, assignments: r.rows });
+  } catch (error) {
+    console.error('my-assignments error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load assignments.' });
+  }
+});
+
+
+// ── RECONNECT: request a link to a separately-registered child account ──
+// Parent submits child's email. If that email belongs to a registered child
+// user, the CHILD gets an in-app Family request they must accept (plus an
+// email). Otherwise a tokenized invite email goes out. Responses share one
+// generic message so the endpoint never reveals whether an email exists.
+router.post('/family/link-request', authLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    await ensureLinkTables();
+
+    const role = String(auth.role || '').toLowerCase();
+    if (role !== 'parent') {
+      return res.status(403).json({ success: false, error: 'Only parent accounts can send link requests.' });
+    }
+
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    if (!/^[\w.+-]+@[\w-]+\.[\w.-]+$/.test(email)) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+    }
+
+    // Anti-harassment: if the child declined this parent recently, stay quiet for 7 days.
+    const recent = await pool.query(
+      `SELECT 1 FROM account_links
+        WHERE parent_user_id = $1 AND child_email = $2
+          AND status = 'declined'
+          AND responded_at > NOW() - interval '7 days'
+        LIMIT 1`,
+      [auth.user_id, email]
+    );
+    if (recent.rows.length) {
+      return res.status(429).json({ success: false, error: 'This address recently declined a link request. Please try again later.' });
+    }
+
+    // No duplicate pending requests.
+    const pending = await pool.query(
+      `SELECT 1 FROM account_links
+        WHERE parent_user_id = $1 AND child_email = $2 AND status = 'pending' AND expires_at > NOW()
+        LIMIT 1`,
+      [auth.user_id, email]
+    );
+    if (pending.rows.length) {
+      return res.json({ success: true, delivered: 'pending-exists', message: 'A request is already waiting for a response.' });
+    }
+
+    const token = generateSecureToken(32);
+    const tokenHash = sha256(token);
+    const expires = new Date(Date.now() + 24 * 3600 * 1000);
+
+    const childUser = await pool.query(
+      `SELECT user_id, full_name FROM users WHERE lower(email) = $1 AND role = 'child' AND is_banned = false LIMIT 1`,
+      [email]
+    );
+
+    const insert = await pool.query(
+      `INSERT INTO account_links (parent_user_id, child_user_id, child_email, token_hash, status, expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING link_id`,
+      [auth.user_id, childUser.rows[0]?.user_id || null, email, tokenHash, childUser.rows.length ? 'pending' : 'invited', expires]
+    );
+    const linkId = insert.rows[0].link_id;
+
+    const parentName = auth.full_name || auth.username || 'Your family';
+    const appUrl = `${req.protocol}://${req.get('host')}`;
+    const acceptUrl = `${appUrl}/parents.html?link_token=${encodeURIComponent(token)}`;
+    const subject = childUser.rows.length
+      ? `${parentName} wants to connect with you on HanVerse`
+      : `You're invited to join ${parentName}'s family on HanVerse`;
+
+    try {
+      await sendEmail({
+        to: email,
+        subject,
+        html: getInviteEmailHTML({
+          inviterName: parentName,
+          customMessage: childUser.rows.length
+            ? 'Open HanVerse to accept or decline this family link. You stay in control of your account.'
+            : 'Create your account, then this link activates automatically — your family can follow your progress.',
+          signupLink: acceptUrl
+        })
+      });
+    } catch (mailErr) {
+      console.error('link-request email error:', mailErr);
+    }
+
+    // Same generic response either way — no account enumeration.
+    return res.json({ success: true, delivered: 'email', message: 'If that address can be linked, a request has been sent. It expires in 24 hours.' });
+  } catch (error) {
+    console.error('link-request error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to send link request.' });
+  }
+});
+
+// Child's pending family link requests (in-app accept/decline).
+router.get('/family/link-requests', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    await ensureLinkTables();
+
+    const r = await pool.query(
+      `SELECT al.link_id, al.created_at, al.expires_at, u.full_name AS parent_name
+         FROM account_links al
+         JOIN users u ON u.user_id = al.parent_user_id
+        WHERE al.child_user_id = $1 AND al.status = 'pending' AND al.expires_at > NOW()
+        ORDER BY al.created_at DESC`,
+      [auth.user_id]
+    );
+
+    return res.json({ success: true, requests: r.rows });
+  } catch (error) {
+    console.error('link-requests error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load link requests.' });
+  }
+});
+
+// Child accepts → real family row created, welcome message posted.
+router.post('/family/link-requests/:linkId/accept', authLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    await ensureLinkTables();
+
+    const linkId = parseInt(req.params.linkId);
+    if (!Number.isFinite(linkId)) {
+      return res.status(400).json({ success: false, error: 'Invalid request id.' });
+    }
+
+    // Atomically claim the pending request so double-clicks can't double-link.
+    const claim = await pool.query(
+      `UPDATE account_links
+          SET status = 'accepted', responded_at = NOW()
+        WHERE link_id = $1 AND child_user_id = $2 AND status = 'pending' AND expires_at > NOW()
+        RETURNING parent_user_id`,
+      [linkId, auth.user_id]
+    );
+    if (!claim.rows.length) {
+      return res.status(404).json({ success: false, error: 'This request is no longer pending.' });
+    }
+    const parentUserId = claim.rows[0].parent_user_id;
+
+    // parents row for the linking parent; create if absent.
+    let pr = await pool.query(`SELECT parent_id FROM parents WHERE user_id = $1`, [parentUserId]);
+    let parentId = pr.rows[0]?.parent_id;
+    if (!parentId) {
+      const ins = await pool.query(`INSERT INTO parents (user_id) VALUES ($1) RETURNING parent_id`, [parentUserId]);
+      parentId = ins.rows[0].parent_id;
+    }
+
+    // The child side: children row for this user; create if absent.
+    let cr = await pool.query(`SELECT child_id FROM children WHERE user_id = $1`, [auth.user_id]);
+    let childId = cr.rows[0]?.child_id;
+    if (!childId) {
+      const ins = await pool.query(
+        `INSERT INTO children (user_id, parent_id, full_name) VALUES ($1, $2, $3) RETURNING child_id`,
+        [auth.user_id, parentId, auth.full_name || auth.username || 'Child']
+      );
+      childId = ins.rows[0].child_id;
+    } else {
+      await pool.query(`UPDATE children SET parent_id = $2 WHERE child_id = $1`, [childId, parentId]);
+    }
+
+    // Welcome message so the Family inbox has something warm in it.
+    await pool.query(
+      `INSERT INTO parent_messages (parent_user_id, child_user_id, subject, content)
+       VALUES ($1, $2, $3, $4)`,
+      [parentUserId, auth.user_id,
+       'We\u2019re connected now! \uD83D\uDC9A',
+       'Welcome to the family zone. I can see your progress and cheer you on \u2014 have fun learning!']
+    );
+    await pool.query(
+      `INSERT INTO notifications (user_id, title, message, type) VALUES ($1, $2, $3, $4)`,
+      [auth.user_id, 'Family linked \uD83D\uDC9A', 'You are now connected with your parent\u2019s account.', 'system']
+    );
+
+    return res.json({ success: true, message: 'Family linked! Check your Family messages.' });
+  } catch (error) {
+    console.error('link-accept error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to accept link request.' });
+  }
+});
+
+// Child declines → 7-day cooldown is enforced on the parent's next request.
+router.post('/family/link-requests/:linkId/decline', authLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    await ensureLinkTables();
+
+    const r = await pool.query(
+      `UPDATE account_links
+          SET status = 'declined', responded_at = NOW()
+        WHERE link_id = $1 AND child_user_id = $2 AND status = 'pending' AND expires_at > NOW()
+        RETURNING link_id`,
+      [parseInt(req.params.linkId) || 0, auth.user_id]
+    );
+    if (!r.rows.length) {
+      return res.status(404).json({ success: false, error: 'This request is no longer pending.' });
+    }
+    return res.json({ success: true, message: 'Declined. No one was notified.' });
+  } catch (error) {
+    console.error('link-decline error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to decline request.' });
+  }
+});
+
+// Email token → check status (used by the parents.html success state).
+router.get('/family/link-status/:token', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    await ensureLinkTables();
+    const r = await pool.query(
+      `SELECT status FROM account_links WHERE token_hash = $1 LIMIT 1`,
+      [sha256(String(req.params.token || ''))]
+    );
+    if (!r.rows.length) return res.status(404).json({ success: false, error: 'Unknown link token.' });
+    return res.json({ success: true, status: r.rows[0].status });
+  } catch (error) {
+    console.error('link-status error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to check link status.' });
+  }
+});
+
+
+
+// Auth user -> parents row -> owns this child? Returns children row or null (after responding 403/404).
+async function getOwnChild(res, auth, childUserId) {
+  const r = await pool.query(`
+    SELECT c.child_id, c.user_id, c.full_name
+    FROM children c
+    JOIN parents p ON p.parent_id = c.parent_id
+    WHERE c.user_id = $1 AND p.user_id = $2 AND c.is_active = true
+  `, [Number(childUserId), auth.user_id]);
+  if (!r.rows.length) {
+    res.status(403).json({ success: false, error: 'Child not found in your family.' });
+    return null;
+  }
+  return r.rows[0];
+}
+
+// :parentId must be the signed-in parent (admins excepted) — same rule as /parents/children.
+function parentIdAllowed(res, auth, parentId) {
+  if (Number(parentId) !== Number(auth.user_id) && !auth.is_admin) {
+    res.status(403).json({ success: false, error: 'Access denied.' });
+    return false;
+  }
+  return true;
+}
+
+function cleanAssignmentFields(body, res) {
+  const title = String((body && body.title) || '').trim();
+  const description = String((body && body.description) || '').trim();
+  const dueDate = String((body && body.due_date) || '').trim();
+  if (!title || title.length > 120) {
+    res.status(400).json({ success: false, error: 'A title of 1-120 characters is required.' });
+    return null;
+  }
+  if (description.length > 2000) {
+    res.status(400).json({ success: false, error: 'Description is too long (max 2000 characters).' });
+    return null;
+  }
+  if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+    res.status(400).json({ success: false, error: 'Due date must be YYYY-MM-DD.' });
+    return null;
+  }
+  return { title, description: description || null, dueDate: dueDate || null };
+}
+
+// GET: assignments a parent has set, with child names.
+router.get('/parents/:parentId/assignments', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
+
+    await ensureParentTables();
+    const result = await pool.query(`
+      SELECT a.assignment_id, a.child_user_id, a.title, a.description,
+             a.due_date, a.status, a.created_at, a.completed_at,
+             u.full_name AS child_name
+      FROM parent_assignments a
+      JOIN users u ON u.user_id = a.child_user_id
+      WHERE a.parent_user_id = $1
+      ORDER BY (a.status = 'pending') DESC, a.due_date NULLS LAST, a.created_at DESC
+      LIMIT 100
+    `, [req.params.parentId]);
+
+    return res.json({ success: true, assignments: result.rows });
+  } catch (error) {
+    console.error('❌ List parent assignments error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load assignments.' });
+  }
+});
+
+// POST: create an assignment for an owned child.
+router.post('/parents/:parentId/assignments', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
+
+    const fields = cleanAssignmentFields(req.body, res);
+    if (!fields) return;
+    const child = await getOwnChild(res, auth, (req.body || {}).child_user_id);
+    if (!child) return;
+
+    await ensureParentTables();
+    const result = await pool.query(`
+      INSERT INTO parent_assignments (parent_user_id, child_user_id, title, description, due_date)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING assignment_id, created_at
+    `, [auth.user_id, child.user_id, fields.title, fields.description, fields.dueDate]);
+
+    createNotification(
+      child.user_id,
+      'New assignment 📝',
+      `${fields.title} — from your parent.`,
+      'reminder'
+    );
+
+    return res.status(201).json({ success: true, assignment: result.rows[0] });
+  } catch (error) {
+    console.error('❌ Create parent assignment error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to create assignment.' });
+  }
+});
+
+// POST: mark one of the parent's assignments complete.
+router.post('/assignments/:assignmentId/complete', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const assignmentId = Number(req.params.assignmentId);
+    if (!Number.isInteger(assignmentId)) {
+      return res.status(400).json({ success: false, error: 'Invalid assignment ID.' });
+    }
+
+    await ensureParentTables();
+    const result = await pool.query(`
+      UPDATE parent_assignments
+      SET status = 'completed', completed_at = CURRENT_TIMESTAMP
+      WHERE assignment_id = $1 AND ($2 = parent_user_id OR $3 = true)
+      RETURNING child_user_id, title
+    `, [assignmentId, auth.user_id, auth.is_admin]);
+
+    if (!result.rows.length) {
+      return res.status(404).json({ success: false, error: 'Assignment not found.' });
+    }
+
+    createNotification(
+      result.rows[0].child_user_id,
+      'Assignment completed ✅',
+      `${result.rows[0].title} — great work!`,
+      'achievement'
+    );
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Complete assignment error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update assignment.' });
+  }
+});
+
+// DELETE: remove one of the parent's assignments.
+router.delete('/assignments/:assignmentId', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const assignmentId = Number(req.params.assignmentId);
+    if (!Number.isInteger(assignmentId)) {
+      return res.status(400).json({ success: false, error: 'Invalid assignment ID.' });
+    }
+
+    await ensureParentTables();
+    const result = await pool.query(`
+      DELETE FROM parent_assignments
+      WHERE assignment_id = $1 AND ($2 = parent_user_id OR $3 = true)
+      RETURNING assignment_id
+    `, [assignmentId, auth.user_id, auth.is_admin]);
+
+    if (!result.rows.length) {
+      return res.status(404).json({ success: false, error: 'Assignment not found.' });
+    }
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Delete assignment error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to delete assignment.' });
+  }
+});
+
+// GET: messages a parent has sent, newest first.
+router.get('/parents/:parentId/messages', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
+
+    await ensureParentTables();
+    const result = await pool.query(`
+      SELECT m.message_id, m.child_user_id, m.subject, m.content,
+             m.is_read, m.created_at, u.full_name AS child_name
+      FROM parent_messages m
+      JOIN users u ON u.user_id = m.child_user_id
+      WHERE m.parent_user_id = $1
+      ORDER BY m.created_at DESC
+      LIMIT 50
+    `, [req.params.parentId]);
+
+    return res.json({ success: true, messages: result.rows });
+  } catch (error) {
+    console.error('❌ List parent messages error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load messages.' });
+  }
+});
+
+// POST: send a message to an owned child.
+router.post('/parents/:parentId/messages', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
+
+    const body = req.body || {};
+    const subject = String(body.subject || '').trim();
+    const content = String(body.content || '').trim();
+    if (!subject || subject.length > 120) {
+      return res.status(400).json({ success: false, error: 'A subject of 1-120 characters is required.' });
+    }
+    if (!content || content.length > 4000) {
+      return res.status(400).json({ success: false, error: 'Message content is required (max 4000 characters).' });
+    }
+    const child = await getOwnChild(res, auth, body.child_user_id);
+    if (!child) return;
+
+    await ensureParentTables();
+    const result = await pool.query(`
+      INSERT INTO parent_messages (parent_user_id, child_user_id, subject, content)
+      VALUES ($1, $2, $3, $4)
+      RETURNING message_id, created_at
+    `, [auth.user_id, child.user_id, subject, content]);
+
+    createNotification(
+      child.user_id,
+      'New message from your parent 💬',
+      subject,
+      'system'
+    );
+
+    return res.status(201).json({ success: true, message: result.rows[0] });
+  } catch (error) {
+    console.error('❌ Send parent message error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to send message.' });
+  }
+});
+
+// POST: mark a message read (either side of the conversation, or admin).
+router.post('/messages/:messageId/read', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const messageId = Number(req.params.messageId);
+    if (!Number.isInteger(messageId)) {
+      return res.status(400).json({ success: false, error: 'Invalid message ID.' });
+    }
+
+    await ensureParentTables();
+    const own = await pool.query(
+      `SELECT parent_user_id, child_user_id FROM parent_messages WHERE message_id = $1`,
+      [messageId]
+    );
+    const row = own.rows[0];
+    if (!row) {
+      return res.status(404).json({ success: false, error: 'Message not found.' });
+    }
+    const involved = Number(auth.user_id) === Number(row.parent_user_id) ||
+      Number(auth.user_id) === Number(row.child_user_id);
+    if (!involved && !auth.is_admin) {
+      return res.status(403).json({ success: false, error: 'Access denied.' });
+    }
+
+    await pool.query(`UPDATE parent_messages SET is_read = true WHERE message_id = $1`, [messageId]);
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Mark message read error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update message.' });
+  }
+});
+
+// GET: messages for the signed-in CHILD (their side of the family thread).
+router.get('/family/messages', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    await ensureParentTables();
+    const result = await pool.query(`
+      SELECT m.message_id, m.parent_user_id, m.subject, m.content,
+             m.is_read, m.created_at, u.full_name AS parent_name
+      FROM parent_messages m
+      JOIN users u ON u.user_id = m.parent_user_id
+      WHERE m.child_user_id = $1
+      ORDER BY m.created_at DESC
+      LIMIT 100
+    `, [auth.user_id]);
+
+    const unread = result.rows.filter(r => !r.is_read).length;
+    return res.json({ success: true, messages: result.rows, unread });
+  } catch (error) {
+    console.error('❌ Family messages error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load messages.' });
+  }
+});
+
+/* Learning insights — computed from real user_progress rows, never stored
+   fake data. Returns per-child study signals for the parent dashboard. */
+router.get('/parents/:parentId/insights', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
+
+    const childrenRows = await pool.query(`
+      SELECT c.user_id, c.full_name
+      FROM children c
+      JOIN parents p ON p.parent_id = c.parent_id
+      WHERE p.user_id = $1 AND c.is_active = true
+      ORDER BY c.full_name
+    `, [req.params.parentId]);
+
+    const insights = [];
+    for (const child of childrenRows.rows) {
+      const stats = await pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE completed = true AND updated_at >= NOW() - INTERVAL '7 days') AS lessons_7d,
+          COUNT(*) FILTER (WHERE completed = true AND updated_at >= NOW() - INTERVAL '14 days'
+                             AND updated_at <  NOW() - INTERVAL '7 days') AS lessons_prev_7d,
+          COUNT(*) FILTER (WHERE completed = true) AS lessons_total,
+          ROUND(AVG(quiz_score) FILTER (WHERE completed = true AND updated_at >= NOW() - INTERVAL '30 days')) AS avg_quiz_30d,
+          MAX(updated_at) FILTER (WHERE completed = true) AS last_completed_at,
+          (
+            SELECT p2.lesson_id FROM user_progress p2
+            WHERE p2.user_id = c.user_id AND p2.completed = true
+              AND p2.updated_at >= NOW() - INTERVAL '30 days' AND p2.quiz_score IS NOT NULL
+            ORDER BY p2.quiz_score ASC, p2.updated_at DESC
+            LIMIT 1
+          ) AS weakest_lesson
+        FROM user_progress p
+        JOIN (SELECT $1::int AS user_id) c ON c.user_id = p.user_id
+        WHERE p.user_id = $1
+      `, [child.user_id]);
+      insights.push({
+        child_user_id: child.user_id,
+        child_name: child.full_name,
+        ...stats.rows[0]
+      });
+    }
+
+    return res.json({ success: true, insights });
+  } catch (error) {
+    console.error('❌ Parent insights error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load insights.' });
+  }
+});
+
+/* Week-over-week trend — the real replacement for the old random number. */
+router.get('/parents/:parentId/trend', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
+
+    const result = await pool.query(`
+      WITH my_children AS (
+        SELECT c.user_id
+        FROM children c
+        JOIN parents p ON p.parent_id = c.parent_id
+        WHERE p.user_id = $1 AND c.is_active = true
+      )
+      SELECT
+        COUNT(*) FILTER (WHERE updated_at >= NOW() - INTERVAL '7 days') AS this_week,
+        COUNT(*) FILTER (WHERE updated_at >= NOW() - INTERVAL '14 days'
+                           AND updated_at <  NOW() - INTERVAL '7 days') AS last_week
+      FROM user_progress
+      WHERE completed = true
+        AND user_id IN (SELECT user_id FROM my_children)
+    `, [req.params.parentId]);
+
+    const row = result.rows[0] || { this_week: 0, last_week: 0 };
+    const thisWeek = Number(row.this_week) || 0;
+    const lastWeek = Number(row.last_week) || 0;
+    const delta = thisWeek - lastWeek;
+    const pct = lastWeek > 0 ? Math.round((delta / lastWeek) * 100) : (thisWeek > 0 ? 100 : 0);
+
+    return res.json({
+      success: true,
+      trend: { this_week: thisWeek, last_week: lastWeek, delta, pct }
+    });
+  } catch (error) {
+    console.error('❌ Parent trend error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load trend.' });
   }
 });
 
