@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HanVerse | Log In</title>
+<meta name="description" content="Log in to HanVerse to continue your Mandarin adventure with HanPan the panda.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HanVerse">
+  <meta property="og:title" content="Log In | HanVerse">
+  <meta property="og:description" content="Log in to HanVerse to continue your Mandarin adventure with HanPan the panda.">
+  <meta property="og:image" content="https://hanverse.com/Hanverse-logo2.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Log In | HanVerse">
+  <meta name="twitter:description" content="Log in to HanVerse to continue your Mandarin adventure with HanPan the panda.">
+  <meta name="twitter:image" content="https://hanverse.com/Hanverse-logo2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="Hanverse-logo2.png">
+<link rel="icon" type="image/png" sizes="16x16" href="Hanverse-logo2.png">
+<link rel="apple-touch-icon" href="Hanverse-logo2.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="hanverse.css">
+<script src="js/auth-fetch.js"></script>
+<style>
+:root{
+  --primary:#2563EB;--primary-dark:#1D4ED8;--primary-light:#DBEAFE;
+  --secondary:#14B8A6;--secondary-light:#99F6E4;
+  --accent:#F59E0B;--accent-light:#FDE68A;
+  --dark:#0F2340;--text:#1E3A5F;--text-secondary:#5D7A9A;--muted:#5D7A9A;
+  --bg:#F5F9FF;--white:#FFF;--border:#D5E3F0;
+  --success:#16A34A;--red:#DC2626;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:0 4px 20px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --shadow-xl:0 20px 60px rgba(0,0,0,.15);
+  --r-sm:12px;--r-md:20px;--r-lg:32px;--r-full:9999px;
+  --ease:all .4s cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;background:
+  radial-gradient(circle at 5% 5%,rgba(37,99,235,.09),transparent 27rem),
+  radial-gradient(circle at 95% 90%,rgba(20,184,166,.08),transparent 25rem),
+  var(--bg);color:var(--text);overflow-x:hidden;padding:96px 20px 28px;
+}
+a{color:inherit}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+*:focus-visible{outline:3px solid rgba(37,99,235,.45);outline-offset:3px}
+::selection{background:var(--primary-light);color:var(--dark)}
+
+/* Shared HanVerse navigation */
+.hv-nav{
+ position:fixed;z-index:1000;top:16px;left:50%;transform:translateX(-50%);
+ width:min(1120px,calc(100% - 32px));height:64px;padding:0 12px 0 20px;
+ display:flex;align-items:center;gap:24px;background:rgba(255,255,255,.86);
+ border:1px solid rgba(226,232,240,.9);border-radius:var(--r-full);
+ box-shadow:var(--shadow-md);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.hv-brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.hv-brand-panda{font-size:30px;line-height:1;animation:navPanda 4s ease-in-out infinite}
+@keyframes navPanda{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.hv-brand-name{font-size:1.25rem;font-weight:900;letter-spacing:-.04em;color:var(--dark)}
+.hv-brand-name span{color:var(--primary)}
+.hv-links{display:flex;align-items:center;gap:4px;margin-left:auto}
+.hv-links a{padding:10px 14px;border-radius:var(--r-full);text-decoration:none;color:var(--text-secondary);font-size:.88rem;font-weight:600;transition:var(--ease)}
+.hv-links a:hover{color:var(--primary);background:var(--primary-light)}
+.hv-links .current{color:var(--primary);background:var(--primary-light)}
+.hv-actions{display:flex;align-items:center;gap:8px}
+.nav-login{padding:11px 19px;border-radius:var(--r-full);background:var(--primary);color:#fff;text-decoration:none;font-weight:700;font-size:.86rem;box-shadow:0 7px 18px rgba(37,99,235,.2);transition:var(--ease)}
+.nav-login:hover{background:var(--primary-dark);transform:translateY(-2px)}
+.nav-menu{display:none;border:0;background:var(--primary-light);color:var(--primary);width:42px;height:42px;border-radius:50%;font-size:20px}
+.mobile-menu{display:none;position:fixed;z-index:999;top:88px;left:16px;right:16px;background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-lg);padding:10px}
+.mobile-menu.open{display:block;animation:menuIn .25s ease}
+.mobile-menu a{display:block;padding:13px 14px;border-radius:12px;text-decoration:none;font-weight:600;color:var(--text)}
+.mobile-menu a:hover{background:var(--primary-light);color:var(--primary)}
+@keyframes menuIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Page shell */
+.login-shell{
+ position:relative;z-index:1;width:min(1040px,100%);margin:0 auto;
+ display:grid;grid-template-columns:.92fr 1.08fr;min-height:590px;
+ background:rgba(255,255,255,.97);border:1px solid rgba(226,232,240,.9);
+ border-radius:32px;box-shadow:var(--shadow-xl);overflow:hidden;
+ animation:pageIn .65s cubic-bezier(.22,1,.36,1);
+}
+@keyframes pageIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+
+/* Brand panel */
+.left{
+ position:relative;overflow:hidden;padding:42px 40px;
+ background:linear-gradient(145deg,#F3FAFE 0%,#EAF6FD 58%,#F0FBF5 100%);
+ border-right:1px solid rgba(226,232,240,.85);display:flex;flex-direction:column;justify-content:center;
+}
+.left:before,.left:after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.left:before{width:300px;height:300px;right:-150px;top:-130px;background:rgba(245,158,11,.10)}
+.left:after{width:240px;height:240px;left:-130px;bottom:-120px;background:rgba(20,184,166,.08)}
+.pattern-char{position:absolute;font-size:92px;font-weight:900;color:rgba(37,99,235,.055);pointer-events:none;user-select:none}
+.c1{top:18px;left:18px}.c2{top:72px;right:35px;font-size:65px}.c3{bottom:78px;left:34px;font-size:68px}.c4{bottom:18px;right:18px}
+.star-deco{position:absolute;right:30px;top:28px;font-size:26px;opacity:.7;animation:spin 18s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.left-content{position:relative;z-index:2}
+.welcome-label{font-size:.88rem;font-weight:700;color:var(--secondary);letter-spacing:.02em;margin-bottom:8px}
+.left h1{font-size:clamp(2.4rem,5vw,3.5rem);line-height:1;font-weight:900;letter-spacing:-.06em;color:var(--dark);margin-bottom:16px}
+.left h1 span{color:var(--primary)}
+.tagline{font-size:.95rem;line-height:1.7;color:var(--text-secondary);max-width:410px}
+.trust-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px}
+.trust-item{display:flex;align-items:center;gap:9px;padding:11px 12px;background:rgba(255,255,255,.75);border:1px solid rgba(226,232,240,.9);border-radius:14px;box-shadow:var(--shadow-sm);font-size:.77rem;font-weight:700;color:var(--dark);transition:var(--ease)}
+.trust-item:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:rgba(37,99,235,.18)}
+.trust-item .icon{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:var(--primary-light);flex-shrink:0}
+.panda-mascot{position:relative;z-index:2;align-self:center;font-size:86px;margin-top:25px;filter:drop-shadow(0 12px 20px rgba(15,23,42,.12));cursor:pointer;animation:pandaFloat 4.5s ease-in-out infinite;transition:transform .3s ease}
+.panda-mascot:hover{transform:scale(1.06) rotate(-3deg)}
+@keyframes pandaFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* Form panel */
+.right{padding:48px 52px;display:flex;flex-direction:column;justify-content:center;background:#fff}
+.brand-logo{font-size:1.55rem;font-weight:900;color:var(--dark);letter-spacing:-.04em}
+.brand-logo:after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:5px;margin-bottom:2px}
+.brand-sub{color:var(--muted);font-size:.78rem;margin-top:2px;margin-bottom:25px}
+.login-header{margin-bottom:21px}
+.login-header h2{font-size:1.85rem;line-height:1.15;color:var(--dark);font-weight:900;letter-spacing:-.035em;margin-bottom:5px}
+.login-header p{font-size:.85rem;color:var(--muted)}
+.input-group{margin-bottom:15px}
+.input-label{display:block;color:var(--dark);font-size:.78rem;font-weight:700;margin-bottom:7px}
+.input-wrapper{position:relative}
+.input-wrapper input{width:100%;height:50px;padding:0 50px 0 15px;background:#FFFEFC;border:1.5px solid var(--border);border-radius:14px;color:var(--dark);font-size:.88rem;transition:var(--ease)}
+.input-wrapper input::placeholder{color:#9AA8B5}
+.input-wrapper input:hover{border-color:#BFDBFE}
+.input-wrapper input:focus{outline:none;background:#fff;border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,.09)}
+.input-wrapper input.error{border-color:var(--red);background:#FFF7F7}
+.eye-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:transparent;border-radius:10px;color:var(--muted);transition:var(--ease)}
+.eye-btn:hover{background:var(--primary-light);color:var(--primary)}
+.options{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 19px;flex-wrap:wrap}
+.remember{display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:.78rem;font-weight:600;cursor:pointer}
+.remember input{width:17px;height:17px;accent-color:var(--primary)}
+.options-right{display:flex;gap:12px;flex-wrap:wrap}
+.options a,.bottom a{color:var(--primary);text-decoration:none;font-size:.78rem;font-weight:700}
+.options a:hover,.bottom a:hover{text-decoration:underline;color:var(--primary-dark)}
+.btn{width:100%;height:50px;border:0;border-radius:var(--r-full);font-size:.88rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--ease)}
+.btn-login{background:var(--primary);color:#fff;box-shadow:0 9px 23px rgba(37,99,235,.22)}
+.btn-login:hover{background:var(--primary-dark);transform:translateY(-2px);box-shadow:0 12px 28px rgba(37,99,235,.28)}
+.btn-login:active{transform:scale(.98)}
+.btn-login:disabled,.btn-google:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
+.divider{display:flex;align-items:center;gap:12px;color:#94A3B8;font-size:.73rem;margin:16px 0}
+.divider:before,.divider:after{content:"";height:1px;flex:1;background:var(--border)}
+.btn-google{background:#fff;color:var(--dark);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+.btn-google:hover{background:var(--bg);border-color:#BFDBFE;transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.google-icon{font-size:17px}
+.bottom{text-align:center;margin-top:20px;color:var(--text-secondary);font-size:.8rem}
+
+/* Feedback */
+#loading-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(248,250,252,.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#loading-overlay.show{display:flex}
+.loader{width:44px;height:44px;border:4px solid var(--primary-light);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+.loader-text{font-size:.85rem;font-weight:700;color:var(--text-secondary)}
+.toast-container{position:fixed;z-index:10000;top:94px;right:20px;width:min(370px,calc(100% - 40px));display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:10px;padding:13px 15px;background:#fff;border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:14px;box-shadow:var(--shadow-lg);font-size:.8rem;animation:toastIn .3s ease}
+.toast-success{border-left-color:var(--success)}.toast-error{border-left-color:var(--red)}.toast-warning{border-left-color:var(--accent)}.toast-info{border-left-color:var(--primary)}
+.toast-icon{font-size:19px}.toast-message{flex:1;color:var(--dark);line-height:1.45}.toast-close{border:0;background:none;color:var(--muted);font-size:16px}
+@keyframes toastIn{from{opacity:0;transform:translateX(15px)}to{opacity:1;transform:none}}
+#verification-banner{display:none;position:fixed;z-index:1001;top:91px;left:50%;transform:translateX(-50%);width:min(650px,calc(100% - 32px));padding:12px 16px;background:var(--accent-light);color:#5F4B08;border:1px solid rgba(245,158,11,.25);border-radius:15px;box-shadow:var(--shadow-md);font-size:.78rem;font-weight:700;text-align:center}
+.resend-link{text-decoration:underline;cursor:pointer;margin-left:5px}.close-banner{margin-left:8px;border:0;background:rgba(255,255,255,.5);border-radius:50%;width:26px;height:26px;color:#6B5711}
+
+/* Panda chat */
+.panda-fab{position:fixed;z-index:998;right:22px;bottom:22px;width:58px;height:58px;border-radius:50%;border:2px solid rgba(37,99,235,.2);background:#fff;box-shadow:var(--shadow-lg);font-size:29px;display:grid;place-items:center;transition:var(--ease)}
+.panda-fab:hover{transform:scale(1.08) rotate(-4deg);box-shadow:var(--shadow-xl)}
+.panda-chat{display:none;position:fixed;z-index:999;right:22px;bottom:91px;width:360px;max-width:calc(100vw - 32px);height:430px;max-height:70vh;background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow-xl);overflow:hidden;flex-direction:column;animation:chatIn .3s ease}
+.panda-chat.open{display:flex}
+@keyframes chatIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.panda-header{height:56px;padding:0 15px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:space-between}
+.panda-title{font-size:.85rem;font-weight:800}.panda-close{width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff}
+.panda-body{flex:1;overflow-y:auto;padding:14px;background:var(--bg);display:flex;flex-direction:column;gap:10px}
+.message-row{display:flex;gap:8px;align-items:flex-start}.message-row.user{flex-direction:row-reverse}.panda-avatar{font-size:22px}.message{max-width:82%;padding:9px 12px;border-radius:14px;font-size:.78rem;line-height:1.5}
+.panda-message{background:#fff;border:1px solid var(--border);color:var(--dark);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm)}
+.user-message{background:var(--primary);color:#fff;border-bottom-right-radius:4px}
+.panda-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:#fff}
+.panda-input textarea{flex:1;resize:none;height:40px;min-height:40px;max-height:80px;border:1px solid var(--border);border-radius:12px;padding:9px 12px;outline:none;background:var(--bg);font-size:.78rem}
+.panda-input textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.panda-send{width:40px;height:40px;border:0;border-radius:12px;background:var(--primary);color:#fff}
+
+/* Mobile: same HanVerse navigation, compact login */
+@media(max-width:900px){
+ body{padding:88px 14px 20px}
+ .hv-nav{height:60px;top:10px}
+ .hv-links,.hv-actions{display:none}.nav-menu{display:block;margin-left:auto}
+ .login-shell{grid-template-columns:1fr;min-height:0;border-radius:26px}
+ .left{padding:27px 25px 22px;text-align:center;border-right:0;border-bottom:1px solid var(--border)}
+ .left h1{font-size:2.25rem}.tagline{margin:auto;font-size:.84rem}
+ .trust-list{grid-template-columns:1fr 1fr;max-width:520px;margin:20px auto 0}
+ .trust-item{justify-content:flex-start;text-align:left}
+ .panda-mascot{font-size:62px;margin-top:16px}
+ .right{padding:30px 26px}
+}
+@media(max-width:560px){
+ body{padding:80px 10px 12px}
+ .hv-nav{width:calc(100% - 20px);padding-left:15px}.hv-brand-name{font-size:1.12rem}.hv-brand-panda{font-size:26px}
+ .login-shell{border-radius:22px}
+ .left{padding:23px 17px 18px}.left h1{font-size:2rem}.tagline{font-size:.78rem}
+ .trust-list{gap:7px}.trust-item{padding:9px 8px;font-size:.68rem;gap:6px}.trust-item .icon{width:27px;height:27px;font-size:14px}
+ .panda-mascot{font-size:52px;margin-top:12px}
+ .right{padding:24px 17px 25px}
+ .brand-logo{font-size:1.3rem}.brand-sub{margin-bottom:20px}
+ .login-header h2{font-size:1.55rem}
+ .options{align-items:flex-start;flex-direction:column;margin-bottom:16px}
+ .options-right{width:100%;justify-content:space-between}
+ .btn{height:48px}
+ .toast-container{right:10px;width:calc(100% - 20px)}
+ #verification-banner{top:76px;font-size:.7rem}
+ .panda-fab{right:14px;bottom:14px;width:52px;height:52px;font-size:25px}
+ .panda-chat{right:10px;bottom:75px;width:calc(100vw - 20px);height:min(430px,68vh)}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+
+</head>
+<body>
+<div id="app-nav"></div>
+
+<div id="loading-overlay"><div class="loader"></div><div class="loader-text">🐼 Loading HanVerse...</div></div>
+<div id="toast-container" class="toast-container"></div>
+<div id="verification-banner">⚠️ Please verify your email to access all features.
+  <span class="resend-link" id="resendVerificationBanner">Resend verification</span>
+  <button class="close-banner" id="closeVerificationBanner" aria-label="Close banner">✕</button>
+</div>
+
+<main class="login-shell">
+  <section class="left" aria-label="About HanVerse">
+    <span class="pattern-char c1">汉</span><span class="pattern-char c2">语</span>
+    <span class="pattern-char c3">乐</span><span class="pattern-char c4">学</span>
+    <span class="star-deco" aria-hidden="true">✦</span>
+    <div class="left-content">
+      <p class="welcome-label">🐼 Welcome back to HanVerse</p>
+      <h1>Keep your<br><span>Mandarin journey</span><br>going.</h1>
+      <p class="tagline">Stories, games, AI practice and structured YCT learning — all in one friendly place.</p>
+      <div class="trust-list">
+        <div class="trust-item"><span class="icon">📚</span><span>YCT Curriculum</span></div>
+        <div class="trust-item"><span class="icon">🏆</span><span>XP & Achievements</span></div>
+        <div class="trust-item"><span class="icon">📈</span><span>Track Progress</span></div>
+        <div class="trust-item"><span class="icon">🤖</span><span>Panda AI Tutor</span></div>
+      </div>
+      <div class="panda-mascot" onclick="togglePanda()" role="button" tabindex="0" aria-label="Open Panda AI chat">🐼</div>
+    </div>
+  </section>
+
+  <section class="right" aria-labelledby="loginWelcomeHeader">
+    <div class="brand-logo">HanVerse</div>
+    <p class="brand-sub">Learn Mandarin Through Stories, Games &amp; AI</p>
+    <div class="login-header">
+      <h2 id="loginWelcomeHeader">Welcome Back 👋</h2>
+      <p id="loginWelcomeSubtext">Log in to continue your Mandarin journey.</p>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label" for="email">Email Address</label>
+      <div class="input-wrapper"><input type="email" id="email" placeholder="Enter your email" autocomplete="email" required></div>
+    </div>
+    <div class="input-group">
+      <label class="input-label" for="password">Password</label>
+      <div class="input-wrapper">
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required>
+        <button class="eye-btn" id="togglePasswordBtn" type="button" aria-label="Show password">👁️</button>
+      </div>
+    </div>
+
+    <div class="options">
+      <label class="remember"><input type="checkbox" id="rememberMe"> Remember me</label>
+      <div class="options-right"><a href="#" id="resendVerificationLink">Verify Email</a><a href="forgot-password.html">Forgot Password?</a></div>
+    </div>
+    <button class="btn btn-login" id="loginBtn">Log In</button>
+    <div class="divider">or continue with</div>
+    <button class="btn btn-google" id="googleBtn"><span class="google-icon">🌐</span> Continue with Google</button>
+    <div class="bottom">Don't have an account? <a href="signup.html">Sign Up</a></div>
+  </section>
+</main>
+
+<button class="panda-fab" id="pandaFabBtn" aria-label="Open Panda AI Chat">🐼</button>
+<div id="pandaChat" class="panda-chat" role="dialog" aria-label="Panda AI Tutor" aria-modal="false">
+  <div class="panda-header"><div class="panda-title">🐼 Panda AI Tutor</div><button class="panda-close" id="pandaCloseBtn" aria-label="Close chat">✕</button></div>
+  <div id="pandaBody" class="panda-body"><div class="message-row"><div class="panda-avatar">🐼</div><div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div></div></div>
+  <div class="panda-input"><textarea id="pandaInput" placeholder="Ask Panda..." rows="1" aria-label="Chat input"></textarea><button class="panda-send" id="pandaSendBtn" aria-label="Send message">➤</button></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const navBtn=document.getElementById('navMenuBtn');
+  const menu=document.getElementById('mobileMenu');
+  if(navBtn&&menu){
+    navBtn.addEventListener('click',()=>{
+      const open=menu.classList.toggle('open');
+      navBtn.setAttribute('aria-expanded',String(open));
+      navBtn.textContent=open?'✕':'☰';
+    });
+    menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+      menu.classList.remove('open');navBtn.setAttribute('aria-expanded','false');navBtn.textContent='☰';
+    }));
+  }
+  const panda=document.querySelector('.panda-mascot');
+  if(panda)panda.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();togglePanda();}});
+});
+</script>
+    <script>
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
+        const API_BASE = '/api';
+        const SESSION_KEY = 'hanverse_user';
+        const VERSION = '2.0.0';
+        const DEBUG = false;
+
+        // ============================================================
+        // LOGGING
+        // ============================================================
+        function log(...args) {
+            if (DEBUG) console.log(...args);
+        }
+
+        function errorLog(...args) {
+            console.error(...args);
+        }
+
+        // ============================================================
+        // UTILITY FUNCTIONS
+        // ============================================================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function normalizeUser(user) {
+            if (!user) return null;
+            return {
+                user_id: user.user_id || user.id,
+                id: user.user_id || user.id,
+                username: user.username || '',
+                full_name: user.full_name || user.fullName || user.username || 'Learner',
+                fullName: user.full_name || user.fullName || user.username || 'Learner',
+                email: user.email || '',
+                xp: user.xp || 0,
+                level: user.level || 1,
+                streak_days: user.streak_days || user.streakDays || 0,
+                streakDays: user.streak_days || user.streakDays || 0,
+                is_verified: user.is_verified || false,
+                isVerified: user.is_verified || false,
+                premium: user.premium || user.is_premium || false,
+                is_premium: user.premium || user.is_premium || false,
+                isPremium: user.premium || user.is_premium || false,
+                role: user.role || 'student',
+                profile_picture: user.profile_picture || null,
+                profilePicture: user.profile_picture || null,
+                is_admin: user.is_admin || false,
+                isAdmin: user.is_admin || false,
+                is_banned: user.is_banned || false,
+                isBanned: user.is_banned || false,
+                current_yct: user.current_yct || 1,
+                lessons_completed: user.lessons_completed || 0,
+                achievements_count: user.achievements_count || 0
+            };
+        }
+
+        function getSession() {
+            try {
+                const data = localStorage.getItem(SESSION_KEY);
+                if (!data) return null;
+                const parsed = JSON.parse(data);
+                return normalizeUser(parsed);
+            } catch {
+                return null;
+            }
+        }
+
+        function setSession(user) {
+            localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+        }
+
+        function clearSession() {
+            localStorage.removeItem(SESSION_KEY);
+        }
+
+        function isLoggedIn() {
+            const session = getSession();
+            return !!(session?.user_id || session?.id);
+        }
+
+        function isParent() {
+            const session = getSession();
+            return session?.role === 'parent';
+        }
+
+        function isAdmin() {
+            const session = getSession();
+            return session?.is_admin || session?.isAdmin || false;
+        }
+
+        function isVerified() {
+            const session = getSession();
+            return session?.is_verified || session?.isVerified || false;
+        }
+
+        function getUserId() {
+            const session = getSession();
+            return session?.user_id || session?.id || null;
+        }
+
+        // ============================================================
+        // TOAST NOTIFICATIONS
+        // ============================================================
+        function showToast(type, message, duration = 4000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                    <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close" aria-label="Close notification">✕</button>
+                `;
+
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                removeToast(toast);
+            });
+
+            container.appendChild(toast);
+
+            const timer = setTimeout(() => {
+                removeToast(toast);
+            }, duration);
+            toast.dataset.timer = timer;
+        }
+
+        function removeToast(toast) {
+            if (toast.classList.contains('removing')) return;
+            toast.classList.add('removing');
+            if (toast.dataset.timer) {
+                clearTimeout(parseInt(toast.dataset.timer));
+            }
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }
+
+        // ============================================================
+        // LOADING OVERLAY
+        // ============================================================
+        let loadingCounter = 0;
+
+        function showLoading(message = '🐼 Loading...') {
+            const overlay = document.getElementById('loading-overlay');
+            const text = overlay?.querySelector('.loader-text');
+            if (text) text.textContent = message;
+            loadingCounter++;
+            if (overlay) overlay.classList.add('show');
+        }
+
+        function hideLoading() {
+            loadingCounter--;
+            if (loadingCounter <= 0) {
+                loadingCounter = 0;
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.classList.remove('show');
+            }
+        }
+
+        // ============================================================
+        // API CALLS
+        // ============================================================
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE}${endpoint}`;
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                ...options.headers
+            };
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers,
+                    credentials: 'same-origin'
+                });
+
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = { success: false, error: 'Unexpected response from server' };
+                }
+
+                if (response.status === 403) {
+                    if (data.error === 'not_verified') {
+                        throw new Error('not_verified');
+                    }
+                    if (data.error === 'banned') {
+                        throw new Error(`banned:${data.reason || 'Account suspended'}`);
+                    }
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.error || data.message || `API error: ${response.status}`);
+                }
+
+                return data;
+            } catch (error) {
+                errorLog(`API call failed: ${endpoint}`, error);
+                throw error;
+            }
+        }
+
+        // ============================================================
+        // VERIFICATION BANNER
+        // ============================================================
+        let verificationEmail = null;
+
+        function showVerificationBanner(email) {
+            const banner = document.getElementById('verification-banner');
+            if (!banner) return;
+            verificationEmail = email || null;
+            banner.style.display = 'block';
+        }
+
+        function hideVerificationBanner() {
+            const banner = document.getElementById('verification-banner');
+            if (banner) banner.style.display = 'none';
+        }
+
+        async function resendVerificationEmail() {
+    const email = verificationEmail || document.getElementById('email')?.value?.trim();
+    if (!email) {
+        showToast('warning', 'Please enter your email address first.');
+        return;
+    }
+
+    try {
+        showLoading('Sending verification...');
+        
+        // Step 1: Get the user ID from the email
+        const userResponse = await apiCall('/auth/user-by-email', {
+            method: 'POST',
+            body: JSON.stringify({ email })
+        });
+        
+        if (!userResponse.success || !userResponse.user) {
+            throw new Error('User not found with that email.');
+        }
+        
+        const userId = userResponse.user.user_id || userResponse.user.id;
+        
+        // Step 2: Send verification using the user ID
+        await apiCall('/auth/resend-verification', {
+            method: 'POST',
+            body: JSON.stringify({ userId })
+        });
+        
+        showToast('success', 'Verification email sent! Check your inbox.');
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        showToast('error', error.message || 'Failed to send verification email.');
+    }
+}
+        // ============================================================
+        // LOGIN FUNCTION
+        // ============================================================
+        function safeNextPath() {
+            const n = new URLSearchParams(window.location.search).get('next') || '';
+            if (!n || n.startsWith('//') || n.includes('://') || n.includes('\\') || !/^[\w\/.\-?=&%]+$/.test(n)) return null;
+            return n.charAt(0) === '/' ? n : '/' + n;
+        }
+
+       async function loginUser() {
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email) {
+        emailInput.classList.add('error');
+        showToast('warning', 'Please enter your email.');
+        emailInput.focus();
+        return;
+    }
+    emailInput.classList.remove('error');
+
+    if (!password) {
+        passwordInput.classList.add('error');
+        showToast('warning', 'Please enter your password.');
+        passwordInput.focus();
+        return;
+    }
+    passwordInput.classList.remove('error');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        emailInput.classList.add('error');
+        showToast('warning', 'Please enter a valid email address.');
+        emailInput.focus();
+        return;
+    }
+
+    try {
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logging In...';
+        showLoading('Logging in...');
+
+        const response = await apiCall('/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.success && response.user) {
+            const user = normalizeUser(response.user);
+            if (response.token) {
+                try { localStorage.setItem('hanverse_token', response.token); } catch {}
+                user.token = response.token;
+            }
+            setSession(user);
+
+            const rememberMe = document.getElementById('rememberMe');
+            if (rememberMe && rememberMe.checked) {
+                localStorage.setItem('hanverse_remembered_email', email);
+            } else {
+                localStorage.removeItem('hanverse_remembered_email');
+            }
+
+            showToast('success', `Welcome back, ${user.full_name || user.username}! 🎉`);
+
+            setTimeout(() => {
+                if (isParent()) {
+                    window.location.href = 'parents.html?view=dashboard';
+                } else if (isAdmin()) {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = safeNextPath() || 'learn.html';
+                }
+            }, 800);
+
+        } else {
+            showToast('error', response.error || 'Login failed. Please try again.');
+        }
+
+    } catch (error) {
+        errorLog('Login error:', error);
+
+        if (error.message === 'not_verified') {
+            showToast('warning', 'Please verify your email before logging in.');
+            showVerificationBanner(email);
+        } else if (error.message.startsWith('banned:')) {
+            const reason = error.message.split(':')[1] || 'Account suspended';
+            showToast('error', `Account suspended: ${reason}`);
+            document.querySelector('.right').innerHTML = `
+                <div style="text-align:center;padding:40px;">
+                    <div style="font-size:70px;">🚫</div>
+                    <h2 style="margin-top:15px;color:#DC2626;">Account Banned</h2>
+                    <p style="margin-top:10px;color:var(--text-secondary);">${reason}</p>
+                    <p style="margin-top:8px;font-size:0.85rem;color:var(--muted);">Please contact support for assistance.</p>
+                </div>
+            `;
+        } else if (error.message === 'Invalid email or password.') {
+            showToast('error', '❌ Invalid email or password. Please try again.');
+            passwordInput.classList.add('error');
+        } else {
+            showToast('error', error.message || 'Unable to connect to server. Please try again.');
+        }
+    } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Log In';
+        hideLoading();
+    }
+}
+        // ============================================================
+        // GOOGLE LOGIN
+        // ============================================================
+        function googleLogin() {
+            showToast('info', '🌐 Google login coming soon!');
+            // Uncomment when Google OAuth is implemented:
+            // window.location.href = `${API_BASE}/auth/google`;
+        }
+
+        // ============================================================
+        // PASSWORD TOGGLE
+        // ============================================================
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            if (!passwordInput || !toggleBtn) return;
+
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            toggleBtn.textContent = isPassword ? '🙈' : '👁️';
+        }
+
+        // ============================================================
+        // PANDA CHAT
+        // ============================================================
+        const chatFallbacks = [
+            "That's a great question! Let me help you with that. 🐼",
+            "Interesting! Would you like to practice more? 📚",
+            "Good job! Keep practicing and you'll improve quickly! 🌟",
+            "Let me explain that in a simple way... 🎯",
+            "You're doing amazing! Want to try a quiz? 🎮",
+            "That's a fun one! Let's learn together! 🤗",
+            "I love that question! Here's what I think... 💭",
+            "You're making great progress! Keep going! 🚀"
+        ];
+
+        function togglePanda() {
+            const chat = document.getElementById('pandaChat');
+            if (chat) {
+                chat.classList.toggle('open');
+                if (chat.classList.contains('open')) {
+                    setTimeout(() => {
+                        const input = document.getElementById('pandaInput');
+                        if (input) input.focus();
+                    }, 100);
+                }
+            }
+        }
+
+        async function sendPandaMessage() {
+            const input = document.getElementById('pandaInput');
+            const body = document.getElementById('pandaBody');
+            const text = input?.value?.trim();
+
+            if (!text) return;
+
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = `<div class="message user-message">${escapeHtml(text)}</div>`;
+            body.appendChild(userRow);
+
+            input.value = '';
+            input.style.height = 'auto';
+            body.scrollTop = body.scrollHeight;
+
+            const typing = document.createElement('div');
+            typing.className = 'message-row';
+            typing.id = 'typingIndicator';
+            typing.innerHTML = `
+                    <div class="panda-avatar">🐼</div>
+                    <div class="message panda-message" style="font-style:italic;opacity:0.7;">🐼 Thinking...</div>
+                `;
+            body.appendChild(typing);
+            body.scrollTop = body.scrollHeight;
+
+            try {
+                const response = await apiCall('/panda-chat', {
+                    method: 'POST',
+                    body: JSON.stringify({ message: text })
+                });
+
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) typingEl.remove();
+
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                const reply = response.reply || "🐼 I'm not sure about that one. Try something simpler!";
+                aiRow.innerHTML = `
+                        <div class="panda-avatar">🐼</div>
+                        <div class="message panda-message">${escapeHtml(reply)}</div>
+                    `;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+
+            } catch (error) {
+                const typingEl = document.getElementById('typingIndicator');
+                if (typingEl) typingEl.remove();
+
+                const fallback = chatFallbacks[Math.floor(Math.random() * chatFallbacks.length)];
+                const aiRow = document.createElement('div');
+                aiRow.className = 'message-row';
+                aiRow.innerHTML = `
+                        <div class="panda-avatar">🐼</div>
+                        <div class="message panda-message">${fallback}</div>
+                    `;
+                body.appendChild(aiRow);
+                body.scrollTop = body.scrollHeight;
+                errorLog('Panda chat fallback:', error.message);
+            }
+        }
+
+        // ============================================================
+        // DOM READY
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🐼 Hanverse Login v' + VERSION + ' initializing...');
+
+            // ===== CHECK IF ALREADY LOGGED IN =====
+            if (isLoggedIn()) {
+                const session = getSession();
+                const name = session?.full_name || session?.username || 'Learner';
+                showToast('info', `Already logged in as ${name}. Redirecting...`);
+                setTimeout(() => {
+                    if (isParent()) {
+                        window.location.href = 'parents.html?view=dashboard';
+                    } else if (isAdmin()) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = safeNextPath() || 'learn.html';
+                    }
+                }, 1500);
+                return;
+            }
+
+            // ===== HANDLE VERIFICATION REDIRECT =====
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('verified') === 'true') {
+                showToast('success', '✅ Email verified successfully! You can now log in.');
+                const mainHeader = document.getElementById('loginWelcomeHeader');
+                const subHeader = document.getElementById('loginWelcomeSubtext');
+                if (mainHeader) mainHeader.textContent = 'Email Verified! 🎉';
+                if (subHeader) subHeader.textContent = 'Please log in to your activated account.';
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (urlParams.get('verified') === 'false') {
+                const error = urlParams.get('error') || 'Verification failed. Please try again.';
+                showToast('error', `❌ ${decodeURIComponent(error)}`);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // ===== REMEMBER ME =====
+            const rememberedEmail = localStorage.getItem('hanverse_remembered_email');
+            const emailInput = document.getElementById('email');
+            const rememberCheckbox = document.getElementById('rememberMe');
+            if (rememberedEmail && emailInput) {
+                emailInput.value = rememberedEmail;
+                if (rememberCheckbox) rememberCheckbox.checked = true;
+            }
+
+            // ===== EVENT LISTENERS =====
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) loginBtn.addEventListener('click', loginUser);
+
+            const googleBtn = document.getElementById('googleBtn');
+            if (googleBtn) googleBtn.addEventListener('click', googleLogin);
+
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            if (toggleBtn) toggleBtn.addEventListener('click', togglePasswordVisibility);
+
+            const resendLink = document.getElementById('resendVerificationLink');
+            if (resendLink) {
+                resendLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    resendVerificationEmail();
+                });
+            }
+
+            const bannerResend = document.getElementById('resendVerificationBanner');
+            if (bannerResend) {
+                bannerResend.addEventListener('click', resendVerificationEmail);
+            }
+
+            const closeBanner = document.getElementById('closeVerificationBanner');
+            if (closeBanner) {
+                closeBanner.addEventListener('click', hideVerificationBanner);
+            }
+
+            [emailInput, document.getElementById('password')].forEach(input => {
+                if (input) {
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') loginUser();
+                    });
+                    input.addEventListener('input', function() {
+                        this.classList.remove('error');
+                    });
+                }
+            });
+
+            // ===== PANDA CHAT =====
+            const pandaFab = document.getElementById('pandaFabBtn');
+            if (pandaFab) pandaFab.addEventListener('click', togglePanda);
+
+            const pandaClose = document.getElementById('pandaCloseBtn');
+            if (pandaClose) pandaClose.addEventListener('click', togglePanda);
+
+            const pandaSend = document.getElementById('pandaSendBtn');
+            if (pandaSend) pandaSend.addEventListener('click', sendPandaMessage);
+
+            const pandaInput = document.getElementById('pandaInput');
+            if (pandaInput) {
+                pandaInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendPandaMessage();
+                    }
+                });
+                pandaInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+                });
+            }
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const chat = document.getElementById('pandaChat');
+                    if (chat && chat.classList.contains('open')) {
+                        chat.classList.remove('open');
+                    }
+                }
+            });
+
+            log('✅ Hanverse Login ready!');
+        });
+
+        // ============================================================
+        // EXPOSE GLOBALLY
+        // ============================================================
+        window.loginUser = loginUser;
+        window.googleLogin = googleLogin;
+        window.togglePasswordVisibility = togglePasswordVisibility;
+        window.resendVerificationEmail = resendVerificationEmail;
+        window.togglePanda = togglePanda;
+        window.sendPandaMessage = sendPandaMessage;
+        window.showToast = showToast;
+        window.apiCall = apiCall;
+        window.getSession = getSession;
+        window.setSession = setSession;
+        window.clearSession = clearSession;
+        window.isLoggedIn = isLoggedIn;
+        window.isParent = isParent;
+        window.isAdmin = isAdmin;
+        window.isVerified = isVerified;
+        window.getUserId = getUserId;
+        window.normalizeUser = normalizeUser;
+        window.showVerificationBanner = showVerificationBanner;
+        window.hideVerificationBanner = hideVerificationBanner;
+        window.showLoading = showLoading;
+        window.hideLoading = hideLoading;
+    </script>
+<script src="shared-nav.js#auth"></script>
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
+</body>
+</html>
