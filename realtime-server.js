@@ -24,7 +24,7 @@ const PORT = Number(process.env.PORT || process.env.REALTIME_PORT || 3001);
 
 const ALLOWED_ORIGINS = (
     process.env.ALLOWED_ORIGINS ||
-    "https://hanverse.netlify.app,http://localhost:3000,http://localhost:8888"
+    "https://hanverse.netlify.app,https://learn-hanverse.netlify.app,http://localhost:3000,http://localhost:8888"
 )
     .split(",")
     .map(origin => origin.trim())
