@@ -857,7 +857,7 @@
            (the 600px cap is for the signed-out hub cards only). */
         #view-dash.main-container.view.active,
         #view-child.main-container.view.active {
-            max-width: 1060px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         /* Legacy inner wrapper from the old standalone page — must not re-cap. */
@@ -874,6 +874,46 @@
         [data-theme="dark"] .p-tab { background: #123B56; border-color: #1B4A6B; color: #93C5FD; }
         [data-theme="dark"] .p-tab.active { background: var(--blue); color: #fff; }
     
+
+        /* ============================================
+           CHILD VIEW (restored from child-profile.html)
+           ============================================ */
+        #view-child .wrap { display: grid; gap: 14px; padding: 0 0 40px; }
+        #view-child .card { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(15,35,64,.05); }
+        #view-child .card h2 { font-family: var(--font-head, inherit); font-weight: 900; color: var(--ink); }
+        #view-child .child-head { display: flex; align-items: center; gap: 16px; }
+        #view-child .child-head .avatar { width: 58px; height: 58px; border-radius: 18px; background: var(--blue-50, #EFF6FF); display: grid; place-items: center; font-size: 1.7rem; flex-shrink: 0; }
+        #view-child .child-head h2 { margin: 0 0 3px; font-size: 1.25rem; }
+        #view-child .child-head p { margin: 0; color: var(--muted); font-size: .9rem; }
+        #view-child .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+        #view-child .stat { background: var(--blue-50, #EFF6FF); border-radius: 14px; padding: 14px 12px; text-align: center; display: grid; gap: 3px; }
+        #view-child .stat b { font-size: 1.35rem; font-weight: 900; color: var(--blue-dark, #1D4ED8); }
+        #view-child .stat span { font-size: .7rem; font-weight: 800; letter-spacing: .06em; color: var(--muted); }
+        #view-child .loading { text-align: center; padding: 26px 0; color: var(--muted); font-weight: 700; }
+        #view-child .spinner { width: 30px; height: 30px; border: 3px solid var(--blue-50, #EFF6FF); border-top-color: var(--blue); border-radius: 50%; margin: 0 auto 10px; animation: pspin .8s linear infinite; }
+        @keyframes pspin { to { transform: rotate(360deg); } }
+        #view-child .err { text-align: center; padding: 30px 20px; }
+        #view-child .err h2 { color: var(--danger, #DC2626); }
+        #view-child .err .btn { display: inline-block; margin-top: 12px; }
+        #view-child .chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding: 8px 4px 0; }
+        #view-child .chart .bar { flex: 1; background: linear-gradient(180deg, var(--blue), var(--blue-dark, #1D4ED8)); border-radius: 6px 6px 0 0; min-height: 4px; transition: height .4s var(--ease-out, ease); position: relative; }
+        #view-child .chart .bar em { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: .62rem; font-weight: 900; color: var(--blue-dark, #1D4ED8); }
+        #view-child .empty-chart { width: 100%; text-align: center; color: var(--muted); font-size: .82rem; padding: 30px 0; }
+        #view-child .chart-days { display: flex; gap: 6px; padding: 4px 4px 0; }
+        #view-child .chart-days span { flex: 1; text-align: center; font-size: .68rem; font-weight: 800; color: var(--muted); }
+        #view-child .qa { display: flex; gap: 12px; flex-wrap: wrap; }
+        #view-child .qa .btn { flex: 1; min-width: 200px; text-align: center; justify-content: center; display: inline-flex; align-items: center; gap: 8px; }
+        #view-child .btn-p { background: var(--blue); color: #fff; border: none; border-radius: 12px; padding: 12px 18px; font-weight: 800; text-decoration: none; font-size: .9rem; }
+        #view-child .btn-p:hover { background: var(--blue-dark, #1D4ED8); }
+        #view-child .btn-s { background: #fff; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 12px; padding: 12px 18px; font-weight: 800; text-decoration: none; font-size: .9rem; }
+        #view-child .act-item { display: flex; align-items: center; gap: 10px; padding: 9px 2px; border-bottom: 1px solid var(--border); font-size: .88rem; }
+        #view-child .act-item:last-child { border-bottom: none; }
+        #view-child .act-item .when { margin-left: auto; color: var(--muted); font-size: .76rem; flex-shrink: 0; }
+        #view-child .sib-chip { border: 1.5px solid var(--border); background: #fff; color: var(--ink); border-radius: 999px; padding: 6px 14px; font-weight: 800; font-size: .8rem; cursor: pointer; text-decoration: none; }
+        #view-child .sib-chip.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+        [data-theme="dark"] #view-child .card { background: #0F2A3D; border-color: #1B4A6B; }
+        [data-theme="dark"] #view-child .stat { background: #123B56; }
+        [data-theme="dark"] #view-child .stat b { color: #93C5FD; }
 
         /* ============================================
            DASHBOARD VIEW (restored from parent-dashboard.html)
@@ -906,30 +946,33 @@
             display: flex;
             gap: 4px;
             background: var(--white);
-            border-bottom: 1px solid var(--border);
-            padding: 0 20px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 6px 10px;
+            margin-bottom: 18px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             max-width: 100%;
             box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(15,35,64,.05);
         }
         .tab-btn {
             background: none;
             border: none;
             color: var(--muted);
-            padding: 14px 20px;
-            font-weight: 600;
+            padding: 10px 16px;
+            font-weight: 700;
             font-size: 0.85rem;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-radius: 11px;
             transition: all var(--transition-smooth);
             white-space: nowrap;
             font-family: inherit;
         }
         .tab-btn:hover { color: var(--text); }
         .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
+            color: #fff;
+            background: var(--primary);
         }
         /* Welcome Section - LIGHT */
         .welcome-section {
@@ -2721,7 +2764,7 @@
                 document.getElementById('errMsg').textContent = 'Please log in as a parent to view this page.';
                 return;
             }
-            const childId = new URLSearchParams(location.search).get('id');
+            const childId = new URLSearchParams(location.search).get('child');
             if (!childId) { document.getElementById('loading').style.display = 'none'; document.getElementById('err').style.display = 'block'; return; }
             try {
                 const [cRes, tRes] = await Promise.all([
@@ -2758,7 +2801,7 @@
                         box.innerHTML = rows.slice(0, 8).map(r =>
                             '<div style="display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line,#EEF2F7);font-size:.8rem">' +
                             '<span>' + (ICON[r.activity_type] || '•') + '</span>' +
-                            '<span style="flex:1">' + String(r.title || r.detail || r.activity_type).replace(/[<>&]/g, '') + '</span>' +
+                            '<span style="flex:1">' + String(r.title || r.detail || r.message || r.description || r.activity_type || 'Activity').replace(/[<>&]/g, '') + '</span>' +
                             '<span style="color:var(--text-2);white-space:nowrap">' + lastActiveLabel(r.created_at) + '</span></div>'
                         ).join('');
                     })
@@ -2800,7 +2843,9 @@
                 }
 
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('main').hidden = false;
+                if (document.getElementById('err').style.display !== 'block') {
+                    document.getElementById('main').hidden = false;
+                }
             } catch (e) {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('err').style.display = 'block';
