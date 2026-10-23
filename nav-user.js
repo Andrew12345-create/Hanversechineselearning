@@ -62,10 +62,10 @@
     dropdown.className = 'nav-user-dropdown';
     dropdown.id = 'navUserDropdown';
     dropdown.innerHTML = `
-      <a href="https://learn-hanverse.netlify.app/profile.html">${I.user}<span>Profile</span></a>
-      <a href="https://learn-hanverse.netlify.app/settings.html">${I.settings}<span>Settings</span></a>
-      <a href="https://learn-hanverse.netlify.app/notifications.html">${I.bell}<span>Notifications</span></a>
-      <a href="https://learn-hanverse.netlify.app/payment.html" class="dd-premium">${I.star}<span>Go Premium</span></a>
+      <a href="profile.html">${I.user}<span>Profile</span></a>
+      <a href="settings.html">${I.settings}<span>Settings</span></a>
+      <a href="notifications.html">${I.bell}<span>Notifications</span></a>
+      <a href="payment.html" class="dd-premium">${I.star}<span>Go Premium</span></a>
       <div class="dd-divider"></div>
       <button class="dd-logout" id="navLogoutBtn">${I.logout}<span>Log Out</span></button>`;
     chip.setAttribute('aria-haspopup', 'true');
@@ -100,7 +100,7 @@
     });
     dropdown.querySelector('#navLogoutBtn').addEventListener('click', () => {
       localStorage.removeItem('hanverse_user');
-      window.location.href = 'https://learn-hanverse.netlify.app/login.html';
+      window.location.href = 'login.html';
     });
   }
 
@@ -122,7 +122,7 @@
     const chip = document.createElement('a');
     chip.className = 'nav-user nav-user-chip';
     chip.id = 'navUserChip';
-    chip.href = 'https://learn-hanverse.netlify.app/profile.html';
+    chip.href = 'profile.html';
 
     const avatarEl = document.createElement('span');
     avatarEl.className = 'avatar';
@@ -185,7 +185,7 @@
         <p style="color:${C.muted};font-size:14px;line-height:1.8;">Your account has been suspended from HanVerse.</p>
         ${reason ? `<p style="color:${C.ink};font-size:14px;background:#FFF7ED;border:1px solid #FFEDD5;border-radius:12px;padding:12px 16px;margin:16px 0;"><strong>Reason:</strong> ${reason}</p>` : ''}
         <p style="color:${C.muted};font-size:12px;margin-top:16px;">If you believe this is a mistake, contact support.</p>
-        <button onclick="localStorage.removeItem('hanverse_user');window.location.href='https://learn-hanverse.netlify.app/login.html';" style="margin-top:24px;padding:12px 28px;background:${C.coral};color:#fff;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;">Log Out</button>
+        <button onclick="localStorage.removeItem('hanverse_user');window.location.href='login.html';" style="margin-top:24px;padding:12px 28px;background:${C.coral};color:#fff;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;">Log Out</button>
       </div>`;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';

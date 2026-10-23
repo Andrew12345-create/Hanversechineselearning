@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard — HanVerse</title>
+    <meta name="theme-color" content="#2563EB">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="hanverse.css">
+    <script>try { if (localStorage.getItem("hanverse_theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}</script>
+    <style>
+        .dash-wrap { max-width: 1060px; margin: 0 auto; padding: 18px 16px 120px; display: grid; gap: 16px; }
+        .hero { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); border-radius: 22px; padding: 20px; color: #fff; display: flex; align-items: center; gap: 16px; box-shadow: 0 14px 34px rgba(37,99,235,.25); }
+        .hero .panda { width: 64px; height: 64px; border-radius: 20px; background: rgba(255,255,255,.16); display: grid; place-items: center; flex-shrink: 0; }
+        .hero .panda img { width: 52px; height: 52px; object-fit: contain; }
+        .hero h1 { font: 900 1.3rem var(--font-head); }
+        .hero p { font-size: .8rem; opacity: .85; margin-top: 3px; }
+        .ring-card, .fam-card, .wotd-card, .asg-card, .ach-card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: 0 4px 16px rgba(15,23,42,.04); }
+        .ring-row { display: flex; align-items: center; gap: 18px; }
+        .ring { width: 92px; height: 92px; flex-shrink: 0; }
+        .ring circle { fill: none; stroke-width: 9; stroke-linecap: round; }
+        .ring .bg { stroke: var(--line); }
+        .ring .fg { stroke: var(--blue); transition: stroke-dashoffset .8s var(--ease-out); }
+        .ring-num { font: 900 1.05rem var(--font-head); }
+        .ring-card h2, .fam-card h2, .wotd-card h2, .asg-card h2, .ach-card h2 { font: 900 1rem var(--font-head); margin-bottom: 10px; }
+        .sub { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+        .continue-card { display: block; background: linear-gradient(135deg, var(--blue-50), var(--blue-100)); border: 1px solid rgba(37,99,235,.25); border-radius: 22px; padding: 18px; text-decoration: none; color: inherit; transition: .2s; }
+        .continue-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .go { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; background: var(--blue); color: #fff; font: 900 .85rem var(--font-head); border-radius: var(--pill); padding: 10px 18px; }
+        .xp-chart { display: flex; align-items: flex-end; gap: 5px; height: 84px; }
+        .xp-bar { flex: 1; background: linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius: 6px 6px 2px 2px; min-height: 4px; }
+        .xp-days { display: flex; gap: 5px; margin-top: 5px; }
+        .xp-days span { flex: 1; text-align: center; font-size: .56rem; color: var(--muted); }
+        .asg { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: .82rem; }
+        .asg:last-child { border-bottom: 0; }
+        .pill { font-size: .62rem; font-weight: 900; padding: 4px 10px; border-radius: var(--pill); white-space: nowrap; }
+        .pill.due { background: var(--amber-50); color: #B45309; }
+        .pill.ok { background: var(--green-50); color: var(--green); }
+        .fam-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+        .fam-ava { width: 44px; height: 44px; border-radius: 14px; background: var(--green-50); display: grid; place-items: center; font-size: 1.3rem; flex-shrink: 0; }
+        .badge-n { background: #EF4444; color: #fff; font-size: .62rem; font-weight: 900; border-radius: var(--pill); padding: 3px 8px; }
+        .wotd-h { font-family: var(--font-cn); font-size: 1.7rem; font-weight: 700; }
+        .ach-shelf { display: flex; gap: 10px; flex-wrap: wrap; }
+        .ach { width: 64px; text-align: center; font-size: .58rem; color: var(--muted); }
+        .ach span { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 4px; border-radius: 16px; font-size: 1.4rem; background: var(--bg); }
+        .ach.earned span { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .skel { position: relative; overflow: hidden; background: var(--bg); border-radius: 8px; min-height: 12px; }
+        .skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: sh 1.2s infinite; }
+        @keyframes sh { to { transform: translateX(100%); } }
+        @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } .hero h1 { font-size: 1.1rem; } }
+
+        /* ─── Premium layer: motion, depth, delight ─── */
+        .dash-wrap > * { animation: rise .55s var(--ease-out) backwards; }
+        .dash-wrap > *:nth-child(1) { animation-delay: .04s; }
+        .dash-wrap > *:nth-child(2) { animation-delay: .1s; }
+        .dash-wrap > *:nth-child(3) { animation-delay: .16s; }
+        .dash-wrap > *:nth-child(4) { animation-delay: .22s; }
+        .dash-wrap > *:nth-child(5) { animation-delay: .28s; }
+        .dash-wrap > *:nth-child(6) { animation-delay: .34s; }
+        @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+        .hero { position: relative; overflow: hidden; }
+        .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+        .hero::before { width: 190px; height: 190px; right: -55px; top: -75px; background: radial-gradient(circle, rgba(255,255,255,.22), transparent 70%); animation: drift 9s ease-in-out infinite; }
+        .hero::after { width: 120px; height: 120px; right: 90px; bottom: -60px; background: radial-gradient(circle, rgba(255,255,255,.14), transparent 70%); animation: drift 7s ease-in-out infinite reverse; }
+        @keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .hero .panda { position: relative; z-index: 1; }
+        .hero .panda img { animation: bob 3.4s ease-in-out infinite; }
+        @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .hero h1 { letter-spacing: -.2px; text-shadow: 0 2px 12px rgba(15,35,64,.18); }
+
+        .ring-card, .fam-card, .wotd-card, .asg-card, .ach-card { transition: transform .2s var(--ease-out), box-shadow .2s var(--ease-out); }
+        .ring-card:hover, .fam-card:hover, .wotd-card:hover, .asg-card:hover, .ach-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+
+        .continue-card { position: relative; overflow: hidden; }
+        .continue-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.5) 50%, transparent 58%); transform: translateX(-130%); transition: transform .65s var(--ease-out); pointer-events: none; }
+        .continue-card:hover::after { transform: translateX(130%); }
+        .continue-card:hover .go { transform: translateX(3px); }
+        .go { transition: transform .2s var(--ease-out); }
+
+        .xp-bar { transform-origin: bottom; animation: grow .7s cubic-bezier(.2,.7,.3,1) backwards; }
+        .xp-bar:nth-child(1) { animation-delay: .05s; } .xp-bar:nth-child(2) { animation-delay: .1s; }
+        .xp-bar:nth-child(3) { animation-delay: .15s; } .xp-bar:nth-child(4) { animation-delay: .2s; }
+        .xp-bar:nth-child(5) { animation-delay: .25s; } .xp-bar:nth-child(6) { animation-delay: .3s; }
+        .xp-bar:nth-child(7) { animation-delay: .35s; }
+        @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+        .xp-bar.today { background: linear-gradient(90deg, var(--coral), var(--coral-dark)); box-shadow: 0 0 12px rgba(249,115,22,.35); }
+        .xp-days span.today { color: var(--coral-dark); font-weight: 900; }
+
+        .badge-n { animation: beat 2.2s var(--ease-out) infinite; }
+        @keyframes beat { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,.4); } 70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+
+        .ach span { transition: transform .2s var(--ease-out); }
+        .ach:hover span { transform: scale(1.08) rotate(-3deg); }
+        .ach.earned span { box-shadow: 0 6px 14px rgba(245,158,11,.28); }
+        .ach:not(.earned) { opacity: .55; filter: saturate(.6); }
+
+        .wotd-h { background: linear-gradient(120deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .continue-card:focus-visible, .fam-link:focus-visible { outline: 3px solid var(--blue-mid); outline-offset: 3px; border-radius: 22px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ring .fg, .continue-card, .skel::after, .go { transition: none; animation: none; }
+            .dash-wrap > *, .hero::before, .hero::after, .hero .panda img, .xp-bar, .badge-n { animation: none; }
+        }
+
+        /* Dark theme (same opt-in recipe as learn.html) */
+        [data-theme="dark"] .dash-wrap { color: #E8F1FA; }
+        [data-theme="dark"] .sub { color: var(--soft); }
+        [data-theme="dark"] .ring-card, [data-theme="dark"] .fam-card, [data-theme="dark"] .wotd-card,
+        [data-theme="dark"] .asg-card, [data-theme="dark"] .ach-card { background: #12283A; border-color: rgba(36,68,88,.85); }
+        [data-theme="dark"] .ring-card h2, [data-theme="dark"] .fam-card h2, [data-theme="dark"] .wotd-card h2,
+        [data-theme="dark"] .asg-card h2, [data-theme="dark"] .ach-card h2 { color: #F1F5F9; }
+        [data-theme="dark"] .ring .bg { stroke: rgba(36,68,88,.85); }
+        [data-theme="dark"] .xp-days span, [data-theme="dark"] .ach { color: var(--soft); }
+        [data-theme="dark"] .asg { border-bottom-color: rgba(36,68,88,.85); }
+        [data-theme="dark"] .continue-card { background: rgba(37,99,235,.14); border-color: rgba(37,99,235,.4); }
+        [data-theme="dark"] .skel { background: #12354D; }
+        [data-theme="dark"] .skel::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); }
+        [data-theme="dark"] .ach span { background: #12354D; }
+        @media (prefers-reduced-motion: reduce) { .ring .fg, .continue-card, .skel::after { transition: none; animation: none; } }
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">
+        <a class="brand" href="dashboard.html" aria-label="HanVerse home">
+            <img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">
+            <span>HanVerse</span>
+        </a>
+        <div class="nav-links">
+            <a href="learn.html">Learn</a>
+            <a href="explore.html">Explore</a>
+            <a href="practice.html">Practice</a>
+            <a href="roadmap.html">Roadmap</a>
+            <a href="parents.html">Parents</a>
+        </div>
+        <div class="nav-actions">
+            <a class="nav-user" href="profile.html"><span class="avatar" id="avatar">👤</span><span id="userName">Learner</span></a>
+        </div>
+    </nav>
+    <main class="dash-wrap" id="main">
+        <section class="hero">
+            <div class="panda"><img src="assets/mascot/states/hanpan-waving.png" alt="HanPan" width="52" height="52"></div>
+            <div style="flex:1">
+                <h1 id="greet">Hi! 👋</h1>
+                <p id="greetSub">Let's see what you did this week.</p>
+            </div>
+        </section>
+
+        <div class="grid2">
+            <section class="ring-card">
+                <h2>Today's goal</h2>
+                <div class="ring-row">
+                    <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
+                        <circle class="bg" cx="50" cy="50" r="42"></circle>
+                        <circle class="fg" cx="50" cy="50" r="42" transform="rotate(-90 50 50)" stroke-dasharray="263.9" stroke-dashoffset="263.9"></circle>
+                    </svg>
+                    <div>
+                        <div class="ring-num" id="ringNum">— / — XP</div>
+                        <p style="font-size:.72rem;color:var(--muted);margin-top:4px" id="ringSub">Finish a lesson to add XP!</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="ring-card">
+                <h2>This week's XP</h2>
+                <div class="xp-chart" id="xpChart"><div class="skel" style="flex:1;height:100%"></div></div>
+                <div class="xp-days" id="xpDays"></div>
+            </section>
+        </div>
+
+        <a class="continue-card" id="continueCard" href="learn.html">
+            <h2 style="margin-bottom:10px">Continue learning</h2>
+            <p id="contText" style="font-size:.8rem;color:var(--muted);margin-top:4px">Finding your next lesson…</p>
+            <span class="go" id="contGo">Continue →</span>
+        </a>
+
+        <div class="grid2">
+            <section class="fam-card">
+                <h2>👨‍👩‍👧 Family zone</h2>
+                <a class="fam-link" href="#" id="famOpen">
+                    <div class="fam-ava">💌</div>
+                    <div style="flex:1">
+                        <strong style="font-size:.85rem" id="famTitle">Family messages</strong>
+                        <p style="font-size:.7rem;color:var(--muted)" id="famSub">Check your encouragements</p>
+                    </div>
+                    <span class="badge-n" id="famBadge" hidden>0</span>
+                </a>
+            </section>
+
+            <section class="asg-card">
+                <h2>📝 My tasks</h2>
+                <div id="asgList"><div class="skel" style="width:100%;height:14px"></div></div>
+            </section>
+        </div>
+
+        <div class="grid2">
+            <section class="asg-card">
+                <h2>🗺️ Roadmap</h2>
+                <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">See the whole journey — what's done and what's unlocked next.</p>
+                <a class="go" style="font-size:.8rem;padding:9px 16px;margin-top:0" href="roadmap.html">Open roadmap →</a>
+            </section>
+
+            <section class="asg-card">
+                <h2>🕒 Recent activity</h2>
+                <div id="actList"><div class="skel" style="width:100%;height:14px"></div></div>
+            </section>
+        </div>
+
+        <div class="grid2">
+            <section class="wotd-card">
+                <h2>🀄 Word of the day</h2>
+                <div class="wotd-h" id="wH">…</div>
+                <div style="font-size:.72rem;color:var(--muted)" id="wP">loading</div>
+                <p style="font-size:.8rem;margin-top:4px" id="wM"></p>
+            </section>
+
+            <section class="ach-card">
+                <h2>🏅 Milestones</h2>
+                <div class="ach-shelf" id="achShelf"></div>
+            </section>
+        </div>
+    </main>
+
+    <script src="notifications-client.js"></script>
+    <script src="bottom-nav.js"></script>
+    <script src="shared-nav.js"></script>
+    <script src="nav-user.js"></script>
+    <script src="hanverse.js"></script>
+    <script>
+    (function () {
+        'use strict';
+        var SESSION_KEYS = ["hanverse_user", "hanverseUser", "hanverse_session", "hanverseSession", "user", "currentUser", "authUser"];
+        var user = null;
+        for (var k = 0; k < SESSION_KEYS.length; k++) {
+            try {
+                var raw = localStorage.getItem(SESSION_KEYS[k]);
+                if (!raw) continue;
+                var p = JSON.parse(raw);
+                var u = p && p.user ? p.user : p;
+                if (u && (u.user_id || u.userId || u.id)) { user = u; break; }
+            } catch (e) {}
+        }
+        if (!user) { location.replace("login.html?next=" + encodeURIComponent("dashboard.html")); return; }
+        if (String(user.role || '').toLowerCase() === 'parent') { location.replace("parents.html?view=dashboard"); return; }
+        var id = user.user_id || user.userId || user.id;
+        var API = "/api";
+
+        function request(path) {
+            return fetch(API + "/" + String(path).replace(/^\/+/, ""), {
+                credentials: "include", cache: "no-store",
+                headers: { Accept: "application/json" }
+            }).then(function (r) {
+                return r.json().then(function (d) {
+                    if (!r.ok) throw new Error((d && d.error) || ("HTTP " + r.status));
+                    return d;
+                });
+            });
+        }
+
+        // Greeting
+        var h = new Date().getHours();
+        var part = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+        var first = String(user.full_name || user.username || "Learner").trim().split(/\s+/)[0];
+        document.getElementById("greet").textContent = part + ", " + first + "! 👋";
+        var streak = Number(user.streak_days || 0);
+        document.getElementById("greetSub").textContent = streak > 0
+            ? "🔥 " + streak + "-day streak — keep it going!"
+            : "Let's see what you did this week.";
+
+        // Daily goal ring (goal kept locally; XP real from /my/progress)
+        var GOAL = 30;
+        try { GOAL = Math.max(10, parseInt(localStorage.getItem("hanverse_daily_goal")) || 30); } catch (e) {}
+        function paintRing(xpToday) {
+            var pct = Math.min(1, xpToday / GOAL);
+            var C = 263.9;
+            document.querySelector(".ring .fg").style.strokeDashoffset = String(C * (1 - pct));
+            document.getElementById("ringNum").textContent = xpToday + " / " + GOAL + " XP";
+            document.getElementById("ringSub").textContent = pct >= 1 ? "Goal smashed! 🎉" : (GOAL - xpToday) + " XP to reach today's goal";
+        }
+        paintRing(0);
+
+        // XP chart + ring data + next lesson from real rows
+        var week = {};
+        var today = new Date();
+        for (var d = 0; d < 7; d++) {
+            var dd = new Date(today.getTime() - d * 86400000).toISOString().slice(0, 10);
+            week[dd] = 0;
+        }
+        Promise.all([
+            request("my/progress").catch(function () { return { progress: [] }; }),
+            request("lessons").catch(function () { return { lessons: [], data: [] }; }),
+            request("my/assignments").catch(function () { return { assignments: [] }; }),
+            request("my/activities").catch(function () { return { activities: [], failed: true }; })
+        ]).then(function (res) {
+            var rows = (res[0] && (res[0].progress || res[0].data)) || [];
+            var lessons = (res[1] && (res[1].lessons || res[1].data || res[1])) || [];
+            var asgs = (res[2] && res[2].assignments) || [];
+            if (!Array.isArray(lessons)) lessons = [];
+
+            var xpToday = 0, xpWeek = 0, done = {};
+            rows.forEach(function (r) {
+                if (r.completed) done[r.lesson_id] = true;
+                if (!r.completed_at) return;
+                var day = String(r.completed_at).slice(0, 10);
+                var xp = Number(r.xp_earned || 0);
+                if (day in week) { week[day] += xp; xpWeek += xp; }
+                if (day === today.toISOString().slice(0, 10)) xpToday += xp;
+            });
+            paintRing(xpToday);
+
+            var max = Math.max(1, xpWeek);
+            var days = [];
+            var bars = [];
+            for (var i = 6; i >= 0; i--) {
+                var dd2 = new Date(today.getTime() - i * 86400000).toISOString().slice(0, 10);
+                var v = week[dd2] || 0;
+                var t = new Date(dd2);
+                bars.push('<div class="xp-bar' + (i === 0 ? ' today' : '') + '" style="height:' + Math.max(4, Math.round(v / max * 100)) + '%" title="' + dd2 + ': ' + v + ' XP"></div>');
+                days.push('<span' + (i === 0 ? ' class="today"' : '') + '>' + 'SMTWTFS'[t.getDay()] + '</span>');
+            }
+            document.getElementById("xpChart").innerHTML = bars.join("");
+            document.getElementById("xpDays").innerHTML = days.join("");
+
+            // Next lesson: first curriculum lesson not completed
+            var next = null;
+            for (var L = 0; L < lessons.length; L++) {
+                var lid = lessons[L].id || lessons[L].lesson_id || lessons[L]._id;
+                if (lid != null && !done[lid]) { next = lessons[L]; break; }
+            }
+            var cont = document.getElementById("continueCard");
+            if (next) {
+                var nid = next.id || next.lesson_id || next._id;
+                var title = next.title || next.name || "your next lesson";
+                cont.href = "lesson.html?id=" + encodeURIComponent(nid);
+                document.getElementById("contText").textContent = "Up next: " + title;
+            } else if (rows.length) {
+                document.getElementById("contText").textContent = "You finished every available lesson. Amazing! 🎉";
+                document.getElementById("contGo").textContent = "Review lessons →";
+            } else {
+                cont.href = "placement.html";
+                document.getElementById("contText").textContent = "Take the placement quiz to find your level!";
+                document.getElementById("contGo").textContent = "Start quiz →";
+            }
+
+            // Assignments
+            var list = document.getElementById("asgList");
+            if (!asgs.length) {
+                list.innerHTML = '<p style="font-size:.75rem;color:var(--muted)">No tasks from your family right now. Keep learning! 🐼</p>';
+            } else {
+                list.innerHTML = asgs.slice(0, 4).map(function (a) {
+                    var pend = a.status !== 'completed';
+                    return '<div class="asg"><span style="flex:1">' +
+                        (pend ? "⬜ " : "✅ ") + String(a.title || "Task") + "</span>" +
+                        '<span class="pill ' + (pend ? "due" : "ok") + '">' + (pend ? "To do" : "Done") + "</span></div>";
+                }).join("");
+            }
+
+            // Recent activity — real child_activities rows for this user only.
+            var acts = (res[3] && res[3].activities) || [];
+            var actBox = document.getElementById("actList");
+            if (actBox) {
+                if (!acts.length) {
+                    actBox.innerHTML = '<p style="font-size:.75rem;color:var(--muted)">' + (res[3] && res[3].failed ? 'Activity is unavailable right now — check back soon.' : 'Your learning story starts with the first lesson! 🐼') + '</p>';
+                } else {
+                    var AICON = { lesson: "📚", quiz: "🧠", game: "🎮", achievement: "🏆", streak: "🔥" };
+                    actBox.innerHTML = acts.slice(0, 6).map(function (a) {
+                        var t = new Date(a.created_at);
+                        var when = (Date.now() - t.getTime()) < 86400000 ? t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : t.toLocaleDateString();
+                        return '<div class="asg"><span style="flex:1">' + (AICON[a.activity_type] || "•") + " " + String(a.title || a.detail || a.activity_type).replace(/[<>&]/g, "") + '</span><span style="color:var(--muted);white-space:nowrap">' + when + "</span></div>";
+                    }).join("");
+                }
+            }
+
+            // Milestones from real numbers
+            var xp = Number(user.xp || 0), lv = Number(user.level || user.current_yct || 1);
+            var ms = [
+                { icon: "🐼", label: "First login", got: true },
+                { icon: "🔥", label: "3-day streak", got: streak >= 3 },
+                { icon: "⭐", label: "100 XP", got: xp >= 100 },
+                { icon: "🎯", label: "Level " + (lv + 1), got: false },
+                { icon: "🏆", label: "500 XP", got: xp >= 500 }
+            ];
+            document.getElementById("achShelf").innerHTML = ms.map(function (m) {
+                return '<div class="ach' + (m.got ? " earned" : "") + '"><span>' + m.icon + "</span>" + m.label + "</div>";
+            }).join("");
+        }).catch(function () {
+            var wrap = document.querySelector(".dash-wrap");
+            if (!wrap || document.getElementById("dashErr")) return;
+            var bar = document.createElement("div");
+            bar.id = "dashErr";
+            bar.style.cssText = "background:#FEF2F2;border:1px solid #FECACA;border-radius:14px;padding:12px 16px;font-size:.82rem;color:#B91C1C;display:flex;align-items:center;gap:12px";
+            bar.innerHTML = "Couldn't load your dashboard. <button id='dashRetry' style='margin-left:auto;background:var(--coral);color:#fff;border:0;border-radius:var(--pill);padding:7px 14px;font-weight:800;cursor:pointer'>Try again</button>";
+            wrap.prepend(bar);
+            document.getElementById("dashRetry").addEventListener("click", function () { location.reload(); });
+        });
+
+        // Family zone — real unread count from the family endpoint
+        request("family/messages").then(function (d) {
+            if (!d || !d.success) return;
+            var un = Number(d.unread) || 0;
+            var b = document.getElementById("famBadge");
+            if (un > 0) { b.hidden = false; b.textContent = un; document.getElementById("famSub").textContent = un + " new message" + (un > 1 ? "s" : "") + " from your family!"; }
+            if (d.messages && d.messages.length) document.getElementById("famSub").textContent = "Latest: " + String(d.messages[0].subject || "message").slice(0, 40);
+            document.getElementById("famOpen").addEventListener("click", function (e) {
+                e.preventDefault();
+                var bell = document.getElementById("hn-bell");
+                if (bell) bell.click();
+                setTimeout(function () { var f = document.getElementById("hn-fam-btn"); if (f) f.click(); }, 350);
+            });
+        }).catch(function () {});
+
+        // Word of the day — real curriculum word
+        fetch(API + "/lessons/daily-word", { credentials: "include" }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d && d.success && d.word && d.word.chinese) {
+                document.getElementById("wH").textContent = d.word.chinese;
+                document.getElementById("wP").textContent = d.word.pinyin || "";
+                document.getElementById("wM").textContent = d.word.english || "";
+            }
+        }).catch(function () {});
+    })();
+    </script>
+</body>
+</html>
