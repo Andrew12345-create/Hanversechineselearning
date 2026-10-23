@@ -609,7 +609,7 @@ a{color:inherit}button,input{font:inherit}.hidden{display:none!important}
                 showToast('info', `Already logged in as ${name}. Redirecting...`);
                 setTimeout(() => {
                     if (session?.role === 'parent') {
-                        window.location.href = 'parent-dashboard.html';
+                        window.location.href = 'parents.html?view=dashboard';
                     } else {
                         window.location.href = 'learn.html';
                     }
@@ -918,7 +918,7 @@ async function signupUser() {
             // quiz so their level and roadmap are set before Learn.
             setTimeout(() => {
                 if (selectedRole === 'parent') {
-                    window.location.href = 'parent-dashboard.html';
+                    window.location.href = 'parents.html?view=dashboard';
                 } else if (response.isNewUser) {
                     window.location.href = 'placement.html?first=1';
                 } else {

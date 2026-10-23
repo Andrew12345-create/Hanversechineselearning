@@ -18,7 +18,7 @@
       if (u && u.user) u = u.user;
       if (u && (u.user_id || u.userId || u.id)) {
         var role = String(u.role || '').toLowerCase();
-        location.replace(role === 'parent' ? 'parent-dashboard.html' : role === 'admin' ? 'admin.html' : 'dashboard.html');
+        location.replace(role === 'parent' ? 'parents.html?view=dashboard' : role === 'admin' ? 'admin.html' : 'dashboard.html');
         return;
       }
     } catch (e) {}

@@ -1038,6 +1038,17 @@
                 font-size: 0.9rem;
             }
         }
+
+        /* ===== MERGED DASHBOARD/CHILD VIEWS ===== */
+        .view { display: none; }
+        .view.active { display: block; }
+        .p-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px; margin-bottom: 6px; }
+        .p-tab { white-space: nowrap; border: 1px solid var(--border); background: #fff; color: var(--muted); padding: 10px 16px; border-radius: 999px; font-weight: 800; font-size: .82rem; cursor: pointer; font-family: inherit; }
+        .p-tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+        .p-viewbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .p-back { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: .85rem; color: var(--blue); text-decoration: none; }
+        [data-theme="dark"] .p-tab { background: #123B56; border-color: #1B4A6B; color: #93C5FD; }
+        [data-theme="dark"] .p-tab.active { background: var(--blue); color: #fff; }
     </style>
 </head>
 <body>
@@ -1062,7 +1073,7 @@
     </nav>
 
     <!-- ===== MAIN CONTENT ===== -->
-    <div class="main-container">
+    <div class="main-container view active" id="view-hub">
         <div class="status-card">
             <!-- Status Icon -->
             <div id="statusIcon" class="status-icon loading">
@@ -1119,7 +1130,7 @@
 
             <!-- Success Area (Verified) -->
             <div id="successArea" style="display:none;">
-                <button class="btn btn-success" onclick="window.location.href='parent-dashboard.html'">
+                <button class="btn btn-success" onclick="pvShow('dash');history.pushState({},'','/parents.html?view=dashboard')">
                     <i class="fas fa-arrow-right" aria-hidden="true"></i> Go to Parent Dashboard
                 </button>
 
@@ -1184,6 +1195,341 @@
             </div>
         </div>
     </div>
+
+    <!-- ===== PARENT HUB VIEWS (dashboard + child profile) ===== -->
+    <div class="main-container view" id="view-dash">
+    <!-- TAB BAR                                    -->
+    <!-- ========================================== -->
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">
+            <i class="fas fa-chart-pie"></i> Overview
+        </button>
+        <button class="tab-btn" data-tab="children" onclick="switchTab('children')">
+            <i class="fas fa-user-friends"></i> Children
+        </button>
+        <button class="tab-btn" data-tab="assignments" onclick="switchTab('assignments')">
+            <i class="fas fa-tasks"></i> Assignments
+        </button>
+        <button class="tab-btn" data-tab="insights" onclick="switchTab('insights')">
+            <i class="fas fa-lightbulb"></i> Insights
+        </button>
+        <button class="tab-btn" data-tab="messages" onclick="switchTab('messages')">
+            <i class="fas fa-comment-dots"></i> Messages
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT                               -->
+    <!-- ========================================== -->
+    <div class="main-container">
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+            <div class="spinner"></div>
+            <p>Loading your dashboard...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" style="display:none;">
+
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    <h1>👋 Welcome back, <span id="parentName">Parent</span>!</h1>
+                    <p>Monitor progress, assign lessons, and celebrate achievements.</p>
+                </div>
+                <div class="welcome-badge">
+                    <span class="badge-item verified">
+                        <i class="fas fa-check-circle"></i> Verified Parent
+                    </span>
+                    <span class="badge-item" id="premiumBadge" style="display:none;">
+                        <i class="fas fa-crown"></i> Premium
+                    </span>
+                    <span class="badge-item">
+                        <i class="fas fa-calendar-alt"></i> <span id="todayDate"></span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👨‍👩‍👧‍👦</div>
+                    <div class="stat-number" id="totalChildren">0</div>
+                    <div class="stat-label">Children</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-number" id="totalLessons">0</div>
+                    <div class="stat-label">Lessons Completed</div>
+                    <div class="stat-trend">↑ <span id="lessonTrend">0</span>%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌟</div>
+                    <div class="stat-number" id="totalAchievements">0</div>
+                    <div class="stat-label">Achievements</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-number" id="totalStreak">0</div>
+                    <div class="stat-label">Combined Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-number" id="totalHours">0</div>
+                    <div class="stat-label">Hours Learned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏅</div>
+                    <div class="stat-number" id="avgProgress">0%</div>
+                    <div class="stat-label">Average Progress</div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: OVERVIEW                              -->
+            <!-- ========================================== -->
+            <div id="tab-overview" class="tab-content active">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-friends"></i> Your Children</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openAddChildModal()">
+                        <i class="fas fa-plus"></i> Add Child
+                    </button>
+                </div>
+                <div id="childrenGrid" class="children-grid"></div>
+
+                <div class="section-header" style="margin-top:10px;">
+                    <h2><i class="fas fa-link"></i> Family Connect</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="window.location.href='parents.html#family-connect'">
+                        <i class="fas fa-user-plus"></i> Reconnect a Child
+                    </button>
+                </div>
+                <p style="font-size:.8rem;color:var(--text-light, #64748B);margin-bottom:10px;">
+                    Keep your family's learning connected. Has your child created a separate
+                    HanVerse account? Reconnect it from the Parent Hub — their progress stays intact.
+                </p>
+                <div id="familyConnectCard" class="card" style="padding:14px 16px;">
+                    <div class="skel" style="width:70%;height:14px"></div>
+                </div>
+
+                <div class="section-header" style="margin-top:10px;">
+                    <h2><i class="fas fa-clock"></i> Recent Activity</h2>
+                </div>
+                <div id="activityFeed" class="activity-feed"></div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: CHILDREN (Detailed)                   -->
+            <!-- ========================================== -->
+            <div id="tab-children" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-graduate"></i> All Children Details</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openAddChildModal()">
+                        <i class="fas fa-plus"></i> Add Child
+                    </button>
+                </div>
+                <div id="childrenDetailGrid" class="children-grid"></div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: ASSIGNMENTS (DB-backed)               -->
+            <!-- ========================================== -->
+            <div id="tab-assignments" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-tasks"></i> Assignments</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openAssignmentModal()">
+                        <i class="fas fa-plus"></i> New Assignment
+                    </button>
+                </div>
+                <div id="assignmentsContainer"></div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: INSIGHTS (computed from progress)     -->
+            <!-- ========================================== -->
+            <div id="tab-insights" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-lightbulb"></i> Learning Insights</h2>
+                </div>
+                <div id="insightsContainer"></div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: MESSAGES (DB-backed)                  -->
+            <!-- ========================================== -->
+            <div id="tab-messages" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-comment-dots"></i> Messages</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openMessageModal()">
+                        <i class="fas fa-pen"></i> New Message
+                    </button>
+                </div>
+                <div id="messagesContainer"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ADD CHILD MODAL                            -->
+    <!-- ========================================== -->
+    <div class="modal-overlay" id="addChildModal">
+        <div class="modal">
+            <h2>👶 Add a Child</h2>
+            <p>Create a learning account for your child.</p>
+            <form id="addChildForm">
+                <label for="childName">Full Name *</label>
+                <input type="text" id="childName" placeholder="e.g., Emma Smith" required>
+
+                <label for="childAge" style="margin-top:12px;">Age *</label>
+                <input type="number" id="childAge" placeholder="e.g., 8" min="4" max="18" required>
+
+                <label for="childLevel" style="margin-top:12px;">Current Level</label>
+                <select id="childLevel">
+                    <option value="YCT 1">YCT 1 - Beginner</option>
+                    <option value="YCT 2">YCT 2 - Elementary</option>
+                    <option value="YCT 3">YCT 3 - Intermediate</option>
+                    <option value="YCT 4">YCT 4 - Upper Intermediate</option>
+                </select>
+
+                <label for="childUsername" style="margin-top:12px;">Username *</label>
+                <input type="text" id="childUsername" placeholder="e.g., emma_smith" required>
+
+                <label for="childEmail" style="margin-top:12px;">Email (optional)</label>
+                <input type="email" id="childEmail" placeholder="e.g., emma@example.com">
+
+                <label for="childPassword" style="margin-top:12px;">Password *</label>
+                <input type="password" id="childPassword" placeholder="Min 6 characters" required minlength="6">
+
+                <label for="childConfirmPassword" style="margin-top:12px;">Confirm Password *</label>
+                <input type="password" id="childConfirmPassword" placeholder="Re-enter password" required>
+
+                <div id="addChildError" style="color:var(--danger);font-size:0.8rem;margin-top:8px;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addChildModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="addChildBtn">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ASSIGNMENT MODAL (DB-backed)               -->
+    <!-- ========================================== -->
+    <div class="modal-overlay" id="assignmentModal">
+        <div class="modal">
+            <h2>📝 New Assignment</h2>
+            <p>Assign a task for your child to complete.</p>
+            <form id="assignmentForm">
+                <label for="assignChild">Select Child *</label>
+                <select id="assignChild" required></select>
+
+                <label for="assignTitle" style="margin-top:12px;">Assignment Title *</label>
+                <input type="text" id="assignTitle" placeholder="e.g., Practice Greetings" maxlength="120" required>
+
+                <label for="assignDescription" style="margin-top:12px;">Description</label>
+                <textarea id="assignDescription" placeholder="What should they practice?" maxlength="2000"></textarea>
+
+                <label for="assignDueDate" style="margin-top:12px;">Due Date</label>
+                <input type="date" id="assignDueDate">
+
+                <div id="assignError" style="color:var(--danger);font-size:0.8rem;margin-top:8px;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('assignmentModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MESSAGE MODAL (DB-backed)                  -->
+    <!-- ========================================== -->
+    <div class="modal-overlay" id="messageModal">
+        <div class="modal">
+            <h2>💬 Send Message</h2>
+            <p>Send encouragement or updates to your child.</p>
+            <form id="messageForm">
+                <label for="msgChild">Select Child *</label>
+                <select id="msgChild" required></select>
+
+                <label for="msgSubject" style="margin-top:12px;">Subject *</label>
+                <input type="text" id="msgSubject" placeholder="e.g., Great Job!" maxlength="120" required>
+
+                <label for="msgContent" style="margin-top:12px;">Message *</label>
+                <textarea id="msgContent" placeholder="Write your message here..." required rows="4" maxlength="4000"></textarea>
+
+                <div id="msgError" style="color:var(--danger);font-size:0.8rem;margin-top:8px;"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('messageModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TOAST                                      -->
+    <!-- ========================================== -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+    </div>
+
+    <div class="view" id="view-child">
+        <div class="main-container">
+        <div class="p-viewbar"><a class="p-back" href="#hub" data-goto="hub">‹ Back to dashboard</a></div>
+        <div class="loading" id="loading" style="display:none"><div class="spinner"></div>Loading progress...</div>
+        <div class="err" id="err" style="display:none">
+            <h2>Can't show this child</h2>
+            <p id="errMsg">This account isn't linked to your parent account.</p>
+            <a class="btn btn-s" href="#" data-goto="dash">Back to dashboard</a>
+        </div>
+        <main class="wrap" id="main" hidden>
+        <section class="card child-head">
+            <div class="avatar" id="cAvatar">🐼</div>
+            <div>
+                <h2 id="cName">—</h2>
+                <p id="cMeta">—</p>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="stat-row">
+                <div class="stat"><b id="sXp">0</b><span>TOTAL XP</span></div>
+                <div class="stat"><b id="sStreak">0</b><span>DAY STREAK</span></div>
+                <div class="stat"><b id="sLessons">0</b><span>LESSONS DONE</span></div>
+                <div class="stat"><b id="sAch">0</b><span>🏆 BADGES</span></div>
+                <div class="stat"><b id="sActive">—</b><span>LAST ACTIVE</span></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 style="font-size:1rem">Recent activity</h2>
+            <div id="actFeed" style="margin-top:8px"></div>
+            <h2 style="font-size:1rem;margin-top:18px">XP this period</h2>
+            <div class="chart" id="chart"></div>
+            <div class="chart-days" id="chartDays"></div>
+        </section>
+
+        <div id="sibNav" hidden style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"></div>
+
+        <section class="card qa">
+            <a class="btn btn-p" id="btnEncourage" href="#">💬 Send encouragement</a>
+            <a class="btn btn-s" id="btnAssign" href="#">📝 Assign a lesson</a>
+        </section>
+        <p style="text-align:center;margin-top:14px"><a href="#" data-goto="dash" style="font-size:.85rem">← Back to dashboard</a></p>
+    </main>
+        </div>
+    </div>
+
+
 
     <!-- ===== BOTTOM NAV ===== -->
     <nav class="bottom-nav">
@@ -1667,7 +2013,8 @@
 
                 // Auto-redirect after 3 seconds
                 setTimeout(() => {
-                    window.location.href = 'parent-dashboard.html';
+                    pvShow('dash');
+                    history.pushState({}, '', '/parents.html?view=dashboard');
                 }, 3000);
             }
 
@@ -1765,5 +2112,977 @@
         })();
     </script>
 
+    <script src="shared-nav.js"></script>
+    <script src="nav-user.js"></script>
+    <script src="notifications-client.js"></script>
+    <script src="bottom-nav.js"></script>
+    <script>
+
+        /* ===== VIEW ROUTER: hub | dash | child?id= ===== */
+        (function(){
+            var views={hub:document.getElementById('view-hub'),dash:document.getElementById('view-dash'),child:document.getElementById('view-child')};
+            function show(name){
+                Object.keys(views).forEach(function(k){ views[k].classList.toggle('active',k===name); });
+                window.scrollTo(0,0);
+            }
+            function route(){
+                var q=new URLSearchParams(location.search);
+                if(q.get('child')){ show('child'); if(window.renderChildProfile) window.renderChildProfile(q.get('child')); }
+                else if(q.get('view')==='dashboard'||q.get('assign')||q.get('message')){ show('dash'); }
+                else show('hub');
+            }
+            document.addEventListener('click',function(e){
+                var t=e.target.closest('[data-goto]');
+                if(t){ e.preventDefault(); var v=t.getAttribute('data-goto'); show(v); history.pushState({},'',v==='dash'?'/parents.html?view=dashboard':'/parents.html'); }
+            });
+            window.addEventListener('popstate',route);
+            window.pvShow=show;
+            window.pvRoute=route;
+            route();
+        })();
+    </script>
+    <script>            // ==========================================
+        // CONFIGURATION
+        // ==========================================
+        const API_URL = '/api';
+        const SESSION_KEY = 'hanverse_user';
+
+        // Every dashboard call carries the JWT — the backend rejects
+        // unauthenticated data loads with 401.
+        async function authFetch(path, options = {}) {
+            const token = localStorage.getItem('hanverse_token');
+            const response = await fetch(`${API_URL}${path}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    ...(options.headers || {})
+                }
+            });
+            const data = await response.json().catch(() => ({}));
+            if (response.status === 401) {
+                localStorage.removeItem(SESSION_KEY);
+                localStorage.removeItem('hanverse_token');
+                window.location.href = 'login.html';
+                throw new Error('Session expired — please sign in again.');
+            }
+            if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+            return data;
+        }
+
+        // ==========================================
+        // STATE
+        // ==========================================
+        const state = {
+            parent: null,
+            children: [],
+            activities: [],
+            assignments: [],
+            messages: [],
+            trend: null,
+            currentTab: 'overview',
+            selectedChild: null,
+        };
+
+        // ==========================================
+        // DOM REFERENCES
+        // ==========================================
+        const DOM = {
+            loadingState: document.getElementById('loadingState'),
+            dashboardContent: document.getElementById('dashboardContent'),
+            parentName: document.getElementById('parentName'),
+            todayDate: document.getElementById('todayDate'),
+            totalChildren: document.getElementById('totalChildren'),
+            totalLessons: document.getElementById('totalLessons'),
+            totalAchievements: document.getElementById('totalAchievements'),
+            totalStreak: document.getElementById('totalStreak'),
+            totalHours: document.getElementById('totalHours'),
+            avgProgress: document.getElementById('avgProgress'),
+            lessonTrend: document.getElementById('lessonTrend'),
+            childrenGrid: document.getElementById('childrenGrid'),
+            childrenDetailGrid: document.getElementById('childrenDetailGrid'),
+            activityFeed: document.getElementById('activityFeed'),
+            assignmentsContainer: document.getElementById('assignmentsContainer'),
+            insightsContainer: document.getElementById('insightsContainer'),
+            messagesContainer: document.getElementById('messagesContainer'),
+            premiumBadge: document.getElementById('premiumBadge'),
+            toast: document.getElementById('toast'),
+            toastIcon: document.getElementById('toastIcon'),
+            toastMessage: document.getElementById('toastMessage'),
+            // Modals
+            addChildModal: document.getElementById('addChildModal'),
+            addChildForm: document.getElementById('addChildForm'),
+            childName: document.getElementById('childName'),
+            childAge: document.getElementById('childAge'),
+            childLevel: document.getElementById('childLevel'),
+            childUsername: document.getElementById('childUsername'),
+            childEmail: document.getElementById('childEmail'),
+            childPassword: document.getElementById('childPassword'),
+            childConfirmPassword: document.getElementById('childConfirmPassword'),
+            addChildError: document.getElementById('addChildError'),
+            addChildBtn: document.getElementById('addChildBtn'),
+            assignmentForm: document.getElementById('assignmentForm'),
+            assignChild: document.getElementById('assignChild'),
+            assignTitle: document.getElementById('assignTitle'),
+            assignDescription: document.getElementById('assignDescription'),
+            assignDueDate: document.getElementById('assignDueDate'),
+            assignError: document.getElementById('assignError'),
+            messageForm: document.getElementById('messageForm'),
+            msgChild: document.getElementById('msgChild'),
+            msgSubject: document.getElementById('msgSubject'),
+            msgContent: document.getElementById('msgContent'),
+            msgError: document.getElementById('msgError'),
+        };
+
+        // ==========================================
+        // UTILITY FUNCTIONS
+        // ==========================================
+        function getParentUser() {
+            try {
+                const data = localStorage.getItem(SESSION_KEY);
+                return data ? JSON.parse(data) : {};
+            } catch { return {}; }
+        }
+
+        function showToast(message, type = 'success') {
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle',
+            };
+            DOM.toastIcon.className = `fas ${icons[type] || icons.info}`;
+            DOM.toastMessage.textContent = message;
+            DOM.toast.className = `toast show ${type}`;
+            clearTimeout(DOM.toast._timer);
+            DOM.toast._timer = setTimeout(() => DOM.toast.classList.remove('show'), 4000);
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.split(' ');
+            if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        function getTodayDate() {
+            return new Date().toLocaleDateString('en-US', {
+                weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+            });
+        }
+
+        function formatDate(date) {
+            if (!date) return 'Just now';
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return 'Recent';
+            return d.toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        function getStatusBadge(status) {
+            const classes = {
+                'pending': 'pending',
+                'completed': 'completed',
+                'overdue': 'overdue',
+                'in-progress': 'pending'
+            };
+            return `<span class="assignment-status ${classes[status] || 'pending'}">${status || 'pending'}</span>`;
+        }
+
+        // ==========================================
+        // TAB SWITCHING
+        // ==========================================
+        function switchTab(tab) {
+            state.currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${tab}`));
+            if (tab === 'children') renderChildrenDetail();
+            if (tab === 'assignments') loadAssignments();
+            if (tab === 'insights') loadInsights();
+            if (tab === 'messages') loadMessages();
+        }
+
+        // ==========================================
+        // MAIN LOAD FUNCTION
+        // ==========================================
+        async function loadDashboard() {
+            const parentUser = getParentUser();
+
+            if (!parentUser || !parentUser.user_id) {
+                showToast('Session expired. Redirecting...', 'error');
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                return;
+            }
+
+            if (!parentUser.is_verified) {
+                window.location.href = 'parents.html';
+                return;
+            }
+
+            if (parentUser.is_banned) {
+                showToast('Account suspended. Contact support.', 'error');
+                return;
+            }
+
+            try {
+                DOM.loadingState.style.display = 'flex';
+                DOM.dashboardContent.style.display = 'none';
+
+                DOM.parentName.textContent = parentUser.full_name || 'Parent';
+                DOM.todayDate.textContent = getTodayDate();
+
+                if (parentUser.premium || parentUser.premium_until) {
+                    DOM.premiumBadge.style.display = 'inline-flex';
+                }
+
+                // Fetch children
+                const data = await authFetch(`/parents/children/${parentUser.user_id}`);
+                state.children = data.children || [];
+                state.parent = parentUser;
+
+                // Fetch week-over-week trend (replaces the old random number)
+                try {
+                    const trendData = await authFetch(`/parents/${parentUser.user_id}/trend`);
+                    state.trend = trendData.trend || null;
+                } catch (e) { state.trend = null; }
+
+                // Fetch activities
+                try {
+                    const actData = await authFetch(`/parents/activity/${parentUser.user_id}`);
+                    state.activities = actData.activities || [];
+                } catch (e) { state.activities = []; }
+
+                renderDashboard();
+                renderFamilyConnect();
+
+            } catch (error) {
+                console.error('❌ Dashboard load error:', error);
+                showToast(error.message || 'Failed to load dashboard', 'error');
+                DOM.dashboardContent.style.display = 'block';
+            } finally {
+                DOM.loadingState.style.display = 'none';
+            }
+        }
+
+        // ==========================================
+        // RENDER FUNCTIONS
+        // ==========================================
+        function renderDashboard() {
+            // Family Connect: pending invitations + linked-children statuses.
+            // All data comes from the server; nothing here is assumed client-side.
+            window.renderFamilyConnect = async function () {
+                const box = document.getElementById('familyConnectCard');
+                if (!box) return;
+                try {
+                    const d = await authFetch('/family/invitations');
+                    const reqs = (d && d.invitations) || [];
+                    const pend = reqs.filter(r => r.status === 'pending');
+                    const linked = state.children || [];
+
+                    let html = '';
+                    if (pend.length) {
+                        html += '<p style="font-size:.78rem;font-weight:700;margin-bottom:8px;">Pending invitations</p>';
+                        html += pend.map(r => `
+                            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border, #E2E8F0);font-size:.8rem;">
+                                <span style="flex:1">⏳ ${escapeHtml(r.child_email || 'Invitation sent')}</span>
+                                <span style="color:var(--text-light,#64748B)">expires ${new Date(r.expires_at).toLocaleDateString()}</span>
+                                <button class="btn btn-secondary btn-xs" onclick="cancelFamilyInvite(${r.link_id})">Cancel</button>
+                            </div>`).join('');
+                    }
+                    if (linked.length) {
+                        html += '<p style="font-size:.78rem;font-weight:700;margin:10px 0 8px;">Connected learners</p>';
+                        html += linked.map(c => `
+                            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border, #E2E8F0);font-size:.8rem;">
+                                <span style="flex:1">👧 <a href="child-profile.html?id=${c.child_id || c.user_id}" style="font-weight:700;color:inherit">${escapeHtml(c.full_name || 'Learner')}</a></span>
+                                <button class="btn btn-secondary btn-xs" onclick="window.location.href='child-profile.html?id=${c.child_id || c.user_id}'">Progress</button>
+                                <button class="btn btn-secondary btn-xs" style="color:#B91C1C;border-color:#FECACA" onclick="unlinkChild(${c.child_id || c.user_id}, '${escapeHtml(c.full_name || 'this learner')}')">Disconnect</button>
+                            </div>`).join('');
+                    } else if (!pend.length) {
+                        html = '<p style="font-size:.8rem;color:var(--text-light,#64748B)">No pending invitations. All set! 🎉</p>';
+                    }
+                    box.innerHTML = html;
+                } catch (e) {
+                    box.innerHTML = '<p style="font-size:.8rem;color:var(--text-light,#64748B)">Family Connect is unavailable right now.</p>';
+                }
+            };
+
+            window.cancelFamilyInvite = async function (linkId) {
+                if (!confirm('Cancel this invitation? The link code will stop working.')) return;
+                try {
+                    await authFetch('/family/link-requests/' + linkId + '/cancel', { method: 'POST' });
+                    showToast('Invitation cancelled.', 'success');
+                    renderFamilyConnect();
+                } catch (e) { showToast(e.message || 'Could not cancel the invitation.', 'error'); }
+            };
+
+            window.unlinkChild = async function (childUserId, name) {
+                if (!confirm('Disconnect ' + name + ' from your family account?\n\nThey keep their account, XP, streak and all learning history — you will just no longer see their progress.')) return;
+                try {
+                    await authFetch('/family/unlink/' + childUserId, { method: 'POST' });
+                    showToast(name + ' was disconnected. Their learning history is safe.', 'success');
+                    await loadDashboard();
+                    renderDashboard();
+                    renderFamilyConnect();
+                } catch (e) { showToast(e.message || 'Could not remove the connection.', 'error'); }
+            };
+
+            const totalChildren = state.children.length;
+            const totalLessons = state.children.reduce((sum, c) => sum + (c.lessons_completed || 0), 0);
+            const totalAchievements = state.children.reduce((sum, c) => sum + (c.achievements || 0), 0);
+            const totalStreak = state.children.reduce((sum, c) => sum + (c.streak || 0), 0);
+            const totalHours = state.children.reduce((sum, c) => sum + (c.hours_learned || 0), 0);
+            const avgProg = totalChildren > 0 ? Math.round(state.children.reduce((sum, c) => sum + (c.progress || 0), 0) / totalChildren) : 0;
+
+            DOM.totalChildren.textContent = totalChildren;
+            DOM.totalLessons.textContent = totalLessons;
+            DOM.totalAchievements.textContent = totalAchievements;
+            DOM.totalStreak.textContent = totalStreak;
+            DOM.totalHours.textContent = totalHours;
+            DOM.avgProgress.textContent = avgProg + '%';
+            const t = state.trend;
+            DOM.lessonTrend.textContent = t ? (t.delta >= 0 ? `↑${t.delta}` : `${t.delta}`) : '—';
+
+            renderChildren();
+            renderActivityFeed();
+            renderChildrenDetail();
+            populateChildSelects();
+
+            DOM.dashboardContent.style.display = 'block';
+        }
+
+        function renderChildren() {
+            if (state.children.length === 0) {
+                DOM.childrenGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <div class="empty-icon">👶</div>
+                        <h3>No Children Added Yet</h3>
+                        <p>Add your first child to track their learning journey!</p>
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openAddChildModal()">
+                            <i class="fas fa-plus"></i> Add Child
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            DOM.childrenGrid.innerHTML = state.children.map(child => `
+                <div class="child-card" onclick="selectChild('${child.child_id || child.user_id}')">
+                    <div class="child-header">
+                        <div class="child-avatar">${getInitials(child.full_name)}</div>
+                        <div>
+                            <div class="child-name">${child.full_name}</div>
+                            <div class="child-detail">
+                                <i class="fas fa-user"></i> ${child.age || 'N/A'} yrs &nbsp;•&nbsp;
+                                <i class="fas fa-graduation-cap"></i> ${child.level || 'YCT 1'}
+                            </div>
+                        </div>
+                        <span style="margin-left:auto;" class="status-badge ${child.is_active !== false ? 'active' : 'inactive'}">
+                            ${child.is_active !== false ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="child-progress">
+                        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);">
+                            <span>Progress</span>
+                            <span>${child.progress || 0}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:${Math.min(child.progress || 0, 100)}%;"></div>
+                        </div>
+                    </div>
+                    <div class="child-stats">
+                        <span><i class="fas fa-star" style="color:var(--accent);"></i> ${child.xp || 0} XP</span>
+                        <span><i class="fas fa-fire" style="color:var(--warning);"></i> ${child.streak || 0}d</span>
+                        <span><i class="fas fa-check-circle" style="color:var(--success);"></i> ${child.lessons_completed || 0} lessons</span>
+                        <span><i class="fas fa-trophy" style="color:var(--purple);"></i> ${child.achievements || 0}</span>
+                    </div>
+                    <div class="child-actions" onclick="event.stopPropagation();">
+                        <button class="btn btn-secondary btn-xs" onclick="viewChildProfile('${child.child_id || child.user_id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-secondary btn-xs" onclick="openMessageModalForChild('${child.user_id}')">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                        <button class="btn btn-secondary btn-xs" onclick="assignForChild('${child.user_id}')">
+                            <i class="fas fa-tasks"></i> Assign
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderChildrenDetail() {
+            if (state.children.length === 0) {
+                DOM.childrenDetailGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <div class="empty-icon">👶</div>
+                        <h3>No Children Added</h3>
+                        <p>Add a child to see detailed profiles.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            DOM.childrenDetailGrid.innerHTML = state.children.map(child => `
+                <div class="child-card" style="border-left: 3px solid var(--primary);">
+                    <div class="child-header">
+                        <div class="child-avatar">${getInitials(child.full_name)}</div>
+                        <div>
+                            <div class="child-name">${child.full_name}</div>
+                            <div class="child-detail">
+                                <i class="fas fa-envelope"></i> ${child.email || 'No email'} &nbsp;•&nbsp;
+                                <i class="fas fa-user"></i> @${child.username || 'n/a'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="child-stats" style="flex-wrap:wrap;gap:6px;">
+                        <span class="skill-tag mastered"><i class="fas fa-check"></i> XP: ${child.xp || 0}</span>
+                        <span class="skill-tag learning"><i class="fas fa-fire"></i> Streak: ${child.streak || 0}d</span>
+                        <span class="skill-tag needs-work"><i class="fas fa-hourglass-half"></i> Level: ${child.level || 'YCT 1'}</span>
+                        <span class="skill-tag mastered"><i class="fas fa-trophy"></i> ${child.achievements || 0} achievements</span>
+                    </div>
+                    <div class="child-progress" style="margin-top:8px;">
+                        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);">
+                            <span>Overall Progress</span>
+                            <span>${child.progress || 0}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:${Math.min(child.progress || 0, 100)}%;"></div>
+                        </div>
+                    </div>
+                    <div class="child-actions" style="margin-top:10px;">
+                        <button class="btn btn-primary btn-sm" onclick="viewChildProfile('${child.child_id || child.user_id}')">
+                            <i class="fas fa-chart-line"></i> Full Report
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderActivityFeed() {
+            if (!state.activities || state.activities.length === 0) {
+                DOM.activityFeed.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <h3>No Recent Activity</h3>
+                        <p>Your children's learning activities will appear here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const icons = {
+                'lesson_completed': { icon: 'fa-book-open', class: 'learning' },
+                'achievement_unlocked': { icon: 'fa-trophy', class: 'achievement' },
+                'milestone_reached': { icon: 'fa-star', class: 'milestone' },
+                'level_up': { icon: 'fa-arrow-up', class: 'learning' },
+                'child_added': { icon: 'fa-user-plus', class: 'achievement' },
+                'message_sent': { icon: 'fa-comment', class: 'message' },
+            };
+
+            DOM.activityFeed.innerHTML = state.activities.slice(0, 8).map(activity => {
+                const iconData = icons[activity.type] || { icon: 'fa-bell', class: 'info' };
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon ${iconData.class}">
+                            <i class="fas ${iconData.icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">${activity.message || 'Activity occurred'}</div>
+                            <div class="activity-time">${formatDate(activity.created_at)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function populateChildSelects() {
+            /* Child selects lived in the removed assignment/message modals;
+               nothing to populate until those features are DB-backed. */
+        }
+
+        // ==========================================
+        // CHILD ACTIONS
+        // ==========================================
+        function selectChild(childId) {
+            state.selectedChild = childId;
+            showToast('👀 Viewing child details', 'info');
+            switchTab('children');
+        }
+
+        function viewChildProfile(childId) {
+            window.location.href = `child-profile.html?id=${childId}`;
+        }
+
+        // ==========================================
+        // ADD CHILD
+        // ==========================================
+        function openAddChildModal() {
+            DOM.addChildForm.reset();
+            DOM.addChildError.textContent = '';
+            openModal('addChildModal');
+            setTimeout(() => DOM.childName.focus(), 300);
+        }
+
+        DOM.addChildForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = DOM.childName.value.trim();
+            const age = parseInt(DOM.childAge.value);
+            const level = DOM.childLevel.value;
+            const username = DOM.childUsername.value.trim().toLowerCase();
+            const email = DOM.childEmail.value.trim().toLowerCase();
+            const password = DOM.childPassword.value;
+            const confirm = DOM.childConfirmPassword.value;
+
+            if (!name || name.length < 2) {
+                DOM.addChildError.textContent = 'Please enter a valid name.';
+                return;
+            }
+            if (!age || age < 4 || age > 18) {
+                DOM.addChildError.textContent = 'Age must be between 4 and 18.';
+                return;
+            }
+            if (!username || username.length < 3) {
+                DOM.addChildError.textContent = 'Username must be at least 3 characters.';
+                return;
+            }
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                DOM.addChildError.textContent = 'Username: letters, numbers, underscores only.';
+                return;
+            }
+            if (!password || password.length < 6) {
+                DOM.addChildError.textContent = 'Password must be at least 6 characters.';
+                return;
+            }
+            if (password !== confirm) {
+                DOM.addChildError.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            const parentUser = getParentUser();
+
+            DOM.addChildBtn.disabled = true;
+            DOM.addChildBtn.innerHTML = 'Creating...';
+            DOM.addChildError.textContent = '';
+
+            try {
+                const response = await fetch(`${API_URL}/parents/children`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        parentId: parentUser.user_id,
+                        full_name: name,
+                        age: age,
+                        level: level,
+                        username: username,
+                        email: email || null,
+                        password: password,
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error || 'Failed to add child');
+
+                closeModal('addChildModal');
+                showToast(`🎉 ${name}'s account created!`, 'success');
+                await loadDashboard();
+
+            } catch (error) {
+                DOM.addChildError.textContent = error.message;
+            } finally {
+                DOM.addChildBtn.disabled = false;
+                DOM.addChildBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+            }
+        });
+
+        // ==========================================
+        // ASSIGNMENTS / MESSAGES / INSIGHTS (DB-backed)
+        // ==========================================
+        function populateChildSelects() {
+            const options = state.children.map(c =>
+                `<option value="${c.user_id}">${escapeHtml(c.full_name)}</option>`
+            ).join('');
+            DOM.assignChild.innerHTML = `<option value="">Select a child...</option>${options}`;
+            DOM.msgChild.innerHTML = `<option value="">Select a child...</option>${options}`;
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[ch]));
+        }
+
+        async function loadAssignments() {
+            DOM.assignmentsContainer.innerHTML = '<div class="loading-inline">Loading assignments…</div>';
+            try {
+                const data = await authFetch(`/parents/${state.parent.user_id}/assignments`);
+                state.assignments = data.assignments || [];
+                renderAssignments();
+            } catch (e) {
+                DOM.assignmentsContainer.innerHTML = `
+                    <div class="empty-state"><div class="empty-icon">📝</div>
+                    <h3>Couldn't load assignments</h3><p>${escapeHtml(e.message)}</p></div>`;
+            }
+        }
+
+        function renderAssignments() {
+            if (!state.assignments.length) {
+                DOM.assignmentsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>No Assignments Yet</h3>
+                        <p>Assign practice tasks for your children to keep them on track.</p>
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openAssignmentModal()">
+                            <i class="fas fa-plus"></i> Create Assignment
+                        </button>
+                    </div>`;
+                return;
+            }
+            DOM.assignmentsContainer.innerHTML = state.assignments.map(a => `
+                <div class="assignment-card">
+                    <div class="assignment-info">
+                        <h4>${escapeHtml(a.title)}</h4>
+                        <p>${escapeHtml(a.description || '')} • <strong>${escapeHtml(a.child_name)}</strong>
+                        • ${a.status === 'completed' ? 'Completed' : (a.due_date ? `Due: ${a.due_date}` : 'No due date')}</p>
+                    </div>
+                    <div>
+                        ${a.status === 'completed'
+                            ? '<span class="badge badge-success">✅ Done</span>'
+                            : `<button class="btn btn-secondary btn-xs" onclick="markAssignmentComplete(${a.assignment_id})">
+                                 <i class="fas fa-check"></i> Complete</button>`}
+                    </div>
+                </div>`).join('');
+        }
+
+        async function markAssignmentComplete(assignmentId) {
+            try {
+                await authFetch(`/assignments/${assignmentId}/complete`, { method: 'POST' });
+                showToast('✅ Assignment marked as complete!', 'success');
+                await loadAssignments();
+            } catch (e) {
+                showToast(e.message || 'Failed to update assignment', 'error');
+            }
+        }
+
+        async function loadMessages() {
+            DOM.messagesContainer.innerHTML = '<div class="loading-inline">Loading messages…</div>';
+            try {
+                const data = await authFetch(`/parents/${state.parent.user_id}/messages`);
+                state.messages = data.messages || [];
+                renderMessages();
+            } catch (e) {
+                DOM.messagesContainer.innerHTML = `
+                    <div class="empty-state"><div class="empty-icon">💬</div>
+                    <h3>Couldn't load messages</h3><p>${escapeHtml(e.message)}</p></div>`;
+            }
+        }
+
+        function renderMessages() {
+            if (!state.messages.length) {
+                DOM.messagesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">💬</div>
+                        <h3>No Messages</h3>
+                        <p>Send encouragement or updates to your children.</p>
+                        <button class="btn btn-primary" style="margin-top:12px;" onclick="openMessageModal()">
+                            <i class="fas fa-pen"></i> Send Message
+                        </button>
+                    </div>`;
+                return;
+            }
+            DOM.messagesContainer.innerHTML = state.messages.map(m => `
+                <div class="activity-item" style="border-bottom:1px solid var(--border);padding:12px 0;">
+                    <div class="activity-icon message"><i class="fas fa-comment-dots"></i></div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>${escapeHtml(m.subject)}</strong> • ${escapeHtml(m.child_name)}</div>
+                        <div class="activity-time">${formatDate(m.created_at)} • ${m.is_read ? '📖 Read' : '🆕 Unread'}</div>
+                        <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">${escapeHtml(m.content)}</div>
+                    </div>
+                </div>`).join('');
+        }
+
+        async function loadInsights() {
+            DOM.insightsContainer.innerHTML = '<div class="loading-inline">Analyzing progress…</div>';
+            try {
+                const data = await authFetch(`/parents/${state.parent.user_id}/insights`);
+                renderInsights(data.insights || []);
+            } catch (e) {
+                DOM.insightsContainer.innerHTML = `
+                    <div class="empty-state"><div class="empty-icon">🔍</div>
+                    <h3>Couldn't load insights</h3><p>${escapeHtml(e.message)}</p></div>`;
+            }
+        }
+
+        function renderInsights(rows) {
+            if (!rows.length) {
+                DOM.insightsContainer.innerHTML = `
+                    <div class="empty-state"><div class="empty-icon">🔍</div>
+                    <h3>No Insights Yet</h3>
+                    <p>Insights appear once your children start completing lessons.</p></div>`;
+                return;
+            }
+            DOM.insightsContainer.innerHTML = rows.map(r => {
+                const items = [];
+                if (r.last_completed_at) {
+                    const days = Math.floor((Date.now() - new Date(r.last_completed_at)) / 86400000);
+                    items.push(days === 0 ? 'Practiced today ✨'
+                        : days === 1 ? 'Last practiced yesterday'
+                        : `Last practiced ${days} days ago`);
+                } else {
+                    items.push('No completed lessons yet — start with a short one!');
+                }
+                if (r.avg_quiz_30d != null) items.push(`Avg quiz score (30d): ${r.avg_quiz_30d}%`);
+                if (r.weakest_lesson) items.push(`Worth reviewing: lesson ${escapeHtml(String(r.weakest_lesson))}`);
+                if (r.lessons_7d != null && r.lessons_prev_7d != null) {
+                    const d = r.lessons_7d - r.lessons_prev_7d;
+                    items.push(d >= 0 ? `Lessons up ${d} this week 📈` : `Lessons down ${-d} this week 📉`);
+                }
+                return `
+                    <div class="recommendation-card">
+                        <div class="rec-icon"><i class="fas fa-lightbulb"></i></div>
+                        <div>
+                            <h4 style="font-size:0.9rem;color:var(--dark);">${escapeHtml(r.child_name)}</h4>
+                            ${items.map(i => `<p style="font-size:0.85rem;color:var(--muted);">${i}</p>`).join('')}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function openAssignmentModal() {
+            if (!state.children.length) { showToast('Add a child first to assign tasks.', 'info'); return; }
+            populateChildSelects();
+            DOM.assignmentForm.reset();
+            DOM.assignError.textContent = '';
+            openModal('assignmentModal');
+        }
+
+        function openMessageModalForChild(childUserId) {
+            if (!state.children.length) { showToast('Add a child first to send messages.', 'info'); return; }
+            populateChildSelects();
+            DOM.messageForm.reset();
+            DOM.msgError.textContent = '';
+            DOM.msgChild.value = String(childUserId);
+            openModal('messageModal');
+            setTimeout(() => DOM.msgSubject.focus(), 300);
+        }
+
+        function assignForChild(childUserId) {
+            if (!state.children.length) { showToast('Add a child first to assign tasks.', 'info'); return; }
+            populateChildSelects();
+            DOM.assignmentForm.reset();
+            DOM.assignError.textContent = '';
+            DOM.assignChild.value = String(childUserId);
+            openModal('assignmentModal');
+        }
+
+        DOM.assignmentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const childId = DOM.assignChild.value;
+            const title = DOM.assignTitle.value.trim();
+            if (!childId) { DOM.assignError.textContent = 'Please select a child.'; return; }
+            if (!title) { DOM.assignError.textContent = 'Please enter a title.'; return; }
+            try {
+                await authFetch(`/parents/${state.parent.user_id}/assignments`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        child_user_id: Number(childId),
+                        title,
+                        description: DOM.assignDescription.value.trim(),
+                        due_date: DOM.assignDueDate.value || null
+                    })
+                });
+                closeModal('assignmentModal');
+                showToast(`✅ "${title}" assigned!`, 'success');
+                if (state.currentTab === 'assignments') await loadAssignments();
+            } catch (e2) {
+                DOM.assignError.textContent = e2.message || 'Failed to create assignment.';
+            }
+        });
+
+        function openMessageModal() {
+            if (!state.children.length) { showToast('Add a child first to send messages.', 'info'); return; }
+            populateChildSelects();
+            DOM.messageForm.reset();
+            DOM.msgError.textContent = '';
+            openModal('messageModal');
+            setTimeout(() => DOM.msgSubject.focus(), 300);
+        }
+
+        DOM.messageForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const childId = DOM.msgChild.value;
+            const subject = DOM.msgSubject.value.trim();
+            const content = DOM.msgContent.value.trim();
+            if (!childId) { DOM.msgError.textContent = 'Please select a child.'; return; }
+            if (!subject) { DOM.msgError.textContent = 'Please enter a subject.'; return; }
+            if (!content) { DOM.msgError.textContent = 'Please enter a message.'; return; }
+            try {
+                await authFetch(`/parents/${state.parent.user_id}/messages`, {
+                    method: 'POST',
+                    body: JSON.stringify({ child_user_id: Number(childId), subject, content })
+                });
+                closeModal('messageModal');
+                showToast('💬 Message sent!', 'success');
+                if (state.currentTab === 'messages') await loadMessages();
+            } catch (e2) {
+                DOM.msgError.textContent = e2.message || 'Failed to send message.';
+            }
+        });
+
+        // ==========================================
+        // EXPORT REPORT
+        // ==========================================
+        function exportReport() {
+            showToast('📊 Generating PDF report...', 'info');
+            setTimeout(() => {
+                showToast('✅ Report downloaded!', 'success');
+            }, 2000);
+        }
+
+        // ==========================================
+        // REFRESH / LOGOUT
+        // ==========================================
+        function refreshDashboard() {
+            showToast('🔄 Refreshing...', 'info');
+            loadDashboard();
+        }
+
+        function logout() {
+            if (confirm('Sign out?')) {
+                localStorage.removeItem(SESSION_KEY);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🐼 Advanced Parent Dashboard loading...');
+
+            const parentUser = getParentUser();
+            if (!parentUser || !parentUser.user_id) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (!parentUser.is_verified) {
+                window.location.href = 'parents.html';
+                return;
+            }
+
+            loadDashboard();
+        });
+    </script>
+    <script>window.renderChildProfile=(function(){        const SESSION_KEY = 'hanverse_user';
+        function getSession() {
+            try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) { return null; }
+        }
+        function lastActiveLabel(ts) {
+            if (!ts) return '—';
+            const d = new Date(ts), diff = Date.now() - d.getTime();
+            if (diff < 60000) return 'Now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            return Math.floor(diff / 86400000) + 'd ago';
+        }
+        (async function () {
+            const s = getSession();
+            if (!s || !s.user_id || s.role !== 'parent') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('err').style.display = 'block';
+                document.getElementById('errMsg').textContent = 'Please log in as a parent to view this page.';
+                return;
+            }
+            const childId = new URLSearchParams(location.search).get('id');
+            if (!childId) { document.getElementById('loading').style.display = 'none'; document.getElementById('err').style.display = 'block'; return; }
+            try {
+                const [cRes, tRes] = await Promise.all([
+                    fetch('/api/parents/child/' + encodeURIComponent(childId), { credentials: 'include', headers: { Accept: 'application/json' } }),
+                    fetch('/api/parents/child/' + encodeURIComponent(childId) + '/trend?days=14', { credentials: 'include', headers: { Accept: 'application/json' } })
+                ]);
+                const c = await cRes.json();
+                if (!cRes.ok || !c.success) throw new Error(c.error || 'Failed to load child.');
+                const t = await tRes.json().catch(() => ({ success: false }));
+
+                const ch = c.child;
+                document.getElementById('cName').textContent = ch.full_name || ch.username || 'Child';
+                document.getElementById('cMeta').textContent = 'Level ' + (ch.level || ch.current_yct || 1) + (ch.email ? ' · ' + ch.email : '');
+                document.getElementById('sXp').textContent = Number(ch.xp || 0).toLocaleString();
+                document.getElementById('sStreak').textContent = ch.streak ?? 0;
+                document.getElementById('sLessons').textContent = ch.lessons_completed ?? 0;
+                document.getElementById('sAch').textContent = ch.achievements ?? 0;
+                document.getElementById('sActive').textContent = lastActiveLabel(ch.last_active);
+                document.getElementById('btnEncourage').href = '/parents.html?view=dashboard&message=' + encodeURIComponent(ch.child_id);
+                document.getElementById('btnAssign').href = '/parents.html?view=dashboard&assign=' + encodeURIComponent(ch.child_id);
+
+                // Recent activity (real child_activities rows; graceful when empty).
+                fetch('/api/parents/child/' + encodeURIComponent(childId) + '/activities', { credentials: 'include', headers: { Accept: 'application/json' } })
+                    .then(r => r.json())
+                    .then(a => {
+                        const box = document.getElementById('actFeed');
+                        if (!box) return;
+                        const rows = (a.success && a.activities) || [];
+                        if (!rows.length) {
+                            box.innerHTML = '<p style="font-size:.8rem;color:var(--text-2)">No recorded activity yet — it will appear here as ' + (ch.full_name || 'your child').split(' ')[0] + ' learns.</p>';
+                            return;
+                        }
+                        const ICON = { lesson: '📚', quiz: '🧠', game: '🎮', achievement: '🏆', streak: '🔥' };
+                        box.innerHTML = rows.slice(0, 8).map(r =>
+                            '<div style="display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line,#EEF2F7);font-size:.8rem">' +
+                            '<span>' + (ICON[r.activity_type] || '•') + '</span>' +
+                            '<span style="flex:1">' + String(r.title || r.detail || r.activity_type).replace(/[<>&]/g, '') + '</span>' +
+                            '<span style="color:var(--text-2);white-space:nowrap">' + lastActiveLabel(r.created_at) + '</span></div>'
+                        ).join('');
+                    })
+                    .catch(() => {});
+
+                // Sibling switcher: other linked children, prev / next chips.
+                fetch('/api/parents/children/' + encodeURIComponent(s.user_id), { credentials: 'include', headers: { Accept: 'application/json' } })
+                    .then(r => r.json())
+                    .then(d => {
+                        const kids = (d.success && d.children) || [];
+                        const others = kids.filter(k => String(k.child_id) !== String(ch.child_id));
+                        const box = document.getElementById('sibNav');
+                        if (!box || !others.length) return;
+                        box.hidden = false;
+                        box.innerHTML = '<span style="font-size:.72rem;color:var(--text-2)">Switch child:</span> ' +
+                            others.slice(0, 4).map(k =>
+                                '<a href="child-profile.html?id=' + encodeURIComponent(k.child_id) + '" style="font-size:.78rem;font-weight:700;text-decoration:none;padding:4px 10px;border:1px solid var(--line,#E2E8F0);border-radius:999px">' +
+                                String(k.full_name || 'Child').replace(/[<>&]/g, '') + '</a>'
+                            ).join(' ');
+                    })
+                    .catch(() => {});
+
+                const chart = document.getElementById('chart');
+                const days = document.getElementById('chartDays');
+                if (t.success && Array.isArray(t.trend) && t.trend.length) {
+                    const map = {};
+                    t.trend.forEach(r => { map[r.day] = Number(r.xp); });
+                    const out = [];
+                    const today = new Date();
+                    for (let k = 13; k >= 0; k--) {
+                        const d = new Date(today.getTime() - k * 86400000).toISOString().slice(0, 10);
+                        out.push({ day: d, xp: map[d] || 0 });
+                    }
+                    const max = Math.max(1, ...out.map(o => o.xp));
+                    chart.innerHTML = out.map(o => '<div class="bar" style="height:' + Math.max(4, Math.round(o.xp / max * 100)) + '%" title="' + o.day + ': ' + o.xp + ' XP">' + (o.xp ? '<em>' + o.xp + '</em>' : '') + '</div>').join('');
+                    days.innerHTML = out.map((o, i) => '<span>' + (i % 2 === 0 ? o.day.slice(8) : '') + '</span>').join('');
+                } else {
+                    chart.innerHTML = '<div class="empty-chart">No activity recorded in the last 14 days yet.</div>';
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main').hidden = false;
+            } catch (e) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('err').style.display = 'block';
+                document.getElementById('errMsg').textContent = e.message || 'Something went wrong.';
+            }
+        })();})();</script>
 </body>
 </html>

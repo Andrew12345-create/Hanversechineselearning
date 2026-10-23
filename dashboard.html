@@ -244,7 +244,7 @@
             } catch (e) {}
         }
         if (!user) { location.replace("login.html?next=" + encodeURIComponent("dashboard.html")); return; }
-        if (String(user.role || '').toLowerCase() === 'parent') { location.replace("parent-dashboard.html"); return; }
+        if (String(user.role || '').toLowerCase() === 'parent') { location.replace("parents.html?view=dashboard"); return; }
         var id = user.user_id || user.userId || user.id;
         var API = "/api";
 

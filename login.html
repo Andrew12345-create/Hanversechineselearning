@@ -642,7 +642,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
             setTimeout(() => {
                 if (isParent()) {
-                    window.location.href = 'parent-dashboard.html';
+                    window.location.href = 'parents.html?view=dashboard';
                 } else if (isAdmin()) {
                     window.location.href = 'admin.html';
                 } else {
@@ -807,7 +807,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 showToast('info', `Already logged in as ${name}. Redirecting...`);
                 setTimeout(() => {
                     if (isParent()) {
-                        window.location.href = 'parent-dashboard.html';
+                        window.location.href = 'parents.html?view=dashboard';
                     } else if (isAdmin()) {
                         window.location.href = 'admin.html';
                     } else {
