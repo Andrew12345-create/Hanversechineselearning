@@ -130,15 +130,16 @@
   if (!(document.body && document.body.dataset.hud === 'off') && !document.getElementById('hud')) {
     var u = null;
     try { u = JSON.parse(localStorage.getItem('hanverse_user') || 'null'); } catch (e) {}
-    var streak = u && Number(u.streak_days) > 0
+    var isParent = u && String(u.role || '').toLowerCase() === 'parent';
+    var streak = !isParent && u && Number(u.streak_days) > 0
       ? '<a class="hud-chip flame" href="profile.html" aria-label="Streak">🔥 ' + Number(u.streak_days) + '</a>'
       : '';
-    var xp = u
+    var xp = !isParent && u
       ? '<a class="hud-chip" href="profile.html" aria-label="XP">⭐ ' + Number(u.xp || 0).toLocaleString() + '</a>'
       : '';
     var yct = u && String(u.current_yct || '').match(/\d+/);
     var lvl = u ? (yct ? 'YCT ' + yct[0] : 'Lv ' + (Number(u.level) || 1)) : '';
-    var level = u && lvl ? '<a class="hud-chip" href="profile.html">' + lvl + '</a>' : '';
+    var level = !isParent && u && lvl ? '<a class="hud-chip" href="profile.html">' + lvl + '</a>' : '';
     var hud = document.createElement('div');
     hud.className = 'hud';
     hud.id = 'hud';
