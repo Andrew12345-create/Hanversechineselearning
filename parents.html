@@ -59,7 +59,7 @@
             --radius-md: 20px;
             --radius-lg: 28px;
             --radius-full: 9999px;
-            --nav-height: 72px;
+            --nav-height: 96px;
             --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
@@ -192,144 +192,8 @@
         }
 
         /* ============================================
-           FLOATING NAVBAR with logo image
+           SHARED HOUSE NAV (hanverse.css .nav)
            ============================================ */
-        nav.top-nav {
-            position: fixed;
-            top: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 28px;
-            width: calc(100% - 36px);
-            max-width: 1200px;
-            height: var(--nav-height);
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(24px) saturate(1.3);
-            -webkit-backdrop-filter: blur(24px) saturate(1.3);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02);
-            transition: var(--transition-smooth);
-            will-change: transform, height, border-radius, padding, box-shadow, top, background;
-        }
-
-        nav.top-nav.shrunk {
-            top: 14px;
-            height: 58px;
-            padding: 0 20px;
-            width: calc(100% - 48px);
-            max-width: 900px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(28px) saturate(1.5);
-            -webkit-backdrop-filter: blur(28px) saturate(1.5);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
-        }
-
-        nav.top-nav:hover {
-            box-shadow: 0 8px 40px rgba(37, 99, 235, 0.08), 0 0 0 1px rgba(37, 99, 235, 0.05);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--dark);
-            text-decoration: none;
-            transition: var(--transition-smooth);
-            flex-shrink: 0;
-        }
-
-        .logo img {
-            width: 38px;
-            height: 38px;
-            object-fit: contain;
-            border-radius: 10px;
-            transition: var(--transition-smooth);
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        nav.top-nav.shrunk .logo img {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-        }
-
-        nav.top-nav.shrunk .logo {
-            gap: 0;
-        }
-
-        .logo-text {
-            transition: var(--transition-smooth);
-            background: linear-gradient(135deg, var(--dark), var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        nav.top-nav.shrunk .logo-text {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-            margin: 0;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 28px;
-            list-style: none;
-            margin: 0 16px;
-            flex: 1;
-            justify-content: center;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            font-weight: 600;
-            color: var(--text-secondary);
-            transition: var(--transition-smooth);
-            font-size: 0.9rem;
-            position: relative;
-            padding: 4px 0;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%) scaleX(0);
-            width: 100%;
-            height: 2.5px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            border-radius: 2px;
-            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .nav-links a:hover::after,
-        .nav-links a.active::after {
-            transform: translateX(-50%) scaleX(1);
-        }
-
-        .nav-links a.active,
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        nav.top-nav.shrunk .nav-links {
-            gap: 20px;
-        }
-
-        nav.top-nav.shrunk .nav-links a {
-            font-size: 0.8rem;
-        }
 
         .nav-actions {
             display: flex;
@@ -337,29 +201,7 @@
             align-items: center;
         }
 
-        .logout-btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            background: rgba(239, 68, 68, 0.08);
-            color: var(--danger);
-            transition: var(--transition-smooth);
-            border: 1px solid rgba(239, 68, 68, 0.15);
-            flex-shrink: 0;
-        }
 
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.15);
-            transform: translateY(-2px);
-        }
-
-        nav.top-nav.shrunk .logout-btn {
-            padding: 6px 14px;
-            font-size: 0.75rem;
-        }
 
         /* ============================================
            MAIN CONTAINER
@@ -949,40 +791,9 @@
                 padding-top: calc(var(--nav-height) + 20px);
             }
 
-            nav.top-nav {
-                top: 12px;
-                padding: 0 16px;
-                width: calc(100% - 24px);
-                border-radius: 18px;
-                height: 64px;
-            }
 
-            nav.top-nav.shrunk {
-                top: 10px;
-                height: 54px;
-                padding: 0 14px;
-                width: calc(100% - 32px);
-                border-radius: 14px;
-            }
 
-            .logo {
-                font-size: 18px;
-                gap: 8px;
-            }
 
-            .logo img {
-                width: 34px;
-                height: 34px;
-            }
-
-            nav.top-nav.shrunk .logo img {
-                width: 28px;
-                height: 28px;
-            }
-
-            nav.top-nav .nav-links {
-                display: none;
-            }
 
             .bottom-nav {
                 display: flex;
@@ -1054,21 +865,20 @@
 <body>
 
     <!-- ===== FLOATING NAVBAR ===== -->
-    <nav class="top-nav" id="topNav">
-        <a href="index.html" class="logo">
-            <img src="Hanverse-logo2.png" alt="HanVerse" width="38" height="38" />
-            <span class="logo-text">Hanverse</span>
+    <nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">
+        <a class="brand" href="dashboard.html" aria-label="HanVerse home">
+            <img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">
+            <span>HanVerse</span>
         </a>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="learn.html">Learn</a></li>
-            <li><a href="parents.html" class="active">Parents</a></li>
-            <li><a href="profile.html">Profile</a></li>
-        </ul>
+        <div class="nav-links">
+            <a href="learn.html">Learn</a>
+            <a href="explore.html">Explore</a>
+            <a href="practice.html">Practice</a>
+            <a href="roadmap.html">Roadmap</a>
+            <a href="parents.html">Parents</a>
+        </div>
         <div class="nav-actions">
-            <button class="logout-btn" id="logoutBtn">
-                <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
-            </button>
+            <a class="nav-user" href="profile.html"><span class="avatar" id="avatar">👤</span><span id="userName">Parent</span></a>
         </div>
     </nav>
 
@@ -1077,79 +887,29 @@
         <div class="status-card">
             <!-- Status Icon -->
             <div id="statusIcon" class="status-icon loading">
-                <i class="fa-solid fa-envelope"></i>
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
             </div>
 
-            <h2 id="statusTitle">Verify Your Email</h2>
-            <p id="statusDesc">Please check your email and click the verification link to activate your parent account.</p>
+            <h2 id="statusTitle">Checking your account…</h2>
+            <p id="statusDesc">Looking up your parent account in the HanVerse database.</p>
 
-            <!-- Error Message -->
-            <div id="errorMessage" class="error-message">
-                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-                <span id="errorText">An error occurred.</span>
-            </div>
+            <span id="dbStatusBadge" style="display:none;font-size:.72rem;font-weight:800;color:#059669;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:999px;padding:4px 12px;"></span>
 
-            <!-- Success Message -->
-            <div id="successMessage" class="success-message">
-                <i class="fas fa-check-circle" aria-hidden="true"></i>
-                <span id="successText">Email verified successfully!</span>
-            </div>
-
-            <!-- User Info -->
-            <div class="info-badge">
-                <div class="info-row">
-                    <span class="info-label">Email Address:</span>
-                    <span class="info-value" id="userEmail">Loading...</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Verification Status:</span>
-                    <span class="info-value" id="verificationStatus">⏳ Checking...</span>
-                </div>
-                <div class="info-row" id="verifiedAtRow" style="display:none;">
-                    <span class="info-label">Verified At:</span>
-                    <span class="info-value" id="verifiedAt">-</span>
-                </div>
-            </div>
-
-            <!-- Action Area (Unverified) -->
-            <div id="actionArea" style="display:none;">
-                <button id="sendVerificationBtn" class="btn btn-primary" onclick="sendVerification()">
-                    <i class="fas fa-envelope" aria-hidden="true"></i> Send Verification Email
-                </button>
-
-                <div class="email-hint">
-                    <i class="fas fa-info-circle" aria-hidden="true"></i>
-                    Check your spam folder if you don't see the email within 5 minutes
-                </div>
-
-                <div class="email-hint">
-                    <i class="fas fa-user-shield" aria-hidden="true"></i>
-                    For your child's safety, new parent accounts go through a quick safety review by the HanVerse team before connecting to a child's account. If yours shows "pending" for a while, that's us — you'll get an email the moment it's approved.
-                </div>
-            </div>
-
-            <!-- Success Area (Verified) -->
+            <!-- Action Area (Parent in DB) -->
             <div id="successArea" style="display:none;">
                 <button class="btn btn-success" onclick="pvShow('dash');history.pushState({},'','/parents.html?view=dashboard')">
-                    <i class="fas fa-arrow-right" aria-hidden="true"></i> Go to Parent Dashboard
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i> Open Parent Dashboard
                 </button>
-
-                <div class="email-hint">
-                    <i class="fas fa-check-circle" aria-hidden="true"></i>
-                    Your email has been verified. You now have full access to parent features.
-                </div>
             </div>
 
-            <!-- Resend Area (After timeout) -->
-            <div id="resendArea" style="display:none;">
-                <button id="resendBtn" class="btn btn-secondary" onclick="resendVerification()">
-                    <i class="fas fa-sync" aria-hidden="true"></i> Resend Verification Email
-                </button>
+            <!-- Action Area (Not signed in / session expired) -->
+            <div id="loginCtaArea" style="display:none;">
+                <a class="btn btn-primary" href="login.html"><i class="fas fa-sign-in-alt"></i> Sign in</a>
+            </div>
 
-                <div class="email-hint">
-                    <i class="fas fa-clock" aria-hidden="true"></i>
-                    Didn't receive the email? Click above to resend.
-                </div>
+            <!-- Action Area (Login has no parent row) -->
+            <div id="createCtaArea" style="display:none;">
+                <a class="btn btn-primary" href="signup.html?type=parent"><i class="fas fa-user-plus"></i> Create a parent account</a>
             </div>
         </div>
 
@@ -1158,8 +918,8 @@
             <div class="hub-step">
                 <span class="hub-step-num">1</span>
                 <div>
-                    <strong>Verify your email</strong>
-                    <p>Tap the button above — then check your inbox (and spam folder).</p>
+                    <strong>Create your parent account</strong>
+                    <p>One login for you — your child's progress stays private to your family.</p>
                 </div>
             </div>
             <div class="hub-step">
@@ -1178,23 +938,7 @@
             </div>
         </div>
 
-        <!-- FAMILY CONNECT: link a separately-registered child account -->
-        <div class="hub-steps" id="family-connect" aria-label="Family Connect" style="margin-top:18px">
-            <div class="hub-step" style="grid-column:1/-1">
-                <span class="hub-step-num">🔗</span>
-                <div style="flex:1">
-                    <strong>Family Connect — reconnect your child's account</strong>
-                    <p>If your child already made their own HanVerse account, send a link request. They accept in their Family inbox — nothing happens without their yes, and their progress stays exactly as it is.</p>
-                    <form id="linkForm" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-                        <input type="email" id="linkEmail" placeholder="child@email.com" required aria-label="Child's email"
-                               style="flex:1;min-width:180px;padding:11px 14px;border:1px solid var(--border);border-radius:12px;font-size:.85rem;font-family:inherit">
-                        <button type="submit" id="linkBtn" class="btn btn-s" style="border:0;background:#EFF6FF;color:#1D4ED8">Send request</button>
-                    </form>
-                    <p id="linkMsg" role="status" style="display:none;margin-top:8px;font-size:.78rem;font-weight:700"></p>
-                </div>
             </div>
-        </div>
-    </div>
 
     <!-- ===== PARENT HUB VIEWS (dashboard + child profile) ===== -->
     <div class="main-container view" id="view-dash">
@@ -1300,7 +1044,7 @@
 
                 <div class="section-header" style="margin-top:10px;">
                     <h2><i class="fas fa-link"></i> Family Connect</h2>
-                    <button class="btn btn-secondary btn-sm" onclick="window.location.href='parents.html#family-connect'">
+                    <button class="btn btn-secondary btn-sm" onclick="switchTab('children');var c=document.getElementById('familyConnectCard');if(c)c.scrollIntoView({behavior:'smooth'})">
                         <i class="fas fa-user-plus"></i> Reconnect a Child
                     </button>
                 </div>
@@ -1579,536 +1323,60 @@
     <!-- ========================================== -->
     <script>
         /**
-         * ============================================
-         * HANVERSE PARENT PAGE - EMAIL VERIFICATION
-         * ALWAYS CHECKS DATABASE FOR STATUS
-         * ============================================
+         * PARENT HUB GATE — verifies the signed-in login is a real parent
+         * in the DATABASE (parents table), not an email-click state.
          */
-        (function() {
-            'use strict';
-
-            // ==========================================
-            // CONFIGURATION
-            // ==========================================
-            const CONFIG = {
-                API_URL: (() => {
-                    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                        return "http://localhost:8888/.netlify/functions/server";
-                    }
-                    return "/api";
-                })(),
-                SESSION_KEY: 'hanverse_user',
-                POLL_INTERVAL: 5000, // Check every 5 seconds
-                MAX_POLL_ATTEMPTS: 60, // 5 minutes (60 * 5s = 300s)
-            };
-
-            // ── RECONNECT: send a family link request ──
-            (function wireLinkForm() {
-                const form = document.getElementById('linkForm');
-                if (!form) return;
-                const msg = document.getElementById('linkMsg');
-                const btn = document.getElementById('linkBtn');
-                form.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    const email = document.getElementById('linkEmail').value.trim();
-                    if (!email) return;
-                    msg.style.display = 'none';
-                    btn.disabled = true; btn.textContent = 'Sending…';
-                    try {
-                        const s = JSON.parse(localStorage.getItem('hanverse_user') || 'null');
-                        const r = await fetch(CONFIG.API_URL + '/family/link-request', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (localStorage.getItem('hanverse_token') || '') },
-                            body: JSON.stringify({ email })
-                        });
-                        const d = await r.json();
-                        msg.textContent = d.message || d.error || 'Request sent.';
-                        msg.style.display = 'block';
-                        msg.style.color = r.ok ? '#059669' : '#DC2626';
-                        if (r.ok) form.reset();
-                    } catch (err) {
-                        msg.textContent = 'Network error — please try again.';
-                        msg.style.display = 'block';
-                        msg.style.color = '#DC2626';
-                    } finally {
-                        btn.disabled = false; btn.textContent = 'Send request';
-                    }
-                });
-            })();
-
-            // ==========================================
-            // STATE
-            // ==========================================
-            const state = {
-                userId: null,
-                email: null,
-                isVerified: false,
-                pollTimer: null,
-                pollAttempts: 0,
-                isSending: false,
-                initialCheckDone: false,
-            };
-
-            // ==========================================
-            // DOM REFERENCES
-            // ==========================================
-            const DOM = {
-                statusIcon: document.getElementById('statusIcon'),
-                statusTitle: document.getElementById('statusTitle'),
-                statusDesc: document.getElementById('statusDesc'),
-                userEmail: document.getElementById('userEmail'),
-                verificationStatus: document.getElementById('verificationStatus'),
-                verifiedAt: document.getElementById('verifiedAt'),
-                verifiedAtRow: document.getElementById('verifiedAtRow'),
-                errorMessage: document.getElementById('errorMessage'),
-                errorText: document.getElementById('errorText'),
-                successMessage: document.getElementById('successMessage'),
-                successText: document.getElementById('successText'),
-                actionArea: document.getElementById('actionArea'),
-                successArea: document.getElementById('successArea'),
-                resendArea: document.getElementById('resendArea'),
-                sendBtn: document.getElementById('sendVerificationBtn'),
-                resendBtn: document.getElementById('resendBtn'),
-                logoutBtn: document.getElementById('logoutBtn'),
-                topNav: document.getElementById('topNav'),
-                pandaToggle: document.getElementById('pandaToggle'),
-                pandaChat: document.getElementById('pandaChat'),
-                pandaClose: document.getElementById('pandaClose'),
-                pandaBody: document.getElementById('pandaBody'),
-                pandaInput: document.getElementById('pandaInput'),
-                pandaSend: document.getElementById('pandaSend'),
-            };
-
-            // ==========================================
-            // UTILITY FUNCTIONS
-            // ==========================================
-            function getSessionUser() {
-                try {
-                    const data = localStorage.getItem(CONFIG.SESSION_KEY);
-                    return data ? JSON.parse(data) : null;
-                } catch {
-                    return null;
-                }
+        (function(){
+            "use strict";
+            var s=null;
+            try{ s=JSON.parse(localStorage.getItem("hanverse_user")||"null"); }catch(e){}
+            var uid=s&&s.user_id;
+            var icon=document.getElementById("statusIcon"),
+                title=document.getElementById("statusTitle"),
+                desc=document.getElementById("statusDesc"),
+                badge=document.getElementById("dbStatusBadge"),
+                area=document.getElementById("successArea");
+            function setState(kind,ic,t,d){
+                icon.className="status-icon "+kind;
+                icon.innerHTML=ic;
+                title.textContent=t;
+                desc.textContent=d;
             }
-
-            function updateSessionUser(updates) {
-                try {
-                    const user = getSessionUser() || {};
-                    const updated = { ...user, ...updates };
-                    localStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify(updated));
-                    return updated;
-                } catch {
-                    return null;
-                }
+            if(!uid){
+                setState("error","👤","Not signed in","Sign in with your parent account to see your family dashboard.");
+                var lb=document.getElementById("loginCtaArea");
+                if(lb) lb.style.display="block";
+                return;
             }
-
-            function showToast(message, type = 'info') {
-                const existing = document.querySelector('.toast-notification');
-                if (existing) existing.remove();
-
-                const toast = document.createElement('div');
-                toast.className = `toast-notification ${type}`;
-                toast.innerHTML = `
-                    <span>${message}</span>
-                    <button class="toast-close" onclick="this.closest('.toast-notification').remove()">✕</button>
-                `;
-                document.body.appendChild(toast);
-
-                setTimeout(() => {
-                    if (toast.parentElement) toast.remove();
-                }, 5000);
-            }
-
-            function showError(message) {
-                DOM.errorMessage.classList.add('show');
-                DOM.errorText.textContent = message;
-                DOM.successMessage.classList.remove('show');
-            }
-
-            function hideError() {
-                DOM.errorMessage.classList.remove('show');
-            }
-
-            function showSuccess(message) {
-                DOM.successMessage.classList.add('show');
-                DOM.successText.textContent = message;
-                DOM.errorMessage.classList.remove('show');
-            }
-
-            function hideSuccess() {
-                DOM.successMessage.classList.remove('show');
-            }
-
-            // ==========================================
-            // NAVBAR SCROLL EFFECT
-            // ==========================================
-            let lastScrollY = 0;
-            let ticking = false;
-
-            function handleNavScroll() {
-                if (!ticking) {
-                    window.requestAnimationFrame(() => {
-                        const scrollY = window.scrollY;
-                        if (scrollY > 40) {
-                            DOM.topNav.classList.add('shrunk');
-                        } else {
-                            DOM.topNav.classList.remove('shrunk');
-                        }
-                        lastScrollY = scrollY;
-                        ticking = false;
-                    });
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', handleNavScroll, { passive: true });
-
-            // ==========================================
-            // PANDA CHAT
-            // ==========================================
-            function togglePanda() {
-                DOM.pandaChat.classList.toggle('active');
-                if (DOM.pandaChat.classList.contains('active')) {
-                    setTimeout(() => DOM.pandaInput.focus(), 100);
-                }
-            }
-
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            function sendPandaMessage() {
-                const text = DOM.pandaInput.value.trim();
-                if (!text) return;
-
-                const userRow = document.createElement('div');
-                userRow.className = 'message-row user';
-                userRow.innerHTML = `
-                    <div class="panda-avatar" aria-hidden="true">👤</div>
-                    <div class="message user-message">${escapeHtml(text)}</div>
-                `;
-                DOM.pandaBody.appendChild(userRow);
-                DOM.pandaInput.value = '';
-                DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
-
-                setTimeout(() => {
-                    const responses = [
-                        "That's a great question! Let me help you with that. 🐼",
-                        "Interesting! Would you like to practice more? 📚",
-                        "Good job! Keep practicing and you'll improve quickly! 🌟",
-                        "Let me explain that in a simple way... 🎯",
-                        "You're doing amazing! Want to try a quiz? 🎮",
-                        "That's a fun one! Let's learn together! 🤗",
-                        "I love that question! Here's what I think... 💭",
-                        "You're making great progress! Keep going! 🚀"
-                    ];
-                    const reply = responses[Math.floor(Math.random() * responses.length)];
-
-                    const pandaRow = document.createElement('div');
-                    pandaRow.className = 'message-row';
-                    pandaRow.innerHTML = `
-                        <div class="panda-avatar" aria-hidden="true">🐼</div>
-                        <div class="message panda-message">${reply}</div>
-                    `;
-                    DOM.pandaBody.appendChild(pandaRow);
-                    DOM.pandaBody.scrollTop = DOM.pandaBody.scrollHeight;
-                }, 800 + Math.random() * 400);
-            }
-
-            // ==========================================
-            // SEND VERIFICATION EMAIL
-            // ==========================================
-            async function sendVerification() {
-                if (state.isSending) return;
-
-                state.isSending = true;
-                DOM.sendBtn.disabled = true;
-                DOM.sendBtn.innerHTML = `<span class="spinner"></span> Sending...`;
-                hideError();
-                hideSuccess();
-
-                try {
-                    console.log(`📤 Sending verification request for user: ${state.userId}`);
-
-                    const response = await fetch(`${CONFIG.API_URL}/auth/send-verification`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ userId: state.userId })
-                    });
-
-                    console.log(`📥 Response status: ${response.status}`);
-
-                    const data = await response.json();
-                    console.log('📥 Response data:', data);
-
-                    if (!response.ok) {
-                        throw new Error(data.error || `Server error: ${response.status}`);
-                    }
-
-                    if (!data.success) {
-                        throw new Error(data.error || 'Failed to send verification email');
-                    }
-
-                    showToast('📧 Verification email sent! Check your inbox.', 'success');
-                    showSuccess('Verification email sent successfully! Check your inbox and spam folder.');
-
-                    // Show resend area after 30 seconds
-                    setTimeout(() => {
-                        DOM.resendArea.style.display = 'block';
-                    }, 30000);
-
-                } catch (error) {
-                    console.error('❌ Send error:', error);
-                    showError(error.message || 'Failed to send verification email. Please try again.');
-                } finally {
-                    state.isSending = false;
-                    DOM.sendBtn.disabled = false;
-                    DOM.sendBtn.innerHTML = `<i class="fas fa-envelope" aria-hidden="true"></i> Send Verification Email`;
-                }
-            }
-
-            // ==========================================
-            // RESEND VERIFICATION EMAIL
-            // ==========================================
-            async function resendVerification() {
-                if (state.isSending) return;
-
-                state.isSending = true;
-                DOM.resendBtn.disabled = true;
-                DOM.resendBtn.innerHTML = `<span class="spinner"></span> Resending...`;
-                hideError();
-                hideSuccess();
-
-                try {
-                    const response = await fetch(`${CONFIG.API_URL}/auth/resend-verification`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ userId: state.userId })
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || `Server error: ${response.status}`);
-                    }
-
-                    if (!data.success) {
-                        throw new Error(data.error || 'Failed to resend verification email');
-                    }
-
-                    showToast('📧 Verification email resent! Check your inbox.', 'success');
-                    showSuccess('Verification email resent! Check your inbox and spam folder.');
-
-                    // Reset polling
-                    if (state.pollTimer) {
-                        clearInterval(state.pollTimer);
-                        state.pollTimer = null;
-                    }
-                    state.pollAttempts = 0;
-                    startPolling();
-
-                } catch (error) {
-                    console.error('❌ Resend error:', error);
-                    showError(error.message || 'Failed to resend verification email. Please try again.');
-                } finally {
-                    state.isSending = false;
-                    DOM.resendBtn.disabled = false;
-                    DOM.resendBtn.innerHTML = `<i class="fas fa-sync" aria-hidden="true"></i> Resend Verification Email`;
-                }
-            }
-
-            // ==========================================
-            // CHECK VERIFICATION STATUS FROM DATABASE
-            // ==========================================
-            async function checkVerificationStatus() {
-                try {
-                    const response = await fetch(`${CONFIG.API_URL}/auth/verification-status/${state.userId}`);
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-
-                    console.log(`🔍 Verification status from DB: ${data.isVerified ? '✅ Verified' : '⏳ Unverified'}`);
-
-                    if (data.isVerified) {
-                        onVerified(data);
-                        return true;
+            (async function(){
+                try{
+                    var r=await fetch("/api/parents/children/"+encodeURIComponent(uid),{
+                        headers:{Authorization:"Bearer "+(localStorage.getItem("hanverse_token")||""),Accept:"application/json"}});
+                    if(r.ok){
+                        var d=await r.json().catch(function(){return{}});
+                        var kids=(d.children||d.kids||[]).length;
+                        setState("success","✓","Family account active",
+                            kids>0?(kids+(kids===1?" child linked.":" children linked."))+" XP, streaks and lesson progress update in real time."
+                                  :"Your parent account is live in our database. Add your first child from the dashboard.");
+                        if(badge){badge.textContent="Verified in database";badge.style.display="inline-block";}
+                        if(area){area.style.display="block";}
+                    } else if(r.status===403||r.status===404){
+                        setState("error","👤","No parent account on this login",
+                            "This login isn\u2019t registered as a parent. Create a parent account (or sign in with the right one) to manage your family.");
+                        var cb=document.getElementById("createCtaArea");
+                        if(cb) cb.style.display="block";
+                    } else if(r.status===401){
+                        setState("loading","⏳","Session expired","Sign in again to view your family dashboard.");
+                        var lb2=document.getElementById("loginCtaArea");
+                        if(lb2) lb2.style.display="block";
                     } else {
-                        onUnverified(data);
-                        return false;
+                        throw new Error("http "+r.status);
                     }
-                } catch (error) {
-                    console.error('Status check error:', error);
-                    DOM.verificationStatus.innerHTML = '<span style="color: var(--danger);">❌ Connection Error</span>';
-                    return false;
+                }catch(err){
+                    setState("error","📡","Connection Error",
+                        "We couldn\u2019t reach the HanVerse database. Check your connection and refresh — nothing is lost.");
                 }
-            }
-
-            // ==========================================
-            // POLLING - Always checks database
-            // ==========================================
-            function startPolling() {
-                if (state.pollTimer) {
-                    clearInterval(state.pollTimer);
-                }
-
-                state.pollAttempts = 0;
-                state.pollTimer = setInterval(async () => {
-                    state.pollAttempts++;
-
-                    console.log(`🔄 Polling attempt ${state.pollAttempts}/${CONFIG.MAX_POLL_ATTEMPTS}`);
-
-                    const verified = await checkVerificationStatus();
-
-                    if (verified) {
-                        clearInterval(state.pollTimer);
-                        state.pollTimer = null;
-                        return;
-                    }
-
-                    if (state.pollAttempts >= CONFIG.MAX_POLL_ATTEMPTS) {
-                        clearInterval(state.pollTimer);
-                        state.pollTimer = null;
-                        DOM.resendArea.style.display = 'block';
-                        DOM.statusDesc.textContent = '⏳ Still waiting? Click "Resend Verification Email" below.';
-                    }
-                }, CONFIG.POLL_INTERVAL);
-            }
-
-            // ==========================================
-            // VERIFICATION STATES
-            // ==========================================
-            function onVerified(data) {
-                state.isVerified = true;
-
-                // Update UI
-                DOM.statusIcon.className = 'status-icon verified';
-                DOM.statusIcon.innerHTML = '<i class="fa-solid fa-check-circle"></i>';
-                DOM.statusTitle.textContent = '✅ Email Verified!';
-                DOM.statusDesc.textContent = 'Your email has been confirmed. You now have full access to the Parent Hub.';
-                DOM.verificationStatus.innerHTML = '<span style="color: var(--success);">✅ Verified</span>';
-
-                if (data.verifiedAt) {
-                    DOM.verifiedAt.textContent = new Date(data.verifiedAt).toLocaleString();
-                    DOM.verifiedAtRow.style.display = 'flex';
-                }
-
-                DOM.actionArea.style.display = 'none';
-                DOM.resendArea.style.display = 'none';
-                DOM.successArea.style.display = 'block';
-                DOM.successMessage.classList.remove('show');
-
-                // Update session
-                updateSessionUser({ is_verified: true });
-
-                showToast('✅ Email verified successfully!', 'success');
-
-                // Auto-redirect after 3 seconds
-                setTimeout(() => {
-                    pvShow('dash');
-                    history.pushState({}, '', '/parents.html?view=dashboard');
-                }, 3000);
-            }
-
-            function onUnverified(data) {
-                DOM.statusIcon.className = 'status-icon pending';
-                DOM.statusIcon.innerHTML = '<i class="fa-solid fa-envelope"></i>';
-                DOM.statusTitle.textContent = '📧 Verify Your Email';
-                DOM.verificationStatus.innerHTML = '<span style="color: var(--warning);">⏳ Unverified</span>';
-
-                // Show action area (send verification button)
-                DOM.actionArea.style.display = 'block';
-                DOM.successArea.style.display = 'none';
-
-                DOM.statusDesc.textContent = 'Please click the button below to receive a verification email.';
-            }
-
-            // ==========================================
-            // LOGOUT
-            // ==========================================
-            function logout() {
-                if (confirm('Are you sure you want to logout?')) {
-                    if (state.pollTimer) {
-                        clearInterval(state.pollTimer);
-                    }
-                    localStorage.removeItem(CONFIG.SESSION_KEY);
-                    window.location.href = 'login.html';
-                }
-            }
-
-            // ==========================================
-            // INITIALIZATION
-            // ==========================================
-            async function init() {
-                // Get session user
-                const user = getSessionUser();
-
-                if (!user || !user.user_id) {
-                    showToast('Please login first.', 'error');
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                    return;
-                }
-
-                state.userId = user.user_id;
-                state.email = user.email || 'No email set';
-
-                // Display email
-                DOM.userEmail.textContent = state.email;
-
-                // Always check database first - DO NOT trust localStorage
-                console.log('🔍 Checking verification status from database...');
-                await checkVerificationStatus();
-
-                // Start polling to watch for changes
-                startPolling();
-
-                console.log('🐼 HanVerse Parent Hub initialized');
-                console.log(`📧 Email: ${state.email}`);
-                console.log(`🔄 Polling every ${CONFIG.POLL_INTERVAL / 1000} seconds`);
-            }
-
-            // ==========================================
-            // EVENT LISTENERS
-            // ==========================================
-            DOM.logoutBtn.addEventListener('click', logout);
-            DOM.pandaToggle.addEventListener('click', togglePanda);
-            DOM.pandaClose.addEventListener('click', togglePanda);
-            DOM.pandaSend.addEventListener('click', sendPandaMessage);
-            DOM.pandaInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendPandaMessage();
-                }
-            });
-            DOM.pandaInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-            });
-
-            // ==========================================
-            // START
-            // ==========================================
-            document.addEventListener('DOMContentLoaded', init);
-
-            // Expose functions globally
-            window.sendVerification = sendVerification;
-            window.resendVerification = resendVerification;
-            window.togglePanda = togglePanda;
-            window.sendPandaMessage = sendPandaMessage;
-            window.logout = logout;
-
-            console.log(`📡 API URL: ${CONFIG.API_URL}`);
-
+            })();
         })();
     </script>
 
