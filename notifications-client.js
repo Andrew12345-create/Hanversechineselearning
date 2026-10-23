@@ -573,14 +573,11 @@
           new Date(n.created_at || 0).getTime() > lastSeen;
       });
       /* Parents don't get child-flavoured toasts (achievements/streaks/
-         reminders) — their alerts arrive through the Family system. */
+         reminders/placement nudges) — their alerts arrive through the
+         Family system; everything stays in the drawer. */
       try {
         var su = JSON.parse(localStorage.getItem('hanverse_user') || 'null');
-        if (su && String(su.role || '').toLowerCase() === 'parent') {
-          fresh = fresh.filter(function (n) {
-            return ['achievement', 'streak', 'reminder'].indexOf(n.type) === -1;
-          });
-        }
+        if (su && String(su.role || '').toLowerCase() === 'parent') fresh = [];
       } catch (e) {}
       fresh = fresh.slice(0, 2);
       fresh.forEach(showToast);
