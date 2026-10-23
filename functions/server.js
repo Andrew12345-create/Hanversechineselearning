@@ -8400,6 +8400,46 @@ router.delete('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, async
    ADMIN AUDIT LOG
 ========================================================= */
 
+router.get('/admin/health', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    await ensureAdminTables();
+
+    let dbOk = false;
+    try {
+      await pool.query('SELECT 1');
+      dbOk = true;
+    } catch (e) {
+      dbOk = false;
+    }
+
+    const auditAgg = await pool.query(
+      'SELECT COUNT(*) AS n, MAX(created_at) AS last_at FROM admin_audit'
+    );
+
+    const pendingParents = await pool.query(
+      'SELECT COUNT(*) AS n FROM parents WHERE is_verified = FALSE'
+    );
+
+    const bannedUsers = await pool.query(
+      'SELECT COUNT(*) AS n FROM users WHERE is_banned = TRUE'
+    );
+
+    return res.json({
+      success: true,
+      db: dbOk,
+      openai: !!process.env.OPENAI_API_KEY,
+      audit_rows: Number(auditAgg.rows[0].n || 0),
+      last_audit_at: auditAgg.rows[0].last_at || null,
+      pending_parents: Number(pendingParents.rows[0].n || 0),
+      banned_users: Number(bannedUsers.rows[0].n || 0)
+    });
+  } catch (error) {
+    console.error('❌ Admin health error:', error);
+    return res.status(500).json({ success: false, error: 'Health check failed.' });
+  }
+});
+
 router.get('/admin/audit', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
