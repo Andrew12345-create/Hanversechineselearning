@@ -8,19 +8,43 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(100),
     xp INTEGER DEFAULT 0,
-    level INTEGER DEFAULT 1,
+    level INTEGER DEFAULT 1,                -- XP-derived level (1..N)
     streak_days INTEGER DEFAULT 0,
     last_active DATE,
     profile_picture VARCHAR(255),
     is_admin BOOLEAN DEFAULT FALSE,
     is_banned BOOLEAN DEFAULT FALSE,
     banned_reason TEXT DEFAULT NULL,
+    -- Converged at boot by ensureUserColumns() in functions/server.js.
+    -- role is THE authoritative account type: 'student' | 'parent' | 'admin'.
+    -- parents/children table rows are profile data, not the role check.
+    role VARCHAR(10) NOT NULL DEFAULT 'student',
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,     -- email verified
+    premium BOOLEAN NOT NULL DEFAULT FALSE,
+    premium_until TIMESTAMP,
+    current_yct INTEGER NOT NULL DEFAULT 1,         -- placement-locked YCT level
+    current_hsk INTEGER NOT NULL DEFAULT 0,         -- HSK track position (0 = not started)
+    chinese_level VARCHAR(20) NOT NULL DEFAULT 'YCT 1',  -- display string, mirrors current_yct
+    lessons_completed INTEGER NOT NULL DEFAULT 0,   -- cache; user_progress rows are the truth
+    achievements_count INTEGER NOT NULL DEFAULT 0,  -- cache; achievements rows are the truth
+    age INTEGER,
+    parent_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- NOTE on naming: users.is_verified means EMAIL verified. The parents table
+-- has its own is_verified meaning ADMIN safety-review approved. Two different
+-- gates — never conflate them in code or UI.
+
 CREATE INDEX idx_email ON users(email);
 CREATE INDEX idx_username ON users(username);
+CREATE INDEX idx_users_role ON users(role);
+
+-- Profile tables (exist in the live DB; created/maintained by server.js):
+--   parents(parent_id PK, user_id UNIQUE→users, full_name, email, is_verified=<admin safety review>, ...)
+--   children(child_id PK, user_id UNIQUE→users, parent_id→parents, child fields ...)
+--   parent_assignments, parent_messages, account_links: created by ensureParentTables()/ensureLinkTables().
 
 -- User Progress Table
 CREATE TABLE user_progress (

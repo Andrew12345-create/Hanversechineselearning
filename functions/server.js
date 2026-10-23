@@ -82,6 +82,10 @@ if (databaseUrl) {
     pool.query('SELECT 1')
       .then(() => {
         console.log('✅ Database connected');
+        return ensureUserColumns();
+      })
+      .then(() => {
+        console.log('✅ User schema converged (role, current_yct, premium, counters)');
       })
       .catch((error) => {
         console.error('❌ Database connection failed:', error.message);
@@ -92,6 +96,38 @@ if (databaseUrl) {
   }
 } else {
   console.error('❌ DATABASE_URL / NEON_DATABASE_URL missing');
+}
+
+/* ==========================================
+   SCHEMA CONVERGENCE — one source of truth for
+   the users-table columns the app reads/writes.
+   Runs at boot so every deployment (local dev,
+   Netlify function, fresh Neon branch) ends up
+   with the SAME shape, and the old runtime
+   information_schema probing can go away.
+   Nothing is dropped: legacy columns simply stop
+   being written (see sessionUserShape notes).
+   ========================================== */
+let userColumnsEnsured = false;
+async function ensureUserColumns() {
+  if (userColumnsEnsured) return;
+  await pool.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(10) NOT NULL DEFAULT 'student';
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS premium BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_until TIMESTAMP;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS current_yct INTEGER NOT NULL DEFAULT 1;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS current_hsk INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS chinese_level VARCHAR(20) NOT NULL DEFAULT 'YCT 1';
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS lessons_completed INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS achievements_count INTEGER NOT NULL DEFAULT 0;
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);
+  // Backfill: every user with a parents-table row is a parent, every user
+  // with a children-table row is a student. One-time normalization so the
+  // three sources of truth (role, parents, children) agree.
+  await pool.query(`UPDATE users u SET role = 'parent' FROM parents p WHERE p.user_id = u.user_id AND u.role <> 'parent'`).catch(() => {});
+  userColumnsEnsured = true;
 }
 
 
@@ -1275,62 +1311,32 @@ router.post('/signup', authLimiter, async (req, res) => {
     const password_hash = await bcrypt.hash(cleanPassword, 10);
     const verificationToken = generateSecureToken(32);
 
-    let hasRoleColumn = false;
-    try {
-      const columnCheck = await pool.query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'users' AND column_name = 'role'
-      `);
-      hasRoleColumn = columnCheck.rows.length > 0;
-    } catch (e) {
-      console.warn('⚠️ Could not check for role column:', e.message);
-    }
-
-    let insertResult;
-    if (hasRoleColumn) {
-      insertResult = await pool.query(
-        `INSERT INTO users (
-          username, full_name, email, password_hash, xp, level, streak_days, 
-          is_admin, is_banned, is_verified, premium, role, 
-          lessons_completed, achievements_count, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, 0, 1, 0, false, false, false, false, $5, 0, 0, NOW(), NOW())
-        RETURNING *`,
-        [cleanUsername, cleanFullName, cleanEmail, password_hash, userRole]
-      );
-    } else {
-      insertResult = await pool.query(
-        `INSERT INTO users (
-          username, full_name, email, password_hash, xp, level, streak_days, 
-          is_admin, is_banned, is_verified, premium, 
-          lessons_completed, achievements_count, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, 0, 1, 0, false, false, false, false, 0, 0, NOW(), NOW())
-        RETURNING *`,
-        [cleanUsername, cleanFullName, cleanEmail, password_hash]
-      );
-    }
+    // role column is guaranteed by ensureUserColumns() at boot — single INSERT path.
+    const insertResult = await pool.query(
+      `INSERT INTO users (
+        username, full_name, email, password_hash, xp, level, streak_days,
+        is_admin, is_banned, is_verified, premium, role,
+        lessons_completed, achievements_count, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, 0, 1, 0, false, false, false, false, $5, 0, 0, NOW(), NOW())
+      RETURNING *`,
+      [cleanUsername, cleanFullName, cleanEmail, password_hash, userRole]
+    );
 
     const newUser = insertResult.rows[0];
     console.log('✅ User created with ID:', newUser.user_id);
 
     if (userRole === 'parent') {
       try {
-        const tableCheck = await pool.query(`
-          SELECT table_name FROM information_schema.tables WHERE table_name = 'parents'
-        `);
-        
-        if (tableCheck.rows.length > 0) {
-          const existingParent = await pool.query(`
-            SELECT * FROM parents WHERE user_id = $1
-          `, [newUser.user_id]);
-          
-          if (existingParent.rows.length === 0) {
-            await pool.query(`
-              INSERT INTO parents (user_id, full_name, email, is_verified, created_at, updated_at)
-              VALUES ($1, $2, $3, false, NOW(), NOW())
-            `, [newUser.user_id, cleanFullName, cleanEmail]);
-            console.log('✅ Parent record created for user:', newUser.user_id);
-          }
+        const existingParent = await pool.query(`
+          SELECT 1 FROM parents WHERE user_id = $1
+        `, [newUser.user_id]);
+
+        if (existingParent.rows.length === 0) {
+          await pool.query(`
+            INSERT INTO parents (user_id, full_name, email, is_verified, created_at, updated_at)
+            VALUES ($1, $2, $3, false, NOW(), NOW())
+          `, [newUser.user_id, cleanFullName, cleanEmail]);
+          console.log('✅ Parent record created for user:', newUser.user_id);
         }
       } catch (parentError) {
         console.warn('⚠️ Could not create parent record:', parentError.message);
