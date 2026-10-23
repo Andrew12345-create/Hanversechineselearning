@@ -51,6 +51,51 @@
       --ease: 0.22s cubic-bezier(.2,.8,.2,1);
     }
 
+    /* ─── Dark theme (admin console) ─── */
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0B1B33;
+      --ink: #E8F1FA;
+      --muted: #8FAECB;
+      --line: #1E3A5F;
+      --navy: #F5F9FF;
+      --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+      --shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.5);
+      --success-bg: #0D2B1E;
+      --success-text: #4ADE80;
+      --warning-bg: #332705;
+      --warning-text: #FBBF24;
+      --danger-bg: #331414;
+      --danger-text: #F87171;
+      --purple-bg: #2A1B45;
+      --purple-text: #C084FC;
+    }
+    html[data-theme="dark"] body {
+      background:
+        radial-gradient(circle at 0 0, rgba(37,99,235,.16), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+    }
+    html[data-theme="dark"] .panel,
+    html[data-theme="dark"] .panda-card,
+    html[data-theme="dark"] .metric,
+    html[data-theme="dark"] .admin-card { background: #10233D; border-color: var(--line); }
+    html[data-theme="dark"] .panel-header { border-bottom-color: var(--line); }
+    html[data-theme="dark"] th { background: #0E2138; color: var(--muted); border-bottom-color: var(--line); }
+    html[data-theme="dark"] td { border-bottom-color: #17304E; }
+    html[data-theme="dark"] tbody tr:nth-child(even) { background: #0E2138; }
+    html[data-theme="dark"] tbody tr:hover { background: #14304F; }
+    html[data-theme="dark"] .empty { background: #0E2138; border-color: #27496E; }
+    html[data-theme="dark"] .input,
+    html[data-theme="dark"] select.input,
+    html[data-theme="dark"] textarea.input { background: #0E2138; border-color: var(--line); color: var(--ink); }
+    html[data-theme="dark"] .btn { background: #14304F; color: var(--ink); border-color: var(--line); }
+    html[data-theme="dark"] .btn-soft { background: #1B3A5C; }
+    html[data-theme="dark"] .btn-primary { background: var(--blue); color: #fff; }
+    html[data-theme="dark"] .p-tab { background: #14304F; border-color: var(--line); color: var(--muted); }
+    html[data-theme="dark"] .p-tab.active { background: var(--blue); color: #fff; }
+    html[data-theme="dark"] .filter.active { background: var(--blue); color: #fff; }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html { scroll-behavior: smooth; }
@@ -782,20 +827,53 @@
       border-bottom: 1px solid var(--line);
       color: #5D7A9A;
       text-align: left;
-      font-size: 8px;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: .06em;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
+
+    th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+    th[data-sort]:hover { color: var(--blue); }
+    th .sort-ind { margin-left: 4px; opacity: .5; }
+    th.sorted-asc .sort-ind, th.sorted-desc .sort-ind { opacity: 1; color: var(--blue); }
 
     td {
       padding: 10px 11px;
       border-bottom: 1px solid #EEF2F5;
-      font-size: 9px;
+      font-size: 11px;
       vertical-align: middle;
     }
 
     tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:nth-child(even) { background: rgba(248, 250, 252, .6); }
     tbody tr:hover { background: #FBFDFF; }
+
+    .skel-row { display: flex; gap: 10px; padding: 14px 11px; border-bottom: 1px solid #EEF2F5; align-items: center; }
+    .skel-row:last-child { border-bottom: 0; }
+    .skel-bar { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #E8EFF6 25%, #F5F9FF 50%, #E8EFF6 75%); background-size: 200% 100%; animation: skel 1.2s infinite; }
+    @keyframes skel { to { background-position: -200% 0; } }
+    html[data-theme="dark"] .skel-bar { background: linear-gradient(90deg, #14304F 25%, #1B3A5C 50%, #14304F 75%); background-size: 200% 100%; }
+
+    /* ─── Command palette ─── */
+    .cmdk-overlay { position: fixed; inset: 0; background: rgba(11,27,51,.45); backdrop-filter: blur(3px); z-index: 3000; display: none; }
+    .cmdk-overlay.open { display: block; }
+    .cmdk { width: min(560px, calc(100vw - 32px)); margin: 12vh auto 0; background: #fff; border-radius: 16px; box-shadow: var(--shadow-lg); overflow: hidden; border: 1px solid var(--line); }
+    html[data-theme="dark"] .cmdk { background: #10233D; }
+    .cmdk input { width: 100%; border: 0; outline: 0; padding: 16px 18px; font-size: 15px; font-weight: 600; color: var(--ink); background: transparent; border-bottom: 1px solid var(--line); font-family: inherit; }
+    .cmdk-results { max-height: 46vh; overflow-y: auto; padding: 6px; }
+    .cmdk-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 13px; color: var(--ink); }
+    .cmdk-item .cmdk-icon { width: 26px; height: 26px; border-radius: 8px; background: var(--blue-soft); color: var(--blue); display: grid; place-items: center; font-size: 13px; flex-shrink: 0; }
+    .cmdk-item .cmdk-hint { margin-left: auto; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .cmdk-item.active { background: var(--blue); color: #fff; }
+    .cmdk-item.active .cmdk-icon { background: rgba(255,255,255,.2); color: #fff; }
+    .cmdk-item.active .cmdk-hint { color: rgba(255,255,255,.7); }
+    .cmdk-empty { padding: 26px; text-align: center; color: var(--muted); font-size: 12px; }
+    .cmdk-foot { display: flex; gap: 14px; padding: 9px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+    .cmdk-foot kbd { background: #F1F5F9; border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; font-family: inherit; font-size: 10px; }
+    html[data-theme="dark"] .cmdk-foot kbd { background: #0E2138; }
 
     .user-cell {
       display: flex;
@@ -1636,6 +1714,7 @@
       </div>
 
       <div class="top-actions">
+        <button id="themeToggle" class="btn btn-sm" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
         <button id="refreshButton" class="btn btn-sm">
           ↻ <span class="optional-label">Refresh</span>
         </button>
@@ -2967,6 +3046,21 @@
   function renderUsers() {
     const users = state.users.filter(matchesUserFilter);
 
+    users.sort((a, b) => {
+      const key = state.userSort ? state.userSort.key : "name";
+      const dir = state.userSort && state.userSort.dir === "desc" ? -1 : 1;
+      let va, vb;
+      if (key === "name") { va = first(a.full_name, a.username, "").toLowerCase(); vb = first(b.full_name, b.username, "").toLowerCase(); }
+      else if (key === "role") { va = String(a.role || "student"); vb = String(b.role || "student"); }
+      else if (key === "status") { va = bool(a.is_verified) ? (bool(a.is_banned) ? 2 : 0) : 1; vb = bool(b.is_verified) ? (bool(b.is_banned) ? 2 : 0) : 1; }
+      else if (key === "xp") { va = Number(first(a.xp, 0)); vb = Number(first(b.xp, 0)); }
+      else if (key === "premium") { va = bool(first(a.premium, a.is_premium)) ? 1 : 0; vb = bool(first(b.premium, b.is_premium)) ? 1 : 0; }
+      else { va = new Date(a.created_at || 0).getTime(); vb = new Date(b.created_at || 0).getTime(); }
+      return va < vb ? -dir : va > vb ? dir : 0;
+    });
+
+    if (state.userSort) sortIndicator();
+
     if (!users.length) {
       $("userTable").innerHTML = `
         <div class="empty">
@@ -3066,12 +3160,12 @@
       <table>
         <thead>
           <tr>
-            <th>User</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Progress</th>
-            <th>Plan</th>
-            <th>Joined</th>
+            <th data-sort="name">User <span class="sort-ind">↕</span></th>
+            <th data-sort="role">Role <span class="sort-ind">↕</span></th>
+            <th data-sort="status">Status <span class="sort-ind">↕</span></th>
+            <th data-sort="xp">Progress <span class="sort-ind">↕</span></th>
+            <th data-sort="premium">Plan <span class="sort-ind">↕</span></th>
+            <th data-sort="joined">Joined <span class="sort-ind">↕</span></th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -4455,6 +4549,159 @@ ${body}
 
   $("auditRefreshButton").addEventListener("click", () => loadAuditLog());
 
+  /* ================= THEME TOGGLE ================= */
+
+  function applyAdminTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    $("themeToggle").textContent = theme === "dark" ? "☀️" : "🌙";
+    try { localStorage.setItem("hanverse_admin_theme", theme); } catch (e) {}
+  }
+
+  applyAdminTheme((function () {
+    try { return localStorage.getItem("hanverse_admin_theme") || "light"; } catch (e) { return "light"; }
+  })());
+
+  $("themeToggle").addEventListener("click", () => {
+    applyAdminTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+
+  /* ================= USERS SORTING ================= */
+
+  state.userSort = { key: "name", dir: "asc" };
+
+  function sortIndicator() {
+    document.querySelectorAll("#userTable th[data-sort]").forEach((th) => {
+      th.classList.remove("sorted-asc", "sorted-desc");
+      if (th.dataset.sort === state.userSort.key) {
+        th.classList.add(state.userSort.dir === "asc" ? "sorted-asc" : "sorted-desc");
+        th.querySelector(".sort-ind").textContent = state.userSort.dir === "asc" ? "↑" : "↓";
+      } else {
+        th.querySelector(".sort-ind").textContent = "↕";
+      }
+    });
+  }
+
+  document.querySelectorAll("#userTable th[data-sort]").forEach((th) => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      state.userSort.dir = state.userSort.key === key && state.userSort.dir === "asc" ? "desc" : "asc";
+      state.userSort.key = key;
+      sortIndicator();
+      renderUsers();
+    });
+  });
+
+  /* ================= COMMAND PALETTE ================= */
+
+  const cmdk = { overlay: null, input: null, results: null, items: [], active: 0, lessonsLoaded: false };
+
+  function cmdkBuildIndex() {
+    const index = [];
+
+    Object.keys(pageInfo).forEach((section) => {
+      index.push({
+        icon: "🧭", label: "Go to " + pageInfo[section][0], hint: "Section",
+        run: () => switchSection(section)
+      });
+    });
+
+    state.users.forEach((user) => {
+      const name = first(user.full_name, user.username, "User");
+      index.push({
+        icon: String(user.role || "").toLowerCase() === "parent" ? "👪" : "🎓",
+        label: name + (user.email ? " · " + user.email : ""), hint: "User",
+        run: () => { switchSection("users"); openUserDetail(String(user.user_id)); }
+      });
+    });
+
+    state.lessons.forEach((lesson) => {
+      index.push({
+        icon: "📚", label: first(lesson.title, lesson.lesson_title, "Lesson"), hint: "Lesson",
+        run: () => { switchSection("lessons"); openLessonPreview(String(lesson.lesson_id)); }
+      });
+    });
+
+    return index;
+  }
+
+  function cmdkRender(query) {
+    const q = query.trim().toLowerCase();
+    const all = cmdkBuildIndex();
+    cmdk.items = (q ? all.filter((item) => item.label.toLowerCase().includes(q)) : all.slice(0, 12)).slice(0, 20);
+    cmdk.active = 0;
+
+    if (!cmdk.items.length) {
+      cmdk.results.innerHTML = '<div class="cmdk-empty">Nothing matches "' + escapeHTML(query) + '".</div>';
+      return;
+    }
+
+    cmdk.results.innerHTML = cmdk.items.map((item, i) => `
+      <div class="cmdk-item${i === 0 ? " active" : ""}" data-cmdk="${i}">
+        <span class="cmdk-icon">${item.icon}</span>
+        <span>${escapeHTML(item.label)}</span>
+        <span class="cmdk-hint">${escapeHTML(item.hint)}</span>
+      </div>
+    `).join("");
+  }
+
+  function cmdkHighlight() {
+    cmdk.results.querySelectorAll(".cmdk-item").forEach((el, i) => {
+      el.classList.toggle("active", i === cmdk.active);
+      if (i === cmdk.active) el.scrollIntoView({ block: "nearest" });
+    });
+  }
+
+  function cmdkOpen() {
+    cmdk.overlay.classList.add("open");
+    cmdk.input.value = "";
+    cmdkRender("");
+    cmdk.input.focus();
+
+    if (!state.lessons.length && !cmdk.lessonsLoaded) {
+      api("/admin/lessons").then((data) => {
+        state.lessons = Array.isArray(data.lessons) ? data.lessons : [];
+        cmdk.lessonsLoaded = true;
+      }).catch(() => {});
+    }
+  }
+
+  function cmdkClose() {
+    cmdk.overlay.classList.remove("open");
+  }
+
+  function cmdkRun(i) {
+    const item = cmdk.items[i];
+    if (!item) return;
+    cmdkClose();
+    item.run();
+  }
+
+  $("cmdkOverlay").addEventListener("click", (event) => {
+    if (event.target === $("cmdkOverlay")) cmdkClose();
+    const itemEl = event.target.closest("[data-cmdk]");
+    if (itemEl) cmdkRun(Number(itemEl.dataset.cmdk));
+  });
+
+  $("cmdkInput").addEventListener("input", (event) => cmdkRender(event.target.value));
+
+  $("cmdkInput").addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") { event.preventDefault(); cmdk.active = Math.min(cmdk.active + 1, cmdk.items.length - 1); cmdkHighlight(); }
+    else if (event.key === "ArrowUp") { event.preventDefault(); cmdk.active = Math.max(cmdk.active - 1, 0); cmdkHighlight(); }
+    else if (event.key === "Enter") { event.preventDefault(); cmdkRun(cmdk.active); }
+    else if (event.key === "Escape") { cmdkClose(); }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      cmdk.overlay.classList.contains("open") ? cmdkClose() : cmdkOpen();
+    }
+  });
+
+  cmdk.overlay = $("cmdkOverlay");
+  cmdk.input = $("cmdkInput");
+  cmdk.results = $("cmdkResults");
+
   async function loadAuditLog() {
     const box = $("auditTable");
 
@@ -4715,6 +4962,15 @@ ${body}
 
 })();
 </script>
+
+  <!-- Command palette -->
+  <div id="cmdkOverlay" class="cmdk-overlay" role="dialog" aria-label="Command palette">
+    <div class="cmdk">
+      <input id="cmdkInput" type="text" placeholder="Search users, lessons, or jump to…" autocomplete="off">
+      <div id="cmdkResults" class="cmdk-results"></div>
+      <div class="cmdk-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+    </div>
+  </div>
 
 </body>
 </html>
