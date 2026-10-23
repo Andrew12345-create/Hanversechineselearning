@@ -1,0 +1,6627 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+>
+
+<meta
+    name="theme-color"
+    content="#2563EB"
+>
+
+<meta
+    name="description"
+    content="Hanverse | Learn Mandarin through fun, interactive lessons"
+>
+
+<meta name="hanverse-realtime-url" content="https://hanversechineselearning-lbs9.onrender.com">
+
+<title>Hanverse | Lesson</title>
+    <link rel="icon" type="image/png" href="hanverse-logo2.png">
+<meta name="description" content="An interactive HanVerse Mandarin lesson with HanPan the panda: listening, reading, writing and speaking practice.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HanVerse">
+  <meta property="og:title" content="Chinese Lesson | HanVerse">
+  <meta property="og:description" content="An interactive HanVerse Mandarin lesson with HanPan the panda: listening, reading, writing and speaking practice.">
+  <meta property="og:image" content="https://hanverse.com/Hanverse-logo2.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Chinese Lesson | HanVerse">
+  <meta name="twitter:description" content="An interactive HanVerse Mandarin lesson with HanPan the panda: listening, reading, writing and speaking practice.">
+  <meta name="twitter:image" content="https://hanverse.com/Hanverse-logo2.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+<link rel="stylesheet" href="hanverse.css">
+<script src="js/auth-fetch.js"></script>
+
+<style id="hanverse-layout-css">
+ :root{
+  --blue:#2563EB;--blue-dark:#1D4ED8;--blue-soft:#DBEAFE;
+  --teal:#14B8A6;--teal-soft:#CCFBF1;
+  --amber:#F59E0B;--amber-soft:#FEF3C7;
+  --green:#16A34A;--green-soft:#ECFDF5;
+  --red:#DC2626;--red-dark:#C92F3B;
+  --primary:#2563EB;--secondary:#F59E0B;--accent:#2563EB;
+  --navy:#0F2340;--ink:#1E3A5F;--text:#1E3A5F;--muted:#5D7A9A;
+  --bg:#F5F9FF;--white:#FFFFFF;--line:#D5E3F0;
+  --card:#FFFFFF;--shadow:0 16px 48px rgba(15,35,64,.12);
+  --soft-shadow:0 6px 20px rgba(15,35,64,.09);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;min-height:100vh}
+button,a{font:inherit}
+button{border:0}
+img{max-width:100%}
+.hidden{display:none!important}
+.wrap{width:min(1100px,calc(100% - 32px));margin:0 auto;padding:120px 0 130px}
+.lesson-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:18px}
+.eyebrow,.kicker{font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+.lesson-head h1{margin:7px 0 6px;font-size:clamp(2rem,4vw,3.35rem);line-height:1.05;letter-spacing:-.04em}
+.lesson-description{margin:0;color:var(--muted);max-width:700px;line-height:1.65}
+.xp{padding:11px 15px;border:1px solid #f1e1a7;background:#fffdf0;border-radius:16px;font-weight:900;white-space:nowrap;box-shadow:0 8px 20px rgba(244,211,94,.12)}
+.journey{display:flex;align-items:center;gap:18px;padding:18px 20px;margin:0 0 18px;background:rgba(255,255,255,.84);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.journey-copy{display:flex;flex-direction:column;gap:4px}
+.journey-copy strong{font-size:1rem}
+.journey-copy span{font-size:.82rem;color:var(--muted);line-height:1.5}
+.panda-avatar{position:relative;flex:0 0 112px;width:112px;height:112px;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:visible}
+.panda-avatar img{width:100%;height:100%;object-fit:contain}
+.panda-image-fallback{display:none}
+.panda-reaction{margin-left:auto;opacity:.8;font-weight:900}
+.progress-shell{background:rgba(255,255,255,.86);border:1px solid var(--line);border-radius:20px;padding:16px 18px;margin-bottom:18px}
+.progress-top,.progress-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.progress-label{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:800}
+.progress-dot{width:8px;height:8px;background:var(--green);border-radius:50%}
+.pct{font-weight:900;color:var(--primary)}
+.track{height:9px;margin:11px 0;border-radius:999px;background:#edf2f7;overflow:hidden}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:inherit;transition:width .4s var(--ease)}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:6px 10px;background:#f8fafc;border:1px solid var(--line);border-radius:999px;font-size:.67rem;font-weight:800}
+.chip.level{background:#fff3f3;color:var(--primary);border-color:#ffd7d7}
+.activity-map{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.map-node{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:#f1f5f9;color:#94a3b8;font-size:.72rem}
+.map-node.done{background:#dcfce7;color:#15803d}.map-node.current{background:#fff1b8;color:#92400e;box-shadow:0 0 0 3px rgba(244,211,94,.18)}
+.card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:visible}
+.stage{min-height:480px;padding:38px}
+.state{min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;color:var(--muted)}
+.loading-panda{font-size:4rem}.spinner{width:34px;height:34px;border:4px solid #e2e8f0;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.content>div{max-width:850px;margin:auto}
+.content h2{margin:7px 0 12px;font-size:clamp(1.6rem,3vw,2.45rem);letter-spacing:-.03em}
+.desc{color:var(--muted);line-height:1.7}
+.welcome{text-align:center;padding:15px}.mascot{font-size:5rem;margin-bottom:8px}.welcome h2{font-size:clamp(2rem,4vw,3rem)}
+.welcome-badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px 0}.welcome-badge{padding:7px 11px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);font-size:.7rem;font-weight:800}
+.panda-speech{display:inline-flex;gap:8px;align-items:center;margin-top:10px;padding:12px 16px;border-radius:16px;background:#fff8d9;border:1px solid #f4e3a1}
+.objective-card{display:flex;align-items:center;gap:18px;padding:22px;margin:24px 0;border:1px solid #dbeafe;background:#f8fbff;border-radius:20px}.obj-number{width:48px;height:48px;flex:0 0 48px;border-radius:15px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900}.obj-copy{font-size:1.1rem;font-weight:800;line-height:1.5}
+.learning-block{padding:20px;border-radius:20px;background:#f8fafc;border:1px solid var(--line);line-height:1.8}
+.word-card{max-width:620px;margin:25px auto;padding:28px;text-align:center;border:1px solid var(--line);border-radius:26px;background:linear-gradient(145deg,#fff,#fffdf7);box-shadow:0 16px 35px rgba(15,23,42,.07)}
+.word-icon{font-size:1.8rem}.hanzi{font-size:4.5rem;font-weight:900;line-height:1.1;margin:8px 0}.pinyin{font-size:1.15rem;color:var(--accent);font-weight:800}.meaning{font-size:1.05rem;font-weight:800;margin-top:5px}.pos{font-size:.7rem;color:var(--muted);margin-top:5px}.listen-row{margin-top:18px}.speak{padding:10px 15px;border-radius:12px;background:#eef8ff;color:#12608e;font-weight:800;cursor:pointer}.example-mini{margin-top:20px;padding:15px;background:#f8fafc;border-radius:15px}.example-mini .zh{font-size:1.3rem;font-weight:800}.example-mini .py,.example-mini .en{color:var(--muted);font-size:.8rem;margin-top:3px}
+.dialogue-card{display:flex;gap:16px;align-items:flex-start;padding:22px;border:1px solid var(--line);border-radius:22px;background:#fff}.dialogue-avatar{font-size:2rem}
+.media img,.media video{display:block;width:100%;max-height:520px;object-fit:contain;border-radius:20px;background:#f8fafc}.media audio{width:100%}
+.quiz-header{display:flex;justify-content:space-between;align-items:center}.quiz-badge{padding:7px 11px;border-radius:999px;background:#fff4d1;font-weight:900;font-size:.7rem}.quiz-count{font-weight:900;color:var(--muted)}.quiz-meter{height:8px;background:#eef2f7;border-radius:99px;overflow:hidden;margin:12px 0 22px}.quiz-meter-fill{height:100%;background:var(--primary)}
+.question-card{padding:22px;border-radius:20px;background:#f8fafc;border:1px solid var(--line)}.question-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--primary);font-weight:900}.question{font-size:1.25rem;font-weight:800;line-height:1.5;margin-top:7px}.options{display:grid;gap:10px;margin-top:16px}.option{padding:15px;text-align:left;border:1px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;font-weight:700;transition:.18s}.option:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent);box-shadow:0 8px 18px rgba(78,168,222,.12)}.option.correct{border-color:#74c69d;background:#ecfdf5}.option.wrong{border-color:#e63946;background:#fff1f2}.feedback{margin-top:15px;padding:13px 15px;border-radius:14px;font-weight:700}.feedback.good{background:#ecfdf5;color:#166534}.feedback.bad{background:#fff1f2;color:#9f1239}
+.listen-prompt{margin-top:16px}.listen-prompt audio{width:100%}
+.sentence-answer{min-height:64px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px;border:2px dashed var(--line);border-radius:16px;background:#fff;margin-top:16px}
+.sentence-hint{color:var(--muted,#5d7a9a);font-weight:700;font-size:.9rem}
+.sentence-pool{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.sentence-tile{padding:12px 18px;border:1px solid var(--line);border-radius:14px;background:#f8fbff;font-weight:800;font-size:1.05rem;cursor:pointer;transition:.15s}
+button.sentence-tile:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent);box-shadow:0 8px 18px rgba(78,168,222,.12)}
+.sentence-tile.placed{background:var(--accent,#4ea8de);color:#fff;border-color:transparent;cursor:default}
+.complete{text-align:center;padding:20px;position:relative}.complete-icon{font-size:4rem}.result-ring{width:150px;height:150px;margin:20px auto;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--score),#edf2f7 0);position:relative}.result-ring:after{content:"";position:absolute;inset:12px;background:#fff;border-radius:50%}.result-ring strong{position:relative;z-index:2;font-size:2rem}.rewards{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.reward{min-width:110px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;display:flex;flex-direction:column}.reward strong{font-size:1.2rem}.reward span{font-size:.65rem;color:var(--muted)}.action-row{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:18px 24px;border-top:1px solid var(--line)}.counter{font-size:.8rem;color:var(--muted)}.btn{padding:11px 17px;border-radius:13px;font-weight:900;cursor:pointer;transition:.18s}.btn.primary{background:var(--primary);color:#fff;box-shadow:0 8px 18px rgba(230,57,70,.18)}.btn.secondary{background:#f8fafc;color:#334155;border:1px solid var(--line)}.btn:hover:not(:disabled){transform:translateY(-2px)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.save-status{margin:12px 0;padding:11px 14px;border-radius:12px;font-size:.8rem;font-weight:800}.save-status.success{background:#ecfdf5;color:#166534}.save-status.error{background:#fff1f2;color:#9f1239}
+
+.toast{position:fixed;right:20px;bottom:20px;z-index:3000;padding:12px 16px;border-radius:13px;background:#0f172a;color:#fff;font-weight:800;box-shadow:var(--shadow)}.toast.success{background:#166534}.toast.error{background:#9f1239}.xp-burst{position:fixed;left:50%;top:25%;z-index:2500;transform:translateX(-50%);font-weight:950;color:#92400e;animation:xpBurst 1s var(--ease) forwards}@keyframes xpBurst{0%{opacity:0;transform:translate(-50%,15px) scale(.8)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-75px) scale(1.12)}}
+.lesson-complete-modal{position:fixed;inset:0;z-index:5000;display:none;place-items:center;padding:20px;background:rgba(15,23,42,.5);backdrop-filter:blur(8px)}.lesson-complete-modal.open{display:grid}.complete-modal-card{width:min(520px,100%);padding:32px;border-radius:28px;background:#fff;box-shadow:0 30px 90px rgba(15,23,42,.25);text-align:center;position:relative}.modal-close{position:absolute;right:15px;top:12px;background:#f8fafc;border-radius:50%;width:35px;height:35px;cursor:pointer;font-size:1.4rem}.complete-modal-icon{font-size:3.5rem}.modal-rewards{display:flex;gap:10px;justify-content:center;margin:22px 0;flex-wrap:wrap}.modal-reward{min-width:105px;padding:12px;background:#f8fafc;border-radius:14px}.modal-reward strong,.modal-reward span{display:block}.modal-reward span{font-size:.65rem;color:var(--muted)}.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.community-tab{position:fixed;right:0;top:42%;z-index:1200;width:62px;min-height:86px;padding:10px 8px;border:1px solid #dbe4ef;border-right:0;border-radius:18px 0 0 18px;background:rgba(255,255,255,.98);display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 12px 34px rgba(15,23,42,.16);cursor:pointer;color:var(--ink)}.community-tab-dot{width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 0 4px rgba(116,198,157,.15)}.community-tab-icon{font-size:1.25rem}.community-tab-count{font-size:.62rem;font-weight:900}.community-backdrop{position:fixed;inset:0;z-index:1250;background:rgba(15,23,42,.22);opacity:0;pointer-events:none;transition:opacity .25s}.community-backdrop.open{opacity:1;pointer-events:auto}.community-drawer{position:fixed;right:14px;top:82px;z-index:1300;width:min(360px,calc(100vw - 28px));max-height:calc(100vh - 100px);overflow:auto;padding:18px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.98);box-shadow:0 24px 70px rgba(15,23,42,.2);transform:translateX(calc(100% + 30px));opacity:0;pointer-events:none;transition:transform .3s var(--ease),opacity .25s}.community-drawer.open{transform:none;opacity:1;pointer-events:auto}.community-drawer-head{display:flex;justify-content:space-between;gap:12px}.community-drawer-head h2{margin:3px 0;font-size:1.15rem}.community-drawer-head p{margin:0;color:var(--muted);font-size:.72rem}.community-kicker,.community-feed-title{font-size:.6rem;letter-spacing:.12em;font-weight:950;color:var(--primary)}.community-close{width:34px;height:34px;border-radius:50%;background:#f8fafc;cursor:pointer;font-size:1.3rem}.community-live-note{display:flex;align-items:center;gap:8px;margin:15px 0;padding:10px 12px;border-radius:13px;background:#ecfdf5;color:#166534;font-size:.72rem;font-weight:800}.community-pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:hanpanStatusPulse 1.5s infinite}.community-learners{display:flex;gap:7px;flex-wrap:wrap}.community-learner{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;background:#f8fafc;border:1px solid var(--line);border-radius:999px;font-size:.65rem;font-weight:700}.community-learner-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}.community-empty{font-size:.7rem;color:#94a3b8}.community-feed-wrap{margin-top:18px}.community-feed{display:grid;gap:7px;margin-top:8px}.community-feed-item{padding:10px;border-radius:12px;background:#f8fafc;font-size:.68rem;font-weight:700;color:#475569}
+@media(max-width:760px){.wrap{width:min(100% - 20px,1100px);padding-top:105px}.lesson-head{align-items:flex-start;flex-direction:column}.xp{align-self:flex-start}.stage{padding:24px 18px;padding-bottom:26px}.journey{padding:14px}.controls{padding:15px}.community-tab{width:54px;min-height:76px}.community-drawer{top:92px}.hanzi{font-size:3.4rem}}
+/* Phone: keep Back / Continue reachable while scrolling the lesson. */
+@media(max-width:760px){
+  .controls{position:sticky;bottom:calc(0px + env(safe-area-inset-bottom,0px));z-index:20;background:rgba(255,255,255,.98);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:0 0 26px 26px;box-shadow:0 -10px 26px rgba(15,35,64,.08)}
+  .btn{min-height:48px}
+}
+@media(max-width:430px){.wrap{width:calc(100% - 14px)}.journey{gap:11px}.panda-avatar{flex-basis:82px!important;width:82px!important;height:82px!important}.panda-reaction{display:none}.stage{min-height:430px;padding:20px 13px}.controls{gap:8px}.btn{padding:10px 12px}.counter{font-size:.7rem}.complete-modal-card{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+
+/* =========================================================
+   HANVERSE LESSON VISUAL SYSTEM
+   Matches index.html brand language:
+   BLUE = primary learning/action
+   TEAL = secondary interaction
+   AMBER = XP/rewards
+   GREEN = success/live
+   RED = brand emphasis
+   ========================================================= */
+
+body{
+  background:
+    radial-gradient(circle at 7% 8%,rgba(37,99,235,.08),transparent 24%),
+    radial-gradient(circle at 92% 13%,rgba(20,184,166,.07),transparent 25%),
+    radial-gradient(circle at 50% 90%,rgba(245,158,11,.055),transparent 30%),
+    var(--bg);
+  color:var(--text);
+}
+.eyebrow,.kicker{color:var(--blue)}
+.lesson-head h1{color:var(--navy)}
+.xp{
+  background:var(--amber-soft);
+  border-color:#FDE68A;
+  color:#92400E;
+}
+.journey{
+  background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(239,246,255,.92));
+  border-color:#BFDBFE;
+}
+.panda-avatar{
+  background:linear-gradient(145deg,#fff,#EFF6FF);
+  border:1px solid #BFDBFE;
+  box-shadow:0 14px 32px rgba(15,23,42,.10),0 0 0 6px rgba(37,99,235,.08);
+}
+.panda-avatar img{display:block}
+.panda-image-fallback{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:4.3rem;
+}
+.panda-avatar.image-failed img{display:none}
+.panda-avatar.image-failed .panda-image-fallback{display:flex}
+.panda-reaction{color:var(--blue)}
+.progress-shell{
+  background:rgba(255,255,255,.92);
+  border-color:#D9E7F7;
+}
+.progress-dot{background:var(--green)}
+.pct{color:var(--blue)}
+.track{background:#EAF0F7}
+.fill{background:linear-gradient(90deg,var(--blue),var(--teal))}
+.chip.level{background:var(--blue-soft);color:var(--blue);border-color:#BFDBFE}
+.chip.activity{background:var(--teal-soft);color:#0F766E;border-color:#99F6E4}
+.map-node.current{
+  background:var(--blue-soft);
+  color:var(--blue);
+  box-shadow:0 0 0 3px rgba(37,99,235,.13);
+}
+.map-node.done{background:var(--green-soft);color:#047857}
+.card{background:rgba(255,255,255,.96);border-color:#DCE6F0}
+.stage{background:transparent}
+.content h2{color:var(--navy)}
+.welcome .mascot{color:var(--blue)}
+.welcome-badge{background:#F8FAFC}
+.panda-speech{
+  background:var(--blue-soft);
+  border-color:#BFDBFE;
+  color:var(--navy);
+}
+.objective-card{
+  background:linear-gradient(135deg,#F8FBFF,#EFF6FF);
+  border-color:#BFDBFE;
+}
+.obj-number{
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+}
+.learning-block{
+  background:#F8FAFC;
+  border-color:#E2E8F0;
+}
+.vocab-stage,.vocabulary{
+  background:linear-gradient(135deg,#EFF6FF,#F0FDFA);
+  border-color:#BFDBFE;
+}
+.vocab-card,.vocab-item{
+  background:#fff;
+  border-color:#DCE6F0;
+}
+.vocab-card:hover,.vocab-item:hover{
+  border-color:#93C5FD;
+  box-shadow:0 12px 28px rgba(37,99,235,.10);
+}
+.vocab-word,.hanzi{color:var(--navy)}
+.vocab-pinyin,.pinyin{color:var(--blue)}
+.example-card,.dialogue{
+  background:#F8FAFC;
+  border-color:#E2E8F0;
+}
+.btn{
+  border-color:var(--line);
+  background:#fff;
+  color:var(--navy);
+}
+.btn.primary,.btn-primary{
+  color:#fff;
+  border-color:transparent;
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  box-shadow:0 10px 24px rgba(37,99,235,.22);
+}
+.btn.primary:hover,.btn-primary:hover{
+  color:#fff;
+  background:linear-gradient(135deg,var(--blue-dark),#1E40AF);
+  box-shadow:0 15px 34px rgba(37,99,235,.28);
+}
+.btn.secondary{
+  background:#fff;
+  color:var(--navy);
+}
+.btn.secondary:hover{
+  color:var(--blue);
+  background:var(--blue-soft);
+  border-color:#BFDBFE;
+}
+.controls{
+  border-top:1px solid var(--line);
+  background:#fff;
+}
+.counter{color:var(--muted)}
+.counter strong{color:var(--blue)}
+.quiz,.question,.quiz-card{
+  background:#F8FAFC;
+  border-color:#DCE6F0;
+}
+.answer,.option,.quiz-option{
+  background:#fff;
+  border-color:var(--line);
+}
+.answer:hover,.option:hover,.quiz-option:hover{
+  border-color:#93C5FD;
+  background:var(--blue-soft);
+}
+.answer.correct,.option.correct,.quiz-option.correct,.correct{
+  background:var(--green-soft);
+  border-color:#A7F3D0;
+  color:#047857;
+}
+.answer.wrong,.option.wrong,.quiz-option.wrong{
+  background:#FEF2F2;
+  border-color:#FECACA;
+  color:#B91C1C;
+}
+.save-status{
+  background:var(--green-soft);
+  color:#047857;
+  border-color:#A7F3D0;
+}
+.feedback-live{
+  display:none;
+}
+.status-dot,.live-dot{background:var(--green)}
+
+/* Floating HanPan: always visible, blue-led, touch friendly */
+.hanpan-companion{
+  left:22px;
+  bottom:22px;
+  z-index:1100;
+}
+.hanpan-companion-button{
+  background:linear-gradient(145deg,#fff,#EFF6FF);
+  border-color:#BFDBFE;
+  box-shadow:0 16px 36px rgba(15,23,42,.15),0 0 0 5px rgba(37,99,235,.08);
+}
+.hanpan-companion-button:hover{
+  box-shadow:0 20px 42px rgba(15,23,42,.19),0 0 0 6px rgba(37,99,235,.18);
+}
+.hanpan-companion-glow{
+  background:radial-gradient(circle,rgba(37,99,235,.18),rgba(20,184,166,.10),transparent 70%);
+}
+.hanpan-companion-status{background:var(--green)}
+.hanpan-companion-badge{color:var(--blue)}
+.hanpan-companion-bubble{
+  border-color:#BFDBFE;
+  box-shadow:0 14px 34px rgba(15,23,42,.12),0 4px 12px rgba(37,99,235,.06);
+}
+.hanpan-companion-bubble::after{border-color:#BFDBFE;background:#fff}
+
+/* Community floating tab */
+.community-tab.is-offline{display:none!important}
+
+/* Games floating tab (universal in every lesson) */
+.games-tab{position:fixed;right:22px;top:calc(50% + 72px);transform:translateY(-50%);z-index:1200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:54px;height:54px;border:0;border-radius:50%;background:linear-gradient(135deg,#F97316,#f59e0b);color:#fff;cursor:pointer;box-shadow:0 10px 24px rgba(249,115,22,.35);font-family:inherit}
+.games-tab:hover{transform:translateY(-50%) scale(1.06)}
+.games-tab-icon{font-size:1.15rem;line-height:1}
+.games-tab-label{font-size:.5rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.games-backdrop{position:fixed;inset:0;z-index:1290;background:rgba(15,35,64,.5);opacity:0;pointer-events:none;transition:.2s}
+.games-backdrop.is-visible{opacity:1;pointer-events:auto}
+.games-drawer{position:fixed;right:0;top:0;bottom:0;z-index:1300;width:min(360px,92vw);background:#fff;box-shadow:-18px 0 40px rgba(15,35,64,.18);transform:translateX(105%);transition:.25s;display:flex;flex-direction:column;padding:22px}
+.games-drawer.is-visible{transform:translateX(0)}
+.games-drawer-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.games-kicker{font-size:.62rem;font-weight:900;letter-spacing:.12em;color:#F97316}
+.games-drawer-head h2{font-size:1.2rem;margin:5px 0 3px;color:#0F2340}
+.games-drawer-head p{font-size:.8rem;color:#5D7A9A;margin:0}
+.games-close{border:0;background:#f1f5f9;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;color:#0F2340}
+.games-list{display:grid;gap:10px;margin-top:18px;overflow-y:auto}
+.games-item{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid #e2e8f0;border-radius:16px;text-decoration:none;color:#0F2340;font-size:1.05rem;transition:.15s}
+.games-item:hover{border-color:#4ea8de;background:#f8fbff;transform:translateY(-1px)}
+.games-item strong{display:block;font-size:.9rem}
+.games-item span{display:block;font-size:.72rem;font-weight:600;color:#5D7A9A}
+
+.community-tab{
+  position:fixed;
+  right:22px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:1200;
+  width:54px;
+  height:54px;
+  border:1px solid #BFDBFE;
+  border-radius:18px;
+  background:linear-gradient(145deg,#fff,#EFF6FF);
+  color:var(--blue);
+  box-shadow:0 12px 30px rgba(37,99,235,.18);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  cursor:pointer;
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+}
+.community-tab:hover{
+  transform:translateY(-50%) translateX(-3px) scale(1.04);
+  box-shadow:0 16px 36px rgba(37,99,235,.25);
+  background:var(--blue-soft);
+}
+.community-tab-icon{font-size:1.2rem}
+.community-tab-count{
+  min-width:19px;
+  height:19px;
+  padding:0 5px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:var(--blue);
+  color:#fff;
+  font-size:.55rem;
+  font-weight:900;
+}
+.community-tab-dot{
+  position:absolute;
+  width:9px;height:9px;
+  right:7px;top:7px;
+  border:2px solid #fff;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 0 3px rgba(16,185,129,.12);
+}
+.community-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:1250;
+  background:rgba(15,23,42,.28);
+  backdrop-filter:blur(3px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s ease;
+}
+.community-backdrop.open{
+  opacity:1;
+  pointer-events:auto;
+}
+.community-drawer{
+  position:fixed;
+  top:0;
+  right:0;
+  bottom:0;
+  z-index:1300;
+  width:min(390px,calc(100vw - 22px));
+  padding:25px 22px;
+  background:rgba(255,255,255,.98);
+  border-left:1px solid #DCE6F0;
+  box-shadow:-18px 0 55px rgba(15,23,42,.16);
+  transform:translateX(105%);
+  transition:transform .28s var(--ease);
+  overflow:auto;
+}
+.community-drawer.open{transform:translateX(0)}
+.community-drawer-head{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:flex-start;
+}
+.community-kicker{
+  color:var(--blue);
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+.community-drawer h2{
+  margin:5px 0 3px;
+  color:var(--navy);
+  font-size:1.35rem;
+}
+.community-drawer-head p{margin:0;color:var(--muted);font-size:.72rem}
+.community-close{
+  width:38px;height:38px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--navy);
+  font-size:1.5rem;
+  cursor:pointer;
+}
+.community-close:hover{background:var(--blue-soft);color:var(--blue);border-color:#BFDBFE}
+.community-live-note{
+  display:flex;align-items:center;gap:8px;
+  margin:20px 0 16px;
+  padding:11px 13px;
+  border-radius:14px;
+  background:var(--green-soft);
+  border:1px solid #A7F3D0;
+  color:#047857;
+  font-size:.7rem;
+  font-weight:800;
+}
+.community-pulse{
+  width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 0 5px rgba(16,185,129,.12);
+}
+.community-learners{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  min-height:44px;
+}
+.community-learner{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 9px;
+  border:1px solid #BFDBFE;
+  background:var(--blue-soft);
+  border-radius:999px;
+  color:var(--navy);
+  font-size:.65rem;
+  font-weight:800;
+}
+.community-learner-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+}
+.community-empty{
+  display:block;
+  width:100%;
+  padding:15px;
+  text-align:center;
+  color:var(--muted);
+  background:#F8FAFC;
+  border:1px dashed #CBD5E1;
+  border-radius:14px;
+  font-size:.68rem;
+}
+.community-feed-wrap{margin-top:23px}
+.community-feed-title{
+  margin-bottom:9px;
+  color:var(--muted);
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+.community-feed{display:grid;gap:8px}
+.community-feed-item{
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  font-size:.68rem;
+  line-height:1.5;
+}
+.community-feed-item strong{color:var(--blue)}
+.community-feed-item small{display:block;color:var(--muted);margin-top:3px}
+
+/* Completion modal */
+.lesson-complete-modal{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:rgba(15,23,42,.48);
+  backdrop-filter:blur(8px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s ease;
+}
+.lesson-complete-modal.open,.lesson-complete-modal.is-visible{
+  opacity:1;
+  pointer-events:auto;
+}
+.complete-modal-card{
+  position:relative;
+  width:min(560px,100%);
+  padding:32px;
+  border:1px solid #BFDBFE;
+  border-radius:28px;
+  background:#fff;
+  box-shadow:0 30px 90px rgba(15,23,42,.24);
+  text-align:center;
+  transform:translateY(18px) scale(.97);
+  transition:transform .28s var(--ease);
+}
+.lesson-complete-modal.open .complete-modal-card,
+.lesson-complete-modal.is-visible .complete-modal-card{
+  transform:none;
+}
+.modal-close{
+  position:absolute;right:14px;top:14px;
+  width:38px;height:38px;border:1px solid var(--line);
+  border-radius:12px;background:#fff;color:var(--muted);font-size:1.3rem;cursor:pointer;
+}
+.modal-close:hover{color:var(--blue);background:var(--blue-soft)}
+.complete-modal-icon{
+  width:76px;height:76px;margin:0 auto 13px;
+  display:grid;place-items:center;
+  border-radius:24px;
+  background:linear-gradient(145deg,var(--blue-soft),var(--teal-soft));
+  font-size:2.2rem;
+}
+.complete-modal-card .kicker{color:var(--blue)}
+.complete-modal-card h2{margin:6px 0;color:var(--navy);font-size:2rem}
+.complete-modal-card p{color:var(--muted);line-height:1.65}
+.modal-rewards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin:22px 0;
+}
+.modal-reward{
+  padding:13px 8px;border:1px solid var(--line);border-radius:15px;background:#F8FAFC;
+}
+.modal-reward strong{display:block;color:var(--blue);font-size:1rem}
+.modal-reward span{display:block;color:var(--muted);font-size:.6rem;margin-top:3px}
+.modal-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+
+/* Perfect-score celebration */
+.perfect-score-overlay{
+  position:fixed;inset:0;z-index:4000;
+  display:grid;place-items:center;padding:20px;
+  opacity:0;pointer-events:none;
+  background:rgba(15,23,42,.60);
+  backdrop-filter:blur(10px);
+  transition:opacity .25s ease;
+}
+.perfect-score-overlay.is-visible{
+  opacity:1;pointer-events:auto;
+}
+.perfect-backdrop{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(37,99,235,.25),transparent 30%),
+    radial-gradient(circle at 30% 30%,rgba(245,158,11,.18),transparent 25%),
+    radial-gradient(circle at 75% 70%,rgba(20,184,166,.16),transparent 25%);
+}
+.perfect-card{
+  position:relative;z-index:2;
+  width:min(620px,100%);
+  padding:34px 30px 30px;
+  border:1px solid rgba(191,219,254,.9);
+  border-radius:32px;
+  background:linear-gradient(145deg,#fff,#F8FBFF);
+  box-shadow:0 35px 100px rgba(15,23,42,.30);
+  text-align:center;
+  overflow:hidden;
+  transform:translateY(24px) scale(.94);
+  transition:transform .45s var(--ease);
+}
+.perfect-score-overlay.is-visible .perfect-card{
+  transform:none;
+}
+.perfect-close{
+  position:absolute;right:14px;top:14px;
+  z-index:5;width:40px;height:40px;border:1px solid var(--line);
+  border-radius:12px;background:#fff;color:var(--muted);cursor:pointer;font-size:1.35rem;
+}
+.perfect-close:hover{background:var(--blue-soft);color:var(--blue)}
+.perfect-panda{
+  position:relative;z-index:2;
+  width:150px;height:150px;margin:0 auto 8px;
+  object-fit:contain;
+  filter:drop-shadow(0 15px 12px rgba(15,23,42,.16));
+  animation:perfectPanda 1.8s ease-in-out infinite;
+}
+.perfect-crown{
+  position:absolute;z-index:4;
+  top:35px;left:50%;transform:translateX(25px) rotate(-10deg);
+  font-size:2.6rem;
+}
+.perfect-kicker{
+  color:var(--blue);font-size:.68rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;
+}
+.perfect-title{
+  margin:5px 0;color:var(--navy);font-size:clamp(2rem,6vw,3.5rem);letter-spacing:-.06em;
+}
+.perfect-subtitle{color:var(--muted);font-size:.85rem;line-height:1.6}
+.perfect-score-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  margin:18px 0 10px;padding:10px 16px;
+  border-radius:999px;background:var(--blue-soft);border:1px solid #BFDBFE;color:var(--blue);font-weight:900;
+}
+.perfect-xp{
+  display:block;color:#92400E;font-weight:900;font-size:1rem;
+}
+.perfect-message{
+  max-width:460px;margin:10px auto 0;color:var(--muted);font-size:.75rem;line-height:1.65;
+}
+.perfect-dismiss-hint{margin-top:18px;color:#94A3B8;font-size:.58rem}
+.perfect-ring{
+  position:absolute;left:50%;top:135px;transform:translate(-50%,-50%);
+  width:210px;height:210px;border:2px solid rgba(37,99,235,.15);border-radius:50%;
+  animation:perfectRing 2.8s ease-out infinite;
+}
+.ring-one{animation-delay:0s}.ring-two{animation-delay:.65s}.ring-three{animation-delay:1.3s}
+.perfect-sparkles,.perfect-rays{
+  position:absolute;inset:0;pointer-events:none;
+}
+.perfect-sparkles::before{
+  content:"✦  ✧  ✦  ·  ✧  ✦";
+  position:absolute;inset:22% 8% auto;
+  color:var(--amber);font-size:1.6rem;letter-spacing:18px;
+  animation:sparkleFloat 2.5s ease-in-out infinite;
+}
+.perfect-burst{
+  position:absolute;inset:0;pointer-events:none;
+}
+.perfect-burst .confetti-piece{position:absolute}
+@keyframes perfectPanda{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-9px) rotate(2deg)}
+}
+@keyframes perfectRing{
+  0%{opacity:.65;transform:translate(-50%,-50%) scale(.75)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.45)}
+}
+@keyframes sparkleFloat{
+  0%,100%{opacity:.35;transform:translateY(4px)}
+  50%{opacity:1;transform:translateY(-5px)}
+}
+
+/* Confetti */
+.confetti-host{
+  position:fixed;inset:0;z-index:4100;pointer-events:none;overflow:hidden;
+}
+.confetti-piece{
+  position:absolute;
+  top:-24px;
+  width:9px;height:16px;
+  border-radius:2px;
+  background:var(--blue);
+  animation:confettiFall 1.8s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.confetti-piece:nth-child(4n){background:var(--red)}
+.confetti-piece:nth-child(4n+1){background:var(--blue)}
+.confetti-piece:nth-child(4n+2){background:var(--amber)}
+.confetti-piece:nth-child(4n+3){background:var(--teal)}
+@keyframes confettiFall{
+  to{transform:translate3d(var(--dx,0),110vh,0) rotate(760deg);opacity:0}
+}
+
+/* Panda reactions referenced by JS */
+.panda-bounce{animation:pandaBounce .5s var(--ease)}
+.panda-happy{animation:pandaHappy .7s var(--ease)}
+.panda-worried{animation:pandaWorried .6s ease}
+.panda-celebrate{animation:pandaCelebrate .9s var(--ease)}
+.reaction-good{color:var(--green)}
+.reaction-bad{color:var(--red)}
+.reaction-great{color:var(--blue)}
+@keyframes pandaBounce{50%{transform:translateY(-8px) scale(1.04)}}
+@keyframes pandaHappy{50%{transform:translateY(-10px) rotate(4deg) scale(1.05)}}
+@keyframes pandaWorried{25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+@keyframes pandaCelebrate{25%{transform:translateY(-12px) rotate(-5deg) scale(1.06)}75%{transform:translateY(-7px) rotate(5deg) scale(1.04)}}
+
+/* Speaking / popup state hooks */
+.is-speaking{--speaking-blue:var(--blue)}
+.is-visible{visibility:visible}
+.hv-pop{animation:hvPop .3s var(--ease)}
+.hv-success{animation:hvPop .3s var(--ease);border-color:#A7F3D0!important}
+.hv-wrong{animation:hvPop .3s var(--ease);border-color:#FECACA!important}
+.show{display:block!important}
+
+/* Prevent old emoji mascot from dominating the visual system */
+.welcome .mascot{
+  font-size:0;
+  width:130px;height:130px;
+  margin:0 auto 12px;
+  background:url("assets/mascot/states/hanpan-happy.png") center/contain no-repeat;
+}
+.welcome .mascot::after{content:"";display:block;width:100%;height:100%}
+
+/* Accessibility + mobile */
+button:focus-visible,a:focus-visible{
+  outline:3px solid rgba(37,99,235,.28);
+  outline-offset:3px;
+}
+@media(max-width:760px){
+  .wrap{width:calc(100% - 22px);padding-top:105px}
+  .lesson-head{align-items:flex-start;flex-direction:column}
+  .xp{align-self:flex-start}
+  .stage{padding:22px}
+  .journey{padding:14px}
+  .community-tab{right:10px;width:50px;height:50px;border-radius:16px}
+  .community-drawer{width:min(390px,calc(100vw - 12px));padding:20px 16px}
+  .modal-rewards{grid-template-columns:1fr}
+  .complete-modal-card{padding:28px 20px}
+  .perfect-card{padding:28px 18px 24px;border-radius:26px}
+  .perfect-panda{width:120px;height:120px}
+}
+@media(max-width:430px){
+  .community-tab{top:auto;bottom:calc(84px + env(safe-area-inset-bottom,0px));right:10px;transform:none}
+  .community-tab:hover{transform:scale(1.04)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+</style>
+<style>
+/* =========================================================
+   HANPAN EVERYWHERE — FLOATING MASCOT COMPANION
+   ========================================================= */
+
+.hanpan-companion {
+    position: fixed;
+    left: 20px;
+    bottom: 22px;
+    z-index: 1000;
+
+    width: 190px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    pointer-events: none;
+    font-family: inherit;
+}
+
+/* ---------------------------------------------------------
+   SPEECH BUBBLE
+   --------------------------------------------------------- */
+
+.hanpan-companion-bubble {
+    position: relative;
+
+    width: 190px;
+    padding: 11px 13px 12px;
+
+    border: 1px solid rgba(226, 232, 240, 0.96);
+    border-radius: 18px 18px 18px 7px;
+
+    background: rgba(255, 255, 255, 0.97);
+
+    box-shadow:
+        0 14px 34px rgba(15, 23, 42, 0.13),
+        0 4px 12px rgba(15, 23, 42, 0.06);
+
+    color: #334155;
+
+    font-size: 0.72rem;
+    line-height: 1.45;
+    font-weight: 700;
+
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+
+    transform-origin: left bottom;
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.hanpan-companion-bubble::after {
+    content: "";
+
+    position: absolute;
+
+    left: 26px;
+    bottom: -7px;
+
+    width: 13px;
+    height: 13px;
+
+    background: #ffffff;
+
+    border-right: 1px solid rgba(226, 232, 240, 0.96);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+
+    transform: rotate(45deg);
+}
+
+/* Show bubble when HanPan is hovered/focused/speaking */
+
+.hanpan-companion:hover .hanpan-companion-bubble,
+.hanpan-companion.is-speaking .hanpan-companion-bubble,
+.hanpan-companion:focus-within .hanpan-companion-bubble {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+
+/* ---------------------------------------------------------
+   HANPAN LABEL
+   --------------------------------------------------------- */
+
+.hanpan-companion-badge {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #2563EB;
+
+    font-size: 0.56rem;
+    font-weight: 950;
+
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+
+/* ---------------------------------------------------------
+   HANPAN BUTTON
+   --------------------------------------------------------- */
+
+.hanpan-companion-button {
+    position: relative;
+
+    width: 102px;
+    height: 102px;
+
+    padding: 8px;
+
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #FFFDF7
+        );
+
+    box-shadow:
+        0 16px 36px rgba(15,23,42,.15),
+        0 0 0 5px rgba(255, 255, 255, 0.62);
+
+    cursor: pointer;
+
+    pointer-events: auto;
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.hanpan-companion-button:hover {
+    transform: translateY(-5px) scale(1.04);
+
+    box-shadow:
+        0 20px 42px rgba(15, 23, 42, 0.20),
+        0 0 0 6px rgba(245,158,11,.18);
+}
+
+.hanpan-companion-button:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.hanpan-companion-button:focus-visible {
+    outline: 3px solid rgba(37,99,235,.28);
+    outline-offset: 4px;
+}
+
+
+/* ---------------------------------------------------------
+   HANPAN IMAGE
+   --------------------------------------------------------- */
+
+.hanpan-companion-button img {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+    display: block;
+
+    filter:
+        drop-shadow(
+            0 7px 5px rgba(15, 23, 42, 0.18)
+        );
+
+    animation:
+        hanpanCompanionBreath
+        3.6s
+        ease-in-out
+        infinite;
+}
+
+
+/* ---------------------------------------------------------
+   GOLDEN GLOW
+   --------------------------------------------------------- */
+
+.hanpan-companion-glow {
+    position: absolute;
+
+    inset: 11px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(245,158,11,.18),
+            transparent 68%
+        );
+
+    animation:
+        hanpanCompanionGlow
+        2.8s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------
+   ONLINE STATUS
+   --------------------------------------------------------- */
+
+.hanpan-companion-status {
+    position: absolute;
+
+    right: -9px;
+    bottom: 4px;
+
+    z-index: 5;
+
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    padding: 4px 7px;
+
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+
+    background: #10B981;
+
+    color: #ffffff;
+
+    font-size: 0.48rem;
+    font-weight: 900;
+
+    box-shadow:
+        0 5px 12px rgba(15, 23, 42, 0.12);
+}
+
+.hanpan-companion-status span {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    animation:
+        hanpanStatusPulse
+        1.5s
+        ease-in-out
+        infinite;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes hanpanCompanionBreath {
+
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-1deg)
+            scale(1);
+    }
+
+    50% {
+        transform:
+            translateY(-4px)
+            rotate(1deg)
+            scale(1.035);
+    }
+}
+
+
+@keyframes hanpanCompanionGlow {
+
+    0%,
+    100% {
+        opacity: 0.45;
+        transform: scale(0.92);
+    }
+
+    50% {
+        opacity: 0.85;
+        transform: scale(1.08);
+    }
+}
+
+
+@keyframes hanpanStatusPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.45;
+        transform: scale(0.7);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   TALKING ANIMATION
+   --------------------------------------------------------- */
+
+.hanpan-companion.is-speaking
+.hanpan-companion-button img {
+
+    animation:
+        hanpanCompanionTalk
+        0.7s
+        cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+@keyframes hanpanCompanionTalk {
+
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(0)
+            scale(1);
+    }
+
+    25% {
+        transform:
+            translateY(-3px)
+            rotate(-3deg)
+            scale(1.04);
+    }
+
+    50% {
+        transform:
+            translateY(-5px)
+            rotate(3deg)
+            scale(1.06);
+    }
+
+    75% {
+        transform:
+            translateY(-2px)
+            rotate(-2deg)
+            scale(1.03);
+    }
+}
+
+
+/* =========================================================
+   TOP HANPAN / JOURNEY AREA
+   ========================================================= */
+
+.journey {
+    position: relative;
+    overflow: visible;
+}
+
+
+/*
+   Make the HanPan in the lesson journey
+   feel like an actual character rather than
+   a tiny icon.
+*/
+
+.journey .panda-avatar {
+
+    width: 112px !important;
+    height: 112px !important;
+
+    flex: 0 0 112px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #FFFDF7
+        ) !important;
+
+    border:
+        1px solid rgba(226, 232, 240, 0.95) !important;
+
+    border-radius: 50% !important;
+
+    box-shadow:
+        0 14px 32px rgba(15, 23, 42, 0.12),
+        0 0 0 6px rgba(244, 211, 94, 0.13) !important;
+}
+
+.journey .panda-avatar img {
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    display: block;
+
+    filter:
+        drop-shadow(
+            0 7px 5px rgba(15, 23, 42, 0.15)
+        );
+}
+
+
+/* =========================================================
+   MAKE THE LESSON HERO FEEL MORE LIKE HANPAN
+   ========================================================= */
+
+.lesson-hero,
+.hero,
+.lesson-header {
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   KEEP THE FLOATING HANPAN ABOVE LESSON CONTENT
+   ========================================================= */
+
+.hanpan-companion {
+    z-index: 1000 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+    .hanpan-companion {
+
+        left: 10px;
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+
+        width: 150px;
+    }
+
+    .hanpan-companion-bubble {
+
+        width: 150px;
+
+        font-size: 0.65rem;
+    }
+
+    .hanpan-companion-button {
+
+        width: 76px;
+        height: 76px;
+    }
+
+    .hanpan-companion-status {
+
+        font-size: 0.42rem;
+
+        right: -12px;
+    }
+
+    .journey .panda-avatar {
+
+        width: 82px !important;
+        height: 82px !important;
+
+        flex-basis: 82px;
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 430px) {
+
+    .hanpan-companion {
+
+        left: 8px;
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+
+        width: 125px;
+    }
+
+    .hanpan-companion-bubble {
+
+        width: 125px;
+
+        padding: 9px 10px;
+
+        font-size: 0.59rem;
+    }
+
+    .hanpan-companion-button {
+
+        width: 64px;
+        height: 64px;
+
+        padding: 6px;
+    }
+
+    .hanpan-companion-status {
+
+        right: -10px;
+        bottom: 1px;
+
+        padding: 3px 5px;
+
+        font-size: 0.38rem;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .hanpan-companion-button img,
+    .hanpan-companion-glow,
+    .hanpan-companion-status span {
+
+        animation: none !important;
+    }
+
+    .hanpan-companion-bubble {
+
+        transition: none;
+    }
+}
+</style>
+
+<style id="hanverse-final-safety-css">
+/* Final coverage for dynamically-rendered lesson states */
+.objective-hero{
+  margin:10px auto 26px;
+  padding:26px;
+  max-width:760px;
+  text-align:center;
+  border:1px solid #BFDBFE;
+  border-radius:24px;
+  background:linear-gradient(135deg,#EFF6FF,#F0FDFA);
+}
+.objective-hero h2{margin:5px 0 8px;color:var(--navy);font-size:clamp(1.7rem,4vw,2.5rem)}
+.objective-hero .desc{margin:0 auto;max-width:620px}
+.score-star{color:var(--amber);font-size:1.05em}
+.live-spacer{flex:1}
+.feedback-live{display:none!important}
+.image-failed{opacity:.92}
+.selected{border-color:#93C5FD!important;background:var(--blue-soft)!important;color:var(--blue)!important}
+</style>
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
+</head>
+
+
+<body>
+
+<!-- =======================================================
+     NAV
+     ======================================================= -->
+
+<a class="skip-link" href="#content">Skip to lesson</a>
+
+<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">
+  <a class="brand" href="index.html" aria-label="HanVerse home">
+    <img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">
+    <span>HanVerse</span>
+  </a>
+  <div class="nav-links">
+    <a href="learn.html">Learn</a>
+    <a href="explore.html">Explore</a>
+    <a href="practice.html">Practice</a>
+    <a href="roadmap.html">Roadmap</a>
+    <a href="parents.html">Parents</a>
+  </div>
+  <div class="nav-actions">
+    <a class="nav-user" id="profile" href="profile.html"><span class="avatar">👤</span><span id="profileName">Learner</span></a>
+  </div>
+</nav>
+
+
+
+<!-- =======================================================
+     MAIN
+     ======================================================= -->
+
+<main class="wrap">
+
+
+    <section class="lesson-head">
+
+        <div>
+
+            <div class="eyebrow">
+                🐼 HanPan Lesson
+            </div>
+
+            <h1 id="title">
+                Loading…
+            </h1>
+
+            <p
+                class="lesson-description"
+                id="description"
+            >
+                Preparing your Mandarin adventure…
+            </p>
+
+        </div>
+
+
+        <div class="xp">
+
+            ⭐
+
+            <b id="xp">
+                0
+            </b>
+
+            XP
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         PANDA COMPANION
+         =================================================== -->
+
+    <section
+        class="journey"
+        id="pandaJourney"
+    >
+
+        <div
+            class="panda-avatar"
+            id="pandaAvatar"
+            aria-hidden="true"
+        >
+            <img
+                id="pandaImage"
+                src="assets/mascot/states/hanpan-idle.png"
+                alt="HanPan"
+                draggable="false"
+             loading="lazy" decoding="async">
+            <span class="panda-image-fallback" aria-hidden="true">🐼</span>
+        </div>
+
+
+        <div class="journey-copy">
+
+            <strong
+                id="journeyTitle"
+            >
+                Getting ready…
+            </strong>
+
+            <span
+                id="journeyText"
+            >
+                HanPan is preparing your lesson.
+            </span>
+
+        </div>
+
+
+        <div
+            class="panda-reaction"
+            id="pandaReaction"
+        >
+            ✨
+        </div>
+
+    </section>
+
+
+
+    <!-- Compact live community control: the full community lives in a side drawer. -->
+    <button class="community-tab" id="communityToggle" type="button" aria-label="Open Learning Community" aria-expanded="false">
+        <span class="community-tab-dot"></span>
+        <span class="community-tab-icon">👥</span>
+        <span class="community-tab-count" id="communityToggleCount">0</span>
+    </button>
+
+    <!-- Games quick-launch (universal: shows in every lesson) -->
+    <button class="games-tab" id="gamesToggle" type="button" aria-label="Play a game" title="Play a game">
+        <span class="games-tab-icon">🎮</span>
+        <span class="games-tab-label">Play</span>
+    </button>
+
+    <div class="games-backdrop" id="gamesBackdrop" aria-hidden="true"></div>
+
+    <aside class="games-drawer" id="gamesDrawer" aria-label="Games" aria-hidden="true">
+        <div class="games-drawer-head">
+            <div>
+                <div class="games-kicker">PLAY & PRACTISE</div>
+                <h2>Games with HanPan 🐼</h2>
+                <p>Take a break and play — you'll still be learning.</p>
+            </div>
+            <button class="games-close" id="gamesClose" type="button" aria-label="Close games">×</button>
+        </div>
+
+        <nav class="games-list">
+            <a class="games-item" href="practice.html?game=catch">🎯 <div><strong>Character Catch</strong><span>Catch the character Panda asks for</span></div></a>
+            <a class="games-item" href="practice.html?game=tones">🎵 <div><strong>Tone Pairs</strong><span>Train your ear for tones</span></div></a>
+            <a class="games-item" href="practice.html?game=builder">🧩 <div><strong>Character Builder</strong><span>Assemble characters from parts</span></div></a>
+            <a class="games-item" href="practice.html?game=review">📖 <div><strong>Review Reps</strong><span>Practise your weakest words</span></div></a>
+            <a class="games-item" href="practice.html?game=flashcards">🃏 <div><strong>Flashcards</strong><span>Quick word recall</span></div></a>
+            <a class="games-item" href="practice.html?game=speaking">🎤 <div><strong>Speak Aloud</strong><span>Say it — Panda listens</span></div></a>
+        </nav>
+    </aside>
+
+    <div class="community-backdrop" id="communityBackdrop" aria-hidden="true"></div>
+
+    <aside class="community-drawer" id="communityDrawer" aria-label="Learning Community" aria-hidden="true">
+        <div class="community-drawer-head">
+            <div>
+                <div class="community-kicker">LIVE COMMUNITY</div>
+                <h2>Learning Community</h2>
+                <p><span id="communityOnline">0 online</span> · learning with you</p>
+            </div>
+            <button class="community-close" id="communityClose" type="button" aria-label="Close Learning Community">×</button>
+        </div>
+
+        <div class="community-live-note">
+            <span class="community-pulse"></span>
+            Learners are studying right now
+        </div>
+
+        <div class="community-learners" id="communityLearners" aria-live="polite">
+            <span class="community-empty">Waiting for learners…</span>
+        </div>
+
+        <div class="community-feed-wrap">
+            <div class="community-feed-title">RECENT ACTIVITY</div>
+            <div class="community-feed" id="communityFeed" aria-live="polite">
+                <span class="community-empty">Your learning community will appear here.</span>
+            </div>
+        </div>
+    </aside>
+
+
+    <!-- ===================================================
+         PROGRESS
+         =================================================== -->
+
+    <section
+        class="progress-shell"
+        aria-label="Lesson progress"
+    >
+
+        <div class="progress-top">
+
+            <div class="progress-label">
+
+                <span class="progress-dot"></span>
+
+                <span>
+                    Your learning journey
+                </span>
+
+            </div>
+
+            <span
+                class="pct"
+                id="pct"
+            >
+                0%
+            </span>
+
+        </div>
+
+
+        <div
+            class="track"
+            role="progressbar"
+            id="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+        >
+
+            <div
+                class="fill"
+                id="fill"
+            ></div>
+
+        </div>
+
+
+        <div class="progress-bottom">
+
+            <div class="chips">
+
+                <span
+                    class="chip level"
+                    id="level"
+                >
+                    YCT 1
+                </span>
+
+                <span
+                    class="chip activity"
+                    id="activity"
+                >
+                    Welcome
+                </span>
+
+                <span class="chip">
+                    🐼 Hanverse
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="activity-map"
+            id="activityMap"
+        ></div>
+
+    </section>
+
+    <!-- ===================================================
+         HANPAN FLOATING COMPANION
+         =================================================== -->
+    <div class="hanpan-companion" id="hanpanCompanion" aria-live="polite">
+        <div class="hanpan-companion-bubble" id="hanpanCompanionBubble">
+            <span class="hanpan-companion-badge">HANPAN</span>
+            <span id="hanpanCompanionText">I’m here! Let’s learn together. 🐼</span>
+        </div>
+        <button class="hanpan-companion-button" id="hanpanCompanionButton" type="button" aria-label="Talk to HanPan">
+            <span class="hanpan-companion-glow"></span>
+            <img id="hanpanCompanionImage" src="assets/mascot/states/hanpan-idle.png" alt="HanPan, your learning companion" draggable="false" loading="lazy" decoding="async">
+            <span class="hanpan-companion-status"><span></span> learning</span>
+        </button>
+    </div>
+
+    <section class="feedback-live" id="liveFeedback" aria-live="polite">
+        <span class="live-dot" id="liveDot"></span>
+        <span id="liveText">Connecting to your learning community…</span>
+        <span class="live-spacer"></span>
+        <strong id="onlineCount">0 online</strong>
+    </section>
+
+
+
+    <!-- ===================================================
+         LESSON CARD
+         =================================================== -->
+
+    <section class="card">
+
+        <div class="stage">
+
+
+            <div
+                class="state"
+                id="loading"
+            >
+
+                <div class="loading-panda">
+                    🐼
+                </div>
+
+                <div class="spinner"></div>
+
+                <strong>
+                    Panda is getting your lesson ready…
+                </strong>
+
+                <span>
+                    Loading your vocabulary,
+                    activities and challenges.
+                </span>
+
+            </div>
+
+
+
+            <div
+                class="state hidden"
+                id="error"
+            >
+
+                <div class="loading-panda">
+                    😕
+                </div>
+
+                <strong>
+                    We couldn't load this lesson.
+                </strong>
+
+                <span id="errorText"></span>
+
+                <button
+                    class="btn primary"
+                    id="retry"
+                    type="button"
+                >
+                    🔄 Try again
+                </button>
+
+            </div>
+
+
+
+            <div
+                class="content hidden"
+                id="content"
+            ></div>
+
+        </div>
+
+
+
+        <div
+            class="controls hidden"
+            id="controls"
+        >
+
+            <button
+                class="btn secondary"
+                id="back"
+                type="button"
+            >
+                ← Back
+            </button>
+
+
+            <div
+                class="counter"
+                id="counter"
+            >
+                <strong>1</strong>
+                /
+                1
+            </div>
+
+
+            <button
+                class="btn primary"
+                id="next"
+                type="button"
+            >
+                Continue →
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <div
+        class="save-status hidden"
+        id="saveStatus"
+    ></div>
+
+</main>
+
+<div class="lesson-complete-modal" id="completeModal" role="dialog" aria-modal="true" aria-labelledby="completeModalTitle">
+    <div class="complete-modal-card">
+        <button class="modal-close" id="closeCompleteModal" type="button" aria-label="Close">×</button>
+        <div class="complete-modal-icon" id="completeModalIcon">🏆</div>
+        <div class="kicker">Lesson complete</div>
+        <h2 id="completeModalTitle">You did it! 🎉</h2>
+        <p id="completeModalText">Your Mandarin progress has been saved.</p>
+        <div class="modal-rewards">
+            <div class="modal-reward"><strong id="modalXP">+10</strong><span>XP earned</span></div>
+            <div class="modal-reward"><strong id="modalScore">100%</strong><span>Score</span></div>
+            <div class="modal-reward"><strong id="modalOnline">0</strong><span>Learners online</span></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn secondary" id="modalStay" type="button">Review lesson</button>
+            <button class="btn primary" id="modalNext" type="button" hidden>Next lesson →</button>
+            <button class="btn secondary" id="modalLearn" type="button">Back to Learn 📚</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
+<script src="features-client.js"></script>
+<script>
+
+"use strict";
+
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
+const $ =
+    id =>
+        document.getElementById(id);
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+const state = {
+
+    user:null,
+
+    lesson:null,
+
+    lessonId:"",
+
+    activities:[],
+
+    index:0,
+
+    answers:{},
+
+    sentences:{},
+
+    score:0,
+
+    startedAt:
+        Date.now(),
+
+    saving:false,
+
+    completed:false,
+    live:{
+        socket:null,
+        connected:false,
+        online:0
+    }
+
+};
+
+
+/* =========================================================
+   ESCAPE
+   ========================================================= */
+
+function esc(value){
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        String(value ?? "");
+
+    return div.innerHTML;
+
+}
+
+
+function attr(value){
+
+    return esc(value)
+        .replace(
+            /"/g,
+            "&quot;"
+        );
+
+}
+
+
+/* =========================================================
+   API
+   ========================================================= */
+
+async function api(
+    path,
+    options={}
+){
+
+    const response =
+        await fetch(
+            "/api/" +
+            String(path)
+                .replace(/^\/+/,""),
+            {
+                credentials:"include",
+                cache:"no-store",
+                ...options,
+
+                headers:{
+                    Accept:
+                        "application/json",
+                    ...(options.headers || {})
+                }
+            }
+        );
+
+
+    const text =
+        await response.text();
+
+
+    let data;
+
+
+    try{
+
+        data =
+            text
+                ? JSON.parse(text)
+                : null;
+
+    }catch{
+
+        throw new Error(
+            `Invalid API response (HTTP ${response.status})`
+        );
+
+    }
+
+
+    if(!response.ok){
+
+        throw new Error(
+            data?.error ||
+            data?.message ||
+            `Request failed (HTTP ${response.status})`
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+/* =========================================================
+   USER
+   ========================================================= */
+
+function uid(user){
+
+    const value =
+        Number(
+            user?.user_id ??
+            user?.userId ??
+            user?.id
+        );
+
+
+    return (
+        Number.isFinite(value) &&
+        value > 0
+    )
+        ? value
+        : null;
+
+}
+
+
+function getUser(){
+
+    const keys = [
+
+        "hanverse_user",
+        "hanverseUser",
+        "hanverse_session",
+        "hanverseSession",
+        "currentUser",
+        "authUser",
+        "user"
+
+    ];
+
+
+    for(
+        const key of keys
+    ){
+
+        try{
+
+            const raw =
+                localStorage.getItem(
+                    key
+                );
+
+
+            if(!raw){
+                continue;
+            }
+
+
+            const parsed =
+                JSON.parse(raw);
+
+
+            const user =
+                parsed?.user ??
+                parsed?.data?.user ??
+                parsed;
+
+
+            if(uid(user)){
+                return user;
+            }
+
+        }catch{}
+
+    }
+
+
+    return null;
+
+}
+
+
+function userName(){
+
+    return (
+
+        state.user?.full_name ||
+
+        state.user?.fullName ||
+
+        state.user?.username ||
+
+        state.user?.name ||
+
+        "Learner"
+
+    );
+
+}
+
+
+/* =========================================================
+   NAV
+   ========================================================= */
+
+function renderNav(){
+
+    const pn =
+        $("profileName");
+
+    if(pn){
+
+        pn.textContent =
+            userName();
+
+    }
+
+    const pnm =
+        $("profileNameMobile");
+
+    if(pnm){
+
+        pnm.textContent =
+            userName();
+
+    }
+
+}
+
+
+/* =========================================================
+   PANDA REACTION ENGINE
+   ========================================================= */
+
+const pandaReactions = {
+
+    welcome:{
+
+        emoji:"🐼",
+
+        title:
+            "Ni hao! 👋",
+
+        text:
+            "Ready to learn some Chinese together?",
+
+        className:
+            "panda-bounce"
+
+    },
+
+    start:{
+
+        emoji:"🚀",
+
+        title:
+            "Let's go!",
+
+        text:
+            "Your Mandarin adventure starts now!",
+
+        className:
+            "panda-happy"
+
+    },
+
+    objective:{
+
+        emoji:"🎯",
+
+        title:
+            "Mission accepted!",
+
+        text:
+            "Let's conquer today's learning goal.",
+
+        className:
+            "panda-bounce"
+
+    },
+
+    content:{
+
+        emoji:"📖",
+
+        title:
+            "Let's learn!",
+
+        text:
+            "Take your time. Understanding comes first.",
+
+        className:
+            "panda-bounce"
+
+    },
+
+    vocabulary:{
+
+        emoji:"🀄",
+
+        title:
+            "New word unlocked!",
+
+        text:
+            "Look at it, listen to it, and say it out loud!",
+
+        className:
+            "panda-happy"
+
+    },
+
+    listen:{
+
+        emoji:"👂",
+
+        title:
+            "Listen carefully!",
+
+        text:
+            "Try to hear every sound in the word.",
+
+        className:
+            "panda-bounce"
+
+    },
+
+    example:{
+
+        emoji:"💬",
+
+        title:
+            "Now use it!",
+
+        text:
+            "Seeing Chinese in a sentence makes it stick.",
+
+        className:
+            "panda-bounce"
+
+    },
+
+    quiz:{
+
+        emoji:"⚡",
+
+        title:
+            "Challenge time!",
+
+        text:
+            "Show Panda what you remember!",
+
+        className:
+            "panda-happy"
+
+    },
+
+    correct:{
+
+        emoji:"🎉",
+
+        title:
+            "YES! Correct!",
+
+        text:
+            "HanPan is impressed! Keep going!",
+
+        className:
+            "panda-happy",
+
+        reaction:
+            "🎉 NICE!"
+
+    },
+
+    wrong:{
+
+        emoji:"💪",
+
+        title:
+            "Almost!",
+
+        text:
+            "That's okay! Mistakes help us learn.",
+
+        className:
+            "panda-worried",
+
+        reaction:
+            "💪 KEEP GOING"
+
+    },
+
+    complete:{
+
+        emoji:"🏆",
+
+        title:
+            "You did it!",
+
+        text:
+            "Another Mandarin victory unlocked!",
+
+        className:
+            "panda-celebrate",
+
+        reaction:
+            "🏆 VICTORY!"
+
+    },
+
+    perfect:{
+
+        emoji:"🤩",
+
+        title:
+            "PERFECT SCORE!",
+
+        text:
+            "HanPan has officially been impressed.",
+
+        className:
+            "panda-celebrate",
+
+        reaction:
+            "🤩 AMAZING!"
+
+    }
+
+};
+
+
+let pandaTimer = null;
+
+
+function pandaReact(
+    type
+){
+
+    const reaction =
+        pandaReactions[type] ||
+        pandaReactions.content;
+
+
+    const avatar =
+        $("pandaAvatar");
+
+
+    const journey =
+        $("pandaJourney");
+
+
+    const title =
+        $("journeyTitle");
+
+
+    const text =
+        $("journeyText");
+
+
+    const badge =
+        $("pandaReaction");
+
+
+    if(!avatar){
+        return;
+    }
+
+
+    const pandaImage = $("pandaImage");
+    const pandaStateImages = {
+        welcome: "assets/mascot/states/hanpan-waving.png",
+        start: "assets/mascot/states/hanpan-happy.png",
+        objective: "assets/mascot/states/hanpan-thinking.png",
+        content: "assets/mascot/states/hanpan-idle.png",
+        vocabulary: "assets/mascot/states/hanpan-happy.png",
+        listen: "assets/mascot/states/hanpan-listening.png",
+        example: "assets/mascot/states/hanpan-happy.png",
+        quiz: "assets/mascot/states/hanpan-thinking.png",
+        correct: "assets/mascot/states/hanpan-happy.png",
+        wrong: "assets/mascot/states/hanpan-thinking.png",
+        complete: "assets/mascot/states/hanpan-happy.png",
+        perfect: "assets/mascot/states/hanpan-happy.png"
+    };
+    if (pandaImage) {
+        pandaImage.src = pandaStateImages[type] || pandaStateImages.content;
+    }
+
+
+    title.textContent =
+        reaction.title;
+
+
+    text.textContent =
+        reaction.text;
+
+
+    journey.classList.remove(
+
+        "reaction-good",
+
+        "reaction-bad",
+
+        "reaction-great"
+
+    );
+
+
+    if(
+        type === "correct"
+    ){
+
+        journey.classList.add(
+            "reaction-good"
+        );
+
+    }
+
+
+    if(
+        type === "wrong"
+    ){
+
+        journey.classList.add(
+            "reaction-bad"
+        );
+
+    }
+
+
+    if(
+        type === "complete" ||
+        type === "perfect"
+    ){
+
+        journey.classList.add(
+            "reaction-great"
+        );
+
+    }
+
+
+    avatar.classList.remove(
+
+        "panda-bounce",
+
+        "panda-happy",
+
+        "panda-worried",
+
+        "panda-celebrate"
+
+    );
+
+
+    /*
+       Force reflow so the same
+       animation can fire repeatedly.
+    */
+
+    void avatar.offsetWidth;
+
+
+    avatar.classList.add(
+        reaction.className
+    );
+
+
+    if(
+        badge &&
+        reaction.reaction
+    ){
+
+        badge.textContent =
+            reaction.reaction;
+
+
+        badge.classList.remove(
+            "show"
+        );
+
+
+        void badge.offsetWidth;
+
+
+        badge.classList.add(
+            "show"
+        );
+
+
+        clearTimeout(
+            pandaTimer
+        );
+
+
+        pandaTimer =
+            setTimeout(
+                () => {
+
+                    badge.classList.remove(
+                        "show"
+                    );
+
+                },
+                1800
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   LESSON ID
+   ========================================================= */
+
+function requestedId(){
+
+    const params =
+        new URLSearchParams(
+            location.search
+        );
+
+
+    return (
+
+        params.get("id") ||
+
+        params.get("lessonId") ||
+
+        "lesson_1"
+
+    );
+
+}
+
+
+function canonicalLessonId(
+    value
+){
+
+    const raw =
+        String(value || "")
+            .trim();
+
+
+    if(
+        /^lesson_\d+$/i
+            .test(raw)
+    ){
+
+        return raw;
+
+    }
+
+
+    const numeric =
+        raw.match(
+            /(\d+)$/
+        );
+
+
+if(numeric){
+
+    return `lesson_${numeric[1]}`;
+
+}
+
+
+    return "";
+
+}
+
+
+/* =========================================================
+   ARRAY
+   ========================================================= */
+
+function arr(value){
+
+    if(Array.isArray(value)){
+        return value;
+    }
+
+
+    if(
+        typeof value ===
+        "string"
+    ){
+
+        try{
+
+            const parsed =
+                JSON.parse(value);
+
+            return Array.isArray(parsed)
+                ? parsed
+                : [];
+
+        }catch{
+
+            return [];
+
+        }
+
+    }
+
+
+    return [];
+
+}
+
+
+function ordered(value){
+
+    return arr(value)
+        .slice()
+        .sort(
+            (a,b) =>
+                Number(
+                    a?.order_index ??
+                    a?.orderIndex ??
+                    0
+                )
+                -
+                Number(
+                    b?.order_index ??
+                    b?.orderIndex ??
+                    0
+                )
+        );
+
+}
+
+
+/* =========================================================
+   LOAD LESSON
+   ========================================================= */
+
+window.state = state;
+
+async function loadLesson(){
+
+    state.lessonId =
+        canonicalLessonId(
+            requestedId()
+        );
+
+
+    if(!state.lessonId){
+
+        throw new Error(
+            "Invalid lesson ID."
+        );
+
+    }
+
+
+    const response =
+        await api(
+            `lessons/${encodeURIComponent(
+                state.lessonId
+            )}`
+        );
+
+
+    const lesson =
+        response?.lesson ??
+        response?.data?.lesson ??
+        response?.data ??
+        response;
+
+
+    if(
+        !lesson ||
+        typeof lesson !== "object"
+    ){
+
+        throw new Error(
+            "No lesson was returned."
+        );
+
+    }
+
+
+    state.lesson = {
+
+        ...lesson,
+
+        lesson_id:
+            lesson.lesson_id ??
+            lesson.lessonId ??
+            lesson.id ??
+            state.lessonId,
+
+        title:
+            lesson.title ||
+            lesson.name ||
+            "Untitled lesson",
+
+        description:
+            lesson.description ||
+            "",
+
+        level:
+            Number(
+                lesson.level ??
+                1
+            ),
+
+        xp:
+            Number(
+                lesson.xp ??
+                10
+            ),
+
+        icon:
+            lesson.icon ||
+            "🐼",
+
+        objectives:
+            ordered(
+                response?.objectives
+            ),
+
+        content:
+            ordered(
+                response?.content
+            ),
+
+        vocabulary:
+            ordered(
+                response?.vocabulary
+            ),
+
+        examples:
+            ordered(
+                response?.examples
+            ),
+
+        media:
+            ordered(
+                response?.media
+            ),
+
+        quiz:
+            ordered(
+                response?.quiz
+            ),
+
+        completion_settings:
+            response?.completion_settings ||
+            {}
+
+    };
+
+
+    state.lesson.quiz.forEach(
+        question => {
+
+            question.options =
+                ordered(
+                    question.options
+                );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+async function loadExistingProgress(){
+
+    const userId =
+        uid(state.user);
+
+
+    if(!userId){
+        return;
+    }
+
+
+    try{
+
+        const response =
+            await api(
+                `progress/${userId}/${encodeURIComponent(
+                    state.lessonId
+                )}`
+            );
+
+
+        const progress =
+            response?.progress ??
+            response?.data ??
+            response;
+
+
+        if(!progress){
+            return;
+        }
+
+
+        const answers =
+            progress?.quiz_answers ??
+            progress?.quizAnswers;
+
+
+        if(answers){
+
+            if(
+                typeof answers ===
+                "string"
+            ){
+
+                try{
+
+                    state.answers =
+                        JSON.parse(
+                            answers
+                        ) || {};
+
+                }catch{}
+
+            }else{
+
+                state.answers =
+                    answers;
+
+            }
+
+        }
+
+
+        const score =
+            Number(
+                progress?.quiz_score ??
+                progress?.quizScore ??
+                progress?.score
+            );
+
+
+        if(
+            Number.isFinite(score)
+        ){
+
+            state.score =
+                score;
+
+        }
+
+
+        state.completed =
+            progress?.completed === true ||
+            progress?.is_completed === true;
+
+    }catch(error){
+
+        console.warn(
+            "Progress lookup skipped:",
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   VALIDATION
+   ========================================================= */
+
+function hasValue(value){
+
+    return (
+
+        value !== undefined &&
+
+        value !== null &&
+
+        String(value).trim() !== ""
+
+    );
+
+}
+
+
+function hasUrl(value){
+
+    if(!hasValue(value)){
+        return false;
+    }
+
+
+    try{
+
+        const url =
+            new URL(
+                String(value),
+                location.href
+            );
+
+
+        return [
+
+            "http:",
+            "https:",
+            "data:"
+
+        ].includes(
+            url.protocol
+        );
+
+    }catch{
+
+        return false;
+
+    }
+
+}
+
+
+function validObjective(item){
+
+    return hasValue(
+        item?.objective ||
+        item?.text ||
+        item?.title
+    );
+
+}
+
+
+function validContent(item){
+
+    return (
+
+        hasValue(item?.body) ||
+
+        hasValue(item?.text) ||
+
+        hasValue(item?.title) ||
+
+        hasUrl(item?.media_url)
+
+    );
+
+}
+
+
+function validVocabulary(item){
+
+    return (
+
+        hasValue(item?.chinese) ||
+
+        hasValue(item?.word) ||
+
+        hasValue(item?.hanzi) ||
+
+        hasValue(item?.pinyin) ||
+
+        hasValue(item?.english)
+
+    );
+
+}
+
+
+function validExample(item){
+
+    return (
+
+        hasValue(item?.chinese) ||
+
+        hasValue(item?.pinyin) ||
+
+        hasValue(item?.english)
+
+    );
+
+}
+
+
+function validMedia(item){
+
+    return (
+
+        item?.is_published !== false &&
+
+        hasUrl(
+            item?.media_url ||
+            item?.url ||
+            item?.src
+        )
+
+    );
+
+}
+
+
+function validQuestion(item){
+
+    return (
+
+        hasValue(
+            item?.question ||
+            item?.prompt ||
+            item?.text
+        ) &&
+
+        qOptions(item).length > 0
+
+    );
+
+}
+
+
+/* =========================================================
+   ACTIVITIES
+   ========================================================= */
+
+function buildActivities(){
+
+    const slides = [
+
+        {
+            type:"welcome"
+        }
+
+    ];
+
+
+    const objectives = state.lesson.objectives.filter(validObjective);
+
+    if(objectives.length){
+
+        slides.push({
+
+            type:"objective",
+
+            items: objectives
+
+        });
+
+    }
+
+
+    state.lesson.content
+        .filter(validContent)
+        .forEach(
+            (item,index) => {
+
+                slides.push({
+
+                    type:"content",
+
+                    item,
+
+                    index
+
+                });
+
+            }
+        );
+
+
+    state.lesson.vocabulary
+        .filter(validVocabulary)
+        .forEach(
+            (item,index) => {
+
+                slides.push({
+
+                    type:"vocabulary",
+
+                    item,
+
+                    index
+
+                });
+
+            }
+        );
+
+
+    state.lesson.examples
+        .filter(validExample)
+        .forEach(
+            (item,index) => {
+
+                slides.push({
+
+                    type:"example",
+
+                    item,
+
+                    index
+
+                });
+
+            }
+        );
+
+
+    state.lesson.media
+        .filter(validMedia)
+        .forEach(
+            (item,index) => {
+
+                slides.push({
+
+                    type:"media",
+
+                    item,
+
+                    index
+
+                });
+
+            }
+        );
+
+
+    state.lesson.quiz
+        .filter(validQuestion)
+        .forEach(
+            (item,index) => {
+
+                slides.push({
+
+                    type:"quiz",
+
+                    item,
+
+                    index
+
+                });
+
+            }
+        );
+
+
+    slides.push({
+
+        type:"complete"
+
+    });
+
+
+    return slides;
+
+}
+
+
+/* =========================================================
+   SPEAK
+   ========================================================= */
+
+function speak(text){
+
+    if(
+        !("speechSynthesis" in window)
+    ){
+
+        toast(
+            "error",
+            "Audio isn't available here."
+        );
+
+        return;
+
+    }
+
+
+    speechSynthesis.cancel();
+
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            String(text)
+        );
+
+
+    utterance.lang =
+        "zh-CN";
+
+    utterance.rate =
+        .82;
+
+    utterance.pitch =
+        .98;
+
+
+    pandaReact(
+        "listen"
+    );
+    playSound("panda");
+
+    speechSynthesis.speak(
+        utterance
+    );
+
+}
+
+
+/* =========================================================
+   MEDIA
+   ========================================================= */
+
+function media(item){
+
+    const url =
+        item?.media_url ||
+        item?.url ||
+        item?.src ||
+        "";
+
+
+    if(!hasUrl(url)){
+        return "";
+    }
+
+
+    const type =
+        String(
+            item?.media_type ||
+            item?.type ||
+            "image"
+        ).toLowerCase();
+
+
+    if(type === "video"){
+
+        return `
+
+            <div class="media">
+
+                <video
+                    controls
+                    playsinline
+                    preload="metadata"
+                >
+
+                    <source
+                        src="${attr(url)}"
+                    >
+
+                </video>
+
+            </div>
+
+        `;
+
+    }
+
+
+    if(type === "audio"){
+
+        return `
+
+            <div class="media">
+
+                <audio
+                    controls
+                    preload="metadata"
+                >
+
+                    <source
+                        src="${attr(url)}"
+                    >
+
+                </audio>
+
+            </div>
+
+        `;
+
+    }
+
+
+    return `
+
+        <div class="media">
+
+            <img
+                src="${attr(url)}"
+                alt="${attr(
+                    item?.title ||
+                    "Lesson image"
+                )}"
+                loading="lazy"
+            >
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   WELCOME
+   ========================================================= */
+
+function welcome(){
+
+    return `
+
+        <div class="welcome">
+
+            <div class="mascot">
+
+                ${esc(
+                    state.lesson.icon ||
+                    "🐼"
+                )}
+
+            </div>
+
+
+            <div class="kicker">
+                Ready?
+            </div>
+
+
+            <h2>
+                ${esc(
+                    state.lesson.title
+                )}
+            </h2>
+
+
+            <p class="desc">
+
+                ${esc(
+                    state.lesson.description
+                )}
+
+            </p>
+
+
+            <div class="welcome-badges">
+
+                <span class="welcome-badge">
+                    🎯 Learn
+                </span>
+
+                <span class="welcome-badge">
+                    🀄 Vocabulary
+                </span>
+
+                <span class="welcome-badge">
+                    🔊 Listen
+                </span>
+
+                ${
+                    state.lesson.quiz
+                        .filter(validQuestion)
+                        .length
+                        ? `
+                            <span class="welcome-badge">
+                                ⚡ Challenge
+                            </span>
+                          `
+                        : ""
+                }
+
+            </div>
+
+
+            <div class="panda-speech">
+
+                🐼
+
+                <strong>
+                    Ready, ${esc(userName())}?
+                </strong>
+
+                Let's learn some Chinese!
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   OBJECTIVE
+   ========================================================= */
+
+function objectiveSlide(
+    items
+){
+
+    const list =
+        Array.isArray(items)
+            ? items
+            : [];
+
+
+    const cards = list
+        .map(
+            (item,index) => {
+
+                const text =
+                    item?.objective ||
+                    item?.text ||
+                    item?.title ||
+                    "";
+
+
+                return `
+
+                    <div class="objective-card">
+
+                        <div class="obj-number">
+                            ${index + 1}
+                        </div>
+
+                        <div class="obj-copy">
+                            ${esc(text)}
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        )
+        .join("");
+
+
+    return `
+
+        <div class="objective-hero">
+
+            <div class="kicker">
+                Today's mission 🎯
+            </div>
+
+
+            <h2>
+                Here's what Panda wants you to master.
+            </h2>
+
+
+            ${cards}
+
+
+            <div class="panda-speech">
+
+                🐼
+                <strong>
+                    You can do this!
+                </strong>
+
+                One step at a time.
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+function contentSlide(
+    item,
+    index
+){
+
+    const title =
+        item?.title ||
+        `Lesson section ${index + 1}`;
+
+
+    const body =
+        item?.body ||
+        item?.text ||
+        "";
+
+
+    return `
+
+        <div>
+
+            <div class="kicker">
+                Learn
+            </div>
+
+
+            <h2>
+                ${esc(title)}
+            </h2>
+
+
+            ${
+                body
+                    ? `
+
+                        <div class="learning-block">
+
+                            <p>
+                                ${esc(body)}
+                            </p>
+
+                        </div>
+
+                      `
+                    : ""
+            }
+
+
+            ${
+                item?.media_url
+                    ? media({
+                        media_type:"image",
+                        media_url:
+                            item.media_url,
+                        title
+                    })
+                    : ""
+            }
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   VOCABULARY
+   ========================================================= */
+
+function vocabularySlide(
+    item,
+    index
+){
+
+    const chinese =
+        item?.chinese ||
+        item?.word ||
+        item?.hanzi ||
+        "";
+
+
+    const pinyin =
+        item?.pinyin ||
+        "";
+
+
+    const english =
+        item?.english ||
+        item?.meaning ||
+        item?.translation ||
+        "";
+
+
+    const audio =
+        item?.audio_url ||
+        "";
+
+
+    return `
+
+        <div class="vocab-stage">
+
+            <div class="kicker">
+                New word ${index + 1}
+            </div>
+
+
+            <h2>
+                Meet your new Chinese word
+            </h2>
+
+
+            <div class="word-card">
+
+                <div class="word-icon">
+                    ${esc(
+                        item?.icon ||
+                        "🀄"
+                    )}
+                </div>
+
+
+                <div class="hanzi">
+                    ${esc(chinese)}
+                </div>
+
+
+                <div class="pinyin">
+                    ${esc(pinyin)}
+                </div>
+
+
+                <div class="meaning">
+                    ${esc(english)}
+                </div>
+
+
+                ${
+                    item?.part_of_speech
+                        ? `
+                            <div class="pos">
+                                ${esc(
+                                    item.part_of_speech
+                                )}
+                            </div>
+                          `
+                        : ""
+                }
+
+
+                <div class="listen-row">
+
+                    ${
+                        audio
+                            ? `
+
+                                <audio
+                                    controls
+                                    style="
+                                        width:100%;
+                                        margin-top:3px
+                                    "
+                                    data-vocab-audio
+                                >
+
+                                    <source
+                                        src="${attr(audio)}"
+                                    >
+
+                                </audio>
+
+                              `
+                            : chinese
+                                ? `
+
+                                    <button
+                                        class="speak"
+                                        data-speak="${attr(chinese)}"
+                                        type="button"
+                                    >
+                                        🔊 Listen to Hanzi
+                                    </button>
+
+                                  `
+                                : ""
+                    }
+
+                </div>
+
+
+                ${
+                    item?.example_chinese
+                        ? `
+
+                            <div class="example-mini">
+
+                                <div class="zh">
+                                    ${esc(
+                                        item.example_chinese
+                                    )}
+                                </div>
+
+                                <div class="py">
+                                    ${esc(
+                                        item.example_pinyin ||
+                                        ""
+                                    )}
+                                </div>
+
+                                <div class="en">
+                                    ${esc(
+                                        item.example_english ||
+                                        ""
+                                    )}
+                                </div>
+
+                            </div>
+
+                          `
+                        : ""
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   EXAMPLE
+   ========================================================= */
+
+function exampleSlide(
+    item,
+    index
+){
+
+    const chinese =
+        item?.chinese ||
+        "";
+
+
+    const pinyin =
+        item?.pinyin ||
+        "";
+
+
+    const english =
+        item?.english ||
+        "";
+
+
+    return `
+
+        <div>
+
+            <div class="kicker">
+                Practice ${index + 1}
+            </div>
+
+
+            <h2>
+                Put it into a sentence
+            </h2>
+
+
+            <div class="dialogue">
+
+                <article class="dialogue-card">
+
+                    <div class="dialogue-avatar">
+                        🗣️
+                    </div>
+
+
+                    <div>
+
+                        <div class="zh">
+                            ${esc(chinese)}
+                        </div>
+
+                        <div class="py">
+                            ${esc(pinyin)}
+                        </div>
+
+                        <div class="en">
+                            ${esc(english)}
+                        </div>
+
+
+                        ${
+                            chinese
+                                ? `
+
+                                    <button
+                                        class="speak"
+                                        ${item?.audio_url ? `data-speak-audio="${attr(item.audio_url)}" data-speak-text="${attr(chinese)}"` : `data-speak="${attr(chinese)}"`}
+                                        type="button"
+                                        style="margin-top:13px"
+                                    >
+                                        🔊 Listen
+                                    </button>
+
+                                  `
+                                : ""
+                        }
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MEDIA
+   ========================================================= */
+
+function mediaSlide(
+    item,
+    index
+){
+
+    return `
+
+        <div>
+
+            <div class="kicker">
+                Explore
+            </div>
+
+
+            <h2>
+                ${esc(
+                    item?.title ||
+                    `Lesson media ${index + 1}`
+                )}
+            </h2>
+
+
+            ${media(item)}
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+
+function qOptions(question){
+
+    return arr(
+        question?.options
+    )
+    .slice()
+    .sort(
+        (a,b) =>
+            Number(
+                a?.order_index ??
+                a?.orderIndex ??
+                0
+            )
+            -
+            Number(
+                b?.order_index ??
+                b?.orderIndex ??
+                0
+            )
+    );
+
+}
+
+
+function correctOptionIndex(
+    question
+){
+
+    return qOptions(question)
+        .findIndex(
+            option =>
+                option?.is_correct === true
+        );
+
+}
+
+
+/* =========================================================
+   REVIEW WIRING
+   ========================================================= */
+
+function questionWord(
+    question
+){
+
+    const vocab =
+        state.lesson?.vocabulary ||
+        [];
+
+
+    const optionTexts =
+        qOptions(question)
+            .map(
+                option =>
+                    String(
+                        option?.option_text ||
+                        option?.text ||
+                        ""
+                    )
+            );
+
+
+    const haystack =
+        [
+            question?.question ||
+            question?.prompt ||
+            "",
+
+            question?.explanation ||
+            "",
+
+            ...optionTexts
+        ]
+            .join(" ")
+            .toLowerCase();
+
+
+    let best = null;
+    let bestScore = 0;
+
+
+    vocab.forEach(
+        item => {
+
+            const zh =
+                item?.chinese ||
+                "";
+
+            const en =
+                String(
+                    item?.english ||
+                    ""
+                ).toLowerCase();
+
+
+            let score = 0;
+
+            const questionText = String(
+                question?.question ||
+                question?.prompt ||
+                ""
+            );
+
+            if(
+                zh.length > 1 &&
+                haystack.includes(zh)
+            ){
+
+                score = 40 + zh.length;
+
+            }else if(
+                zh.length === 1 &&
+                questionText.includes(zh)
+            ){
+
+                score = 35;
+
+            }else if(
+                zh.length === 1 &&
+                optionTexts.some(t => t === zh)
+            ){
+
+                score = 30;
+
+            }else if(
+                en &&
+                optionTexts.some(
+                    t => t.toLowerCase() === en
+                )
+            ){
+
+                score = 20;
+
+            }else if(
+                en.length > 3 &&
+                haystack.includes(en)
+            ){
+
+                score = 10;
+
+            }
+
+
+            if(
+                score > bestScore
+            ){
+
+                bestScore = score;
+
+                best = item;
+
+            }
+
+        }
+    );
+
+
+    return bestScore
+        ? best
+        : null;
+
+}
+
+
+function scheduleReview(
+    question,
+    wasCorrect
+){
+
+    try{
+
+        const userId =
+            uid(state.user);
+
+        const features =
+            window.HanVerseFeatures;
+
+        if(
+            !userId ||
+            !features?.review?.answer
+        ){
+
+            return;
+
+        }
+
+        const word =
+            questionWord(question);
+
+        if(
+            !word?.chinese
+        ){
+
+            return;
+
+        }
+
+        features.review.answer(
+            userId,
+            word.chinese,
+            wasCorrect ? 5 : 1,
+            {
+                pinyin: word.pinyin || null,
+                meaning: word.english || null
+            }
+        ).catch(() => {});
+
+    }catch{}
+
+}
+
+
+function quizSlide(
+    question,
+    index
+){
+
+    const options =
+        qOptions(question);
+
+
+    const selected =
+        state.answers[index];
+
+
+    const correct =
+        correctOptionIndex(
+            question
+        );
+
+
+    const total =
+        state.lesson.quiz
+            .filter(validQuestion)
+            .length;
+
+
+    const meter =
+        total
+            ? Math.min(
+                100,
+                Math.round(
+                ((index + 1) / total) * 100
+              )
+              )
+            : 0;
+
+
+    return `
+
+        <div class="quiz">
+
+            <div class="quiz-header">
+
+                <span class="quiz-badge">
+                    ⚡ Challenge
+                </span>
+
+                <span class="quiz-count">
+                    ${index + 1}
+                    /
+                    ${total}
+                </span>
+
+            </div>
+
+
+            <div class="quiz-meter">
+
+                <div
+                    class="quiz-meter-fill"
+                    style="width:${meter}%"
+                ></div>
+
+            </div>
+
+
+            <div class="question-card">
+
+                <div class="question-label">
+                    Panda's challenge
+                </div>
+
+                <div class="question">
+                    ${esc(
+                        question?.question ||
+                        question?.prompt ||
+                        question?.text ||
+                        ""
+                    )}
+                </div>
+
+            </div>
+
+
+            ${
+                question?.question_type === "listening" && question?.audio_url
+                    ? `
+
+                        <div class="listen-prompt">
+
+                            <audio
+                                controls
+                                preload="none"
+                                src="${attr(question.audio_url)}"
+                            ></audio>
+
+                        </div>
+
+                      `
+                    : ""
+            }
+
+
+            ${
+                question?.question_type === "sentence_build"
+                    ? `
+
+                        <div class="sentence-answer" data-sentence-answer>
+
+                            ${
+                                (state.sentences[index] || [])
+                                    .map(optIdx => `
+
+                                        <span class="sentence-tile placed">
+                                            ${esc(qOptions(question)[optIdx]?.option_text || "")}
+                                        </span>
+
+                                    `)
+                                    .join("") ||
+                                `<span class="sentence-hint">Tap the words below in order</span>`
+                            }
+
+                        </div>
+
+                        <div class="sentence-pool">
+
+                            ${
+                                qOptions(question)
+                                    .map((option, optionIndex) => ({ option, optionIndex }))
+                                    .sort(() => Math.random() - 0.5)
+                                    .map(
+                                        ({ option, optionIndex }) => {
+
+                                            const used =
+                                                (state.sentences[index] || []).includes(optionIndex);
+
+
+                                            return `
+
+                                                <button
+
+                                                    class="sentence-tile"
+
+                                                    data-tile="${optionIndex}"
+
+                                                    type="button"
+
+                                                    ${used || selected !== undefined ? "disabled" : ""}
+
+                                                    ${used ? "hidden" : ""}
+
+                                                >
+
+                                                    ${esc(option?.option_text || "")}
+
+                                                </button>
+
+                                            `;
+
+                                        }
+                                    )
+                                    .join("")
+                            }
+
+                        </div>
+
+                      `
+                    : `
+
+                        <div class="options">
+
+                            ${
+                                options
+                                    .map(
+                                        (
+                                            option,
+                                            optionIndex
+                                        ) => {
+
+                                            let className =
+                                                "option";
+
+
+                                            if(
+                                                selected !==
+                                                undefined
+                                            ){
+
+                                                if(
+                                                    optionIndex ===
+                                                    correct
+                                                ){
+
+                                                    className +=
+                                                        " correct";
+
+                                                }else if(
+                                                    optionIndex ===
+                                                    selected
+                                                ){
+
+                                                    className +=
+                                                        " wrong";
+
+                                                }
+
+                                            }
+
+
+                                            return `
+
+                                                <button
+
+                                                    class="${className}"
+
+                                                    data-option="${optionIndex}"
+
+                                                    type="button"
+
+                                                    ${
+                                                        selected !==
+                                                        undefined
+                                                            ? "disabled"
+                                                            : ""
+                                                    }
+
+                                                >
+
+                                                    ${esc(
+                                                        option?.option_text ||
+                                                        option?.text ||
+                                                        option?.label ||
+                                                        ""
+                                                    )}
+
+                                                </button>
+
+                                            `;
+
+                                        }
+                                    )
+                                    .join("")
+                            }
+
+                        </div>
+
+                      `
+            }
+
+
+            ${
+                selected !== undefined
+                    ? `
+
+                        <div
+                            class="
+                                feedback
+                                ${
+                                    selected === correct
+                                        ? "good"
+                                        : "bad"
+                                }
+                            "
+                        >
+
+                            ${
+                                selected === correct
+                                    ? esc(
+                                        question?.explanation ||
+                                        "Correct! Great work."
+                                      )
+                                    : `
+                                        Not quite.
+                                        Keep going —
+                                        Panda believes in you!
+                                      `
+                            }
+
+                        </div>
+
+                      `
+                    : ""
+            }
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SCORE
+   ========================================================= */
+
+function calculateScore(){
+
+    const questions =
+        state.lesson.quiz
+            .filter(validQuestion);
+
+
+    if(!questions.length){
+        return 100;
+    }
+
+
+    let correctCount =
+        0;
+
+
+    questions.forEach(
+        (
+            question,
+            index
+        ) => {
+
+            if(
+                state.answers[index] ===
+                correctOptionIndex(question)
+            ){
+
+                correctCount++;
+
+            }
+
+        }
+    );
+
+
+    return Math.round(
+        correctCount /
+        questions.length *
+        100
+    );
+
+}
+
+
+/* =========================================================
+   COMPLETION
+   ========================================================= */
+
+function completionSlide(){
+
+    const percentage =
+        calculateScore();
+
+
+    state.score =
+        percentage;
+
+
+    const passingScore =
+        Number(
+            state.lesson
+                ?.completion_settings
+                ?.passing_score ??
+            80
+        );
+
+
+    const passed =
+        percentage >=
+        passingScore;
+
+
+    const hasQuiz =
+        state.lesson.quiz
+            .filter(validQuestion)
+            .length > 0;
+
+
+    return `
+
+        <div class="complete">
+
+            <div
+                class="confetti-host"
+                id="confettiHost"
+            ></div>
+
+
+            <div class="complete-icon">
+
+                ${
+                    percentage >= 90
+                        ? "🤩"
+                        : passed
+                            ? "🎉"
+                            : "🐼"
+                }
+
+            </div>
+
+
+            <div class="kicker">
+
+                ${
+                    percentage >= 90
+                        ? "Outstanding"
+                        : passed
+                            ? "Lesson complete"
+                            : "Lesson finished"
+                }
+
+            </div>
+
+
+            <h2>
+
+                ${
+                    percentage >= 90
+                        ? "HanPan is VERY impressed!"
+                        : passed
+                            ? "You did it!"
+                            : "Great effort!"
+                }
+
+            </h2>
+
+
+            <p class="desc">
+
+                You completed
+                <strong>
+                    ${esc(
+                        state.lesson.title
+                    )}
+                </strong>.
+
+            </p>
+
+
+            ${
+                hasQuiz
+                    ? `
+
+                        <div
+                            class="result-ring"
+                            style="
+                                --score:${percentage}%
+                            "
+                        >
+
+                            <strong>
+                                ${percentage}%
+                            </strong>
+
+                        </div>
+
+                      `
+                    : `
+
+                        <div
+                            class="result-ring"
+                            style="
+                                --score:100%
+                            "
+                        >
+
+                            <strong>
+                                ✓
+                            </strong>
+
+                        </div>
+
+                      `
+            }
+
+
+            <div class="rewards">
+
+                <div class="reward">
+
+                    <strong>
+                        ${esc(
+                            state.lesson.xp ||
+                            10
+                        )}
+                    </strong>
+
+                    <span>
+                        XP earned
+                    </span>
+
+                </div>
+
+
+                <div class="reward">
+
+                    <strong>
+                        ${
+                            hasQuiz
+                                ? percentage + "%"
+                                : "✓"
+                        }
+                    </strong>
+
+                    <span>
+                        Score
+                    </span>
+
+                </div>
+
+
+                <div class="reward">
+
+                    <strong>
+                        ${
+                            passed
+                                ? "✓"
+                                : "—"
+                        }
+                    </strong>
+
+                    <span>
+                        Passed
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="action-row">
+
+                ${
+                    hasQuiz
+                        ? `
+
+                            <button
+                                class="btn secondary"
+                                id="redoTest"
+                                type="button"
+                            >
+                                🔄 Try again
+                            </button>
+
+                          `
+                        : ""
+                }
+
+
+                <button
+                    class="btn primary"
+                    id="backToLearn"
+                    type="button"
+                >
+                    📚 Back to Learn
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   CONFETTI
+   ========================================================= */
+
+function spawnConfetti(){
+
+    const host =
+        $("confettiHost");
+
+
+    if(!host){
+        return;
+    }
+
+
+    const colors = [
+
+        "var(--primary)",
+
+        "var(--secondary)",
+
+        "var(--accent)",
+
+        "var(--pink)",
+
+        "var(--purple)"
+
+    ];
+
+
+    for(
+        let i=0;
+        i<34;
+        i++
+    ){
+
+        const piece =
+            document.createElement(
+                "span"
+            );
+
+
+        piece.className =
+            "confetti-piece";
+
+
+        piece.style.left =
+            `${Math.random()*100}%`;
+
+
+        piece.style.background =
+            colors[
+                i % colors.length
+            ];
+
+
+        piece.style.animationDelay =
+            `${Math.random()*.55}s`;
+
+
+        host.appendChild(
+            piece
+        );
+
+
+        setTimeout(
+            () =>
+                piece.remove(),
+            2300
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ACTIVITY LABEL
+   ========================================================= */
+
+function activityLabel(
+    slide
+){
+
+    const labels = {
+
+        welcome:"Welcome",
+
+        objective:"Mission",
+
+        content:"Learn",
+
+        vocabulary:"Vocabulary",
+
+        example:"Practice",
+
+        media:"Explore",
+
+        quiz:"Challenge",
+
+        complete:"Finish"
+
+    };
+
+
+    return (
+        labels[slide.type] ||
+        "Lesson"
+    );
+
+}
+
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+function activityIcon(
+    type
+){
+
+    const icons = {
+
+        welcome:"🐼",
+
+        objective:"🎯",
+
+        content:"📖",
+
+        vocabulary:"🀄",
+
+        example:"💬",
+
+        media:"🌏",
+
+        quiz:"⚡",
+
+        complete:"🏆"
+
+    };
+
+
+    return (
+        icons[type] ||
+        "•"
+    );
+
+}
+
+
+/* =========================================================
+   MAP
+   ========================================================= */
+
+function renderActivityMap(){
+
+    $("activityMap").innerHTML =
+
+        state.activities
+            .map(
+                (
+                    slide,
+                    index
+                ) => `
+
+                    <span
+                        class="
+                            map-node
+                            ${
+                                index <
+                                state.index
+                                    ? "done"
+                                    : ""
+                            }
+                            ${
+                                index ===
+                                state.index
+                                    ? "current"
+                                    : ""
+                            }
+                        "
+                    >
+                        ${activityIcon(
+                            slide.type
+                        )}
+                    </span>
+
+                `
+            )
+            .join("");
+
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+window.render = render;
+
+function render(){
+
+    const slide =
+        state.activities[
+            state.index
+        ];
+
+
+    if(!slide){
+        return;
+    }
+
+
+    const content =
+        $("content");
+
+
+    let html =
+        "";
+
+
+    switch(
+        slide.type
+    ){
+
+        case "welcome":
+
+            html =
+                welcome();
+
+            break;
+
+
+        case "objective":
+
+            html =
+                objectiveSlide(
+                    slide.items
+                );
+
+            break;
+
+
+        case "content":
+
+            html =
+                contentSlide(
+                    slide.item,
+                    slide.index
+                );
+
+            break;
+
+
+        case "vocabulary":
+
+            html =
+                vocabularySlide(
+                    slide.item,
+                    slide.index
+                );
+
+            break;
+
+
+        case "example":
+
+            html =
+                exampleSlide(
+                    slide.item,
+                    slide.index
+                );
+
+            break;
+
+
+        case "media":
+
+            html =
+                mediaSlide(
+                    slide.item,
+                    slide.index
+                );
+
+            break;
+
+
+        case "quiz":
+
+            html =
+                quizSlide(
+                    slide.item,
+                    slide.index
+                );
+
+            break;
+
+
+        case "complete":
+
+            html =
+                completionSlide();
+
+            break;
+
+    }
+
+
+    content.className =
+        `content theme-${slide.type}`;
+
+
+    content.innerHTML =
+        html;
+
+
+    $("counter").innerHTML =
+        `<strong>${
+            state.index + 1
+        }</strong> / ${
+            state.activities.length
+        }`;
+
+
+    $("activity").textContent =
+        activityLabel(
+            slide
+        );
+
+
+    const percentage =
+        Math.round(
+            state.index /
+            Math.max(
+                1,
+                state.activities.length - 1
+            ) *
+            100
+        );
+
+
+    $("fill").style.width =
+        `${percentage}%`;
+
+
+    $("pct").textContent =
+        `${percentage}%`;
+
+
+    $("progressbar")
+        .setAttribute(
+            "aria-valuenow",
+            percentage
+        );
+
+
+    renderActivityMap();
+
+
+    updatePandaForSlide(
+        slide
+    );
+
+
+    $("back").disabled =
+        state.index === 0;
+
+
+    if(
+        slide.type ===
+        "welcome"
+    ){
+
+        $("next").textContent =
+            "Start learning 🚀";
+
+    }else if(
+        slide.type ===
+        "complete"
+    ){
+
+        $("next").textContent =
+            "Save lesson ✓";
+
+    }else{
+
+        $("next").textContent =
+            "Continue →";
+
+    }
+
+
+    if(
+        slide.type ===
+        "quiz"
+    ){
+
+        if(
+            state.answers[
+                slide.index
+            ] === undefined
+        ){
+
+            $("next").textContent =
+                "Choose an answer";
+
+        }else{
+
+            $("next").textContent =
+                "Next →";
+
+        }
+
+    }
+
+
+    bind();
+
+
+    if(
+        slide.type ===
+        "complete"
+    ){
+
+        pandaReact(
+            state.score >= 90
+                ? "perfect"
+                : "complete"
+        );
+
+
+        setTimeout(
+            spawnConfetti,
+            180
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PANDA ACTIVITY REACTION
+   ========================================================= */
+
+function updatePandaForSlide(
+    slide
+){
+    if(window.hanpanCompanionSet){
+        window.hanpanCompanionSet(slide?.type || "content");
+    }
+
+    const map = {
+
+        welcome:"welcome",
+
+        objective:"objective",
+
+        content:"content",
+
+        vocabulary:"vocabulary",
+
+        example:"example",
+
+        media:"content",
+
+        quiz:"quiz"
+
+    };
+
+
+    const reaction =
+        map[slide.type];
+
+
+    if(reaction){
+
+        pandaReact(
+            reaction
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+
+function bind(){
+
+    document
+        .querySelectorAll(
+            "[data-speak]:not([data-speak-audio])"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () => {
+
+                        pandaReact(
+                            "listen"
+                        );
+
+                        // Feature pack: count speaking/listening reps for daily quests
+                        if (window.HanVerseFeatures && uid(state.user)) {
+                          window.HanVerseFeatures.quests.progress(uid(state.user), "speaking", 1).catch(() => {});
+                        }
+
+                        speak(
+                            button.dataset.speak
+                        );
+
+                    };
+
+            }
+        );
+
+    // Example sentences: play the generated MP3 when available, fall back to TTS
+    document
+        .querySelectorAll(
+            "[data-speak-audio]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () => {
+
+                        pandaReact(
+                            "listen"
+                        );
+
+                        // Feature pack: count speaking/listening reps for daily quests
+                        if (window.HanVerseFeatures && uid(state.user)) {
+                          window.HanVerseFeatures.quests.progress(uid(state.user), "speaking", 1).catch(() => {});
+                        }
+
+                        const audio =
+                            new Audio(
+                                button.dataset.speakAudio
+                            );
+
+                        audio
+                            .play()
+                            .catch(
+                                () => speak(
+                                    button.dataset.speakText || ""
+                                )
+                            );
+
+                    };
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-vocab-audio]"
+        )
+        .forEach(
+            audio => {
+
+                audio.addEventListener(
+                    "play",
+                    () =>
+                        pandaReact(
+                            "listen"
+                        ),
+                    {
+                        once:false
+                    }
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-option], [data-tile]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () => {
+
+                        const slide =
+                            state.activities[
+                                state.index
+                            ];
+
+
+                        if(
+                            !slide ||
+                            slide.type !==
+                            "quiz"
+                        ){
+
+                            return;
+
+                        }
+
+
+                        const quizIndex =
+                            slide.index;
+
+
+                        if(
+                            state.answers[
+                                quizIndex
+                            ] !== undefined
+                        ){
+
+                            return;
+
+                        }
+
+
+                        const isSentence =
+                            slide.item?.question_type ===
+                            "sentence_build";
+
+                        // Retried questions record their answer against the
+                        // original question slot so calculateScore() sees the
+                        // corrected result.
+                        const answerIndex =
+                            slide.originIndex ??
+                            quizIndex;
+
+                        let selected;
+                        let correct;
+
+                        if(isSentence){
+
+                            const seq =
+                                state.sentences[
+                                    quizIndex
+                                ] || [];
+
+                            const tile =
+                                Number(
+                                    button.dataset.tile
+                                );
+
+                            if(
+                                seq.includes(tile)
+                            ){
+
+                                return;
+
+                            }
+
+                            seq.push(tile);
+
+                            state.sentences[
+                                quizIndex
+                            ] = seq;
+
+
+                            const tiles =
+                                qOptions(
+                                    slide.item
+                                );
+
+                            if(
+                                seq.length <
+                                tiles.length
+                            ){
+
+                                render();
+
+                                return;
+
+                            }
+
+
+                            const sequenceOk =
+                                seq.length === tiles.length &&
+                                seq
+                                    .every(
+                                        (tileIdx, p) =>
+                                            Number(tiles[tileIdx]?.order_index) ===
+                                            p + 1
+                                    );
+
+
+                            selected =
+                                sequenceOk
+                                    ? "ok"
+                                    : "no";
+
+                            correct =
+                                "ok";
+
+                            state.answers[
+                                answerIndex
+                            ] =
+                                sequenceOk
+                                    ? 0
+                                    : 1;
+
+                        }else{
+
+                            selected =
+                                Number(
+                                    button.dataset.option
+                                );
+
+
+                            correct =
+                                correctOptionIndex(
+                                    slide.item
+                                );
+
+
+                            state.answers[
+                                answerIndex
+                            ] =
+                                selected;
+
+                        }
+
+
+                        const wasCorrect =
+                            selected ===
+                            correct;
+
+                        const isFirstAttempt =
+                            slide.originIndex === undefined;
+
+                        state.score =
+                            calculateScore();
+
+
+                        // Spaced review: grade the word this question tests
+                        scheduleReview(
+                            slide.item,
+                            wasCorrect
+                        );
+
+
+                        if(
+                            !wasCorrect
+                        ){
+
+                            // Wrong answer: re-queue the question at the end of the
+                            // lesson. originIndex keeps it scored against the
+                            // original question slot so a corrected retry can
+                            // still earn full marks.
+                            const retryIndex =
+                                state.activities
+                                    .filter(a => a?.type === "quiz")
+                                    .length;
+
+                            state.activities.push({
+
+                                type:"quiz",
+
+                                item: slide.item,
+
+                                index: retryIndex,
+
+                                originIndex: quizIndex
+
+                            });
+
+                        }
+
+
+                        render();
+
+
+                        if(
+                            wasCorrect
+                        ){
+
+                            pandaReact(
+                                "correct"
+                            );
+
+                            successChime();
+
+                            // First-attempt correct answers only: XP, quest
+                            // progress and the +2 toast. Retry corrections are
+                            // celebrated but never re-rewarded.
+                            if(isFirstAttempt){
+
+                                playSound("xp");
+                                xpBurst(2);
+
+                                // Feature pack: sound + daily-quest XP tick
+                                if (window.HanVerseSound) window.HanVerseSound.correct();
+                                if (window.HanVerseFeatures) {
+                                  const qid = uid(state.user);
+                                  if (qid) window.HanVerseFeatures.quests.progress(qid, "xp", 2).catch(() => {});
+                                }
+
+
+                                toast(
+                                    "success",
+                                    "Correct! 🎉 +2 XP"
+                                );
+
+                            }else{
+
+                                toast(
+                                    "success",
+                                    "You got it this time! 🎉"
+                                );
+
+                            }
+
+                        }else{
+
+                            pandaReact(
+                                "wrong"
+                            );
+                            wrongChime();
+                            emitLearnerActivity("quiz_answer",{correct:false,score:state.score});
+
+
+                            toast(
+                                "error",
+                                "Almost! Keep going 💪"
+                            );
+
+                        }
+
+                        // The instant the final quiz answer is submitted, show the
+                        // perfect-score celebration. The learner does NOT need to
+                        // click Next or Save first.
+                        const quizSlides = state.activities.filter(item => item?.type === "quiz");
+                        const allQuizAnswered = quizSlides.length > 0 &&
+                            quizSlides.every(item => state.answers[item.index] !== undefined);
+                        if (allQuizAnswered && state.score === 100 &&
+                            typeof window.showHanVersePerfectScore === "function") {
+                            state.perfectCelebrationPending = true;
+                            setTimeout(() => {
+                                window.showHanVersePerfectScore({
+                                    score: 100,
+                                    xp: Number(state.lesson?.xp ?? 0)
+                                });
+                            }, 180);
+                        }
+
+                    };
+
+            }
+        );
+
+                        // The instant the final quiz answer is submitted, show the
+                        // perfect-score celebration. The learner does NOT need to
+                        // click Next or Save first.
+
+
+    const redo =
+        $("redoTest");
+
+
+    if(redo){
+
+        redo.onclick =
+            redoTest;
+
+    }
+
+
+    const backToLearn =
+        $("backToLearn");
+
+
+    if(backToLearn){
+
+        backToLearn.onclick =
+            () => {
+
+                location.href =
+                    "learn.html";
+
+            };
+
+    }
+
+}
+
+
+/* =========================================================
+   NEXT
+   ========================================================= */
+
+function next(){
+
+    playSound("tap");
+
+    const slide =
+        state.activities[
+            state.index
+        ];
+
+
+    if(!slide){
+        return;
+    }
+
+
+    if(
+        slide.type ===
+        "welcome"
+    ){
+
+        pandaReact(
+            "start"
+        );
+
+    }
+
+
+    if(
+        slide.type ===
+        "quiz" &&
+        state.answers[
+            slide.index
+        ] === undefined
+    ){
+
+        toast(
+            "error",
+            "Choose an answer first. 🐼"
+        );
+
+        return;
+
+    }
+
+
+    if(
+        state.index <
+        state.activities.length - 1
+    ){
+
+        state.index++;
+
+        render();
+
+        return;
+
+    }
+
+    saveProgress();
+
+}
+
+
+/* =========================================================
+   BACK
+   ========================================================= */
+
+function back(){
+
+    if(
+        state.index >
+        0
+    ){
+
+        state.index--;
+
+
+        render();
+
+    }
+
+}
+
+
+/* =========================================================
+   REDO
+   ========================================================= */
+
+function redoTest(){
+
+    const firstQuiz =
+        state.activities.findIndex(
+            slide =>
+                slide.type ===
+                "quiz"
+        );
+
+
+    if(
+        firstQuiz === -1
+    ){
+
+        return;
+
+    }
+
+
+    state.answers = {};
+
+    state.score = 0;
+
+    state.completed = false;
+
+    state.index =
+        firstQuiz;
+
+
+    render();
+
+
+    pandaReact(
+        "quiz"
+    );
+
+
+    window.scrollTo({
+
+        top:0,
+
+        behavior:"smooth"
+
+    });
+
+}
+
+
+/* =========================================================
+   SAVE
+   ========================================================= */
+
+window.saveProgress = saveProgress;
+
+async function saveProgress(){
+
+    if(state.saving){
+        return;
+    }
+
+
+    const userId =
+        uid(state.user);
+
+
+    if(!userId){
+
+        toast(
+            "error",
+            "We couldn't identify your account."
+        );
+
+        return;
+
+    }
+
+
+    state.saving =
+        true;
+
+
+    const button =
+        $("next");
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "Saving…";
+
+
+    try{
+
+        state.score =
+            calculateScore();
+
+
+        const xp =
+            Number(
+                state.lesson?.xp ||
+                10
+            );
+
+
+        const numericMatch =
+            state.lessonId.match(
+                /(\d+)$/
+            );
+
+
+        const numericLessonId =
+            numericMatch
+                ? Number(
+                    numericMatch[1]
+                  )
+                : null;
+
+
+        if(!numericLessonId){
+
+            throw new Error(
+                "Invalid lesson ID."
+            );
+
+        }
+
+
+        await api(
+            "progress",
+            {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+
+                        userId,
+
+                        lessonId:
+                            numericLessonId,
+
+                        courseType:
+                            state.lesson
+                                .course_type ||
+                            "YCT",
+
+                        courseLevel:
+                            Number(
+                                state.lesson.level ||
+                                1
+                            ),
+
+                        completed:true,
+
+                        score:
+                            state.score,
+
+                        xpEarned:
+                            xp,
+
+                        timeSpent:
+                            Math.max(
+                                1,
+                                Math.round(
+                                    (
+                                        Date.now() -
+                                        state.startedAt
+                                    ) / 1000
+                                )
+                            ),
+
+                        attempts:1,
+
+                        quizAnswers:
+                            state.answers,
+
+                        quizScore:
+                            state.score
+
+                    })
+
+            }
+        );
+
+
+        state.completed =
+            true;
+
+
+        button.textContent =
+            "✓ Saved";
+
+
+        $("saveStatus").textContent =
+            `✓ Progress saved! +${xp} XP`;
+
+
+        $("saveStatus").className =
+            "save-status success";
+
+
+        pandaReact(
+            state.score >= 90
+                ? "perfect"
+                : "complete"
+        );
+
+        playSound("complete");
+        xpBurst(xp);
+
+
+        toast(
+            "success",
+            `Lesson saved! +${xp} XP 🎉`
+        );
+        emitLearnerActivity("lesson_complete",{score:state.score,xp});
+
+        // Enroll this lesson's words into spaced review (first time only per word)
+        try{
+            if (window.HanVerseFeatures?.review?.enroll) {
+                const words = (state.lesson?.vocabulary || [])
+                    .filter(v => v?.chinese)
+                    .map(v => ({ word: v.chinese, pinyin: v.pinyin || null, meaning: v.english || null }));
+                if (words.length) {
+                    window.HanVerseFeatures.review.enroll(userId, words).catch(() => {});
+                }
+            }
+        }catch(e){}
+
+        // The perfect-score celebration has already happened immediately after
+        // the final quiz. Saving now must ONLY save progress and show the normal
+        // completion result — never replay the celebration.
+        state.perfectCelebrationPending = false;
+        setTimeout(openCompleteModal,220);
+
+
+    }catch(error){
+
+        console.error(
+            error
+        );
+
+
+        button.disabled =
+            false;
+
+
+        button.textContent =
+            "Save lesson ✓";
+
+
+        $("saveStatus").textContent =
+            error.message ||
+            "Progress could not be saved.";
+
+
+        $("saveStatus").className =
+            "save-status error";
+
+
+        pandaReact(
+            "wrong"
+        );
+
+
+    }finally{
+
+        state.saving =
+            false;
+
+    }
+
+}
+
+
+/* =========================================================
+   XP BURST
+   ========================================================= */
+
+function xpBurst(
+    amount
+){
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    element.className =
+        "xp-burst";
+
+
+    element.textContent =
+        `+${amount} XP ⭐`;
+
+
+    document.body.appendChild(
+        element
+    );
+
+
+    setTimeout(
+        () =>
+            element.remove(),
+        1000
+    );
+
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function toast(
+    type,
+    message
+){
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    element.className =
+        `toast ${type}`;
+
+
+    element.textContent =
+        message;
+
+
+    document.body.appendChild(
+        element
+    );
+
+
+    setTimeout(
+        () =>
+            element.remove(),
+        3300
+    );
+
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+function showError(
+    error
+){
+
+    console.error(
+        "❌ Lesson error:",
+        error
+    );
+
+
+    $("loading")
+        .classList
+        .add("hidden");
+
+
+    $("content")
+        .classList
+        .add("hidden");
+
+
+    $("controls")
+        .classList
+        .add("hidden");
+
+
+    $("error")
+        .classList
+        .remove("hidden");
+
+
+    $("errorText").textContent =
+        error?.message ||
+        "Could not load this lesson.";
+
+}
+
+
+/* =========================================================
+   HANVERSE SOUND SYSTEM — clean learning cues
+   No external audio files required.
+   ========================================================= */
+
+let audioContext = null;
+let soundMaster = null;
+
+function getAudioContext(){
+    if(!audioContext){
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if(!Ctx) return null;
+        audioContext = new Ctx();
+        soundMaster = audioContext.createGain();
+        soundMaster.gain.value = 0.18;
+        soundMaster.connect(audioContext.destination);
+    }
+    if(audioContext.state === "suspended") audioContext.resume().catch(()=>{});
+    return audioContext;
+}
+
+function tone(freq, start, duration, options={}){
+    const ctx=getAudioContext();
+    if(!ctx || !soundMaster) return;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    const type=options.type || "sine";
+    const volume=options.volume ?? 0.22;
+    const end=start+duration;
+    osc.type=type;
+    osc.frequency.setValueAtTime(freq,start);
+    if(options.to) osc.frequency.exponentialRampToValueAtTime(options.to,end);
+    gain.gain.setValueAtTime(0.0001,start);
+    gain.gain.exponentialRampToValueAtTime(Math.max(.001,volume),start+.018);
+    gain.gain.exponentialRampToValueAtTime(.0001,end);
+    osc.connect(gain).connect(soundMaster);
+    osc.start(start);
+    osc.stop(end+.02);
+}
+
+function playSound(kind){
+    const ctx=getAudioContext();
+    if(!ctx) return;
+    const now=ctx.currentTime;
+
+    if(kind === "tap"){
+        tone(330,now,.055,{type:"sine",volume:.10,to:290});
+        return;
+    }
+
+    if(kind === "flip"){
+        tone(420,now,.06,{type:"triangle",volume:.055,to:610});
+        tone(690,now+.045,.07,{type:"sine",volume:.035,to:760});
+        return;
+    }
+
+    if(kind === "correct"){
+        // Warm, unmistakable 3-note success: G4 → B4 → D5.
+        tone(392,now,.13,{type:"triangle",volume:.20});
+        tone(493.88,now+.075,.15,{type:"triangle",volume:.18});
+        tone(587.33,now+.15,.23,{type:"sine",volume:.20});
+        return;
+    }
+
+    if(kind === "wrong"){
+        // Gentle descending cue — informative, never harsh.
+        tone(277.18,now,.11,{type:"sine",volume:.12,to:246.94});
+        tone(246.94,now+.075,.16,{type:"triangle",volume:.09,to:220});
+        return;
+    }
+
+    if(kind === "xp"){
+        tone(659.25,now,.10,{type:"triangle",volume:.12});
+        tone(783.99,now+.07,.13,{type:"triangle",volume:.10});
+        return;
+    }
+
+    if(kind === "complete"){
+        tone(392,now,.14,{type:"triangle",volume:.15});
+        tone(523.25,now+.10,.16,{type:"triangle",volume:.14});
+        tone(659.25,now+.21,.18,{type:"sine",volume:.15});
+        tone(783.99,now+.33,.32,{type:"sine",volume:.13});
+        return;
+    }
+
+    if(kind === "panda"){
+        tone(440,now,.07,{type:"sine",volume:.08,to:520});
+        tone(520,now+.055,.09,{type:"sine",volume:.06,to:610});
+    }
+}
+
+function successChime(){ playSound("correct"); }
+function wrongChime(){ playSound("wrong"); }
+
+
+/* =========================================================
+   LEARNER FEEDBACK LOOP — LIVE SYNC
+   ========================================================= */
+
+function renderCommunityLearners(learners){
+    const box=$("communityLearners"); if(!box)return;
+    const list=Array.isArray(learners)?learners:[];
+    if(!list.length){box.innerHTML='<span class="community-empty">No other learners are visible right now.</span>';return;}
+    box.innerHTML=list.slice(0,20).map(l=>{const name=l.username||l.userName||"Learner";return `<span class="community-learner"><span class="community-learner-dot"></span>${esc(name)}</span>`}).join("");
+}
+function addCommunityActivity(payload){
+    const box=$("communityFeed"); if(!box||!payload)return;
+    const who=payload.username||payload.userName||"A learner", type=payload.type||payload.activity||"activity";
+    let message=`${who} is learning with you 📚`;
+    if(type==="lesson_complete")message=`${who} just completed a lesson 🎉`;
+    else if(type==="quiz_answer")message=`${who} is practicing a quiz ⚡`;
+    else if(type==="lesson_start")message=`${who} started a lesson 🚀`;
+    const item=document.createElement("div"); item.className="community-feed-item"; item.textContent=message;
+    if(box.querySelector(".community-empty"))box.innerHTML=""; box.prepend(item); while(box.children.length>5)box.lastElementChild.remove();
+}
+function renderCommunityHistory(items){(Array.isArray(items)?items:[]).slice(-5).forEach(addCommunityActivity)}
+function updateOnline(count){
+    state.live.online=Math.max(0,Number(count)||0);
+    const el=$("onlineCount"), community=$("communityOnline"), modal=$("modalOnline"), tab=$("communityToggleCount");
+    if(el)el.textContent=`${state.live.online} online`;
+    if(community)community.textContent=`${state.live.online} online`;
+    if(modal)modal.textContent=String(state.live.online);
+    if(tab)tab.textContent=String(state.live.online);
+    // Hide the floating tab when nobody else is online (no fake "0 online" noise)
+    const toggle=$("communityToggle");
+    if(toggle)toggle.classList.toggle("is-offline", state.live.online<1);
+}
+
+function resolveRealtimeUrl(){const meta=document.querySelector('meta[name="hanverse-realtime-url"]');return String(meta?.content||"").trim().replace(/\/$/,"");}
+function initHanPanCompanion(){
+    const companion=$("hanpanCompanion");
+    const button=$("hanpanCompanionButton");
+    const image=$("hanpanCompanionImage");
+    const text=$("hanpanCompanionText");
+    if(!companion||!button||!image)return;
+    const messages={welcome:"Ready? Let’s make some Mandarin progress together! 🐼",start:"Let’s begin. I’ll stay with you through the lesson.",objective:"Here’s what we’re mastering today. You’ve got this!",content:"Take your time. I’m right here if you need me.",vocabulary:"New words! Say them out loud with me. 🗣️",listen:"Listen closely — pronunciation matters! 👂",example:"Look at the example, then try making your own.",quiz:"Your turn! Think carefully before you choose. 🧠",correct:"Yes! That’s it! Keep the momentum going! 🎉",wrong:"Almost! Let’s learn from it and try again. 💪",complete:"Lesson complete! You made it all the way through! 🐼",perfect:"WOW! A perfect score! I’m doing my victory dance! 🏆"};
+    const imgs={welcome:"assets/mascot/states/hanpan-waving.png",start:"assets/mascot/states/hanpan-happy.png",objective:"assets/mascot/states/hanpan-thinking.png",content:"assets/mascot/states/hanpan-idle.png",vocabulary:"assets/mascot/states/hanpan-happy.png",listen:"assets/mascot/states/hanpan-listening.png",example:"assets/mascot/states/hanpan-happy.png",quiz:"assets/mascot/states/hanpan-thinking.png",correct:"assets/mascot/states/hanpan-happy.png",wrong:"assets/mascot/states/hanpan-thinking.png",complete:"assets/mascot/states/hanpan-happy.png",perfect:"assets/mascot/states/hanpan-happy.png"};
+    const set=(type="content")=>{const key=messages[type]?type:"content";image.dataset.fallbackApplied="0";image.src=imgs[key];if(text)text.textContent=messages[key];companion.classList.remove("is-speaking");void companion.offsetWidth;companion.classList.add("is-speaking");clearTimeout(companion._speechTimer);companion._speechTimer=setTimeout(()=>companion.classList.remove("is-speaking"),1200)};
+    image.addEventListener("error",()=>{if(image.dataset.fallbackApplied==="1")return;image.dataset.fallbackApplied="1";image.src="assets/mascot/base/hanpan-mascot-prototype.png"});
+    button.addEventListener("click",()=>{companion.classList.toggle("is-speaking");if(companion.classList.contains("is-speaking")){clearTimeout(companion._speechTimer);companion._speechTimer=setTimeout(()=>companion.classList.remove("is-speaking"),4200)}});
+    window.hanpanCompanionSet=set;
+    set("welcome");
+}
+
+function initPandaImageGuard(){
+    const image = $("pandaImage");
+    const avatar = $("pandaAvatar");
+    if(!image || !avatar) return;
+    image.addEventListener("error", () => {
+        if(image.dataset.fallbackApplied === "1") { avatar.classList.add("image-failed"); return; }
+        image.dataset.fallbackApplied = "1";
+        image.src = "assets/mascot/base/hanpan-mascot-prototype.png";
+    });
+}
+
+function initGamesDrawer(){
+    const toggle = $("gamesToggle");
+    const drawer = $("gamesDrawer");
+    const backdrop = $("gamesBackdrop");
+    const close = $("gamesClose");
+    if(!toggle || !drawer) return;
+
+    const open = () => {
+        drawer.classList.add("is-visible");
+        backdrop?.classList.add("is-visible");
+        drawer.setAttribute("aria-hidden","false");
+    };
+    const shut = () => {
+        drawer.classList.remove("is-visible");
+        backdrop?.classList.remove("is-visible");
+        drawer.setAttribute("aria-hidden","true");
+    };
+
+    toggle.addEventListener("click", () => {
+        drawer.classList.contains("is-visible") ? shut() : open();
+    });
+    close?.addEventListener("click", shut);
+    backdrop?.addEventListener("click", shut);
+    document.addEventListener("keydown", event => {
+        if(event.key === "Escape" && drawer.classList.contains("is-visible")) shut();
+    });
+}
+
+function initCommunityDrawer(){
+    const toggle = $("communityToggle");
+    const drawer = $("communityDrawer");
+    const backdrop = $("communityBackdrop");
+    const close = $("communityClose");
+    if(!toggle || !drawer) return;
+
+    const open = () => {
+        drawer.classList.add("open");
+        document.body.classList.add("community-open");
+        backdrop?.classList.add("open");
+        drawer.setAttribute("aria-hidden","false");
+        toggle.setAttribute("aria-expanded","true");
+    };
+    const shut = () => {
+        drawer.classList.remove("open");
+        document.body.classList.remove("community-open");
+        backdrop?.classList.remove("open");
+        drawer.setAttribute("aria-hidden","true");
+        toggle.setAttribute("aria-expanded","false");
+    };
+
+    toggle.addEventListener("click", () => {
+        drawer.classList.contains("open") ? shut() : open();
+    });
+    close?.addEventListener("click", shut);
+    backdrop?.addEventListener("click", shut);
+    document.addEventListener("keydown", event => {
+        if(event.key === "Escape" && drawer.classList.contains("open")) shut();
+    });
+}
+
+function initLiveSync(){
+    const bar=$("liveFeedback"), text=$("liveText"); if(!bar)return;
+    if(typeof window.io!=="function"){if(text)text.textContent="Learning community sync unavailable";return;}
+    const realtimeUrl=resolveRealtimeUrl(); if(!realtimeUrl){if(text)text.textContent="Learning community sync unavailable";return;}
+    try{
+        const socket=window.io(realtimeUrl,{transports:["websocket","polling"],reconnection:true,reconnectionAttempts:5,timeout:5000}); state.live.socket=socket;
+        socket.on("connect",()=>{state.live.connected=true;bar.classList.add("connected");if(text)text.textContent="Learning community live";socket.emit("learner:join",{userId:uid(state.user),username:userName(),lessonId:state.lessonId,courseType:state.lesson?.course_type||"YCT",courseLevel:Number(state.lesson?.level||1)});});
+        socket.on("disconnect",()=>{state.live.connected=false;bar.classList.remove("connected");if(text)text.textContent="Reconnecting to learning community…";});
+        socket.on("learners:online",p=>updateOnline(p?.count??p?.online??p));
+        socket.on("learners:list",p=>{const list=Array.isArray(p)?p:(p?.learners||p?.list||[]);renderCommunityLearners(list);updateOnline(p?.count??list.length);});
+        socket.on("community:history",p=>renderCommunityHistory(Array.isArray(p)?p:(p?.activities||p?.history||[])));
+        socket.on("learner:activity",p=>{if(p?.userId&&uid(state.user)&&Number(p.userId)===uid(state.user))return;addCommunityActivity(p);if(p?.type==="lesson_complete"&&text){text.textContent=`${p.username||"A learner"} just completed a lesson 🎉`;setTimeout(()=>{if(state.live.connected)text.textContent="Learning community live"},3500)}});
+        socket.on("learner:joined",p=>{if(p?.userId&&uid(state.user)&&Number(p.userId)===uid(state.user))return;addCommunityActivity({username:p?.username||p?.userName,type:"lesson_start"});});
+        socket.on("connect_error",()=>{if(text)text.textContent="Live sync is reconnecting…";});
+    }catch(error){console.warn("Live sync unavailable:",error);if(text)text.textContent="Learning community sync unavailable";}
+}
+
+function emitLearnerActivity(type,extra={}){
+    const socket=state.live.socket;
+    if(!socket || !state.live.connected) return;
+    socket.emit("learner:activity",{
+        userId:uid(state.user),
+        username:userName(),
+        lessonId:state.lessonId,
+        type,
+        ...extra
+    });
+}
+
+/* =========================================================
+   LESSON COMPLETE MODAL
+   ========================================================= */
+
+let nextLessonUrl=null;
+async function ensureNextLesson(){
+    if(nextLessonUrl!==null) return;
+    nextLessonUrl=undefined;
+    try{
+        const d=await api("lessons");
+        const ls=Array.isArray(d?.lessons)?d.lessons:[];
+        const cur=ls.find(l=>String(l.id)===String(state.lessonId));
+        const i=cur?ls.indexOf(cur):-1;
+        const nxt=i>=0&&ls[i+1]&&Number(ls[i+1].level)===Number(cur.level)?ls[i+1]:null;
+        nextLessonUrl=nxt?`lesson.html?id=${encodeURIComponent(nxt.id)}`:null;
+        const btn=$("modalNext");
+        if(btn&&nextLessonUrl){btn.hidden=false;btn.onclick=()=>{location.href=nextLessonUrl}};
+    }catch(error){nextLessonUrl=null;console.warn("next lesson:",error.message)}
+}
+
+window.openCompleteModal = function openCompleteModal(){
+    const modal=$("completeModal");
+    if(!modal) return;
+    ensureNextLesson();
+    const percentage=calculateScore();
+    const xp=Number(state.lesson?.xp || 10);
+    $("modalXP").textContent=`+${xp}`;
+    $("modalScore").textContent=`${percentage}%`;
+    $("completeModalIcon").textContent=percentage>=90 ? "🤩" : percentage>=80 ? "🏆" : "🐼";
+    $("completeModalTitle").textContent=percentage>=90 ? "HanPan is VERY impressed!" : percentage>=80 ? "You did it! 🎉" : "Great effort! 💪";
+    $("completeModalText").textContent=`${state.lesson?.title || "This lesson"} is now complete. Your progress has been saved.`;
+    modal.classList.add("open");
+    successChime();
+}
+
+function closeCompleteModal(){
+    $("completeModal")?.classList.remove("open");
+}
+
+function initCompleteModal(){
+    $("closeCompleteModal")?.addEventListener("click",closeCompleteModal);
+    $("modalStay")?.addEventListener("click",closeCompleteModal);
+    $("modalLearn")?.addEventListener("click",()=>location.href="learn.html");
+    $("completeModal")?.addEventListener("click",e=>{
+        if(e.target.id==="completeModal") closeCompleteModal();
+    });
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+
+
+async function init(){
+
+    state.user =
+        getUser();
+
+
+    if(!state.user){
+
+        location.replace(
+            "login.html"
+        );
+
+        return;
+
+    }
+
+
+    renderNav();
+    initCompleteModal();
+    initPandaImageGuard();
+    initCommunityDrawer();
+    initGamesDrawer();
+    initHanPanCompanion();
+
+
+    try{
+
+        await loadLesson();
+
+
+        await loadExistingProgress();
+
+
+        state.activities =
+            buildActivities();
+
+
+        if(
+            state.activities.length <= 1
+        ){
+
+            throw new Error(
+                "This lesson contains no usable learning content."
+            );
+
+        }
+
+
+        $("title").textContent =
+            state.lesson.title;
+
+
+        $("description").textContent =
+            state.lesson.description;
+
+
+        $("xp").textContent =
+            state.lesson.xp;
+
+
+        $("level").textContent =
+            `${
+                state.lesson.course_type ||
+                "YCT"
+            } ${
+                state.lesson.level
+            }`;
+
+
+        $("loading")
+            .classList
+            .add("hidden");
+
+
+        $("controls")
+            .classList
+            .remove("hidden");
+
+
+        $("content")
+            .classList
+            .remove("hidden");
+
+
+        render();
+        initLiveSync();
+
+
+    }catch(error){
+
+        showError(
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   STATIC EVENTS
+   ========================================================= */
+
+$("next").onclick =
+    next;
+
+
+$("back").onclick =
+    back;
+
+
+$("retry").onclick =
+    () =>
+        location.reload();
+
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        const tag =
+            document.activeElement
+                ?.tagName;
+
+
+        if(
+
+            tag === "INPUT" ||
+
+            tag === "TEXTAREA" ||
+
+            tag === "SELECT" ||
+
+            tag === "BUTTON"
+
+        ){
+
+            return;
+
+        }
+
+
+        if(event.key === "Escape"){
+            closeCompleteModal();
+            return;
+        }
+
+
+        if(
+            event.key ===
+            "ArrowRight"
+        ){
+
+            next();
+
+        }
+
+
+        if(
+            event.key ===
+            "ArrowLeft"
+        ){
+
+            back();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GO
+   ========================================================= */
+
+init();
+
+window.addEventListener("beforeunload",()=>{try{state.live?.socket?.disconnect()}catch{}});
+
+</script>
+
+
+<!-- HANVERSE PERFECT SCORE CELEBRATION -->
+<div class="perfect-score-overlay" id="perfectScoreOverlay" aria-hidden="true">
+    <div class="perfect-backdrop"></div>
+    <div class="perfect-rays"></div>
+    <div class="perfect-ring ring-one"></div>
+    <div class="perfect-ring ring-two"></div>
+    <div class="perfect-ring ring-three"></div>
+
+    <div class="perfect-sparkles" aria-hidden="true">
+        <i>✦</i><i>✦</i><i>✧</i><i>✦</i><i>✧</i><i>✦</i><i>✧</i><i>✦</i>
+    </div>
+
+    <div class="perfect-card" id="perfectScoreCard">
+        <button class="perfect-close" id="perfectClose" type="button" aria-label="Close perfect score celebration">×</button>
+        <div class="perfect-burst" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="perfect-panda" id="perfectPanda" aria-hidden="true">
+            <img src="assets/mascot/states/hanpan-happy.png" alt="" draggable="false" loading="lazy" decoding="async">
+            <span class="perfect-crown">✦</span>
+        </div>
+
+        <div class="perfect-kicker">LESSON MASTERED</div>
+        <div class="perfect-title">PERFECT SCORE!</div>
+        <div class="perfect-subtitle">You got every challenge right.</div>
+
+        <div class="perfect-score-pill">
+            <span class="score-star">★</span>
+            <strong id="perfectScoreValue">100%</strong>
+            <span class="score-star">★</span>
+        </div>
+
+        <div class="perfect-xp" id="perfectXpReward">+0 XP</div>
+        <div class="perfect-message" id="perfectMessage">Panda is doing a victory dance! 🐼</div>
+
+        <div class="perfect-dismiss-hint">Tap <strong>×</strong> to continue to your results.</div>
+    </div>
+</div>
+
+
+<script id="hanverse-celebration-js">
+(function () {
+    "use strict";
+
+    const overlay = document.getElementById("perfectScoreOverlay");
+    const scoreValue = document.getElementById("perfectScoreValue");
+    const xpReward = document.getElementById("perfectXpReward");
+    const message = document.getElementById("perfectMessage");
+
+    if (!overlay) return;
+
+    let audioContext = null;
+
+    function ensureAudio() {
+        try {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === "suspended") audioContext.resume();
+            return audioContext;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function tone(freq, start, duration, volume, type) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = type || "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(
+            Math.max(volume, 0.001),
+            ctx.currentTime + start + 0.018
+        );
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            ctx.currentTime + start + duration
+        );
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + duration + 0.03);
+    }
+
+    function perfectSound() {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+
+        // Bright HanVerse "mastery" fanfare — short, musical, not arcade-like.
+        [
+            [523.25, 0.00, 0.20, 0.065],
+            [659.25, 0.11, 0.20, 0.070],
+            [783.99, 0.22, 0.22, 0.075],
+            [1046.50, 0.38, 0.42, 0.085]
+        ].forEach(([f, s, d, v]) => tone(f, s, d, v, "sine"));
+
+        // Tiny sparkle overtone.
+        tone(1318.51, 0.52, 0.28, 0.035, "triangle");
+        tone(1567.98, 0.60, 0.25, 0.025, "triangle");
+    }
+
+    function confettiBurst() {
+        const colors = ["#E63946", "#F4D35E", "#4EA8DE", "#74C69D"];
+        const frag = document.createDocumentFragment();
+
+        for (let i = 0; i < 42; i++) {
+            const el = document.createElement("span");
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 170 + Math.random() * 310;
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            el.style.position = "fixed";
+            el.style.left = "50%";
+            el.style.top = "47%";
+            el.style.width = (5 + Math.random() * 7) + "px";
+            el.style.height = (8 + Math.random() * 12) + "px";
+            el.style.borderRadius = "3px";
+            el.style.background = colors[i % colors.length];
+            el.style.zIndex = "100000";
+            el.style.pointerEvents = "none";
+            el.style.transform = "rotate(" + Math.random() * 360 + "deg)";
+            el.style.transition =
+                "transform 1.15s cubic-bezier(.12,.8,.2,1), opacity 1.15s ease";
+            frag.appendChild(el);
+
+            requestAnimationFrame(() => {
+                el.style.transform =
+                    "translate(" + x + "px," + (y + 100) + "px) rotate(" +
+                    (Math.random() * 720 - 360) + "deg)";
+                el.style.opacity = "0";
+            });
+
+            setTimeout(() => el.remove(), 1250);
+        }
+
+        document.body.appendChild(frag);
+    }
+
+    function showPerfectScore(data) {
+        const score = Number(data?.score ?? 100);
+        const xp = Number(data?.xp ?? data?.earnedXp ?? 0);
+
+        scoreValue.textContent = Math.round(score) + "%";
+        xpReward.textContent = "+" + Math.max(0, Math.round(xp)) + " XP";
+
+        const messages = [
+            "Panda is doing a victory dance! 🐼",
+            "Every answer. Every challenge. Nailed it! ✨",
+            "Your Mandarin mastery is shining! 🌟",
+            "That was flawless. HanPan is impressed! 🐼",
+            "Perfect! Your learning streak just got brighter! 🔥"
+        ];
+        message.textContent = messages[Math.floor(Math.random() * messages.length)];
+
+        overlay.classList.remove("is-visible");
+        overlay.setAttribute("aria-hidden", "false");
+
+        // Force the animation timeline to restart.
+        void overlay.offsetWidth;
+        overlay.classList.add("is-visible");
+
+        perfectSound();
+        setTimeout(confettiBurst, 320);
+    }
+
+    function hidePerfectScore() {
+        overlay.classList.remove("is-visible");
+        overlay.setAttribute("aria-hidden", "true");
+    }
+
+    function goToFinalLessonPage() {
+        hidePerfectScore();
+        const s = window.state;
+        if (s && Array.isArray(s.activities) && s.activities.length) {
+            s.perfectCelebrationPending = false;
+            s.index = s.activities.length - 1;
+            if (typeof window.render === "function") {
+                window.render();
+            }
+        }
+        window.dispatchEvent(new CustomEvent("hanverse:perfect-score-dismissed"));
+    }
+
+    document.getElementById("perfectClose")?.addEventListener("click", goToFinalLessonPage);
+
+    // Do not dismiss the celebration by accidentally clicking the dark background.
+    // The learner should intentionally close it with X or continue.
+
+    window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && overlay.classList.contains("is-visible")) {
+            goToFinalLessonPage();
+        }
+    });
+
+    // Public hook for the lesson completion logic.
+    window.showHanVersePerfectScore = showPerfectScore;
+
+    // Also expose a tiny animation API so existing lesson interactions can use it.
+    window.HanVerseMotion = {
+        pop(element) {
+            if (!element) return;
+            element.classList.remove("hv-pop");
+            void element.offsetWidth;
+            element.classList.add("hv-pop");
+        },
+        success(element) {
+            if (!element) return;
+            element.classList.remove("hv-success");
+            void element.offsetWidth;
+            element.classList.add("hv-success");
+        },
+        wrong(element) {
+            if (!element) return;
+            element.classList.remove("hv-wrong");
+            void element.offsetWidth;
+            element.classList.add("hv-wrong");
+        },
+        sound: perfectSound
+    };
+})();
+</script>
+
+
+
+
+</body>
+
+</html>

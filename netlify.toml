@@ -1,0 +1,86 @@
+[build]
+  command = ""
+  publish = "."
+  functions = "functions"
+
+[build.environment]
+  NODE_VERSION = "24.12.0"
+
+[functions]
+  directory = "functions"
+
+[functions.esbuild]
+  format = "esm"
+
+
+# ================================
+# API → Express serverless function
+# ================================
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
+  force = true
+
+
+# ================================
+# Clean page URLs
+# ================================
+
+[[redirects]]
+  from = "/parents"
+  to = "/parents.html"
+  status = 200
+
+[[redirects]]
+  from = "/learn"
+  to = "/learn.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile"
+  to = "/profile.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/verify-email"
+  to = "/verify-email.html"
+  status = 200
+
+
+[[redirects]]
+  from = "/placement"
+  to = "/placement.html"
+  status = 200
+
+[[redirects]]
+  from = "/invite"
+  to = "/invite.html"
+  status = 200
+
+[[redirects]]
+  from = "/notifications"
+  to = "/notifications.html"
+  status = 200
+
+# ================================
+# Marketing site lives on hanverse.netlify.app
+# ================================
+
+[[redirects]]
+  from = "/"
+  to = "https://hanverse.netlify.app/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/index.html"
+  to = "https://hanverse.netlify.app/"
+  status = 301
+  force = true
