@@ -62,6 +62,10 @@
       '<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">' +
         brandMarkup() +
         '<div class="nav-links">' +
+          '<a href="about.html">About</a>' +
+          '<a href="pricing.html">Pricing</a>' +
+          '<a href="faq.html">FAQ</a>' +
+          '<a href="contact.html">Contact</a>' +
           '<a href="https://learn-hanverse.netlify.app/learn.html">Learn</a>' +
           '<a href="https://learn-hanverse.netlify.app/explore.html">Explore</a>' +
           '<a href="https://learn-hanverse.netlify.app/practice.html">Practice</a>' +
