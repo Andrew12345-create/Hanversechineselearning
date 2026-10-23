@@ -57,21 +57,21 @@
   var loggedIn = false;
   try { loggedIn = !!localStorage.getItem('hanverse_user'); } catch (e) {}
   var tabs = [
-    { href: loggedIn ? 'dashboard.html' : 'index.html', label: 'Home', icon: 'home' },
-    { href: 'learn.html', label: 'Learn', icon: 'learn' },
-    { href: 'roadmap.html', label: 'Roadmap', icon: 'roadmap' },
-    { href: 'profile.html', label: 'Progress', icon: 'progress' }
+    { href: loggedIn ? 'https://learn-hanverse.netlify.app/dashboard.html' : 'index.html', label: 'Home', icon: 'home' },
+    { href: 'https://learn-hanverse.netlify.app/learn.html', label: 'Learn', icon: 'learn' },
+    { href: 'https://learn-hanverse.netlify.app/roadmap.html', label: 'Roadmap', icon: 'roadmap' },
+    { href: 'https://learn-hanverse.netlify.app/profile.html', label: 'Progress', icon: 'progress' }
   ];
 
   var sheetItems = [
-    { href: 'practice.html', label: 'Practice', icon: 'practice' },
-    { href: 'explore.html', label: 'Explore', icon: 'explore' },
-    { href: 'talk.html', label: 'Talk', icon: 'talk' },
-    { href: 'parents.html', label: 'Parents', icon: 'parents' },
-    { href: 'payment.html', label: 'Premium', icon: 'premium' },
-    { href: 'notifications.html', label: 'Alerts', icon: 'notifications' },
-    { href: 'placement.html', label: 'My Level', icon: 'placement' },
-    { href: 'settings.html', label: 'Settings', icon: 'settings' }
+    { href: 'https://learn-hanverse.netlify.app/practice.html', label: 'Practice', icon: 'practice' },
+    { href: 'https://learn-hanverse.netlify.app/explore.html', label: 'Explore', icon: 'explore' },
+    { href: 'https://learn-hanverse.netlify.app/talk.html', label: 'Talk', icon: 'talk' },
+    { href: 'https://learn-hanverse.netlify.app/parents.html', label: 'Parents', icon: 'parents' },
+    { href: 'https://learn-hanverse.netlify.app/payment.html', label: 'Premium', icon: 'premium' },
+    { href: 'https://learn-hanverse.netlify.app/notifications.html', label: 'Alerts', icon: 'notifications' },
+    { href: 'https://learn-hanverse.netlify.app/placement.html', label: 'My Level', icon: 'placement' },
+    { href: 'https://learn-hanverse.netlify.app/settings.html', label: 'Settings', icon: 'settings' }
   ];
 
   function link(it, cls) {
@@ -83,12 +83,12 @@
 
   function sheetAuthFooter() {
     if (signedIn()) {
-      return link({ href: 'profile.html', label: 'Profile', icon: 'user' }, 'sheet-auth-item') +
+      return link({ href: 'https://learn-hanverse.netlify.app/profile.html', label: 'Profile', icon: 'user' }, 'sheet-auth-item') +
         '<button type="button" class="sheet-auth-item" id="sheetLogout">' +
         icon('logout') + '<span>Log out</span></button>';
     }
-    return link({ href: 'login.html', label: 'Log in', icon: 'login' }, 'sheet-auth-item') +
-      '<a class="sheet-auth-item sheet-auth-cta" href="signup.html">' +
+    return link({ href: 'https://learn-hanverse.netlify.app/login.html', label: 'Log in', icon: 'login' }, 'sheet-auth-item') +
+      '<a class="sheet-auth-item sheet-auth-cta" href="https://learn-hanverse.netlify.app/signup.html">' +
       icon('spark') + '<span>Create free account</span></a>';
   }
 
@@ -132,19 +132,19 @@
     try { u = JSON.parse(localStorage.getItem('hanverse_user') || 'null'); } catch (e) {}
     var isParent = u && String(u.role || '').toLowerCase() === 'parent';
     var streak = !isParent && u && Number(u.streak_days) > 0
-      ? '<a class="hud-chip flame" href="profile.html" aria-label="Streak">🔥 ' + Number(u.streak_days) + '</a>'
+      ? '<a class="hud-chip flame" href="https://learn-hanverse.netlify.app/profile.html" aria-label="Streak">🔥 ' + Number(u.streak_days) + '</a>'
       : '';
     var xp = !isParent && u
-      ? '<a class="hud-chip" href="profile.html" aria-label="XP">⭐ ' + Number(u.xp || 0).toLocaleString() + '</a>'
+      ? '<a class="hud-chip" href="https://learn-hanverse.netlify.app/profile.html" aria-label="XP">⭐ ' + Number(u.xp || 0).toLocaleString() + '</a>'
       : '';
     var yct = u && String(u.current_yct || '').match(/\d+/);
     var lvl = u ? (yct ? 'YCT ' + yct[0] : 'Lv ' + (Number(u.level) || 1)) : '';
-    var level = !isParent && u && lvl ? '<a class="hud-chip" href="profile.html">' + lvl + '</a>' : '';
+    var level = !isParent && u && lvl ? '<a class="hud-chip" href="https://learn-hanverse.netlify.app/profile.html">' + lvl + '</a>' : '';
     var hud = document.createElement('div');
     hud.className = 'hud';
     hud.id = 'hud';
     hud.innerHTML =
-      '<a class="hud-brand" href="' + (localStorage.getItem('hanverse_user') ? 'dashboard.html' : 'index.html') + '" aria-label="HanVerse home">' +
+      '<a class="hud-brand" href="' + (localStorage.getItem('hanverse_user') ? 'https://learn-hanverse.netlify.app/dashboard.html' : 'index.html') + '" aria-label="HanVerse home">' +
         '<img src="Hanverse-logo2.png" alt="" width="30" height="30">HanVerse</a>' +
       '<div class="hud-stats">' + streak + xp + level +
         '<span class="hud-bell-slot" id="hud-bell-slot"></span></div>';
@@ -208,7 +208,7 @@
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
       localStorage.removeItem('hanverse_user');
-      window.location.href = 'login.html';
+      window.location.href = 'https://learn-hanverse.netlify.app/login.html';
     });
   }
   /* Micro-delight: tiny haptic tap on primary actions (Android; silent no-op elsewhere). */

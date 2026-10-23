@@ -48,12 +48,12 @@
     /* Signed in: render a skeleton chip immediately; nav-user.js upgrades it
        with the real name, avatar and account menu. Never flash Log in. */
     if (signedIn()) {
-      return '<a class="nav-user nav-user-chip nav-user-skeleton" href="profile.html" aria-label="Your account">' +
+      return '<a class="nav-user nav-user-chip nav-user-skeleton" href="https://learn-hanverse.netlify.app/profile.html" aria-label="Your account">' +
         '<span class="avatar" aria-hidden="true">🐼</span></a>';
     }
     return '<div class="nav-actions">' +
-      '<a class="nav-login" href="login.html">Log in</a>' +
-      '<a class="nav-cta" href="signup.html">Start Free <span aria-hidden="true">→</span></a>' +
+      '<a class="nav-login" href="https://learn-hanverse.netlify.app/login.html">Log in</a>' +
+      '<a class="nav-cta" href="https://learn-hanverse.netlify.app/signup.html">Start Free <span aria-hidden="true">→</span></a>' +
       '</div>';
   }
 
@@ -62,11 +62,11 @@
       '<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">' +
         brandMarkup() +
         '<div class="nav-links">' +
-          '<a href="learn.html">Learn</a>' +
-          '<a href="explore.html">Explore</a>' +
-          '<a href="practice.html">Practice</a>' +
-          '<a href="roadmap.html">Roadmap</a>' +
-          '<a href="parents.html">Parents</a>' +
+          '<a href="https://learn-hanverse.netlify.app/learn.html">Learn</a>' +
+          '<a href="https://learn-hanverse.netlify.app/explore.html">Explore</a>' +
+          '<a href="https://learn-hanverse.netlify.app/practice.html">Practice</a>' +
+          '<a href="https://learn-hanverse.netlify.app/roadmap.html">Roadmap</a>' +
+          '<a href="https://learn-hanverse.netlify.app/parents.html">Parents</a>' +
         '</div>' +
         actionsMarkup() +
       '</nav>'
@@ -94,11 +94,11 @@
             '<p>Learn Mandarin. Explore more.</p>' +
           '</div>' +
           '<div class="footer-links">' +
-            '<a href="learn.html">Learn</a>' +
-            '<a href="explore.html">Explore</a>' +
-            '<a href="roadmap.html">Roadmap</a>' +
-            '<a href="parents.html">Parents</a>' +
-            '<a href="login.html">Log in</a>' +
+            '<a href="https://learn-hanverse.netlify.app/learn.html">Learn</a>' +
+            '<a href="https://learn-hanverse.netlify.app/explore.html">Explore</a>' +
+            '<a href="https://learn-hanverse.netlify.app/roadmap.html">Roadmap</a>' +
+            '<a href="https://learn-hanverse.netlify.app/parents.html">Parents</a>' +
+            '<a href="https://learn-hanverse.netlify.app/login.html">Log in</a>' +
             '<a href="terms.html">Terms</a>' +
             '<a href="privacy.html">Privacy</a>' +
             '<a href="refund-policy.html">Refunds</a>' +
