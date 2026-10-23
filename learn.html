@@ -47,6 +47,7 @@
 @media(max-width:430px){.wrap{width:calc(100% - 20px)}.hero{padding:22px 18px}.hero h1{font-size:2rem}.stats{gap:8px}.stat{padding:13px 14px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .trial-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 18px;padding:15px 20px;background:linear-gradient(90deg,#EFF6FF,#FFF7ED);border:1px solid #BFDBFE;border-radius:18px;font-size:.78rem;line-height:1.5}.trial-banner b{font:900 .95rem var(--font-head);color:#1D4ED8}.trial-banner span{color:var(--muted)}.trial-banner-btn{padding:9px 18px;border-radius:999px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;font-weight:800;font-size:.75rem;white-space:nowrap;box-shadow:0 8px 20px rgba(249,115,22,.25)}
+.warmup{margin:0 0 18px}.warmup-card{background:#fff;border:1px solid var(--line);border-left:5px solid #F59E0B;border-radius:22px;padding:22px 26px;box-shadow:0 10px 30px rgba(37,99,235,.1)}.warmup-head{display:flex;align-items:center;gap:14px}.warmup-ico{width:46px;height:46px;border-radius:14px;background:var(--amber-50);display:grid;place-items:center;font-size:1.3rem;flex:none}.warmup-head h2{font:900 1.25rem var(--font-head);margin:2px 0}.warmup-head p{margin:0;color:var(--muted);font-size:.74rem;line-height:1.5}.warmup-streak{margin-left:auto;flex:none;padding:6px 12px;border-radius:999px;background:var(--amber-50);color:#B45309;font-weight:800;font-size:.7rem}.warmup-q{font:900 1.05rem var(--font-head);margin:16px 0 4px}.warmup-hanzi{font-family:var(--font-cn);font-size:2rem;font-weight:700;color:var(--blue);margin:6px 0 14px}.warmup-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.warmup-opt{padding:12px 14px;border:2px solid rgba(37,99,235,.15);border-radius:13px;background:#fff;font:700 .85rem Nunito,Inter,sans-serif;color:var(--navy);cursor:pointer;transition:all .15s;text-align:left}.warmup-opt:hover{border-color:var(--blue)}.warmup-opt.correct{border-color:#16A34A;background:rgba(22,163,74,.1);color:#15803D}.warmup-opt.wrong{border-color:#EF4444;background:rgba(239,68,68,.08);color:#DC2626}.warmup-opt:disabled{cursor:default;opacity:.75}.warmup-cta{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border:none;border-radius:12px;background:var(--blue);color:#fff;font-size:.75rem;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.18);margin-top:14px}.warmup-cta:hover{background:var(--blue-dark)}.warmup-done{display:flex;align-items:center;gap:10px;margin-top:14px;color:#15803D;font-weight:800;font-size:.85rem}
 </style>
 </head>
 <body>
@@ -207,9 +208,16 @@
 </section>
 <div class="quest-strip" id="questStrip" style="display:none"></div>
 
+<section class="warmup" id="warmup" hidden>
+<div class="warmup-card">
+<div class="warmup-head"><div class="warmup-ico">🔥</div><div><div class="kicker">HANPAN'S DAILY WARM-UP</div><h2 id="warmupTitle">3 quick questions, 30 seconds.</h2><p id="warmupDesc">Warm up your memory before today's lessons.</p></div><span class="warmup-streak" id="warmupStreak" hidden>🔥 0</span></div>
+<div id="warmupBody"></div>
+</div>
+</section>
+
 
 <section>
-<div class="heading"><div class="kicker">YOUR CURRICULUM</div><h2>Choose your Chinese journey.</h2><p>Learn is your course hub. Choose a level here, then use your roadmap to move through the lessons.</p></div>
+<div class="heading"><div class="kicker" id="curriculumKicker">YOUR CURRICULUM</div><h2 id="curriculumTitle">Choose your Chinese journey.</h2><p id="curriculumDesc">Learn is your course hub. Choose a level here, then use your roadmap to move through the lessons.</p></div>
 <div class="courses" id="courses"></div>
 </section>
 
@@ -273,6 +281,7 @@ function showSignedOut(){
 function uid(){return user?.user_id||user?.userId||user?.id}
 function name(){return user?.full_name||user?.fullName||user?.username||user?.name||"Learner"}
 function lvl(x=user){let n=String(x?.current_yct||x?.yct_level||"").match(/\d+/);return n?+n[0]:Math.min(4,Math.max(1,Number(x?.level)||1))}
+function placementDone(){try{if(user?.placement_done)return true;return localStorage.getItem("hanverse_placement_done")==="1"}catch{return !!user?.placement_done}}
 function lessonLevel(l){let n=String(l?.level||l?.yct_level||l?.course_level||"").match(/\d+/);return n?+n[0]:1}
 async function get(path){
  const r=await fetch(API+path,{credentials:"include",cache:"no-store",headers:{Accept:"application/json"}});
@@ -293,7 +302,8 @@ function overall(){return lessons.length?Math.round(lessons.filter(completed).le
 function next(){const l=lvl();return [...lessons].filter(x=>lessonLevel(x)===l).sort((a,b)=>(a.order_index||a.id)-(b.order_index||b.id)).find(x=>!completed(x))||[...lessons].sort((a,b)=>(a.order_index||a.id)-(b.order_index||b.id)).find(x=>!completed(x))}
 function render(){
  const n=name(),l=lvl(),pct=overall(),nx=next();
- const isNew=lessons.length>0&&lessons.filter(completed).length===0;
+ if(placementDone()){$("curriculumKicker").textContent="YOUR PLACED LEVEL";$("curriculumTitle").textContent=`Your classroom: YCT ${l}.`;$("curriculumDesc").textContent=`HanPan set your level to YCT ${l}. Your roadmap moves through it lesson by lesson; the other levels stay open for exploring.`}
+ const isNew=lessons.length>0&&lessons.filter(completed).length===0&&!placementDone();
  $("userName").textContent=n;if($("userNameMobile"))$("userNameMobile").textContent=n;$("heroName").textContent=n;
  $("heroCopy").textContent=isNew
   ?"Welcome! First, let's find your level — HanPan will set your perfect starting point in about two minutes."
@@ -313,16 +323,90 @@ function render(){
  $("done").textContent=Number.isFinite(Number(user?.lessons_completed))?Number(user.lessons_completed).toLocaleString():lessons.filter(completed).length.toLocaleString();$("overall").textContent=pct+"%";
  $("nextPills").innerHTML=nx?`<span class="pill">YCT ${lessonLevel(nx)}</span><span class="pill">${Number(nx.xp||10)} XP</span>`:"<span class=\"pill\">🏆 Path complete</span>";
  const grid=$("courses");grid.innerHTML="";
- for(let i=1;i<=4;i++){const s=stats(i),current=i===l,c=info[i];const card=document.createElement("article");card.className="course"+(current?" current":"");card.innerHTML=`<div class="course-top"><div class="course-icon">${c.icon}</div><span class="status">${s.total?(s.done===s.total?"Complete":current?"Your level":"Available"):"Coming soon"}</span></div><h3>YCT ${i}</h3><div class="cn">${c.cn}</div><p>${c.desc}</p><div class="prog"><div class="protext"><span>${s.done} of ${s.total} lessons</span><span>${s.pct}%</span></div><div class="prowr"><span style="width:${s.pct}%"></span></div></div><div class="course-foot"><span>${s.total?s.total+" published lessons":"No lessons yet"}</span><a href="roadmap.html?level=${i}">${current?"Continue":"Explore"} →</a></div>`;grid.appendChild(card)}
+ const orderLevels=[l,1,2,3,4].filter((v,idx,a)=>a.indexOf(v)===idx);
+for(let i of orderLevels){const s=stats(i),current=i===l,c=info[i];const card=document.createElement("article");card.className="course"+(current?" current":"");card.innerHTML=`<div class="course-top"><div class="course-icon">${c.icon}</div><span class="status">${s.total?(s.done===s.total?"Complete":current?"Your level 🎯":"Available"):"Coming soon"}</span></div><h3>YCT ${i}</h3><div class="cn">${c.cn}</div><p>${c.desc}</p><div class="prog"><div class="protext"><span>${s.done} of ${s.total} lessons</span><span>${s.pct}%</span></div><div class="prowr"><span style="width:${s.pct}%"></span></div></div><div class="course-foot"><span>${s.total?s.total+" published lessons":"No lessons yet"}</span><a href="roadmap.html?level=${i}">${current?"Continue":"Explore"} →</a></div>`;grid.appendChild(card)}
 }
 $("retry").onclick=()=>{location.reload()};
 $("signedOutLogin").onclick=()=>{window.location.href=loginTarget()};
+let warmup={qs:[],i:0,correct:0,locked:false};
+function warmupKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function warmupToday(){try{return JSON.parse(localStorage.getItem("hanverse_warmup")||"null")}catch{return null}}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function escWarm(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function warmupVocab(){const pool=[];for(const l of stats(lvl()).ls)for(const v of l.vocabulary||[]){const zh=v.chinese||v.word||v.hanzi,en=v.english||v.meaning;if(zh&&en)pool.push({zh,en,py:v.pinyin||""})}return pool}
+function initWarmup(){
+ const sec=$("warmup");if(!sec)return;
+ const pool=warmupVocab();
+ if(pool.length<4){sec.remove();return}
+ const done=warmupToday();
+ const rnd=mulberry32(Math.floor(Date.now()/864e5)*7919+(Number(uid())||1));
+ const qs=[],used=new Set();
+ while(qs.length<3&&used.size<pool.length){const idx=Math.floor(rnd()*pool.length);if(used.has(idx))continue;used.add(idx);qs.push(pool[idx])}
+ if(qs.length<3){sec.remove();return}
+ warmup={qs,i:0,correct:0,locked:false};
+ sec.hidden=false;
+ if(done&&done.date===warmupKey())renderWarmupDone(done);else renderWarmupStart();
+}
+function renderWarmupStart(){
+ $("warmupTitle").textContent="3 quick questions, 30 seconds.";
+ $("warmupDesc").textContent=`Warm words from your level: YCT ${lvl()}.`;
+ const prev=warmupToday(),st=$("warmupStreak");
+ if(st&&prev?.streak){st.hidden=false;st.textContent=`🔥 ${prev.streak}-day warm-up`}
+ $("warmupBody").innerHTML=`<button class="warmup-cta" id="warmupGo">Start warm-up →</button>`;
+ $("warmupGo").onclick=renderWarmupQuestion;
+}
+function warmupOpts(q,type){
+ const pool=warmupVocab().filter(v=>v.zh!==q.zh&&v.en!==q.en);
+ const picks=[q],seen=new Set([q.zh]);
+ while(picks.length<4&&pool.length){const c=pool.splice(Math.floor(Math.random()*pool.length),1)[0];if(seen.has(c.zh))continue;seen.add(c.zh);picks.push(c)}
+ return picks.sort(()=>Math.random()-.5);
+}
+function renderWarmupQuestion(){
+ const q=warmup.qs[warmup.i];
+ if(!q)return renderWarmupFinish();
+ const type=warmup.i%2===0;
+ const opts=warmupOpts(q,type);
+ $("warmupTitle").textContent=`Question ${warmup.i+1} of 3`;
+ $("warmupDesc").textContent=type?"Pick the meaning — no pressure, HanPan is just warming up your memory.":"Pick the character that matches the meaning.";
+ $("warmupBody").innerHTML=`<div class="warmup-q">${type?"What does this mean?":"Which character means this?"}</div><div class="warmup-hanzi">${escWarm(type?q.zh:q.en)}</div><div class="warmup-opts">${opts.map((o,i)=>`<button class="warmup-opt" data-i="${i}" data-correct="${o.zh===q.zh?1:0}">${escWarm(type?o.en:o.zh)}</button>`).join("")}</div>`;
+ document.querySelectorAll(".warmup-opt").forEach(b=>{b.onclick=()=>pickWarmup(b,b.dataset.correct==="1")});
+}
+function pickWarmup(btn,ok){
+ if(warmup.locked)return;warmup.locked=true;
+ document.querySelectorAll(".warmup-opt").forEach(b=>{b.disabled=true;if(b.dataset.correct==="1")b.classList.add("correct");else if(b===btn)b.classList.add("wrong")});
+ if(ok){warmup.correct++;window.HanVerseSound&&window.HanVerseSound.correct()}else{window.HanVerseSound&&window.HanVerseSound.wrong()}
+ setTimeout(()=>{warmup.locked=false;warmup.i++;renderWarmupQuestion()},900);
+}
+function renderWarmupDone(rec){
+ $("warmupTitle").textContent="Warm-up complete ✓";
+ $("warmupDesc").textContent="New words unlock at midnight — see you tomorrow!";
+ const st=$("warmupStreak");
+ if(st&&rec?.streak){st.hidden=false;st.textContent=`🔥 ${rec.streak}-day warm-up`}
+ $("warmupBody").innerHTML=`<div class="warmup-done">✓ ${rec?.correct??0}/3 correct · +${rec?.xp??0} XP earned · next warm-up tomorrow</div>`;
+}
+async function renderWarmupFinish(){
+ const n=warmup.correct,xp=n*5;
+ const prev=warmupToday();
+ const streak=prev&&prev.date===warmupKey(new Date(Date.now()-864e5))?(prev.streak||0)+1:1;
+ try{localStorage.setItem("hanverse_warmup",JSON.stringify({date:warmupKey(),correct:n,xp,streak}))}catch{}
+ $("warmupTitle").textContent=n===3?"Perfect warm-up! 🎉":"Warm-up done!";
+ $("warmupDesc").textContent=n===3?"All three correct — HanPan is very proud.":"Every warm-up counts. Come back tomorrow!";
+ $("warmupStreak").hidden=false;$("warmupStreak").textContent=`🔥 ${streak}-day warm-up`;
+ $("warmupBody").innerHTML=`<div class="warmup-done">✓ ${n}/3 correct · saving your XP...</div>`;
+ try{window.HanVerseFeatures&&window.HanVerseFeatures.review.enroll(uid(),warmup.qs.map(q=>({word:q.zh,pinyin:q.py,meaning:q.en})))}catch(e){console.warn("warmup enroll:",e.message)}
+ let shownXp=xp;
+ try{const r=await window.HanVerseFeatures.games.session(uid(),"daily-warmup",n*10,n,3);if(r&&Number.isFinite(Number(r.xpEarned)))shownXp=Number(r.xpEarned)}catch(e){console.warn("warmup xp:",e.message)}
+ $("warmupBody").innerHTML=`<div class="warmup-done">✓ ${n}/3 correct · +${shownXp} XP earned · words added to your Practice review</div>`;
+ try{window.Notify?Notify.miniConfetti():null}catch{}
+ window.HanVerseSound&&(n===3?window.HanVerseSound.levelUp():window.HanVerseSound.streak());
+}
 (async()=>{if(!hasSession()){showSignedOut();return}try{
  if(new URLSearchParams(location.search).get("placed")==="1"){
   history.replaceState({},"","learn.html");
   try{window.Notify?(Notify.miniConfetti(),Notify.toast("Level set! Your roadmap is ready 🎉","success",4200)):null}catch{}
  }
 await load();$("loading").style.display="none";$("main").hidden=false;
+try{initWarmup()}catch(e){console.warn("warmup:",e.message)}
 // --- Daily quests (feature pack): compact strip, kept out of the main focus ---
 try{
  const F=window.HanVerseFeatures;const uid2=uid();

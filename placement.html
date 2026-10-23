@@ -149,22 +149,43 @@ async function submitAndShowResult() {
       <p style="font-size:18px;font-weight:800;margin-bottom:4px;">${labels[level]}</p>
       <p class="rec">${msgs[level]}</p>
       <p class="score-detail">You got ${correct} out of ${QUESTIONS.length} correct (${Math.round(pct*100)}%)</p>
-      <div class="locked-note">🔒 Your level is saved to your account. Want to jump levels? The <strong>End-of-Year Exam</strong> is coming soon!</div>
+      <div class="locked-note" id="lockedNote">Saving your level…</div>
       <a class="btn-primary" href="learn.html${new URLSearchParams(location.search).get("first") === "1" ? "?placed=1" : ""}">Start Learning →</a>
       <button class="btn-ghost" onclick="current=0;correct=0;answers=[];renderIntro();">Retake Quiz</button>
     </div>`;
 
-  try {
-    const user = JSON.parse(localStorage.getItem("hanverse_user") || "{}");
-    if (user.user_id && window.HanVerseFeatures) {
+  const user = JSON.parse(localStorage.getItem("hanverse_user") || "{}");
+  let saveState = "guest";
+  if (user.user_id && window.HanVerseFeatures) {
+    try {
       const saved = await window.HanVerseFeatures.placement.submit(user.user_id, correct, QUESTIONS.length, answers);
-      if (saved && saved.savedLevel) {
-        user.current_yct = saved.savedLevel;
-        user.level = saved.savedLevel;
-        localStorage.setItem("hanverse_user", JSON.stringify(user));
-      }
+      const savedLevel = saved?.savedLevel || level;
+      user.current_yct = savedLevel;
+      user.level = savedLevel;
+      user.placement_done = true;
+      localStorage.setItem("hanverse_user", JSON.stringify(user));
+      try { localStorage.setItem("hanverse_placement_done", "1"); } catch {}
+      saveState = "saved";
+    } catch (e) {
+      console.warn("placement save:", e.message);
+      saveState = "local";
     }
-  } catch (e) { console.warn("placement save:", e.message); }
+  } else if (user.user_id) {
+    saveState = "local";
+  }
+  if (saveState === "local") {
+    user.current_yct = level;
+    user.level = level;
+    user.placement_done = true;
+    localStorage.setItem("hanverse_user", JSON.stringify(user));
+    try { localStorage.setItem("hanverse_placement_done", "1"); } catch {}
+  }
+  const note = document.getElementById("lockedNote");
+  if (note) {
+    if (saveState === "saved") note.innerHTML = `🔒 Your level is saved to your account. Want to jump levels? The <strong>End-of-Year Exam</strong> is coming soon!`;
+    else if (saveState === "local") note.textContent = "🔒 Your level is saved on this device — we'll sync it to your account next time you're online.";
+    else note.textContent = "🔒 Sign in and retake the quiz so your level is saved and your roadmap follows it.";
+  }
 }
 
 function startQuiz() { current = 0; correct = 0; answers = []; renderQuestion(); }

@@ -127,6 +127,10 @@ async function load(){
  user=localUser();if(!user||!uid())throw Error("Please log in to view your saved roadmap.");
  try{const d=await api("/user/"+encodeURIComponent(uid()));if(d?.user){user={...user,...d.user};try{localStorage.setItem("hanverse_user",JSON.stringify(user))}catch{}}}catch(e){console.warn("user refresh:",e)}
  const d=await api("/lessons");lessons=Array.isArray(d?.lessons)?d.lessons:[];
+ const wantParam=new URLSearchParams(location.search).get("level");
+ if(wantParam&&/^[1-4]$/.test(wantParam)&&group(Number(wantParam)).length)selected=String(Number(wantParam));
+ else if(group(userLevel()).length)selected=String(userLevel());
+ else selected="all";
  await Promise.all(lessons.map(async l=>{try{progress.set(String(lessonId(l)),await api(`/progress/${encodeURIComponent(uid())}/${encodeURIComponent(lessonId(l))}`))}catch{progress.set(String(lessonId(l)),{progress:0,completed:false})}}));
  render();
 }
@@ -135,6 +139,7 @@ function levelPct(n){const a=group(n);return a.length?Math.round(a.reduce((s,l)=
 function currentLevel(){const from=userLevel();return selected==="all"?from:Number(selected)}
 function currentNext(n){return group(n).find(l=>pct(l)<100)}
 function render(){
+ const sel=$("levelSelect");if(sel&&sel.value!==String(selected))sel.value=String(selected);
  const n=firstName(),ul=userLevel();$("userName").textContent=n;if($("userNameMobile"))$("userNameMobile").textContent=n;$("xpChip").textContent=`⭐ ${Number(user?.xp||0).toLocaleString()} XP`;$("streakChip").textContent=`🔥 ${Number(user?.streak_days||0)} day streak`;$("levelChip").textContent=`YCT ${ul}`;$("heroCopy").textContent=`${n}, your lessons become a clear path. Complete one step, unlock the next and keep moving forward.`;
  const levels=selected==="all"?[1,2,3,4]:[Number(selected)];const mainLevel=selected==="all"?ul:Number(selected);const info=levelInfo[mainLevel];$("pathTitle").textContent=`YCT ${mainLevel} · ${info.name}`;$("pathDesc").textContent=info.desc;
  const allForOverall=lessons.length?Math.round(lessons.reduce((s,l)=>s+pct(l),0)/lessons.length):0;$("overall").textContent=allForOverall+"%";$("overallFill").style.width=allForOverall+"%";

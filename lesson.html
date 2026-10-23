@@ -1759,7 +1759,8 @@ button:focus-visible,a:focus-visible{
         </div>
         <div class="modal-actions">
             <button class="btn secondary" id="modalStay" type="button">Review lesson</button>
-            <button class="btn primary" id="modalLearn" type="button">Back to Learn 📚</button>
+            <button class="btn primary" id="modalNext" type="button" hidden>Next lesson →</button>
+            <button class="btn secondary" id="modalLearn" type="button">Back to Learn 📚</button>
         </div>
     </div>
 </div>
@@ -6152,9 +6153,26 @@ function emitLearnerActivity(type,extra={}){
    LESSON COMPLETE MODAL
    ========================================================= */
 
+let nextLessonUrl=null;
+async function ensureNextLesson(){
+    if(nextLessonUrl!==null) return;
+    nextLessonUrl=undefined;
+    try{
+        const d=await api("lessons");
+        const ls=Array.isArray(d?.lessons)?d.lessons:[];
+        const cur=ls.find(l=>String(l.id)===String(state.lessonId));
+        const i=cur?ls.indexOf(cur):-1;
+        const nxt=i>=0&&ls[i+1]&&Number(ls[i+1].level)===Number(cur.level)?ls[i+1]:null;
+        nextLessonUrl=nxt?`lesson.html?id=${encodeURIComponent(nxt.id)}`:null;
+        const btn=$("modalNext");
+        if(btn&&nextLessonUrl){btn.hidden=false;btn.onclick=()=>{location.href=nextLessonUrl}};
+    }catch(error){nextLessonUrl=null;console.warn("next lesson:",error.message)}
+}
+
 window.openCompleteModal = function openCompleteModal(){
     const modal=$("completeModal");
     if(!modal) return;
+    ensureNextLesson();
     const percentage=calculateScore();
     const xp=Number(state.lesson?.xp || 10);
     $("modalXP").textContent=`+${xp}`;
