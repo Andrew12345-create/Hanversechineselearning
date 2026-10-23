@@ -95,6 +95,23 @@
     html[data-theme="dark"] .p-tab { background: #14304F; border-color: var(--line); color: var(--muted); }
     html[data-theme="dark"] .p-tab.active { background: var(--blue); color: #fff; }
     html[data-theme="dark"] .filter.active { background: var(--blue); color: #fff; }
+    html[data-theme="dark"] .topbar { background: rgba(11,27,51,.92); border-bottom-color: var(--line); }
+    html[data-theme="dark"] .top-title h1 { color: #F5F9FF; }
+    html[data-theme="dark"] .top-title p { color: var(--muted); }
+    html[data-theme="dark"] .lesson-card { background: #10233D; }
+    html[data-theme="dark"] .lesson-card h3,
+    html[data-theme="dark"] .lesson-card p { color: #E8F1FA; }
+    html[data-theme="dark"] .lesson-body { background: #10233D; }
+    html[data-theme="dark"] .lesson-body h3 { color: #F5F9FF; }
+    html[data-theme="dark"] .lesson-body p,
+    html[data-theme="dark"] .lesson-meta { color: #B9D2EA; }
+    html[data-theme="dark"] .lesson-cover { background: #0E2138; }
+    html[data-theme="dark"] .lesson-label { background: #14304F; color: #B9D2EA; }
+    html[data-theme="dark"] .metric strong { color: #F5F9FF; }
+    html[data-theme="dark"] .quick-action { background: #14304F; border-color: var(--line); color: var(--ink); }
+    html[data-theme="dark"] .prompt { background: #14304F; border-color: var(--line); color: var(--ink); }
+    html[data-theme="dark"] .snapshot-row { color: #E8F1FA; }
+    html[data-theme="dark"] .input[type="date"] { color-scheme: dark; }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -883,7 +900,7 @@
     html[data-theme="dark"] .drawer { background: #10233D; }
     .drawer-head { padding: 18px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; }
     .drawer-head .user-avatar { width: 44px; height: 44px; font-size: 22px; }
-    .drawer-head h3 { font-family: var(--font-head, inherit); font-size: 16px; }
+    .drawer-head h3 { font-size: 16px; }
     .drawer-head small { color: var(--muted); display: block; font-size: 11px; }
     .drawer-close { margin-left: auto; border: 0; background: transparent; font-size: 20px; cursor: pointer; color: var(--muted); padding: 4px 8px; border-radius: 8px; }
     .drawer-close:hover { background: #F1F5F9; }
@@ -2779,6 +2796,52 @@
   </div>
 </div>
 
+  <!-- User detail drawer -->
+  <div id="drawerOverlay" class="drawer-overlay"></div>
+  <aside id="userDrawer" class="drawer" aria-label="User details">
+    <div class="drawer-head">
+      <div class="user-avatar" id="drawerAvatar">🎓</div>
+      <div>
+        <h3 id="drawerName">—</h3>
+        <small id="drawerEmail">—</small>
+      </div>
+      <button id="drawerClose" class="drawer-close" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-facts" id="drawerFacts"></div>
+      <div class="drawer-actions" id="drawerActions"></div>
+    </div>
+  </aside>
+
+  <!-- Lesson preview modal -->
+  <div id="previewOverlay" class="preview-overlay">
+    <div class="preview-modal">
+      <div class="preview-head">
+        <h3 id="previewTitle">Lesson preview</h3>
+        <button id="previewClose" class="preview-close" aria-label="Close">✕</button>
+      </div>
+      <div class="preview-body" id="previewBody"></div>
+    </div>
+  </div>
+
+  <!-- Bulk actions bar -->
+  <div id="bulkBar" class="bulk-bar">
+    <span id="bulkCount">0 selected</span>
+    <button id="bulkBan" class="btn btn-danger btn-sm">Ban</button>
+    <button id="bulkEmail" class="btn btn-soft btn-sm">Email</button>
+    <button id="bulkExport" class="btn btn-sm">Export CSV</button>
+    <button id="bulkClear" class="btn btn-sm">Clear</button>
+  </div>
+
+  <!-- Command palette -->
+  <div id="cmdkOverlay" class="cmdk-overlay" role="dialog" aria-label="Command palette">
+    <div class="cmdk">
+      <input id="cmdkInput" type="text" placeholder="Search users, lessons, or jump to…" autocomplete="off">
+      <div id="cmdkResults" class="cmdk-results"></div>
+      <div class="cmdk-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+    </div>
+  </div>
+
 <script>
 (() => {
   "use strict";
@@ -2913,6 +2976,7 @@
     updateAdminIdentity();
     switchSection("dashboard");
     loadPendingParentsBadge();
+    loadHealth();
   }
 
   function updateAdminIdentity() {
@@ -2962,6 +3026,7 @@
       loadUsers(),
       loadLessons(),
       loadAnalytics(),
+      loadHealth(),
       loadCampaigns()
     ]);
   }
@@ -3075,9 +3140,7 @@
   async function loadUsers() {
     const table = $("userTable");
 
-    table.innerHTML = Array.from({ length: 5 }, () =>
-      '<div class="skel-row"><div class="skel-bar" style="width:26px;height:26px;border-radius:50%"></div><div class="skel-bar" style="width:38%"></div><div class="skel-bar" style="width:14%"></div><div class="skel-bar" style="width:12%;margin-left:auto"></div></div>'
-    ).join("");
+    table.innerHTML = `<div class="loading">Loading users…</div>`;
 
     try {
       const data = await api("/admin/overview");
@@ -3168,7 +3231,8 @@
         : "—";
 
       return `
-        <tr>
+        <tr data-drawer-user="${id}">
+          <td><input type="checkbox" data-bulk-user="${id}" aria-label="Select"></td>
           <td>
             <div class="user-cell">
               <div class="user-avatar">${icon}</div>
@@ -3240,6 +3304,7 @@
       <table>
         <thead>
           <tr>
+            <th style="width:30px;"><input type="checkbox" id="bulkSelectAll" aria-label="Select all"></th>
             <th data-sort="name">User <span class="sort-ind">↕</span></th>
             <th data-sort="role">Role <span class="sort-ind">↕</span></th>
             <th data-sort="status">Status <span class="sort-ind">↕</span></th>
@@ -3535,6 +3600,10 @@
             <p>${description}</p>
 
             <div class="row-actions">
+              <button class="btn btn-soft btn-sm" data-preview-lesson="${id}">
+                Preview
+              </button>
+
               <button class="btn btn-soft btn-sm" data-edit-lesson="${id}">
                 Edit
               </button>
@@ -3548,6 +3617,10 @@
         </article>
       `;
     }).join("");
+
+    document.querySelectorAll("[data-preview-lesson]").forEach((button) => {
+      button.addEventListener("click", () => openLessonPreviewModal(button.dataset.previewLesson));
+    });
 
     document.querySelectorAll("[data-edit-lesson]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -4629,309 +4702,6 @@ ${body}
 
   $("auditRefreshButton").addEventListener("click", () => loadAuditLog());
 
-  /* ================= USER DETAIL DRAWER ================= */
-
-  function drawerFact(label, value) {
-    return '<div class="drawer-fact"><small>' + escapeHTML(label) + '</small><strong>' + escapeHTML(String(value ?? "\u2014")) + '</strong></div>';
-  }
-
-  function openUserDetail(userId) {
-    const user = state.users.find((u) => String(u.user_id) === String(userId));
-    if (!user) return;
-
-    const role = String(user.role || "student").toLowerCase();
-    const banned = bool(user.is_banned);
-    const verified = bool(user.is_verified);
-    const premium = bool(first(user.premium, user.is_premium));
-
-    $("drawerAvatar").textContent = role === "admin" ? "\uD83D\uDC51" : role === "parent" ? "\uD83D\uDC6A" : "\uD83C\uDF93";
-    $("drawerName").textContent = first(user.full_name, user.username, "User");
-    $("drawerEmail").textContent = user.email || "No email";
-
-    $("drawerFacts").innerHTML = [
-      drawerFact("Role", role),
-      drawerFact("Status", banned ? "Banned" : verified ? "Verified" : "Pending"),
-      drawerFact("Plan", premium ? "Premium" : "Standard"),
-      drawerFact("XP", Number(first(user.xp, 0)).toLocaleString()),
-      drawerFact("Level", first(user.level, "\u2014")),
-      drawerFact("Streak", first(user.streak_days, 0)),
-      drawerFact("YCT level", first(user.current_yct, "\u2014")),
-      drawerFact("Joined", user.created_at ? new Date(user.created_at).toLocaleDateString("en-KE") : "\u2014")
-    ].join("");
-
-    $("drawerActions").innerHTML =
-      '<button class="btn btn-soft btn-sm" data-dact="edit">Edit account</button>' +
-      '<button class="btn btn-sm" data-dact="email">Email</button>' +
-      (verified ? '' : '<button class="btn btn-success btn-sm" data-dact="verify">Verify</button>') +
-      '<button class="btn btn-soft btn-sm" data-dact="ban">' + (banned ? "Unban" : "Ban") + '</button>' +
-      '<button class="btn btn-danger btn-sm" data-dact="delete">Delete</button>';
-
-    $("drawerActions").querySelectorAll("[data-dact]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const act = btn.dataset.dact;
-        closeUserDrawer();
-        switchSection("users");
-        const map = {
-          edit: '[data-edit-user="' + userId + '"]',
-          email: '[data-email-user="' + userId + '"]',
-          verify: '[data-verify-user="' + userId + '"]',
-          ban: '[data-ban-user="' + userId + '"]',
-          delete: '[data-delete-user="' + userId + '"]'
-        };
-        const target = document.querySelector(map[act]);
-        if (target) target.click();
-      });
-    });
-
-    $("drawerOverlay").classList.add("open");
-    $("userDrawer").classList.add("open");
-  }
-
-  function closeUserDrawer() {
-    $("drawerOverlay").classList.remove("open");
-    $("userDrawer").classList.remove("open");
-  }
-
-  $("drawerOverlay").addEventListener("click", closeUserDrawer);
-  $("drawerClose").addEventListener("click", closeUserDrawer);
-
-  /* ================= LESSON PREVIEW ================= */
-
-  async function openLessonPreviewModal(lessonId) {
-    $("previewOverlay").classList.add("open");
-    $("previewBody").innerHTML = '<div class="loading">Loading preview\u2026</div>';
-    $("previewTitle").textContent = "Lesson preview";
-
-    try {
-      const data = await api("/admin/lessons/" + encodeURIComponent(lessonId));
-      const lesson = data.lesson || {};
-      const media = Array.isArray(data.media) ? data.media : [];
-
-      $("previewTitle").textContent = first(lesson.title, lesson.lesson_title, "Lesson preview");
-
-      const chips = [
-        lesson.yct_level ? "YCT " + lesson.yct_level : "",
-        lesson.duration ? (lesson.duration + " min") : "",
-        lesson.difficulty || ""
-      ].filter(Boolean).map((c) => '<span class="preview-chip">' + escapeHTML(c) + '</span>').join("");
-
-      const vocab = media.filter((m) => String(m.media_type || "").toLowerCase().includes("vocab") || m.hanzi);
-      const vocabHtml = vocab.length
-        ? '<h4 style="margin-top:14px;font-size:12px;">Vocabulary</h4><div class="preview-vocab">' +
-          vocab.map((m) =>
-            '<div class="vcard"><div class="hanzi">' + escapeHTML(first(m.hanzi, m.title, "\u2014")) + '</div>' +
-            '<div class="pinyin">' + escapeHTML(first(m.pinyin, "")) + '</div>' +
-            '<div class="meaning">' + escapeHTML(first(m.meaning, m.description, "")) + '</div></div>'
-          ).join("") + '</div>'
-        : "";
-
-      const others = media.filter((m) => !vocab.includes(m));
-      const othersHtml = others.length
-        ? '<h4 style="margin-top:14px;font-size:12px;">Media</h4><ul style="margin:8px 0 0 18px;font-size:11px;">' +
-          others.map((m) => '<li>' + escapeHTML(first(m.title, m.media_type, "item")) + ' <span class="muted">(' + escapeHTML(first(m.media_type, "")) + ')</span></li>').join("") + '</ul>'
-        : "";
-
-      $("previewBody").innerHTML =
-        '<div>' + chips + '</div>' +
-        (lesson.description ? '<p style="font-size:12px;margin-top:10px;">' + escapeHTML(lesson.description) + '</p>' : '') +
-        vocabHtml + othersHtml +
-        (media.length || lesson.description ? '' : '<div class="empty">This lesson has no content yet.</div>');
-    } catch (error) {
-      $("previewBody").innerHTML = '<div class="empty">Couldn\u2019t load the lesson: ' + escapeHTML(error.message) + '</div>';
-    }
-  }
-
-  $("previewOverlay").addEventListener("click", (event) => {
-    if (event.target === $("previewOverlay")) $("previewOverlay").classList.remove("open");
-  });
-  $("previewClose").addEventListener("click", () => $("previewOverlay").classList.remove("open"));
-
-  /* ================= BULK USER ACTIONS ================= */
-
-  state.bulkSelected = new Set();
-
-  function updateBulkBar() {
-    const bar = $("bulkBar");
-    bar.classList.toggle("open", state.bulkSelected.size > 0);
-    $("bulkCount").textContent = state.bulkSelected.size + " selected";
-  }
-
-  document.addEventListener("change", (event) => {
-    const box = event.target.closest("[data-bulk-user]");
-    if (!box) return;
-    if (box.checked) state.bulkSelected.add(box.dataset.bulkUser);
-    else state.bulkSelected.delete(box.dataset.bulkUser);
-    updateBulkBar();
-  });
-
-  document.addEventListener("change", (event) => {
-    if (event.target.id !== "bulkSelectAll") return;
-    const checked = event.target.checked;
-    state.bulkSelected = new Set();
-    document.querySelectorAll("[data-bulk-user]").forEach((box) => {
-      box.checked = checked;
-      if (checked) state.bulkSelected.add(box.dataset.bulkUser);
-    });
-    updateBulkBar();
-  });
-
-  $("bulkClear").addEventListener("click", () => {
-    state.bulkSelected = new Set();
-    document.querySelectorAll("[data-bulk-user]").forEach((box) => { box.checked = false; });
-    const all = $("bulkSelectAll");
-    if (all) all.checked = false;
-    updateBulkBar();
-  });
-
-  $("bulkBan").addEventListener("click", async () => {
-    const ids = Array.from(state.bulkSelected);
-    if (!ids.length) return;
-    const reason = prompt("Ban reason for " + ids.length + " user(s)?", "Terms violation");
-    if (reason === null) return;
-    for (const id of ids) {
-      try { await api("/admin/users/ban/" + id, { method: "POST", body: JSON.stringify({ banned: true, reason }) }); } catch (e) {}
-    }
-    state.bulkSelected = new Set();
-    updateBulkBar();
-    await loadUsers();
-  });
-
-  $("bulkEmail").addEventListener("click", () => {
-    const ids = Array.from(state.bulkSelected);
-    if (!ids.length) return;
-    const firstBox = document.querySelector('[data-email-user="' + ids[0] + '"]');
-    if (firstBox) firstBox.click();
-  });
-
-  $("bulkExport").addEventListener("click", () => {
-    const rows = state.users.filter((u) => state.bulkSelected.has(String(u.user_id)));
-    downloadCsv("hanverse-users.csv", rows.map((u) => ({
-      id: u.user_id, name: first(u.full_name, u.username, ""), email: u.email || "",
-      role: u.role || "student", xp: first(u.xp, 0), level: first(u.level, ""), premium: bool(first(u.premium, u.is_premium)), banned: bool(u.is_banned)
-    })));
-  });
-
-  function downloadCsv(filename, rows) {
-    if (!rows.length) return;
-    const headers = Object.keys(rows[0]);
-    const csv = [headers.join(",")].concat(
-      rows.map((r) => headers.map((h) => '"' + String(r[h] ?? "").replace(/"/g, '""') + '"').join(","))
-    ).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
-  /* ================= AUDIT FILTERS + EXPORT ================= */
-
-  state.auditRows = [];
-
-  function renderAuditLog() {
-    const box = $("auditTable");
-    const rows = state.auditRows;
-
-    if (!rows.length) {
-      box.innerHTML = '<div class="empty">No admin actions recorded yet.</div>';
-      return;
-    }
-
-    const text = ($("auditFilterText").value || "").toLowerCase();
-    const action = $("auditFilterAction").value;
-    const from = $("auditFilterFrom").value ? new Date($("auditFilterFrom").value) : null;
-    const to = $("auditFilterTo").value ? new Date($("auditFilterTo").value + "T23:59:59") : null;
-
-    const filtered = rows.filter((row) => {
-      const created = new Date(row.created_at);
-      if (action && row.action !== action) return false;
-      if (from && created < from) return false;
-      if (to && created > to) return false;
-      if (text && !((row.detail || "") + " " + (row.actor_label || "")).toLowerCase().includes(text)) return false;
-      return true;
-    });
-
-    if (!filtered.length) {
-      box.innerHTML = '<div class="empty">No entries match these filters.</div>';
-      return;
-    }
-
-    box.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Admin</th>
-              <th>Action</th>
-              <th>Detail</th>
-              <th>IP</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filtered.map((row) => `
-              <tr>
-                <td><span class="muted" style="font-size:10px;white-space:nowrap;">${escapeHTML(new Date(row.created_at).toLocaleString("en-KE"))}</span></td>
-                <td><strong style="font-size:10px;">${escapeHTML(row.actor_label || "\u2014")}</strong></td>
-                <td><span class="pill blue" style="font-size:9px;">${escapeHTML(row.action || "")}</span></td>
-                <td><span style="font-size:10px;">${escapeHTML(row.detail || "\u2014")}</span></td>
-                <td><span class="muted" style="font-size:9px;">${escapeHTML(row.ip || "\u2014")}</span></td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-  }
-
-  async function loadAuditLog() {
-    const box = $("auditTable");
-    box.innerHTML = Array.from({ length: 4 }, () =>
-      '<div class="skel-row"><div class="skel-bar" style="width:20%"></div><div class="skel-bar" style="width:16%"></div><div class="skel-bar" style="width:12%"></div><div class="skel-bar" style="width:34%"></div></div>'
-    ).join("");
-
-    try {
-      const data = await api("/admin/audit?limit=200");
-      state.auditRows = data.audit || [];
-
-      const actions = Array.from(new Set(state.auditRows.map((r) => r.action).filter(Boolean))).sort();
-      $("auditFilterAction").innerHTML = '<option value="">All actions</option>' +
-        actions.map((a) => '<option value="' + escapeHTML(a) + '">' + escapeHTML(a) + '</option>').join("");
-
-      renderAuditLog();
-    } catch (error) {
-      box.innerHTML = '<div class="empty">Couldn\u2019t load the audit log: ' + escapeHTML(error.message) + '</div>';
-    }
-  }
-
-  ["auditFilterText", "auditFilterAction", "auditFilterFrom", "auditFilterTo"].forEach((id) => {
-    $(id).addEventListener("input", renderAuditLog);
-    $(id).addEventListener("change", renderAuditLog);
-  });
-
-  $("auditExport").addEventListener("click", () => {
-    downloadCsv("hanverse-audit.csv", state.auditRows.map((r) => ({
-      time: r.created_at, admin: r.actor_label || "", action: r.action || "", detail: r.detail || "", ip: r.ip || ""
-    })));
-  });
-
-  /* ================= SYSTEM HEALTH ================= */
-
-  async function loadHealth() {
-    try {
-      const data = await api("/admin/health");
-      $("hDb").textContent = data.db ? "Connected" : "Down";
-      $("hDb").style.color = data.db ? "var(--green)" : "var(--red)";
-      $("hOpenai").textContent = data.openai ? "Present" : "Missing";
-      $("hOpenai").style.color = data.openai ? "var(--green)" : "var(--red)";
-      $("hPending").textContent = data.pending_parents;
-      $("hBanned").textContent = data.banned_users;
-      $("hAudit").textContent = data.audit_rows;
-      $("hLastAudit").textContent = data.last_audit_at ? new Date(data.last_audit_at).toLocaleString("en-KE") : "Never";
-    } catch (e) {
-      $("hDb").textContent = "Unavailable";
-    }
-  }
-
   /* ================= THEME TOGGLE ================= */
 
   function applyAdminTheme(theme) {
@@ -5085,7 +4855,312 @@ ${body}
   cmdk.input = $("cmdkInput");
   cmdk.results = $("cmdkResults");
 
-  /* (audit loader moved below with filter support) */
+  function downloadCsv(filename, rows) {
+    if (!rows.length) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [headers.join(",")].concat(
+      rows.map((r) => headers.map((h) => '"' + String(r[h] ?? "").replace(/"/g, '""') + '"').join(","))
+    ).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  /* ================= USER DETAIL DRAWER ================= */
+
+  function drawerFact(label, value) {
+    return '<div class="drawer-fact"><small>' + escapeHTML(label) + '</small><strong>' + escapeHTML(String(value ?? "—")) + '</strong></div>';
+  }
+
+  function openUserDetail(userId) {
+    const user = state.users.find((u) => String(u.user_id) === String(userId));
+    if (!user) return;
+
+    const role = String(user.role || "student").toLowerCase();
+    const banned = bool(user.is_banned);
+    const verified = bool(user.is_verified);
+    const premium = bool(first(user.premium, user.is_premium));
+
+    $("drawerAvatar").textContent = role === "admin" ? "👑" : role === "parent" ? "👪" : "🎓";
+    $("drawerName").textContent = first(user.full_name, user.username, "User");
+    $("drawerEmail").textContent = user.email || "No email";
+
+    $("drawerFacts").innerHTML = [
+      drawerFact("Role", role),
+      drawerFact("Status", banned ? "Banned" : verified ? "Verified" : "Pending"),
+      drawerFact("Plan", premium ? "Premium" : "Standard"),
+      drawerFact("XP", Number(first(user.xp, 0)).toLocaleString()),
+      drawerFact("Level", first(user.level, "—")),
+      drawerFact("Streak", first(user.streak_days, 0)),
+      drawerFact("YCT level", first(user.current_yct, "—")),
+      drawerFact("Joined", user.created_at ? new Date(user.created_at).toLocaleDateString("en-KE") : "—")
+    ].join("");
+
+    $("drawerActions").innerHTML =
+      '<button class="btn btn-soft btn-sm" data-dact="edit">Edit account</button>' +
+      '<button class="btn btn-sm" data-dact="email">Email</button>' +
+      (verified ? '' : '<button class="btn btn-success btn-sm" data-dact="verify">Verify</button>') +
+      '<button class="btn btn-soft btn-sm" data-dact="ban">' + (banned ? "Unban" : "Ban") + '</button>' +
+      '<button class="btn btn-danger btn-sm" data-dact="delete">Delete</button>';
+
+    $("drawerActions").querySelectorAll("[data-dact]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const act = btn.dataset.dact;
+        closeUserDrawer();
+        switchSection("users");
+        const map = {
+          edit: '[data-edit-user="' + userId + '"]',
+          email: '[data-email-user="' + userId + '"]',
+          verify: '[data-verify-user="' + userId + '"]',
+          ban: '[data-ban-user="' + userId + '"]',
+          delete: '[data-delete-user="' + userId + '"]'
+        };
+        const target = document.querySelector(map[act]);
+        if (target) target.click();
+      });
+    });
+
+    $("drawerOverlay").classList.add("open");
+    $("userDrawer").classList.add("open");
+  }
+
+  function closeUserDrawer() {
+    $("drawerOverlay").classList.remove("open");
+    $("userDrawer").classList.remove("open");
+  }
+
+  $("drawerOverlay").addEventListener("click", closeUserDrawer);
+  $("drawerClose").addEventListener("click", closeUserDrawer);
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("button, input, a, select")) return;
+    const row = event.target.closest("[data-drawer-user]");
+    if (row) openUserDetail(row.dataset.drawerUser);
+  });
+
+  /* ================= LESSON PREVIEW ================= */
+
+  async function openLessonPreviewModal(lessonId) {
+    $("previewOverlay").classList.add("open");
+    $("previewBody").innerHTML = '<div class="loading">Loading preview…</div>';
+    $("previewTitle").textContent = "Lesson preview";
+
+    try {
+      const data = await api("/admin/lessons/" + encodeURIComponent(lessonId));
+      const lesson = data.lesson || {};
+      const media = Array.isArray(data.media) ? data.media : [];
+
+      $("previewTitle").textContent = first(lesson.title, lesson.lesson_title, "Lesson preview");
+
+      const chips = [
+        lesson.yct_level ? "YCT " + lesson.yct_level : "",
+        lesson.duration ? (lesson.duration + " min") : "",
+        lesson.difficulty || ""
+      ].filter(Boolean).map((c) => '<span class="preview-chip">' + escapeHTML(c) + '</span>').join("");
+
+      const vocab = media.filter((m) => String(m.media_type || "").toLowerCase().includes("vocab") || m.hanzi);
+      const vocabHtml = vocab.length
+        ? '<h4 style="margin-top:14px;font-size:12px;">Vocabulary</h4><div class="preview-vocab">' +
+          vocab.map((m) =>
+            '<div class="vcard"><div class="hanzi">' + escapeHTML(first(m.hanzi, m.title, "—")) + '</div>' +
+            '<div class="pinyin">' + escapeHTML(first(m.pinyin, "")) + '</div>' +
+            '<div class="meaning">' + escapeHTML(first(m.meaning, m.description, "")) + '</div></div>'
+          ).join("") + '</div>'
+        : "";
+
+      const others = media.filter((m) => !vocab.includes(m));
+      const othersHtml = others.length
+        ? '<h4 style="margin-top:14px;font-size:12px;">Media</h4><ul style="margin:8px 0 0 18px;font-size:11px;">' +
+          others.map((m) => '<li>' + escapeHTML(first(m.title, m.media_type, "item")) + ' <span class="muted">(' + escapeHTML(first(m.media_type, "")) + ')</span></li>').join("") + '</ul>'
+        : "";
+
+      $("previewBody").innerHTML =
+        '<div>' + chips + '</div>' +
+        (lesson.description ? '<p style="font-size:12px;margin-top:10px;">' + escapeHTML(lesson.description) + '</p>' : '') +
+        vocabHtml + othersHtml +
+        (media.length || lesson.description ? '' : '<div class="empty">This lesson has no content yet.</div>');
+    } catch (error) {
+      $("previewBody").innerHTML = '<div class="empty">Couldn\'t load the lesson: ' + escapeHTML(error.message) + '</div>';
+    }
+  }
+
+  $("previewOverlay").addEventListener("click", (event) => {
+    if (event.target === $("previewOverlay")) $("previewOverlay").classList.remove("open");
+  });
+  $("previewClose").addEventListener("click", () => $("previewOverlay").classList.remove("open"));
+
+  /* ================= BULK USER ACTIONS ================= */
+
+  state.bulkSelected = new Set();
+
+  function updateBulkBar() {
+    const bar = $("bulkBar");
+    bar.classList.toggle("open", state.bulkSelected.size > 0);
+    $("bulkCount").textContent = state.bulkSelected.size + " selected";
+  }
+
+  document.addEventListener("change", (event) => {
+    const box = event.target.closest("[data-bulk-user]");
+    if (!box) return;
+    if (box.checked) state.bulkSelected.add(box.dataset.bulkUser);
+    else state.bulkSelected.delete(box.dataset.bulkUser);
+    updateBulkBar();
+  });
+
+  document.addEventListener("change", (event) => {
+    if (event.target.id !== "bulkSelectAll") return;
+    const checked = event.target.checked;
+    state.bulkSelected = new Set();
+    document.querySelectorAll("[data-bulk-user]").forEach((box) => {
+      box.checked = checked;
+      if (checked) state.bulkSelected.add(box.dataset.bulkUser);
+    });
+    updateBulkBar();
+  });
+
+  $("bulkClear").addEventListener("click", () => {
+    state.bulkSelected = new Set();
+    document.querySelectorAll("[data-bulk-user]").forEach((box) => { box.checked = false; });
+    $("bulkSelectAll").checked = false;
+    updateBulkBar();
+  });
+
+  $("bulkBan").addEventListener("click", async () => {
+    const ids = Array.from(state.bulkSelected);
+    if (!ids.length) return;
+    const reason = prompt("Ban reason for " + ids.length + " user(s)?", "Terms violation");
+    if (reason === null) return;
+    for (const id of ids) {
+      try { await api("/admin/users/ban/" + id, { method: "POST", body: JSON.stringify({ banned: true, reason }) }); } catch (e) {}
+    }
+    state.bulkSelected = new Set();
+    updateBulkBar();
+    await loadUsers();
+  });
+
+  $("bulkEmail").addEventListener("click", () => {
+    const ids = Array.from(state.bulkSelected);
+    if (!ids.length) return;
+    const firstBox = document.querySelector('[data-email-user="' + ids[0] + '"]');
+    if (firstBox) firstBox.click();
+  });
+
+  $("bulkExport").addEventListener("click", () => {
+    const rows = state.users.filter((u) => state.bulkSelected.has(String(u.user_id)));
+    downloadCsv("hanverse-users.csv", rows.map((u) => ({
+      id: u.user_id, name: first(u.full_name, u.username, ""), email: u.email || "",
+      role: u.role || "student", xp: first(u.xp, 0), level: first(u.level, ""), premium: bool(first(u.premium, u.is_premium)), banned: bool(u.is_banned)
+    })));
+  });
+
+  /* ================= AUDIT FILTERS + EXPORT ================= */
+
+  state.auditRows = [];
+
+  function renderAuditLog() {
+    const box = $("auditTable");
+    const rows = state.auditRows;
+
+    if (!rows.length) {
+      box.innerHTML = '<div class="empty">No admin actions recorded yet.</div>';
+      return;
+    }
+
+    const text = ($("auditFilterText").value || "").toLowerCase();
+    const action = $("auditFilterAction").value;
+    const from = $("auditFilterFrom").value ? new Date($("auditFilterFrom").value) : null;
+    const to = $("auditFilterTo").value ? new Date($("auditFilterTo").value + "T23:59:59") : null;
+
+    const filtered = rows.filter((row) => {
+      const created = new Date(row.created_at);
+      if (action && row.action !== action) return false;
+      if (from && created < from) return false;
+      if (to && created > to) return false;
+      if (text && !((row.detail || "") + " " + (row.actor_label || "")).toLowerCase().includes(text)) return false;
+      return true;
+    });
+
+    if (!filtered.length) {
+      box.innerHTML = '<div class="empty">No entries match these filters.</div>';
+      return;
+    }
+
+    box.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Admin</th>
+              <th>Action</th>
+              <th>Detail</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map((row) => `
+              <tr>
+                <td><span class="muted" style="font-size:10px;white-space:nowrap;">${escapeHTML(new Date(row.created_at).toLocaleString("en-KE"))}</span></td>
+                <td><strong style="font-size:10px;">${escapeHTML(row.actor_label || "—")}</strong></td>
+                <td><span class="pill blue" style="font-size:9px;">${escapeHTML(row.action || "")}</span></td>
+                <td><span style="font-size:10px;">${escapeHTML(row.detail || "—")}</span></td>
+                <td><span class="muted" style="font-size:9px;">${escapeHTML(row.ip || "—")}</span></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+  }
+
+  async function loadAuditLog() {
+    const box = $("auditTable");
+    box.innerHTML = Array.from({ length: 4 }, () =>
+      '<div class="skel-row"><div class="skel-bar" style="width:20%"></div><div class="skel-bar" style="width:16%"></div><div class="skel-bar" style="width:12%"></div><div class="skel-bar" style="width:34%"></div></div>'
+    ).join("");
+
+    try {
+      const data = await api("/admin/audit?limit=200");
+      state.auditRows = data.audit || [];
+
+      const actions = Array.from(new Set(state.auditRows.map((r) => r.action).filter(Boolean))).sort();
+      $("auditFilterAction").innerHTML = '<option value="">All actions</option>' +
+        actions.map((a) => '<option value="' + escapeHTML(a) + '">' + escapeHTML(a) + '</option>').join("");
+
+      renderAuditLog();
+    } catch (error) {
+      box.innerHTML = `<div class="empty">Couldn't load the audit log: ${escapeHTML(error.message)}</div>`;
+    }
+  }
+
+  ["auditFilterText", "auditFilterAction", "auditFilterFrom", "auditFilterTo"].forEach((id) => {
+    $(id).addEventListener("input", renderAuditLog);
+    $(id).addEventListener("change", renderAuditLog);
+  });
+
+  $("auditExport").addEventListener("click", () => {
+    downloadCsv("hanverse-audit.csv", state.auditRows.map((r) => ({
+      time: r.created_at, admin: r.actor_label || "", action: r.action || "", detail: r.detail || "", ip: r.ip || ""
+    })));
+  });
+
+  /* ================= SYSTEM HEALTH ================= */
+
+  async function loadHealth() {
+    try {
+      const data = await api("/admin/health");
+      $("hDb").textContent = data.db ? "Connected" : "Down";
+      $("hDb").style.color = data.db ? "var(--green)" : "var(--red)";
+      $("hOpenai").textContent = data.openai ? "Present" : "Missing";
+      $("hOpenai").style.color = data.openai ? "var(--green)" : "var(--red)";
+      $("hPending").textContent = data.pending_parents;
+      $("hBanned").textContent = data.banned_users;
+      $("hAudit").textContent = data.audit_rows;
+      $("hLastAudit").textContent = data.last_audit_at ? new Date(data.last_audit_at).toLocaleString("en-KE") : "Never";
+    } catch (e) {
+      $("hDb").textContent = "Unavailable";
+    }
   }
 
   ["All", "Pending", "Verified"].forEach(label => {
@@ -5305,52 +5380,6 @@ ${body}
 
 })();
 </script>
-
-  <!-- User detail drawer -->
-  <div id="drawerOverlay" class="drawer-overlay"></div>
-  <aside id="userDrawer" class="drawer" aria-label="User details">
-    <div class="drawer-head">
-      <div class="user-avatar" id="drawerAvatar">🎓</div>
-      <div>
-        <h3 id="drawerName">—</h3>
-        <small id="drawerEmail">—</small>
-      </div>
-      <button id="drawerClose" class="drawer-close" aria-label="Close">✕</button>
-    </div>
-    <div class="drawer-body">
-      <div class="drawer-facts" id="drawerFacts"></div>
-      <div class="drawer-actions" id="drawerActions"></div>
-    </div>
-  </aside>
-
-  <!-- Lesson preview modal -->
-  <div id="previewOverlay" class="preview-overlay">
-    <div class="preview-modal">
-      <div class="preview-head">
-        <h3 id="previewTitle">Lesson preview</h3>
-        <button id="previewClose" class="preview-close" aria-label="Close">✕</button>
-      </div>
-      <div class="preview-body" id="previewBody"></div>
-    </div>
-  </div>
-
-  <!-- Bulk actions bar -->
-  <div id="bulkBar" class="bulk-bar">
-    <span id="bulkCount">0 selected</span>
-    <button id="bulkBan" class="btn btn-danger btn-sm">Ban</button>
-    <button id="bulkEmail" class="btn btn-soft btn-sm">Email</button>
-    <button id="bulkExport" class="btn btn-sm">Export CSV</button>
-    <button id="bulkClear" class="btn btn-sm">Clear</button>
-  </div>
-
-  <!-- Command palette -->
-  <div id="cmdkOverlay" class="cmdk-overlay" role="dialog" aria-label="Command palette">
-    <div class="cmdk">
-      <input id="cmdkInput" type="text" placeholder="Search users, lessons, or jump to…" autocomplete="off">
-      <div id="cmdkResults" class="cmdk-results"></div>
-      <div class="cmdk-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
-    </div>
-  </div>
 
 </body>
 </html>
