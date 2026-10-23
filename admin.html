@@ -180,7 +180,33 @@
       gap: 3px;
     }
 
+    .pending-badge {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: #EF4444;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .section-header h2,
+    #pageTitle,
+    .auth-card h1 {
+      font-family: 'Nunito', 'Inter', sans-serif;
+      font-weight: 900;
+    }
+
     .nav-button {
+      position: relative;
       width: 100%;
       border: 0;
       background: transparent;
@@ -379,9 +405,9 @@
 
     .btn {
       min-height: 37px;
-      padding: 8px 12px;
+      padding: 8px 14px;
       border: 1px solid #D8E1E9;
-      border-radius: 10px;
+      border-radius: 999px;
       background: #FFFFFF;
       color: var(--ink);
       display: inline-flex;
@@ -1562,6 +1588,15 @@
       <button class="nav-button" data-section="parents">
         <span class="nav-icon">👨‍👩‍👧</span>
         Parents
+        <span id="parentsPendingBadge" class="pending-badge" hidden>0</span>
+      </button>
+    </nav>
+
+    <div class="nav-label">Oversight</div>
+    <nav class="nav">
+      <button class="nav-button" data-section="audit">
+        <span class="nav-icon">📜</span>
+        Audit Log
       </button>
     </nav>
 
@@ -2113,7 +2148,7 @@
               </div>
 
               <div class="panel-body prompt-list">
-                <button class="prompt" data-prompt="How many users do we have?">How many users do we have?</button>
+                <button class="prompt" data-prompt="How many parents are pending safety review?">How many parents are pending review?</button>
                 <button class="prompt" data-prompt="How many premium users do we have?">How many premium users do we have?</button>
                 <button class="prompt" data-prompt="How many lessons are available?">How many lessons are available?</button>
                 <button class="prompt" data-prompt="Give me a quick HanVerse platform summary.">Give me a quick platform summary.</button>
@@ -2124,6 +2159,23 @@
 
         </div>
 
+      </section>
+
+      <!-- ================= AUDIT LOG ================= -->
+      <section id="auditSection" class="section">
+        <div class="section-header">
+          <div>
+            <h2>Audit Log</h2>
+            <p>Every admin action, newest first — bans, deletions, approvals, emails and lesson changes.</p>
+          </div>
+          <button id="auditRefreshButton" class="btn btn-soft btn-sm">↻ Refresh</button>
+        </div>
+
+        <div class="card table-card">
+          <div id="auditTable">
+            <div class="empty">Loading audit log…</div>
+          </div>
+        </div>
       </section>
 
     </main>
@@ -2703,6 +2755,7 @@
     $("app").classList.remove("hidden");
     updateAdminIdentity();
     switchSection("dashboard");
+    loadPendingParentsBadge();
   }
 
   function updateAdminIdentity() {
@@ -2792,7 +2845,8 @@
     analytics: ["Analytics", "Live HanVerse platform metrics"],
     communications: ["Broadcasts", "Create and review email campaigns"],
     panda: ["Panda AI", "Your admin-only HanVerse assistant"],
-    parents: ["Parent Verification", "Review and approve parent accounts"]
+    parents: ["Parent Verification", "Review and approve parent accounts"],
+    audit: ["Audit Log", "Every admin action, newest first"]
   };
 
   function switchSection(section) {
@@ -2820,6 +2874,7 @@
     if (section === "analytics") loadAnalytics();
     if (section === "communications") loadCampaigns();
     if (section === "parents") loadParentQueue();
+    if (section === "audit") loadAuditLog();
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -2996,6 +3051,10 @@
                   : `<button class="btn btn-success btn-sm" data-verify-user="${id}">Verify</button>`
               }
 
+              <button class="btn btn-soft btn-sm" data-ban-user="${id}">${
+                banned ? "Unban" : "Ban"
+              }</button>
+
               <button class="btn btn-danger btn-sm" data-delete-user="${id}">Delete</button>
             </div>
           </td>
@@ -3043,6 +3102,42 @@
         deleteUser(button.dataset.deleteUser);
       });
     });
+
+    document.querySelectorAll("[data-ban-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleBanUser(button.dataset.banUser);
+      });
+    });
+  }
+
+  async function toggleBanUser(id) {
+    const user = state.users.find(
+      (item) => String(item.user_id) === String(id)
+    );
+
+    if (!user) return;
+
+    const banned = bool(user.is_banned);
+    let reason = null;
+
+    if (!banned) {
+      reason = prompt(
+        `Ban ${first(user.full_name, user.username, "this user")}? Reason (optional):`
+      );
+      if (reason === null) return;
+    }
+
+    try {
+      await api(`/admin/users/ban/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify({ banned: !banned, reason })
+      });
+
+      notify(banned ? "User unbanned." : "User banned.");
+      await loadUsers();
+    } catch (error) {
+      notify(error.message, "error");
+    }
   }
 
   function editUser(id) {
@@ -4337,9 +4432,71 @@ ${body}
       const endpoint = approve ? "/admin/parents/verify/" : "/admin/parents/deny/";
       await api(endpoint + parentId, { method: "POST" });
       loadParentQueue();
+      loadPendingParentsBadge();
     } catch (e) { alert("Failed: " + e.message); }
   }
   window.verifyParent = verifyParent;
+
+  /* ================= PENDING PARENTS BADGE ================= */
+
+  async function loadPendingParentsBadge() {
+    const badge = $("parentsPendingBadge");
+    if (!badge) return;
+
+    try {
+      const data = await api("/admin/parents/pending");
+      const count = Array.isArray(data.pendingParents) ? data.pendingParents.length : 0;
+      badge.textContent = String(count);
+      badge.hidden = count === 0;
+    } catch {
+      badge.hidden = true;
+    }
+  }
+
+  $("auditRefreshButton").addEventListener("click", () => loadAuditLog());
+
+  async function loadAuditLog() {
+    const box = $("auditTable");
+
+    try {
+      const data = await api("/admin/audit?limit=200");
+      const rows = data.audit || [];
+
+      if (!rows.length) {
+        box.innerHTML = '<div class="empty">No admin actions recorded yet.</div>';
+        return;
+      }
+
+      box.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Admin</th>
+              <th>Action</th>
+              <th>Detail</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((row) => `
+              <tr>
+                <td><span class="muted" style="font-size:10px;white-space:nowrap;">${
+                  escapeHTML(new Date(row.created_at).toLocaleString("en-KE"))
+                }</span></td>
+                <td><strong style="font-size:10px;">${escapeHTML(row.actor_label || "—")}</strong></td>
+                <td><span class="pill blue" style="font-size:9px;">${escapeHTML(row.action || "")}</span></td>
+                <td><span style="font-size:10px;">${escapeHTML(row.detail || "—")}</span></td>
+                <td><span class="muted" style="font-size:9px;">${escapeHTML(row.ip || "—")}</span></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    } catch (error) {
+      box.innerHTML = `<div class="empty">Couldn't load the audit log: ${escapeHTML(error.message)}</div>`;
+    }
+  }
 
   ["All", "Pending", "Verified"].forEach(label => {
     const btn = $("parentFilter" + label);
@@ -4373,7 +4530,7 @@ ${body}
     messages.scrollTop = messages.scrollHeight;
 
     try {
-      const data = await api("/panda-chat", {
+      const data = await api("/admin/panda-chat", {
         method: "POST",
         body: JSON.stringify({ message: question })
       });
