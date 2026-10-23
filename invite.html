@@ -806,7 +806,7 @@
         <!-- ===== REFERRAL LINK ===== -->
         <div class="invite-referral-section">
             <div class="invite-referral-link">
-                <input type="text" id="referralLink" readonly value="https://hanverse.netlify.app/signup.html?ref=YOUR_USERNAME" />
+                <input type="text" id="referralLink" readonly value="" placeholder="Generate your link below" />
                 <button onclick="copyReferralLink()" class="invite-copy-btn">📋 Copy</button>
             </div>
             <div id="copyMessage">✅ Copied to clipboard!</div>
@@ -834,7 +834,7 @@
         </div>
 
         <!-- ===== BACK LINK ===== -->
-        <a href="index.html" class="back-link">← Back to Home</a>
+        <a href="dashboard.html" class="back-link">← Back to Home</a>
     </div>
 
     <script src="features-client.js"></script>
@@ -846,7 +846,9 @@
             const user = JSON.parse(localStorage.getItem('hanverse_user') || '{}');
             const linkInput = document.getElementById('referralLink');
             if (user.username) {
-                linkInput.value = `https://hanverse.netlify.app/signup.html?ref=${user.username}`;
+                linkInput.value = `${location.origin}/signup.html?ref=${user.username}`;
+            } else {
+                linkInput.value = `${location.origin}/signup.html`;
             }
         }
 
