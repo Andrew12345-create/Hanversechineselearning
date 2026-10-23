@@ -5,6 +5,11 @@
 
 [build.environment]
   NODE_VERSION = "24.12.0"
+  # Secrets-scan false positives: these env values are non-secret config
+  # (postgres/3000/localhost/5432/public URL) that also appear in docs and
+  # dependency metadata. Real secrets (DATABASE_URL, DB_PASSWORD, JWT_SECRET,
+  # STRIPE_*, BREVO_*, OPENAI_API_KEY) remain scanned.
+  SECRETS_SCAN_OMIT_KEYS = "DB_USER,PORT,HOST,PUBLIC_SITE_URL,NODE_ENV,DB_PORT,DB_NAME"
 
 [functions]
   directory = "functions"
