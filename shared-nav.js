@@ -66,11 +66,6 @@
           '<a href="pricing.html">Pricing</a>' +
           '<a href="faq.html">FAQ</a>' +
           '<a href="contact.html">Contact</a>' +
-          '<a href="https://learn-hanverse.netlify.app/learn.html">Learn</a>' +
-          '<a href="https://learn-hanverse.netlify.app/explore.html">Explore</a>' +
-          '<a href="https://learn-hanverse.netlify.app/practice.html">Practice</a>' +
-          '<a href="https://learn-hanverse.netlify.app/roadmap.html">Roadmap</a>' +
-          '<a href="https://learn-hanverse.netlify.app/parents.html">Parents</a>' +
         '</div>' +
         actionsMarkup() +
       '</nav>'
@@ -98,11 +93,11 @@
             '<p>Learn Mandarin. Explore more.</p>' +
           '</div>' +
           '<div class="footer-links">' +
-            '<a href="https://learn-hanverse.netlify.app/learn.html">Learn</a>' +
-            '<a href="https://learn-hanverse.netlify.app/explore.html">Explore</a>' +
-            '<a href="https://learn-hanverse.netlify.app/roadmap.html">Roadmap</a>' +
-            '<a href="https://learn-hanverse.netlify.app/parents.html">Parents</a>' +
-            '<a href="https://learn-hanverse.netlify.app/login.html">Log in</a>' +
+            '<a href="about.html">About</a>' +
+            '<a href="pricing.html">Pricing</a>' +
+            '<a href="faq.html">FAQ</a>' +
+            '<a href="contact.html">Contact</a>' +
+            '<a href="https://learn-hanverse.netlify.app/login.html">Open the app →</a>' +
             '<a href="terms.html">Terms</a>' +
             '<a href="privacy.html">Privacy</a>' +
             '<a href="refund-policy.html">Refunds</a>' +

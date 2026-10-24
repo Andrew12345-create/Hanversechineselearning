@@ -1122,11 +1122,10 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
     <span>HanVerse</span>
   </a>
   <div class="nav-links">
-    <a href="https://learn-hanverse.netlify.app/learn.html">Learn</a>
-    <a href="https://learn-hanverse.netlify.app/explore.html">Explore</a>
-    <a href="https://learn-hanverse.netlify.app/practice.html">Practice</a>
-    <a href="https://learn-hanverse.netlify.app/roadmap.html">Roadmap</a>
-    <a href="https://learn-hanverse.netlify.app/parents.html">Parents</a>
+    <a href="about.html">About</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="faq.html">FAQ</a>
+    <a href="contact.html">Contact</a>
   </div>
   <div class="nav-actions">
     <a class="nav-login" href="https://learn-hanverse.netlify.app/login.html">Log in</a>
@@ -1528,11 +1527,7 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
       <a href="pricing.html">Pricing</a>
       <a href="faq.html">FAQ</a>
       <a href="contact.html">Contact</a>
-      <a href="https://learn-hanverse.netlify.app/learn.html">Learn</a>
-      <a href="https://learn-hanverse.netlify.app/explore.html">Explore</a>
-      <a href="https://learn-hanverse.netlify.app/roadmap.html">Roadmap</a>
-      <a href="https://learn-hanverse.netlify.app/parents.html">Parents</a>
-      <a href="https://learn-hanverse.netlify.app/login.html">Log in</a>
+      <a href="https://learn-hanverse.netlify.app/login.html">Open the app →</a>
       <a href="terms.html">Terms</a>
       <a href="privacy.html">Privacy</a>
       <a href="refund-policy.html">Refunds</a>
@@ -1833,7 +1828,7 @@ function renderPersonal() {
   const first = nameOf(user);
   $("welcomeTitle").textContent = `Welcome back, ${first}! 🐼`;
   $("welcomeText").textContent = "Your HanVerse journey is connected to your saved account data.";
-  $("continueBtn").href = state.next ? "lesson.html?id=" + encodeURIComponent(lessonId(state.next)) : "https://learn-hanverse.netlify.app/roadmap.html";
+  $("continueBtn").href = state.next ? "https://learn-hanverse.netlify.app/lesson.html?id=" + encodeURIComponent(lessonId(state.next)) : "https://learn-hanverse.netlify.app/roadmap.html";
   $("continueBtn").textContent = state.next ? "Continue Learning →" : "Open Roadmap →";
   if (state.next) {
     $("nextIcon").textContent = state.next.icon || "📚";
@@ -2088,6 +2083,5 @@ if ("IntersectionObserver" in window) {
 })();
 </script>
 <script src="notifications-client.js"></script>
-<script src="bottom-nav.js"></script>
 </body>
 </html>
