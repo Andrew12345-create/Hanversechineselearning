@@ -6622,6 +6622,93 @@ window.addEventListener("beforeunload",()=>{try{state.live?.socket?.disconnect()
 
 
 
+<script>
+/* ─── LESSON RAIL: wraps main content into layout + live side pane ─── */
+(function(){
+ "use strict";
+ function build(){
+  const main=document.querySelector("main.wrap");
+  if(!main||main.querySelector(".lesson-layout"))return;
+  const layout=document.createElement("div");layout.className="lesson-layout";
+  const rail=document.createElement("aside");rail.className="rail rail-lesson";rail.setAttribute("aria-label","Lesson overview");
+  rail.innerHTML=
+   '<div class="rail-card">'+
+     '<div class="kicker">THIS LESSON</div>'+
+     '<div class="rail-pos" id="railPos">—</div>'+
+     '<p id="railLessonTitle" style="margin:2px 0 8px;color:var(--muted);font-size:.7rem;font-weight:700"></p>'+
+     '<a class="rail-btn" href="roadmap.html">All lessons →</a><br>'+
+     '<a class="rail-link" href="learn.html">← Back to Learn hub</a>'+
+   '</div>'+
+   '<div class="rail-card">'+
+     '<div class="kicker">THIS SESSION</div>'+
+     '<div class="rail-session">'+
+       '<span>⭐ XP earned <b id="railXp">0</b></span>'+
+       '<span>✅ Activities <b id="railActs">0 / 0</b></span>'+
+       '<span>⏱ Time <b id="railTime">0:00</b></span>'+
+     '</div>'+
+   '</div>'+
+   '<div class="rail-card rail-next-up rail-hide-m">'+
+     '<div class="kicker">UP NEXT</div>'+
+     '<p id="railNextTitle">Finishing this one unlocks the next step.</p>'+
+     '<a class="rail-btn" id="railNextBtn" href="roadmap.html" hidden>Next lesson →</a>'+
+   '</div>'+
+   '<div class="rail-card rail-tip rail-hide-m">'+
+     '<img src="assets/mascot/states/hanpan-happy.png" alt="" width="44" height="44" loading="lazy" decoding="async">'+
+     '<p>Read the pinyin out loud before you answer — saying it locks it in.</p>'+
+   '</div>';
+  const content=document.createElement("div");content.className="lesson-main";
+  while(main.firstChild)content.appendChild(main.firstChild);
+  layout.appendChild(rail);layout.appendChild(content);main.appendChild(layout);
+ }
+ function fmt(s){s=Math.max(0,Math.floor(s));const m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss}
+ function tick(){
+  try{
+   const xpd=document.getElementById("xp");
+   const rx=document.getElementById("railXp");
+   if(rx&&xpd)rx.textContent=xpd.textContent.trim()||"0";
+   if(typeof state!=="undefined"&&state){
+    const a=document.getElementById("railActs");
+    if(a){const tot=(state.activities||[]).length,done=Math.min(state.index||0,tot);a.textContent=done+" / "+tot}
+   }
+   const t=document.getElementById("railTime");
+   if(t&&typeof state!=="undefined"&&state&&state.startedAt)t.textContent=fmt((Date.now()-state.startedAt)/1000);
+  }catch(e){}
+ }
+ function meta(){
+  try{
+   const title=document.getElementById("title");
+   const rt=document.getElementById("railLessonTitle");
+   if(title&&rt)rt.textContent=title.textContent.trim()||"";
+   const pct=document.querySelector(".pct");
+   if(pct){const rp=document.getElementById("railPos");if(rp)rp.innerHTML=(pct.textContent.trim()||"0%")+' <small>complete</small>'}
+  }catch(e){}
+ }
+ function boot(){
+  build();
+  setInterval(tick,1000);
+  setInterval(meta,1500);
+  try{
+   if(typeof api==="function"&&typeof state!=="undefined"&&state.lessonId){
+    api("lessons").then(d=>{
+     const ls=Array.isArray(d&&d.lessons)?d.lessons:[];
+     const cur=ls.find(l=>String(l.id)===String(state.lessonId));
+     const i=cur?ls.indexOf(cur):-1;
+     const nxt=i>=0&&ls[i+1]&&Number(ls[i+1].level)===Number(cur.level)?ls[i+1]:null;
+     if(nxt){
+      const t=document.getElementById("railNextTitle");if(t)t.textContent=nxt.title||"The next step in your path.";
+      const b=document.getElementById("railNextBtn");
+      if(b){b.hidden=false;b.href="lesson.html?id="+encodeURIComponent(nxt.id)}
+     }else{
+      const t=document.getElementById("railNextTitle");
+      if(t)t.textContent="Finish this level, then explore the next YCT step on your roadmap.";
+     }
+    }).catch(()=>{});
+   }
+  }catch(e){}
+ }
+ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",boot)}else{boot()}
+})();
+</script>
 </body>
 
 </html>
