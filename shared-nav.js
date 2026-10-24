@@ -68,7 +68,19 @@
           '<a href="contact.html">Contact</a>' +
         '</div>' +
         actionsMarkup() +
-      '</nav>'
+        '<button class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">' +
+          '<span></span><span></span><span></span>' +
+        '</button>' +
+      '</nav>' +
+      '<div class="mobile-menu" id="mobileMenu" hidden>' +
+        '<a href="index.html">Home</a>' +
+        '<a href="about.html">About</a>' +
+        '<a href="pricing.html">Pricing</a>' +
+        '<a href="faq.html">FAQ</a>' +
+        '<a href="contact.html">Contact</a>' +
+        '<a href="https://learn-hanverse.netlify.app/login.html">Log in</a>' +
+        '<a class="mobile-cta" href="https://learn-hanverse.netlify.app/signup.html">Start Free →</a>' +
+      '</div>'
     );
   }
 
@@ -105,5 +117,29 @@
           '</div>' +
         '</div>' +
       '</footer>';
+  }
+
+  // --- Mobile burger menu ---
+  var burger = document.getElementById('navBurger');
+  var sheet = document.getElementById('mobileMenu');
+  if (burger && sheet) {
+    var setMenu = function (open) {
+      sheet.hidden = !open;
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      burger.classList.toggle('is-open', open);
+    };
+    burger.addEventListener('click', function () {
+      setMenu(sheet.hidden);
+    });
+    sheet.addEventListener('click', function (e) {
+      if (e.target && e.target.tagName === 'A') setMenu(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !sheet.hidden) setMenu(false);
+    });
+    document.addEventListener('click', function (e) {
+      if (!sheet.hidden && !sheet.contains(e.target) && !burger.contains(e.target)) setMenu(false);
+    });
   }
 })();

@@ -483,10 +483,47 @@ html { font-size: clamp(15px, 0.955rem + 0.15vw, 17px); }
 body[data-hud="off"] .app-header,
 body[data-hud="off"] .header .header-inner { padding-right: 62px; }
 
-/* ─── MOBILE: the floating pill + More sheet are the only global nav ─── */
+/* ─── MOBILE: marketing pages keep the top nav with a burger sheet ─── */
 @media (max-width: 1024px) {
   body:not([data-topnav="keep"]) .nav:not(.nav-auth),
   body:not([data-topnav="keep"]) .mobile-menu { display: none !important; }
+
+  body[data-topnav="keep"] .nav-links,
+  body[data-topnav="keep"] .nav-login { display: none !important; }
+  body[data-topnav="keep"] .nav { gap: 8px; }
+  body[data-topnav="keep"] .nav-cta { padding: 10px 16px; font-size: 13px; white-space: nowrap; }
+
+  .nav-burger {
+    display: inline-flex; flex-direction: column; justify-content: center; gap: 4px;
+    width: 42px; height: 42px; padding: 10px 11px; margin-left: 2px;
+    background: #fff; border: 1.5px solid var(--line, #D5E3F0); border-radius: 12px;
+    cursor: pointer; flex: 0 0 auto;
+  }
+  .nav-burger span { display: block; height: 2.5px; border-radius: 2px; background: var(--ink, #1E3A5F); transition: transform .22s, opacity .18s; }
+  .nav-burger.is-open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .nav-burger.is-open span:nth-child(2) { opacity: 0; }
+  .nav-burger.is-open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .mobile-menu {
+    position: fixed; top: 74px; left: 12px; right: 12px; z-index: 1200;
+    background: #fff; border: 1px solid var(--line, #D5E3F0); border-radius: 18px;
+    box-shadow: 0 20px 50px rgba(15, 35, 64, .18);
+    padding: 10px; display: flex; flex-direction: column;
+  }
+  .mobile-menu[hidden] { display: none; }
+  .mobile-menu a {
+    padding: 13px 14px; border-radius: 12px; text-decoration: none;
+    color: var(--ink, #1E3A5F); font: 700 15px Nunito, sans-serif;
+  }
+  .mobile-menu a:hover { background: var(--blue50, #EFF6FF); }
+  .mobile-menu a.mobile-cta {
+    margin-top: 6px; text-align: center; color: #fff;
+    background: linear-gradient(135deg, var(--blue, #2563EB), var(--blueDark, #1D4ED8));
+    box-shadow: 0 10px 22px rgba(37, 99, 235, .28);
+  }
+}
+@media (min-width: 1025px) {
+  .nav-burger, .mobile-menu { display: none !important; }
 }
 
 /* ─── SKELETON LOADING ─── */
