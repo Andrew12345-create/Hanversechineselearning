@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#2563EB">
 <title>Settings | HanVerse</title>
-<link rel="icon" type="image/png" href="hanverse-logo2.png">
+<link rel="icon" type="image/png" href="Hanverse-logo2.png">
 <meta name="description" content="Manage your HanVerse account settings and preferences.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="HanVerse">
   <meta property="og:title" content="Settings | HanVerse">
   <meta property="og:description" content="Manage your HanVerse account settings and preferences.">
-  <meta property="og:image" content="https://hanverse.com/Hanverse-logo2.png">
+  <meta property="og:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Settings | HanVerse">
   <meta name="twitter:description" content="Manage your HanVerse account settings and preferences.">
-  <meta name="twitter:image" content="https://hanverse.com/Hanverse-logo2.png">
+  <meta name="twitter:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -59,8 +59,8 @@
 </div></section>
 <section class="card full"><div class="heading"><div class="heading-icon">🐼</div><div><h2>About HanVerse</h2><p>Everything you need to know about the app.</p></div></div><div class="body">
 <div class="row"><div class="main"><div class="icon">🚀</div><div class="copy"><h3 class="title">HanVerse version</h3><p class="desc">You are using HanVerse 1.0.0.</p></div></div><span class="chevron">✓</span></div>
-<button class="row action" type="button" onclick="window.location.href='privacy.html'"><div class="main"><div class="icon">🛡️</div><div class="copy"><h3 class="title">Privacy policy</h3><p class="desc">Learn how HanVerse handles your information.</p></div></div><span class="chevron">›</span></button>
-<button class="row action" type="button" onclick="window.location.href='terms.html'"><div class="main"><div class="icon">📄</div><div class="copy"><h3 class="title">Terms of service</h3><p class="desc">Read the rules for using HanVerse.</p></div></div><span class="chevron">›</span></button>
+<button class="row action" type="button" onclick="window.location.href='https://hanverse.netlify.app/privacy.html'"><div class="main"><div class="icon">🛡️</div><div class="copy"><h3 class="title">Privacy policy</h3><p class="desc">Learn how HanVerse handles your information.</p></div></div><span class="chevron">›</span></button>
+<button class="row action" type="button" onclick="window.location.href='https://hanverse.netlify.app/terms.html'"><div class="main"><div class="icon">📄</div><div class="copy"><h3 class="title">Terms of service</h3><p class="desc">Read the rules for using HanVerse.</p></div></div><span class="chevron">›</span></button>
 </div></section>
 <section class="card full danger"><div class="heading"><div class="heading-icon">⚠️</div><div><h2>Account actions</h2><p>Actions that affect your account.</p></div></div><div class="body"><button class="row action" type="button" id="logoutButton"><div class="main"><div class="icon">↪️</div><div class="copy"><h3 class="title">Log out</h3><p class="desc">Sign out of HanVerse on this device.</p></div></div><span class="chevron">›</span></button><button class="row action" type="button" id="deleteAccountButton"><div class="main"><div class="icon">🗑️</div><div class="copy"><h3 class="title">Delete account</h3><p class="desc">Permanently erase your account, progress and personal data. This cannot be undone.</p></div></div><span class="chevron">›</span></button></div></section>
 </div></main></div>
@@ -105,7 +105,7 @@ document.getElementById('deleteAccountButton').addEventListener('click',async fu
     }
     ['hanverse_token','hanverse_user','token','user','authToken'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}try{sessionStorage.removeItem(k)}catch(e){}});
     alert('Your account has been deleted. We are sorry to see you go. 🐼');
-    window.location.href='index.html';
+    window.location.href='https://hanverse.netlify.app/';
   }catch(e){
     btn.disabled=false;
     alert('Could not delete your account right now. Please try again, or contact support if the problem continues.');
