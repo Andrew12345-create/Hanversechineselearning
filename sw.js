@@ -12,7 +12,7 @@ const LESSON_CACHE = 'hanverse-lessons-v1';
 // (The previous list referenced /css/styles.css, /js/app.js and /images/*,
 // which never existed, so cache.addAll() rejected and the SW never installed.)
 const STATIC_ASSETS = [
-    '/offline.html',
+    '/index.html',
     '/hanverse.css',
     '/hanverse.js',
     '/nav-user.js',
@@ -262,7 +262,7 @@ self.addEventListener('fetch', event => {
                             }
 
                             return caches.match(
-                                '/offline.html'
+                                '/index.html'
                             );
                         });
                 })
