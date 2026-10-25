@@ -157,10 +157,6 @@ img { content-visibility: auto; max-width: 100%; display: block; }
   30%       { transform: translateY(-14px) scale(1.04); }
   60%       { transform: translateY(-6px) scale(.98); }
 }
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,.3), 0 18px 44px rgba(15,35,64,.14); }
-  50%       { box-shadow: 0 0 0 14px rgba(37,99,235,.0), 0 22px 54px rgba(15,35,64,.18); }
-}
 @keyframes badgePop {
   0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
   65%  { transform: scale(1.12) rotate(3deg); }
@@ -521,6 +517,7 @@ main { padding-top: 100px; }
 .wc-stat:hover { transform: scale(1.06); box-shadow: var(--shadow-sm); }
 
 .wc-heading { position: relative; z-index: 2; font-family: 'Nunito', sans-serif; font-size: 26px; color: var(--navy); margin-top: 22px; }
+.wc-word-py { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); }
 .wc-sub { position: relative; z-index: 2; color: var(--muted); font-size: 12px; margin-top: 4px; }
 
 /* Animated SVG path */
@@ -562,42 +559,25 @@ main { padding-top: 100px; }
 .mn3 { right: 28%; top: 26%; animation: floatY 5s ease-in-out infinite 1.4s; }
 .mn4 { right: 6%; bottom: 21%; animation: floatY 5s ease-in-out infinite 2.1s; }
 
-/* Panda orb */
-.panda-orb {
-  position: absolute; z-index: 5;
-  right: 18px; bottom: 18px;
-  width: 96px; height: 96px; border-radius: 28px;
-  background: var(--white); border: 1px solid #C9DCF2;
-  display: grid; place-items: center;
-  box-shadow: 0 18px 44px rgba(15,35,64,.14);
-  animation: glowPulse 3s ease-in-out infinite;
-  overflow: hidden; cursor: pointer;
+/* HanPan — live waving panda at the top of the hero */
+.hero-panda {
+  position: absolute; z-index: 6;
+  top: -6px; right: -2px; width: 170px;
 }
-.panda-orb::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg, transparent 60%, rgba(37,99,235,.08));
-  border-radius: inherit; pointer-events: none;
+.hero-panda iframe {
+  width: 170px; height: 170px; border: 0;
+  filter: drop-shadow(0 16px 26px rgba(15,35,64,.16));
 }
-.panda-orb img {
-  width: 100%; height: 100%; object-fit: contain;
-  animation: pandaBounce 3s ease-in-out infinite;
-  transition: transform .25s;
+.hero-panda-say {
+  position: absolute; z-index: 7;
+  top: 0; right: 140px;
+  padding: 10px 15px; border-radius: 16px 16px 4px 16px;
+  background: var(--white); border: 1px solid var(--line);
+  font-size: 13px; font-weight: 800; color: var(--navy);
+  box-shadow: var(--shadow-sm); white-space: nowrap;
+  animation: bubblePop .6s cubic-bezier(.34,1.56,.64,1) .9s both, floatY 4s ease-in-out 1.7s infinite;
 }
-.panda-orb:hover img { animation-play-state: paused; transform: scale(1.1) rotate(-5deg); }
-
-/* Pulse rings behind panda orb */
-.panda-orb-ring {
-  position: absolute; z-index: 4;
-  right: 18px; bottom: 18px;
-  width: 96px; height: 96px; border-radius: 28px;
-}
-.panda-orb-ring::before, .panda-orb-ring::after {
-  content: ''; position: absolute; inset: 0;
-  border-radius: inherit;
-  border: 2px solid rgba(37,99,235,.4);
-  animation: pulse-ring 2.4s ease-out infinite;
-}
-.panda-orb-ring::after { animation-delay: 1.2s; border-color: rgba(56,189,248,.35); }
+.hero-panda-say .py { display: block; font-size: 10px; font-weight: 700; color: var(--muted); }
 
 /* ─── WORLDS ─── */
 .worlds { padding: 100px 0; background: var(--white); border-top: 1px solid var(--line); }
@@ -1087,7 +1067,9 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
   .world-card { padding: 18px; min-height: 370px; }
   .map-node { width: 66px; height: 66px; border-radius: 22px; font-size: 24px; }
   .map-node small { top: 70px; font-size: 9px; }
-  .panda-orb { width: 76px; height: 76px; border-radius: 24px; right: 12px; bottom: 12px; }
+  .hero-panda { position: static; width: 108px; margin: 0 auto 6px; }
+  .hero-panda iframe { width: 108px; height: 108px; }
+  .hero-panda-say { display: none; }
   .hero-chip.c1 { left: -4px; top: 56px; } .hero-chip.c2 { right: -2px; top: 128px; } .hero-chip.c3 { display: none; }
   .worlds-grid { grid-template-columns: 1fr; }
   .worlds, .journey, .personal, .challenge, .panda-section, .parents, footer { padding: 70px 0; }
@@ -1165,6 +1147,11 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 
     <!-- RIGHT -->
     <div class="hero-visual">
+      <!-- HanPan, live at the top -->
+      <div class="hero-panda">
+        <div class="hero-panda-say" id="hanpanSay">你好! 👋<span class="py">nǐ hǎo · hello</span></div>
+        <iframe src="panda-wave.html" title="HanPan waving hello — click him to wave" loading="lazy"></iframe>
+      </div>
       <div class="hero-chip c1">⭐ Earn XP</div>
       <div class="hero-chip c2">🔥 Build your streak</div>
       <div class="hero-chip c3">🏅 Unlock badges</div>
@@ -1187,7 +1174,7 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
             <span class="wc-stat" id="heroStreak">🔥 0</span>
           </div>
         </div>
-        <div class="wc-heading nunito">Start your journey</div>
+        <div class="wc-heading nunito">Your first word: <span class="grad-text" id="wcWord">你好</span> <span class="wc-word-py" id="wcWordPy">nǐ hǎo · “hello”</span></div>
         <div class="wc-sub" id="mapSub">Choose a path. Learn. Practise. Grow.</div>
 
         <svg class="wc-path" viewBox="0 0 500 330" preserveAspectRatio="none" aria-hidden="true">
@@ -1199,11 +1186,6 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
         <a class="map-node mn3" href="https://learn-hanverse.netlify.app/learn.html" aria-label="Everyday Chinese">🔢<small>Everyday</small></a>
         <a class="map-node mn4" href="https://learn-hanverse.netlify.app/explore.html" aria-label="Chinese culture">🏮<small>Culture</small></a>
 
-        <!-- Pulse rings -->
-        <div class="panda-orb-ring"></div>
-        <div class="panda-orb" aria-label="HanPan waving">
-          <img src="assets/mascot/states/hanpan-waving.png" alt="HanPan waving" width="96" height="96" fetchpriority="high" decoding="async">
-        </div>
       </div>
     </div>
   </div>
@@ -2047,6 +2029,31 @@ if ("IntersectionObserver" in window) {
       spot.innerHTML = `Trial finished — keep the adventure going. <a class="trial-spot-btn" href="https://learn-hanverse.netlify.app/payment.html">See plans</a>`;
     }
   }).catch(() => { /* quietly ignore — logged-out or offline */ });
+})();
+</script>
+<script>
+/* ── HANPAN SAYS: rotating first words in the hero card ── */
+(function () {
+  var words = [
+    ["你好", "nǐ hǎo · “hello”"],
+    ["谢谢", "xiè xie · “thank you”"],
+    ["再见", "zài jiàn · “goodbye”"],
+    ["加油", "jiā yóu · “you got this!”"]
+  ];
+  var word = document.getElementById("wcWord"),
+      py = document.getElementById("wcWordPy"),
+      say = document.getElementById("hanpanSay");
+  if (!word) return;
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var i = 0;
+  if (reduced) return;
+  setInterval(function () {
+    i = (i + 1) % words.length;
+    word.textContent = words[i][0];
+    py.textContent = words[i][1];
+    if (say) say.innerHTML = words[i][0] + "! 👋<span class=\"py\">" + words[i][1].split(" · ")[0] + "</span>";
+    word.style.animation = "none"; void word.offsetWidth; word.style.animation = "";
+  }, 3400);
 })();
 </script>
 <script src="notifications-client.js"></script>
