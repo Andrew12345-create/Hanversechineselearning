@@ -4,6 +4,7 @@
    family/class codes, parent digest.
    All schema changes are idempotent (safe to run on boot).
    ========================================================= */
+import { upgradeParentDigestEmail } from './parent-digest-ai.js';
 import crypto from 'node:crypto';
 import rateLimit from 'express-rate-limit';
 
@@ -786,6 +787,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
         if (!kids.length) { skipped++; continue; }
 
         const rows = [];
+        const rowsByKid = new Map();
         for (const kid of kids) {
           const wk = (await pool.query(
             `SELECT COALESCE(SUM(amount),0)::int AS xp FROM xp_logs WHERE user_id=$1 AND timestamp >= NOW() - INTERVAL '7 days'`,
@@ -795,6 +797,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
             `SELECT COUNT(*)::int AS n FROM user_progress WHERE user_id=$1 AND completed=TRUE AND completed_at >= NOW() - INTERVAL '7 days'`,
             [kid.user_id]
           )).rows[0].n;
+          rowsByKid.set(kid.user_id, { weekXp: wk, lessons: lessons });
           rows.push(`<tr>
             <td style="padding:10px 14px;border-bottom:1px solid #D5E3F0;font-weight:700;">${kid.full_name || kid.user_id}</td>
             <td style="padding:10px 14px;border-bottom:1px solid #D5E3F0;">${wk} XP</td>
@@ -802,6 +805,14 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
             <td style="padding:10px 14px;border-bottom:1px solid #D5E3F0;">🔥 ${kid.streak_days || 0} day${(kid.streak_days || 0) === 1 ? '' : 's'}</td>
           </tr>`);
         }
+
+                let digestAiPara = '';
+        try {
+          digestAiPara = await upgradeParentDigestEmail(kids.map(k => {
+            const row = rowsByKid.get(k.user_id) || {};
+            return { name: k.full_name || ('Learner ' + k.user_id), weeklyXp: row.weekXp || 0, lessons: row.lessons || 0, streakDays: k.streak_days || 0 };
+          }));
+        } catch (e) { console.warn('digest ai:', e && e.message); }
 
         const html = `
         <div style="font-family:Arial,sans-serif;background:#F5F9FF;padding:28px;">
@@ -811,7 +822,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
               <div style="font-size:12px;opacity:.85;">${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
             </div>
             <div style="padding:24px 26px;">
-              <p style="color:#1E3A5F;font-size:14px;">Hi ${parent.full_name || 'there'}, here is how your family did this week:</p>
+              <p style="color:#1E3A5F;font-size:14px;">Hi ${parent.full_name || 'there'}, ${digestAiPara || 'here is how your family did this week:'}</p>
               <table width="100%" style="border-collapse:collapse;font-size:13px;color:#1E3A5F;">
                 <tr style="background:#EFF6FF;color:#2563EB;text-align:left;">
                   <th style="padding:10px 14px;">Child</th><th style="padding:10px 14px;">XP this week</th>
