@@ -1,7 +1,8 @@
 /* nav-user.js — injects the signed-in user chip into the shared nav.
    Styling matches the HanVerse design system (hanverse.css tokens). */
 (function () {
-  const stored = localStorage.getItem('hanverse_user');
+  let stored;
+  try { stored = localStorage.getItem('hanverse_user'); } catch { return; }
   if (!stored) return;
 
   let u;
@@ -18,6 +19,10 @@
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
     inner + '</svg>';
+
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
 
   const I = {
     user: svg('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
@@ -183,7 +188,7 @@
         <div style="font-size:64px;margin-bottom:16px;">🚫</div>
         <h2 style="color:${C.coral};font-size:26px;font-weight:900;margin-bottom:12px;font-family:'Nunito',sans-serif;">You've Been Banned</h2>
         <p style="color:${C.muted};font-size:14px;line-height:1.8;">Your account has been suspended from HanVerse.</p>
-        ${reason ? `<p style="color:${C.ink};font-size:14px;background:#FFF7ED;border:1px solid #FFEDD5;border-radius:12px;padding:12px 16px;margin:16px 0;"><strong>Reason:</strong> ${reason}</p>` : ''}
+        ${reason ? `<p style="color:${C.ink};font-size:14px;background:#FFF7ED;border:1px solid #FFEDD5;border-radius:12px;padding:12px 16px;margin:16px 0;"><strong>Reason:</strong> ${escapeHtml(reason)}</p>` : ''}
         <p style="color:${C.muted};font-size:12px;margin-top:16px;">If you believe this is a mistake, contact support.</p>
         <button onclick="localStorage.removeItem('hanverse_user');window.location.href='https://learn-hanverse.netlify.app/login.html';" style="margin-top:24px;padding:12px 28px;background:${C.coral};color:#fff;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;">Log Out</button>
       </div>`;

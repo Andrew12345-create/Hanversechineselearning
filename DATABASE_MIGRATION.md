@@ -99,8 +99,12 @@ Should return user data if successful.
 Run your `database_schema.sql` on the Neon database:
 
 ```bash
-psql postgresql://neondb_owner:npg_2GbziUBo9RvI@ep-little-brook-airyxne9-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require < database_schema.sql
+psql "$DATABASE_URL" < database_schema.sql
 ```
+
+Keep database connection strings in your local environment or deployment secrets.
+Do not commit them to documentation or source control. If a real connection string
+was committed previously, rotate its password in the database provider.
 
 Or through Neon console:
 1. Go to Neon console
