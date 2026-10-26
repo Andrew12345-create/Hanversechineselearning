@@ -54,8 +54,11 @@
     api,
     quests: {
       get: uid => api(`/quests/daily/${uid}`),
-      progress: (uid, kind, amount) => api('/quests/progress', { method: 'POST', body: { userId: uid, kind, amount } }),
       claimChest: uid => api('/quests/claim-chest', { method: 'POST', body: { userId: uid } })
+    },
+    mission: {
+      get: uid => api(`/mission/daily/${uid}`),
+      claim: uid => api('/mission/claim', { method: 'POST', body: { userId: uid } })
     },
     streak: {
       get: uid => api(`/streak/${uid}`),
@@ -86,7 +89,8 @@
       setTarget: (uid, targetXp) => api('/goals/target', { method: 'POST', body: { userId: uid, targetXp } })
     },
     placement: {
-      submit: (uid, correct, total, answers) => api('/placement/submit', { method: 'POST', body: { userId: uid, correct, total, answers } })
+      grade: answers => api('/placement/grade', { method: 'POST', body: { answers } }),
+      submit: (uid, answers) => api('/placement/submit', { method: 'POST', body: { userId: uid, answers } })
     },
     games: {
       session: (uid, game, score, correct, total) => api('/games/session', { method: 'POST', body: { userId: uid, game, score, correct, total } })
@@ -111,7 +115,19 @@
     classroom: {
       join: (uid, classCode) => api('/classroom/join', { method: 'POST', body: { userId: uid, classCode } }),
       create: (className) => api('/classroom/create', { method: 'POST', body: { className } }),
-      roster: (classCode) => api('/classroom/roster/' + encodeURIComponent(classCode))
+      roster: (classCode) => api('/classroom/roster/' + encodeURIComponent(classCode)),
+      leave: () => api('/classroom/leave', { method: 'POST', body: {} }),
+      mine: () => api('/classroom/mine'),
+      aggregate: (classCode) => api('/classroom/aggregate/' + encodeURIComponent(classCode)),
+      questProgress: (classCode) => api('/classroom/quest-progress/' + encodeURIComponent(classCode)),
+      setQuest: (classCode, quest) => api('/classroom/quest', {
+        method: 'POST',
+        body: { classCode, ...quest }
+      }),
+      removeMember: (classCode, targetUserId) => api('/classroom/remove-member', {
+        method: 'POST',
+        body: { classCode, targetUserId }
+      })
     }
   };
 

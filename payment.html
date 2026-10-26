@@ -18,8 +18,8 @@
   <meta name="twitter:image" content="https://hanverse.com/Hanverse-logo2.png">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="hanverse.css">
-<script src="js/auth-fetch.js"></script>
+<link rel="stylesheet" href="hanverse.css?v=1">
+<script src="js/auth-fetch.js?v=1"></script>
 <style>
 /* ============================================================
    HANVERSE PREMIUM — INDEPENDENT PAYMENT PAGE
@@ -927,10 +927,10 @@ Start Learning
 
 </div>
 
-<script src="features-client.js"></script>
-<script src="shared-nav.js"></script>
-<script src="hanverse.js"></script>
-<script src="nav-user.js"></script>
+<script src="features-client.js?v=1"></script>
+<script src="shared-nav.js?v=1"></script>
+<script src="hanverse.js?v=1"></script>
+<script src="nav-user.js?v=1"></script>
 <script>
 
 const SESSION_KEY = 'hanverse_user';
@@ -959,9 +959,12 @@ const PLANS = {
     }
 };
 
+const requestedPlan = new URLSearchParams(window.location.search).get('plan');
+const validRequestedPlan = ['yct', 'premium'].includes(requestedPlan) ? requestedPlan : null;
+
 let currentUser = null;
 let currentPlan = 'free';
-let selectedPlan = 'free';
+let selectedPlan = validRequestedPlan || 'free';
 let membershipLoaded = false;
 
 const userBox = document.getElementById('userBox');
@@ -1128,7 +1131,7 @@ async function loadMembership() {
 
         membershipLoaded = true;
         currentPlan = 'free';
-        selectedPlan = 'free';
+        selectedPlan = validRequestedPlan || 'free';
 
         updatePlanCards();
         updateSummary();
@@ -1191,7 +1194,7 @@ async function loadMembership() {
             currentPlan = 'free';
         }
 
-        selectedPlan = currentPlan;
+        selectedPlan = currentPlan === 'free' ? (validRequestedPlan || 'free') : currentPlan;
         membershipLoaded = true;
 
         currentPlanNote.style.display = 'block';
@@ -1223,7 +1226,8 @@ async function loadMembership() {
 
 async function startPayment() {
     if (!currentUser) {
-        window.location.href = 'login.html';
+        const returnPath = `${window.location.pathname}${window.location.search}`;
+        window.location.href = `login.html?next=${encodeURIComponent(returnPath)}`;
         return;
     }
 
@@ -1365,7 +1369,8 @@ async function startTrial() {
     if (!window.HanVerseFeatures) return;
 
     if (!currentUser) {
-        window.location.href = 'login.html';
+        const returnPath = `${window.location.pathname}${window.location.search}`;
+        window.location.href = `login.html?next=${encodeURIComponent(returnPath)}`;
         return;
     }
 

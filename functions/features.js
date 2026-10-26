@@ -4,6 +4,7 @@
    family/class codes, parent digest.
    All schema changes are idempotent (safe to run on boot).
    ========================================================= */
+import { upgradeParentDigestEmail } from './parent-digest-ai.js';
 import crypto from 'node:crypto';
 import rateLimit from 'express-rate-limit';
 
@@ -34,6 +35,10 @@ export async function ensureFeatureSchema(pgPool) {
   await q(`ALTER TABLE daily_goals ADD COLUMN IF NOT EXISTS target_speaking INTEGER DEFAULT 5`);
   await q(`ALTER TABLE daily_goals ADD COLUMN IF NOT EXISTS completed_speaking INTEGER DEFAULT 0`);
   await q(`ALTER TABLE daily_goals ADD COLUMN IF NOT EXISTS chest_claimed BOOLEAN DEFAULT FALSE`);
+  // HanPan's 5-minute mission (pinned per day: lesson + 3 review words + game)
+  await q(`ALTER TABLE daily_goals ADD COLUMN IF NOT EXISTS mission_lesson_id VARCHAR(50)`);
+  await q(`ALTER TABLE daily_goals ADD COLUMN IF NOT EXISTS mission_words JSONB`);
+  await q(`ALTER TABLE daily_goals ADD COLUMN IF NOT EXISTS mission_claimed BOOLEAN DEFAULT FALSE`);
 
   // --- spaced repetition review queue
   await q(`CREATE TABLE IF NOT EXISTS review_queue (
@@ -103,6 +108,20 @@ export async function ensureFeatureSchema(pgPool) {
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
+  // --- class quests (teacher-set weekly goal; one active per class)
+  await q(`CREATE TABLE IF NOT EXISTS class_quests (
+    quest_id SERIAL PRIMARY KEY,
+    class_code VARCHAR(12) NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    target_lesson_id VARCHAR(50),
+    target_level INTEGER,
+    due_date DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_by INTEGER REFERENCES users(user_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await q(`CREATE INDEX IF NOT EXISTS idx_class_quests_code ON class_quests(class_code, is_active)`);
+
   // --- hearts (P1 retention): 5 max, +1 per 30 min, premium = unlimited
   await q(`CREATE TABLE IF NOT EXISTS user_hearts (
     user_id INTEGER PRIMARY KEY REFERENCES users(user_id),
@@ -110,6 +129,7 @@ export async function ensureFeatureSchema(pgPool) {
     last_refill TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
   )`);
+  await q(`ALTER TABLE user_hearts ADD COLUMN IF NOT EXISTS practice_refill_date DATE`);
 
   // --- weekly leagues (P1 retention): bronze → diamond cohorts
   await q(`CREATE TABLE IF NOT EXISTS leagues (
@@ -153,6 +173,11 @@ function uid(body, ...names) {
 
 const ok = (res, json) => res.json({ success: true, ...json });
 const fail = (res, code, error) => res.status(code).json({ success: false, error });
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
+}
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
@@ -165,20 +190,22 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* --- AUTH: every user-scoped route must present a valid JWT. ---
      The verified token identity is injected into req.body/req.params so
      handlers always operate on the signed-in user, never a client-claimed id. */
-  if (!opts.verifyJWTToken) {
-    throw new Error('features.js requires opts.verifyJWTToken — refusing to mount unauthenticated user routes');
+  if (!opts.verifyJWTToken || !opts.requireUser) {
+    throw new Error('features.js requires the shared JWT verifier and user authenticator — refusing to mount unauthenticated user routes');
   }
   const requireAuth = (req, res, next) => {
-    const header = req.headers.authorization || '';
-    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-    if (!token) return fail(res, 401, 'Sign in required');
-    const decoded = opts.verifyJWTToken(token);
-    const id = decoded && (decoded.user_id || decoded.id);
-    if (!id) return fail(res, 401, 'Session expired — please sign in again');
-    req.userId = Number(id);
-    req.body = { ...(req.body || {}), userId: req.userId };
-    req.params = { ...req.params, userId: String(req.userId) };
-    next();
+    Promise.resolve(opts.requireUser(req, res)).then(user => {
+      if (!user) return;
+      const id = Number(user.user_id);
+      if (!Number.isInteger(id) || id <= 0) return fail(res, 401, 'Session expired — please sign in again');
+      req.userId = id;
+      req.body = { ...(req.body || {}), userId: id };
+      req.params = { ...req.params, userId: String(id) };
+      next();
+    }).catch(error => {
+      console.error('feature auth:', error.message);
+      if (!res.headersSent) fail(res, 500, 'Authentication failed');
+    });
   };
 
   // Basic abuse guard on game/quest/classroom writes (per warm instance).
@@ -230,12 +257,11 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
           date: row.goal_date,
           lessons: { done: row.completed_lessons || 0, target: row.target_lessons || 1 },
           xp: { done: row.earned_xp || 0, target: row.target_xp || 50 },
-          speaking: { done: row.completed_speaking || 0, target: row.target_speaking || 5 },
+          speaking: { done: row.completed_speaking || 0, target: row.target_speaking || 5, optional: true },
           chestClaimed: row.chest_claimed === true,
           allDone:
             (row.completed_lessons || 0) >= (row.target_lessons || 1) &&
-            (row.earned_xp || 0) >= (row.target_xp || 50) &&
-            (row.completed_speaking || 0) >= (row.target_speaking || 5)
+            (row.earned_xp || 0) >= (row.target_xp || 50)
         }
       });
     } catch (e) {
@@ -245,41 +271,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   });
 
   router.post('/quests/progress', requireAuth, writeLimiter,async (req, res) => {
-    try {
-      const userId = uid(req.body, 'userId', 'user_id');
-      if (!userId) return fail(res, 400, 'userId required');
-      await ensureFeatureSchema();
-
-      const kind = String(req.body.kind || '');            // lessons | xp | speaking
-      const amount = Math.max(0, Number(req.body.amount || 0));
-      if (!['lessons', 'xp', 'speaking'].includes(kind)) return fail(res, 400, 'kind must be lessons|xp|speaking');
-
-      const today = todayISO();
-      const col = kind === 'lessons' ? 'completed_lessons' : kind === 'xp' ? 'earned_xp' : 'completed_speaking';
-      const targetCol = kind === 'lessons' ? 'target_lessons' : kind === 'xp' ? 'target_xp' : 'target_speaking';
-
-      await pool.query(
-        `INSERT INTO daily_goals (user_id, goal_date, ${kind === 'xp' ? 'target_xp, earned_xp' : `${targetCol}, ${col}`})
-         VALUES ($1, $2, ${kind === 'xp' ? '50, $3' : '$3, $3'})
-         ON CONFLICT (user_id, goal_date)
-         DO UPDATE SET ${col} = daily_goals.${col} + $3`,
-        [userId, today, amount]
-      );
-
-      const row = (await pool.query(
-        `SELECT * FROM daily_goals WHERE user_id = $1 AND goal_date = $2`, [userId, today]
-      )).rows[0];
-
-      const allDone =
-        (row.completed_lessons || 0) >= (row.target_lessons || 1) &&
-        (row.earned_xp || 0) >= (row.target_xp || 50) &&
-        (row.completed_speaking || 0) >= (row.target_speaking || 5);
-
-      ok(res, { quest: row, allDone });
-    } catch (e) {
-      console.error('quests/progress error:', e);
-      fail(res, 500, 'Failed to record quest progress');
-    }
+    return fail(res, 410, 'Daily progress is recorded by verified lesson and game activity.');
   });
 
   // Claim the daily chest: bonus XP + gems once per day when all quests done
@@ -297,27 +289,195 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       if (!row) return fail(res, 404, 'No quest row for today');
       const allDone =
         (row.completed_lessons || 0) >= (row.target_lessons || 1) &&
-        (row.earned_xp || 0) >= (row.target_xp || 50) &&
-        (row.completed_speaking || 0) >= (row.target_speaking || 5);
+        (row.earned_xp || 0) >= (row.target_xp || 50);
       if (!allDone) return fail(res, 400, 'Daily quests not complete yet');
       if (row.chest_claimed) return fail(res, 409, 'Chest already claimed today');
 
       const bonusXp = 25, bonusGems = 5;
-      await pool.query(`UPDATE daily_goals SET chest_claimed = TRUE WHERE user_id = $1 AND goal_date = $2`, [userId, today]);
-      await pool.query(`UPDATE users SET xp = xp + $1, gems = gems + $2, updated_at = NOW() WHERE user_id = $3`,
-        [bonusXp, bonusGems, userId]);
-      await pool.query(
-        `INSERT INTO xp_logs (user_id, amount, source) VALUES ($1, $2, 'daily_chest')`, [userId, bonusXp]);
-      await pool.query(
-        `INSERT INTO notifications (user_id, title, message, type)
-         VALUES ($1, '🎁 Daily chest opened!', $2, 'reward')`,
-        [userId, `All quests complete! +${bonusXp} XP and ${bonusGems} gems.`]);
+      const reward = await pool.query(
+        `WITH claimed AS (
+           UPDATE daily_goals SET chest_claimed = TRUE
+           WHERE user_id = $1 AND goal_date = $2 AND chest_claimed = FALSE
+             AND COALESCE(completed_lessons, 0) >= COALESCE(NULLIF(target_lessons, 0), 1)
+             AND COALESCE(earned_xp, 0) >= COALESCE(NULLIF(target_xp, 0), 50)
+           RETURNING user_id
+         ), paid AS (
+           UPDATE users u SET xp = COALESCE(u.xp, 0) + $3, gems = COALESCE(u.gems, 0) + $4, updated_at = NOW()
+           FROM claimed c WHERE u.user_id = c.user_id RETURNING u.user_id
+         ), logged AS (
+           INSERT INTO xp_logs (user_id, amount, source)
+           SELECT user_id, $3, 'daily_chest' FROM paid RETURNING user_id
+         ), notified AS (
+           INSERT INTO notifications (user_id, title, message, type)
+           SELECT user_id, '🎁 Daily chest opened!', $5, 'reward' FROM logged RETURNING user_id
+         )
+         SELECT user_id FROM notified`,
+        [userId, today, bonusXp, bonusGems, `All quests complete! +${bonusXp} XP and ${bonusGems} gems.`]
+      );
+      if (!reward.rowCount) return fail(res, 409, 'Chest already claimed or quests are no longer complete');
 
       await grant(userId, 'treasure_hunter');
       ok(res, { bonusXp, bonusGems });
     } catch (e) {
       console.error('quests/claim-chest error:', e);
       fail(res, 500, 'Failed to claim chest');
+    }
+  });
+
+  /* =========================================================
+     1b. HANPAN'S 5-MINUTE MISSION
+     One pinned lesson step + 3 spaced-repetition review words + one quick
+     game round per day. Selection and completion are computed SERVER-SIDE
+     (no client-trusted progress): the lesson part is done when the pinned
+     lesson was completed today, each review word when its due_at moved into
+     the future (review/answer does that), the game part when a game session
+     exists today. Claiming grants bonus XP + gems once per day.
+  ========================================================= */
+  const MISSION_WORDS = 3;
+
+  async function ensureMissionRow(userId, today) {
+    let row = (await pool.query(
+      `SELECT * FROM daily_goals WHERE user_id = $1 AND goal_date = $2`, [userId, today]
+    )).rows[0];
+    if (!row) {
+      row = (await pool.query(
+        `INSERT INTO daily_goals (user_id, goal_date, target_lessons, target_xp, target_speaking)
+         VALUES ($1, $2, 1, 50, 5)
+         ON CONFLICT (user_id, goal_date) DO UPDATE SET goal_date = $2
+         RETURNING *`, [userId, today]
+      )).rows[0];
+    }
+    return row;
+  }
+
+  async function computeMission(userId, today, row) {
+    // Pin today's lesson + review words once (date-based, resets next day).
+    if (!row.mission_lesson_id && !row.mission_claimed) {
+      const next = (await pool.query(
+        `SELECT l.lesson_id, l.title, l.level
+         FROM lessons l
+         WHERE l.is_published = TRUE
+           AND NOT EXISTS (
+             SELECT 1 FROM user_progress up
+             WHERE up.user_id = $1 AND up.lesson_id = l.lesson_id AND up.completed = TRUE
+           )
+         ORDER BY l.level, l.order_index
+         LIMIT 1`, [userId]
+      )).rows[0];
+      const words = (await pool.query(
+        `SELECT word, pinyin, meaning FROM review_queue
+         WHERE user_id = $1 AND due_at <= NOW() ORDER BY due_at LIMIT $2`,
+        [userId, MISSION_WORDS]
+      )).rows;
+      await pool.query(
+        `UPDATE daily_goals SET mission_lesson_id = $1, mission_words = $2 WHERE user_id = $3 AND goal_date = $4`,
+        [next ? next.lesson_id : null, JSON.stringify(words.map(w => w.word)), userId, today]
+      );
+      row.mission_lesson_id = next ? next.lesson_id : null;
+      row.mission_words = words.map(w => w.word);
+    }
+
+    // Lesson part: done when the pinned lesson is completed (it was the
+    // first uncompleted lesson when pinned, so any completion is the kid's).
+    let lessonDone = true, lessonInfo = null;
+    if (row.mission_lesson_id) {
+      const lp = (await pool.query(
+        `SELECT l.title, l.level, up.completed
+         FROM lessons l
+         LEFT JOIN user_progress up
+           ON up.user_id = $1 AND up.lesson_id = l.lesson_id
+         WHERE l.lesson_id = $2`, [userId, row.mission_lesson_id]
+      )).rows[0];
+      lessonInfo = lp ? { id: row.mission_lesson_id, title: lp.title, level: lp.level } : null;
+      lessonDone = !!(lp && lp.completed === true);
+    }
+
+    // Review part: a word is done when its due_at moved into the future.
+    const wanted = Array.isArray(row.mission_words) ? row.mission_words : [];
+    let reviewDone = 0, reviewWords = [];
+    if (wanted.length) {
+      const rows = (await pool.query(
+        `SELECT word, pinyin, meaning, due_at FROM review_queue
+         WHERE user_id = $1 AND word = ANY($2::varchar[])`,
+        [userId, wanted]
+      )).rows;
+      for (const r of rows) {
+        const done = r.due_at ? new Date(r.due_at).getTime() > Date.now() : false;
+        if (done) reviewDone++;
+        reviewWords.push({ word: r.word, pinyin: r.pinyin, meaning: r.meaning, done });
+      }
+    }
+
+    // Game part: any game session today.
+    const gameDone = (await pool.query(
+      `SELECT 1 FROM game_sessions WHERE user_id = $1 AND created_at >= $2::date LIMIT 1`,
+      [userId, today]
+    )).rows.length > 0;
+
+    const allDone = lessonDone && reviewDone >= wanted.length && gameDone;
+    return {
+      date: today,
+      lesson: { done: lessonDone, lesson: lessonInfo },
+      review: { words: reviewWords, done: reviewDone, needed: wanted.length },
+      game: { done: gameDone },
+      allDone,
+      claimed: row.mission_claimed === true
+    };
+  }
+
+  router.get('/mission/daily/:userId', requireAuth, async (req, res) => {
+    try {
+      const userId = Number(req.params.userId);
+      if (!userId) return fail(res, 400, 'userId required');
+      if (userId !== req.userId) return fail(res, 403, 'You can only view your own mission');
+      await ensureFeatureSchema();
+      const today = todayISO();
+      const row = await ensureMissionRow(userId, today);
+      const mission = await computeMission(userId, today, row);
+      ok(res, { mission });
+    } catch (e) {
+      console.error('mission/daily error:', e);
+      fail(res, 500, 'Failed to load mission');
+    }
+  });
+
+  router.post('/mission/claim', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const userId = uid(req.body, 'userId', 'user_id');
+      if (!userId) return fail(res, 400, 'userId required');
+      if (userId !== req.userId) return fail(res, 403, 'You can only claim your own mission');
+      await ensureFeatureSchema();
+      const today = todayISO();
+      const row = await ensureMissionRow(userId, today);
+      const mission = await computeMission(userId, today, row);
+      if (!mission.allDone) return fail(res, 400, 'Finish all three mission steps first 🐼');
+      if (mission.claimed) return fail(res, 409, 'Mission reward already claimed today');
+
+      const bonusXp = 20, bonusGems = 3;
+      const reward = await pool.query(
+        `WITH claimed AS (
+           UPDATE daily_goals
+           SET mission_claimed = TRUE, earned_xp = COALESCE(earned_xp, 0) + $3
+           WHERE user_id = $1 AND goal_date = $2 AND mission_claimed = FALSE
+           RETURNING user_id
+         ), paid AS (
+           UPDATE users u SET xp = COALESCE(u.xp, 0) + $3, gems = COALESCE(u.gems, 0) + $4, updated_at = NOW()
+           FROM claimed c WHERE u.user_id = c.user_id RETURNING u.user_id
+         ), logged AS (
+           INSERT INTO xp_logs (user_id, amount, source)
+           SELECT user_id, $3, 'mission' FROM paid RETURNING user_id
+         ), notified AS (
+           INSERT INTO notifications (user_id, title, message, type)
+           SELECT user_id, '🐼 Mission complete!', $5, 'reward' FROM logged RETURNING user_id
+         )
+         SELECT user_id FROM notified`,
+        [userId, today, bonusXp, bonusGems, `HanPan's 5-minute mission done: +${bonusXp} XP and ${bonusGems} gems. 加油!`]
+      );
+      if (!reward.rowCount) return fail(res, 409, 'Mission reward already claimed today');
+      ok(res, { bonusXp, bonusGems });
+    } catch (e) {
+      console.error('mission/claim error:', e);
+      fail(res, 500, 'Failed to claim mission reward');
     }
   });
 
@@ -346,32 +506,66 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       if (!userId) return fail(res, 400, 'userId required');
       await ensureFeatureSchema();
 
-      const u = (await pool.query(
-        `SELECT streak_days, last_active, streak_freezes, gems, is_premium FROM users WHERE user_id = $1`, [userId]
-      )).rows[0];
-      if (!u) return fail(res, 404, 'User not found');
+      const today = todayISO();
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const missedDay = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
+      const client = await pool.connect();
+      let upd;
+      try {
+        await client.query('BEGIN');
+        const u = (await client.query(
+          `SELECT streak_days, last_active, streak_freezes, gems, is_premium, freeze_used_on
+           FROM users WHERE user_id = $1 FOR UPDATE`, [userId]
+        )).rows[0];
+        if (!u) {
+          await client.query('ROLLBACK');
+          return fail(res, 404, 'User not found');
+        }
+        const lastActiveDate = u.last_active ? new Date(u.last_active).toISOString().slice(0, 10) : null;
+        if (Number(u.streak_days) <= 0 || lastActiveDate !== missedDay) {
+          await client.query('ROLLBACK');
+          return fail(res, 409, 'Your streak does not need a freeze right now.');
+        }
 
-      // Premium members earn a freeze automatically when they run out.
-      if (u.streak_freezes <= 0) {
-        if (useGem) {
-          if ((u.gems || 0) < 10) return fail(res, 402, 'Not enough gems (10 needed)');
-          await pool.query(`UPDATE users SET gems = gems - 10 WHERE user_id = $1`, [userId]);
+        if (Number(u.streak_freezes) > 0) {
+          await client.query(
+            `UPDATE users SET streak_freezes = streak_freezes - 1 WHERE user_id = $1`, [userId]
+          );
+        } else if (useGem) {
+          const spent = await client.query(
+            `UPDATE users SET gems = gems - 10 WHERE user_id = $1 AND COALESCE(gems, 0) >= 10 RETURNING user_id`,
+            [userId]
+          );
+          if (!spent.rowCount) {
+            await client.query('ROLLBACK');
+            return fail(res, 402, 'Not enough gems (10 needed)');
+          }
         } else if (u.is_premium) {
-          await pool.query(`UPDATE users SET streak_freezes = 1 WHERE user_id = $1`, [userId]);
+          const freezeMonth = u.freeze_used_on ? String(u.freeze_used_on).slice(0, 7) : null;
+          if (freezeMonth === today.slice(0, 7)) {
+            await client.query('ROLLBACK');
+            return fail(res, 402, 'Your monthly premium streak freeze has already been used.');
+          }
+          await client.query(
+            `UPDATE users SET freeze_used_on = $2 WHERE user_id = $1`, [userId, today]
+          );
         } else {
+          await client.query('ROLLBACK');
           return fail(res, 402, 'No streak freezes available. Premium members get one monthly, or pay 10 gems.');
         }
-      } else {
-        await pool.query(`UPDATE users SET streak_freezes = streak_freezes - 1 WHERE user_id = $1 AND streak_freezes > 0`, [userId]);
-      }
 
-      // Pretend yesterday was active so the streak logic keeps the fire alive
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-      const upd = await pool.query(
-        `UPDATE users SET last_active = GREATEST(COALESCE(last_active, $2), $2)::date, updated_at = NOW()
-         WHERE user_id = $1 RETURNING streak_days, streak_freezes, gems`,
-        [userId, yesterday]
-      );
+        upd = await client.query(
+          `UPDATE users SET last_active = $2::date, updated_at = NOW()
+           WHERE user_id = $1 RETURNING streak_days, streak_freezes, gems`,
+          [userId, yesterday]
+        );
+        await client.query('COMMIT');
+      } catch (error) {
+        await client.query('ROLLBACK').catch(() => {});
+        throw error;
+      } finally {
+        client.release();
+      }
       await pool.query(
         `INSERT INTO notifications (user_id, title, message, type)
          VALUES ($1, '🧊 Streak freeze used', 'Your streak was protected. Keep it going!', 'info')`, [userId]);
@@ -574,16 +768,40 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      4. PLACEMENT QUIZ (real answers, stored)
   ========================================================= */
+  const placementAnswerKey = [0, 2, 1, 2, 3, 1, 1, 2, 0, 2];
+  const gradePlacementAnswers = answers => {
+    if (!Array.isArray(answers) || answers.length !== placementAnswerKey.length || answers.some((answer, i) =>
+      !answer || !Number.isInteger(answer.question) || answer.question !== i ||
+      !Number.isInteger(answer.picked) || answer.picked < 0 || answer.picked > 3
+    )) return null;
+    const correct = answers.reduce((sum, answer, i) => sum + (answer.picked === placementAnswerKey[i] ? 1 : 0), 0);
+    const total = placementAnswerKey.length;
+    const pct = correct / total;
+    const level = pct >= 0.9 ? 4 : pct >= 0.7 ? 3 : pct >= 0.4 ? 2 : 1;
+    return { correct, total, level };
+  };
+
+  // Guests can receive a placement result without exposing the answer key in
+  // the page source. The shared write limiter protects this public endpoint.
+  router.post('/placement/grade', writeLimiter, async (req, res) => {
+    const grade = gradePlacementAnswers(req.body?.answers);
+    if (!grade) return fail(res, 400, 'Answer all placement questions before calculating your level.');
+    ok(res, { correct: grade.correct, total: grade.total, recommendedLevel: grade.level });
+  });
+
   router.post('/placement/submit', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
-      const correct = Math.max(0, Number(req.body.correct || 0));
-      const total = Math.max(1, Number(req.body.total || 1));
       if (!userId) return fail(res, 400, 'userId required');
+      // Keep the answer key on the server. Never trust client-supplied score,
+      // `correct`, `isCorrect`, or total fields when locking a learner's level.
+      const answers = req.body.answers;
+      const grade = gradePlacementAnswers(answers);
+      if (!grade) {
+        return fail(res, 400, 'Answer all placement questions before saving your level.');
+      }
+      const { correct, total, level } = grade;
       await ensureFeatureSchema();
-
-      const pct = correct / total;
-      const level = pct >= 0.9 ? 4 : pct >= 0.7 ? 3 : pct >= 0.4 ? 2 : 1;
 
       await pool.query(
         `INSERT INTO placement_results (user_id, recommended_level, correct, total, answers)
@@ -605,6 +823,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       ok(res, { recommendedLevel: level,
         savedLevel: placed.rows[0] ? placed.rows[0].current_yct : level,
         lockedIn: true,
+        correct, total,
         message: `You're in! Starting at YCT ${level}.` });
     } catch (e) {
       console.error('placement/submit error:', e);
@@ -619,21 +838,45 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     try {
       const userId = uid(req.body, 'userId', 'user_id');
       const game = String(req.body.game || '').slice(0, 40);
-      const score = Math.max(0, Number(req.body.score || 0));
-      const correct = Math.max(0, Number(req.body.correct || 0));
-      const total = Math.max(0, Number(req.body.total || 0));
+      const score = Number(req.body.score ?? 0);
+      const correct = Number(req.body.correct ?? 0);
+      const total = Number(req.body.total ?? 0);
       if (!userId || !game) return fail(res, 400, 'userId and game required');
+      if (!['flashcards', 'quiz', 'writing', 'speak_aloud', 'tone_pairs', 'builder'].includes(game) ||
+          !Number.isSafeInteger(score) || score < 0 || score > 10000 ||
+          !Number.isSafeInteger(correct) || !Number.isSafeInteger(total) ||
+          correct < 0 || total < 0 || total > 10000 || correct > total) {
+        return fail(res, 400, 'Invalid game result.');
+      }
       await ensureFeatureSchema();
 
       await pool.query(
         `INSERT INTO game_sessions (user_id, game, score, correct, total) VALUES ($1,$2,$3,$4,$5)`,
         [userId, game, score, correct, total]
       );
-      // XP = score/2, logged for the weekly leaderboard
-      const xp = Math.round(score / 2);
-      if (xp > 0) {
-        await pool.query(`UPDATE users SET xp = xp + $1, updated_at = NOW() WHERE user_id = $2`, [xp, userId]);
-        await pool.query(`INSERT INTO xp_logs (user_id, amount, source) VALUES ($1, $2, $3)`, [userId, xp, `game:${game}`]);
+      // Game scores come from the browser, so cap the daily XP they can mint.
+      // Lock the account row so concurrent submissions cannot exceed the cap.
+      let xp = 0;
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query(`SELECT user_id FROM users WHERE user_id = $1 FOR UPDATE`, [userId]);
+        const earned = Number((await client.query(
+          `SELECT COALESCE(SUM(amount), 0)::int AS total
+           FROM xp_logs WHERE user_id = $1 AND source LIKE 'game:%' AND timestamp >= CURRENT_DATE`,
+          [userId]
+        )).rows[0]?.total) || 0;
+        xp = Math.min(Math.round(score / 2), Math.max(0, 1000 - earned));
+        if (xp > 0) {
+          await client.query(`UPDATE users SET xp = COALESCE(xp, 0) + $1, updated_at = NOW() WHERE user_id = $2`, [xp, userId]);
+          await client.query(`INSERT INTO xp_logs (user_id, amount, source) VALUES ($1, $2, $3)`, [userId, xp, `game:${game}`]);
+        }
+        await client.query('COMMIT');
+      } catch (error) {
+        await client.query('ROLLBACK').catch(() => {});
+        throw error;
+      } finally {
+        client.release();
       }
       await grant(userId, 'first_game');
       if (total >= 10 && correct / total >= 0.9) await grant(userId, 'sharp_ear');
@@ -786,6 +1029,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
         if (!kids.length) { skipped++; continue; }
 
         const rows = [];
+        const rowsByKid = new Map();
         for (const kid of kids) {
           const wk = (await pool.query(
             `SELECT COALESCE(SUM(amount),0)::int AS xp FROM xp_logs WHERE user_id=$1 AND timestamp >= NOW() - INTERVAL '7 days'`,
@@ -795,13 +1039,22 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
             `SELECT COUNT(*)::int AS n FROM user_progress WHERE user_id=$1 AND completed=TRUE AND completed_at >= NOW() - INTERVAL '7 days'`,
             [kid.user_id]
           )).rows[0].n;
+          rowsByKid.set(kid.user_id, { weekXp: wk, lessons: lessons });
           rows.push(`<tr>
-            <td style="padding:10px 14px;border-bottom:1px solid #D5E3F0;font-weight:700;">${kid.full_name || kid.user_id}</td>
+            <td style="padding:10px 14px;border-bottom:1px solid #D5E3F0;font-weight:700;">${escapeHtml(kid.full_name || kid.user_id)}</td>
             <td style="padding:10px 14px;border-bottom:1px solid #D5E3F0;">${wk} XP</td>
             <td style="padding:10px 14px;border-bottom:1px solid #D5E3F0;">${lessons} lesson${lessons === 1 ? '' : 's'}</td>
             <td style="padding:10px 14px;border-bottom:1px solid #D5E3F0;">🔥 ${kid.streak_days || 0} day${(kid.streak_days || 0) === 1 ? '' : 's'}</td>
           </tr>`);
         }
+
+                let digestAiPara = '';
+        try {
+          digestAiPara = await upgradeParentDigestEmail(kids.map(k => {
+            const row = rowsByKid.get(k.user_id) || {};
+            return { name: k.full_name || ('Learner ' + k.user_id), weeklyXp: row.weekXp || 0, lessons: row.lessons || 0, streakDays: k.streak_days || 0 };
+          }));
+        } catch (e) { console.warn('digest ai:', e && e.message); }
 
         const html = `
         <div style="font-family:Arial,sans-serif;background:#F5F9FF;padding:28px;">
@@ -811,7 +1064,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
               <div style="font-size:12px;opacity:.85;">${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
             </div>
             <div style="padding:24px 26px;">
-              <p style="color:#1E3A5F;font-size:14px;">Hi ${parent.full_name || 'there'}, here is how your family did this week:</p>
+              <p style="color:#1E3A5F;font-size:14px;">Hi ${escapeHtml(parent.full_name || 'there')}, ${escapeHtml(digestAiPara || 'here is how your family did this week:').replace(/\r?\n/g, '<br>')}</p>
               <table width="100%" style="border-collapse:collapse;font-size:13px;color:#1E3A5F;">
                 <tr style="background:#EFF6FF;color:#2563EB;text-align:left;">
                   <th style="padding:10px 14px;">Child</th><th style="padding:10px 14px;">XP this week</th>
@@ -836,17 +1089,72 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   });
 
   /* =========================================================
-     10. VIRTUAL CLASSROOM (minimal: join code + roster)
+     10. VIRTUAL CLASSROOM (teacher-managed: code join, roster,
+        class quest, aggregate progress — privacy-checked)
+        Privacy rules: the roster/aggregate/quest endpoints only serve
+        the class teacher or a member of that class; students with
+        share_leaderboard = FALSE are invisible in every class view.
   ========================================================= */
-  router.post('/classroom/join', requireAuth, writeLimiter,async (req, res) => {
+  const requireTeacher = async (req, res) => {
+    const u = (await pool.query(`SELECT role FROM users WHERE user_id = $1`, [req.userId])).rows[0];
+    if (!u) return fail(res, 404, 'Account not found');
+    if (u.role !== 'teacher' && u.role !== 'admin') {
+      return fail(res, 403, 'A teacher account is required for this action');
+    }
+    return null; // allowed
+  };
+  const loadClassForViewer = async (req, res) => {
+    const code = String(req.params.classCode || req.body.classCode || '').trim().toUpperCase();
+    const cls = (await pool.query(
+      `SELECT class_id, class_name, class_code, teacher_id FROM classrooms WHERE class_code = $1`, [code]
+    )).rows[0];
+    if (!cls) { fail(res, 404, 'Class not found'); return { denied: true }; }
+    const me = (await pool.query(`SELECT class_code, role FROM users WHERE user_id = $1`, [req.userId])).rows[0];
+    if (cls.teacher_id !== req.userId && !(me && me.class_code === cls.class_code)) {
+      fail(res, 403, 'You are not in this class');
+      return { denied: true };
+    }
+    return { denied: false, cls, code, isTeacher: cls.teacher_id === req.userId };
+  };
+
+  router.post('/classroom/create', requireAuth, writeLimiter, async (req, res) => {
     try {
-      const userId = uid(req.body, 'userId', 'user_id');
+      const gate = await requireTeacher(req, res);
+      if (gate) return gate;
+      const name = String(req.body.className || '').trim().slice(0, 100);
+      if (!name) return fail(res, 400, 'className required');
+      await ensureFeatureSchema();
+      const mine = (await pool.query(
+        `SELECT COUNT(*)::int AS n FROM classrooms WHERE teacher_id = $1`, [req.userId]
+      )).rows[0];
+      if (mine.n >= 10) return fail(res, 400, 'You already have 10 classes');
+      let code = '';
+      for (let i = 0; i < 5; i++) {
+        const c = 'HV' + crypto.randomBytes(5).toString('hex').toUpperCase(); // 12 chars
+        const dupe = await pool.query(`SELECT 1 FROM classrooms WHERE class_code = $1`, [c]);
+        if (!dupe.rows.length) { code = c; break; }
+      }
+      if (!code) return fail(res, 500, 'Could not allocate a class code — please try again');
+      await pool.query(
+        `INSERT INTO classrooms (teacher_id, class_code, class_name) VALUES ($1,$2,$3)`,
+        [req.userId, code, name]
+      );
+      ok(res, { classCode: code, className: name });
+    } catch (e) {
+      console.error('classroom/create error:', e);
+      fail(res, 500, 'Failed to create class');
+    }
+  });
+
+  router.post('/classroom/join', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const userId = req.userId; // always the signed-in user — never client-claimed
       const code = String(req.body.classCode || '').trim().toUpperCase();
-      if (!userId || !code) return fail(res, 400, 'userId and classCode required');
+      if (!code) return fail(res, 400, 'classCode required');
       await ensureFeatureSchema();
       const cls = (await pool.query(`SELECT class_id, class_name FROM classrooms WHERE class_code = $1`, [code])).rows[0];
       if (!cls) return fail(res, 404, 'Class code not found');
-      await pool.query(`UPDATE users SET class_code = $1 WHERE user_id = $2`, [code, userId]);
+      await pool.query(`UPDATE users SET class_code = $1, updated_at = NOW() WHERE user_id = $2`, [code, userId]);
       ok(res, { className: cls.class_name });
     } catch (e) {
       console.error('classroom/join error:', e);
@@ -854,33 +1162,218 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
-  router.post('/classroom/create', requireAuth, writeLimiter,async (req, res) => {
+  router.post('/classroom/leave', requireAuth, writeLimiter, async (req, res) => {
     try {
-      const teacherId = req.userId; // always the signed-in user — never client-claimed
-      const name = String(req.body.className || '').slice(0, 100);
-      if (!name) return fail(res, 400, 'className required');
       await ensureFeatureSchema();
-      const code = 'HV' + crypto.randomBytes(3).toString('hex').toUpperCase();
-      await pool.query(`INSERT INTO classrooms (teacher_id, class_code, class_name) VALUES ($1,$2,$3)`, [teacherId, code, name]);
-      ok(res, { classCode: code });
+      await pool.query(`UPDATE users SET class_code = NULL, updated_at = NOW() WHERE user_id = $1`, [req.userId]);
+      ok(res, {});
     } catch (e) {
-      console.error('classroom/create error:', e);
-      fail(res, 500, 'Failed to create class');
+      console.error('classroom/leave error:', e);
+      fail(res, 500, 'Failed to leave class');
+    }
+  });
+
+  router.post('/classroom/remove-member', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const gate = await requireTeacher(req, res);
+      if (gate) return gate;
+      const code = String(req.body.classCode || '').trim().toUpperCase();
+      const targetId = Number(req.body.targetUserId);
+      if (!code || !targetId) return fail(res, 400, 'classCode and targetUserId required');
+      await ensureFeatureSchema();
+      const owns = (await pool.query(
+        `SELECT 1 FROM classrooms WHERE class_code = $1 AND teacher_id = $2`, [code, req.userId]
+      )).rows[0];
+      if (!owns) return fail(res, 403, 'Not your class');
+      if (targetId === req.userId) return fail(res, 400, 'Teachers leave via class settings, not member removal');
+      await pool.query(
+        `UPDATE users SET class_code = NULL, updated_at = NOW() WHERE user_id = $1 AND class_code = $2`,
+        [targetId, code]
+      );
+      ok(res, {});
+    } catch (e) {
+      console.error('classroom/remove-member error:', e);
+      fail(res, 500, 'Failed to remove member');
     }
   });
 
   router.get('/classroom/roster/:classCode', requireAuth, async (req, res) => {
     try {
       await ensureFeatureSchema();
-      const code = String(req.params.classCode || '').toUpperCase();
+      const v = await loadClassForViewer(req, res);
+      if (v.denied) return;
       const rows = (await pool.query(
         `SELECT user_id, full_name, username, xp, streak_days, is_premium
-         FROM users WHERE class_code = $1 ORDER BY xp DESC`, [code]
+         FROM users
+         WHERE class_code = $1 AND share_leaderboard IS NOT FALSE
+         ORDER BY xp DESC`, [v.code]
       )).rows;
-      ok(res, { students: rows });
+      ok(res, { className: v.cls.class_name, isTeacher: v.isTeacher, students: rows });
     } catch (e) {
       console.error('classroom/roster error:', e);
       fail(res, 500, 'Failed to load roster');
+    }
+  });
+
+  // Class aggregate progress — totals only, never individual sensitive data.
+  router.get('/classroom/aggregate/:classCode', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const v = await loadClassForViewer(req, res);
+      if (v.denied) return;
+      const agg = (await pool.query(
+        `SELECT
+           COUNT(*)::int AS members,
+           COALESCE(SUM(u.xp), 0)::int AS total_xp,
+           COALESCE(SUM(u.streak_days), 0)::int AS streak_days,
+           COUNT(*) FILTER (WHERE u.last_active = CURRENT_DATE)::int AS active_today
+         FROM users u
+         WHERE u.class_code = $1 AND u.share_leaderboard IS NOT FALSE`, [v.code]
+      )).rows[0];
+      const lessons = (await pool.query(
+        `SELECT COUNT(DISTINCT (up.user_id, up.lesson_id))::int AS lessons_completed
+         FROM user_progress up
+         JOIN users u ON u.user_id = up.user_id
+         WHERE u.class_code = $1
+           AND u.share_leaderboard IS NOT FALSE
+           AND up.completed = TRUE`, [v.code]
+      )).rows[0];
+      ok(res, { aggregate: { ...agg, lessons_completed: lessons.lessons_completed } });
+    } catch (e) {
+      console.error('classroom/aggregate error:', e);
+      fail(res, 500, 'Failed to load class progress');
+    }
+  });
+
+  // Teacher sets the ONE active class quest ("Everyone finish YCT 1 Lesson 3
+  // this week"). Creating a new quest deactivates the previous one.
+  router.post('/classroom/quest', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const gate = await requireTeacher(req, res);
+      if (gate) return gate;
+      const code = String(req.body.classCode || '').trim().toUpperCase();
+      const title = String(req.body.title || '').trim().slice(0, 200);
+      const targetLessonId = req.body.targetLessonId ? String(req.body.targetLessonId).slice(0, 50) : null;
+      const targetLevel = Number(req.body.targetLevel) || null;
+      let dueDate = null;
+      if (req.body.dueDate) {
+        const d = new Date(String(req.body.dueDate) + 'T23:59:59Z');
+        if (isNaN(d.getTime())) return fail(res, 400, 'Invalid dueDate');
+        dueDate = d.toISOString().slice(0, 10);
+      }
+      if (!code || !title) return fail(res, 400, 'classCode and title required');
+      await ensureFeatureSchema();
+      const owns = (await pool.query(
+        `SELECT 1 FROM classrooms WHERE class_code = $1 AND teacher_id = $2`, [code, req.userId]
+      )).rows[0];
+      if (!owns) return fail(res, 403, 'Not your class');
+      if (targetLessonId) {
+        const lesson = (await pool.query(
+          `SELECT title, level FROM lessons WHERE lesson_id = $1 AND is_published = TRUE`, [targetLessonId]
+        )).rows[0];
+        if (!lesson) return fail(res, 400, 'Unknown lesson for the quest target');
+      }
+      await pool.query(
+        `UPDATE class_quests SET is_active = FALSE WHERE class_code = $1 AND is_active = TRUE`, [code]
+      );
+      const ins = await pool.query(
+        `INSERT INTO class_quests (class_code, title, target_lesson_id, target_level, due_date, created_by)
+         VALUES ($1,$2,$3,$4,$5,$6)
+         RETURNING quest_id, class_code, title, target_lesson_id, target_level, due_date, is_active, created_at`,
+        [code, title, targetLessonId, targetLevel, dueDate, req.userId]
+      );
+      ok(res, { quest: ins.rows[0] });
+    } catch (e) {
+      console.error('classroom/quest error:', e);
+      fail(res, 500, 'Failed to set class quest');
+    }
+  });
+
+  // Active quest + live progress bar numbers for the class (member/teacher).
+  router.get('/classroom/quest-progress/:classCode', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const v = await loadClassForViewer(req, res);
+      if (v.denied) return;
+      const quest = (await pool.query(
+        `SELECT quest_id, title, target_lesson_id, target_level, due_date, created_at
+         FROM class_quests
+         WHERE class_code = $1 AND is_active = TRUE
+         ORDER BY created_at DESC LIMIT 1`, [v.code]
+      )).rows[0] || null;
+      if (!quest) return ok(res, { quest: null, progress: null });
+      const members = (await pool.query(
+        `SELECT COUNT(*)::int AS n FROM users
+         WHERE class_code = $1 AND share_leaderboard IS NOT FALSE`, [v.code]
+      )).rows[0].n;
+      let done = 0;
+      let lessonTitle = null;
+      if (quest.target_lesson_id) {
+        const l = (await pool.query(
+          `SELECT title FROM lessons WHERE lesson_id = $1`, [quest.target_lesson_id]
+        )).rows[0];
+        lessonTitle = l ? l.title : null;
+        done = (await pool.query(
+          `SELECT COUNT(DISTINCT up.user_id)::int AS n
+           FROM user_progress up
+           JOIN users u ON u.user_id = up.user_id
+           WHERE u.class_code = $1
+             AND u.share_leaderboard IS NOT FALSE
+             AND up.lesson_id = $2
+             AND up.completed = TRUE
+             AND GREATEST(up.completed_at, up.updated_at) >= $3`,
+          [v.code, quest.target_lesson_id, quest.created_at]
+        )).rows[0].n;
+      }
+      ok(res, { quest: { ...quest, lessonTitle }, progress: { members, done } });
+    } catch (e) {
+      console.error('classroom/quest-progress error:', e);
+      fail(res, 500, 'Failed to load quest progress');
+    }
+  });
+
+  // Overview for class.html: teacher sees own classes + counts; student sees
+  // their class, teacher name and active quest.
+  router.get('/classroom/mine', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const me = (await pool.query(
+        `SELECT class_code, role FROM users WHERE user_id = $1`, [req.userId]
+      )).rows[0];
+      if (!me) return fail(res, 404, 'Account not found');
+
+      if (me.role === 'teacher' || me.role === 'admin') {
+        const classes = (await pool.query(
+          `SELECT c.class_id, c.class_code, c.class_name, c.created_at,
+             (SELECT COUNT(*)::int FROM users u
+              WHERE u.class_code = c.class_code AND u.share_leaderboard IS NOT FALSE) AS member_count,
+             (SELECT q.title FROM class_quests q
+              WHERE q.class_code = c.class_code AND q.is_active = TRUE
+              ORDER BY q.created_at DESC LIMIT 1) AS quest_title
+           FROM classrooms c
+           WHERE c.teacher_id = $1
+           ORDER BY c.created_at DESC`, [req.userId]
+        )).rows;
+        return ok(res, { role: me.role, classes });
+      }
+
+      if (!me.class_code) return ok(res, { role: 'student', class: null });
+      const cls = (await pool.query(
+        `SELECT c.class_code, c.class_name, u.full_name AS teacher_name
+         FROM classrooms c JOIN users u ON u.user_id = c.teacher_id
+         WHERE c.class_code = $1`, [me.class_code]
+      )).rows[0];
+      if (!cls) return ok(res, { role: 'student', class: null });
+      const quest = (await pool.query(
+        `SELECT quest_id, title, target_lesson_id, target_level, due_date, created_at
+         FROM class_quests
+         WHERE class_code = $1 AND is_active = TRUE
+         ORDER BY created_at DESC LIMIT 1`, [me.class_code]
+      )).rows[0] || null;
+      ok(res, { role: 'student', class: cls, quest });
+    } catch (e) {
+      console.error('classroom/mine error:', e);
+      fail(res, 500, 'Failed to load your classroom');
     }
   });
 
@@ -996,9 +1489,11 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       if (s.unlimited) return ok(res, { unlimited: true, hearts: HEART_MAX });
       if (s.hearts <= 0) return fail(res, 402, 'Out of hearts — refill to keep playing');
       const updated = (await pool.query(
-        `UPDATE user_hearts SET hearts = hearts - 1, updated_at = NOW() WHERE user_id = $1 RETURNING hearts`,
+        `UPDATE user_hearts SET hearts = hearts - 1, updated_at = NOW()
+         WHERE user_id = $1 AND hearts > 0 RETURNING hearts`,
         [req.userId]
       )).rows[0];
+      if (!updated) return fail(res, 402, 'Out of hearts — refill to keep playing');
       ok(res, { unlimited: false, hearts: updated.hearts, max: HEART_MAX, refillGemCost: HEART_REFILL_GEM_COST });
     } catch (e) {
       console.error('hearts/lose error:', e);
@@ -1015,19 +1510,50 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       if (s.unlimited) return ok(res, { unlimited: true, hearts: HEART_MAX });
 
       if (mode === 'gems') {
-        const u = (await pool.query(`SELECT gems FROM users WHERE user_id = $1`, [req.userId])).rows[0];
-        if ((u.gems || 0) < HEART_REFILL_GEM_COST) return fail(res, 402, `Not enough gems (${HEART_REFILL_GEM_COST} needed)`);
-        await pool.query(`UPDATE users SET gems = gems - $1 WHERE user_id = $2`, [HEART_REFILL_GEM_COST, req.userId]);
-        await pool.query(`UPDATE user_hearts SET hearts = $1, last_refill = NOW(), updated_at = NOW() WHERE user_id = $2`, [HEART_MAX, req.userId]);
-        return ok(res, { hearts: HEART_MAX, max: HEART_MAX, gemsSpent: HEART_REFILL_GEM_COST });
+        const client = await pool.connect();
+        try {
+          await client.query('BEGIN');
+          const heartRow = (await client.query(
+            `SELECT hearts FROM user_hearts WHERE user_id = $1 FOR UPDATE`, [req.userId]
+          )).rows[0];
+          if (!heartRow || Number(heartRow.hearts) >= HEART_MAX) {
+            await client.query('COMMIT');
+            return ok(res, { hearts: HEART_MAX, max: HEART_MAX, gemsSpent: 0 });
+          }
+          const spent = await client.query(
+            `UPDATE users SET gems = gems - $1, updated_at = NOW()
+             WHERE user_id = $2 AND COALESCE(gems, 0) >= $1 RETURNING gems`,
+            [HEART_REFILL_GEM_COST, req.userId]
+          );
+          if (!spent.rowCount) {
+            await client.query('ROLLBACK');
+            return fail(res, 402, `Not enough gems (${HEART_REFILL_GEM_COST} needed)`);
+          }
+          await client.query(
+            `UPDATE user_hearts SET hearts = $1, last_refill = NOW(), updated_at = NOW() WHERE user_id = $2`,
+            [HEART_MAX, req.userId]
+          );
+          await client.query('COMMIT');
+          return ok(res, { hearts: HEART_MAX, max: HEART_MAX, gemsSpent: HEART_REFILL_GEM_COST });
+        } catch (error) {
+          await client.query('ROLLBACK').catch(() => {});
+          throw error;
+        } finally {
+          client.release();
+        }
       }
 
       if (mode === 'practice') {
         if (s.hearts >= HEART_MAX) return ok(res, { hearts: s.hearts, max: HEART_MAX });
         const updated = (await pool.query(
-          `UPDATE user_hearts SET hearts = LEAST($1, hearts + 1), updated_at = NOW() WHERE user_id = $2 RETURNING hearts`,
+          `UPDATE user_hearts
+           SET hearts = LEAST($1, hearts + 1), practice_refill_date = CURRENT_DATE, updated_at = NOW()
+           WHERE user_id = $2 AND hearts < $1
+             AND (practice_refill_date IS NULL OR practice_refill_date < CURRENT_DATE)
+           RETURNING hearts`,
           [HEART_MAX, req.userId]
         )).rows[0];
+        if (!updated) return ok(res, { hearts: s.hearts, max: HEART_MAX, granted: 0, alreadyUsed: true });
         return ok(res, { hearts: updated.hearts, max: HEART_MAX, granted: 1 });
       }
 

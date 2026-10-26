@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2563EB">
+<title>Classroom | HanVerse</title>
+<link rel="icon" type="image/png" href="hanverse-logo2.png">
+<meta name="description" content="Your HanVerse class: shared progress, the class quest and your classmates.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hanverse.css?v=1">
+<script src="js/auth-fetch.js?v=1"></script>
+<style>
+:root{--blue:#2563EB;--blue-deep:#1D4ED8;--blue-soft:#EFF6FF;--green:#16A34A;--amber:#F59E0B;--ink:#1E3A5F;--muted:#5D7A9A;--soft:#8BA8C4;--line:#D5E3F0;--surface:#fff;--page:#F5F9FF;--shadow:0 16px 48px rgba(15,35,64,.12)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;color:var(--ink);background:radial-gradient(circle at 85% 0%,rgba(37,99,235,.14),transparent 28rem),var(--page);min-height:100vh}
+.shell{width:min(100%,980px);margin:auto;min-height:100vh;padding-bottom:110px}
+.header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.header-inner{width:min(100%,980px);margin:auto;min-height:76px;padding:14px 22px;display:flex;align-items:center;gap:14px}
+.back{width:44px;height:44px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:14px;display:grid;place-items:center;cursor:pointer;font-size:25px;transition:.2s}
+.back:hover{background:var(--blue-soft);transform:translateX(-2px)}
+.brand{display:flex;align-items:center;gap:9px}
+.brand-panda{width:40px;height:40px;border-radius:13px;background:var(--blue-soft);display:grid;place-items:center;font-size:24px}
+.brand-name{font-size:15px;font-weight:800;font-family:Nunito,sans-serif}
+.header-title{margin-left:auto;font-size:17px;font-weight:700;font-family:Nunito,sans-serif}
+main.content{padding:28px 22px 0}
+.hero{position:relative;overflow:hidden;border-radius:28px;padding:28px 30px;background:linear-gradient(135deg,var(--blue-deep),var(--blue));color:#fff;box-shadow:0 18px 42px rgba(37,99,235,.22);margin-bottom:24px}
+.hero:before{content:"";position:absolute;border-radius:999px;background:rgba(255,255,255,.09);width:210px;height:210px;right:-70px;top:-105px}
+.hero:after{content:"";position:absolute;border-radius:999px;background:rgba(255,255,255,.09);width:130px;height:130px;right:90px;bottom:-90px}
+.hero-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.hero h1{margin:0 0 7px;font-size:clamp(25px,4vw,34px);line-height:1.12;letter-spacing:-.8px;font-family:Nunito,sans-serif}
+.hero p{margin:0;color:rgba(255,255,255,.84);font-size:13px;line-height:1.65;max-width:570px}
+.hero-panda{width:76px;height:76px;flex:0 0 auto;border-radius:24px;display:grid;place-items:center;background:rgba(255,255,255,.15);font-size:43px;transform:rotate(3deg)}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px}
+.heading{padding:20px 22px 14px;display:flex;align-items:center;gap:12px}
+.heading-icon{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--blue-soft);font-size:19px}
+.heading h2{margin:0;font-size:15px;font-weight:800;font-family:Nunito,sans-serif}
+.heading p{margin:3px 0 0;color:var(--muted);font-size:11px}
+.body{padding:0 22px 22px}
+.qbar{height:14px;background:#EEF4FA;border-radius:99px;overflow:hidden;margin:6px 0 8px}
+.qbar-fill{height:100%;width:0;background:linear-gradient(90deg,#2563EB,#F97316);border-radius:99px;transition:width .5s ease}
+.q-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600}
+.q-title{font-size:15px;font-weight:800;margin-bottom:4px;font-family:Nunito,sans-serif}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:#F8FBFD;border:1px solid #EDF3F6;border-radius:16px;padding:14px 10px;text-align:center}
+.stat b{display:block;font-size:22px;font-family:Nunito,sans-serif;color:var(--blue)}
+.stat span{font-size:10.5px;color:var(--muted);font-weight:600}
+.roster{list-style:none;margin:0;padding:0}
+.roster li{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid #F0F4F7;min-height:56px}
+.roster li:first-child{border-top:0}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--blue-soft);display:grid;place-items:center;font-weight:800;color:var(--blue);font-size:15px;flex:0 0 auto}
+.r-name{flex:1;min-width:0}
+.r-name b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-name span{font-size:11px;color:var(--muted)}
+.r-xp{font-size:12px;font-weight:800;color:var(--blue);white-space:nowrap}
+.remove-btn{border:1px solid #f0c6ca;background:#fff0f1;color:#b4232f;border-radius:10px;padding:8px 12px;font:700 11px Inter,sans-serif;cursor:pointer}
+.remove-btn:hover{background:#ffe3e5}
+.code-chip{display:inline-flex;align-items:center;gap:10px;background:#F4FBFF;border:1.5px dashed #9CCBF4;border-radius:14px;padding:10px 16px;font:800 16px Nunito,sans-serif;letter-spacing:.12em;color:var(--blue-deep)}
+.copy-btn{border:0;background:var(--blue);color:#fff;border-radius:10px;padding:8px 13px;font:700 11px Inter,sans-serif;cursor:pointer}
+.btn{display:inline-block;border:0;border-radius:13px;background:var(--blue);color:#fff;padding:13px 22px;font:800 13px Nunito,sans-serif;cursor:pointer;text-decoration:none;transition:transform .15s}
+.btn:hover{transform:scale(1.02)}
+.btn-ghost{background:#fff;border:2px solid var(--blue);color:var(--blue)}
+.field{margin:10px 0}
+.field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}
+.field input,.field select{width:100%;min-height:46px;padding:10px 13px;border:1px solid var(--line);border-radius:12px;font:600 13.5px Inter,sans-serif;background:#fff;color:var(--ink)}
+.empty{text-align:center;padding:28px 12px;color:var(--muted);font-size:13px;line-height:1.7}
+.empty .panda{font-size:44px;display:block;margin-bottom:6px}
+.toast{position:fixed;left:50%;top:92px;z-index:200;transform:translate(-50%,-15px);opacity:0;pointer-events:none;background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:11.5px;box-shadow:0 12px 32px rgba(20,42,58,.2);transition:.25s}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.classes{list-style:none;margin:0;padding:0}
+.classes button{width:100%;text-align:left;border:0;background:transparent;cursor:pointer;padding:0}
+.classes li{border-top:1px solid #F0F4F7;padding:14px 4px}
+.classes li:first-child{border-top:0}
+.classes .c-name{font-weight:800;font-size:14.5px;font-family:Nunito,sans-serif}
+.classes .c-meta{font-size:11.5px;color:var(--muted);margin-top:3px}
+@media(max-width:720px){main.content{padding:17px 13px 0}.hero{border-radius:22px;padding:22px 20px}.hero h1{font-size:24px}.hero-panda{width:62px;height:62px;font-size:34px}.stat-grid{grid-template-columns:repeat(2,1fr)}.body{padding:0 16px 16px}.header-inner{min-height:68px;padding:11px 15px}.brand{display:none}.header-title{font-size:15px}}
+@media(max-width:390px){.hero-panda{display:none}}
+@media(prefers-reduced-motion:reduce){.qbar-fill{transition:none}.btn:hover{transform:none}.back:hover{transform:none}}
+</style>
+</head>
+<body class="app-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<header class="header"><div class="header-inner"><button class="back" type="button" aria-label="Go back" onclick="history.length>1?history.back():window.location.href='learn.html'">‹</button><div class="brand"><div class="brand-panda"><img src="Hanverse-logo2.png" alt="HanVerse logo" width="34" height="34" style="border-radius:10px"></div><div><div class="brand-name">HanVerse</div></div></div><div class="header-title">Classroom</div></div></header>
+<main class="content" id="main">
+<section class="hero"><div class="hero-content"><div><h1 id="heroTitle">Our class 🏫</h1><p id="heroSub">Learning Mandarin is better together. See how your class is doing and join the class quest.</p></div><div class="hero-panda">🐼</div></div></section>
+<div id="loading" class="card"><div class="body"><div class="empty"><span class="panda">🐼</span>Loading your class…</div></div></div>
+<div id="content"></div>
+</main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="hanverse.js?v=1"></script>
+<script src="notifications-client.js?v=1"></script><script src="notifications.js?v=1"></script>
+<script src="features-client.js?v=1"></script>
+<script>
+(function(){'use strict';
+var $=function(id){return document.getElementById(id)};
+var toastEl=$('toast');
+function toast(msg){if(window.Notify&&typeof window.Notify.toast==='function'){window.Notify.toast(msg,'success',2800);return}toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){toastEl.classList.remove('show')},2800)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function statCard(label,val){return '<div class="stat"><b>'+val+'</b><span>'+label+'</span></div>'}
+
+var F=window.HanVerseFeatures;
+var state={code:null,isTeacher:false,role:'student',classes:[]};
+
+async function fetchAll(code){
+ var out={};
+ var jobs=[F.classroom.roster(code).then(function(r){out.roster=r}).catch(function(e){out.rosterErr=e}),
+           F.classroom.aggregate(code).then(function(r){out.agg=r}).catch(function(e){}),
+           F.classroom.questProgress(code).then(function(r){out.qp=r}).catch(function(e){})];
+ await Promise.all(jobs);
+ return out;
+}
+
+function renderQuest(qp){
+ if(!qp||!qp.quest) return '';
+ var q=qp.quest,p=qp.progress||{members:0,done:0};
+ var pct=p.members?Math.round(100*p.done/p.members):0;
+ var due=q.due_date?' · due '+q.due_date:'';
+ var cta=q.target_lesson_id?'<a class="btn" style="margin-top:12px" href="lesson.html?id='+encodeURIComponent(q.target_lesson_id)+'">Go to the lesson →</a>':'';
+ return '<section class="card"><div class="heading"><div class="heading-icon">🎯</div><div><h2>Class quest</h2><p>One goal for the whole class'+due+'</p></div></div><div class="body">'+
+ '<div class="q-title">'+esc(q.title)+'</div>'+
+ '<div class="qbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'" aria-label="Class quest progress"><div class="qbar-fill" style="width:'+pct+'%"></div></div>'+
+ '<div class="q-meta"><span>'+p.done+' of '+p.members+' finished</span><span>'+pct+'%</span></div>'+cta+
+ '</div></section>';
+}
+
+function renderStats(agg){
+ if(!agg) return '';
+ var a=agg;
+ return '<section class="card"><div class="heading"><div class="heading-icon">📈</div><div><h2>Class progress</h2><p>Everyone\'s learning, added up 🐼</p></div></div><div class="body">'+
+ '<div class="stat-grid">'+
+ statCard('lessons done',a.lessons_completed||0)+
+ statCard('total XP',a.total_xp||0)+
+ statCard('streak days',a.streak_days||0)+
+ statCard('active today',a.active_today||0)+
+ '</div></div></section>';
+}
+
+function renderRoster(roster,canRemove){
+ if(!roster||!roster.length) return '<section class="card"><div class="body"><div class="empty"><span class="panda">🌱</span>No classmates here yet. Share the class code to fill the seats!</div></div></section>';
+ var rows=roster.map(function(s){
+  var initial=esc((s.full_name||s.username||'?').trim().charAt(0).toUpperCase()||'?');
+  var remove=canRemove?'<button type="button" class="remove-btn" data-remove="'+s.user_id+'" aria-label="Remove '+(esc(s.full_name||s.username))+' from class">Remove</button>':'';
+  return '<li><div class="avatar">'+initial+'</div><div class="r-name"><b>'+esc(s.full_name||s.username)+'</b><span>🔥 '+(s.streak_days||0)+'-day streak</span></div><span class="r-xp">'+(s.xp||0)+' XP</span>'+remove+'</li>';
+ }).join('');
+ return '<section class="card"><div class="heading"><div class="heading-icon">👥</div><div><h2>Classmates</h2><p>'+roster.length+' learner'+(roster.length===1?'':'s')+' in this class</p></div></div><div class="body"><ul class="roster">'+rows+'</ul></div></section>';
+}
+
+function renderQuestForm(){
+ return '<section class="card" id="questFormCard"><div class="heading"><div class="heading-icon">✏️</div><div><h2>Set the class quest</h2><p>Teachers only — pick one goal for the week.</p></div></div><div class="body">'+
+ '<div class="field"><label for="questTitle">Quest title</label><input id="questTitle" maxlength="200" placeholder="Everyone finish YCT 1 Lesson 3 this week"></div>'+
+ '<div class="field"><label for="questLesson">Goal lesson</label><select id="questLesson"><option value="">— pick a lesson —</option></select></div>'+
+ '<div class="field"><label for="questDue">Due date (optional)</label><input id="questDue" type="date"></div>'+
+ '<button class="btn" type="button" id="setQuestBtn">Set class quest</button>'+
+ '</div></section>';
+}
+
+async function fillLessonOptions(){
+ try{
+  var res=await fetch('/api/lessons');
+  var data=await res.json();
+  var sel=$('questLesson');
+  if(!sel||!data||!data.lessons)return;
+  data.lessons.forEach(function(l){
+   var o=document.createElement('option');
+   o.value=l.id;o.textContent='YCT '+l.level+' · '+l.title;
+   sel.appendChild(o);
+  });
+  sel.addEventListener('change',function(){
+   var t=$('questTitle');
+   if(!t.value.trim()&&sel.selectedIndex>0)t.value='Everyone finish '+sel.options[sel.selectedIndex].textContent.replace(/^YCT \d+ · /,'')+' this week';
+  });
+ }catch(e){}
+}
+
+function renderTeacherClasses(classes){
+ if(!classes.length) return '<section class="card"><div class="body"><div class="empty"><span class="panda">🏫</span>You have no classes yet. Create one from <a href="settings.html" style="color:var(--blue);font-weight:700">Settings → Classroom</a>.</div></div></section>';
+ var rows=classes.map(function(c){
+  return '<li><button type="button" data-code="'+esc(c.class_code)+'"><div class="c-name">'+esc(c.class_name)+'</div><div class="c-meta">'+(c.member_count||0)+' member'+((c.member_count||0)===1?'':'s')+(c.quest_title?' · 🎯 '+esc(c.quest_title):'')+' · code '+esc(c.class_code)+'</div></button></li>';
+ }).join('');
+ return '<section class="card"><div class="heading"><div class="heading-icon">🏫</div><div><h2>Your classes</h2><p>Tap a class to open its space.</p></div></div><div class="body"><ul class="classes">'+rows+'</ul></div></section>';
+}
+
+function renderClassSpace(o){
+ var html='';
+ html+='<section class="card"><div class="body" style="padding-top:18px">'+
+ '<div class="q-title" style="font-size:17px">🏫 '+esc(o.roster?o.roster.className:(state.className||'Your class'))+'</div>'+
+ (state.isTeacher?'<div style="margin:8px 0 4px"><span class="code-chip">'+esc(state.code)+'<button type="button" class="copy-btn" id="copyCode">Copy code</button></span></div><p style="font-size:11.5px;color:var(--muted);margin:6px 0 0">Share this code so students can join.</p>':'<p style="font-size:12px;color:var(--muted);margin:4px 0 0">Teacher: '+esc(state.teacherName||'—')+'</p>')+
+ '</div></section>';
+ if(state.isTeacher) html+=renderQuestForm();
+ html+=renderQuest(o.qp);
+ html+=renderStats(o.agg?o.agg.aggregate:null);
+ html+=renderRoster(o.roster?o.roster.students:[],state.isTeacher);
+ $('content').innerHTML=html;
+ if(state.isTeacher){fillLessonOptions();wireQuestForm();}
+ wireRoster();
+ var copy=$('copyCode');
+ if(copy)copy.onclick=function(){
+  try{navigator.clipboard.writeText(state.code);toast('Class code copied ✓')}catch(e){toast('Copy failed — long-press the code')}
+ };
+}
+
+function wireRoster(){
+ document.querySelectorAll('[data-remove]').forEach(function(btn){
+  btn.onclick=async function(){
+   if(!confirm('Remove this learner from the class?'))return;
+   btn.disabled=true;
+   try{
+    await F.classroom.removeMember(state.code,Number(btn.getAttribute('data-remove')));
+    toast('Learner removed');
+    await load();
+   }catch(e){toast(e.message||'Could not remove');btn.disabled=false;}
+  };
+ });
+}
+
+function wireQuestForm(){
+ var btn=$('setQuestBtn');
+ if(!btn)return;
+ btn.onclick=async function(){
+  var title=($('questTitle').value||'').trim();
+  var lessonId=$('questLesson').value||null;
+  var due=$('questDue').value||null;
+  if(!title){toast('Give the quest a title first.');return}
+  btn.disabled=true;btn.textContent='Setting…';
+  try{
+   await F.classroom.setQuest(state.code,{title:title,targetLessonId:lessonId,dueDate:due});
+   if(window.HanVerseSound)window.HanVerseSound.correct();
+   toast('Class quest set ✓');
+   await load();
+  }catch(e){toast(e.message||'Could not set the quest');}
+  finally{btn.disabled=false;btn.textContent='Set class quest';}
+ };
+}
+
+function renderNoClass(){
+ $('content').innerHTML='<section class="card"><div class="body"><div class="empty"><span class="panda">🤝</span>You are not in a class yet.<br>Got a class code from your teacher? Join from <a href="settings.html" style="color:var(--blue);font-weight:700">Settings → Classroom</a>.</div></div></section>';
+}
+
+function renderLoggedOut(){
+ $('heroTitle').textContent='Classroom';
+ $('heroSub').textContent='Log in to see your class, classmates and the class quest.';
+ $('content').innerHTML='<section class="card"><div class="body"><div class="empty"><span class="panda">🔐</span>Please <a href="login.html" style="color:var(--blue);font-weight:700">log in</a> to open your classroom.</div></div></section>';
+}
+
+function renderTeacherPicker(){
+ $('heroTitle').textContent='Your classes 🏫';
+ $('heroSub').textContent='Create quests, follow progress and cheer your learners on.';
+ $('content').innerHTML=renderTeacherClasses(state.classes);
+ document.querySelectorAll('.classes button[data-code]').forEach(function(b){
+  b.onclick=function(){
+   state.code=b.getAttribute('data-code');
+   var c=state.classes.filter(function(x){return x.class_code===state.code})[0]||{};
+   state.className=c.class_name;state.teacherName='';
+   state.isTeacher=true;
+   $('heroTitle').textContent=(c.class_name||'Class')+' 🏫';
+   $('heroSub').textContent='Class code '+state.code+' — share it with your learners.';
+   load();
+  };
+ });
+}
+
+async function load(){
+ if(!F||!F.classroom||!F.currentUserId()){renderLoggedOut();return}
+ var uid=F.currentUserId();
+ if(!uid){renderLoggedOut();return}
+ if(state.code){ /* render the selected/joined class space */
+  var o=await fetchAll(state.code);
+  if(o.rosterErr){toast('Could not open the class.');return}
+  renderClassSpace(o);
+  return;
+ }
+ try{
+  var mine=await F.classroom.mine();
+  state.role=mine.role;
+  if(mine.role==='teacher'||mine.role==='admin'){
+   state.classes=mine.classes||[];state.isTeacher=true;
+   renderTeacherPicker();
+  }else if(mine.class){
+   state.code=mine.class.class_code;state.className=mine.class.class_name;state.teacherName=mine.class.teacher_name;state.isTeacher=false;
+   $('heroTitle').textContent=(mine.class.class_name||'Your class')+' 🏫';
+   $('heroSub').textContent='You and your classmates, learning together 🐼';
+   await load();
+  }else{
+   renderNoClass();
+  }
+ }catch(e){
+  renderLoggedOut();
+ }
+}
+
+$('loading').style.display='none';
+load();
+window.addEventListener('focus',function(){if(state.code)load()});
+})();
+</script>
+<script src="bottom-nav.js?v=1"></script>
+</body>
+</html>

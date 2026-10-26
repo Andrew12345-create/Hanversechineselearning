@@ -106,6 +106,7 @@ class OfflineManager {
       completed: progressData.completed || false,
       score: progressData.score || 0,
       xpEarned: progressData.xpEarned || 0,
+      quizAnswers: progressData.quizAnswers ?? null,
       timestamp: new Date().toISOString()
     };
     
@@ -195,7 +196,11 @@ class OfflineManager {
         return;
       }
 
-      const userId = user.id || user.userId;
+      const userId = user.user_id || user.id || user.userId;
+      if (!userId) {
+        console.warn('Offline sync skipped: the saved session has no user ID');
+        return;
+      }
       
       // 1. Sync quiz results
       const quizzes = this.getOfflineQuizzes();
@@ -209,10 +214,12 @@ class OfflineManager {
         await this.syncProgress(userId, progress);
       }
 
-      // 3. Sync XP
+      // 3. Client-created XP has no trustworthy source, so never submit it as
+      // a reward. Completed lesson progress is re-awarded from the published
+      // lesson record by /sync/progress instead.
       const xpEntries = this.getOfflineXP();
       if (xpEntries.length > 0) {
-        await this.syncXP(userId, xpEntries);
+        console.warn('Offline XP queue retained; lesson XP is restored from verified lesson progress.');
       }
 
       // 4. Sync achievements
@@ -226,9 +233,6 @@ class OfflineManager {
       if (streak) {
         await this.syncStreak(userId, streak);
       }
-
-      // Clear synced data from local storage
-      this.clearSyncedData();
 
     } catch (error) {
       console.error('Sync failed:', error);

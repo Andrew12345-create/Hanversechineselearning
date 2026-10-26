@@ -9,6 +9,8 @@ import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
+import { registerAIRoutes } from './ai-routes.js';
+import { registerSecureGrading } from './secure-grading.js';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 
@@ -19,6 +21,12 @@ const openai = new OpenAI({
 });
 
 const { Pool } = pkg;
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
+}
 
 /* ==========================================
   APP / ROUTER CONFIGURATION ⚙️
@@ -331,7 +339,7 @@ function getVerificationEmailHTML({ username, fullName, verifyLink }) {
       <div class="panda-badge">✨ Your Mandarin Adventure Starts Here!</div>
     </div>
     <div class="title">
-      Welcome to <span class="highlight">HanVerse</span>, ${fullName || username || 'Friend'}! 🎉
+      Welcome to <span class="highlight">HanVerse</span>, ${escapeHtml(fullName || username || 'Friend')}! 🎉
     </div>
     <div class="subtitle">
       You're just one click away from unlocking <strong>stories, games, and your AI Panda tutor</strong>!<br>
@@ -350,7 +358,7 @@ function getVerificationEmailHTML({ username, fullName, verifyLink }) {
     </div>
     <hr class="divider">
     <div class="info-box">
-      <p><span class="emoji">📧</span> <strong>${username || 'Your username'}</strong></p>
+      <p><span class="emoji">📧</span> <strong>${escapeHtml(username || 'Your username')}</strong></p>
       <p><span class="emoji">🎯</span> Start at <strong>YCT 1</strong> and work your way up!</p>
       <p><span class="emoji">🏆</span> Earn <strong>XP</strong> and unlock achievements!</p>
     </div>
@@ -414,7 +422,7 @@ function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
       Reset Your <span class="highlight">Password</span> 🔐
     </div>
     <div class="subtitle">
-      Hi <strong>${fullName || username || 'Learner'}</strong>!<br>
+      Hi <strong>${escapeHtml(fullName || username || 'Learner')}</strong>!<br>
       We received a request to reset your HanVerse password.
     </div>
     <div class="button-container">
@@ -494,7 +502,7 @@ function getWelcomeEmailHTML({ username, fullName }) {
       <div class="welcome-badge">🎉 Welcome to the Family!</div>
     </div>
     <div class="title">
-      Hey <span class="highlight">${fullName || username || 'Learner'}</span>! 👋
+      Hey <span class="highlight">${escapeHtml(fullName || username || 'Learner')}</span>! 👋
     </div>
     <div class="subtitle">
       You've joined a <strong>magical world</strong> where learning Mandarin is<br>
@@ -599,13 +607,13 @@ function getInviteEmailHTML({ inviterName, customMessage, signupLink }) {
       <div class="invite-badge">✨ You're Invited!</div>
     </div>
     <div class="title">
-      <span class="highlight">${inviterName}</span> Invited You! 🎉
+      <span class="highlight">${escapeHtml(inviterName)}</span> Invited You! 🎉
     </div>
     <div class="subtitle">
       Join the fun way to learn Mandarin through <strong>stories, games, and AI</strong>!<br>
       Your adventure starts here! 🚀
     </div>
-    ${customMessage ? `<div class="invite-message">"${customMessage}"</div>` : ''}
+    ${customMessage ? `<div class="invite-message">"${escapeHtml(customMessage)}"</div>` : ''}
     <div class="perks-grid">
       <div class="perk-item"><span class="icon">📚</span><span class="label">Interactive Stories</span></div>
       <div class="perk-item"><span class="icon">🎮</span><span class="label">Fun Games</span></div>
@@ -616,7 +624,7 @@ function getInviteEmailHTML({ inviterName, customMessage, signupLink }) {
       <span class="bonus-text">🎁 Bonus: You'll both get <strong>50 XP</strong> when you sign up!</span>
     </div>
     <div class="button-container">
-      <a href="${signupLink}" class="button">🎯 Join HanVerse Now</a>
+      <a href="${escapeHtml(signupLink)}" class="button">🎯 Join HanVerse Now</a>
     </div>
     <hr class="divider">
     <div class="footer">
@@ -677,7 +685,7 @@ function getHanVerseEmailHTML({
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>${subject}</title>
+  <title>${escapeHtml(subject)}</title>
 
   <style>
     body {
@@ -877,7 +885,7 @@ function getHanVerseEmailHTML({
     opacity:0;
     color:transparent;
   ">
-    ${preheader}
+    ${escapeHtml(preheader)}
   </div>
 
   <div class="email-wrapper">
@@ -911,12 +919,12 @@ function getHanVerseEmailHTML({
 
         <!-- GREETING -->
         <p class="greeting">
-          Hello ${recipientName}!
+          Hello ${escapeHtml(recipientName)}!
         </p>
 
         <!-- SUBJECT -->
         <h1 class="title">
-          ${subject}
+          ${escapeHtml(subject)}
         </h1>
 
         <!-- MESSAGE -->
@@ -942,7 +950,7 @@ function getHanVerseEmailHTML({
           Warmly,<br>
 
           <span class="signature-name">
-            ${senderName}
+            ${escapeHtml(senderName)}
           </span><br>
 
           HanVerse
@@ -1612,38 +1620,10 @@ router.post('/auth/logout', async (req, res) => {
   return res.json({ success: true, message: 'Logged out successfully' });
 });
 
-// FIND USER BY EMAIL
-// Pre-auth helper for the "resend verification" flow. Returns the bare user id
-// only — no name, username, or status — and is rate-limited against enumeration.
+// Legacy pre-auth helper retained for old clients. It never reveals whether an
+// address has an account; current clients submit email directly to resend.
 router.post('/auth/user-by-email', authLimiter, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-
-    const { email } = req.body || {};
-    if (!email) {
-      return res.status(400).json({ success: false, error: 'Email required' });
-    }
-
-    const result = await pool.query(
-      `SELECT user_id FROM users WHERE email = $1`,
-      [email.trim().toLowerCase()]
-    );
-
-    if (!result.rows.length) {
-      return res.status(404).json({ success: false, error: 'User not found' });
-    }
-
-    return res.json({
-      success: true,
-      user: { user_id: result.rows[0].user_id }
-    });
-  } catch (error) {
-    console.error('❌ User by email error:', error);
-    return res.status(500).json({ 
-      success: false, 
-      error: 'Failed to find user' 
-    });
-  }
+  return res.json({ success: true, message: 'Use the resend verification option to request a new link.' });
 });
 
 // SEND VERIFICATION EMAIL
@@ -1699,11 +1679,10 @@ router.post('/auth/send-verification', authLimiter, async (req, res) => {
       console.warn('⚠️ Could not create email_verifications table:', tableError.message);
     }
 
+    await pool.query(`DELETE FROM email_verifications WHERE user_id = $1`, [userId]);
     await pool.query(
       `INSERT INTO email_verifications (user_id, token, expires_at, created_at)
-      VALUES ($1, $2, $3, NOW())
-      ON CONFLICT (user_id) DO UPDATE 
-      SET token = $2, expires_at = $3, created_at = NOW()`,
+      VALUES ($1, $2, $3, NOW())`,
       [userId, verificationToken, expiresAt]
     );
 
@@ -1734,40 +1713,29 @@ router.post('/auth/resend-verification', authLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const { userId } = req.body || {};
-
-    if (!userId) {
+    const { userId, email } = req.body || {};
+    if (!userId && !email) {
       return res.status(400).json({
         success: false,
-        error: 'User ID is required.'
+        error: 'Email address is required.'
       });
     }
 
     const userResult = await pool.query(
       `SELECT user_id, email, username, full_name, is_verified 
-      FROM users WHERE user_id = $1`,
-      [userId]
+      FROM users WHERE ${email ? 'LOWER(email) = LOWER($1)' : 'user_id = $1'} LIMIT 1`,
+      [email ? String(email).trim().toLowerCase() : userId]
     );
 
-    if (!userResult.rows.length) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found.'
-      });
-    }
+    if (!userResult.rows.length) return res.json({ success: true, message: 'If the account needs verification, a link has been sent.' });
 
     const user = userResult.rows[0];
 
-    if (user.is_verified) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email is already verified.'
-      });
-    }
+    if (user.is_verified) return res.json({ success: true, message: 'If the account needs verification, a link has been sent.' });
 
     await pool.query(
       `DELETE FROM email_verifications WHERE user_id = $1`,
-      [userId]
+      [user.user_id]
     );
 
     const verificationToken = generateSecureToken(32);
@@ -1776,7 +1744,7 @@ router.post('/auth/resend-verification', authLimiter, async (req, res) => {
     await pool.query(
       `INSERT INTO email_verifications (user_id, token, expires_at, created_at)
       VALUES ($1, $2, $3, NOW())`,
-      [userId, verificationToken, expiresAt]
+      [user.user_id, verificationToken, expiresAt]
     );
 
     await sendVerificationEmail({
@@ -1788,7 +1756,7 @@ router.post('/auth/resend-verification', authLimiter, async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Verification email resent successfully.'
+      message: 'If the account needs verification, a link has been sent.'
     });
 
   } catch (error) {
@@ -2104,11 +2072,18 @@ router.post('/reset-password', async (req, res) => {
 });
 
 // PARENT PASSWORD VERIFICATION
-router.post('/verify-parent-password', async (req, res) => {
+router.post('/verify-parent-password', authLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-
+    const auth = await requireUser(req, res);
+    if (!auth) return;
     const { parentId, password } = req.body || {};
+    if (parentId && Number(parentId) !== Number(auth.user_id)) {
+      return res.status(403).json({ success: false, error: 'You can only verify your own parent account.' });
+    }
+    if (typeof password === 'string' && Buffer.byteLength(password, 'utf8') > 128) {
+      return res.status(400).json({ success: false, error: 'Password is too long.' });
+    }
 
     if (!parentId || !password) {
       return res.status(400).json({
@@ -3214,13 +3189,13 @@ router.post('/send-invite', authLimiter, async (req, res) => {
 
     try {
       const { sendEmail } = await import('./email.js');
-      const msg = customMessage ? `<p style="margin:16px 0;color:#374151;font-style:italic;">"${customMessage.replace(/</g,'&lt;')}"</p>` : '';
+      const msg = customMessage ? `<p style="margin:16px 0;color:#374151;font-style:italic;">"${escapeHtml(customMessage)}"</p>` : '';
       await sendEmail({
         to: inviteeEmail.trim(),
         subject: `${name} invited you to learn Mandarin on HanVerse!`,
         html: `<div style="font-family:Nunito,sans-serif;max-width:520px;margin:0 auto;padding:24px;">
           <h1 style="color:#2563EB;">You've been invited to HanVerse! 🐼</h1>
-          <p style="font-size:16px;color:#374151;"><strong>${name}</strong> thinks you'd love learning Mandarin Chinese with HanPan the panda.</p>
+          <p style="font-size:16px;color:#374151;"><strong>${escapeHtml(name)}</strong> thinks you'd love learning Mandarin Chinese with HanPan the panda.</p>
           ${msg}
           <p style="font-size:15px;color:#374151;">HanVerse makes learning Mandarin fun for kids and families with interactive lessons, games, and YCT exam prep.</p>
           <a href="https://hanverse.netlify.app/signup" style="display:inline-block;margin:20px 0;padding:14px 32px;background:#2563EB;color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;">Join HanVerse Free</a>
@@ -4398,6 +4373,22 @@ router.get('/lessons/:lessonId', async (req, res) => {
       })
     );
 
+    // Shuffle and minimize public quiz options. Correctness, explanation, and
+    // sentence-build answer order stay on the server until a learner submits.
+    const publicQuiz = quiz.map(question => {
+      const { explanation: _explanation, ...publicQuestion } = question;
+      const options = question.options.map(option => ({
+        option_id: option.option_id,
+        question_id: option.question_id,
+        option_text: option.option_text
+      }));
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = crypto.randomInt(i + 1);
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+      return { ...publicQuestion, options };
+    });
+
     // ========================================================
     // 10. COMPLETION SETTINGS
     // ========================================================
@@ -4530,7 +4521,7 @@ router.get('/lessons/:lessonId', async (req, res) => {
       media:
         mediaResult.rows,
 
-      quiz,
+      quiz: publicQuiz,
 
       completion_settings:
         completionSettings
@@ -4555,6 +4546,58 @@ router.get('/lessons/:lessonId', async (req, res) => {
 /* ==========================================
   PROGRESS ENDPOINTS 📊
 ========================================== */
+
+async function gradeLessonAnswers(lessonId, answers) {
+  if (typeof answers === 'string') {
+    try { answers = JSON.parse(answers); } catch { answers = null; }
+  }
+  const questions = await pool.query(
+    `SELECT question_id, question_type FROM lesson_quiz_questions
+     WHERE lesson_id = $1 ORDER BY order_index ASC, question_id ASC`, [lessonId]
+  );
+  const rows = questions.rows;
+  if (!rows.length) return { score: 100, correct: 0, total: 0, answered: 0 };
+
+  const ids = rows.map(question => question.question_id);
+  const optionRows = await pool.query(
+    `SELECT question_id, option_id, is_correct, order_index
+     FROM lesson_quiz_options WHERE question_id = ANY($1::integer[])
+     ORDER BY question_id, order_index, option_id`, [ids]
+  );
+  const byQuestion = new Map();
+  for (const option of optionRows.rows) {
+    const key = Number(option.question_id);
+    if (!byQuestion.has(key)) byQuestion.set(key, []);
+    byQuestion.get(key).push(option);
+  }
+
+  const readAnswer = index => answers && typeof answers === 'object' ? answers[index] : undefined;
+  let correct = 0;
+  let answered = 0;
+  for (let index = 0; index < rows.length; index++) {
+    const question = rows[index];
+    const options = byQuestion.get(Number(question.question_id)) || [];
+    const answer = readAnswer(index);
+    if (question.question_type === 'sentence_build') {
+      if (!Array.isArray(answer) || answer.length !== options.length ||
+          answer.some(value => !Number.isInteger(Number(value))) ||
+          new Set(answer.map(Number)).size !== options.length) continue;
+      const expected = options.slice().sort((a, b) =>
+        Number(a.order_index) - Number(b.order_index) || Number(a.option_id) - Number(b.option_id)
+      ).map(option => Number(option.option_id));
+      const selected = answer.map(Number);
+      if (selected.some(id => !options.some(option => Number(option.option_id) === id))) continue;
+      answered++;
+      if (selected.every((id, i) => id === expected[i])) correct++;
+    } else if (Number.isInteger(Number(answer)) && options.some(option =>
+      Number(option.option_id) === Number(answer)
+    )) {
+      answered++;
+      if (options.some(option => Number(option.option_id) === Number(answer) && option.is_correct === true)) correct++;
+    }
+  }
+  return { score: Math.round(correct / rows.length * 100), correct, total: rows.length, answered };
+}
 
 // GET: User progress for a specific lesson
 router.get('/progress/:userId/:lessonId', async (req, res) => {
@@ -4627,15 +4670,14 @@ router.post('/progress', async (req, res) => {
     const body = req.body || {};
     const userId = body.userId ?? body.user_id;
     const lessonId = body.lessonId ?? body.lesson_id;
-    const courseType = body.courseType ?? body.course_type ?? 'YCT';
-    const courseLevel = Number(body.courseLevel ?? body.course_level ?? 1);
-    const completed = body.completed === true || body.completed === 'true';
-    const score = Number(body.score ?? 0);
-    const xpEarned = Number(body.xpEarned ?? body.xp_earned ?? 0);
+    let courseType = body.courseType ?? body.course_type ?? 'YCT';
+    let courseLevel = Number(body.courseLevel ?? body.course_level ?? 1);
+    let completed = body.completed === true || body.completed === 'true';
+    let score = Number(body.score ?? 0);
     const timeSpent = Number(body.timeSpent ?? body.time_spent ?? 0);
     const attempts = Math.max(1, Number(body.attempts ?? 1));
     const quizAnswers = body.quizAnswers ?? body.quiz_answers ?? null;
-    const quizScore = Number(body.quizScore ?? body.quiz_score ?? 0);
+    let quizScore = Number(body.quizScore ?? body.quiz_score ?? 0);
 
     if (!userId || !lessonId) {
       return res.status(400).json({
@@ -4644,36 +4686,80 @@ router.post('/progress', async (req, res) => {
       });
     }
 
-    if (!Number.isInteger(courseLevel) || courseLevel < 1) {
+    if (!Number.isFinite(score) || score < 0 || score > 100 ||
+        !Number.isFinite(timeSpent) || timeSpent < 0 || timeSpent > 86400 ||
+        !Number.isInteger(attempts) || attempts > 10000 ||
+        !Number.isFinite(quizScore) || quizScore < 0 || quizScore > 100) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid course level'
+        error: 'Invalid progress values.'
       });
     }
 
-    if (!(await canAccessUser(req, res, userId))) return;
+    if (Number(userId) !== Number(auth.user_id) && !auth.is_admin) {
+      return res.status(403).json({ success: false, error: 'You can only save your own learning progress.' });
+    }
 
     const normalizedLessonId = String(lessonId);
+    const lessonResult = await pool.query(
+      `SELECT xp, course_type, level FROM lessons
+       WHERE lesson_id = $1 AND is_published = TRUE LIMIT 1`,
+      [normalizedLessonId]
+    );
+    if (!lessonResult.rows.length) {
+      return res.status(404).json({ success: false, error: 'Published lesson not found.' });
+    }
+    const lesson = lessonResult.rows[0];
+    courseType = String(lesson.course_type || 'YCT').toUpperCase();
+    courseLevel = Number(lesson.level) || 1;
+    if (!['YCT', 'HSK'].includes(courseType) || !Number.isInteger(courseLevel) || courseLevel < 1) {
+      return res.status(400).json({ success: false, error: 'Lesson course information is invalid.' });
+    }
+    // XP comes from the published lesson record, never from the browser.
+    const xpEarned = Math.min(100, Math.max(0, Math.trunc(Number(lesson.xp) || 10)));
 
-    // Authenticated + authorized: the token identity must be the learner, an
-    // admin, or the learner's parent.
-    if (!(await canAccessUser(req, res, userId))) return;
+    const quizGrade = await gradeLessonAnswers(normalizedLessonId, quizAnswers);
+    const completionSettings = (await pool.query(
+      `SELECT passing_score, requires_quiz FROM lesson_completion_settings
+       WHERE lesson_id = $1 LIMIT 1`, [normalizedLessonId]
+    )).rows[0] || { passing_score: 80, requires_quiz: true };
+    if (quizGrade.total > 0) {
+      quizScore = quizGrade.score;
+      score = quizGrade.score;
+      if (completed && completionSettings.requires_quiz !== false &&
+          (quizGrade.answered < quizGrade.total || quizScore < (Number(completionSettings.passing_score) || 80))) {
+        return res.status(400).json({ success: false, error: 'Complete the lesson quiz before saving this lesson.' });
+      }
+    }
 
-    // Find existing progress
-    const existing = await pool.query(`
+    // Serialize writes for this user/lesson so concurrent completion requests
+    // cannot award XP or increment lesson counts more than once.
+    const progressClient = await pool.connect();
+    let progressTransactionOpen = false;
+    try {
+    await progressClient.query('BEGIN');
+    progressTransactionOpen = true;
+    await progressClient.query(
+      'SELECT pg_advisory_xact_lock(hashtext($1::text), hashtext($2::text))',
+      [userId, normalizedLessonId]
+    );
+    const existing = await progressClient.query(`
       SELECT progress_id, completed
       FROM user_progress
       WHERE user_id = $1 AND lesson_id = $2
       LIMIT 1
+      FOR UPDATE
     `, [userId, normalizedLessonId]);
 
     const existingProgress = existing.rows[0] || null;
     const wasAlreadyCompleted = existingProgress?.completed === true;
+    const isCompleted = completed || wasAlreadyCompleted;
+    const storedXpEarned = isCompleted ? xpEarned : 0;
 
     let result;
 
     if (existingProgress) {
-      result = await pool.query(`
+      result = await progressClient.query(`
         UPDATE user_progress
         SET
           course_type = $1,
@@ -4695,9 +4781,9 @@ router.post('/progress', async (req, res) => {
       `, [
         courseType,
         courseLevel,
-        completed,
+        isCompleted,
         score,
-        xpEarned,
+          storedXpEarned,
         timeSpent,
         attempts,
         quizAnswers,
@@ -4705,7 +4791,7 @@ router.post('/progress', async (req, res) => {
         existingProgress.progress_id
       ]);
     } else {
-      result = await pool.query(`
+      result = await progressClient.query(`
         INSERT INTO user_progress (
           user_id,
           course_type,
@@ -4737,9 +4823,9 @@ router.post('/progress', async (req, res) => {
         courseType,
         courseLevel,
         normalizedLessonId,
-        completed,
+        isCompleted,
         score,
-        xpEarned,
+        storedXpEarned,
         timeSpent,
         attempts,
         quizAnswers,
@@ -4747,13 +4833,15 @@ router.post('/progress', async (req, res) => {
       ]);
     }
 
-    // Award XP and lesson completion only once
-    if (completed && !wasAlreadyCompleted) {
-      const beforeLevel = Number((await pool.query(`
+    // Only completed lessons carry XP in progress history. Award XP and lesson
+    // completion only once, in the same transaction as the completion row.
+    if (result.rows[0]) result.rows[0].xp_earned = storedXpEarned;
+    if (isCompleted && !wasAlreadyCompleted) {
+      const beforeLevel = Number((await progressClient.query(`
         SELECT COALESCE(level, 1) AS lvl FROM users WHERE user_id = $1
       `, [userId])).rows[0]?.lvl) || 1;
 
-      await pool.query(`
+      await progressClient.query(`
         UPDATE users
         SET
           xp = COALESCE(xp, 0) + $1,
@@ -4763,7 +4851,25 @@ router.post('/progress', async (req, res) => {
         WHERE user_id = $2
       `, [xpEarned, userId]);
 
-      const userResult = await pool.query(`
+      // Record the first completion and its server-authoritative XP toward
+      // today's quest. This keeps the lesson goal attainable without asking
+      // the browser to self-report lesson completion.
+      try {
+        await ensureFeatureSchema(pool);
+        await progressClient.query(
+          `INSERT INTO daily_goals
+             (user_id, goal_date, target_lessons, target_xp, target_speaking, completed_lessons, earned_xp)
+           VALUES ($1, CURRENT_DATE, 1, 50, 5, 1, $2)
+           ON CONFLICT (user_id, goal_date) DO UPDATE SET
+             completed_lessons = COALESCE(daily_goals.completed_lessons, 0) + 1,
+             earned_xp = LEAST(COALESCE(daily_goals.target_xp, 50), COALESCE(daily_goals.earned_xp, 0) + $2)`,
+          [userId, xpEarned]
+        );
+      } catch (questError) {
+        console.warn('Could not update lesson quest progress:', questError.message);
+      }
+
+      const userResult = await progressClient.query(`
         SELECT xp FROM users WHERE user_id = $1
       `, [userId]);
 
@@ -4771,7 +4877,7 @@ router.post('/progress', async (req, res) => {
         const xp = Number(userResult.rows[0].xp) || 0;
         const newLevel = Math.floor(xp / 100) + 1;
 
-        await pool.query(`
+        await progressClient.query(`
           UPDATE users
           SET level = $1
           WHERE user_id = $2 AND (level IS NULL OR level < $1)
@@ -4799,12 +4905,20 @@ router.post('/progress', async (req, res) => {
       );
     }
 
+    await progressClient.query('COMMIT');
+    progressTransactionOpen = false;
+    progressClient.release();
     return res.json({
       success: true,
       message: 'Progress saved successfully',
       progress: result.rows[0]
     });
 
+    } catch (transactionError) {
+      if (progressTransactionOpen) await progressClient.query('ROLLBACK').catch(() => {});
+      progressClient.release();
+      throw transactionError;
+    }
   } catch (error) {
     console.error('❌ Save progress error:', error);
     return res.status(500).json({
@@ -6052,6 +6166,17 @@ router.post('/sync/quizzes', async (req, res) => {
     if (!auth) return;
     if (!(await canAccessUser(req, res, userId))) return;
 
+    if (!Array.isArray(quizzes) || quizzes.length > 50 || quizzes.some(quiz => {
+      const score = Number(quiz?.score);
+      const timestamp = Date.parse(quiz?.timestamp);
+      return !quiz || !['string', 'number'].includes(typeof quiz.quizId) ||
+        String(quiz.quizId).length > 80 || !Number.isFinite(score) || score < 0 || score > 100 ||
+        !Array.isArray(quiz.answers) || quiz.answers.length > 100 ||
+        !Number.isFinite(timestamp) || timestamp > Date.now() + 5 * 60 * 1000;
+    })) {
+      return res.status(400).json({ success: false, error: 'Invalid offline quiz data.' });
+    }
+
     const userResult = await pool.query(
       `SELECT user_id FROM users WHERE user_id = $1`,
       [userId]
@@ -6067,11 +6192,6 @@ router.post('/sync/quizzes', async (req, res) => {
         VALUES ($1, $2, $3, $4, $5)
       `, [userId, quiz.quizId, quiz.answers, quiz.score, quiz.timestamp]);
       
-      if (quiz.score >= 70) {
-        await pool.query(`
-          UPDATE users SET xp = xp + $1 WHERE user_id = $2
-        `, [10, userId]);
-      }
     }
     
     res.json({ success: true, processed: quizzes.length });
@@ -6092,23 +6212,91 @@ router.post('/sync/progress', async (req, res) => {
     if (!auth) return;
     if (!(await canAccessUser(req, res, userId))) return;
 
+    if (!Array.isArray(progress) || progress.length > 50 || progress.some(item =>
+      !item || typeof item.lessonId !== 'string' || item.lessonId.length < 1 || item.lessonId.length > 50 ||
+      typeof item.completed !== 'boolean' || !Number.isFinite(Number(item.score)) ||
+      Number(item.score) < 0 || Number(item.score) > 100
+    )) {
+      return res.status(400).json({ success: false, error: 'Invalid offline progress data.' });
+    }
+    await ensureFeatureSchema(pool);
+
     for (const item of progress) {
-      const existing = await pool.query(`
-        SELECT progress_id FROM user_progress 
-        WHERE user_id = $1 AND lesson_id = $2
-      `, [userId, item.lessonId]);
-      
-      if (existing.rows.length > 0) {
-        await pool.query(`
-          UPDATE user_progress 
-          SET completed = $1, score = $2, xp_earned = $3, updated_at = NOW()
-          WHERE user_id = $4 AND lesson_id = $5
-        `, [item.completed, item.score, item.xpEarned, userId, item.lessonId]);
-      } else {
-        await pool.query(`
-          INSERT INTO user_progress (user_id, lesson_id, completed, score, xp_earned, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-        `, [userId, item.lessonId, item.completed, item.score, item.xpEarned]);
+      const lesson = await pool.query(
+        `SELECT lesson_id, xp, course_type, level FROM lessons
+         WHERE lesson_id = $1 AND is_published = TRUE LIMIT 1`, [item.lessonId]
+      );
+      if (!lesson.rows.length) continue;
+      const lessonXP = Math.min(100, Math.max(0, Math.trunc(Number(lesson.rows[0].xp) || 10)));
+      let verifiedScore = Number(item.score);
+      if (item.completed) {
+        const grade = await gradeLessonAnswers(item.lessonId, item.quizAnswers);
+        const settings = (await pool.query(
+          `SELECT passing_score, requires_quiz FROM lesson_completion_settings
+           WHERE lesson_id = $1 LIMIT 1`, [item.lessonId]
+        )).rows[0] || { passing_score: 80, requires_quiz: true };
+        if (grade.total > 0) {
+          verifiedScore = grade.score;
+          if (settings.requires_quiz !== false &&
+              (grade.answered < grade.total || grade.score < (Number(settings.passing_score) || 80))) {
+            return res.status(400).json({ success: false, error: 'Offline lesson quiz did not meet the passing score.' });
+          }
+        }
+      }
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('SELECT pg_advisory_xact_lock(hashtext($1::text), hashtext($2::text))', [userId, item.lessonId]);
+        const existing = (await client.query(`
+          SELECT progress_id, completed FROM user_progress
+          WHERE user_id = $1 AND lesson_id = $2 LIMIT 1 FOR UPDATE
+        `, [userId, item.lessonId])).rows[0] || null;
+        const courseType = lesson.rows[0].course_type || 'YCT';
+        const courseLevel = Number(lesson.rows[0].level) || 1;
+        const isCompleted = item.completed || existing?.completed === true;
+        const storedXP = isCompleted ? lessonXP : 0;
+
+        if (existing) {
+          await client.query(`
+            UPDATE user_progress
+            SET completed = COALESCE(completed, FALSE) OR $1,
+                score = GREATEST(COALESCE(score, 0), $2), xp_earned = $3,
+                course_type = $4, course_level = $5, updated_at = NOW()
+            WHERE progress_id = $6
+          `, [item.completed, verifiedScore, storedXP, courseType, courseLevel, existing.progress_id]);
+        } else {
+          await client.query(`
+            INSERT INTO user_progress
+              (user_id, course_type, course_level, lesson_id, completed, score, xp_earned, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+          `, [userId, courseType, courseLevel, item.lessonId, isCompleted, verifiedScore, storedXP]);
+        }
+
+        if (item.completed && existing?.completed !== true) {
+          await client.query(`
+            UPDATE users SET xp = COALESCE(xp, 0) + $1,
+              lessons_completed = COALESCE(lessons_completed, 0) + 1,
+              last_lesson_at = NOW(), updated_at = NOW()
+            WHERE user_id = $2
+          `, [lessonXP, userId]);
+          await client.query(
+            `INSERT INTO xp_logs (user_id, amount, source) VALUES ($1, $2, 'lesson')`, [userId, lessonXP]
+          );
+          await client.query(`
+            INSERT INTO daily_goals
+              (user_id, goal_date, target_lessons, target_xp, target_speaking, completed_lessons, earned_xp)
+            VALUES ($1, CURRENT_DATE, 1, 50, 5, 1, $2)
+            ON CONFLICT (user_id, goal_date) DO UPDATE SET
+              completed_lessons = COALESCE(daily_goals.completed_lessons, 0) + 1,
+              earned_xp = LEAST(COALESCE(daily_goals.target_xp, 50), COALESCE(daily_goals.earned_xp, 0) + $2)
+          `, [userId, lessonXP]);
+        }
+        await client.query('COMMIT');
+      } catch (error) {
+        await client.query('ROLLBACK').catch(() => {});
+        throw error;
+      } finally {
+        client.release();
       }
     }
     
@@ -6124,24 +6312,9 @@ router.post('/sync/xp', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const { userId, xp, entries } = req.body;
-
     const auth = await requireUser(req, res);
     if (!auth) return;
-    if (!(await canAccessUser(req, res, userId))) return;
-
-    await pool.query(`
-      UPDATE users SET xp = xp + $1, updated_at = NOW() WHERE user_id = $2
-    `, [xp, userId]);
-    
-    for (const entry of entries) {
-      await pool.query(`
-        INSERT INTO xp_logs (user_id, amount, source, timestamp, created_at)
-        VALUES ($1, $2, $3, $4, NOW())
-      `, [userId, entry.xp, entry.source, entry.timestamp]);
-    }
-    
-    res.json({ success: true });
+    return res.status(410).json({ success: false, error: 'Client-submitted XP is no longer accepted.' });
   } catch (error) {
     console.error('XP sync error:', error);
     res.status(500).json({ error: 'Sync failed' });
@@ -6159,23 +6332,32 @@ router.post('/sync/achievements', async (req, res) => {
     if (!auth) return;
     if (!(await canAccessUser(req, res, userId))) return;
 
+    if (!Array.isArray(achievements) || achievements.length > 25) {
+      return res.status(400).json({ success: false, error: 'Invalid offline achievements.' });
+    }
+    await ensureFeatureSchema(pool);
+
+    const catalog = {
+      first_game: { name: 'First Steps 🎮', sql: `SELECT 1 FROM game_sessions WHERE user_id = $1 LIMIT 1` },
+      sharp_ear: { name: 'Sharp Ear 👂', sql: `SELECT 1 FROM game_sessions WHERE user_id = $1 AND game = 'tone_pairs' AND total > 0 AND correct * 100 >= total * 90 LIMIT 1` },
+      week_warrior: { name: 'Week Warrior 🔥', sql: `SELECT 1 FROM users WHERE user_id = $1 AND COALESCE(streak_days, 0) >= 7` },
+      month_master: { name: 'Month Master 🗓️', sql: `SELECT 1 FROM users WHERE user_id = $1 AND COALESCE(streak_days, 0) >= 30` },
+      treasure_hunter: { name: 'Treasure Hunter 🧰', sql: `SELECT 1 FROM daily_goals WHERE user_id = $1 AND chest_claimed = TRUE LIMIT 1` },
+      word_collector: { name: 'Word Collector 📚', sql: `SELECT 1 FROM review_queue WHERE user_id = $1 GROUP BY user_id HAVING COUNT(*) >= 25` },
+      placed: { name: 'Level Placed 🎯', sql: `SELECT 1 FROM placement_results WHERE user_id = $1 LIMIT 1` }
+    };
+
     for (const achievement of achievements) {
-      const existing = await pool.query(`
-        SELECT 1 FROM user_achievements 
-        WHERE user_id = $1 AND achievement_id = $2
-      `, [userId, achievement.achievementId]);
-      
-      if (existing.rows.length === 0) {
-        await pool.query(`
-          INSERT INTO user_achievements (user_id, achievement_id, unlocked_at, created_at)
-          VALUES ($1, $2, $3, NOW())
-        `, [userId, achievement.achievementId, achievement.timestamp]);
-        
-        await pool.query(`
-          UPDATE users SET achievements_count = achievements_count + 1, updated_at = NOW()
-          WHERE user_id = $1
-        `, [userId]);
-      }
+      const type = String(achievement?.achievementId ?? achievement?.type ?? '');
+      const definition = catalog[type];
+      if (!definition) continue;
+      const verified = await pool.query(definition.sql, [userId]);
+      if (!verified.rows.length) continue;
+      await pool.query(
+        `INSERT INTO achievements (user_id, achievement_type, achievement_name)
+         VALUES ($1, $2, $3) ON CONFLICT (user_id, achievement_type) DO NOTHING`,
+        [userId, type, definition.name]
+      );
     }
     
     res.json({ success: true, processed: achievements.length });
@@ -6190,17 +6372,35 @@ router.post('/sync/streak', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const { userId, count, lastDate } = req.body;
+    const { userId, lastDate } = req.body || {};
 
     const auth = await requireUser(req, res);
     if (!auth) return;
     if (!(await canAccessUser(req, res, userId))) return;
 
+    const parsedLastDate = typeof lastDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(lastDate)
+      ? new Date(`${lastDate}T00:00:00.000Z`)
+      : null;
+    if (!parsedLastDate || !Number.isFinite(parsedLastDate.getTime()) ||
+        parsedLastDate.toISOString().slice(0, 10) !== lastDate) {
+      return res.status(400).json({ success: false, error: 'Invalid streak date.' });
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    if (lastDate !== today && lastDate !== yesterday) {
+      return res.status(400).json({ success: false, error: 'Offline activity can only sync for today or yesterday.' });
+    }
+
     await pool.query(`
-      UPDATE users 
-      SET streak_days = $1, last_active = $2, updated_at = NOW()
-      WHERE user_id = $3
-    `, [count, lastDate, userId]);
+      UPDATE users
+      SET streak_days = CASE
+            WHEN last_active IS NULL OR last_active::date < $2::date - 1 THEN 1
+            WHEN last_active::date = $2::date - 1 THEN COALESCE(streak_days, 0) + 1
+            ELSE COALESCE(streak_days, 1)
+          END,
+          last_active = $2::date, updated_at = NOW()
+      WHERE user_id = $1 AND (last_active IS NULL OR last_active::date < $2::date)
+    `, [userId, lastDate]);
     
     res.json({ success: true });
   } catch (error) {
@@ -8400,6 +8600,46 @@ router.delete('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, async
    ADMIN AUDIT LOG
 ========================================================= */
 
+router.get('/admin/health', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    await ensureAdminTables();
+
+    let dbOk = false;
+    try {
+      await pool.query('SELECT 1');
+      dbOk = true;
+    } catch (e) {
+      dbOk = false;
+    }
+
+    const auditAgg = await pool.query(
+      'SELECT COUNT(*) AS n, MAX(created_at) AS last_at FROM admin_audit'
+    );
+
+    const pendingParents = await pool.query(
+      "SELECT COUNT(*) AS n FROM parents WHERE is_verified = FALSE"
+    );
+
+    const bannedUsers = await pool.query(
+      "SELECT COUNT(*) AS n FROM users WHERE is_banned = TRUE"
+    );
+
+    return res.json({
+      success: true,
+      db: dbOk,
+      openai: !!process.env.OPENAI_API_KEY,
+      audit_rows: Number(auditAgg.rows[0].n || 0),
+      last_audit_at: auditAgg.rows[0].last_at || null,
+      pending_parents: Number(pendingParents.rows[0].n || 0),
+      banned_users: Number(bannedUsers.rows[0].n || 0)
+    });
+  } catch (error) {
+    console.error('\u274c Admin health error:', error);
+    return res.status(500).json({ success: false, error: 'Health check failed.' });
+  }
+});
+
 router.get('/admin/audit', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -8509,7 +8749,9 @@ console.log('✅ Admin routes registered successfully!');
 // ===== FEATURE PACK: quests, streaks, review, games, leaderboard, referrals, trial, classroom =====
 // NOTE: registered synchronously; schema setup runs async in the background
 // to avoid a top-level await (not supported by Netlify's cjs function bundler).
-  registerFeatureRoutes(router, pool, { verifyAdminToken, verifyJWTToken });
+  registerFeatureRoutes(router, pool, { verifyAdminToken, verifyJWTToken, requireUser });
+  registerAIRoutes(router, pool, { requireUser, verifyAdminToken });
+  registerSecureGrading(router, pool, { requireUser });
 ensureFeatureSchema(pool)
   .then(() => {
     console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');

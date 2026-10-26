@@ -296,14 +296,14 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 }
 .skip-link:focus { top: 12px; }
 
-/* ─── FLOATING BOTTOM TAB BAR (primary destinations, small screens) ─── */
+/* ─── FLOATING BOTTOM TAB BAR (primary destinations, every viewport) ─── */
 .tabbar {
   position: fixed; z-index: var(--z-tabbar);
   bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   left: 50%; transform: translateX(-50%);
   width: min(470px, calc(100% - 18px));
   height: var(--tabbar-h); padding: 6px;
-  display: none; justify-content: space-between;
+  display: flex; justify-content: space-between;
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -335,9 +335,7 @@ body.has-tabbar .wrap {
 body.has-tabbar footer {
   padding-bottom: calc(64px + var(--tabbar-space) + env(safe-area-inset-bottom, 0px));
 }
-@media (max-width: 1024px) {
-  .tabbar { display: flex; }
-}
+
 [data-theme="dark"] .tabbar { background: rgba(18,40,58,.94);
   border-color: rgba(36,68,88,.85);
   box-shadow: 0 18px 44px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.06) inset;
