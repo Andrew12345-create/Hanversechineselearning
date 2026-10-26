@@ -1,67 +1,55 @@
 /* ============================================================
    SERVER-SIDE QUIZ GRADING 🔐
    ------------------------------------------------------------
-   Adds POST /lessons/:lessonId/answer — grades one quiz answer
-   against the DB answer key and returns { correct, correctIndex }.
-   Public lesson payloads stop shipping is_correct once
-   PUBLIC_LESSON_HIDE_ANSWERS is on ("1"); the client engine
-   keeps working either way (it re-verifies locally until the
-   next client release removes that path).
-   Grading here NEVER touches XP or progress — that remains the
-   existing completion flow's job.
+   Adds an authenticated POST /lessons/:lessonId/answer route.
+   It returns only whether the submitted option is correct; answer
+   keys remain on the server. Progress and XP are verified separately.
    ============================================================ */
 
-export function registerSecureGrading(router, pool) {
-  const HIDE = process.env.PUBLIC_LESSON_HIDE_ANSWERS === '1';
+import rateLimit from 'express-rate-limit';
 
-  /* strip answer keys from any payload we hand the browser */
-  function publicLesson(row) {
-    if (!HIDE || !row) return row;
-    const clone = { ...row };
-    if (Array.isArray(clone.quiz)) {
-      clone.quiz = clone.quiz.map(q => {
-        if (!q || typeof q !== 'object') return q;
-        const c = { ...q };
-        if (Array.isArray(c.options)) {
-          c.options = c.options.map(o => {
-            if (!o || typeof o !== 'object') return o;
-            const oc = { ...o };
-            delete oc.is_correct;           // relational-style rows
-            return oc;
-          });
-          delete c.correct;                  // embedded-style rows
-          delete c.correct_index;
-          delete c.answer;
-        }
-        return c;
-      });
-    }
-    return clone;
+export function registerSecureGrading(router, pool, { requireUser } = {}) {
+  if (typeof requireUser !== 'function') {
+    throw new Error('Secure quiz grading requires the shared user authenticator.');
   }
+  const answerLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 25,
+    keyGenerator: req => String(req.quizUserId),
+    standardHeaders: true,
+    legacyHeaders: false
+  });
+  const requireSession = (req, res, next) => {
+    Promise.resolve(requireUser(req, res)).then(user => {
+      if (!user) return;
+      req.quizUserId = Number(user.user_id);
+      if (!Number.isInteger(req.quizUserId) || req.quizUserId < 1) {
+        return res.status(401).json({ success: false, error: 'Session expired — please sign in again.' });
+      }
+      next();
+    }).catch(error => {
+      console.error('Quiz grading auth:', error.message);
+      if (!res.headersSent) res.status(500).json({ success: false, error: 'Authentication failed.' });
+    });
+  };
 
-  /* wrap the two public lesson endpoints' responses */
-  const origGetLessons = router.stack
-    ? null : null; /* (routes are wrapped at definition time below) */
-
-  router.__publicLesson = publicLesson; // exposed for internal reuse
-
-  router.post('/lessons/:lessonId/answer', async (req, res) => {
+  router.post('/lessons/:lessonId/answer', requireSession, answerLimiter, async (req, res) => {
     try {
       if (!ensurePoolCompat(res, pool)) return;
 
       const lessonId = String(req.params.lessonId || '').trim().slice(0, 40);
       const questionId = Number(req.body?.questionId);
-      const answerIndex = Number(req.body?.answerIndex);
+      const answerOptionId = Number(req.body?.answerOptionId);
+      const answerOptionIds = req.body?.answerOptionIds;
 
-      if (!lessonId || !Number.isInteger(questionId) || !Number.isInteger(answerIndex)) {
+      if (!lessonId || !Number.isInteger(questionId)) {
         return res.status(400).json({
-          success: false,
-          error: 'lessonId (path), questionId and answerIndex (integers) are required.'
+          success: false, error: 'lessonId and questionId are required.'
         });
       }
 
       const q = await pool.query(
-        `SELECT question_id FROM lesson_quiz_questions
+        `SELECT question_id, question_type FROM lesson_quiz_questions
           WHERE question_id = $1 AND lesson_id = $2 LIMIT 1`,
         [questionId, lessonId]
       );
@@ -70,7 +58,7 @@ export function registerSecureGrading(router, pool) {
       }
 
       const o = await pool.query(
-        `SELECT option_id, option_text, is_correct, order_index
+        `SELECT option_id, is_correct, order_index
            FROM lesson_quiz_options
           WHERE question_id = $1
           ORDER BY order_index ASC, option_id ASC`,
@@ -81,26 +69,35 @@ export function registerSecureGrading(router, pool) {
         return res.status(404).json({ success: false, error: 'Question has no options.' });
       }
 
-      const correctIndex = options.findIndex(x => x.is_correct === true);
-      const correct = answerIndex >= 0
-        && correctIndex >= 0
-        && answerIndex < options.length
-        && answerIndex === correctIndex;
+      let correct = false;
+      if (q.rows[0].question_type === 'sentence_build') {
+        if (!Array.isArray(answerOptionIds) || answerOptionIds.length !== options.length ||
+            answerOptionIds.some(id => !Number.isInteger(Number(id))) ||
+            new Set(answerOptionIds.map(Number)).size !== options.length) {
+          return res.status(400).json({ success: false, error: 'Submit the complete sentence order.' });
+        }
+        const expected = options.slice().sort((a, b) =>
+          Number(a.order_index) - Number(b.order_index) || Number(a.option_id) - Number(b.option_id)
+        ).map(option => Number(option.option_id));
+        const selected = answerOptionIds.map(Number);
+        correct = selected.every((id, index) => id === expected[index]);
+      } else {
+        if (!Number.isInteger(answerOptionId)) {
+          return res.status(400).json({ success: false, error: 'Choose an answer option.' });
+        }
+        correct = options.some(option =>
+          Number(option.option_id) === answerOptionId && option.is_correct === true
+        );
+      }
 
-      return res.json({
-        success: true,
-        correct,
-        correctIndex: correct ? answerIndex : correctIndex, // only after submission
-        correctText: correct ? null : (options[correctIndex]?.option_text ?? null)
-      });
+      return res.json({ success: true, correct });
     } catch (error) {
       console.error('❌ lessons/answer:', error.message);
       return res.status(500).json({ success: false, error: 'Grading failed.' });
     }
   });
 
-  console.log('🔐 Secure quiz grading registered (/lessons/:id/answer)'
-    + (HIDE ? ' — answer keys hidden from public lesson payloads' : ' — keys still public (set PUBLIC_LESSON_HIDE_ANSWERS=1)'));
+  console.log('🔐 Authenticated server-side quiz grading registered (/lessons/:id/answer)');
 }
 
 function ensurePoolCompat(res, pool) {

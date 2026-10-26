@@ -1,17 +1,19 @@
 /* bottom-nav.js — injects the floating bottom tab bar used on learner pages.
-   Styling lives in hanverse.css (.tabbar, .sheet). Shows only on small screens
-   (<= 1024px); the desktop top nav stays the primary navigation above that.
+   Styling lives in hanverse.css (.tabbar, .sheet). The bar is ALWAYS visible
+   on learner pages at every viewport (desktop keeps the top nav too — the
+   bar is the persistent cross-page navigator for the logged-in app).
 
    Opt out per page with <body data-tabbar="off">.
 
-   Tabs map to real HanVerse destinations:
-     Home -> index.html · Learn -> learn.html · Roadmap -> roadmap.html
-     Progress -> profile.html · More -> opens the navigation sheet
+   Tabs map to the five primary destinations:
+     Home -> dashboard.html when signed in (marketing site when not)
+     Learn -> learn.html · Practice -> practice.html
+     Talk -> talk.html · Profile -> profile.html
 
-   The More sheet (bottom sheet) holds every other destination — Practice,
-   Explore, Talk, Parents, Premium, Notifications, Placement quiz, Settings —
-   plus an auth footer (Profile / Log out when signed in, Log in / Create
-   account when not). Auth state is read from localStorage the same way
+   The More sheet (bottom sheet) holds every other destination — Roadmap,
+   Explore, My Level (placement quiz), Parents, Premium, Notifications,
+   Settings — plus an auth footer (Profile / Log out when signed in, Log in /
+   Create account when not). Auth state is read from localStorage the same way
    nav-user.js reads it.
 */
 (function () {
@@ -43,6 +45,7 @@
       notifications: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
       settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
       placement: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/>',
+      classroom: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12.5V17c0 1.2 2.7 3 6 3s6-1.8 6-3v-4.5"/><path d="M22 10v6"/>',
       more: '<path d="m18 15-6-6-6 6"/>',
       user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
       logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
@@ -59,18 +62,19 @@
   var tabs = [
     { href: loggedIn ? 'dashboard.html' : 'https://hanverse.netlify.app/', label: 'Home', icon: 'home' },
     { href: 'learn.html', label: 'Learn', icon: 'learn' },
-    { href: 'roadmap.html', label: 'Roadmap', icon: 'roadmap' },
-    { href: 'profile.html', label: 'Progress', icon: 'progress' }
+    { href: 'practice.html', label: 'Practice', icon: 'practice' },
+    { href: 'talk.html', label: 'Talk', icon: 'talk' },
+    { href: 'profile.html', label: 'Profile', icon: 'user' }
   ];
 
   var sheetItems = [
-    { href: 'practice.html', label: 'Practice', icon: 'practice' },
+    { href: 'roadmap.html', label: 'Roadmap', icon: 'roadmap' },
     { href: 'explore.html', label: 'Explore', icon: 'explore' },
-    { href: 'talk.html', label: 'Talk', icon: 'talk' },
+    { href: 'class.html', label: 'Classroom', icon: 'classroom' },
+    { href: 'placement.html', label: 'My Level', icon: 'placement' },
     { href: 'parents.html', label: 'Parents', icon: 'parents' },
     { href: 'payment.html', label: 'Premium', icon: 'premium' },
     { href: 'notifications.html', label: 'Alerts', icon: 'notifications' },
-    { href: 'placement.html', label: 'My Level', icon: 'placement' },
     { href: 'settings.html', label: 'Settings', icon: 'settings' }
   ];
 

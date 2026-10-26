@@ -296,14 +296,14 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 }
 .skip-link:focus { top: 12px; }
 
-/* ─── FLOATING BOTTOM TAB BAR (primary destinations, small screens) ─── */
+/* ─── FLOATING BOTTOM TAB BAR (primary destinations, every viewport) ─── */
 .tabbar {
   position: fixed; z-index: var(--z-tabbar);
   bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   left: 50%; transform: translateX(-50%);
   width: min(470px, calc(100% - 18px));
   height: var(--tabbar-h); padding: 6px;
-  display: none; justify-content: space-between;
+  display: flex; justify-content: space-between;
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -335,9 +335,7 @@ body.has-tabbar .wrap {
 body.has-tabbar footer {
   padding-bottom: calc(64px + var(--tabbar-space) + env(safe-area-inset-bottom, 0px));
 }
-@media (max-width: 1024px) {
-  .tabbar { display: flex; }
-}
+
 [data-theme="dark"] .tabbar { background: rgba(18,40,58,.94);
   border-color: rgba(36,68,88,.85);
   box-shadow: 0 18px 44px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.06) inset;
@@ -537,73 +535,3 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
   main { padding-top: 90px; }
   .footer-inner { flex-direction: column; align-items: flex-start; }
 }
-
-
-/* ══════════════════════════════════════════════════════════
-   LEARNING RAIL — vertical side pane (learn.html, lesson.html)
-   ══════════════════════════════════════════════════════════ */
-.rail [hidden],.rail-btn[hidden],.mobile-menu[hidden]{display:none!important}
-.learn-layout, .lesson-layout{display:grid;grid-template-columns:272px minmax(0,1fr);gap:18px;align-items:start}
-.rail{position:sticky;top:88px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.rail-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px 16px;box-shadow:0 4px 14px rgba(15,23,42,.04)}
-.rail-card .kicker{font-size:.6rem}
-.rail-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.rail-chip{padding:4px 10px;border-radius:999px;background:var(--amber-50,#FEF3C7);color:#B45309;font-weight:800;font-size:.68rem;white-space:nowrap}
-/* me card */
-.rail-me-top{display:flex;align-items:center;gap:11px}
-.rail-avatar{width:46px;height:46px;border-radius:50%;background:var(--blue-50,#EFF6FF);display:grid;place-items:center;font-size:1.3rem;flex:none;overflow:hidden}
-.rail-avatar img{width:100%;height:100%;object-fit:cover}
-.rail-me-top b{display:block;font:900 .95rem var(--font-head,Nunito,sans-serif);color:var(--navy,#0F2340);line-height:1.2}
-.rail-me-top small{color:var(--muted);font-size:.68rem;font-weight:700}
-.rail-lvl{margin-left:auto;flex:none;padding:5px 10px;border-radius:999px;background:var(--blue-50,#EFF6FF);color:var(--blue-dark,#1D4ED8);font-weight:900;font-size:.68rem}
-.rail-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.rail-stat{background:var(--bg,#F8FAFC);border-radius:12px;padding:8px 10px}
-.rail-stat small{display:block;color:var(--muted);font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
-.rail-stat b{font:900 .95rem var(--font-head,Nunito,sans-serif);color:var(--navy,#0F2340)}
-/* continue / next */
-.rail-next h3{font:900 .98rem var(--font-head,Nunito,sans-serif);margin:6px 0 2px;color:var(--navy,#0F2340);line-height:1.3}
-.rail-next p{margin:2px 0 0;color:var(--muted);font-size:.68rem;line-height:1.5}
-.rail-next .pills{margin:8px 0 10px}
-.rail-next .cta{width:100%;min-height:44px;font-size:.74rem}
-/* today goal */
-.goalbar{height:9px;background:#E8EEF7;border-radius:99px;overflow:hidden;margin:10px 0 7px}
-.goalbar span{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#3B82F6,#1D4ED8);transition:width .7s}
-.rail-goal-text{margin:0;color:var(--muted);font-size:.68rem;font-weight:700;line-height:1.5}
-.rail-today .quest-strip{display:none;margin:10px 0 0;padding:9px 11px;font-size:.64rem}
-/* review */
-.rail-review b.rail-big{font:900 1.5rem var(--font-head,Nunito,sans-serif);color:var(--navy,#0F2340)}
-.rail-review p{margin:2px 0 10px;color:var(--muted);font-size:.68rem;line-height:1.5}
-/* shortcuts + tip */
-.rail-short{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rail-short a{display:flex;align-items:center;gap:7px;padding:9px 11px;border:1px solid var(--line);border-radius:12px;color:var(--ink,#1E3A5F);font-size:.72rem;font-weight:800;text-decoration:none;background:var(--bg,#F8FAFC);transition:border-color .15s,background .15s}
-.rail-short a:hover{border-color:var(--blue,#2563EB);background:var(--blue-50,#EFF6FF)}
-.rail-tip{display:flex;gap:10px;align-items:center}
-.rail-tip img{width:44px;height:44px;border-radius:12px;flex:none;object-fit:cover;background:var(--blue-50,#EFF6FF)}
-.rail-tip p{margin:0;color:var(--muted);font-size:.68rem;line-height:1.55;font-weight:600}
-/* generic rail button/link */
-.rail-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:11px;background:var(--blue,#2563EB);color:#fff;font-weight:800;font-size:.72rem;text-decoration:none;border:0;cursor:pointer}
-.rail-btn:hover{background:var(--blue-dark,#1D4ED8)}
-.rail-link{display:inline-block;margin-top:8px;color:var(--blue,#2563EB);font-size:.7rem;font-weight:800;text-decoration:none}
-.rail-link:hover{text-decoration:underline}
-/* lesson rail bits */
-.rail-pos{font:900 1.15rem var(--font-head,Nunito,sans-serif);color:var(--navy,#0F2340);margin:6px 0 2px}
-.rail-pos small{font-size:.7rem;color:var(--muted);font-weight:800}
-.rail-session{display:flex;flex-direction:column;gap:7px;margin-top:8px}
-.rail-session span{display:flex;justify-content:space-between;color:var(--muted);font-size:.7rem;font-weight:800}
-.rail-session b{color:var(--navy,#0F2340);font:900 .8rem var(--font-head,Nunito,sans-serif)}
-.rail-next-up p{margin:4px 0 8px;color:var(--muted);font-size:.7rem;font-weight:700;line-height:1.45}
-/* dark theme */
-[data-theme="dark"] .rail-card{background:#12283A;border-color:rgba(36,68,88,.85)}
-[data-theme="dark"] .rail-stat,[data-theme="dark"] .rail-short a{background:rgba(30,58,95,.35);border-color:rgba(36,68,88,.8)}
-[data-theme="dark"] .rail-stat b,[data-theme="dark"] .rail-me-top b,[data-theme="dark"] .rail-big,[data-theme="dark"] .rail-pos,[data-theme="dark"] .rail-session b{color:#F1F5F9}
-[data-theme="dark"] .goalbar{background:rgba(36,68,88,.8)}
-[data-theme="dark"] .rail-short a{color:#DBEAFE}
-/* mobile: rail becomes a horizontal snap strip */
-@media(max-width:1100px){
-  .learn-layout,.lesson-layout{display:flex;flex-direction:column}
-  .rail{position:static;flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;gap:10px;scrollbar-width:thin}
-  .rail-card{min-width:236px;max-width:236px;scroll-snap-align:start;flex:none}
-  .rail-hide-m{display:none}
-  .rail-next .cta{min-height:40px}
-}
-@media(min-width:1101px){.rail-strip-only{display:none}}

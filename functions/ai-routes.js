@@ -196,7 +196,7 @@ ${kidSafeRules}`
 
   /* ============================================================
      2) QUIZ EXPLANATION — post-submission feedback ("why?")
-     POST /ai/quiz-explain { lessonId, questionId, userAnswerIndex }
+     POST /ai/quiz-explain { lessonId, questionId, userAnswerOptionId }
      The server reads the answer key from the DB, grades again,
      and only then asks Panda to explain. No keys leak pre-submit;
      XP/scoring are untouched (existing engine stays the judge).
@@ -207,10 +207,10 @@ ${kidSafeRules}`
       const body = req.body || {};
       const lessonId = String(body.lessonId || '').trim().slice(0, 40);
       const questionId = Number(body.questionId);
-      const userAnswerIndex = Number(body.userAnswerIndex);
+      const userAnswerOptionId = Number(body.userAnswerOptionId);
 
-      if (!lessonId || !questionId || Number.isNaN(userAnswerIndex)) {
-        return fail(res, 400, 'lessonId, questionId and userAnswerIndex are required.');
+      if (!lessonId || !Number.isInteger(questionId) || !Number.isInteger(userAnswerOptionId)) {
+        return fail(res, 400, 'lessonId, questionId and userAnswerOptionId are required.');
       }
 
       if (!underLimit(userId, 'quizExplain')) {
@@ -231,14 +231,13 @@ ${kidSafeRules}`
       );
       const options = o.rows;
       if (!options.length) return fail(res, 404, 'Question options not found.');
+      const chosen = options.find(option => Number(option.option_id) === userAnswerOptionId);
+      if (!chosen) {
+        return fail(res, 400, 'Choose one of the available answers.');
+      }
 
-      /* The lesson client (lesson.html) identifies the chosen option by its
-         DISPLAY index (button.dataset.option), with options sorted by
-         (order_index, option_id) — the same order queried here. So the
-         answer key comparison is index-based. */
-      const correctIdx = options.findIndex(x => x.is_correct === true);
-      const chosen = options[userAnswerIndex];
-      const wasCorrect = userAnswerIndex >= 0 && correctIdx >= 0 && userAnswerIndex === correctIdx;
+      const wasCorrect = chosen.is_correct === true;
+      const correctOption = options.find(option => option.is_correct === true);
 
       const questionText = q.rows[0].question_text || '(question text unavailable)';
 
@@ -248,13 +247,13 @@ ${kidSafeRules}`
         return res.json({
           success: true,
           wasCorrect: true,
-          explanation: 'Yes! 🎉 ' + (correctOpt.option_text || '') + ' is right. Nice work!',
+          explanation: 'Yes! 🎉 ' + (correctOption?.option_text || '') + ' is right. Nice work!',
           provider: 'deterministic'
         });
       }
 
       /* Wrong answer: AI explanation grounded in the real key. */
-      const cacheKey = 'qe:' + hashKey(questionId + '|' + userAnswerIndex);
+      const cacheKey = 'qe:' + hashKey(questionId + '|' + chosen.option_id);
       const cached = cacheGet(cacheKey);
       if (cached) {
         markUsage(userId, 'quizExplain');
@@ -290,7 +289,7 @@ ${kidSafeRules}`
 
       markUsage(userId, 'quizExplain');
       if (!answer.ok) {
-        const fallback = 'Not quite — the right answer is "' + (correctOpt?.option_text || '?') + '". You will get the next one! 💪';
+        const fallback = 'Not quite — the right answer is "' + (correctOption?.option_text || '?') + '". You will get the next one! 💪';
         return res.json({ success: true, wasCorrect: false, explanation: fallback, degraded: true });
       }
 

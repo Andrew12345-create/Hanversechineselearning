@@ -46,8 +46,8 @@
         href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
-    <link rel="stylesheet" href="hanverse.css">
-<script src="js/auth-fetch.js"></script>
+    <link rel="stylesheet" href="hanverse.css?v=1">
+<script src="js/auth-fetch.js?v=1"></script>
 
     <style>
 
@@ -3260,9 +3260,9 @@
 
 
 
-<script src="hanverse.js"></script>
-<script src="features-client.js"></script>
-<script src="nav-user.js"></script>
+<script src="hanverse.js?v=1"></script>
+<script src="features-client.js?v=1"></script>
+<script src="nav-user.js?v=1"></script>
 <script>
 
     /* =========================================================
@@ -7018,13 +7018,26 @@
     function reviewNext(id, cards, idx) {
         if (idx >= cards.length) {
             if (window.HanVerseSound) window.HanVerseSound.levelUp();
-            // Mistake practice reward: +1 heart (Duolingo-style practice refill)
+            $("modalContent").innerHTML = `<div class="empty"><h3>Deck cleared! 🔁</h3><p id="reviewRewardNotice">Checking your practice reward…</p><p>These words will come back when you're ready to forget them.</p></div>`;
             (async () => {
                 try {
-                    if (FV() && FUID()) { heartsState = await FV().hearts.refill(FUID(), "practice"); renderHearts(); }
+                    if (FV() && FUID()) {
+                        heartsState = await FV().hearts.refill(FUID(), "practice");
+                        renderHearts();
+                        const notice = $("reviewRewardNotice");
+                        if (notice) {
+                            notice.textContent = heartsState.granted
+                                ? "+1 ❤️ for practising!"
+                                : heartsState.alreadyUsed
+                                    ? "Your daily practice heart has already been collected. Great review!"
+                                    : "Your heart bar is full. Great review!";
+                        }
+                    } else {
+                        const notice = $("reviewRewardNotice");
+                        if (notice) notice.textContent = "Great review! Sign in to save your progress.";
+                    }
                 } catch (e) { console.warn("hearts practice refill:", e.message); }
             })();
-            $("modalContent").innerHTML = `<div class="empty"><h3>Deck cleared! 🔁</h3><p>+1 ❤️ for practising! These words will come back when you're ready to forget them.</p></div>`;
             return;
         }
         const c = cards[idx];
@@ -7251,8 +7264,8 @@
 </script>
 
 
-<script src="notifications-client.js"></script>
-<script src="bottom-nav.js"></script>
+<script src="notifications-client.js?v=1"></script>
+<script src="bottom-nav.js?v=1"></script>
 
 </body>
 </html>
