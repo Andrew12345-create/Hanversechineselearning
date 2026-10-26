@@ -62,7 +62,7 @@ if (DATABASE_URL) {
         connectionString: DATABASE_URL,
 
         ssl: {
-            rejectUnauthorized: false
+            rejectUnauthorized: true
         },
 
         max: 10,

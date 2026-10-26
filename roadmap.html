@@ -24,6 +24,7 @@
 <script src="js/auth-fetch.js?v=1"></script>
 <style>
 :root{--muted:#5D7A9A;--bg:#F5F9FF;--line:#D5E3F0;--green:#16A34A;--gold:#F59E0B;--purple:#8B5CF6;--shadow:0 16px 48px rgba(15,35,64,.12)}
+.next-step{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:15px;margin:18px 0;padding:19px 22px;border:1px solid #d9e5f5;border-radius:22px;background:linear-gradient(110deg,#fff,#eff6ff 65%,#f0fdf4);box-shadow:0 10px 28px rgba(15,35,64,.07)}.next-step-icon{width:48px;height:48px;border-radius:16px;background:#e0edff;display:grid;place-items:center;font-size:24px}.next-step-copy .kicker{color:var(--blue);font-size:.58rem}.next-step-copy h2{font:900 1.05rem var(--font-head);margin:4px 0}.next-step-copy p{margin:0;color:var(--muted);font-size:.68rem;line-height:1.5}.next-step-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border-radius:12px;background:var(--blue);color:#fff;font-size:.68rem;font-weight:850;white-space:nowrap}.next-step-link:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--navy);color:var(--navy);font-family:var(--font-body)}a{text-decoration:none;color:inherit}button{font:inherit}.cn{font-family:var(--font-cn)}
 .wrap{width:min(1180px,calc(100% - 32px));margin:auto}.hero{margin:34px 0 20px;padding:34px 38px;border-radius:30px;background:linear-gradient(135deg,#2563eb,#1d4ed8 65%,#1e40af);color:#fff;display:grid;grid-template-columns:1fr 250px;gap:24px;align-items:center;overflow:hidden;position:relative;box-shadow:0 18px 45px rgba(37,99,235,.2)}.hero:after{content:"学";position:absolute;right:-20px;bottom:-115px;font:900 19rem var(--font-cn);opacity:.045}.eyebrow,.kicker{font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;font-weight:800}.hero h1{font:900 clamp(2.1rem,5vw,3.4rem)/1.02 var(--font-head);margin:9px 0;letter-spacing:-1.5px;position:relative;z-index:1}.hero p{max-width:650px;color:rgba(255,255,255,.84);font-size:.82rem;line-height:1.7;margin:0;position:relative;z-index:1}.hero-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;position:relative;z-index:1}.chip{padding:7px 10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:999px;font-size:.62rem;font-weight:800}.hero-art{text-align:center;position:relative;z-index:2}.hero-art img{width:190px;height:190px;object-fit:contain;filter:drop-shadow(0 17px 18px rgba(0,0,0,.16));animation:float 3.2s ease-in-out infinite}@keyframes float{50%{transform:translateY(-8px) rotate(1deg)}}.speech{margin:-2px auto 0;max-width:220px;padding:9px 12px;border-radius:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);font-size:.65rem;font-weight:700}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:18px 0}.summary{font-size:.72rem;color:var(--muted)}.summary b{color:var(--navy)}.select{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;color:var(--navy);font-size:.72rem;font-weight:800;outline:none}
@@ -43,6 +44,7 @@
 .lb-xp{font-weight:800;font-size:.78rem;color:#1D4ED8;white-space:nowrap}
 @media(max-width:900px){.hero{grid-template-columns:1fr 200px}.milestones{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.hero{grid-template-columns:1fr;padding:27px 22px}.hero-art{display:flex;align-items:center;gap:10px;text-align:left}.hero-art img{width:105px;height:105px}.speech{margin:0}.toolbar,.pathhead{align-items:flex-start;flex-direction:column}.overall{width:100%;text-align:left}.lesson{grid-template-columns:45px 1fr;gap:10px}.node{width:45px;height:45px;border-radius:15px;font-size:1rem;border-width:3px}.timeline:before,.timeline-fill{left:20px;width:4px}.lesson-card{grid-template-columns:1fr}.lesson-right{text-align:left}.progress-mini{margin:7px 0 0;width:100%}.milestones{grid-template-columns:1fr}.pathbox{padding:20px 15px}}
+@media(max-width:700px){.next-step{grid-template-columns:auto 1fr}.next-step-link{grid-column:1/-1;justify-self:start}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -70,6 +72,8 @@
 
 <main id="main" hidden><div class="wrap">
 <section class="hero"><div><div class="eyebrow">YOUR HANVERSE ROADMAP</div><h1>See where you're going.</h1><p id="heroCopy">Your lessons become a clear path. Complete one step, unlock the next and keep moving forward.</p><div class="hero-meta"><span class="chip" id="xpChip">⭐ 0 XP</span><span class="chip" id="streakChip">🔥 0 day streak</span><span class="chip" id="levelChip">YCT 1</span></div></div><div class="hero-art"><img src="assets/mascot/states/hanpan-happy.png" width="190" height="190" fetchpriority="high" decoding="async" alt="HanPan"><div class="speech" id="speech">One lesson at a time. You've got this!</div></div></section>
+
+<section class="next-step" aria-labelledby="nextStepTitle"><div class="next-step-icon" id="nextStepIcon" aria-hidden="true">🧭</div><div class="next-step-copy"><div class="kicker">YOUR NEXT BEST STEP</div><h2 id="nextStepTitle">Finding your next step…</h2><p id="nextStepCopy">HanPan is checking your saved learning progress.</p></div><a class="next-step-link" id="nextStepLink" href="learn.html">Continue →</a></section>
 
 <div class="toolbar"><div class="summary" id="summary">Loading your roadmap…</div><select class="select" id="levelSelect" aria-label="Choose YCT level"><option value="all">All YCT levels</option><option value="1">YCT 1</option><option value="2">YCT 2</option><option value="3">YCT 3</option><option value="4">YCT 4</option></select></div>
 
@@ -111,7 +115,7 @@
 <script>
 "use strict";
 const API="/api",SESSION_KEYS=["hanverse_user","hanverseUser","hanverse_session","hanverseSession","user","currentUser","authUser"];
-const $=id=>document.getElementById(id);let user=null,lessons=[],progress=new Map(),selected="all";
+const $=id=>document.getElementById(id);let user=null,lessons=[],progress=new Map(),selected="all",dueReviewCount=null;
 const levelInfo={1:{name:"Mandarin Foundations",desc:"Build your Mandarin foundations with essential words, phrases and confidence.",icon:"🌱"},2:{name:"Everyday Communication",desc:"Grow your vocabulary and communicate in familiar situations.",icon:"🌿"},3:{name:"Stronger Expression",desc:"Develop richer vocabulary, sentences and practical communication.",icon:"🏮"},4:{name:"Advanced YCT Journey",desc:"Take your Mandarin further with broader vocabulary and comprehension.",icon:"🐉"}};
 function localUser(){for(const k of SESSION_KEYS){try{const r=localStorage.getItem(k);if(r){const x=JSON.parse(r),u=x?.user||x;if(u?.user_id||u?.userId||u?.id)return u}}catch{}}return null}
 function uid(){return user?.user_id??user?.userId??user?.id}
@@ -127,23 +131,34 @@ async function load(){
  user=localUser();if(!user||!uid())throw Error("Please log in to view your saved roadmap.");
  try{const d=await api("/user/"+encodeURIComponent(uid()));if(d?.user){user={...user,...d.user};try{localStorage.setItem("hanverse_user",JSON.stringify(user))}catch{}}}catch(e){console.warn("user refresh:",e)}
  const d=await api("/lessons");lessons=Array.isArray(d?.lessons)?d.lessons:[];
+ const reviewTask=window.HanVerseFeatures?.review?.deck?window.HanVerseFeatures.review.deck(uid()).catch(()=>null):Promise.resolve(null);
  const wantParam=new URLSearchParams(location.search).get("level");
  if(wantParam&&/^[1-4]$/.test(wantParam)&&group(Number(wantParam)).length)selected=String(Number(wantParam));
  else if(group(userLevel()).length)selected=String(userLevel());
  else selected="all";
  await Promise.all(lessons.map(async l=>{try{progress.set(String(lessonId(l)),await api(`/progress/${encodeURIComponent(uid())}/${encodeURIComponent(lessonId(l))}`))}catch{progress.set(String(lessonId(l)),{progress:0,completed:false})}}));
+ const reviewDeck=await reviewTask;dueReviewCount=Array.isArray(reviewDeck?.cards)?reviewDeck.cards.length:null;
  render();
 }
 function group(n){return lessons.filter(l=>lessonLevel(l)===n).sort((a,b)=>order(a,0)-order(b,0))}
 function levelPct(n){const a=group(n);return a.length?Math.round(a.reduce((s,l)=>s+pct(l),0)/a.length):0}
 function currentLevel(){const from=userLevel();return selected==="all"?from:Number(selected)}
 function currentNext(n){return group(n).find(l=>pct(l)<100)}
+function renderNextStep(mainLevel){
+ const icon=$("nextStepIcon"),title=$("nextStepTitle"),copy=$("nextStepCopy"),link=$("nextStepLink");
+ if(dueReviewCount>0){icon.textContent="🧠";title.textContent=`${dueReviewCount} ${dueReviewCount===1?"word is":"words are"} ready to revisit`;copy.textContent="A short review helps new Mandarin words stick before you move on.";link.href="adventures.html#review";link.textContent="Review words →";return}
+ const levels=selected==="all"?[...Array.from({length:5-mainLevel},(_,i)=>mainLevel+i),...Array.from({length:mainLevel-1},(_,i)=>i+1)]:[mainLevel];
+ let next=null,nextLevel=mainLevel;for(const level of levels){next=currentNext(level);if(next){nextLevel=level;break}}
+ if(next){const name=next.title||next.name||`Lesson ${order(next,1)}`;icon.textContent=levelInfo[nextLevel]?.icon||"📚";title.textContent=`Your next lesson: ${name}`;copy.textContent=`YCT ${nextLevel} · lesson ${order(next,1)}. ${next.description||next.subtitle||"Keep building your Mandarin one small step at a time."}`;link.href=`lesson.html?id=${encodeURIComponent(lessonId(next))}`;link.textContent=pct(next)>0?"Resume lesson →":"Start lesson →";return}
+ if(lessons.length&&lessons.every(complete)){icon.textContent="🏆";title.textContent="You’ve completed every published lesson!";copy.textContent="Celebrate your progress with a friendly YCT or HSK practice room.";link.href="adventures.html#exams";link.textContent="Try a practice room →";return}
+ icon.textContent="🧭";title.textContent="Explore your available path";copy.textContent="Choose a YCT level to find the next lesson ready for you.";link.href="roadmap.html?level=all";link.textContent="View all levels →";
+}
 function render(){
  const sel=$("levelSelect");if(sel&&sel.value!==String(selected))sel.value=String(selected);
  const n=firstName(),ul=userLevel();$("userName").textContent=n;if($("userNameMobile"))$("userNameMobile").textContent=n;$("xpChip").textContent=`⭐ ${Number(user?.xp||0).toLocaleString()} XP`;$("streakChip").textContent=`🔥 ${Number(user?.streak_days||0)} day streak`;$("levelChip").textContent=`YCT ${ul}`;$("heroCopy").textContent=`${n}, your lessons become a clear path. Complete one step, unlock the next and keep moving forward.`;
  const levels=selected==="all"?[1,2,3,4]:[Number(selected)];const mainLevel=selected==="all"?ul:Number(selected);const info=levelInfo[mainLevel];$("pathTitle").textContent=`YCT ${mainLevel} · ${info.name}`;$("pathDesc").textContent=info.desc;
  const allForOverall=lessons.length?Math.round(lessons.reduce((s,l)=>s+pct(l),0)/lessons.length):0;$("overall").textContent=allForOverall+"%";$("overallFill").style.width=allForOverall+"%";
- const arr=levels.flatMap(n=>group(n).map((l,i)=>({l,i,level:n})));const target=$("lessons");target.innerHTML="";
+ const arr=levels.flatMap(n=>group(n).map((l,i)=>({l,i,level:n})));const target=$("lessons");target.innerHTML="";renderNextStep(mainLevel);
  if(!arr.length){target.innerHTML='<div class="empty"><h3>No published lessons yet.</h3><p>This level does not have lessons available yet.</p></div>';return}
  let firstIncompleteFound=false;
  arr.forEach(({l,i,level})=>{const p=pct(l),done=p>=100;const next=!done&&!firstIncompleteFound; if(next)firstIncompleteFound=true;const locked=!done&&!next&&level===mainLevel;const title=l.title||l.name||`Lesson ${i+1}`;const desc=l.description||l.subtitle||"Continue your Mandarin journey.";const el=document.createElement("article");el.className="lesson"+(done?" completed":"")+(next?" current":"")+(locked?" locked":"");const state=done?"✓ Completed":next?"NEXT LESSON":locked?"🔒 Locked":p>0?`${Math.round(p)}% complete`:"Ready";const btnText=done?"Review →":next?"Continue →":p>0?"Resume →":"Start →";el.innerHTML=`<div class="node">${done?"✓":next?"▶":locked?"🔒":levelInfo[level]?.icon||"📚"}</div><div class="lesson-card"><div><span class="lesson-label">YCT ${level} · LESSON ${order(l,i+1)}</span><h3>${esc(title)} <span class="lesson-cn">${esc(l.chinese_title||"")}</span></h3><p class="lesson-desc">${esc(desc)}</p><div class="progress-mini"><span style="width:${p}%"></span></div></div><div class="lesson-right"><span class="state">${state}</span>${locked?`<button class="lesson-btn" type="button" disabled aria-disabled="true">Locked</button>`:`<a class="lesson-btn" href="lesson.html?id=${encodeURIComponent(lessonId(l))}">${btnText}</a>`}</div></div>`;target.appendChild(el)});

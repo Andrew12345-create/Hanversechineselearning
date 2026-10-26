@@ -76,7 +76,7 @@ h1{font-family:'Nunito',sans-serif;font-size:clamp(40px,5vw,62px);line-height:1;
 .mic-btn.listening{background:var(--blue);border-color:var(--blue);animation:pulse 1.25s infinite}
 .mic-btn.thinking{background:var(--yellow);border-color:var(--yellow);color:var(--ink)}
 @keyframes pulse{50%{box-shadow:0 0 0 13px rgba(78,168,222,.14)}}
-.controls-note{text-align:center;font-size:.61rem;color:#929BA7;margin-top:10px}
+.controls-note{text-align:center;font-size:.61rem;color:#929BA7;margin-top:10px}.controls-note.voice-privacy-note{max-width:520px;margin:6px auto 0;color:#5b6877;font-size:.72rem;line-height:1.5}
 .suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px auto 0}
 .suggestion{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;color:#596273;font-size:.66rem;font-weight:700;transition:.2s}
 .suggestion:hover{border-color:rgba(230,57,70,.25);color:var(--red);transform:translateY(-2px)}
@@ -169,6 +169,7 @@ h1{font-family:'Nunito',sans-serif;font-size:clamp(40px,5vw,62px);line-height:1;
         <button type="button" class="icon-btn mic-btn" id="micBtn" aria-label="Start speaking">🎙️</button>
       </div>
       <div class="controls-note" id="controlsNote">Press the microphone and speak to Panda.</div>
+      <div class="controls-note voice-privacy-note" id="voicePrivacyNote">Voice recognition uses your browser and may send audio to its speech service. The words it recognizes are sent to Panda; you can type instead.</div>
     </div>
   </section>
 

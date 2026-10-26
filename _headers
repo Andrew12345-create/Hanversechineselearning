@@ -1,0 +1,46 @@
+# Keep the learner app's static pages and API responses behind baseline
+# browser protections. Inline scripts remain enabled for the current pages;
+# migrate them to nonces/hashes before removing unsafe-inline.
+/admin
+  X-Robots-Tag: noindex, nofollow, noarchive
+/admin.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store
+/dashboard.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+/profile.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store
+/settings.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store
+/parents.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+/notifications.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+/payment.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+/child-profile.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store
+/parent-dashboard.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store
+/login.html
+  Cache-Control: no-store
+/signup.html
+  Cache-Control: no-store
+/reset-password.html
+  Cache-Control: no-store
+/verify-email.html
+  Cache-Control: no-store
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(self), geolocation=()
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://checkout.stripe.com; script-src 'self' 'unsafe-inline' https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://hanversechineselearning-lbs9.onrender.com wss://hanversechineselearning-lbs9.onrender.com; worker-src 'self' blob:
+
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+  Service-Worker-Allowed: /

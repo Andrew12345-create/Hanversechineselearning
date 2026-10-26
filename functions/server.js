@@ -11,6 +11,7 @@ import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
 import { registerAIRoutes } from './ai-routes.js';
 import { registerSecureGrading } from './secure-grading.js';
+import { registerWorldRoutes } from './world-routes.js';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 
@@ -80,7 +81,7 @@ if (databaseUrl) {
     pool = new Pool({
       connectionString: databaseUrl,
       ssl: {
-        rejectUnauthorized: false
+        rejectUnauthorized: true
       },
       max: 20,
       idleTimeoutMillis: 30000,
@@ -157,7 +158,7 @@ try {
       pass: process.env.BREVO_SMTP_KEY
     },
     tls: {
-      rejectUnauthorized: false
+      rejectUnauthorized: true
     }
   });
 
@@ -4932,6 +4933,9 @@ router.get('/notifications/:userId', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const userId = req.params.userId;
     if (!userId) {
       return res.status(400).json({ success: false, error: 'User ID is required' });
@@ -4970,6 +4974,9 @@ router.post('/notifications/:userId/read-all', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
     const userId = req.params.userId;
     if (!(await canAccessUser(req, res, userId))) return;
 
@@ -4988,6 +4995,9 @@ router.post('/notifications/:userId/read-all', async (req, res) => {
 router.post('/notifications/:userId/:notificationId/read', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
 
     const userId = req.params.userId;
     const notificationId = Number(req.params.notificationId);
@@ -8752,6 +8762,7 @@ console.log('✅ Admin routes registered successfully!');
   registerFeatureRoutes(router, pool, { verifyAdminToken, verifyJWTToken, requireUser });
   registerAIRoutes(router, pool, { requireUser, verifyAdminToken });
   registerSecureGrading(router, pool, { requireUser });
+  registerWorldRoutes(router, pool, { requireUser });
 ensureFeatureSchema(pool)
   .then(() => {
     console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');

@@ -28,7 +28,7 @@ function getMailer() {
         user: process.env.BREVO_SMTP_USER || '91f82d001@smtp-brevo.com',
         pass: process.env.BREVO_SMTP_KEY
       },
-      tls: { rejectUnauthorized: false }
+      tls: { rejectUnauthorized: true }
     });
   } catch (error) {
     console.error('❌ email.js: failed to create mailer:', error.message);
@@ -54,7 +54,7 @@ export async function sendEmail({ to, subject, html, text = null }) {
         You received this email because you have a Hanverse account.
         <a href="${process.env.PUBLIC_SITE_URL || ''}/settings.html" style="color:#2563EB">Unsubscribe or manage emails</a> ·
         <a href="${process.env.PUBLIC_SITE_URL || ''}/privacy.html" style="color:#2563EB">Privacy Policy</a><br>
-        [Your business name], [address]
+        HanVerse · Nairobi, Kenya
       </div>`;
     const result = await transport.sendMail({
       from: EMAIL_FROM,

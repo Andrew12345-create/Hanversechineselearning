@@ -1052,6 +1052,16 @@
            ============================================ */
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
+        .recap-print-meta { display: none; }
+        @media print {
+            @page { margin: 16mm; }
+            body * { visibility: hidden !important; }
+            #tab-insights, #tab-insights * { visibility: visible !important; }
+            #tab-insights { display: block !important; position: absolute; inset: 0; width: 100%; padding: 0; background: #fff; }
+            #tab-insights .section-header button { display: none !important; }
+            #tab-insights .recap-print-meta { display: block; margin: 0 0 18px; color: #526176; font-size: 11pt; }
+            #tab-insights .recommendation-card { break-inside: avoid; box-shadow: none; border: 1px solid #d5e3f0; }
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -1592,7 +1602,11 @@
             <div id="tab-insights" class="tab-content">
                 <div class="section-header">
                     <h2><i class="fas fa-lightbulb"></i> Learning Insights</h2>
+                    <button class="btn btn-primary btn-sm" id="printLearningRecap" type="button" aria-label="Print or save the family learning recap as a PDF">
+                        <i class="fas fa-file-arrow-down" aria-hidden="true"></i> Save weekly recap
+                    </button>
                 </div>
+                <div class="recap-print-meta"><strong>HanVerse · Family Learning Recap</strong><br><span id="recapGeneratedAt"></span><p>A gentle snapshot of learning progress, recent practice, and ideas to support the next step.</p></div>
                 <div id="insightsContainer"></div>
             </div>
 
@@ -1970,6 +1984,8 @@
             activityFeed: document.getElementById('activityFeed'),
             assignmentsContainer: document.getElementById('assignmentsContainer'),
             insightsContainer: document.getElementById('insightsContainer'),
+            printLearningRecap: document.getElementById('printLearningRecap'),
+            recapGeneratedAt: document.getElementById('recapGeneratedAt'),
             messagesContainer: document.getElementById('messagesContainer'),
             premiumBadge: document.getElementById('premiumBadge'),
             toast: document.getElementById('toast'),
@@ -1999,6 +2015,15 @@
             msgContent: document.getElementById('msgContent'),
             msgError: document.getElementById('msgError'),
         };
+
+        DOM.printLearningRecap?.addEventListener('click', () => {
+            if (!DOM.insightsContainer.querySelector('.recommendation-card')) {
+                showToast('Load your family insights before saving the recap.', 'info');
+                return;
+            }
+            DOM.recapGeneratedAt.textContent = `Prepared ${new Intl.DateTimeFormat(undefined, { dateStyle: 'long', timeStyle: 'short' }).format(new Date())}`;
+            window.print();
+        });
 
         // ==========================================
         // UTILITY FUNCTIONS
@@ -2794,7 +2819,10 @@
                         if (!box) return;
                         const rows = (a.success && a.activities) || [];
                         if (!rows.length) {
-                            box.innerHTML = '<p style="font-size:.8rem;color:var(--text-2)">No recorded activity yet — it will appear here as ' + (ch.full_name || 'your child').split(' ')[0] + ' learns.</p>';
+                            const empty = document.createElement('p');
+                            empty.style.cssText = 'font-size:.8rem;color:var(--text-2)';
+                            empty.textContent = `No recorded activity yet — it will appear here as ${(ch.full_name || 'your child').split(' ')[0]} learns.`;
+                            box.replaceChildren(empty);
                             return;
                         }
                         const ICON = { lesson: '📚', quiz: '🧠', game: '🎮', achievement: '🏆', streak: '🔥' };

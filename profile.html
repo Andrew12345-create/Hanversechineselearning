@@ -350,10 +350,15 @@ img{max-width:100%;display:block}
   padding:14px;border:1px solid var(--border);border-radius:16px;background:var(--surface-2);
   display:flex;gap:11px;align-items:center;
 }
-.achievement.locked{opacity:.52;filter:saturate(.4)}
+.achievement.locked{background:var(--surface-2);color:var(--muted)}
 .achievement-icon{width:42px;height:42px;border-radius:13px;background:var(--surface);display:grid;place-items:center;font-size:20px;flex:0 0 auto}
-.achievement strong{display:block;font-size:11px}
+.achievement.locked .achievement-icon{filter:grayscale(.65)}
+.achievement-detail{flex:1;min-width:0}
+.achievement strong{display:block;font-size:11px;color:var(--ink)}
 .achievement span{display:block;color:var(--muted);font-size:9px;margin-top:3px;line-height:1.4}
+.achievement-meter{height:5px;margin-top:8px;overflow:hidden;border-radius:99px;background:var(--border)}
+.achievement-meter i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#5d91ff,#37b98c);transition:width .35s ease}
+@media(prefers-reduced-motion:reduce){.achievement-meter i{transition:none}}
 
 .activity{display:grid;gap:0}
 .activity-row{
@@ -1027,19 +1032,26 @@ function renderMilestones(u){
   const level=number(u?.level,1);
 
   const items=[
-    {icon:"📖",title:"First lesson",desc:"Complete your first lesson.",earned:lessons>=1},
-    {icon:"🔥",title:"7-day streak",desc:"Maintain a 7-day learning streak.",earned:streak>=7},
-    {icon:"⭐",title:"500 XP",desc:"Earn at least 500 XP.",earned:xp>=500},
-    {icon:"🏆",title:"Level 5",desc:"Reach Level 5.",earned:level>=5},
-    {icon:"📚",title:"10 lessons",desc:"Complete 10 lessons.",earned:lessons>=10},
-    {icon:"🔥",title:"30-day streak",desc:"Maintain a 30-day learning streak.",earned:streak>=30}
+    {icon:"📖",title:"First lesson",metric:lessons,target:1,unit:"lesson",earned:lessons>=1},
+    {icon:"🔥",title:"7-day streak",metric:streak,target:7,unit:"days",earned:streak>=7},
+    {icon:"⭐",title:"500 XP",metric:xp,target:500,unit:"XP",earned:xp>=500},
+    {icon:"🏆",title:"Level 5",metric:level,target:5,unit:"level",earned:level>=5},
+    {icon:"📚",title:"10 lessons",metric:lessons,target:10,unit:"lessons",earned:lessons>=10},
+    {icon:"🔥",title:"30-day streak",metric:streak,target:30,unit:"days",earned:streak>=30}
   ];
 
-  $("achievements").innerHTML=items.map(x=>`
-    <div class="achievement ${x.earned?"":"locked"}">
-      <div class="achievement-icon">${x.earned?x.icon:"🔒"}</div>
-      <div><strong>${esc(x.title)}</strong><span>${esc(x.earned?"Unlocked":"Locked · "+x.desc)}</span></div>
-    </div>`).join("");
+  $("achievements").innerHTML=items.map(x=>{
+    const current=Math.min(x.metric,x.target);
+    const percent=Math.round(current/x.target*100);
+    const detail=x.earned?"Unlocked — lovely work!":`${current} of ${x.target} ${x.unit} · at your own pace`;
+    return `
+      <div class="achievement ${x.earned?"":"locked"}">
+        <div class="achievement-icon" aria-hidden="true">${x.earned?x.icon:"🔒"}</div>
+        <div class="achievement-detail"><strong>${esc(x.title)}</strong><span>${esc(detail)}</span>
+          <div class="achievement-meter" role="progressbar" aria-label="${esc(x.title)} progress" aria-valuemin="0" aria-valuemax="${x.target}" aria-valuenow="${current}"><i style="width:${percent}%"></i></div>
+        </div>
+      </div>`;
+  }).join("");
 }
 
 // Server-earned badges (games, quests, practice) merged into the grid

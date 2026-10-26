@@ -8,7 +8,7 @@
 // ============================================================
 'use strict';
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'hanverse-' + VERSION;
 
 const PRECACHE_URLS = [
@@ -19,6 +19,7 @@ const PRECACHE_URLS = [
   '/payment.html', '/login.html', '/signup.html', '/forgot-password.html',
   '/reset-password.html', '/verify-email.html', '/banned.html', '/invite.html',
   '/child-profile.html', '/parent-dashboard.html',
+  '/adventures.html', '/adventures.js?v=1',
   '/hanverse.css?v=1', '/hanverse.js?v=1', '/nav-user.js?v=1',
   '/bottom-nav.js?v=1', '/shared-nav.js?v=1', '/features-client.js?v=1',
   '/notifications-client.js?v=1', '/notifications.js?v=1',
@@ -33,7 +34,7 @@ self.addEventListener('install', (event) => {
     await Promise.all(PRECACHE_URLS.map(async (url) => {
       try {
         const res = await fetch(new Request(url, { cache: 'reload' }));
-        if (res && res.ok) await cache.put(url, res);
+        if (res && res.ok && !/\bno-store\b/i.test(res.headers.get('Cache-Control') || '')) await cache.put(url, res);
       } catch (e) { /* offline or missing asset — skip */ }
     }));
     await self.skipWaiting();
@@ -73,13 +74,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith((async () => {
       try {
         const res = await fetch(req);
-        if (res && res.ok) {
+        if (res && res.ok && !url.search && !/\bno-store\b/i.test(res.headers.get('Cache-Control') || '')) {
           const cache = await caches.open(CACHE);
           cache.put(req, res.clone());
         }
         return res;
       } catch (e) {
-        const cached = await caches.match(req, { ignoreSearch: true });
+        const cached = url.search ? null : await caches.match(req, { ignoreSearch: true });
         if (cached) return cached;
         const offline = await caches.match('/offline.html');
         if (offline) return offline;
@@ -93,7 +94,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith((async () => {
     const cached = await caches.match(req, { ignoreSearch: true });
     const network = fetch(req).then(res => {
-      if (res && res.ok) {
+      if (res && res.ok && !/\bno-store\b/i.test(res.headers.get('Cache-Control') || '')) {
         const clone = res.clone();
         caches.open(CACHE).then(c => c.put(req, clone));
       }

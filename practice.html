@@ -6267,6 +6267,7 @@
                 <div id="speakMicWrap" style="margin:10px 0">
                     <button class="cta" id="speakMicBtn" style="min-width:170px">🎤 Tap and speak</button>
                 </div>
+                <p style="font-size:.75rem;color:var(--muted);line-height:1.5">Your browser handles speech recognition; some browsers send audio to their speech service. You can skip this and use another practice activity.</p>
                 <p id="speakHeard" style="min-height:1.2em;font-size:.9rem;color:var(--navy)"></p>
                 <p id="speakResult" style="min-height:1.2em;font-size:.85rem"></p>
                 <p style="margin-top:8px;font-size:.75rem;color:var(--muted)">Round ${speakRounds}/10 · Score ${speakScore}</p>
@@ -6300,7 +6301,12 @@
                         ? `<span style="color:#F97316;font-weight:800">Close! Try to hit every tone (+5)</span>`
                         : `<span style="color:var(--red,#DC2626);font-weight:800">Not quite — listen once more (-1 ❤️)</span>`;
                 const heard = $("speakHeard");
-                if (heard && !strong) heard.insertAdjacentHTML("beforeend", ` <span style="color:var(--muted);font-size:.75rem">(heard: ${finalText || "…"})</span>`);
+                if (heard && !strong) {
+                    const heardNote = document.createElement("span");
+                    heardNote.style.cssText = "color:var(--muted);font-size:.75rem";
+                    heardNote.textContent = ` (heard: ${finalText || "…"})`;
+                    heard.append(heardNote);
+                }
                 setTimeout(nextSpeakRound, strong ? 900 : 1600);
             };
 
@@ -7002,7 +7008,7 @@
 
         let cards;
         try { cards = (await FV().review.deck(id)).cards; }
-        catch (e) { $("modalContent").innerHTML = `<div class="empty">${e.message}</div>`; return; }
+        catch (e) { $("modalContent").innerHTML = `<div class="empty">${escapeHTML(e.message)}</div>`; return; }
 
         if (!cards.length) {
             $("modalContent").innerHTML = `
@@ -7105,7 +7111,7 @@
                 ? data.leaders.map(l => `
                     <div class="lb-row${l.isMe ? ' me' : ''}" style="${l.rank <= 5 ? 'border-left:3px solid var(--green,#16A34A)' : ''}">
                         <span class="lb-rank">${medal(l.rank)}</span>
-                        <span class="lb-name">${l.name}${l.isMe ? " (you)" : ""}</span>
+                        <span class="lb-name">${escapeHTML(l.name)}${l.isMe ? " (you)" : ""}</span>
                         <span class="lb-xp">${l.weeklyXp} XP</span>
                     </div>`).join("")
                 + (data.me.rank > data.leaders.length
@@ -7123,7 +7129,7 @@
                     ? data.leaders.map((l, i) => `
                         <div class="lb-row${l.user_id === id ? ' me' : ''}">
                             <span class="lb-rank">${["🥇", "🥈", "🥉"][i] || `${i + 1}.`}</span>
-                            <span class="lb-name">${l.username || "Learner"}</span>
+                            <span class="lb-name">${escapeHTML(l.username || "Learner")}</span>
                             <span class="lb-xp">${l.week_xp} XP</span>
                         </div>`).join("")
                     : `<p style="color:var(--muted);font-size:.8rem">No XP this week yet — be the first!</p>`;
