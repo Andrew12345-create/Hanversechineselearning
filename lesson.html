@@ -2584,6 +2584,62 @@ async function loadLesson(){
             )}`
         );
 
+    // Premium lessons come back locked for free/anonymous viewers: the
+    // server sent metadata only — no content, vocabulary, examples, media
+    // or quiz. Show the paywall instead of the lesson.
+    if (response && response.locked) {
+
+        state.locked = true;
+
+        const meta =
+            response.lesson || {};
+
+        state.lesson = {
+
+            lesson_id:
+                meta.lesson_id ??
+                meta.id ??
+                state.lessonId,
+
+            title:
+                meta.title ||
+                "Premium lesson",
+
+            description:
+                meta.description ||
+                "",
+
+            course_type:
+                meta.course_type ||
+                "YCT",
+
+            level:
+                Number(
+                    meta.level ?? 1
+                ),
+
+            xp:
+                Number(
+                    meta.xp ?? 10
+                ),
+
+            icon:
+                meta.icon ||
+                "🐼",
+
+            objectives: [],
+            content: [],
+            vocabulary: [],
+            examples: [],
+            media: [],
+            quiz: []
+
+        };
+
+        return;
+
+    }
+
 
     const lesson =
         response?.lesson ??
@@ -6207,6 +6263,11 @@ async function init(){
 
         await loadLesson();
 
+        if (state.locked) {
+            renderLockedLesson();
+            return;
+        }
+
 
         await loadExistingProgress();
 
@@ -6273,6 +6334,76 @@ async function init(){
         );
 
     }
+
+}
+
+
+/* =========================================================
+   LOCKED (PREMIUM) LESSON PANEL
+   ========================================================= */
+
+function renderLockedLesson(){
+
+    $(
+        "title"
+    ).textContent =
+        state.lesson.title;
+
+    $(
+        "description"
+    ).textContent =
+        state.lesson.description;
+
+    $(
+        "xp"
+    ).textContent =
+        state.lesson.xp;
+
+    $(
+        "level"
+    ).textContent =
+        `${
+            state.lesson.course_type ||
+            "YCT"
+        } ${
+            state.lesson.level
+        }`;
+
+
+    $(
+        "loading"
+    ).classList.add(
+        "hidden"
+    );
+
+    $(
+        "controls"
+    ).classList.add(
+        "hidden"
+    );
+
+    $(
+        "content"
+    ).classList.remove(
+        "hidden"
+    );
+
+    $(
+        "content"
+    ).innerHTML =
+        `
+        <div class="lesson-locked" style="text-align:center;padding:48px 20px;">
+            <div style="font-size:56px;margin-bottom:12px;" aria-hidden="true">🔒</div>
+            <h2 style="font-size:1.3rem;margin:0 0 8px;">This is a Premium lesson</h2>
+            <p style="color:#5a6b7f;max-width:420px;margin:0 auto 20px;">
+                Unlock the full lesson — content, vocabulary, examples and the
+                quiz — with HanVerse Premium.
+            </p>
+            <a href="payment.html"
+               style="display:inline-block;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:12px 28px;border-radius:12px;font-weight:800;text-decoration:none;">
+                See Premium plans
+            </a>
+        </div>`;
 
 }
 
