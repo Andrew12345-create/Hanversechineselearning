@@ -1647,20 +1647,28 @@ router.post('/auth/send-verification', authLimiter, async (req, res) => {
       [userId]
     );
 
+    const GENERIC_OK = { success: true, message: 'If the account needs verification, a new link has been sent.' };
+
+    // Uniform responses: never reveal whether a user id exists or is already
+    // verified (was an account-enumeration + inbox-bombing oracle).
     if (!userResult.rows.length) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found.'
-      });
+      return res.json(GENERIC_OK);
     }
 
     const user = userResult.rows[0];
 
     if (user.is_verified) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email is already verified.'
-      });
+      return res.json(GENERIC_OK);
+    }
+
+    // Per-user throttle: at most one re-issued link per minute, regardless of
+    // how many unauthenticated requests name this account.
+    const recent = await pool.query(
+      `SELECT 1 FROM email_verifications WHERE user_id = $1 AND created_at > NOW() - INTERVAL '60 seconds' LIMIT 1`,
+      [user.user_id]
+    );
+    if (recent.rows.length) {
+      return res.json(GENERIC_OK);
     }
 
     const verificationToken = generateSecureToken(32);
@@ -1694,11 +1702,7 @@ router.post('/auth/send-verification', authLimiter, async (req, res) => {
       token: verificationToken
     });
 
-    return res.json({
-      success: true,
-      message: 'Verification email sent successfully.',
-      email: user.email
-    });
+    return res.json(GENERIC_OK);
 
   } catch (error) {
     console.error('❌ Send verification error:', error);
