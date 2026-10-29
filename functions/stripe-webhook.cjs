@@ -156,6 +156,35 @@ exports.handler = async (event) => {
   }
 
 
+  /* ========================================================
+     IDEMPOTENCY GATE
+     Stripe retries webhooks (at-least-once delivery). Without this,
+     a retried checkout.session.completed could double-apply premium
+     days or XP. Record the event id first; a conflict means replay.
+  ======================================================== */
+
+  try {
+    await pool.query(
+      `CREATE TABLE IF NOT EXISTS stripe_events (
+        event_id VARCHAR(255) PRIMARY KEY,
+        type VARCHAR(100),
+        received_at TIMESTAMPTZ DEFAULT NOW()
+      )`
+    );
+    const inserted = await pool.query(
+      `INSERT INTO stripe_events (event_id, type) VALUES ($1, $2) ON CONFLICT (event_id) DO NOTHING RETURNING event_id`,
+      [stripeEvent.id, stripeEvent.type]
+    );
+    if (inserted.rowCount === 0) {
+      console.log(`↩️ Duplicate Stripe event ${stripeEvent.id} (${stripeEvent.type}) — skipped`);
+      return { statusCode: 200, body: JSON.stringify({ received: true, duplicate: true }) };
+    }
+  } catch (idempotencyError) {
+    // Fail closed: if we cannot record the event, do not risk double-apply.
+    console.error('Webhook idempotency check failed:', idempotencyError.message);
+    return { statusCode: 500, body: JSON.stringify({ error: 'Idempotency recording failed — event not processed' }) };
+  }
+
   try {
 
 
