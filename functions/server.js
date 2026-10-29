@@ -4398,6 +4398,23 @@ router.get('/lessons/:lessonId', async (req, res) => {
       })
     );
 
+    // Shuffle and minimize the public quiz options. Correctness and
+    // explanations stay on the server until a learner submits (grading
+    // happens server-side in gradeLessonAnswers).
+    const publicQuiz = quiz.map(question => {
+      const { explanation: _explanation, ...publicQuestion } = question;
+      const options = question.options.map(option => ({
+        option_id: option.option_id,
+        question_id: option.question_id,
+        option_text: option.option_text
+      }));
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = crypto.randomInt(i + 1);
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+      return { ...publicQuestion, options };
+    });
+
     // ========================================================
     // 10. COMPLETION SETTINGS
     // ========================================================
@@ -4530,7 +4547,7 @@ router.get('/lessons/:lessonId', async (req, res) => {
       media:
         mediaResult.rows,
 
-      quiz,
+      quiz: publicQuiz,
 
       completion_settings:
         completionSettings
