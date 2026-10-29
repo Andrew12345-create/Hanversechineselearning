@@ -90,6 +90,15 @@ export async function ensureFeatureSchema(pgPool) {
   )`);
   await q(`CREATE INDEX IF NOT EXISTS idx_tone_stats_user ON tone_stats(user_id)`);
 
+  // --- Privacy-conscious product analytics: counters only (name + day).
+  // No user ids or IPs are ever stored — events cannot be attributed.
+  await q(`CREATE TABLE IF NOT EXISTS analytics_counters (
+    event_name VARCHAR(40) NOT NULL,
+    day DATE NOT NULL,
+    count BIGINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (event_name, day)
+  )`);
+
   await q(`CREATE TABLE IF NOT EXISTS placement_results (
     placement_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(user_id),
@@ -942,6 +951,51 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      5. TONE-PAIR GAME + GAME SESSIONS
   ========================================================= */
+  /* =========================================================
+     PRIVACY-CONSCIOUS PRODUCT ANALYTICS.
+     Counters only: event name + UTC day. No user ids, no IPs, no
+     child data, no free-form payloads — intentionally cannot be
+     attributed to any account. Read summary is admin-only.
+  ========================================================= */
+  const ANALYTICS_EVENTS = new Set([
+    'page_view', 'signup_complete', 'lesson_start', 'lesson_complete',
+    'game_complete', 'review_session', 'talk_session', 'paywall_view',
+    'checkout_start', 'trial_start'
+  ]);
+
+  router.post('/analytics/event', async (req, res) => {
+    try {
+      const name = String(req.body?.event || '').trim();
+      if (!ANALYTICS_EVENTS.has(name)) return res.status(204).end();
+      await ensureFeatureSchema();
+      await pool.query(
+        `INSERT INTO analytics_counters (event_name, day, count) VALUES ($1, (CURRENT_DATE AT TIME ZONE 'UTC')::date, 1)
+         ON CONFLICT (event_name, day) DO UPDATE SET count = analytics_counters.count + 1`,
+        [name]
+      );
+      res.status(204).end();
+    } catch (e) {
+      console.warn('analytics/event:', e.message.split('\n')[0]);
+      res.status(204).end(); // analytics must never surface as an error
+    }
+  });
+
+  router.get('/analytics/summary', requireAdmin, async (req, res) => {
+    try {
+      const days = Math.min(90, Math.max(1, Number(req.query.days) || 28));
+      const rows = (await pool.query(
+        `SELECT event_name, day, count FROM analytics_counters
+         WHERE day >= (CURRENT_DATE AT TIME ZONE 'UTC')::date - ($1::int)
+         ORDER BY day DESC, event_name`,
+        [days]
+      )).rows;
+      ok(res, { days, events: rows });
+    } catch (e) {
+      console.error('analytics/summary error:', e);
+      fail(res, 500, 'Failed to load analytics');
+    }
+  });
+
   /* =========================================================
      TONE COACH — per tone-pair mastery. Powers adaptive drill
      selection and the progress strip. Client reports each

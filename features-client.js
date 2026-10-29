@@ -52,6 +52,24 @@
   window.HanVerseFeatures = {
     currentUserId,
     api,
+    /* Privacy-conscious product analytics: sends ONLY the event name to a
+       counter endpoint — no ids, no page content, no child data. Honours
+       Do-Not-Track. Fire-and-forget; failures are silently ignored. */
+    track(event) {
+      try {
+        if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
+        const known = ['page_view','signup_complete','lesson_start','lesson_complete',
+          'game_complete','review_session','talk_session','paywall_view',
+          'checkout_start','trial_start'];
+        if (!known.includes(event)) return;
+        fetch('/api/analytics/event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event }),
+          keepalive: true
+        }).catch(() => {});
+      } catch {}
+    },
     quests: {
       get: uid => api(`/quests/daily/${uid}`),
       claimChest: uid => api('/quests/claim-chest', { method: 'POST', body: { userId: uid } })
@@ -163,4 +181,7 @@
     chest()   { if (!enabled()) return; [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * .08, .3, 'triangle', .12)); },
     setEnabled(on) { try { localStorage.setItem('hanverse_sound', on ? 'on' : 'off'); } catch {} }
   };
+  if (typeof document !== 'undefined') {
+    window.HanVerseFeatures.track('page_view');
+  }
 })();

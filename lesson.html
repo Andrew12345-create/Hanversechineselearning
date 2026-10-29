@@ -5764,6 +5764,7 @@ async function saveProgress(){
             `Lesson saved! +${xp} XP 🎉`
         );
         emitLearnerActivity("lesson_complete",{score:state.score,xp});
+        if (window.HanVerseFeatures) window.HanVerseFeatures.track("lesson_complete");
 
         // Enroll this lesson's words into spaced review (first time only per word)
         try{
