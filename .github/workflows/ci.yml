@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main, hanverse-learn]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Regression gate (markers, syntax, lockfile sync, secrets)
+        run: node scripts/ci-check.mjs
+      - name: Dependency audit (blocks on high/critical)
+        run: npm audit --audit-level=high
