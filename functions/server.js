@@ -4228,6 +4228,61 @@ router.get('/lessons/:lessonId', async (req, res) => {
     console.log(`✅ Lesson found: ${lesson.title}`);
 
     // ========================================================
+    // 1b. PREMIUM GATING (server-side)
+    // Free or anonymous viewers get lesson metadata plus a locked flag —
+    // content, objectives, vocabulary, examples, media and quiz never
+    // leave the server for premium lessons they have not unlocked.
+    // ========================================================
+    const lessonIsPremium = lesson.premium === true || lesson.is_premium === true;
+    let viewerIsPremium = false;
+    if (lessonIsPremium) {
+      const authHeader = req.headers.authorization || '';
+      if (authHeader.startsWith('Bearer ')) {
+        try {
+          const decoded = verifyJWTToken(authHeader.slice(7));
+          const viewerId = decoded && (decoded.user_id || decoded.id);
+          if (viewerId) {
+            const viewerResult = await pool.query(
+              `SELECT premium, premium_until, is_banned FROM users WHERE user_id = $1 LIMIT 1`,
+              [viewerId]
+            );
+            if (viewerResult.rows.length && !viewerResult.rows[0].is_banned) {
+              const viewer = viewerResult.rows[0];
+              viewerIsPremium =
+                viewer.premium === true ||
+                (viewer.premium_until && new Date(viewer.premium_until) > new Date());
+            }
+          }
+        } catch {
+          /* invalid or expired token → treat as anonymous */
+        }
+      }
+    }
+
+    if (lessonIsPremium && !viewerIsPremium) {
+      console.log(`🔒 Premium lesson ${lessonId} served locked (no entitlement)`);
+      return res.json({
+        success: true,
+        locked: true,
+        lesson: {
+          lesson_id: lesson.lesson_id,
+          id: lesson.lesson_id,
+          title: lesson.title,
+          description: lesson.description || '',
+          short_description: lesson.short_description || '',
+          course_type: lesson.course_type || 'YCT',
+          category: lesson.category || 'yct',
+          level: lesson.level || 1,
+          premium: true,
+          is_premium: true,
+          xp: lesson.xp || 10,
+          icon: lesson.icon || '🐼',
+          estimated_minutes: lesson.estimated_minutes || 15
+        }
+      });
+    }
+
+    // ========================================================
     // 2. OBJECTIVES
     // ========================================================
 
