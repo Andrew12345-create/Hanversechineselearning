@@ -4669,7 +4669,7 @@ router.post('/progress', async (req, res) => {
     if (!auth) return;
 
     const body = req.body || {};
-    const userId = body.userId ?? body.user_id;
+    const userId = auth.user_id; // IDOR fix: token identity, never a client-claimed id
     const lessonId = body.lessonId ?? body.lesson_id;
     let courseType = body.courseType ?? body.course_type ?? 'YCT';
     let courseLevel = Number(body.courseLevel ?? body.course_level ?? 1);
