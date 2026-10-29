@@ -69,6 +69,7 @@
 
   var sheetItems = [
     { href: 'roadmap.html', label: 'Roadmap', icon: 'roadmap' },
+    { href: 'vocabulary.html', label: 'My Words', icon: 'learn' },
     { href: 'adventures.html', label: "HanPan's World", icon: 'spark' },
     { href: 'explore.html', label: 'Explore', icon: 'explore' },
     { href: 'class.html', label: 'Classroom', icon: 'classroom' },

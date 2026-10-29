@@ -20,6 +20,7 @@ const PRECACHE_URLS = [
   '/reset-password.html', '/verify-email.html', '/banned.html', '/invite.html',
   '/child-profile.html', '/parent-dashboard.html',
   '/adventures.html', '/adventures.js?v=1',
+  '/vocabulary.html',
   '/hanverse.css?v=1', '/hanverse.js?v=1', '/nav-user.js?v=1',
   '/bottom-nav.js?v=1', '/shared-nav.js?v=1', '/features-client.js?v=1',
   '/notifications-client.js?v=1', '/notifications.js?v=1',

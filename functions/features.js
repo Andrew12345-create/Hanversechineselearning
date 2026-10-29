@@ -592,6 +592,60 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      3. SPACED-REVIEW DECK (SM-2 lite over vocabulary_progress)
   ========================================================= */
+  /* =========================================================
+     3c. PERSONAL VOCABULARY UNIVERSE — everything the learner
+     has met, merged from vocabulary_progress (lesson-source
+     mastery) and review_queue (spaced-repetition state).
+     Self-scoped; review state is joined per word.
+  ========================================================= */
+  router.get('/vocabulary', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      // vocabulary_progress predates this codebase (no CREATE TABLE here);
+      // degrade to empty lists rather than 500 if a table is missing.
+      const safeRows = async (sql) => {
+        try { return (await pool.query(sql, [req.userId])).rows; }
+        catch (e) { console.warn(`vocabulary: degraded (${e.message.split('\n')[0]})`); return []; }
+      };
+      const rows = await safeRows(
+        `SELECT vp.word, vp.pinyin, vp.meaning, vp.mastery_level, vp.review_count, vp.last_reviewed,
+                rq.interval_days, rq.ease, rq.due_at, rq.lapses
+         FROM vocabulary_progress vp
+         LEFT JOIN review_queue rq ON rq.user_id = vp.user_id AND rq.word = vp.word
+         WHERE vp.user_id = $1
+         ORDER BY vp.last_reviewed DESC NULLS LAST
+         LIMIT 2000`
+      );
+      // Words enrolled for review but never mastered through lessons.
+      const reviewOnly = await safeRows(
+        `SELECT rq.word, rq.pinyin, rq.meaning, rq.interval_days, rq.ease, rq.due_at, rq.lapses
+         FROM review_queue rq
+         LEFT JOIN vocabulary_progress vp ON vp.user_id = rq.user_id AND vp.word = rq.word
+         WHERE rq.user_id = $1 AND vp.word IS NULL
+         ORDER BY rq.due_at ASC LIMIT 1000`
+      );
+      ok(res, {
+        words: rows.map(r => ({
+          word: r.word, pinyin: r.pinyin, meaning: r.meaning,
+          mastery: r.mastery_level ?? 0, reviews: r.review_count ?? 0,
+          lastReviewed: r.last_reviewed,
+          dueAt: r.due_at, lapses: r.lapses ?? 0,
+          inReview: r.due_at != null,
+          source: 'lesson'
+        })),
+        reviewOnly: reviewOnly.map(r => ({
+          word: r.word, pinyin: r.pinyin, meaning: r.meaning,
+          mastery: 0, reviews: 0, lastReviewed: null,
+          dueAt: r.due_at, lapses: r.lapses ?? 0,
+          inReview: true, source: 'review'
+        }))
+      });
+    } catch (e) {
+      console.error('vocabulary error:', e);
+      fail(res, 500, 'Failed to load vocabulary');
+    }
+  });
+
   router.get('/review/deck/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
