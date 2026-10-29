@@ -365,7 +365,7 @@ function getVerificationEmailHTML({ username, fullName, verifyLink }) {
     </div>
     <div class="footer">
       <p>Didn't create a HanVerse account? No worries — just ignore this email.</p>
-      <p>💬 Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+      <p>💬 Need help? <a href="mailto:andrewmunamwangi@gmail.com">andrewmunamwangi@gmail.com</a></p>
       <div class="social">🐼 🎋 🏮 🎐</div>
       <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
     </div>
@@ -441,7 +441,7 @@ function getPasswordResetEmailHTML({ username, fullName, resetLink }) {
     </div>
     <hr class="divider">
     <div class="footer">
-      <p>💬 Need help? <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+      <p>💬 Need help? <a href="mailto:andrewmunamwangi@gmail.com">andrewmunamwangi@gmail.com</a></p>
       <div class="social">🐼 🎋 🏮 🎐</div>
       <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
     </div>
@@ -551,7 +551,7 @@ function getWelcomeEmailHTML({ username, fullName }) {
     </div>
     <hr class="divider">
     <div class="footer">
-      <p>💬 Questions? We're here to help! <a href="mailto:support@hanverse.com">support@hanverse.com</a></p>
+      <p>💬 Questions? We're here to help! <a href="mailto:andrewmunamwangi@gmail.com">andrewmunamwangi@gmail.com</a></p>
       <div class="social">🐼 🎋 🏮 🎐</div>
       <p class="tagline">🐼 HanVerse — Learn Mandarin Through Stories, Games &amp; AI</p>
     </div>
@@ -978,8 +978,8 @@ function getHanVerseEmailHTML({
 
           <p>
             Need help?
-            <a href="mailto:support@hanverse.com">
-              support@hanverse.com
+            <a href="mailto:andrewmunamwangi@gmail.com">
+              andrewmunamwangi@gmail.com
             </a>
           </p>
 
