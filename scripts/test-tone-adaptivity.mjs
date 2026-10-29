@@ -40,9 +40,14 @@ if (fnSrc) {
   check('no stats → null (random fallback)', make({})() === null);
 
   // 2. Weakest pair targeted: 1-4 is 25% accurate, 1-2 is 100%.
-  const weak = make({ '1-4': { seen: 8, correct: 2 }, '1-2': { seen: 4, correct: 4 } })();
-  check('weakest pair drives selection', weak !== null && weak.tone === 4,
-    weak ? `picked tone ${weak.tone} (${weak.hz})` : 'picked nothing');
+  // The drill plays any word whose tone belongs to the weak pair — so over
+  // repeated picks every result must carry a tone from {1, 4}, never from
+  // the mastered pair's tone 2 (deterministic, no randomness flakes).
+  const pick = make({ '1-4': { seen: 8, correct: 2 }, '1-2': { seen: 4, correct: 4 } });
+  const picks = Array.from({ length: 20 }, () => pick());
+  const inWeak = picks.every(w => w !== null && [1, 4].includes(w.tone));
+  check('weakest pair drives selection', inWeak,
+    `20 picks, tones seen: ${[...new Set(picks.map(w => w?.tone))].join(',') || 'none'}`);
 
   // 3. Everything mastered (>85%) → null.
   check('all mastered → null', make({ '1-4': { seen: 10, correct: 9 }, '1-2': { seen: 6, correct: 6 } })() === null);
