@@ -28,7 +28,7 @@ function getMailer() {
         user: process.env.BREVO_SMTP_USER || '91f82d001@smtp-brevo.com',
         pass: process.env.BREVO_SMTP_KEY
       },
-      tls: { rejectUnauthorized: false }
+      tls: { rejectUnauthorized: true }
     });
   } catch (error) {
     console.error('❌ email.js: failed to create mailer:', error.message);

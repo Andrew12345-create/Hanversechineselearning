@@ -32,7 +32,7 @@ export default async () => {
 
   const pool = new pg.Pool({
     connectionString,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: true }
   });
 
   try {

@@ -5,7 +5,7 @@ const crypto = require('crypto'); // Native Node module, zero installations need
 // Initialize the Neon Postgres connection pool
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false } 
+    ssl: { rejectUnauthorized: true } 
 });
 
 exports.handler = async (event, context) => {

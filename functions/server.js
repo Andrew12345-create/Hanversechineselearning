@@ -72,7 +72,7 @@ if (databaseUrl) {
     pool = new Pool({
       connectionString: databaseUrl,
       ssl: {
-        rejectUnauthorized: false
+        rejectUnauthorized: true
       },
       max: 20,
       idleTimeoutMillis: 30000,
@@ -149,7 +149,7 @@ try {
       pass: process.env.BREVO_SMTP_KEY
     },
     tls: {
-      rejectUnauthorized: false
+      rejectUnauthorized: true
     }
   });
 
