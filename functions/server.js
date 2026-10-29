@@ -1273,6 +1273,19 @@ router.post('/signup', authLimiter, async (req, res) => {
     const cleanPassword = String(password);
     const userRole = role === 'parent' ? 'parent' : 'student';
 
+    // Server-side under-13 rule (COPPA-style): self-registered *student*
+    // accounts are 13+. Younger learners join through a parent-created
+    // account (Parent Dashboard → add child), which is a different flow.
+    // The client enforces this too, but never trusts the browser.
+    const signupAge = Number(req.body?.age);
+    if (userRole === 'student' && Number.isInteger(signupAge) && signupAge > 0 && signupAge < 13) {
+      return res.status(403).json({
+        success: false,
+        error: 'Learners under 13 need a parent-created account. A parent or guardian can sign up, then add their child from the Parent Dashboard.',
+        field: 'age'
+      });
+    }
+
     if (cleanPassword.length < 8) {
       return res.status(400).json({
         success: false,
