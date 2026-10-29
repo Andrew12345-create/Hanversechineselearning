@@ -11,7 +11,10 @@ import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
 import { registerAIRoutes } from './ai-routes.js';
 import { registerSecureGrading } from './secure-grading.js';
+<<<<<<< HEAD
 import { registerWorldRoutes } from './world-routes.js';
+=======
+>>>>>>> 76fb56eb8a87a2e552684fa6757744f0ea38a079
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 
@@ -8762,7 +8765,10 @@ console.log('✅ Admin routes registered successfully!');
   registerFeatureRoutes(router, pool, { verifyAdminToken, verifyJWTToken, requireUser });
   registerAIRoutes(router, pool, { requireUser, verifyAdminToken });
   registerSecureGrading(router, pool, { requireUser });
+<<<<<<< HEAD
   registerWorldRoutes(router, pool, { requireUser });
+=======
+>>>>>>> 76fb56eb8a87a2e552684fa6757744f0ea38a079
 ensureFeatureSchema(pool)
   .then(() => {
     console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
