@@ -712,6 +712,48 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     }
   });
 
+  /* =========================================================
+     GDPR DATA EXPORT — GET /account/export
+     Signed-in users can download everything HanVerse holds
+     about them as JSON. Every table is optional: anything that
+     does not exist yet exports as an empty list.
+  ========================================================= */
+  router.get('/account/export', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const uid_ = req.userId;
+
+      const safe = async (sql) => {
+        try { return (await pool.query(sql, [uid_])).rows; }
+        catch (e) { console.warn(`account/export: skipped a table (${e.message.split('\n')[0]})`); return []; }
+      };
+
+      const [profile] = await safe(`SELECT user_id, username, full_name, email, role, age, xp, level, gems, streak_days, premium, premium_until, created_at FROM users WHERE user_id = $1`);
+      if (!profile) return fail(res, 404, 'Account not found');
+
+      const export_ = {
+        exported_at: new Date().toISOString(),
+        profile,
+        learning: {
+          lessons_completed: await safe(`SELECT lesson_id, course_type, course_level, completed, score, xp_earned, time_spent, attempts, quiz_score, started_at, completed_at FROM user_progress WHERE user_id = $1 ORDER BY COALESCE(completed_at, started_at) DESC`),
+          game_sessions: await safe(`SELECT game, score, correct, total, created_at FROM game_sessions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1000`),
+          daily_goals: await safe(`SELECT * FROM daily_goals WHERE user_id = $1 ORDER BY goal_date DESC LIMIT 400`),
+          xp_log: await safe(`SELECT amount, source, timestamp FROM xp_logs WHERE user_id = $1 ORDER BY timestamp DESC LIMIT 1000`),
+          vocabulary: await safe(`SELECT word, pinyin, meaning, mastery_level, review_count, last_reviewed FROM vocabulary_progress WHERE user_id = $1`)
+        },
+        reviews: await safe(`SELECT word, interval_days, ease, due_at, lapses FROM review_queue WHERE user_id = $1`),
+        notifications: await safe(`SELECT title, message, type, is_read, created_at FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 500`),
+        family_links: await safe(`SELECT parent_user_id, child_user_id, child_email, status, created_at, responded_at FROM account_links WHERE parent_user_id = $1 OR child_user_id = $1`)
+      };
+
+      res.setHeader('Content-Disposition', `attachment; filename="hanverse-data-export-${uid_}.json"`);
+      return res.json(export_);
+    } catch (e) {
+      console.error('account/export error:', e);
+      return fail(res, 500, 'Failed to export data');
+    }
+  });
+
   router.post('/review/answer', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');

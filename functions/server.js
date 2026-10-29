@@ -4071,6 +4071,19 @@ router.get('/explore/series/:slug', async (req, res) => {
 ========================================== */
 
 // GET: All published lessons
+// Uptime-monitoring ping (unauthenticated, no DB dependency — must answer
+// even when the database is down so monitors can distinguish
+// "app up / db down" from "everything down").
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    ok: true,
+    service: 'hanverse-api',
+    uptime_s: Math.round(process.uptime()),
+    time: new Date().toISOString()
+  });
+});
+
 router.get('/lessons', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
