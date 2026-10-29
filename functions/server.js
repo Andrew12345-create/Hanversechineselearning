@@ -4504,37 +4504,22 @@ router.get('/lessons/:lessonId', async (req, res) => {
     // 11. DIAGNOSTIC LOG
     // ========================================================
 
-    console.log(
-      `📊 ${lessonId} database contents:`
-    );
+// 11. DIAGNOSTIC LOG (off by default — this runs on every lesson load;
+    // set DEBUG_LESSONS=1 on a function instance when hunting data issues)
+    // ========================================================
 
-    console.log(
-      `   🎯 Objectives: ${objectivesResult.rows.length}`
-    );
-
-    console.log(
-      `   📖 Content: ${contentResult.rows.length}`
-    );
-
-    console.log(
-      `   🀄 Vocabulary: ${vocabularyResult.rows.length}`
-    );
-
-    console.log(
-      `   💬 Examples: ${examplesResult.rows.length}`
-    );
-
-    console.log(
-      `   🎬 Media: ${mediaResult.rows.length}`
-    );
-
-    console.log(
-      `   🧠 Quiz questions: ${quiz.length}`
-    );
-
-    console.log(
-      `   🔘 Quiz options: ${quizOptionsResult.rows.length}`
-    );
+    if (process.env.DEBUG_LESSONS) {
+      console.log(
+        `📊 ${lessonId} database contents:` +
+        ` 🎯 Objectives: ${objectivesResult.rows.length}` +
+        ` 📖 Content: ${contentResult.rows.length}` +
+        ` 🀄 Vocabulary: ${vocabularyResult.rows.length}` +
+        ` 💬 Examples: ${examplesResult.rows.length}` +
+        ` 🎬 Media: ${mediaResult.rows.length}` +
+        ` 🧠 Quiz questions: ${quiz.length}` +
+        ` 🔘 Quiz options: ${quizOptionsResult.rows.length}`
+      );
+    }
 
     // ========================================================
     // 12. RETURN EVERYTHING
