@@ -71,8 +71,14 @@ body {
 a { text-decoration: none; color: inherit; }
 button { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
-img { max-width: 100%; display: block; }
-.container { width: min(1180px, calc(100% - 32px)); margin: auto; }
+img, picture, video, canvas, iframe, svg { max-width: 100%; }
+img { display: block; }
+.container { width: min(1320px, calc(100% - clamp(24px, 4vw, 72px))); margin-inline: auto; }
+/* Keep long names, links, and learning text from forcing narrow layouts wider. */
+:where(main, section, article, aside, header, footer, nav, form, fieldset, dialog, .container, .wrap, .grid, .row, .card, .panel) { min-width: 0; }
+:where(h1, h2, h3, h4, p, li, a, button, label, td, th, legend) { overflow-wrap: anywhere; }
+:where(input, select, textarea, button) { max-width: 100%; }
+:where(input, select, textarea) { min-width: 0; }
 .cn { font-family: var(--font-cn); }
 .nunito { font-family: var(--font-head); }
 
@@ -573,4 +579,26 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
   .brand img { width: 34px; height: 34px; }
   main { padding-top: 90px; }
   .footer-inner { flex-direction: column; align-items: flex-start; }
+}
+
+/* Small phones: protect the floating HUD, tab bar and More sheet from crowding. */
+@media (max-width: 380px) {
+  .hud { width: calc(100% - 16px); gap: 5px; padding-inline: 8px; }
+  .hud-brand { gap: 6px; font-size: 14px; }
+  .hud-brand img { width: 26px; height: 26px; }
+  .hud-stats { gap: 4px; }
+  .hud-chip { padding: 6px 7px; font-size: 10px; }
+  .hud-stats .hud-chip:nth-of-type(n + 2) { display: none; }
+  .tabbar { width: calc(100% - 12px); height: 58px; padding: 4px; }
+  .tabbar a, .tabbar .tabbar-more { font-size: 9px; }
+  .tabbar a svg, .tabbar .tabbar-more svg { width: 20px; height: 20px; }
+  .sheet { width: calc(100% - 16px); padding-inline: 10px; border-radius: 22px; }
+  .sheet-grid { grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)); }
+  .sheet-item { min-height: 60px; padding: 9px 2px; font-size: 10px; }
+}
+
+/* Touch-first controls remain comfortable without enlarging desktop toolbars. */
+@media (pointer: coarse) {
+  button, input[type="button"], input[type="submit"], input[type="reset"],
+  select, a[role="button"], .lesson-btn { min-height: 44px; }
 }

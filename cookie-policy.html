@@ -19,7 +19,7 @@
 
     <h2>What we use</h2>
     <p>HanVerse keeps you signed in with <strong>browser local storage</strong> (your sign-in token and basic profile). We do not use advertising cookies, analytics trackers, or cross-site tracking cookies.</p>
-    <p>Because the sign-in token lives in your browser, we harden the site against cross-site scripting with a strict Content-Security-Policy header on every response, and the token is removed from the browser the moment you log out. We are moving sign-in to an httpOnly cookie, which browsers hide entirely from page scripts, as an early follow-up.</p>
+    <p>We send browser security headers to limit framing, unsafe external content, and dynamic code evaluation. HanVerse still uses inline page scripts, so these headers are an additional safeguard rather than a guarantee against every script-injection risk. Your sign-in token is removed from this browser when you log out.</p>
 
     <h2>What this means</h2>
     <ul>
