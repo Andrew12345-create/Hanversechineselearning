@@ -272,8 +272,6 @@ button{cursor:pointer}
       <div class="options-right"><a href="#" id="resendVerificationLink">Verify Email</a><a href="forgot-password.html">Forgot Password?</a></div>
     </div>
     <button class="btn btn-login" id="loginBtn">Log In</button>
-    <div class="divider">or continue with</div>
-    <button class="btn btn-google" id="googleBtn"><span class="google-icon">🌐</span> Continue with Google</button>
     <div class="bottom">Don't have an account? <a href="signup.html">Sign Up</a></div>
   </section>
 </main>
@@ -673,11 +671,7 @@ document.addEventListener('DOMContentLoaded', function(){
         // ============================================================
         // GOOGLE LOGIN
         // ============================================================
-        function googleLogin() {
-            showToast('info', '🌐 Google login coming soon!');
-            // Uncomment when Google OAuth is implemented:
-            // window.location.href = `${API_BASE}/auth/google`;
-        }
+
 
         // ============================================================
         // PASSWORD TOGGLE
@@ -834,9 +828,6 @@ document.addEventListener('DOMContentLoaded', function(){
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn) loginBtn.addEventListener('click', loginUser);
 
-            const googleBtn = document.getElementById('googleBtn');
-            if (googleBtn) googleBtn.addEventListener('click', googleLogin);
-
             const toggleBtn = document.getElementById('togglePasswordBtn');
             if (toggleBtn) toggleBtn.addEventListener('click', togglePasswordVisibility);
 
@@ -909,7 +900,6 @@ document.addEventListener('DOMContentLoaded', function(){
         // EXPOSE GLOBALLY
         // ============================================================
         window.loginUser = loginUser;
-        window.googleLogin = googleLogin;
         window.togglePasswordVisibility = togglePasswordVisibility;
         window.resendVerificationEmail = resendVerificationEmail;
         window.togglePanda = togglePanda;
