@@ -245,7 +245,7 @@ function verifyJWTToken(token) {
     throw new Error('JWT_SECRET is not configured.');
   }
   try {
-    return jwt.verify(token, secret);
+    return jwt.verify(token, secret, { algorithms: ['HS256'] });
   } catch (error) {
     return null;
   }
@@ -1562,7 +1562,7 @@ router.post('/auth/refresh', async (req, res) => {
     let decoded = null;
     try {
       const secret = process.env.JWT_SECRET;
-      if (secret) decoded = jwt.verify(token, secret, { ignoreExpiration: true });
+      if (secret) decoded = jwt.verify(token, secret, { algorithms: ['HS256'], ignoreExpiration: true });
     } catch (e) {
       decoded = null;
     }
