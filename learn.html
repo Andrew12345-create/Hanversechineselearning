@@ -432,7 +432,12 @@ $("retry").onclick=()=>{location.reload()};
 $("signedOutLogin").onclick=()=>{window.location.href=loginTarget()};
 let warmup={qs:[],i:0,correct:0,locked:false};
 function warmupKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function warmupToday(){try{return JSON.parse(localStorage.getItem("hanverse_warmup")||"null")}catch{return null}}
+function warmupToday(){try{return JSON.parse(localStorage.getItem(warmupStorageKey())||"null")}catch{return null}}
+/* Warmup state is scoped per account: a shared "hanverse_warmup" key made
+   siblings (or a second learner) on the same device inherit — or wipe —
+   each other's daily warmup streak. The uid is embedded in the key; the
+   legacy shared key is left alone (harmless) and no longer read. */
+function warmupStorageKey(){const id=uid();return id?"hanverse_warmup_"+id:"hanverse_warmup_anon"}
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function escWarm(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function warmupVocab(){const pool=[];for(const l of stats(lvl()).ls)for(const v of l.vocabulary||[]){const zh=v.chinese||v.word||v.hanzi,en=v.english||v.meaning;if(zh&&en)pool.push({zh,en,py:v.pinyin||""})}return pool}
@@ -490,7 +495,7 @@ async function renderWarmupFinish(){
  const n=warmup.correct,xp=n*5;
  const prev=warmupToday();
  const streak=prev&&prev.date===warmupKey(new Date(Date.now()-864e5))?(prev.streak||0)+1:1;
- try{localStorage.setItem("hanverse_warmup",JSON.stringify({date:warmupKey(),correct:n,xp,streak}))}catch{}
+ try{localStorage.setItem(warmupStorageKey(),JSON.stringify({date:warmupKey(),correct:n,xp,streak}))}catch{}
  $("warmupTitle").textContent=n===3?"Perfect warm-up! 🎉":"Warm-up done!";
  $("warmupDesc").textContent=n===3?"All three correct — HanPan is very proud.":"Every warm-up counts. Come back tomorrow!";
  $("warmupStreak").hidden=false;$("warmupStreak").textContent=`🔥 ${streak}-day warm-up`;
