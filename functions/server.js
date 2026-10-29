@@ -1331,7 +1331,7 @@ router.post('/signup', authLimiter, async (req, res) => {
       }
     }
 
-    const password_hash = await bcrypt.hash(cleanPassword, 10);
+    const password_hash = await bcrypt.hash(cleanPassword, 12);
     const verificationToken = generateSecureToken(32);
 
     // role column is guaranteed by ensureUserColumns() at boot — single INSERT path.
@@ -2067,7 +2067,7 @@ router.post('/reset-password', async (req, res) => {
 
     const { user_id } = tokenResult.rows[0];
 
-    const newHash = await bcrypt.hash(String(newPassword), 10);
+    const newHash = await bcrypt.hash(String(newPassword), 12);
     await pool.query(
       `UPDATE users SET password_hash = $1 WHERE user_id = $2`,
       [newHash, user_id]
@@ -2557,7 +2557,7 @@ router.post('/parents/children', async (req, res) => {
     }
 
     const cleanName = full_name.trim();
-    const password_hash = await bcrypt.hash(password, 10);
+    const password_hash = await bcrypt.hash(password, 12);
     const finalEmail = cleanEmail || `${cleanUsername}@hanverse.child`;
 
     const userResult = await pool.query(`
