@@ -78,6 +78,18 @@ export async function ensureFeatureSchema(pgPool) {
   )`);
   await q(`CREATE INDEX IF NOT EXISTS idx_game_sessions_game ON game_sessions(game, created_at)`);
 
+  // --- Tone Coach: per tone-pair mastery (adaptive drills + progress view)
+  await q(`CREATE TABLE IF NOT EXISTS tone_stats (
+    stat_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    tone_pair VARCHAR(16) NOT NULL,
+    seen INTEGER NOT NULL DEFAULT 0,
+    correct INTEGER NOT NULL DEFAULT 0,
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, tone_pair)
+  )`);
+  await q(`CREATE INDEX IF NOT EXISTS idx_tone_stats_user ON tone_stats(user_id)`);
+
   await q(`CREATE TABLE IF NOT EXISTS placement_results (
     placement_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(user_id),
@@ -876,6 +888,61 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      5. TONE-PAIR GAME + GAME SESSIONS
   ========================================================= */
+  /* =========================================================
+     TONE COACH — per tone-pair mastery. Powers adaptive drill
+     selection and the progress strip. Client reports each
+     answered pair; the server clamps counts and scopes rows to
+     the signed-in learner.
+  ========================================================= */
+  router.post('/games/tone-stats', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const results = Array.isArray(req.body?.results) ? req.body.results : null;
+      if (!results || results.length === 0 || results.length > 100) {
+        return fail(res, 400, 'results array required (max 100)');
+      }
+      const rows = [];
+      for (const r of results) {
+        const pair = String(r?.pair || '').trim();
+        if (!/^[1-5](\s*-\s*[1-5])?$/.test(pair)) return fail(res, 400, 'Invalid tone pair.');
+        const seen = Number(r.seen ?? 0), correct = Number(r.correct ?? 0);
+        if (!Number.isSafeInteger(seen) || !Number.isSafeInteger(correct) ||
+            seen < 1 || correct < 0 || correct > seen) {
+          return fail(res, 400, 'Invalid tone counters.');
+        }
+        rows.push({ pair: pair.replace(/\s+/g, ''), seen, correct });
+      }
+      await ensureFeatureSchema();
+      for (const r of rows) {
+        await pool.query(
+          `INSERT INTO tone_stats (user_id, tone_pair, seen, correct) VALUES ($1,$2,$3,$4)
+           ON CONFLICT (user_id, tone_pair)
+           DO UPDATE SET seen = tone_stats.seen + EXCLUDED.seen,
+                        correct = tone_stats.correct + EXCLUDED.correct,
+                        updated_at = NOW()`,
+          [req.userId, r.pair, r.seen, r.correct]
+        );
+      }
+      ok(res, { saved: rows.length });
+    } catch (e) {
+      console.error('games/tone-stats POST error:', e);
+      fail(res, 500, 'Failed to save tone stats');
+    }
+  });
+
+  router.get('/games/tone-stats', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const rows = await pool.query(
+        `SELECT tone_pair AS pair, seen, correct FROM tone_stats WHERE user_id = $1 ORDER BY tone_pair`,
+        [req.userId]
+      );
+      ok(res, { stats: rows.rows });
+    } catch (e) {
+      console.error('games/tone-stats GET error:', e);
+      fail(res, 500, 'Failed to load tone stats');
+    }
+  });
+
   router.post('/games/session', requireAuth, writeLimiter,async (req, res) => {
     try {
       const userId = uid(req.body, 'userId', 'user_id');

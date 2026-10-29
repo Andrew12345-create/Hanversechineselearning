@@ -6870,6 +6870,9 @@
     ];
 
     let toneRounds = 0, toneCorrect = 0, toneScore = 0, tonePair = null;
+    let toneMastery = {};      // pair -> {seen, correct} from the server
+    let toneSessionStats = []; // this session's results, batched to the server
+    const FVlocal = () => window.HanVerseFeatures;
 
     function speakHz(text, rate) {
         try {
@@ -6882,26 +6885,100 @@
 
     function startTonePairs() {
         toneRounds = 0; toneCorrect = 0; toneScore = 0;
-        openModal("Tone Pairs 🎵");
+        openModal("Tone Coach 🎵");
+        // Tone Coach 2.0: pull the learner's per-pair mastery, then weight
+        // selection toward weak pairs (adaptive review).
+        toneSessionStats = [];
+        let loaded = false;
+        if (FV() && FUID()) {
+            FV().api("/games/tone-stats").then(d => {
+                toneMastery = {};
+                for (const s of (d?.stats || [])) toneMastery[s.pair] = s;
+                loaded = true;
+            }).catch(() => { loaded = true; });
+            // Don't block the first round on a slow network — stats only
+            // affect which pairs get picked.
+            setTimeout(() => { loaded = true; }, 1200);
+        } else {
+            loaded = true;
+        }
         nextToneRound();
+    }
+
+    /* Adaptive pick: prefer the minimal pair whose tones the learner is
+       weakest on (lowest accuracy with at least 2 attempts); fresh pairs
+       get priority over mastered ones. Falls back to random. */
+    function pickWeakPairWord() {
+        const stats = Object.entries(toneMastery);
+        if (!stats.length) return null;
+        const rated = stats
+            .filter(([, s]) => s.seen >= 2)
+            .map(([pair, s]) => ({ pair, acc: s.correct / s.seen, seen: s.seen }))
+            .sort((x, y) => x.acc - y.acc);
+        if (!rated.length) return null;
+        const weakest = rated[0];
+        if (weakest.acc > 0.85) return null; // nothing weak enough to drill
+        const tones = weakest.pair.split("-").map(Number);
+        const candidates = TONE_WORDS.filter(w => tones.includes(w.tone));
+        return candidates[Math.floor(Math.random() * candidates.length)] || null;
+    }
+
+    function tonePairOf(word) { return String(word.tone); }
+
+    function recordToneResult(word, right) {
+        const pair = tonePairOf(word);
+        let bucket = toneSessionStats.find(s => s.pair === pair);
+        if (!bucket) { bucket = { pair, seen: 0, correct: 0 }; toneSessionStats.push(bucket); }
+        bucket.seen++; if (right) bucket.correct++;
+    }
+
+    function saveToneStats() {
+        if (!toneSessionStats.length || !FV() || !FUID()) return;
+        FV().api("/games/tone-stats", { method: "POST", body: { results: toneSessionStats } }).catch(() => {});
+    }
+
+    function masteryStrip() {
+        const stats = Object.entries(toneMastery);
+        if (!stats.length) return "";
+        const cells = [1, 2, 3, 4].map(t => {
+            const rows = stats.filter(([p]) => p === String(t) || p.split("-").includes(String(t)));
+            const seen = rows.reduce((n, [, s]) => n + s.seen, 0);
+            const cor = rows.reduce((n, [, s]) => n + s.correct, 0);
+            const acc = seen ? Math.round(100 * cor / seen) : null;
+            const color = acc === null ? "#D5E3F0" : acc >= 80 ? "#16A34A" : acc >= 50 ? "#F59E0B" : "#EF4444";
+            const label = ["1st tone","2nd tone","3rd tone","4th tone"][t - 1];
+            return `<div style="flex:1;min-width:64px" title="${label}: ${acc === null ? 'no data' : acc + '% accuracy'}">
+                <div style="height:6px;border-radius:3px;background:#EDF2F7;overflow:hidden">
+                    <div style="height:100%;width:${acc === null ? 0 : acc}%;background:${color}"></div>
+                </div>
+                <div style="font-size:.62rem;color:var(--muted);margin-top:2px;text-align:center">${label}${acc === null ? '' : ' ' + acc + '%'}</div>
+            </div>`;
+        }).join("");
+        return `<div style="display:flex;gap:8px;margin:6px 0 10px">${cells}</div>`;
     }
 
     function nextToneRound() {
         toneRounds++;
         if (toneRounds > 10) {
             saveSession("tone_pairs", toneScore, toneCorrect, 10);
+            saveToneStats();
             if (window.HanVerseSound) window.HanVerseSound.levelUp();
             $("modalContent").innerHTML = `
                 <div class="empty">
                     <h3>Round complete! 🎵</h3>
                     <p>${toneCorrect}/10 correct — ${toneScore} points earned.</p>
+                    <p style="font-size:.8rem;color:var(--muted)">Your weakest tones get picked more often next time.</p>
+                    ${masteryStrip()}
                     <button class="cta" id="toneAgain">Play again</button>
                 </div>`;
             $("toneAgain").onclick = () => startTonePairs();
             return;
         }
 
-        const a = TONE_WORDS[Math.floor(Math.random() * TONE_WORDS.length)];
+        // Adaptive selection: prefer the learner's weak tones (55% of rounds
+        // once real stats exist), else random.
+        let a = toneRounds > 2 ? pickWeakPairWord() : null;
+        if (!a) a = TONE_WORDS[Math.floor(Math.random() * TONE_WORDS.length)];
         let b;
         do { b = TONE_WORDS[Math.floor(Math.random() * TONE_WORDS.length)]; } while (b.hz === a.hz);
         const options = Math.random() < 0.5 ? [a, b] : [b, a];
@@ -6909,7 +6986,7 @@
 
         $("modalContent").innerHTML = `
             <div style="text-align:center;padding:10px">
-                <p style="color:var(--muted);font-size:.85rem">Listen carefully… which word did you hear?</p>
+                <p style="color:var(--muted);font-size:.85rem">Listen carefully... which word did you hear?</p>
                 <button class="btn-ghost" id="toneReplay" style="margin:12px auto">🔊 Hear it again</button>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
                     ${options.map((o, i) => `
@@ -6918,7 +6995,8 @@
                             <span style="font-size:.75rem;color:var(--muted)">${o.py}</span>
                         </button>`).join("")}
                 </div>
-                <p style="margin-top:14px;font-size:.78rem;color:var(--muted)">Round ${toneRounds}/10 · Score ${toneScore}</p>
+                <div style="margin-top:12px">${masteryStrip()}</div>
+                <p style="margin-top:8px;font-size:.78rem;color:var(--muted)">Round ${toneRounds}/10 · Score ${toneScore}</p>
             </div>`;
 
         const play = () => speakHz(a.hz, 0.75);
@@ -6929,6 +7007,7 @@
             btn.onclick = () => {
                 const chosen = options[Number(btn.dataset.i)];
                 const right = chosen.hz === a.hz;
+                recordToneResult(a, right);
                 if (right) {
                     toneCorrect++; toneScore += 10;
                     if (window.HanVerseSound) window.HanVerseSound.correct();
