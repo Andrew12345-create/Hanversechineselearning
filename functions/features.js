@@ -80,6 +80,7 @@ export async function ensureFeatureSchema(pgPool) {
     created_at TIMESTAMPTZ DEFAULT NOW()
   )`);
   await q(`CREATE INDEX IF NOT EXISTS idx_game_sessions_game ON game_sessions(game, created_at)`);
+  await q(`CREATE INDEX IF NOT EXISTS idx_game_sessions_user_game_score ON game_sessions(user_id, game, score DESC)`);
 
   // --- Tone Coach: per tone-pair mastery (adaptive drills + progress view)
   await q(`CREATE TABLE IF NOT EXISTS tone_stats (
@@ -1101,6 +1102,64 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     } catch (e) {
       console.error('games/tone-stats GET error:', e);
       fail(res, 500, 'Failed to load tone stats');
+    }
+  });
+
+  /* Personal Bests — only the signed-in learner's aggregate game data.
+     No raw session history or another learner's scores are exposed. */
+  router.get('/games/personal-bests', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const result = await pool.query(
+        `SELECT game, MAX(score)::int AS best_score, MAX(correct)::int AS best_correct,
+                MAX(total)::int AS best_total, COUNT(*)::int AS attempts,
+                MAX(created_at) AS last_played
+         FROM game_sessions WHERE user_id = $1
+         GROUP BY game ORDER BY best_score DESC, game ASC`,
+        [req.userId]
+      );
+      return ok(res, { bests: result.rows });
+    } catch (e) {
+      console.error('games/personal-bests error:', e);
+      return fail(res, 500, 'Failed to load personal bests');
+    }
+  });
+
+  /* Mastery Gates — transparent, performance-based milestones. A gate is
+     informational: it never silently removes access. Lessons remain governed
+     by the server-side entitlement engine. */
+  router.get('/learning/mastery-gates', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const userId = req.userId;
+      const [lessonRows, reviewRows, toneRows] = await Promise.all([
+        pool.query(`SELECT COUNT(*) FILTER (WHERE completed = TRUE)::int AS completed,
+                           COUNT(*)::int AS started
+                    FROM user_progress WHERE user_id = $1`, [userId]),
+        pool.query(`SELECT COUNT(*)::int AS reviewed,
+                           COUNT(*) FILTER (WHERE lapses = 0)::int AS steady
+                    FROM review_queue WHERE user_id = $1`, [userId]),
+        pool.query(`SELECT COALESCE(SUM(seen),0)::int AS seen,
+                           COALESCE(SUM(correct),0)::int AS correct
+                    FROM tone_stats WHERE user_id = $1`, [userId])
+      ]);
+      const lessons = lessonRows.rows[0] || {};
+      const reviews = reviewRows.rows[0] || {};
+      const tones = toneRows.rows[0] || {};
+      const completed = Number(lessons.completed) || 0;
+      const reviewed = Number(reviews.reviewed) || 0;
+      const toneSeen = Number(tones.seen) || 0;
+      const toneCorrect = Number(tones.correct) || 0;
+      const toneAccuracy = toneSeen ? Math.round((toneCorrect / toneSeen) * 100) : 0;
+      const gates = [
+        { id: 'pathfinder', label: 'Pathfinder', description: 'Complete 3 lessons', current: completed, target: 3, unit: 'lessons' },
+        { id: 'wordkeeper', label: 'Word Keeper', description: 'Review 10 saved words', current: Number(reviews.reviewed) || 0, target: 10, unit: 'words' },
+        { id: 'tonekeeper', label: 'Tone Keeper', description: 'Reach 70% across 10 tone checks', current: toneSeen >= 10 ? toneAccuracy : toneSeen, target: toneSeen >= 10 ? 70 : 10, unit: toneSeen >= 10 ? '%' : 'checks', detail: toneSeen >= 10 ? `${toneAccuracy}% accuracy` : `${toneSeen}/10 checks` }
+      ].map((gate) => ({ ...gate, complete: gate.current >= gate.target, progress: Math.min(100, Math.round((gate.current / gate.target) * 100)) }));
+      return ok(res, { gates, summary: { completedLessons: completed, reviewedWords: Number(reviews.reviewed) || 0, toneAccuracy, toneChecks: toneSeen } });
+    } catch (e) {
+      console.error('learning/mastery-gates error:', e);
+      return fail(res, 500, 'Failed to load mastery gates');
     }
   });
 

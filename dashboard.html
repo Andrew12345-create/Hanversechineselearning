@@ -243,6 +243,19 @@
                 <p id="petMsg" style="font-size:.75rem;color:var(--muted);margin:8px 0 0;min-height:1em"></p>
             </div>
         </section>
+
+        <div class="grid2" id="masteryAndBests">
+            <section class="asg-card" aria-labelledby="gatesTitle">
+                <h2 id="gatesTitle">🚪 Mastery gates</h2>
+                <p style="font-size:.78rem;color:var(--muted);margin:0 0 10px">Gentle milestones based on your real learning. They celebrate progress — they never lock you out.</p>
+                <div id="masteryGates"><p style="font-size:.75rem;color:var(--muted)">Loading your milestones…</p></div>
+            </section>
+            <section class="asg-card" aria-labelledby="bestsTitle">
+                <h2 id="bestsTitle">🏆 Personal bests</h2>
+                <p style="font-size:.78rem;color:var(--muted);margin:0 0 10px">Your strongest game scores, just for you.</p>
+                <div id="personalBests"><p style="font-size:.75rem;color:var(--muted)">Loading your bests…</p></div>
+            </section>
+        </div>
     </main>
 
     <script src="notifications-client.js?v=1"></script>
@@ -255,13 +268,14 @@
         'use strict';
         var SESSION_KEYS = ["hanverse_user", "hanverseUser", "hanverse_session", "hanverseSession", "user", "currentUser", "authUser"];
         var user = null;
+        var authToken = "";
         for (var k = 0; k < SESSION_KEYS.length; k++) {
             try {
                 var raw = localStorage.getItem(SESSION_KEYS[k]);
                 if (!raw) continue;
                 var p = JSON.parse(raw);
                 var u = p && p.user ? p.user : p;
-                if (u && (u.user_id || u.userId || u.id)) { user = u; break; }
+                if (u && (u.user_id || u.userId || u.id)) { user = u; authToken = p.token || u.token || ""; break; }
             } catch (e) {}
         }
         if (!user) { location.replace("login.html?next=" + encodeURIComponent("dashboard.html")); return; }
@@ -272,7 +286,7 @@
         function request(path) {
             return fetch(API + "/" + String(path).replace(/^\/+/, ""), {
                 credentials: "include", cache: "no-store",
-                headers: { Accept: "application/json" }
+                headers: Object.assign({ Accept: "application/json" }, authToken ? { Authorization: "Bearer " + authToken } : {})
             }).then(function (r) {
                 return r.json().then(function (d) {
                     if (!r.ok) throw new Error((d && d.error) || ("HTTP " + r.status));
@@ -335,7 +349,7 @@
                 fetch(API + "/pet/customize", {
                     method: "POST",
                     credentials: "include",
-                    headers: { "Content-Type": "application/json", Accept: "application/json" },
+                    headers: Object.assign({ "Content-Type": "application/json", Accept: "application/json" }, authToken ? { Authorization: "Bearer " + authToken } : {}),
                     body: JSON.stringify({ petName: name, petColor: petState.petColor })
                 }).then(function (r) { return r.json(); }).then(function (d) {
                     var msg = document.getElementById("petMsg");
@@ -347,6 +361,60 @@
                     document.getElementById("petMsg").textContent = "Could not save — try again.";
                 });
             });
+        })();
+
+        // MASTERY GATES + PERSONAL BESTS — server-resolved, self-scoped.
+        // These are encouragements, not client-side access controls.
+        (function loadMasteryAndBests() {
+            function errorState(id, text) {
+                var el = document.getElementById(id);
+                if (el) el.textContent = text;
+            }
+            request("learning/mastery-gates").then(function (data) {
+                var root = document.getElementById("masteryGates");
+                if (!root) return;
+                root.innerHTML = "";
+                var gates = Array.isArray(data.gates) ? data.gates : [];
+                if (!gates.length) { root.textContent = "Your first learning milestone will appear here."; return; }
+                gates.forEach(function (gate) {
+                    var item = document.createElement("div");
+                    item.style.cssText = "margin:9px 0;padding:9px 0;border-bottom:1px solid var(--line,#E8EEF5)";
+                    var heading = document.createElement("div");
+                    heading.style.cssText = "display:flex;justify-content:space-between;gap:8px;font-size:.78rem;font-weight:800";
+                    var name = document.createElement("span");
+                    name.textContent = (gate.complete ? "✅ " : "🌱 ") + gate.label;
+                    var status = document.createElement("span");
+                    status.style.color = "var(--muted)";
+                    status.textContent = gate.complete ? "Complete" : (gate.detail || (gate.current + "/" + gate.target + " " + gate.unit));
+                    heading.append(name, status);
+                    var label = document.createElement("div");
+                    label.style.cssText = "font-size:.7rem;color:var(--muted);margin:4px 0";
+                    label.textContent = gate.description;
+                    var track = document.createElement("div");
+                    track.style.cssText = "height:7px;border-radius:99px;background:var(--line,#E8EEF5);overflow:hidden";
+                    var fill = document.createElement("div");
+                    fill.style.cssText = "height:100%;border-radius:99px;background:" + (gate.complete ? "#16A34A" : "#2563EB") + ";width:" + Math.max(0, Math.min(100, Number(gate.progress) || 0)) + "%";
+                    track.appendChild(fill); item.append(heading, label, track); root.appendChild(item);
+                });
+            }).catch(function () { errorState("masteryGates", "Milestones will be ready when you are online."); });
+
+            request("games/personal-bests").then(function (data) {
+                var root = document.getElementById("personalBests");
+                if (!root) return;
+                root.innerHTML = "";
+                var bests = Array.isArray(data.bests) ? data.bests : [];
+                if (!bests.length) { root.textContent = "Play a game to set your first personal best!"; return; }
+                bests.slice(0, 4).forEach(function (best) {
+                    var row = document.createElement("div");
+                    row.style.cssText = "display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line,#E8EEF5);font-size:.78rem";
+                    var game = document.createElement("strong");
+                    game.textContent = String(best.game || "Game").replace(/_/g, " ");
+                    var score = document.createElement("span");
+                    score.style.color = "var(--muted)";
+                    score.textContent = Number(best.best_score || 0).toLocaleString() + " pts · " + Number(best.attempts || 0) + " plays";
+                    row.append(game, score); root.appendChild(row);
+                });
+            }).catch(function () { errorState("personalBests", "Your bests will be ready when you are online."); });
         })();
 
         // Greeting
