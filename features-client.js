@@ -139,6 +139,9 @@
       aggregate: (classCode) => api('/classroom/aggregate/' + encodeURIComponent(classCode)),
       mastery: (classCode) => api('/classroom/mastery/' + encodeURIComponent(classCode)),
       questProgress: (classCode) => api('/classroom/quest-progress/' + encodeURIComponent(classCode)),
+      assignments: (classCode) => api('/classroom/assignments/' + encodeURIComponent(classCode)),
+      createAssignment: (assignment) => api('/classroom/assignments', { method: 'POST', body: assignment }),
+      completeAssignment: (assignmentId) => api('/classroom/assignments/' + encodeURIComponent(assignmentId) + '/complete', { method: 'POST', body: {} }),
       setQuest: (classCode, quest) => api('/classroom/quest', {
         method: 'POST',
         body: { classCode, ...quest }

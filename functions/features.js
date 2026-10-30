@@ -135,6 +135,27 @@ export async function ensureFeatureSchema(pgPool) {
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
+  // --- classroom assignments: teachers assign work; completion is private to each learner.
+  await q(`CREATE TABLE IF NOT EXISTS class_assignments (
+    assignment_id SERIAL PRIMARY KEY,
+    class_code VARCHAR(12) NOT NULL REFERENCES classrooms(class_code) ON DELETE CASCADE,
+    teacher_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    title VARCHAR(120) NOT NULL,
+    description TEXT,
+    target_lesson_id VARCHAR(80),
+    due_date DATE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    archived_at TIMESTAMPTZ
+  )`);
+  await q(`CREATE INDEX IF NOT EXISTS idx_class_assignments_active ON class_assignments(class_code, is_active, due_date)`);
+  await q(`CREATE TABLE IF NOT EXISTS class_assignment_completions (
+    assignment_id INTEGER NOT NULL REFERENCES class_assignments(assignment_id) ON DELETE CASCADE,
+    learner_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    completed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (assignment_id, learner_user_id)
+  )`);
+
   // --- class quests (teacher-set weekly goal; one active per class)
   await q(`CREATE TABLE IF NOT EXISTS class_quests (
     quest_id SERIAL PRIMARY KEY,
@@ -1623,6 +1644,52 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       console.error('classroom/aggregate error:', e);
       fail(res, 500, 'Failed to load class progress');
     }
+  });
+
+  // Classroom assignments: teachers can manage only their own classes. Learners see
+  // only assignments for their current class and their own completion state.
+  router.get('/classroom/assignments/:classCode', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const v = await loadClassForViewer(req, res); if (v.denied) return;
+      const rows = (await pool.query(`SELECT a.assignment_id, a.title, a.description, a.target_lesson_id, a.due_date, a.is_active, a.created_at,
+        EXISTS(SELECT 1 FROM class_assignment_completions c WHERE c.assignment_id = a.assignment_id AND c.learner_user_id = $2) AS completed
+        FROM class_assignments a WHERE a.class_code = $1 AND ($3::boolean OR a.is_active = TRUE)
+        ORDER BY a.is_active DESC, a.due_date NULLS LAST, a.created_at DESC LIMIT 100`, [v.code, req.userId, v.isTeacher])).rows;
+      ok(res, { assignments: rows, isTeacher: v.isTeacher });
+    } catch (e) { console.error('classroom/assignments error:', e); fail(res, 500, 'Failed to load assignments'); }
+  });
+
+  router.post('/classroom/assignments', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      const gate = await requireTeacher(req, res); if (gate) return gate;
+      const code = String(req.body.classCode || '').trim().toUpperCase();
+      const title = String(req.body.title || '').trim();
+      const description = String(req.body.description || '').trim();
+      const lessonId = String(req.body.targetLessonId || '').trim() || null;
+      const dueDate = String(req.body.dueDate || '').trim() || null;
+      if (!code || !title || title.length > 120 || description.length > 2000) return fail(res, 400, 'A title (max 120 characters) and short instructions are required');
+      if (lessonId && lessonId.length > 80) return fail(res, 400, 'Invalid lesson reference');
+      if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return fail(res, 400, 'Due date must be YYYY-MM-DD');
+      await ensureFeatureSchema();
+      const owns = (await pool.query(`SELECT 1 FROM classrooms WHERE class_code = $1 AND teacher_id = $2`, [code, req.userId])).rows[0];
+      if (!owns) return fail(res, 403, 'Not your class');
+      const row = (await pool.query(`INSERT INTO class_assignments (class_code, teacher_user_id, title, description, target_lesson_id, due_date)
+        VALUES ($1,$2,$3,$4,$5,$6) RETURNING assignment_id, title, due_date`, [code, req.userId, title, description || null, lessonId, dueDate || null])).rows[0];
+      ok(res, { assignment: row });
+    } catch (e) { console.error('classroom/create-assignment error:', e); fail(res, 500, 'Failed to create assignment'); }
+  });
+
+  router.post('/classroom/assignments/:assignmentId/complete', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const id = Number(req.params.assignmentId); if (!Number.isInteger(id) || id <= 0) return fail(res, 400, 'Invalid assignment');
+      const row = (await pool.query(`SELECT a.assignment_id FROM class_assignments a JOIN users u ON u.class_code = a.class_code
+        WHERE a.assignment_id = $1 AND a.is_active = TRUE AND u.user_id = $2`, [id, req.userId])).rows[0];
+      if (!row) return fail(res, 404, 'Assignment not found');
+      await pool.query(`INSERT INTO class_assignment_completions (assignment_id, learner_user_id) VALUES ($1,$2) ON CONFLICT DO NOTHING`, [id, req.userId]);
+      ok(res, {});
+    } catch (e) { console.error('classroom/complete-assignment error:', e); fail(res, 500, 'Failed to complete assignment'); }
   });
 
   // Teacher sets the ONE active class quest ("Everyone finish YCT 1 Lesson 3
