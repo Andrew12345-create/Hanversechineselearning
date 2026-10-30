@@ -1410,6 +1410,12 @@ router.post('/signup', authLimiter, async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Signup successful. Please check your email for verification.",
+      token: generateToken({
+        user_id: newUser.user_id,
+        email: newUser.email,
+        role: newUser.role || 'student',
+        is_admin: newUser.is_admin || false
+      }),
       user: safeUser(newUser),
       isNewUser: true
     });
