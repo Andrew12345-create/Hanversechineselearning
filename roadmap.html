@@ -86,6 +86,11 @@
 <div class="mile"><div class="mile-icon">🏆</div><h3>Master your path</h3><p>Finish each level and move toward the next challenge.</p></div>
 </section>
 
+<section class="pathbox" id="plannerCard" hidden aria-labelledby="plannerTitle">
+<div class="pathhead"><div><div class="kicker" id="plannerKicker">YCT PLANNER</div><h2 id="plannerTitle">Your path to the next level</h2><p id="plannerCopy">Working it out from your lessons…</p></div><div class="overall"><b id="plannerPct">0%</b><div class="bar"><span id="plannerFill"></span></div><span style="font-size:.6rem;color:#64748b">current level</span></div></div>
+<div style="margin-top:10px;font-size:.78rem;color:#64748b" id="plannerSteps"></div>
+</section>
+
 <section class="pathbox" id="leaderboardCard" hidden>
 <div class="pathhead"><div><div class="kicker">THIS WEEK</div><h2>🏆 Weekly Leaderboard</h2><p>Earn XP in lessons and games to climb this week's board.</p></div></div>
 <div id="lbRows" class="lb-rows"></div>
@@ -144,6 +149,28 @@ function group(n){return lessons.filter(l=>lessonLevel(l)===n).sort((a,b)=>order
 function levelPct(n){const a=group(n);return a.length?Math.round(a.reduce((s,l)=>s+pct(l),0)/a.length):0}
 function currentLevel(){const from=userLevel();return selected==="all"?from:Number(selected)}
 function currentNext(n){return group(n).find(l=>pct(l)<100)}
+function renderPlanner(mainLevel){
+ const card=$("plannerCard");if(!card)return;
+ const lvl=group(mainLevel);
+ if(!lvl.length){card.hidden=true;return}
+ card.hidden=false;
+ const done=lvl.filter(complete).length;
+ const total=lvl.length;
+ const p=total?Math.round(100*done/total):0;
+ $("plannerKicker").textContent=`YCT PLANNER · LEVEL ${mainLevel}`;
+ $("plannerPct").textContent=p+"%";
+ $("plannerFill").style.width=p+"%";
+ let next=mainLevel+1;
+ while(next<=4&&!levelInfo[next])next++;
+ let steps=`<b style="color:#0F2340">${total-done} lesson${total-done===1?"":"s"} to go</b> at YCT ${mainLevel} (${done}/${total} complete). `;
+ steps+=p===100
+   ?`You've finished this level's lessons — review them, then move to YCT ${next<=4?next:mainLevel}. `
+   :`Keep finishing one lesson a session — steady beats fast. `;
+ steps+=`Real YCT exams are run by Hanban test centres a few times a year; when you can ace every lesson here without help, ask your grown-up to book the real one. 🎯`;
+ $("plannerCopy").textContent=steps;
+ $("plannerSteps").textContent=`Tip: words you meet in lessons come back in Smart Review — clear your review deck before exam day.`;
+}
+
 function renderNextStep(mainLevel){
  const icon=$("nextStepIcon"),title=$("nextStepTitle"),copy=$("nextStepCopy"),link=$("nextStepLink");
  if(dueReviewCount>0){icon.textContent="🧠";title.textContent=`${dueReviewCount} ${dueReviewCount===1?"word is":"words are"} ready to revisit`;copy.textContent="A short review helps new Mandarin words stick before you move on.";link.href="adventures.html#review";link.textContent="Review words →";return}
@@ -158,7 +185,7 @@ function render(){
  const n=firstName(),ul=userLevel();$("userName").textContent=n;if($("userNameMobile"))$("userNameMobile").textContent=n;$("xpChip").textContent=`⭐ ${Number(user?.xp||0).toLocaleString()} XP`;$("streakChip").textContent=`🔥 ${Number(user?.streak_days||0)} day streak`;$("levelChip").textContent=`YCT ${ul}`;$("heroCopy").textContent=`${n}, your lessons become a clear path. Complete one step, unlock the next and keep moving forward.`;
  const levels=selected==="all"?[1,2,3,4]:[Number(selected)];const mainLevel=selected==="all"?ul:Number(selected);const info=levelInfo[mainLevel];$("pathTitle").textContent=`YCT ${mainLevel} · ${info.name}`;$("pathDesc").textContent=info.desc;
  const allForOverall=lessons.length?Math.round(lessons.reduce((s,l)=>s+pct(l),0)/lessons.length):0;$("overall").textContent=allForOverall+"%";$("overallFill").style.width=allForOverall+"%";
- const arr=levels.flatMap(n=>group(n).map((l,i)=>({l,i,level:n})));const target=$("lessons");target.innerHTML="";renderNextStep(mainLevel);
+ const arr=levels.flatMap(n=>group(n).map((l,i)=>({l,i,level:n})));const target=$("lessons");target.innerHTML="";renderNextStep(mainLevel);renderPlanner(mainLevel);
  if(!arr.length){target.innerHTML='<div class="empty"><h3>No published lessons yet.</h3><p>This level does not have lessons available yet.</p></div>';return}
  let firstIncompleteFound=false;
  arr.forEach(({l,i,level})=>{const p=pct(l),done=p>=100;const next=!done&&!firstIncompleteFound; if(next)firstIncompleteFound=true;const locked=!done&&!next&&level===mainLevel;const title=l.title||l.name||`Lesson ${i+1}`;const desc=l.description||l.subtitle||"Continue your Mandarin journey.";const el=document.createElement("article");el.className="lesson"+(done?" completed":"")+(next?" current":"")+(locked?" locked":"");const state=done?"✓ Completed":next?"NEXT LESSON":locked?"🔒 Locked":p>0?`${Math.round(p)}% complete`:"Ready";const btnText=done?"Review →":next?"Continue →":p>0?"Resume →":"Start →";el.innerHTML=`<div class="node">${done?"✓":next?"▶":locked?"🔒":levelInfo[level]?.icon||"📚"}</div><div class="lesson-card"><div><span class="lesson-label">YCT ${level} · LESSON ${order(l,i+1)}</span><h3>${esc(title)} <span class="lesson-cn">${esc(l.chinese_title||"")}</span></h3><p class="lesson-desc">${esc(desc)}</p><div class="progress-mini"><span style="width:${p}%"></span></div></div><div class="lesson-right"><span class="state">${state}</span>${locked?`<button class="lesson-btn" type="button" disabled aria-disabled="true">Locked</button>`:`<a class="lesson-btn" href="lesson.html?id=${encodeURIComponent(lessonId(l))}">${btnText}</a>`}</div></div>`;target.appendChild(el)});

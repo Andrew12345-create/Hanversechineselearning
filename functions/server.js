@@ -2398,6 +2398,105 @@ router.get('/parents/child/:childId', async (req, res) => {
   }
 });
 
+// CHILD MASTERY BY SKILL — parent-only, same authz chain as GET /parents/child/:childId.
+// Per-skill aggregates for the Parent Hub: tones (tone_stats), vocabulary
+// (vocabulary_progress), lessons (user_progress), games (game_sessions),
+// review deck (review_queue). Keys off the child's linked user_id; every
+// sub-table is fault-isolated so a missing legacy table degrades, never 500s.
+router.get('/parents/child/:childId/mastery', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+
+    const { childId } = req.params;
+    const parentId = auth.user_id;
+    if (!parentId) return res.status(400).json({ success: false, error: 'Parent ID is required.' });
+
+    const childResult = await pool.query(
+      `SELECT child_id, parent_id, user_id, full_name FROM children c WHERE c.child_id = $1`,
+      [childId]
+    );
+    if (!childResult.rows.length) return res.status(404).json({ success: false, error: 'Child not found.' });
+    const child = childResult.rows[0];
+
+    const parentCheck = await pool.query(
+      `SELECT user_id, is_verified, is_banned, role FROM users WHERE user_id = $1`,
+      [parentId]
+    );
+    if (!parentCheck.rows.length || parentCheck.rows[0].role !== 'parent') {
+      return res.status(403).json({ success: false, error: 'Access denied. User is not a parent.' });
+    }
+    const parentUser = parentCheck.rows[0];
+    if (!parentUser.is_verified || parentUser.is_banned) {
+      return res.status(403).json({ success: false, error: 'Parent account is not verified or is banned.' });
+    }
+    const parentRecordCheck = await pool.query(`SELECT parent_id FROM parents WHERE user_id = $1`, [parentId]);
+    if (!parentRecordCheck.rows.length) return res.status(404).json({ success: false, error: 'Parent record not found.' });
+    if (child.parent_id !== parentRecordCheck.rows[0].parent_id) {
+      return res.status(403).json({ success: false, error: 'Access denied. This child does not belong to you.' });
+    }
+
+    const childUserId = child.user_id;
+    const safe = async (label, q) => {
+      try { return await q(); } catch (e) { console.warn(`child mastery: ${label} unavailable (${e.message.split('\n')[0]})`); return null; }
+    };
+
+    const tones = await safe('tone_stats', async () => (await pool.query(
+      `SELECT tone, SUM(seen)::int AS seen, SUM(correct)::int AS correct
+       FROM tone_stats WHERE user_id = $1 GROUP BY tone ORDER BY tone`,
+      [childUserId]
+    )).rows.map(r => ({ tone: r.tone, seen: r.seen, accuracy: r.seen > 0 ? Math.round((100 * r.correct) / r.seen) : null })));
+
+    const vocab = await safe('vocabulary_progress', async () => (await pool.query(
+      `SELECT COUNT(*)::int AS words, COALESCE(ROUND(AVG(mastery_level) * 20), 0)::int AS mastery_pct
+       FROM vocabulary_progress WHERE user_id = $1`,
+      [childUserId]
+    )).rows[0]);
+
+    const lessons = await safe('user_progress', async () => (await pool.query(
+      `SELECT COUNT(*)::int AS completed FROM user_progress WHERE user_id = $1 AND completed = TRUE`,
+      [childUserId]
+    )).rows[0]);
+
+    const games = await safe('game_sessions', async () => (await pool.query(
+      `SELECT game, COUNT(*)::int AS plays,
+              COALESCE(ROUND(AVG(CASE WHEN total > 0 THEN 100.0 * correct / total END)), 0)::int AS accuracy
+       FROM game_sessions WHERE user_id = $1 GROUP BY game`,
+      [childUserId]
+    )).rows);
+
+    const review = await safe('review_queue', async () => (await pool.query(
+      `SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE due_at <= NOW())::int AS due
+       FROM review_queue WHERE user_id = $1`,
+      [childUserId]
+    )).rows[0]);
+
+    const streakRow = await pool.query(
+      `SELECT xp, streak_days, current_yct FROM users WHERE user_id = $1`, [childUserId]
+    );
+    const u = streakRow.rows[0] || {};
+
+    return res.json({
+      success: true,
+      mastery: {
+        child: { username: child.full_name || null, xp: u.xp || 0, streakDays: u.streak_days || 0, yct: u.current_yct || null },
+        skills: {
+          tones: tones || [],
+          vocabulary: vocab ? { words: vocab.words, masteryPct: vocab.mastery_pct } : null,
+          lessons: lessons ? { completed: lessons.completed } : null,
+          games: games || [],
+          review: review ? { learned: review.total, dueNow: review.due } : null
+        }
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching child mastery:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load skill report.' });
+  }
+});
+
 // CHILD TREND (XP per day, real user_progress rows) — parent-only
 router.get('/parents/child/:childId/trend', async (req, res) => {
   try {

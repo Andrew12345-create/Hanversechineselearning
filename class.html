@@ -109,8 +109,29 @@ async function fetchAll(code){
  var out={};
  var jobs=[F.classroom.roster(code).then(function(r){out.roster=r}).catch(function(e){out.rosterErr=e}),
            F.classroom.aggregate(code).then(function(r){out.agg=r}).catch(function(e){}),
-           F.classroom.questProgress(code).then(function(r){out.qp=r}).catch(function(e){})];
+           F.classroom.questProgress(code).then(function(r){out.qp=r}).catch(function(e){}),
+           F.classroom.mastery ? F.classroom.mastery(code).then(function(r){out.mastery=r}).catch(function(e){out.masteryErr=e}) : Promise.resolve()];
  await Promise.all(jobs);
+ return out;
+}
+
+function renderMastery(m){
+ if(!m||!m.mastery) return '';
+ var mk=m.mastery;
+ var bar=function(label,pct,detail){
+  var fill=pct===null?0:Math.max(3,pct);
+  var color=pct===null?'#CBD5E1':pct>=80?'#16A34A':pct>=50?'#F59E0B':'#EF4444';
+  return '<div style="margin:9px 0"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)"><span style="font-weight:700;color:var(--text,#0F2340)">'+esc(label)+'</span><span>'+(pct===null?'fewer than '+mk.minGroup+' students':esc(detail))+'</span></div>'+
+  '<div style="height:8px;border-radius:999px;background:var(--line,#EEF2F7);overflow:hidden"><div style="height:100%;width:'+fill+'%;border-radius:999px;background:'+color+'"></div></div></div>';
+ };
+ var out='<section class="card"><div class="heading"><div class="heading-icon">🧠</div><div><h2>Mastery by skill</h2><p>Class-wide skill health. Small groups stay private.</p></div></div><div class="body">';
+ var tones=(mk.tones||[]).filter(function(t){return t.accuracy!==null});
+ tones.forEach(function(t){out+=bar('Tone '+t.tone,t.accuracy,t.accuracy+'% class accuracy')});
+ if(mk.vocabulary) out+=bar('Vocabulary',mk.vocabulary.masteryPct,mk.vocabulary.masteryPct+'% avg mastery');
+ if(mk.lessons) out+=bar('Lessons',null,mk.lessons.avgLessons+' lessons avg');
+ if(mk.engagement) out+=bar('Weekly activity',null,mk.engagement.avgXp+' avg XP · '+mk.engagement.activeToday+' active today');
+ if(!tones.length&&!mk.vocabulary&&!mk.lessons) out+='<div class="empty"><span class="panda">📊</span>Not enough practice data yet — skills appear once '+mk.minGroup+'+ students have played.</div>';
+ out+='</div></section>';
  return out;
 }
 
@@ -193,9 +214,12 @@ function renderClassSpace(o){
  if(state.isTeacher) html+=renderQuestForm();
  html+=renderQuest(o.qp);
  html+=renderStats(o.agg?o.agg.aggregate:null);
+ if(state.isTeacher) html+=renderMastery(o.mastery);
  html+=renderRoster(o.roster?o.roster.students:[],state.isTeacher);
- $('content').innerHTML=html;
- if(state.isTeacher){fillLessonOptions();wireQuestForm();}
+ if(state.isTeacher){fillLessonOptions();wireQuestForm();
+  var mct=document.getElementById('content');
+  if(mct&&!mct.querySelector('.print-link')){var pl=document.createElement('a');pl.className='print-link btn';pl.href='worksheets.html';pl.style.cssText='display:inline-flex;margin:6px 0 18px;font-size:12px';pl.textContent='🖨️ Make a printable worksheet';mct.insertBefore(pl,mct.querySelector('section'));}
+ }
  wireRoster();
  var copy=$('copyCode');
  if(copy)copy.onclick=function(){

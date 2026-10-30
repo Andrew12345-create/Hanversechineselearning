@@ -137,6 +137,7 @@
       leave: () => api('/classroom/leave', { method: 'POST', body: {} }),
       mine: () => api('/classroom/mine'),
       aggregate: (classCode) => api('/classroom/aggregate/' + encodeURIComponent(classCode)),
+      mastery: (classCode) => api('/classroom/mastery/' + encodeURIComponent(classCode)),
       questProgress: (classCode) => api('/classroom/quest-progress/' + encodeURIComponent(classCode)),
       setQuest: (classCode, quest) => api('/classroom/quest', {
         method: 'POST',

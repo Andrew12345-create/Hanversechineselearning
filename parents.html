@@ -1767,6 +1767,14 @@
         </section>
 
         <section class="card">
+            <h2 style="font-size:1rem">Mastery by skill</h2>
+            <p style="font-size:.78rem;color:#526176;margin:2px 0 10px">Where your child is strong and what needs practice. Updated from real sessions.</p>
+            <div id="masterySkill" style="margin-top:6px">
+                <p style="font-size:.85rem;color:#526176">Loading skill report…</p>
+            </div>
+        </section>
+
+        <section class="card">
             <h2 style="font-size:1rem">Recent activity</h2>
             <div id="actFeed" style="margin-top:8px"></div>
             <h2 style="font-size:1rem;margin-top:18px">XP this period</h2>
@@ -1776,9 +1784,10 @@
 
         <div id="sibNav" hidden style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"></div>
 
-        <section class="card qa">
+            <section class="card qa">
             <a class="btn btn-p" id="btnEncourage" href="#">💬 Send encouragement</a>
             <a class="btn btn-s" id="btnAssign" href="#">📝 Assign a lesson</a>
+            <a class="btn btn-s" href="/worksheets.html">🖨️ Printable worksheet</a>
         </section>
         <p style="text-align:center;margin-top:14px"><a href="#" data-goto="dash" style="font-size:.85rem">← Back to dashboard</a></p>
     </main>
@@ -2810,6 +2819,38 @@
                 document.getElementById('sActive').textContent = lastActiveLabel(ch.last_active);
                 document.getElementById('btnEncourage').href = '/parents.html?view=dashboard&message=' + encodeURIComponent(ch.child_id);
                 document.getElementById('btnAssign').href = '/parents.html?view=dashboard&assign=' + encodeURIComponent(ch.child_id);
+
+                // Mastery by skill (real per-skill aggregates; degrades if a table is missing).
+                fetch('/api/parents/child/' + encodeURIComponent(childId) + '/mastery', { credentials: 'include', headers: { Accept: 'application/json' } })
+                    .then(r => r.json())
+                    .then(m => {
+                        const box = document.getElementById('masterySkill');
+                        if (!box) return;
+                        if (!m.success) { box.textContent = 'Skill report unavailable right now.'; return; }
+                        const sk = m.mastery && m.mastery.skills || {};
+                        const esc = s => String(s).replace(/[<>&]/g, '');
+                        const bar = (label, pct, detail) =>
+                            '<div style="margin:9px 0">' +
+                            '<div style="display:flex;justify-content:space-between;font-size:.76rem;color:var(--text-2,#526176)"><span style="font-weight:700;color:var(--text,#0F2340)">' + esc(label) + '</span><span>' + (pct === null ? 'not enough data' : esc(detail)) + '</span></div>' +
+                            '<div style="height:8px;border-radius:999px;background:var(--line,#E8EEF5);overflow:hidden"><div style="height:100%;width:' + (pct === null ? 0 : Math.max(3, pct)) + '%;border-radius:999px;background:' + (pct === null ? '#CBD5E1' : pct >= 80 ? '#16A34A' : pct >= 50 ? '#F59E0B' : '#EF4444') + '"></div></div></div>';
+                        let htmlOut = '';
+                        const tones = sk.tones || [];
+                        if (tones.length) {
+                            htmlOut += '<p style="font-size:.72rem;font-weight:800;color:var(--text-2,#526176);margin:8px 0 0">TONES</p>';
+                            const TONE_NAME = { 1: '1st (flat) — ā', 2: '2nd (rising) — á', 3: '3rd (dip) — ǎ', 4: '4th (falling) — à' };
+                            tones.forEach(t => { htmlOut += bar('Tone ' + (TONE_NAME[t.tone] || t.tone), t.accuracy, t.accuracy === null ? '' : t.accuracy + '% of ' + t.seen); });
+                        }
+                        if (sk.vocabulary && sk.vocabulary.words) htmlOut += bar('Vocabulary (' + sk.vocabulary.words + ' words)', sk.vocabulary.masteryPct, sk.vocabulary.masteryPct + '% mastered');
+                        if (sk.games && sk.games.length) {
+                            htmlOut += '<p style="font-size:.72rem;font-weight:800;color:var(--text-2,#526176);margin:10px 0 0">GAMES</p>';
+                            const GAME_NAME = { tone_pairs: 'Tone Pairs', sentence_builder: 'Sentence Builder', listening_detective: 'Listening Detective', pinyin_lab: 'Pinyin Lab', flashcards: 'Flashcards', quiz: 'Quiz', writing: 'Writing', speak_aloud: 'Speak Aloud', builder: 'Character Builder' };
+                            sk.games.forEach(g => htmlOut += bar(GAME_NAME[g.game] || g.game, g.accuracy, g.accuracy + '% over ' + g.plays + ' plays'));
+                        }
+                        if (sk.review && sk.review.learned) htmlOut += bar('Review deck', sk.review.learned ? Math.max(0, 100 - Math.round(100 * sk.review.dueNow / sk.review.learned)) : null, sk.review.dueNow + ' due now of ' + sk.review.learned);
+                        if (!htmlOut) { htmlOut = '<p style="font-size:.8rem;color:var(--text-2,#526176)">No practice data yet — play a game or finish a lesson together and the skills will appear here.</p>'; }
+                        box.innerHTML = htmlOut;
+                    })
+                    .catch(() => { const box = document.getElementById('masterySkill'); if (box) box.textContent = 'Skill report unavailable right now.'; });
 
                 // Recent activity (real child_activities rows; graceful when empty).
                 fetch('/api/parents/child/' + encodeURIComponent(childId) + '/activities', { credentials: 'include', headers: { Accept: 'application/json' } })

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Printable Worksheets | HanVerse</title>
+<meta name="description" content="Turn your HanVerse words into a printable practice worksheet: trace, match and write — screen-free practice." />
+<meta name="robots" content="noindex" />
+<link rel="canonical" href="https://learn-hanverse.netlify.app/worksheets.html" />
+<link rel="icon" type="image/png" href="assets/mascot/hanpan.png" />
+<link rel="stylesheet" href="hanverse.css?v=1" />
+<script src="js/auth-fetch.js?v=1"></script>
+<style>
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#F6FAFD;color:#0F2340;margin:0;padding:20px}
+  .sheet{max-width:760px;margin:0 auto;background:#fff;border:1px solid #D5E3F0;border-radius:16px;padding:24px}
+  .ws-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .ws-title{font-size:1.3rem;font-weight:800}
+  .ws-sub{font-size:.8rem;color:#526176;margin-top:2px}
+  .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:10px 18px;font-weight:700;font-size:.85rem;cursor:pointer;border:1.5px solid #D5E3F0;background:#fff;color:#0F2340;min-height:44px}
+  .btn-primary{background:#2563EB;border-color:#2563EB;color:#fff}
+  .ws-sec{margin-top:26px}
+  .ws-sec h2{font-size:.95rem;margin:0 0 10px;color:#0F2340}
+  .trace-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
+  .trace-box{position:relative;height:96px;border:1.5px dashed #D5E3F0;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .trace-box .big{font-size:3.4rem;color:rgba(15,35,64,.16);font-family:'KaiTi','STKaiti','SimSun',serif;user-select:none}
+  .trace-box .py{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:.62rem;color:#526176}
+  .match{display:grid;grid-template-columns:1fr 1fr;gap:8px 40px;font-size:.95rem}
+  .match .col{display:flex;flex-direction:column;gap:10px}
+  .match .m-item{border:1px solid #D5E3F0;border-radius:10px;padding:8px 12px;background:#FBFDFF}
+  .write-lines{border-bottom:1.5px solid #CBD5E1;height:30px;margin-top:10px}
+  .foot{margin-top:24px;font-size:.68rem;color:#8FA3B8;text-align:center}
+  @media print{
+    body{background:#fff;padding:0}
+    .no-print{display:none!important}
+    .sheet{border:0;border-radius:0;max-width:none;padding:0}
+    .trace-box,.m-item{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<main class="sheet" id="sheet">
+  <div class="ws-head no-print">
+    <div>
+      <div class="ws-title">📝 Practice Worksheet</div>
+      <div class="ws-sub" id="wsMeta">Loading your words…</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="btnShuffle">🔀 New mix</button>
+      <button class="btn btn-primary" id="btnPrint">🖨️ Print</button>
+    </div>
+  </div>
+  <div id="wsBody"><p style="color:#526176;font-size:.85rem">Loading…</p></div>
+  <div class="foot">Made with 🐼 HanVerse · ask a grown-up to print this page</div>
+</main>
+<script src="features-client.js?v=1"></script>
+<script>
+(function(){
+'use strict';
+var FALLBACK=[
+  {word:'你好',pinyin:'nǐ hǎo',meaning:'hello'},
+  {word:'谢谢',pinyin:'xiè xie',meaning:'thank you'},
+  {word:'再见',pinyin:'zài jiàn',meaning:'goodbye'},
+  {word:'猫',pinyin:'māo',meaning:'cat'},
+  {word:'水',pinyin:'shuǐ',meaning:'water'},
+  {word:'大',pinyin:'dà',meaning:'big'},
+  {word:'山',pinyin:'shān',meaning:'mountain'},
+  {word:'火',pinyin:'huǒ',meaning:'fire'}
+];
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function shuffle(a){var x=a.slice();for(var i=x.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=x[i];x[i]=x[j];x[j]=t}return x}
+var WORDS=[];
+
+function render(){
+ var words=WORDS.slice(0,8);
+ var body=document.getElementById('wsBody');
+ if(!words.length){body.innerHTML='<p style="color:#526176;font-size:.85rem">Learn a few words first, then print a worksheet of them here.</p>';return}
+ var trace=words.map(function(w){
+   return '<div class="trace-box"><span class="big">'+esc(w.word)+'</span><span class="py">'+esc(w.pinyin||'')+'</span></div>';
+ }).join('');
+ var left=shuffle(words),right=shuffle(words);
+ var match='<div class="match"><div class="col">'+left.map(function(w){return '<div class="m-item"><b class="cn">'+esc(w.word)+'</b></div>'}).join('')+'</div>'+
+   '<div class="col">'+right.map(function(w){return '<div class="m-item">'+esc(w.meaning||'—')+'</div>'}).join('')+'</div></div>';
+ var lines='';for(var i=0;i<4;i++)lines+='<div class="write-lines"></div>';
+ body.innerHTML=
+  '<div class="ws-sec"><h2>1 · Trace the characters</h2><p style="font-size:.72rem;color:#526176;margin:0 0 8px">Copy each character into the empty part of its box.</p><div class="trace-grid">'+trace+'</div></div>'+
+  '<div class="ws-sec"><h2>2 · Match the pairs</h2><p style="font-size:.72rem;color:#526176;margin:0 0 8px">Draw a line from each Chinese word to its meaning.</p>'+match+'</div>'+
+  '<div class="ws-sec"><h2>3 · Write a sentence</h2><p style="font-size:.72rem;color:#526176;margin:0 0 4px">Use at least two words from this sheet.</p>'+lines+'</div>';
+}
+
+function loadWords(){
+ var F=window.HanVerseFeatures;
+ var uid=F?F.currentUserId():null;
+ if(!uid||!F){WORDS=FALLBACK;document.getElementById('wsMeta').textContent='Practice sheet · starter words';render();return}
+ F.api('/vocabulary').then(function(r){
+   var rows=(r&&(r.words||r.rows))||[];
+   WORDS=rows.length?rows.slice(0,8):FALLBACK;
+   document.getElementById('wsMeta').textContent='Practice sheet · your words';
+   render();
+ }).catch(function(){WORDS=FALLBACK;document.getElementById('wsMeta').textContent='Practice sheet · starter words';render()});
+}
+document.getElementById('btnPrint').onclick=function(){window.print()};
+document.getElementById('btnShuffle').onclick=render;
+loadWords();
+})();
+</script>
+<script src="bottom-nav.js?v=1"></script>
+</body>
+</html>

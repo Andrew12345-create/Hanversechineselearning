@@ -1649,6 +1649,81 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
 
   // Overview for class.html: teacher sees own classes + counts; student sees
   // their class, teacher name and active quest.
+  /* =========================================================
+     CLASS MASTERY REPORT — GET /classroom/mastery/:classCode
+     Teacher view. Privacy-preserving aggregates ONLY: any skill
+     stat backed by fewer than MIN_SKILL_GROUP students reports
+     null. Opt-out members (share_leaderboard = false) excluded.
+     (Parent-child mastery lives in server.js /parents/child/:id/mastery
+     — it must follow the children-table parent authz.)
+  ========================================================= */
+  router.get('/classroom/mastery/:classCode', requireAuth, async (req, res) => {
+    const MIN_SKILL_GROUP = 3;
+    try {
+      const v = await loadClassForViewer(req, res);
+      if (v.denied) return;
+      await ensureFeatureSchema();
+      if (!v.isTeacher) return fail(res, 403, 'Only the class teacher can view the mastery report');
+
+      const safe = async (label, q) => {
+        try { return await q(); } catch (e) { console.warn(`classroom/mastery: ${label} table unavailable (${e.message.split('\n')[0]})`); return null; }
+      };
+      const optIn = `u.share_leaderboard IS NOT FALSE`;
+
+      const tones = await safe('tone_stats', async () => (await pool.query(
+        `SELECT ts.tone,
+                COUNT(DISTINCT ts.user_id)::int AS students,
+                SUM(ts.seen)::int AS seen,
+                SUM(ts.correct)::int AS correct
+         FROM tone_stats ts JOIN users u ON u.user_id = ts.user_id
+         WHERE u.class_code = $1 AND ${optIn}
+         GROUP BY ts.tone ORDER BY ts.tone`, [v.code]
+      )).rows.map(r => ({
+        tone: r.tone,
+        students: r.students,
+        accuracy: (r.students >= MIN_SKILL_GROUP && r.seen > 0)
+          ? Math.round((100 * r.correct) / r.seen) : null
+      })));
+
+      const vocab = await safe('vocabulary_progress', async () => (await pool.query(
+        `SELECT COUNT(DISTINCT vp.user_id)::int AS students,
+                COALESCE(ROUND(AVG(vp.mastery_level) * 20), 0)::int AS mastery_pct
+         FROM vocabulary_progress vp JOIN users u ON u.user_id = vp.user_id
+         WHERE u.class_code = $1 AND ${optIn}`, [v.code]
+      )).rows[0]);
+
+      const lessons = await safe('user_progress', async () => (await pool.query(
+        `SELECT COUNT(DISTINCT up.user_id)::int AS students,
+                COALESCE(ROUND(AVG(upc.per_child)), 0)::int AS avg_lessons
+         FROM (SELECT up.user_id, COUNT(*)::numeric AS per_child
+               FROM user_progress up JOIN users u ON u.user_id = up.user_id
+               WHERE u.class_code = $1 AND ${optIn} AND up.completed = TRUE
+               GROUP BY up.user_id) upc`,
+        [v.code]
+      )).rows[0]);
+
+      const active = (await pool.query(
+        `SELECT COUNT(*)::int AS students,
+                COALESCE(ROUND(AVG(u.xp)), 0)::int AS avg_xp,
+                COUNT(*) FILTER (WHERE u.last_active = CURRENT_DATE)::int AS active_today
+         FROM users u WHERE u.class_code = $1 AND ${optIn}`, [v.code]
+      )).rows[0];
+
+      ok(res, {
+        minGroup: MIN_SKILL_GROUP,
+        mastery: {
+          tones: tones || [],
+          vocabulary: (vocab && vocab.students >= MIN_SKILL_GROUP) ? { students: vocab.students, masteryPct: vocab.mastery_pct } : null,
+          lessons: (lessons && lessons.students >= MIN_SKILL_GROUP) ? { students: lessons.students, avgLessons: lessons.avg_lessons } : null,
+          engagement: active.students >= MIN_SKILL_GROUP ? { students: active.students, avgXp: active.avg_xp, activeToday: active.active_today } : null
+        }
+      });
+    } catch (e) {
+      console.error('classroom/mastery error:', e);
+      fail(res, 500, 'Failed to load class mastery report');
+    }
+  });
+
   router.get('/classroom/mine', requireAuth, async (req, res) => {
     try {
       await ensureFeatureSchema();
