@@ -1110,7 +1110,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       const correct = Number(req.body.correct ?? 0);
       const total = Number(req.body.total ?? 0);
       if (!userId || !game) return fail(res, 400, 'userId and game required');
-      if (!['flashcards', 'quiz', 'writing', 'speak_aloud', 'tone_pairs', 'builder'].includes(game) ||
+      if (!['flashcards', 'quiz', 'writing', 'speak_aloud', 'tone_pairs', 'builder', 'sentence_builder', 'listening_detective', 'pinyin_lab'].includes(game) ||
           !Number.isSafeInteger(score) || score < 0 || score > 10000 ||
           !Number.isSafeInteger(correct) || !Number.isSafeInteger(total) ||
           correct < 0 || total < 0 || total > 10000 || correct > total) {

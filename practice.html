@@ -3092,6 +3092,84 @@
             </article>
 
 
+            <article
+                class="mode-card"
+                data-mode="sentence"
+                tabindex="0"
+                role="button"
+            >
+
+                <div class="mode-icon teal">
+                    📜
+                </div>
+
+                <h3>
+                    Sentence Builder
+                </h3>
+
+                <p>
+                    Put the words in order and build real Mandarin sentences.
+                </p>
+
+                <div class="mode-arrow">
+                    →
+                </div>
+
+            </article>
+
+
+            <article
+                class="mode-card"
+                data-mode="listening"
+                tabindex="0"
+                role="button"
+            >
+
+                <div class="mode-icon blue">
+                    🕵️
+                </div>
+
+                <h3>
+                    Listening Detective
+                </h3>
+
+                <p>
+                    Listen closely and catch the word you heard. Train your ear.
+                </p>
+
+                <div class="mode-arrow">
+                    →
+                </div>
+
+            </article>
+
+
+            <article
+                class="mode-card"
+                data-mode="pinyin"
+                tabindex="0"
+                role="button"
+            >
+
+                <div class="mode-icon purple">
+                    🔤
+                </div>
+
+                <h3>
+                    Pinyin Lab
+                </h3>
+
+                <p>
+                    Initials, finals and tone marks — the sound system of Mandarin.
+                </p>
+
+                <div class="mode-arrow">
+                    →
+                </div>
+
+            </article>
+
+
         </div>
 
     </section>
@@ -6427,6 +6505,36 @@
 
                         }
 
+
+                        if (
+                            mode ===
+                            "sentence"
+                        ) {
+
+                            startSentenceBuilder();
+
+                        }
+
+
+                        if (
+                            mode ===
+                            "listening"
+                        ) {
+
+                            startListeningDetective();
+
+                        }
+
+
+                        if (
+                            mode ===
+                            "pinyin"
+                        ) {
+
+                            startPinyinLab();
+
+                        }
+
                     };
 
 
@@ -7073,6 +7181,217 @@
             });
         };
         render();
+    }
+
+    /* ---------- 2b. SENTENCE BUILDER (#7) — word-ordering drills ---------- */
+    const SENTENCE_DATA = [
+        { tokens: ["我", "是", "学生", "。"], en: "I am a student." },
+        { tokens: ["他", "喜欢", "喝", "茶", "。"], en: "He likes to drink tea." },
+        { tokens: ["妈妈", "在", "厨房", "做饭", "。"], en: "Mom is cooking in the kitchen." },
+        { tokens: ["我", "今天", "很", "开心", "。"], en: "I am very happy today." },
+        { tokens: ["我们", "一起", "学", "中文", "吧", "。"], en: "Let's learn Chinese together." },
+        { tokens: ["猫", "在", "沙发", "上", "睡觉", "。"], en: "The cat is sleeping on the sofa." },
+        { tokens: ["你", "要", "喝", "什么", "？"], en: "What do you want to drink?" },
+        { tokens: ["这本书", "非常", "有意思", "。"], en: "This book is very interesting." }
+    ];
+
+    function shuffleArr(a) {
+        const x = [...a];
+        for (let i = x.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [x[i], x[j]] = [x[j], x[i]];
+        }
+        return x;
+    }
+
+    function startSentenceBuilder() {
+        openModal("Sentence Builder 📜");
+        const rounds = 5;
+        let round = 0, correct = 0, score = 0;
+
+        const playRound = () => {
+            if (round >= rounds) {
+                saveSession("sentence_builder", score, correct, rounds);
+                $("modalContent").innerHTML = `
+                    <div style="text-align:center;padding:16px">
+                        <div style="font-size:2.4rem">📜</div>
+                        <h3 style="color:var(--text)">Round complete!</h3>
+                        <p style="color:var(--muted);font-size:.9rem">${correct}/${rounds} sentences built · ${score} XP earned</p>
+                        <button class="btn-primary" id="sbAgain" style="min-height:44px;padding:0 20px;margin-top:10px">Play again →</button>
+                    </div>`;
+                $("sbAgain").onclick = () => startSentenceBuilder();
+                return;
+            }
+            const item = SENTENCE_DATA[Math.floor(Math.random() * SENTENCE_DATA.length)];
+            const answer = item.tokens.join("");
+            const pool = shuffleArr(item.tokens);
+            let built = [];
+            $("modalContent").innerHTML = `
+                <div style="text-align:center;padding:8px">
+                    <p style="color:var(--muted);font-size:.85rem">Round ${round + 1} of ${rounds} — tap the words in the right order:</p>
+                    <p style="font-size:.95rem;color:var(--blue-deep);font-weight:700;margin:6px 0">${item.en}</p>
+                    <div style="min-height:56px;background:var(--blue-50);border-radius:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;padding:8px;margin:10px 0" id="sbBuilt" class="cn"></div>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center" id="sbBank">
+                        ${pool.map((p, i) => `<button class="btn-ghost cn sb-token" data-i="${i}" style="font-size:1.25rem;min-width:56px;min-height:48px">${p}</button>`).join("")}
+                    </div>
+                    <p style="margin-top:10px;font-size:.78rem;color:var(--muted);min-height:1.2em" id="sbMsg"></p>
+                </div>`;
+
+            const refresh = () => {
+                $("sbBuilt").innerHTML = built.map(t => `<span class="cn" style="background:#fff;border:1.5px solid #D5E3F0;border-radius:10px;padding:4px 10px;font-size:1.2rem">${t}</span>`).join("") || "&nbsp;";
+            };
+            refresh();
+
+            document.querySelectorAll(".sb-token").forEach(b => {
+                b.onclick = () => {
+                    built.push(b.textContent);
+                    b.disabled = true; b.style.opacity = .35;
+                    refresh();
+                    if (window.HanVerseSound) window.HanVerseSound.tap();
+                    if (built.join("") === answer) {
+                        correct++; score += 10;
+                        if (window.HanVerseSound) window.HanVerseSound.correct();
+                        $("sbMsg").innerHTML = "✅ Correct! " + item.en;
+                        round++;
+                        setTimeout(playRound, 1100);
+                    } else if (answer.startsWith(built.join(""))) {
+                        $("sbMsg").textContent = "Good so far — keep going!";
+                    } else {
+                        if (window.HanVerseSound) window.HanVerseSound.wrong();
+                        if (window.HanVerseLoseHeart) window.HanVerseLoseHeart();
+                        $("sbMsg").textContent = "Word order isn't right — the wrong piece was removed.";
+                        built.pop();
+                        b.disabled = false; b.style.opacity = 1;
+                        refresh();
+                    }
+                };
+            });
+        };
+        playRound();
+    }
+
+    /* ---------- 2c. LISTENING DETECTIVE (#5) — audio comprehension ---------- */
+    function startListeningDetective() {
+        openModal("Listening Detective 🕵️");
+        const rounds = 8;
+        let round = 0, correct = 0, score = 0, current = null;
+
+        const playRound = () => {
+            if (round >= rounds) {
+                saveSession("listening_detective", score, correct, rounds);
+                $("modalContent").innerHTML = `
+                    <div style="text-align:center;padding:16px">
+                        <div style="font-size:2.4rem">🕵️</div>
+                        <h3 style="color:var(--text)">Case closed!</h3>
+                        <p style="color:var(--muted);font-size:.9rem">${correct}/${rounds} words caught · ${score} XP earned</p>
+                        <button class="btn-primary" id="ldAgain" style="min-height:44px;padding:0 20px;margin-top:10px">Play again →</button>
+                    </div>`;
+                $("ldAgain").onclick = () => startListeningDetective();
+                return;
+            }
+            const target = TONE_WORDS[Math.floor(Math.random() * TONE_WORDS.length)];
+            const distractors = shuffleArr(TONE_WORDS.filter(w => w.hz !== target.hz)).slice(0, 3);
+            const choices = shuffleArr([target, ...distractors]);
+            current = target;
+
+            $("modalContent").innerHTML = `
+                <div style="text-align:center;padding:8px">
+                    <p style="color:var(--muted);font-size:.85rem">Round ${round + 1} of ${rounds} — which word did you hear?</p>
+                    <button class="btn-primary" id="ldPlay" style="min-height:52px;padding:0 26px;font-size:1.1rem;margin:10px 0">🔊 Play the word</button>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px" id="ldChoices">
+                        ${choices.map(c => `<button class="btn-ghost ld-choice" data-hz="${c.hz}" style="min-height:64px"><span class="cn" style="font-size:1.3rem;display:block">${c.hz}</span><small style="color:var(--muted)">${c.py} · ${c.en}</small></button>`).join("")}
+                    </div>
+                    <p style="margin-top:10px;font-size:.78rem;color:var(--muted);min-height:1.2em" id="ldMsg"></p>
+                </div>`;
+
+            const playIt = () => speakHz(target.hz, 0.75);
+            $("ldPlay").onclick = playIt;
+            setTimeout(playIt, 350);
+
+            document.querySelectorAll(".ld-choice").forEach(b => {
+                b.onclick = () => {
+                    if (b.dataset.hz === current.hz) {
+                        correct++; score += 10;
+                        if (window.HanVerseSound) window.HanVerseSound.correct();
+                        $("ldMsg").innerHTML = `✅ ${current.hz} (${current.py}) — ${current.en}`;
+                        round++;
+                        setTimeout(playRound, 1000);
+                    } else {
+                        if (window.HanVerseSound) window.HanVerseSound.wrong();
+                        if (window.HanVerseLoseHeart) window.HanVerseLoseHeart();
+                        $("ldMsg").textContent = "Not that one — listen again!";
+                        speakHz(current.hz, 0.6);
+                        round++;
+                        setTimeout(playRound, 1400);
+                    }
+                };
+            });
+        };
+        playRound();
+    }
+
+    /* ---------- 2d. PINYIN LAB (#6) — initials, finals, tone marks ---------- */
+    const PINYIN_QUESTIONS = [
+        { q: "Which tone mark goes on <b>ma</b> for the 'mom' tone (first tone)?", choices: ["mā", "má", "mǎ", "mà"], answer: "mā", note: "First tone is flat and high: mā = mom." },
+        { q: "<b class='cn'>马</b> (horse) is which tone?", choices: ["mā (1st)", "má (2nd)", "mǎ (3rd)", "mà (4th)"], answer: "mǎ (3rd)", note: "Third tone dips down and back up: mǎ = horse." },
+        { q: "Which syllable means 'ten'?", choices: ["sì", "shí", "shì", "sī"], answer: "shí", note: "十 shí = ten — the rising second tone." },
+        { q: "The 'q' in pinyin sounds most like…", choices: ["English 'k'", "English 'ch' (as in cheese)", "English 'kw'", "English 'q'"], answer: "English 'ch' (as in cheese)", note: "Pinyin q is a sharp 'ch' sound with the tongue forward." },
+        { q: "The 'c' in pinyin sounds most like…", choices: ["English 'k'", "English 's'", "English 'ts' (as in cats)", "English 'ch'"], answer: "English 'ts' (as in cats)", note: "Pinyin c = 'ts', like the end of 'cats'." },
+        { q: "<b class='cn'>他</b> is pronounced…", choices: ["tā", "tá", "tǎ", "tà"], answer: "tā", note: "他 tā = he/she, first tone." },
+        { q: "Which pair is a full syllable (initial + final)?", choices: ["b + a = ba", "x + i = xi", "Both are correct syllables", "Neither is a word"], answer: "Both are correct syllables", note: "Pinyin joins initials and finals: ba, xi — both valid." },
+        { q: "<b class='cn'>妈</b> <b class='cn'>骂</b> <b class='cn'>马</b> — what makes them different words?", choices: ["The character shape only", "The tone", "They're the same word", "The spelling"], answer: "The tone", note: "Same spelling 'ma', different tones = different meanings!" }
+    ];
+
+    function startPinyinLab() {
+        openModal("Pinyin Lab 🔤");
+        const rounds = 6;
+        let round = 0, correct = 0, score = 0;
+
+        const playRound = () => {
+            if (round >= rounds) {
+                saveSession("pinyin_lab", score, correct, rounds);
+                $("modalContent").innerHTML = `
+                    <div style="text-align:center;padding:16px">
+                        <div style="font-size:2.4rem">🔤</div>
+                        <h3 style="color:var(--text)">Lab session complete!</h3>
+                        <p style="color:var(--muted);font-size:.9rem">${correct}/${rounds} correct · ${score} XP earned</p>
+                        <button class="btn-primary" id="plAgain" style="min-height:44px;padding:0 20px;margin-top:10px">Play again →</button>
+                    </div>`;
+                $("plAgain").onclick = () => startPinyinLab();
+                return;
+            }
+            const q = PINYIN_QUESTIONS[Math.floor(Math.random() * PINYIN_QUESTIONS.length)];
+            $("modalContent").innerHTML = `
+                <div style="text-align:center;padding:8px">
+                    <p style="color:var(--muted);font-size:.85rem">Question ${round + 1} of ${rounds}</p>
+                    <p style="font-size:.95rem;color:var(--text);font-weight:700;margin:8px 0">${q.q}</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px" id="plChoices">
+                        ${shuffleArr(q.choices).map(c => `<button class="btn-ghost pl-choice" data-c="${c}" style="min-height:56px;font-size:.95rem">${c}</button>`).join("")}
+                    </div>
+                    <p style="margin-top:10px;font-size:.8rem;color:var(--muted);min-height:2.4em" id="plMsg"></p>
+                </div>`;
+
+            document.querySelectorAll(".pl-choice").forEach(b => {
+                b.onclick = () => {
+                    const done = document.querySelectorAll(".pl-choice:disabled").length > 0;
+                    if (done) return;
+                    if (b.dataset.c === q.answer) {
+                        correct++; score += 10;
+                        if (window.HanVerseSound) window.HanVerseSound.correct();
+                        b.style.borderColor = "#16A34A"; b.style.background = "rgba(22,163,74,.08)";
+                        $("plMsg").innerHTML = `✅ ${q.note}`;
+                        round++;
+                        setTimeout(playRound, 1400);
+                    } else {
+                        if (window.HanVerseSound) window.HanVerseSound.wrong();
+                        if (window.HanVerseLoseHeart) window.HanVerseLoseHeart();
+                        b.disabled = true; b.style.opacity = .35;
+                        $("plMsg").textContent = "Not quite — try another answer.";
+                    }
+                };
+            });
+        };
+        playRound();
     }
 
     /* ---------- 3. SMART REVIEW (spaced repetition) ---------- */
