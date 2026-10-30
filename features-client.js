@@ -104,7 +104,9 @@
       check: uid => api(`/achievements/check/${uid}`, { method: 'POST', body: { userId: uid } })
     },
     goals: {
-      setTarget: (uid, targetXp) => api('/goals/target', { method: 'POST', body: { userId: uid, targetXp } })
+      // uid remains accepted for older callers; server ignores client-supplied identity.
+      setTarget: (uid, targetXp) => api('/goals/target', { method: 'POST', body: { userId: uid, targetXp } }),
+      setDailyTargets: ({ targetXp, targetLessons, targetSpeaking }) => api('/goals/target', { method: 'POST', body: { targetXp, targetLessons, targetSpeaking } })
     },
     placement: {
       grade: answers => api('/placement/grade', { method: 'POST', body: { answers } }),

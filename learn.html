@@ -432,6 +432,11 @@ async function initRailData(){
     ?"🎉 Daily goal smashed! "+done+"/"+target+" XP earned today."
     :done===0?"Goal: "+target+" XP today — a lesson plus a warm-up usually covers it."
     :done+"/"+target+" XP today — "+left+" XP to go. You're close!";
+   var lessonGoal=q.lessons||{}, speakingGoal=q.speaking||{};
+   var extras=[];
+   if(lessonGoal.target) extras.push((lessonGoal.done||0)+"/"+lessonGoal.target+" lessons");
+   if(speakingGoal.target) extras.push((speakingGoal.done||0)+"/"+speakingGoal.target+" speaking checks");
+   if(extras.length) gt.textContent+=" · "+extras.join(" · ");
   }
   const qs=$("questStrip");
   if(qs&&q.allDone===undefined){/* quest strip keeps its own logic */}

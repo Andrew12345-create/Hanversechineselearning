@@ -5800,6 +5800,18 @@ function parentIdAllowed(res, auth, parentId) {
   return true;
 }
 
+// Controls change a linked child's privacy and classroom access. Local UI state
+// is never authorization: the account must be an active, verified parent.
+async function requireVerifiedParent(res, auth) {
+  const row = (await pool.query(`SELECT u.role, u.is_verified, u.is_banned, p.parent_id, p.is_verified AS parent_verified
+    FROM users u JOIN parents p ON p.user_id = u.user_id WHERE u.user_id = $1`, [auth.user_id])).rows[0];
+  if (!row || row.role !== 'parent' || !row.is_verified || row.is_banned || row.parent_verified === false) {
+    res.status(403).json({ success: false, error: 'A verified parent account is required.' });
+    return null;
+  }
+  return row;
+}
+
 function cleanAssignmentFields(body, res) {
   const title = String((body && body.title) || '').trim();
   const description = String((body && body.description) || '').trim();
@@ -5831,7 +5843,8 @@ router.get('/parents/:parentId/controls', async (req, res) => {
     const auth = await requireUser(req, res);
     if (!auth || !parentIdAllowed(res, auth, req.params.parentId)) return;
     await ensureParentTables();
-    const result = await pool.query(`SELECT c.user_id, c.full_name, c.classroom_allowed, c.share_classroom_profile
+    if (!await requireVerifiedParent(res, auth)) return;
+    const result = await pool.query(`SELECT c.user_id, c.full_name, c.classroom_allowed, c.share_classroom_profile, c.controls_updated_at
       FROM children c JOIN parents p ON p.parent_id = c.parent_id
       WHERE p.user_id = $1 AND c.is_active = TRUE ORDER BY c.full_name`, [auth.user_id]);
     return res.json({ success: true, children: result.rows });
@@ -5844,6 +5857,7 @@ router.put('/parents/children/:childUserId/controls', parentWriteLimiter, async 
     const auth = await requireUser(req, res);
     if (!auth) return;
     await ensureParentTables();
+    if (!await requireVerifiedParent(res, auth)) return;
     const child = await getOwnChild(res, auth, req.params.childUserId);
     if (!child) return;
     const body = req.body || {};

@@ -188,29 +188,17 @@ if(cBtn&&cInput){
 })();
 </script>
 <script>
-/* Daily goal picker — sets target_xp on today's daily_goals row */
+/* Flexible daily goals — fetched from the authenticated server source of truth. */
 (function(){'use strict';
 function toastMsg(message){var t=document.getElementById('toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){t.classList.remove('show')},2800)}
-var GOALS=[{xp:20,label:'🌱 Chill — 20 XP/day'},{xp:50,label:'📗 Regular — 50 XP/day'},{xp:100,label:'⚡ Serious — 100 XP/day'},{xp:200,label:'🔥 Intense — 200 XP/day'}];
-var F=window.HanVerseFeatures;
-if(!F)return;
-var uidVal=F.currentUserId();
-if(!uidVal)return;
-var section=document.createElement('section');
-section.className='card full';
-section.innerHTML='<div class="heading"><div class="heading-icon">🎯</div><div><h2>Daily goal</h2><p>How much XP do you want to earn each day?</p></div></div><div class="body"><div class="row"><div class="main"><div class="icon">🎯</div><div class="copy"><h3 class="title">Daily XP target</h3><p class="desc">Drives your daily quest card and streak reminders.</p></div></div><select id="dailyGoalSelect" aria-label="Daily XP goal" style="min-height:40px;padding:8px 12px;border:1px solid var(--line,#D5E3F0);border-radius:10px;font:700 13px Inter,sans-serif;background:#fff">'+GOALS.map(function(g){return '<option value="'+g.xp+'">'+g.label+'</option>'}).join('')+'</select></div></div>';
-var about=document.querySelector('.card.full:nth-of-type(2)');
-if(about&&about.parentNode)about.parentNode.insertBefore(section,about);else document.body.appendChild(section);
-var sel=document.getElementById('dailyGoalSelect');
-sel.addEventListener('change',async function(){
- sel.disabled=true;
- try{
-  await F.goals.setTarget(uidVal,Number(sel.value));
-  if(window.HanVerseSound)window.HanVerseSound.correct();
-  toastMsg('Daily goal set to '+sel.value+' XP ✓');
- }catch(e){toastMsg(e.message||'Could not save goal — are you logged in?');}
- finally{sel.disabled=false}
-});
+function options(items){return items.map(function(v){return '<option value="'+v+'">'+v+'</option>'}).join('')}
+var F=window.HanVerseFeatures;if(!F||!F.currentUserId())return;
+var section=document.createElement('section');section.className='card full';
+section.innerHTML='<div class="heading"><div class="heading-icon">🎯</div><div><h2>Daily learning goal</h2><p>Set a pace that fits your day. Your progress and rewards are never reset when you change it.</p></div></div><div class="body"><div class="row"><div class="main"><div class="icon">⚡</div><div class="copy"><h3 class="title">XP target</h3><p class="desc">A gentle daily effort target.</p></div></div><select id="dailyGoalXp" aria-label="Daily XP target">'+options([20,50,100,200])+'</select></div><div class="row"><div class="main"><div class="icon">📚</div><div class="copy"><h3 class="title">Lessons</h3><p class="desc">How many lessons you want to complete.</p></div></div><select id="dailyGoalLessons" aria-label="Daily lesson target">'+options([1,2,3])+'</select></div><div class="row"><div class="main"><div class="icon">🗣️</div><div class="copy"><h3 class="title">Speaking practice</h3><p class="desc">Optional practice target; this does not block your daily reward.</p></div></div><select id="dailyGoalSpeaking" aria-label="Daily speaking target"><option value="0">Off</option><option value="5">5 checks</option><option value="10">10 checks</option></select></div><button class="btn" type="button" id="saveDailyGoals">Save daily goal</button></div>';
+var about=document.querySelector('.card.full:nth-of-type(2)');if(about&&about.parentNode)about.parentNode.insertBefore(section,about);else document.body.appendChild(section);
+var xp=document.getElementById('dailyGoalXp'),lessons=document.getElementById('dailyGoalLessons'),speaking=document.getElementById('dailyGoalSpeaking'),save=document.getElementById('saveDailyGoals');
+F.quests.get(F.currentUserId()).then(function(data){var q=data.quest||{};xp.value=(q.xp&&q.xp.target)||50;lessons.value=(q.lessons&&q.lessons.target)||1;speaking.value=(q.speaking&&Number.isInteger(q.speaking.target))?q.speaking.target:5}).catch(function(){toastMsg('Could not load your current daily goal.');});
+save.addEventListener('click',async function(){save.disabled=true;save.textContent='Saving…';try{await F.goals.setDailyTargets({targetXp:Number(xp.value),targetLessons:Number(lessons.value),targetSpeaking:Number(speaking.value)});if(window.HanVerseSound)window.HanVerseSound.correct();toastMsg('Daily learning goal saved ✓')}catch(e){toastMsg(e.message||'Could not save daily goal.')}finally{save.disabled=false;save.textContent='Save daily goal'}});
 })();
 </script>
 <script src="bottom-nav.js?v=1"></script>

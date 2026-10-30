@@ -308,8 +308,8 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
           `INSERT INTO daily_goals (user_id, goal_date, target_lessons, target_xp, target_speaking)
            VALUES ($1, $2,
              GREATEST(COALESCE((SELECT target_lessons FROM daily_goals WHERE user_id=$1 ORDER BY goal_date DESC LIMIT 1), 1), 1),
-             GREATEST(COALESCE((SELECT target_xp FROM daily_goals WHERE user_id=$1 ORDER BY goal_date DESC LIMIT 1), 50), 50),
-             5)
+             GREATEST(COALESCE((SELECT target_xp FROM daily_goals WHERE user_id=$1 ORDER BY goal_date DESC LIMIT 1), 50), 20),
+             COALESCE((SELECT target_speaking FROM daily_goals WHERE user_id=$1 ORDER BY goal_date DESC LIMIT 1), 5))
            RETURNING *`,
           [userId, today]
         );
@@ -320,7 +320,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
           date: row.goal_date,
           lessons: { done: row.completed_lessons || 0, target: row.target_lessons || 1 },
           xp: { done: row.earned_xp || 0, target: row.target_xp || 50 },
-          speaking: { done: row.completed_speaking || 0, target: row.target_speaking || 5, optional: true },
+          speaking: { done: row.completed_speaking || 0, target: Number.isInteger(row.target_speaking) ? row.target_speaking : 5, optional: true },
           chestClaimed: row.chest_claimed === true,
           allDone:
             (row.completed_lessons || 0) >= (row.target_lessons || 1) &&
@@ -2282,20 +2282,29 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   });
 
   /* =========================================================
-     17. DAILY GOAL TARGET  (onboarding: pick 20 / 50 / 100 / 200 XP)
+     17. FLEXIBLE DAILY GOALS — configuration never changes earned progress,
+        chest state, XP, or prior days. Authenticated identity is authoritative.
   ========================================================= */
+  const DAILY_GOAL_PRESETS = Object.freeze({ xp: [20, 50, 100, 200], lessons: [1, 2, 3], speaking: [0, 5, 10] });
   router.post('/goals/target', requireAuth, writeLimiter, async (req, res) => {
     try {
-      const targetXp = Number(req.body.targetXp);
-      if (![20, 50, 100, 200].includes(targetXp)) return fail(res, 400, 'targetXp must be 20, 50, 100 or 200');
+      const body = req.body || {};
+      const targetXp = Number(body.targetXp);
+      const targetLessons = body.targetLessons === undefined ? 1 : Number(body.targetLessons);
+      const targetSpeaking = body.targetSpeaking === undefined ? 5 : Number(body.targetSpeaking);
+      if (!DAILY_GOAL_PRESETS.xp.includes(targetXp)) return fail(res, 400, 'targetXp must be 20, 50, 100 or 200');
+      if (!DAILY_GOAL_PRESETS.lessons.includes(targetLessons)) return fail(res, 400, 'targetLessons must be 1, 2 or 3');
+      if (!DAILY_GOAL_PRESETS.speaking.includes(targetSpeaking)) return fail(res, 400, 'targetSpeaking must be 0, 5 or 10');
       const today = todayISO();
-      await pool.query(
-        `INSERT INTO daily_goals (user_id, goal_date, target_xp)
-         VALUES ($1,$2,$3)
-         ON CONFLICT (user_id, goal_date) DO UPDATE SET target_xp = $3`,
-        [req.userId, today, targetXp]
-      );
-      ok(res, { targetXp });
+      const row = (await pool.query(
+        `INSERT INTO daily_goals (user_id, goal_date, target_lessons, target_xp, target_speaking)
+         VALUES ($1,$2,$3,$4,$5)
+         ON CONFLICT (user_id, goal_date) DO UPDATE SET
+           target_lessons = EXCLUDED.target_lessons, target_xp = EXCLUDED.target_xp, target_speaking = EXCLUDED.target_speaking
+         RETURNING target_lessons, target_xp, target_speaking, completed_lessons, earned_xp, completed_speaking, chest_claimed`,
+        [req.userId, today, targetLessons, targetXp, targetSpeaking]
+      )).rows[0];
+      ok(res, { targets: { lessons: row.target_lessons, xp: row.target_xp, speaking: row.target_speaking }, progress: { lessons: row.completed_lessons, xp: row.earned_xp, speaking: row.completed_speaking }, chestClaimed: row.chest_claimed === true });
     } catch (e) {
       console.error('goals/target error:', e);
       fail(res, 500, 'Failed to set daily goal');
