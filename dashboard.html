@@ -209,10 +209,10 @@
             </section>
         </div>
 
-        <div class="grid2">
+<div class="grid2">
             <section class="wotd-card">
                 <h2>🀄 Word of the day</h2>
-                <div class="wotd-h" id="wH">…</div>
+                <div class="wotd-h" id="wH">...</div>
                 <div style="font-size:.72rem;color:var(--muted)" id="wP">loading</div>
                 <p style="font-size:.8rem;margin-top:4px" id="wM"></p>
             </section>
@@ -222,6 +222,27 @@
                 <div class="ach-shelf" id="achShelf"></div>
             </section>
         </div>
+
+        <section class="asg-card" id="petStudioCard" hidden>
+            <h2>🐼 Pet Studio</h2>
+            <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px">
+                <div id="petAvatar" style="font-size:2.6rem;line-height:1" aria-hidden="true">🐼</div>
+                <div style="flex:1;min-width:180px">
+                    <div style="font-weight:800" id="petName">Cub</div>
+                    <div style="font-size:.72rem;color:var(--muted)" id="petStage">Growing with your XP…</div>
+                    <div style="height:8px;border-radius:999px;background:var(--line,#E8EEF5);overflow:hidden;margin-top:6px"><div id="petFill" style="height:100%;width:0%;border-radius:999px;background:#2563EB"></div></div>
+                </div>
+                <button class="btn" id="petStudioOpen" style="min-height:44px;padding:0 18px;font-weight:700;font-size:.85rem;border-radius:999px;border:1.5px solid var(--line,#D5E3F0);background:#fff;cursor:pointer">Customize</button>
+            </div>
+            <div id="petStudioPanel" hidden style="margin-top:14px;border-top:1px solid var(--line,#E8EEF5);padding-top:12px">
+                <label for="petNameInput" style="font-size:.78rem;font-weight:700;display:block;margin-bottom:4px">Name your panda</label>
+                <input id="petNameInput" maxlength="20" placeholder="Cub" style="width:100%;max-width:240px;border:1.5px solid var(--line,#D5E3F0);border-radius:10px;padding:10px 12px;font:inherit;background:#fff;color:inherit" />
+                <p style="font-size:.7rem;color:var(--muted);margin:10px 0 4px">Ribbon colour</p>
+                <div id="petColors" role="radiogroup" aria-label="Ribbon colour" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+                <button class="btn btn-primary" id="petSave" style="min-height:44px;padding:0 18px;margin-top:12px;font-weight:700;font-size:.85rem;border-radius:999px;border:none;cursor:pointer">Save</button>
+                <p id="petMsg" style="font-size:.75rem;color:var(--muted);margin:8px 0 0;min-height:1em"></p>
+            </div>
+        </section>
     </main>
 
     <script src="notifications-client.js?v=1"></script>
@@ -259,6 +280,74 @@
                 });
             });
         }
+
+        // PET STUDIO — stage progress + name/ribbon customization (#10)
+        var PET_COLORS = ["blue", "pink", "green", "orange", "purple", "red"];
+        var PET_HEX = { blue: "#2563EB", pink: "#EC4899", green: "#16A34A", orange: "#F59E0B", purple: "#8B5CF6", red: "#EF4444" };
+        var petState = { petName: "", petColor: "" };
+        (function petStudio() {
+            var card = document.getElementById("petStudioCard");
+            if (!card) return;
+            card.hidden = false;
+            var pid = user.user_id || user.userId || user.id;
+            request("pet/" + encodeURIComponent(pid)).then(function (p) {
+                if (!p || p.success === false) return;
+                petState = { petName: p.petName || "", petColor: p.petColor || "" };
+                document.getElementById("petAvatar").textContent = p.emoji || "🐼";
+                document.getElementById("petName").textContent = petState.petName || p.name || "Cub";
+                var stage = document.getElementById("petStage");
+                if (p.next) {
+                    stage.textContent = p.name + " · " + Number(p.next.xpNeeded).toLocaleString() + " XP to " + p.next.name;
+                    document.getElementById("petFill").style.width = Math.min(100, Math.round(100 * p.xp / p.next.at)) + "%";
+                } else {
+                    stage.textContent = p.name + " · max stage reached!";
+                    document.getElementById("petFill").style.width = "100%";
+                }
+                if (petState.petColor) document.getElementById("petAvatar").style.filter = "hue-rotate(" + (PET_COLORS.indexOf(petState.petColor) * 40) + "deg)";
+            }).catch(function () {});
+
+            var open = document.getElementById("petStudioOpen");
+            var panel = document.getElementById("petStudioPanel");
+            open.addEventListener("click", function () {
+                panel.hidden = !panel.hidden;
+                if (!panel.hidden) {
+                    document.getElementById("petNameInput").value = petState.petName || "";
+                    if (!document.getElementById("petColors").children.length) {
+                        PET_COLORS.forEach(function (c) {
+                            var b = document.createElement("button");
+                            b.type = "button";
+                            b.setAttribute("role", "radio");
+                            b.setAttribute("aria-label", c + " ribbon");
+                            b.dataset.c = c;
+                            b.style.cssText = "width:34px;height:34px;border-radius:50%;border:3px solid " + (petState.petColor === c ? "#0F2340" : "transparent") + ";background:" + PET_HEX[c] + ";cursor:pointer";
+                            b.addEventListener("click", function () {
+                                petState.petColor = c;
+                                Array.prototype.forEach.call(document.getElementById("petColors").children, function (x) { x.style.borderColor = "transparent"; });
+                                b.style.borderColor = "#0F2340";
+                            });
+                            document.getElementById("petColors").appendChild(b);
+                        });
+                    }
+                }
+            });
+            document.getElementById("petSave").addEventListener("click", function () {
+                var name = document.getElementById("petNameInput").value.trim().slice(0, 20);
+                fetch(API + "/pet/customize", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json", Accept: "application/json" },
+                    body: JSON.stringify({ petName: name, petColor: petState.petColor })
+                }).then(function (r) { return r.json(); }).then(function (d) {
+                    var msg = document.getElementById("petMsg");
+                    if (!d || d.success === false) { msg.textContent = (d && d.error) || "Could not save — try again."; return; }
+                    petState.petName = name;
+                    if (name) document.getElementById("petName").textContent = name;
+                    msg.textContent = "Saved! 🐼";
+                }).catch(function () {
+                    document.getElementById("petMsg").textContent = "Could not save — try again.";
+                });
+            });
+        })();
 
         // Greeting
         var h = new Date().getHours();

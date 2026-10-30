@@ -26,6 +26,8 @@ export async function ensureFeatureSchema(pgPool) {
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMPTZ`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_used BOOLEAN DEFAULT FALSE`);
+  await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS pet_name VARCHAR(20)`);
+  await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS pet_color VARCHAR(16)`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES users(user_id)`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS class_code VARCHAR(12)`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS share_leaderboard BOOLEAN DEFAULT TRUE`);
@@ -1770,10 +1772,12 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   /* =========================================================
      11. HANPAN PET STAGE (derived from XP; no table needed)
   ========================================================= */
+  // --- PET STUDIO: stage from XP, plus name/colour the learner chooses.
+  const PET_COLORS = new Set(['blue', 'pink', 'green', 'orange', 'purple', 'red']);
   router.get('/pet/:userId', requireAuth, async (req, res) => {
     try {
       const userId = Number(req.params.userId);
-      const u = (await pool.query(`SELECT xp FROM users WHERE user_id = $1`, [userId])).rows[0];
+      const u = (await pool.query(`SELECT xp, pet_name, pet_color FROM users WHERE user_id = $1`, [userId])).rows[0];
       if (!u) return fail(res, 404, 'User not found');
       const xp = u.xp || 0;
       const stages = [
@@ -1787,11 +1791,31 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       const next = stages.find(s => s.at > xp) || null;
       ok(res, {
         stage: current.stage, name: current.name, emoji: current.emoji, xp,
+        petName: u.pet_name || null, petColor: u.pet_color || null,
         next: next ? { at: next.at, name: next.name, xpNeeded: next.at - xp } : null
       });
     } catch (e) {
       console.error('pet error:', e);
       fail(res, 500, 'Failed to load pet');
+    }
+  });
+
+  // Save the signed-in user's own pet customisation (name + ribbon colour).
+  // Self-scoped by requireAuth; name is length-capped, colour whitelisted.
+  router.post('/pet/customize', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const petName = String(req.body.petName ?? '').trim().slice(0, 20);
+      const petColor = String(req.body.petColor ?? '').trim();
+      if (petColor && !PET_COLORS.has(petColor)) return fail(res, 400, 'Unknown pet colour');
+      await pool.query(
+        `UPDATE users SET pet_name = $1, pet_color = $2 WHERE user_id = $3`,
+        [petName || null, petColor || null, req.userId]
+      );
+      ok(res, { petName: petName || null, petColor: petColor || null });
+    } catch (e) {
+      console.error('pet/customize error:', e);
+      fail(res, 500, 'Failed to save pet');
     }
   });
 
