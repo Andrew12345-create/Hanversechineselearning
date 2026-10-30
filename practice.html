@@ -3170,6 +3170,32 @@
             </article>
 
 
+            <article
+                class="mode-card"
+                data-mode="writing"
+                tabindex="0"
+                role="button"
+            >
+
+                <div class="mode-icon blue">
+                    ✍️
+                </div>
+
+                <h3>
+                    Writing Studio
+                </h3>
+
+                <p>
+                    Trace characters on screen with your finger or mouse.
+                </p>
+
+                <div class="mode-arrow">
+                    →
+                </div>
+
+            </article>
+
+
         </div>
 
     </section>
@@ -6535,6 +6561,16 @@
 
                         }
 
+
+                        if (
+                            mode ===
+                            "writing"
+                        ) {
+
+                            startWritingStudio();
+
+                        }
+
                     };
 
 
@@ -7394,6 +7430,100 @@
         playRound();
     }
 
+    /* ---------- 2e. CHARACTER WRITING STUDIO (#2) — tracing canvas ---------- */
+    const WRITING_DATA = [
+        { char: "人", py: "rén", en: "person", strokes: "Left-falling stroke, then right-falling.", fact: "人 looks like a person walking — two legs!" },
+        { char: "大", py: "dà", en: "big", strokes: "Horizontal, then left-falling, then right-falling.", fact: "大 is a person (人) with arms stretched out — big!" },
+        { char: "山", py: "shān", en: "mountain", strokes: "Middle vertical, then the two outer strokes.", fact: "山 is three peaks — a mountain range." },
+        { char: "水", py: "shuǐ", en: "water", strokes: "Center vertical hook first, then the sides.", fact: "水 shows flowing water." },
+        { char: "火", py: "huǒ", en: "fire", strokes: "Dot strokes first, then the person shape.", fact: "火 is flames rising — a person dancing with sparks." },
+        { char: "木", py: "mù", en: "tree", strokes: "Horizontal, vertical, then the two diagonal strokes.", fact: "木 is a tree with branches and roots." }
+    ];
+
+    function startWritingStudio() {
+        openModal("Writing Studio ✍️");
+        const chars = shuffleArr(WRITING_DATA);
+        let idx = 0, traced = 0;
+
+        const setup = () => {
+            if (idx >= chars.length) {
+                saveSession("writing", 50, chars.length, chars.length);
+                $("modalContent").innerHTML = `
+                    <div style="text-align:center;padding:16px">
+                        <div style="font-size:2.4rem">✍️</div>
+                        <h3 style="color:var(--text)">Studio session complete!</h3>
+                        <p style="color:var(--muted);font-size:.9rem">${chars.length} characters practised · ${scoreWord(traced, chars.length)}</p>
+                        <button class="btn-primary" id="wsAgain" style="min-height:44px;padding:0 20px;margin-top:10px">Practise again →</button>
+                    </div>`;
+                $("wsAgain").onclick = () => startWritingStudio();
+                return;
+            }
+            const item = chars[idx % chars.length];
+            $("modalContent").innerHTML = `
+                <div style="text-align:center;padding:8px">
+                    <p style="color:var(--muted);font-size:.85rem">Character ${idx + 1} of ${chars.length} — trace over the guide</p>
+                    <div class="cn" style="font-size:1rem;color:var(--blue-deep);font-weight:700">${item.char} · ${item.py} · ${item.en}</div>
+                    <div style="position:relative;width:min(240px,70vw);height:min(240px,70vw);margin:10px auto;border:2px dashed #D5E3F0;border-radius:16px;background:#fff;overflow:hidden">
+                        <span class="cn" id="wsGuide" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9rem;color:rgba(15,35,64,.13);user-select:none;pointer-events:none">${item.char}</span>
+                        <canvas id="wsCanvas" width="480" height="480" style="position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair"></canvas>
+                    </div>
+                    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+                        <button class="btn-ghost" id="wsClear" style="min-height:42px;padding:0 14px">🧽 Clear</button>
+                        <button class="btn-ghost" id="wsGuideToggle" style="min-height:42px;padding:0 14px">👁️ Hide guide</button>
+                        <button class="btn-ghost" id="wsHear" style="min-height:42px;padding:0 14px">🔊 Hear it</button>
+                    </div>
+                    <p style="margin-top:8px;font-size:.8rem;color:var(--muted)" id="wsMsg">${item.strokes}</p>
+                    <div id="wsGrade" style="display:none;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+                        <button class="btn-ghost" data-g="1" style="min-height:44px">Again 🔄</button>
+                        <button class="btn-ghost" data-g="2" style="min-height:44px">Almost 🙂</button>
+                        <button class="btn-primary" data-g="3" style="min-height:44px">Got it! 🎉</button>
+                    </div>
+                </div>`;
+
+            const canvas = $("wsCanvas");
+            const ctx = canvas.getContext("2d");
+            ctx.lineWidth = 10; ctx.lineCap = "round"; ctx.lineJoin = "round";
+            ctx.strokeStyle = "#2563EB";
+            let drawing = false;
+
+            const pos = e => {
+                const r = canvas.getBoundingClientRect();
+                return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) };
+            };
+            const start = e => { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); };
+            const move = e => { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); };
+            const end = () => { if (drawing) { drawing = false; showGrade(); } };
+
+            canvas.addEventListener("pointerdown", start);
+            canvas.addEventListener("pointermove", move);
+            canvas.addEventListener("pointerup", end);
+            canvas.addEventListener("pointerleave", end);
+
+            const showGrade = () => { $("wsGrade").style.display = "flex"; };
+            $("wsClear").onclick = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); $("wsGrade").style.display = "none"; };
+            $("wsGuideToggle").onclick = e => {
+                const g = $("wsGuide");
+                g.style.color = g.style.color === "transparent" ? "rgba(15,35,64,.13)" : "transparent";
+                e.target.textContent = g.style.color === "transparent" ? "🙈 Show guide" : "👁️ Hide guide";
+            };
+            $("wsHear").onclick = () => speakHz(item.char, 0.8);
+
+            document.querySelectorAll("#wsGrade [data-g]").forEach(b => {
+                b.onclick = () => {
+                    const g = Number(b.dataset.g);
+                    traced += g;
+                    if (g === 3 && window.HanVerseSound) window.HanVerseSound.correct();
+                    if (g === 3) saveSession("writing", 10, 1, 1);
+                    if (g === 3) $("wsMsg").innerHTML = `✅ ${item.fact}`;
+                    idx++;
+                    setTimeout(setup, g === 3 ? 1200 : 300);
+                };
+            });
+        };
+
+        const scoreWord = (t, n) => t >= n * 2.7 ? "Beautiful work!" : t >= n * 1.7 ? "Nice progress!" : "Every trace counts — keep going!";
+        setup();
+    }
     /* ---------- 3. SMART REVIEW (spaced repetition) ---------- */
     async function startReview() {
         openModal("Smart Review 🔁");
@@ -7416,10 +7546,23 @@
                 </div>`;
             return;
         }
-        reviewNext(id, cards, 0);
+        // Smart Review 2.0: pick how to study — reading (hanzi first) or
+        // listening (audio only, recall before reveal). Same deck, same
+        // spaced-repetition engine behind both.
+        $("modalContent").innerHTML = `
+            <div style="text-align:center;padding:14px">
+                <h3 style="color:var(--text)">How do you want to review?</h3>
+                <p style="color:var(--muted);font-size:.85rem">${cards.length} card${cards.length === 1 ? "" : "s"} due</p>
+                <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+                    <button class="btn-primary" id="revModeRead" style="min-height:48px;padding:0 20px">👀 Reading<br><small style="font-weight:500">See the word, recall the sound</small></button>
+                    <button class="btn-ghost" id="revModeListen" style="min-height:48px;padding:0 20px">👂 Listening<br><small style="color:var(--muted);font-weight:500">Hear the word, recall the meaning</small></button>
+                </div>
+            </div>`;
+        $("revModeRead").onclick = () => reviewNext(id, cards, 0, "read");
+        $("revModeListen").onclick = () => reviewNext(id, cards, 0, "listen");
     }
 
-    function reviewNext(id, cards, idx) {
+    function reviewNext(id, cards, idx, mode) {
         if (idx >= cards.length) {
             if (window.HanVerseSound) window.HanVerseSound.levelUp();
             $("modalContent").innerHTML = `<div class="empty"><h3>Deck cleared! 🔁</h3><p id="reviewRewardNotice">Checking your practice reward…</p><p>These words will come back when you're ready to forget them.</p></div>`;
@@ -7445,29 +7588,49 @@
             return;
         }
         const c = cards[idx];
+        const listen = mode === "listen";
         $("modalContent").innerHTML = `
             <div style="text-align:center;padding:8px">
-                <p style="color:var(--muted);font-size:.78rem">Card ${idx + 1} of ${cards.length}</p>
-                <div class="cn" style="font-size:3.4rem;color:var(--navy);margin:10px 0">${c.word}</div>
-                <button class="btn-ghost" id="revSpeak" style="margin:0 auto 10px">🔊 Listen</button>
-                <p style="color:var(--muted);font-size:.85rem">How well did you remember it?</p>
-                <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+                <p style="color:var(--muted);font-size:.78rem">Card ${idx + 1} of ${cards.length} · ${listen ? "👂 Listening" : "👀 Reading"} <button class="btn-ghost" id="revSwitchMode" style="min-height:30px;padding:0 10px;font-size:11px;margin-left:6px">switch</button></p>
+                ${listen
+                    ? `<div style="margin:14px 0"><button class="btn-primary" id="revListenPlay" style="min-height:52px;padding:0 28px;font-size:1.05rem">🔊 Play the word</button><div class="cn" id="revHiddenWord" style="font-size:3.4rem;color:var(--navy);margin:14px 0;visibility:hidden">${c.word}</div><button class="btn-ghost" id="revReveal" style="margin:0 auto">Reveal the word 👀</button></div>`
+                    : `<div class="cn" style="font-size:3.4rem;color:var(--navy);margin:10px 0">${c.word}</div>
+                       <button class="btn-ghost" id="revSpeak" style="margin:0 auto 10px">🔊 Listen</button>`}
+                ${listen ? `<p style="color:var(--muted);font-size:.85rem" id="revListenHint">Say or think what it means, then reveal.</p>` : `<p style="color:var(--muted);font-size:.85rem">How well did you remember it?</p>`}
+                <div style="display:flex;gap:8px;justify-content:center;margin-top:8px" ${listen ? 'id="revGrade" style="display:none;flex-wrap:wrap;gap:8px;justify-content:center"' : ''}>
                     <button class="btn-ghost" data-q="1" style="min-height:46px">😐 Forgot</button>
                     <button class="btn-ghost" data-q="4" style="min-height:46px">🙂 Okay</button>
                     <button class="btn-ghost" data-q="5" style="min-height:46px">😄 Easy</button>
                 </div>
             </div>`;
 
-        $("revSpeak").onclick = () => speakHz(c.word, 0.8);
-        setTimeout(() => speakHz(c.word, 0.8), 300);
-        document.querySelectorAll("[data-q]").forEach(b => {
+        $("revSwitchMode").onclick = () => reviewNext(id, cards, idx, listen ? "read" : "listen");
+
+        if (listen) {
+            const playWord = () => speakHz(c.word, 0.75);
+            $("revListenPlay").onclick = playWord;
+            setTimeout(playWord, 300);
+            const reveal = () => {
+                $("revHiddenWord").style.visibility = "visible";
+                $("revReveal").style.display = "none";
+                $("revListenHint").textContent = "How well did you remember it?";
+                $("revGrade").style.display = "flex";
+            };
+            $("revReveal").onclick = reveal;
+        } else {
+            $("revSpeak").onclick = () => speakHz(c.word, 0.8);
+            setTimeout(() => speakHz(c.word, 0.8), 300);
+        }
+        const gradeBox = listen ? $("revGrade") : document;
+        const gradeBtns = listen ? gradeBox.querySelectorAll("[data-q]") : document.querySelectorAll("#modalContent [data-q]");
+        gradeBtns.forEach(b => {
             b.onclick = async () => {
                 const q = Number(b.dataset.q);
                 if (q >= 4 && window.HanVerseSound) window.HanVerseSound.correct();
                 if (q < 3 && window.HanVerseSound) window.HanVerseSound.wrong();
                 if (q < 3 && window.HanVerseLoseHeart) window.HanVerseLoseHeart();
                 try { await FV().review.answer(id, c.word, q, { pinyin: c.pinyin, meaning: c.meaning }); } catch (e) {}
-                reviewNext(id, cards, idx + 1);
+                reviewNext(id, cards, idx + 1, mode);
             };
         });
     }

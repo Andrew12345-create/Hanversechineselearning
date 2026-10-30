@@ -63,5 +63,24 @@ check('audio has visible replay button', html.includes('Play the word'));
 const learn = readFileSync('learn.html', 'utf8');
 check('entitlement banner still wired', learn.includes('entitlementBanner') && learn.includes('/account/entitlement'));
 
+// --- Smart Review 2.0 (#3): listening mode ---
+check('review mode picker shown', html.includes('revModeRead') && html.includes('revModeListen'));
+check('listening mode hides word until reveal', html.includes('revHiddenWord') && html.includes('revReveal'));
+check('listening mode auto-plays audio', /const playWord = \(\) => speakHz\(c\.word/.test(html) && /\$\("revListenPlay"\)\.onclick = playWord/.test(html) && /setTimeout\(playWord, 300\)/.test(html));
+check('both modes feed review/answer identically', (html.match(/FV\(\)\.review\.answer\(id, c\.word, q/g) || []).length === 1);
+check('mode switch mid-deck available', html.includes('revSwitchMode'));
+check('reviewNext threads mode through all call sites', /reviewNext\(id, cards, \d+[^)]*mode/.test(html) || [...html.matchAll(/reviewNext\([^)]*\)/g)].every(m => m[0].split(',').length >= 4));
+
+// --- Character Writing Studio (#2): tracing canvas ---
+check('writing mode card exists', html.includes('data-mode="writing"'));
+check('writing dispatch wired', /mode ===\s*\n?\s*"writing"[\s\S]{0,120}?startWritingStudio\(/.test(html));
+check('canvas element created for tracing', html.includes('id="wsCanvas"'));
+check('guide overlay + hide toggle', html.includes('wsGuideToggle') && html.includes('wsGuide'));
+check('pointer events with touch support', html.includes('touch-action:none') && html.includes('pointerdown'));
+check('self-grade loop present', html.includes('data-g="3"'));
+check('writing sessions saved to whitelisted game type', html.includes('saveSession("writing"'));
+check('completion screen before next round (no canvas flash)', /const setup = \(\) => \{\s*\n\s*if \(idx >= chars\.length\)/.test(html));
+check('hearing button reinforces audio', html.includes('wsHear'));
+
 console.log(`\n${failCount ? `❌ ${failCount} FAILURE(S)` : '✅ all new-game tests passed'} (${pass} passed)`);
 process.exit(failCount ? 1 : 0);
