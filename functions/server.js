@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
+import { computeEntitlement, hasAccess, PLAN_RANK } from './entitlements.js';
 import { registerAIRoutes } from './ai-routes.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
@@ -4246,7 +4247,7 @@ router.get('/lessons/:lessonId', async (req, res) => {
     // leave the server for premium lessons they have not unlocked.
     // ========================================================
     const lessonIsPremium = lesson.premium === true || lesson.is_premium === true;
-    let viewerIsPremium = false;
+    let viewerEntitlement = null;
     if (lessonIsPremium) {
       const authHeader = req.headers.authorization || '';
       if (authHeader.startsWith('Bearer ')) {
@@ -4255,14 +4256,13 @@ router.get('/lessons/:lessonId', async (req, res) => {
           const viewerId = decoded && (decoded.user_id || decoded.id);
           if (viewerId) {
             const viewerResult = await pool.query(
-              `SELECT premium, premium_until, is_banned FROM users WHERE user_id = $1 LIMIT 1`,
+              `SELECT premium, premium_until, membership_plan, membership_status,
+                      trial_used, trial_ends_at, is_banned
+               FROM users WHERE user_id = $1 LIMIT 1`,
               [viewerId]
             );
             if (viewerResult.rows.length && !viewerResult.rows[0].is_banned) {
-              const viewer = viewerResult.rows[0];
-              viewerIsPremium =
-                viewer.premium === true ||
-                (viewer.premium_until && new Date(viewer.premium_until) > new Date());
+              viewerEntitlement = computeEntitlement(viewerResult.rows[0]);
             }
           }
         } catch {
@@ -4271,7 +4271,9 @@ router.get('/lessons/:lessonId', async (req, res) => {
       }
     }
 
-    if (lessonIsPremium && !viewerIsPremium) {
+    // Paid lessons unlock at the YCT Course tier (all YCT lessons are in the
+    // $4 course; Premium is a superset). Active trials get premium-tier access.
+    if (lessonIsPremium && !hasAccess(viewerEntitlement, 'yct')) {
       console.log(`🔒 Premium lesson ${lessonId} served locked (no entitlement)`);
       return res.json({
         success: true,

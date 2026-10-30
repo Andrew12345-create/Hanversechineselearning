@@ -5,6 +5,7 @@
    All schema changes are idempotent (safe to run on boot).
    ========================================================= */
 import { upgradeParentDigestEmail } from './parent-digest-ai.js';
+import { computeEntitlement, hasAccess } from './entitlements.js';
 import crypto from 'node:crypto';
 import rateLimit from 'express-rate-limit';
 
@@ -784,6 +785,40 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       fail(res, 500, 'Failed to delete account');
     } finally {
       client.release();
+    }
+  });
+
+  /* =========================================================
+     ENTITLEMENT STATUS — GET /account/entitlement
+     The client's single read-only source for badges, gating
+     UI and upgrade prompts. Resolved server-side from the
+     same engine that gates lessons — client values are never
+     trusted. Self-scoped via requireAuth.
+  ========================================================= */
+  router.get('/account/entitlement', requireAuth, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      const uid_ = req.userId;
+      const rows = await pool.query(
+        `SELECT premium, premium_until, membership_plan, membership_status,
+                trial_used, trial_ends_at, is_banned
+         FROM users WHERE user_id = $1 LIMIT 1`,
+        [uid_]
+      );
+      if (!rows.rows.length) return fail(res, 404, 'Account not found');
+      const ent = computeEntitlement(rows.rows[0]);
+      return ok(res, {
+        plan: ent.plan,
+        status: ent.status,
+        active: ent.active,
+        trialActive: ent.trialActive,
+        trialExpired: ent.trialExpired === true,
+        trialEndsAt: rows.rows[0].trial_ends_at || null,
+        canAccess: { yct: hasAccess(ent, 'yct'), premium: hasAccess(ent, 'premium') }
+      });
+    } catch (e) {
+      console.error('account/entitlement error:', e);
+      return fail(res, 500, 'Failed to load entitlement');
     }
   });
 
