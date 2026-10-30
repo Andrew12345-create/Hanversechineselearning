@@ -1268,7 +1268,8 @@ async function startPayment() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    ...(currentUser.token ? { 'Authorization': 'Bearer ' + currentUser.token } : {})
                 },
                 body: JSON.stringify({
                     userId: currentUser.user_id,
