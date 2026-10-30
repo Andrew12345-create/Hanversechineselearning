@@ -5229,6 +5229,10 @@ async function ensureParentTables() {
     )
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_parent_assignments_parent ON parent_assignments(parent_user_id, status)`);
+  await pool.query(`ALTER TABLE parent_assignments ADD COLUMN IF NOT EXISTS target_lesson_id VARCHAR(80)`);
+  await pool.query(`ALTER TABLE children ADD COLUMN IF NOT EXISTS classroom_allowed BOOLEAN NOT NULL DEFAULT TRUE`);
+  await pool.query(`ALTER TABLE children ADD COLUMN IF NOT EXISTS share_classroom_profile BOOLEAN NOT NULL DEFAULT TRUE`);
+  await pool.query(`ALTER TABLE children ADD COLUMN IF NOT EXISTS controls_updated_at TIMESTAMPTZ`);
   await pool.query(`
     CREATE TABLE IF NOT EXISTS parent_messages (
       message_id SERIAL PRIMARY KEY,
@@ -5338,8 +5342,9 @@ router.get('/my/assignments', async (req, res) => {
     const auth = await requireUser(req, res);
     if (!auth) return;
 
+    await ensureParentTables();
     const r = await pool.query(
-      `SELECT assignment_id, title, description, due_date, status, created_at, completed_at
+      `SELECT assignment_id, title, description, due_date, status, created_at, completed_at, target_lesson_id
          FROM parent_assignments
         WHERE child_user_id = $1
         ORDER BY created_at DESC
@@ -5811,8 +5816,45 @@ function cleanAssignmentFields(body, res) {
     res.status(400).json({ success: false, error: 'Due date must be YYYY-MM-DD.' });
     return null;
   }
-  return { title, description: description || null, dueDate: dueDate || null };
+  const targetLessonId = String((body && body.target_lesson_id) || '').trim();
+  if (targetLessonId.length > 80) {
+    res.status(400).json({ success: false, error: 'Lesson reference is invalid.' });
+    return null;
+  }
+  return { title, description: description || null, dueDate: dueDate || null, targetLessonId: targetLessonId || null };
 }
+
+// GET/PUT: parent-controlled classroom participation and privacy for owned children.
+router.get('/parents/:parentId/controls', async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth || !parentIdAllowed(res, auth, req.params.parentId)) return;
+    await ensureParentTables();
+    const result = await pool.query(`SELECT c.user_id, c.full_name, c.classroom_allowed, c.share_classroom_profile
+      FROM children c JOIN parents p ON p.parent_id = c.parent_id
+      WHERE p.user_id = $1 AND c.is_active = TRUE ORDER BY c.full_name`, [auth.user_id]);
+    return res.json({ success: true, children: result.rows });
+  } catch (error) { console.error('parent controls read:', error); return res.status(500).json({ success: false, error: 'Failed to load controls.' }); }
+});
+
+router.put('/parents/children/:childUserId/controls', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    await ensureParentTables();
+    const child = await getOwnChild(res, auth, req.params.childUserId);
+    if (!child) return;
+    const body = req.body || {};
+    const allowed = body.classroom_allowed;
+    const sharing = body.share_classroom_profile;
+    if (typeof allowed !== 'boolean' || typeof sharing !== 'boolean') return res.status(400).json({ success: false, error: 'Both classroom controls must be true or false.' });
+    await pool.query(`UPDATE children SET classroom_allowed = $1, share_classroom_profile = $2, controls_updated_at = NOW() WHERE child_id = $3`, [allowed, sharing, child.child_id]);
+    await pool.query(`UPDATE users SET share_leaderboard = $1 WHERE user_id = $2`, [sharing, child.user_id]);
+    return res.json({ success: true, controls: { classroom_allowed: allowed, share_classroom_profile: sharing } });
+  } catch (error) { console.error('parent controls update:', error); return res.status(500).json({ success: false, error: 'Failed to update controls.' }); }
+});
 
 // GET: assignments a parent has set, with child names.
 router.get('/parents/:parentId/assignments', async (req, res) => {
@@ -5856,10 +5898,10 @@ router.post('/parents/:parentId/assignments', parentWriteLimiter, async (req, re
 
     await ensureParentTables();
     const result = await pool.query(`
-      INSERT INTO parent_assignments (parent_user_id, child_user_id, title, description, due_date)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING assignment_id, created_at
-    `, [auth.user_id, child.user_id, fields.title, fields.description, fields.dueDate]);
+      INSERT INTO parent_assignments (parent_user_id, child_user_id, title, description, due_date, target_lesson_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING assignment_id, created_at, target_lesson_id
+    `, [auth.user_id, child.user_id, fields.title, fields.description, fields.dueDate, fields.targetLessonId]);
 
     createNotification(
       child.user_id,
@@ -5872,6 +5914,28 @@ router.post('/parents/:parentId/assignments', parentWriteLimiter, async (req, re
   } catch (error) {
     console.error('❌ Create parent assignment error:', error);
     return res.status(500).json({ success: false, error: 'Failed to create assignment.' });
+  }
+});
+
+// POST: learner marks only an assignment addressed to their signed-in account complete.
+router.post('/my/assignments/:assignmentId/complete', parentWriteLimiter, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res);
+    if (!auth) return;
+    const assignmentId = Number(req.params.assignmentId);
+    if (!Number.isInteger(assignmentId) || assignmentId <= 0) return res.status(400).json({ success: false, error: 'Invalid assignment ID.' });
+    await ensureParentTables();
+    const result = await pool.query(
+      `UPDATE parent_assignments SET status = 'completed', completed_at = CURRENT_TIMESTAMP
+       WHERE assignment_id = $1 AND child_user_id = $2 AND status = 'pending'
+       RETURNING title`, [assignmentId, auth.user_id]
+    );
+    if (!result.rows.length) return res.status(404).json({ success: false, error: 'Assignment not found.' });
+    return res.json({ success: true, assignment: result.rows[0] });
+  } catch (error) {
+    console.error('my-assignment completion error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update assignment.' });
   }
 });
 

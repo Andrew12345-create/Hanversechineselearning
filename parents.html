@@ -1462,6 +1462,9 @@
         <button class="tab-btn" data-tab="assignments" onclick="switchTab('assignments')">
             <i class="fas fa-tasks"></i> Assignments
         </button>
+        <button class="tab-btn" data-tab="controls" onclick="switchTab('controls')">
+            <i class="fas fa-shield-heart"></i> Controls & Privacy
+        </button>
         <button class="tab-btn" data-tab="insights" onclick="switchTab('insights')">
             <i class="fas fa-lightbulb"></i> Insights
         </button>
@@ -1594,6 +1597,20 @@
                     </button>
                 </div>
                 <div id="assignmentsContainer"></div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: PARENT CONTROLS & PRIVACY             -->
+            <!-- ========================================== -->
+            <div id="tab-controls" class="tab-content">
+                <div class="section-header"><h2><i class="fas fa-shield-heart"></i> Controls & Privacy</h2></div>
+                <p style="font-size:.84rem;color:var(--muted);margin:0 0 16px;">These controls apply only to children connected to your verified parent account. Learning progress is never deleted when you change a control.</p>
+                <div id="controlsContainer"></div>
+                <div class="card" style="padding:16px;margin-top:14px;">
+                    <h3 style="font-size:.96rem;margin:0 0 7px;">Your account privacy</h3>
+                    <p style="font-size:.8rem;color:var(--muted);margin:0 0 12px;">Download your account data or manage account privacy from Settings.</p>
+                    <a class="btn btn-secondary btn-sm" href="settings.html">Open privacy settings</a>
+                </div>
             </div>
 
             <!-- ========================================== -->
@@ -1992,6 +2009,7 @@
             childrenDetailGrid: document.getElementById('childrenDetailGrid'),
             activityFeed: document.getElementById('activityFeed'),
             assignmentsContainer: document.getElementById('assignmentsContainer'),
+            controlsContainer: document.getElementById('controlsContainer'),
             insightsContainer: document.getElementById('insightsContainer'),
             printLearningRecap: document.getElementById('printLearningRecap'),
             recapGeneratedAt: document.getElementById('recapGeneratedAt'),
@@ -2101,6 +2119,7 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${tab}`));
             if (tab === 'children') renderChildrenDetail();
             if (tab === 'assignments') loadAssignments();
+            if (tab === 'controls') loadControls();
             if (tab === 'insights') loadInsights();
             if (tab === 'messages') loadMessages();
         }
@@ -2514,6 +2533,29 @@
             return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({
                 '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
             }[ch]));
+        }
+
+        async function loadControls() {
+            DOM.controlsContainer.innerHTML = '<div class="loading-inline">Loading family controls...</div>';
+            try {
+                const data = await authFetch(`/parents/${state.parent.user_id}/controls`);
+                const children = data.children || [];
+                if (!children.length) { DOM.controlsContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">🛡️</div><h3>No connected children yet</h3><p>Add or reconnect a child to manage family controls.</p></div>'; return; }
+                DOM.controlsContainer.innerHTML = children.map(function(child) {
+                    const id = Number(child.user_id);
+                    return `<div class="assignment-card" data-controls-child="${id}"><div class="assignment-info"><h4>${escapeHtml(child.full_name)}</h4><p>Manage classroom participation and how their profile appears in classroom spaces.</p></div><div style="display:grid;gap:10px;width:100%;margin-top:10px"><label style="font-size:.82rem"><input type="checkbox" data-control="classroom" ${child.classroom_allowed !== false ? 'checked' : ''}> Allow this child to join classrooms</label><label style="font-size:.82rem"><input type="checkbox" data-control="sharing" ${child.share_classroom_profile !== false ? 'checked' : ''}> Share profile in classroom views</label><button class="btn btn-secondary btn-xs" type="button" data-save-controls="${id}">Save controls</button></div></div>`;
+                }).join('');
+                DOM.controlsContainer.querySelectorAll('[data-save-controls]').forEach(function(button) { button.addEventListener('click', function() { saveControls(Number(button.dataset.saveControls)); }); });
+            } catch (e) { DOM.controlsContainer.innerHTML = `<div class="empty-state"><div class="empty-icon">🛡️</div><h3>Couldn't load controls</h3><p>${escapeHtml(e.message)}</p></div>`; }
+        }
+
+        async function saveControls(childUserId) {
+            const card = DOM.controlsContainer.querySelector(`[data-controls-child="${childUserId}"]`);
+            if (!card) return;
+            try {
+                await authFetch(`/parents/children/${childUserId}/controls`, { method: 'PUT', body: JSON.stringify({ classroom_allowed: card.querySelector('[data-control="classroom"]').checked, share_classroom_profile: card.querySelector('[data-control="sharing"]').checked }) });
+                showToast('✅ Family controls saved.', 'success');
+            } catch (e) { showToast(e.message || 'Could not save controls', 'error'); }
         }
 
         async function loadAssignments() {

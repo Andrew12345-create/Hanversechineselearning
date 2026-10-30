@@ -33,6 +33,8 @@ export async function ensureFeatureSchema(pgPool) {
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS share_leaderboard BOOLEAN DEFAULT TRUE`);
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS freeze_used_on DATE`);
   await q(`CREATE INDEX IF NOT EXISTS idx_users_class_code ON users(class_code)`);
+  // Parent-facing controls are enforced at classroom join time, never only in the UI.
+  await q(`ALTER TABLE children ADD COLUMN IF NOT EXISTS classroom_allowed BOOLEAN NOT NULL DEFAULT TRUE`);
 
   // --- daily goals: extend with a speaking goal + chest flag
   await q(`ALTER TABLE daily_goals ADD COLUMN IF NOT EXISTS target_speaking INTEGER DEFAULT 5`);
@@ -1528,6 +1530,8 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       const code = String(req.body.classCode || '').trim().toUpperCase();
       if (!code) return fail(res, 400, 'classCode required');
       await ensureFeatureSchema();
+      const control = await pool.query(`SELECT classroom_allowed FROM children WHERE user_id = $1 AND is_active = TRUE`, [userId]);
+      if (control.rows[0] && control.rows[0].classroom_allowed === false) return fail(res, 403, 'A parent has turned off classroom participation for this account.');
       const cls = (await pool.query(`SELECT class_id, class_name FROM classrooms WHERE class_code = $1`, [code])).rows[0];
       if (!cls) return fail(res, 404, 'Class code not found');
       await pool.query(`UPDATE users SET class_code = $1, updated_at = NOW() WHERE user_id = $2`, [code, userId]);
