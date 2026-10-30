@@ -181,6 +181,21 @@ export async function ensureFeatureSchema(pgPool) {
     console.warn('⚠️ Trial sweep failed (non-fatal):', e.message);
   }
 
+  // --- TRIAL EMAIL JOURNEY: boot-time best-effort sweep, once per cold
+  // instance. Idempotent (trial_email_log claims) so this plus the daily
+  // scheduled function never double-send. Failures are non-fatal.
+  try {
+    const { runTrialEmailSweep, createMailer } = await import('./trial-emails.js');
+    const send = createMailer();
+    if (send) {
+      runTrialEmailSweep({ pool, send })
+        .then(r => { if (r.sent) console.log(`📧 Trial emails: sent ${r.sent} at boot`); })
+        .catch(e => console.warn('⚠️ Trial email boot sweep failed (non-fatal):', e.message));
+    }
+  } catch (e) {
+    console.warn('⚠️ Trial email boot sweep unavailable (non-fatal):', e.message);
+  }
+
   schemaReady = true;
   console.log('✅ Feature-pack schema ensured');
 }
@@ -801,7 +816,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       const uid_ = req.userId;
       const rows = await pool.query(
         `SELECT premium, premium_until, membership_plan, membership_status,
-                trial_used, trial_ends_at, is_banned
+                trial_used, trial_ends_at, is_banned, marketing_unsubscribed
          FROM users WHERE user_id = $1 LIMIT 1`,
         [uid_]
       );
@@ -814,6 +829,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
         trialActive: ent.trialActive,
         trialExpired: ent.trialExpired === true,
         trialEndsAt: rows.rows[0].trial_ends_at || null,
+        marketingUnsubscribed: rows.rows[0].marketing_unsubscribed === true,
         canAccess: { yct: hasAccess(ent, 'yct'), premium: hasAccess(ent, 'premium') }
       });
     } catch (e) {
@@ -1233,6 +1249,53 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     } catch (e) {
       console.error('trial/start error:', e);
       fail(res, 500, 'Failed to start trial');
+    }
+  });
+
+  /* =========================================================
+     TRIAL EMAIL JOURNEY — admin trigger for the Day 0/2/5/6/7/9
+     sequence. dryRun:true lists what would send without sending.
+     The scheduled function (trial-email-sweep.js) calls the same
+     runner daily; this endpoint is for ops/testing.
+  ========================================================= */
+  router.post('/admin/trial-emails/run', requireAdmin, writeLimiter, async (req, res) => {
+    try {
+      const { runTrialEmailSweep, createMailer } = await import('./trial-emails.js');
+      const send = createMailer();
+      if (!send) return fail(res, 503, 'Email not configured (BREVO_SMTP_KEY missing)');
+      const summary = await runTrialEmailSweep({ pool, send, dryRun: req.body?.dryRun === true });
+      return ok(res, summary);
+    } catch (e) {
+      console.error('admin/trial-emails/run error:', e);
+      return fail(res, 500, 'Trial email sweep failed');
+    }
+  });
+
+  /* =========================================================
+     MARKETING OPT-OUT — POST /account/unsubscribe-marketing
+     Self-scoped (requireAuth). Stops all promotional trial
+     emails; transactional notices (welcome, trial ended) are
+     unaffected and contain no marketing content.
+  ========================================================= */
+  router.post('/account/unsubscribe-marketing', requireAuth, writeLimiter, async (req, res) => {
+    try {
+      await ensureFeatureSchema();
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_unsubscribed BOOLEAN DEFAULT FALSE`);
+      await pool.query(`UPDATE users SET marketing_unsubscribed = TRUE, updated_at = NOW() WHERE user_id = $1`, [req.userId]);
+      return ok(res, { marketingUnsubscribed: true });
+    } catch (e) {
+      console.error('unsubscribe-marketing error:', e);
+      return fail(res, 500, 'Failed to update preferences');
+    }
+  });
+
+  router.get('/account/resubscribe-marketing', requireAuth, async (req, res) => {
+    try {
+      await pool.query(`UPDATE users SET marketing_unsubscribed = FALSE, updated_at = NOW() WHERE user_id = $1`, [req.userId]);
+      return ok(res, { marketingUnsubscribed: false });
+    } catch (e) {
+      console.error('resubscribe-marketing error:', e);
+      return fail(res, 500, 'Failed to update preferences');
     }
   });
 
