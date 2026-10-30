@@ -68,7 +68,7 @@ async function call(path, { method = 'GET', body, token } = {}) {
   }
 
   // 5. Authed endpoints reject anonymous callers.
-  const refresh = await call('/auth/refresh');
+  const refresh = await call('/auth/refresh', { method: 'POST' });
   check('POST /auth/refresh rejects missing token', refresh.status === 401, `status ${refresh.status}`);
 
   // 6. Enumerability probe: unknown id must not be distinguishable.
