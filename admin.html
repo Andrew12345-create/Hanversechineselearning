@@ -2372,53 +2372,8 @@
             <input id="userEmail" class="input" type="email" required>
           </div>
 
-          <div class="field">
-            <label for="userPassword">New password</label>
-            <input id="userPassword" class="input" type="password" autocomplete="new-password">
-            <small class="muted" style="font-size:8px;">Leave blank to keep the current password.</small>
-          </div>
-
-          <div class="field">
-            <label for="userRole">Role</label>
-            <select id="userRole" class="select">
-              <option value="student">Student</option>
-              <option value="parent">Parent</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="userLevel">Level</label>
-            <input id="userLevel" class="input" type="number" min="1" value="1">
-          </div>
-
-          <div class="field">
-            <label for="userXP">XP</label>
-            <input id="userXP" class="input" type="number" min="0" value="0">
-          </div>
-
-          <div class="field">
-            <label for="userPremium">Premium</label>
-            <select id="userPremium" class="select">
-              <option value="false">No</option>
-              <option value="true">Yes</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="userVerified">Verified</label>
-            <select id="userVerified" class="select">
-              <option value="false">No</option>
-              <option value="true">Yes</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="userBanned">Banned</label>
-            <select id="userBanned" class="select">
-              <option value="false">No</option>
-              <option value="true">Yes</option>
-            </select>
+          <div class="field full">
+            <p class="muted" style="font-size:9px;margin:0;">For safety, roles, password resets, entitlement, verification, moderation, and learning progress use their dedicated audited workflows.</p>
           </div>
 
         </div>
@@ -3325,15 +3280,7 @@
     $("userFullName").value = user.full_name || "";
     $("userUsername").value = user.username || "";
     $("userEmail").value = user.email || "";
-    $("userPassword").value = "";
-    $("userRole").value = user.role || "student";
-    $("userLevel").value = first(user.level, 1);
-    $("userXP").value = first(user.xp, 0);
-    $("userPremium").value = String(
-      bool(first(user.premium, user.is_premium))
-    );
-    $("userVerified").value = String(bool(user.is_verified));
-    $("userBanned").value = String(bool(user.is_banned));
+
 
     $("userFormError").textContent = "";
 
@@ -3358,17 +3305,7 @@
       full_name: $("userFullName").value.trim(),
       username: $("userUsername").value.trim(),
       email: $("userEmail").value.trim(),
-      role: $("userRole").value,
-      level: Number($("userLevel").value) || 1,
-      xp: Number($("userXP").value) || 0,
-      premium: $("userPremium").value === "true",
-      is_verified: $("userVerified").value === "true",
-      is_banned: $("userBanned").value === "true"
     };
-
-    const password = $("userPassword").value.trim();
-
-    if (password) payload.password = password;
 
     try {
       await api(`/admin/users/update/${encodeURIComponent(id)}`, {
@@ -4788,19 +4725,22 @@ ${body}
     if (!ids.length) return;
     const reason = prompt("Ban reason for " + ids.length + " user(s)?", "Terms violation");
     if (reason === null) return;
+    const button = $("bulkBan"); button.disabled = true;
+    const results = [];
     for (const id of ids) {
-      try { await api("/admin/users/ban/" + id, { method: "POST", body: JSON.stringify({ banned: true, reason }) }); } catch (e) {}
+      try { await api("/admin/users/ban/" + encodeURIComponent(id), { method: "POST", body: JSON.stringify({ banned: true, reason }) }); results.push({ id, ok: true }); }
+      catch (error) { results.push({ id, ok: false, error }); }
     }
-    state.bulkSelected = new Set();
-    updateBulkBar();
-    await loadUsers();
+    const failed = results.filter((result) => !result.ok);
+    state.bulkSelected = new Set(failed.map((result) => result.id));
+    updateBulkBar(); await loadUsers(); button.disabled = false;
+    notify(failed.length ? `${results.length - failed.length} banned; ${failed.length} failed and remain selected.` : `${results.length} user(s) banned.` , failed.length ? "error" : "ok");
   });
 
   $("bulkEmail").addEventListener("click", () => {
-    const ids = Array.from(state.bulkSelected);
-    if (!ids.length) return;
-    const firstBox = document.querySelector('[data-email-user="' + ids[0] + '"]');
-    if (firstBox) firstBox.click();
+    const count = state.bulkSelected.size;
+    if (!count) return;
+    notify(`Bulk email is not enabled yet. Use an audited campaign audience instead. ${count} selected account(s) were not emailed.`, "error");
   });
 
   $("bulkExport").addEventListener("click", () => {

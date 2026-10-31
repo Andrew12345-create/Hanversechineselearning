@@ -7001,7 +7001,7 @@ router.get('/admin/analytics', verifyAdminToken, async (req, res) => {
    ADMIN EMAIL BROADCAST
 ========================================================= */
 
-router.post('/admin/email-all', verifyAdminToken, async (req, res) => {
+router.post('/admin/email-all-deprecated', verifyAdminToken, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -8071,10 +8071,16 @@ router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
       });
     }
 
-    const {
-      full_name, username, email, level, xp, role,
-      is_banned, premium, is_verified, password
-    } = req.body || {};
+    const { full_name, username, email, ...unsupported } = req.body || {};
+    if (Object.keys(unsupported).length) {
+      return res.status(400).json({ success: false, error: 'Use the dedicated administrative action for access, entitlement, verification, moderation, password, or learning-progress changes.' });
+    }
+    const cleanName = String(full_name ?? '').trim();
+    const cleanUsername = String(username ?? '').trim();
+    const cleanEmail = String(email ?? '').trim().toLowerCase();
+    if (!cleanName || cleanName.length > 120 || !cleanUsername || cleanUsername.length > 60 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      return res.status(400).json({ success: false, error: 'Enter a name, username, and valid email address.' });
+    }
 
     const existing = await pool.query(`SELECT * FROM users WHERE user_id = $1`, [userId]);
 
@@ -8095,20 +8101,9 @@ router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
       index++;
     };
 
-    if (full_name !== undefined) addField('full_name', full_name);
-    if (username !== undefined) addField('username', username);
-    if (email !== undefined) addField('email', email);
-    if (level !== undefined) addField('level', Number(level) || 1);
-    if (xp !== undefined) addField('xp', Number(xp) || 0);
-    if (role !== undefined) addField('role', role);
-    if (is_banned !== undefined) addField('is_banned', Boolean(is_banned));
-    if (premium !== undefined) addField('premium', Boolean(premium));
-    if (is_verified !== undefined) addField('is_verified', Boolean(is_verified));
-
-    if (password && String(password).trim()) {
-      const passwordHash = await bcrypt.hash(String(password), 12);
-      addField('password_hash', passwordHash);
-    }
+    addField('full_name', cleanName);
+    addField('username', cleanUsername);
+    addField('email', cleanEmail);
 
     if (!fields.length) {
       return res.status(400).json({
@@ -8133,6 +8128,7 @@ router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
 
   } catch (error) {
     console.error('❌ Admin user update error:', error);
+    if (error.code === '23505') return res.status(409).json({ success: false, error: 'That username or email address is already in use.' });
     return res.status(500).json({
       success: false,
       error: 'Failed to update user.'
@@ -8633,38 +8629,32 @@ router.delete('/admin/lessons/:lessonId', verifyAdminToken, async (req, res) => 
 
     const lessonId = String(req.params.lessonId).trim();
 
-    await pool.query('BEGIN');
-
-    await pool.query(`DELETE FROM lesson_media WHERE lesson_id = $1`, [lessonId]);
-
-    const result = await pool.query(
-      `DELETE FROM lessons WHERE lesson_id = $1 RETURNING lesson_id`,
-      [lessonId]
-    );
-
-    if (!result.rows.length) {
-      await pool.query('ROLLBACK');
-      return res.status(404).json({
-        success: false,
-        error: 'Lesson not found.'
-      });
+    await ensureAdminTables();
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query(`DELETE FROM lesson_media WHERE lesson_id = $1`, [lessonId]);
+      const result = await client.query(`DELETE FROM lessons WHERE lesson_id = $1 RETURNING lesson_id`, [lessonId]);
+      if (!result.rows.length) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ success: false, error: 'Lesson not found.' });
+      }
+      await client.query(
+        'INSERT INTO admin_audit (actor_id, actor_label, action, detail, ip) VALUES ($1, $2, $3, $4, $5)',
+        [req.adminActor?.id ?? null, req.adminActor?.label ?? 'unknown', 'lesson.delete', JSON.stringify({ lesson: lessonId }), String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').slice(0, 120)]
+      );
+      await client.query('COMMIT');
+      return res.json({ success: true, message: 'Lesson deleted successfully.' });
+    } catch (error) {
+      await client.query('ROLLBACK').catch(() => {});
+      console.error('❌ Delete lesson error:', error);
+      return res.status(500).json({ success: false, error: 'Failed to delete lesson.' });
+    } finally {
+      client.release();
     }
-
-    await pool.query('COMMIT');
-
-    await auditAdmin(req, 'lesson.delete', { lesson: req.params.lessonId });
-    return res.json({
-      success: true,
-      message: 'Lesson deleted successfully.'
-    });
-
   } catch (error) {
-    try { await pool.query('ROLLBACK'); } catch (_) {}
-    console.error('❌ Delete lesson error:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to delete lesson.'
-    });
+    console.error('❌ Delete lesson setup error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to delete lesson.' });
   }
 });
 
