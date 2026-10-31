@@ -56,16 +56,6 @@
 <script>
 (function(){
 'use strict';
-var FALLBACK=[
-  {word:'你好',pinyin:'nǐ hǎo',meaning:'hello'},
-  {word:'谢谢',pinyin:'xiè xie',meaning:'thank you'},
-  {word:'再见',pinyin:'zài jiàn',meaning:'goodbye'},
-  {word:'猫',pinyin:'māo',meaning:'cat'},
-  {word:'水',pinyin:'shuǐ',meaning:'water'},
-  {word:'大',pinyin:'dà',meaning:'big'},
-  {word:'山',pinyin:'shān',meaning:'mountain'},
-  {word:'火',pinyin:'huǒ',meaning:'fire'}
-];
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 function shuffle(a){var x=a.slice();for(var i=x.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=x[i];x[i]=x[j];x[j]=t}return x}
 var WORDS=[];
@@ -87,16 +77,31 @@ function render(){
   '<div class="ws-sec"><h2>3 · Write a sentence</h2><p style="font-size:.72rem;color:#526176;margin:0 0 4px">Use at least two words from this sheet.</p>'+lines+'</div>';
 }
 
+function authRequest(path){
+ var F=window.HanVerseFeatures, token='';
+ try { var session=JSON.parse(localStorage.getItem('hanverse_user')||'{}'); token=session.token||''; } catch(e) {}
+ return fetch('/api'+path,{headers:token?{Authorization:'Bearer '+token,Accept:'application/json'}:{Accept:'application/json'}}).then(function(r){return r.json().catch(function(){return {}}).then(function(d){if(!r.ok){var err=new Error(d.error||'Could not load worksheet');err.status=r.status;throw err}return d})});
+}
+function showState(message,action){
+ document.getElementById('wsBody').innerHTML='<p style="color:#526176;font-size:.85rem">'+esc(message)+'</p>'+(action||'');
+}
 function loadWords(){
- var F=window.HanVerseFeatures;
- var uid=F?F.currentUserId():null;
- if(!uid||!F){WORDS=FALLBACK;document.getElementById('wsMeta').textContent='Practice sheet · starter words';render();return}
- F.api('/vocabulary').then(function(r){
-   var rows=(r&&(r.words||r.rows))||[];
-   WORDS=rows.length?rows.slice(0,8):FALLBACK;
-   document.getElementById('wsMeta').textContent='Practice sheet · your words';
+ var F=window.HanVerseFeatures, uid=F?F.currentUserId():null;
+ if(!uid||!F){document.getElementById('wsMeta').textContent='Family Learning Pack';showState('Please sign in to open a family worksheet.','<p><a href="login.html?next=worksheets.html">Sign in</a></p>');return}
+ var child=new URLSearchParams(location.search).get('child');
+ var path=child?'/parents/'+encodeURIComponent(uid)+'/family-learning-pack/'+encodeURIComponent(child):'/family-learning-pack/me';
+ authRequest(path).then(function(r){
+   var pack=r&&r.pack, rows=pack&&pack.words||[];
+   WORDS=rows.slice(0,8);
+   document.getElementById('wsMeta').textContent='Family Learning Pack · '+(pack&&pack.childName?pack.childName+'’s words':'your words');
+   if(!WORDS.length){showState('Complete a lesson or review some words, then this family worksheet will be ready.');return}
    render();
- }).catch(function(){WORDS=FALLBACK;document.getElementById('wsMeta').textContent='Practice sheet · starter words';render()});
+ }).catch(function(e){
+   document.getElementById('wsMeta').textContent='Family Learning Pack';
+   if(e.status===403) showState('This family worksheet is available with Premium. Ask your parent or guardian to view family learning options.');
+   else if(e.status===404) showState('This Family Learning Pack is not enabled yet.');
+   else showState('Could not load this worksheet. Please try again later.');
+ });
 }
 document.getElementById('btnPrint').onclick=function(){window.print()};
 document.getElementById('btnShuffle').onclick=render;

@@ -1607,6 +1607,11 @@
                 <p style="font-size:.84rem;color:var(--muted);margin:0 0 16px;">These controls apply only to children connected to your verified parent account. Learning progress is never deleted when you change a control.</p>
                 <div id="controlsContainer"></div>
                 <div class="card" style="padding:16px;margin-top:14px;">
+                    <h3 style="font-size:.96rem;margin:0 0 7px;">⭐ Premium Family Learning Pack</h3>
+                    <p style="font-size:.8rem;color:var(--muted);margin:0 0 12px;">Enable a printable practice pack from each child’s own learning words. This family benefit is available with Premium and the card-free Premium trial.</p>
+                    <div id="familyPackContainer"><div class="loading-inline">Checking Family Learning Pack…</div></div>
+                </div>
+                <div class="card" style="padding:16px;margin-top:14px;">
                     <h3 style="font-size:.96rem;margin:0 0 7px;">Your account privacy</h3>
                     <p style="font-size:.8rem;color:var(--muted);margin:0 0 12px;">Download your account data or manage account privacy from Settings.</p>
                     <a class="btn btn-secondary btn-sm" href="settings.html">Open privacy settings</a>
@@ -2541,7 +2546,32 @@
                     return `<div class="assignment-card" data-controls-child="${id}"><div class="assignment-info"><h4>${escapeHtml(child.full_name)}</h4><p>These controls protect your child in shared classroom spaces. They never erase progress.</p></div><div style="display:grid;gap:10px;width:100%;margin-top:10px"><label style="font-size:.82rem"><input type="checkbox" data-control="classroom" ${child.classroom_allowed !== false ? 'checked' : ''}> Allow this child to join a classroom with a teacher's code</label><label style="font-size:.82rem"><input type="checkbox" data-control="sharing" ${child.share_classroom_profile !== false ? 'checked' : ''}> Show this child in classroom rosters, progress and leaderboards</label><p style="font-size:.75rem;margin:0;color:var(--muted)">Turning off sharing hides them from classroom views; it does not remove their learning history. Turning off classroom participation also removes them from any current class.</p><button class="btn btn-secondary btn-xs" type="button" data-save-controls="${id}">Save controls</button>${updated}</div></div>`;
                 }).join('');
                 DOM.controlsContainer.querySelectorAll('[data-save-controls]').forEach(function(button) { button.addEventListener('click', function() { saveControls(Number(button.dataset.saveControls)); }); });
+                loadFamilyLearningPack();
             } catch (e) { DOM.controlsContainer.innerHTML = `<div class="empty-state"><div class="empty-icon">🛡️</div><h3>Couldn't load controls</h3><p>${escapeHtml(e.message)}</p></div>`; }
+        }
+
+        async function loadFamilyLearningPack() {
+            const root = document.getElementById('familyPackContainer'); if (!root) return;
+            try {
+                const data = await authFetch(`/parents/${state.parent.user_id}/family-learning-pack`);
+                const children = data.children || [];
+                root.innerHTML = children.length ? children.map(function(child) {
+                    const enabled = child.enabled === true;
+                    return `<div class="assignment-card" data-pack-child="${Number(child.user_id)}"><div class="assignment-info"><h4>${escapeHtml(child.full_name)}</h4><p>${enabled ? 'Printable practice from their own words is enabled.' : 'This pack is currently off for this child.'}</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-secondary btn-xs" type="button" data-toggle-pack="${Number(child.user_id)}" data-enabled="${enabled ? 'true' : 'false'}">${enabled ? 'Turn off' : 'Enable pack'}</button>${enabled ? `<a class="btn btn-secondary btn-xs" href="worksheets.html?child=${encodeURIComponent(child.user_id)}">Preview / print</a>` : ''}</div></div>`;
+                }).join('') : '<div class="empty-state"><div class="empty-icon">⭐</div><h3>No connected children yet</h3><p>Add a child profile to prepare a family learning pack.</p></div>';
+                root.querySelectorAll('[data-toggle-pack]').forEach(function(button) { button.addEventListener('click', function() { saveFamilyLearningPack(Number(button.dataset.togglePack), button.dataset.enabled !== 'true'); }); });
+            } catch (e) {
+                const upgrade = /premium|upgrade|required/i.test(e.message || '');
+                root.innerHTML = upgrade ? '<p style="font-size:.8rem;color:var(--muted);margin:0">Family Learning Packs are included with Premium. <a href="payment.html">View Premium</a></p>' : `<p style="font-size:.8rem;color:var(--muted);margin:0">Couldn’t load Family Learning Pack: ${escapeHtml(e.message)}</p>`;
+            }
+        }
+
+        async function saveFamilyLearningPack(childUserId, enabled) {
+            try {
+                await authFetch(`/parents/children/${childUserId}/family-learning-pack`, { method: 'PUT', body: JSON.stringify({ enabled: enabled }) });
+                showToast(enabled ? '⭐ Family Learning Pack enabled.' : 'Family Learning Pack turned off.', 'success');
+                loadFamilyLearningPack();
+            } catch (e) { showToast(e.message || 'Could not save Family Learning Pack', 'error'); }
         }
 
         async function saveControls(childUserId) {

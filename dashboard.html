@@ -194,6 +194,12 @@
                 <h2>📝 My tasks</h2>
                 <div id="asgList"><div class="skel" style="width:100%;height:14px"></div></div>
             </section>
+
+            <section class="asg-card" id="familyPackCard" hidden>
+                <h2>⭐ Family Learning Pack</h2>
+                <p id="familyPackText" style="font-size:.78rem;color:var(--muted);margin:0 0 10px"></p>
+                <a class="go" style="font-size:.8rem;padding:9px 16px;margin-top:0" href="worksheets.html">Open worksheet →</a>
+            </section>
         </div>
 
         <div class="grid2">
@@ -397,6 +403,14 @@
                     track.appendChild(fill); item.append(heading, label, track); root.appendChild(item);
                 });
             }).catch(function () { errorState("masteryGates", "Milestones will be ready when you are online."); });
+
+            request("family-learning-pack/me").then(function (data) {
+                var card = document.getElementById("familyPackCard");
+                var text = document.getElementById("familyPackText");
+                if (!card || !text || !data || !data.pack) return;
+                card.hidden = false;
+                text.textContent = data.pack.wordCount ? "Your family prepared a printable practice sheet from " + data.pack.wordCount + " words you have learned." : "Complete a lesson or review some words, then your family worksheet will be ready.";
+            }).catch(function () { /* Availability is intentionally private from learner billing. */ });
 
             request("games/personal-bests").then(function (data) {
                 var root = document.getElementById("personalBests");
