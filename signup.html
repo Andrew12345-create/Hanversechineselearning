@@ -28,10 +28,10 @@ a{color:inherit}button,input{font:inherit}.hidden{display:none!important}
 <div id="loading-overlay"><div class="loader"></div><div class="loader-text">🐼 Creating your account...</div></div><div id="toast-container" class="toast-container"></div><div id="verification-banner">⚠️ Please verify your email to access all features. <span class="resend-link" id="resendVerificationBanner">Resend verification</span><button class="close-banner" id="closeVerificationBanner" aria-label="Close banner">✕</button></div>
 <main class="signup-shell">
 <section class="intro"><span class="eyebrow">🐼 Join HanVerse</span><h1>Start your <span>Mandarin</span> journey.</h1><p class="intro-copy">Create your free HanVerse account and learn Mandarin through structured YCT lessons, stories, games, AI and progress tracking.</p><div class="benefits"><div class="benefit"><div class="benefit-icon">🌱</div><div><strong>Start free</strong><span>Begin your learning journey today.</span></div></div><div class="benefit"><div class="benefit-icon">⭐</div><div><strong>Earn XP</strong><span>Build momentum from Lesson 1.</span></div></div><div class="benefit"><div class="benefit-icon">📈</div><div><strong>Track progress</strong><span>See your learning grow over time.</span></div></div><div class="benefit"><div class="benefit-icon">🤖</div><div><strong>Panda AI Tutor</strong><span>Get help while you learn.</span></div></div></div><div class="intro-panda" onclick="togglePanda()" role="button" aria-label="Open Panda Chat">🐼</div></section>
-<section class="form-panel"><div class="form-head"><h2>Create your account ✨</h2><p>Choose your account type, then fill in your details.</p></div>
+<section class="form-panel"><div class="form-head"><h2 id="signupHeading">Create your account ✨</h2><p id="signupIntro">Choose your account type, then fill in your details.</p></div>
 <div class="role-selector" role="radiogroup" aria-label="Account type"><div class="role-option selected" data-role="parent" role="radio" aria-checked="true" tabindex="0" onclick="selectRole('parent')"><span class="role-icon">👪</span><div class="role-label">Parent</div><div class="role-desc">Monitor children's learning</div></div><div class="role-option" data-role="student" role="radio" aria-checked="false" tabindex="0" onclick="selectRole('student')"><span class="role-icon">👨‍🎓</span><div class="role-label">Student</div><div class="role-desc">Learn Mandarin yourself</div></div></div>
 <div class="form-grid"><div class="input-group"><label class="input-label" for="fullName">Full Name</label><input type="text" id="fullName" placeholder="Your full name" autocomplete="name" required></div><div class="input-group"><label class="input-label" for="username">Username</label><input type="text" id="username" placeholder="hanverse_user" autocomplete="username" required><div class="field-error" id="usernameError">❌ Username already taken</div><div class="field-hint" id="usernameHint">✓ 3-20 characters, letters &amp; numbers only</div></div><div class="input-group full"><label class="input-label" for="email">Email Address</label><input type="email" id="email" placeholder="your@email.com" autocomplete="email" required><div class="field-error" id="emailError">❌ Please enter a valid email address</div><div class="field-hint" id="emailHint">✓ Valid email format</div></div><div class="input-group"><label class="input-label" for="password">Password</label><div class="input-wrapper"><input type="password" id="password" placeholder="Create a strong password" autocomplete="new-password" required oninput="validatePassword(this.value)"><button class="eye-btn" id="togglePasswordBtn" type="button" aria-label="Toggle password visibility">👁️</button></div><div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div><div class="strength-label" id="strengthLabel">Weak</div><div class="password-requirements"><span class="req" id="reqLength">🔴 8+ characters</span><span class="req" id="reqUpper">🔴 Uppercase</span><span class="req" id="reqNumber">🔴 Number</span><span class="req" id="reqSpecial">🔴 Special</span></div></div><div class="input-group"><label class="input-label" for="confirmPassword">Confirm Password</label><div class="input-wrapper"><input type="password" id="confirmPassword" placeholder="Repeat your password" autocomplete="new-password" required oninput="validateConfirmPassword()"><button class="eye-btn" id="toggleConfirmBtn" type="button" aria-label="Toggle password visibility">👁️</button></div><div class="field-error" id="confirmError">❌ Passwords do not match</div><div class="field-hint" id="confirmHint">✓ Passwords match</div></div></div>
-<div class="checkbox-group"><input type="checkbox" id="termsCheckbox" aria-required="true"><label for="termsCheckbox">I agree to the <a href="https://hanverse.netlify.app/terms.html" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="https://hanverse.netlify.app/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label></div><div class="checkbox-group"><input type="checkbox" id="parentalConsentCheckbox" aria-required="true"><label for="parentalConsentCheckbox">I am this learner's parent/guardian (or the learner is 13+), and I consent to HanVerse collecting their learning data as described in the <a href="https://hanverse.netlify.app/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label></div><div class="checkbox-group" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label class="input-label" for="learnerAge" style="margin:0">Learner age <span style="color:var(--red)">*</span></label><select id="learnerAge" required style="min-height:36px;padding:6px 10px;border:1px solid var(--border,#D5E3F0);border-radius:10px;font:700 13px Inter,sans-serif;background:#fff"><option value="">Select age</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18+</option></select></div><button class="btn btn-signup" id="signupBtn">Create Account</button><div class="bottom">Already have an account? <a href="login.html">Log In</a></div></section></main>
+<div class="checkbox-group"><input type="checkbox" id="termsCheckbox" aria-required="true"><label for="termsCheckbox">I agree to the <a href="https://hanverse.netlify.app/terms.html" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="https://hanverse.netlify.app/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label></div><div class="checkbox-group"><input type="checkbox" id="parentalConsentCheckbox" aria-required="true"><label for="parentalConsentCheckbox">I am this learner's parent/guardian (or the learner is 13+), and I consent to HanVerse collecting their learning data as described in the <a href="https://hanverse.netlify.app/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label></div><div class="checkbox-group" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label class="input-label" for="learnerAge" style="margin:0">Learner age <span style="color:var(--red)">*</span></label><select id="learnerAge" required style="min-height:36px;padding:6px 10px;border:1px solid var(--border,#D5E3F0);border-radius:10px;font:700 13px Inter,sans-serif;background:#fff"><option value="">Select age</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18+</option></select></div><div id="under13Notice" role="status" aria-live="polite" hidden style="margin:-4px 0 16px;padding:12px;border:1px solid #99D5C9;border-radius:12px;background:#F0FDFA;color:#164E63;font-size:.76rem;line-height:1.55"><strong>A parent or guardian needs to create this account.</strong><br>Create and verify a parent account first. Then use <strong>Add Child</strong> in the Parent Hub to create the learner profile.</div><button class="btn btn-signup" id="signupBtn">Create Account</button><div class="bottom">Already have an account? <a href="login.html">Log In</a></div></section></main>
 <nav class="bottom-nav"><a href="index.html"><span class="nav-icon">🏠</span>Home</a><a href="learn.html"><span class="nav-icon">📚</span>Learn</a><a href="signup.html" class="active"><span class="nav-icon">✨</span>Sign Up</a><a href="login.html"><span class="nav-icon">🔑</span>Login</a></nav>
 <button class="panda-fab" id="pandaFabBtn" aria-label="Open Panda AI Chat">🐼</button><div id="pandaChat" class="panda-chat"><div class="panda-header"><div class="panda-title">🐼 Panda AI Tutor</div><button class="panda-close" id="pandaCloseBtn" aria-label="Close chat">✕</button></div><div id="pandaBody" class="panda-body"><div class="message-row"><div class="panda-avatar">🐼</div><div class="message panda-message">👋 Hi! Ask me anything about Mandarin.</div></div></div><div class="panda-input"><textarea id="pandaInput" placeholder="Ask Panda..." rows="1" aria-label="Chat input"></textarea><button class="panda-send" id="pandaSendBtn" aria-label="Send message">➤</button></div></div>
 <script>
@@ -271,6 +271,27 @@ a{color:inherit}button,input{font:inherit}.hidden{display:none!important}
             log('Role selected:', role);
         }
 
+        function updateParentFirstJourney() {
+            const age = document.getElementById('learnerAge');
+            const notice = document.getElementById('under13Notice');
+            const heading = document.getElementById('signupHeading');
+            const intro = document.getElementById('signupIntro');
+            const button = document.getElementById('signupBtn');
+            const n = age && age.value === '18+' ? 18 : Number(age && age.value);
+            const isUnder13 = Number.isInteger(n) && n >= 5 && n < 13;
+            if (notice) notice.hidden = !isUnder13;
+            if (isUnder13) {
+                selectRole('parent');
+                if (heading) heading.textContent = 'Create a parent account ✨';
+                if (intro) intro.textContent = 'After you verify your email, add your child’s learning profile from the Parent Hub.';
+                if (button) button.textContent = 'Create Parent Account';
+            } else {
+                if (heading) heading.textContent = 'Create your account ✨';
+                if (intro) intro.textContent = 'Choose your account type, then fill in your details.';
+                if (button && !button.disabled) button.textContent = 'Create Account';
+            }
+        }
+
         // Keyboard support for role selector
         document.querySelectorAll('.role-option').forEach(el => {
             el.addEventListener('keydown', (e) => {
@@ -280,6 +301,9 @@ a{color:inherit}button,input{font:inherit}.hidden{display:none!important}
                 }
             });
         });
+
+        document.getElementById('learnerAge').addEventListener('change', updateParentFirstJourney);
+        if (new URLSearchParams(window.location.search).get('type') === 'parent') selectRole('parent');
 
         // ============================================================
         // PASSWORD VALIDATION
@@ -813,16 +837,18 @@ async function signupUser() {
     if (ageSelect && ageSelect.value) {
         learnerAge = ageSelect.value === '18+' ? 18 : parseInt(ageSelect.value, 10);
     }
-    if (!learnerAge) {
-        showToast('warning', 'Please select the learner\u2019s age.');
+    if (selectedRole === 'student' && !learnerAge) {
+        showToast('warning', 'Please select the learner’s age.');
         if (ageSelect) { ageSelect.style.borderColor = 'var(--red)'; ageSelect.focus(); }
         isValid = false;
     } else if (ageSelect) { ageSelect.style.borderColor = ''; }
 
-    // Under-13 learners: a parent must create the account (COPPA-style consent)
+    // The server enforces this rule too. The UI makes the safe parent-first
+    // journey clear before a child can attempt independent account creation.
     if (learnerAge && learnerAge < 13 && selectedRole === 'student') {
         selectRole('parent');
-        showToast('warning', 'Learners under 13 need a parent-created account. Choose Parent, then add your child from the Parent Dashboard — no child email needed.');
+        updateParentFirstJourney();
+        showToast('warning', 'Learners under 13 need a parent-created account. Create and verify your parent account, then add the child from the Parent Hub.');
         isValid = false;
     }
 
@@ -856,9 +882,9 @@ async function signupUser() {
 
         // ✅ ADD LEARNER AGE (children's-product compliance) IF CHOSEN
         const ageSelect = document.getElementById('learnerAge');
-        if (ageSelect && ageSelect.value) {
+        if (selectedRole === 'student' && ageSelect && ageSelect.value) {
             const ageVal = ageSelect.value === '18+' ? 18 : parseInt(ageSelect.value, 10);
-            if (Number.isInteger(ageVal) && ageVal >= 3 && ageVal <= 18) {
+            if (Number.isInteger(ageVal) && ageVal >= 13 && ageVal <= 18) {
                 requestData.age = ageVal;
             }
         }

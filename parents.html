@@ -1648,8 +1648,8 @@
     <!-- ========================================== -->
     <div class="modal-overlay" id="addChildModal">
         <div class="modal">
-            <h2>👶 Add a Child</h2>
-            <p>Create a learning account for your child.</p>
+            <h2>👶 Create your child’s learning profile</h2>
+            <p>Choose sign-in details and a starting level. Your verified parent account manages this profile.</p>
             <form id="addChildForm">
                 <label for="childName">Full Name *</label>
                 <input type="text" id="childName" placeholder="e.g., Emma Smith" required>
@@ -1672,12 +1672,12 @@
                 <input type="email" id="childEmail" placeholder="e.g., emma@example.com">
 
                 <label for="childPassword" style="margin-top:12px;">Password *</label>
-                <input type="password" id="childPassword" placeholder="Min 6 characters" required minlength="6">
+                <input type="password" id="childPassword" placeholder="At least 8 characters" autocomplete="new-password" required minlength="8">
 
                 <label for="childConfirmPassword" style="margin-top:12px;">Confirm Password *</label>
-                <input type="password" id="childConfirmPassword" placeholder="Re-enter password" required>
+                <input type="password" id="childConfirmPassword" placeholder="Re-enter password" autocomplete="new-password" required>
 
-                <div id="addChildError" style="color:var(--danger);font-size:0.8rem;margin-top:8px;"></div>
+                <div id="addChildError" role="alert" aria-live="assertive" style="color:var(--danger);font-size:0.8rem;margin-top:8px;"></div>
 
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('addChildModal')">Cancel</button>
@@ -2472,8 +2472,8 @@
                 DOM.addChildError.textContent = 'Username: letters, numbers, underscores only.';
                 return;
             }
-            if (!password || password.length < 6) {
-                DOM.addChildError.textContent = 'Password must be at least 6 characters.';
+            if (!password || password.length < 8) {
+                DOM.addChildError.textContent = 'Password must be at least 8 characters.';
                 return;
             }
             if (password !== confirm) {
@@ -2488,11 +2488,9 @@
             DOM.addChildError.textContent = '';
 
             try {
-                const response = await fetch(`${API_URL}/parents/children`, {
+                await authFetch('/parents/children', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        parentId: parentUser.user_id,
                         full_name: name,
                         age: age,
                         level: level,
@@ -2501,10 +2499,6 @@
                         password: password,
                     })
                 });
-
-                const data = await response.json();
-
-                if (!response.ok) throw new Error(data.error || 'Failed to add child');
 
                 closeModal('addChildModal');
                 showToast(`🎉 ${name}'s account created!`, 'success');
