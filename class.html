@@ -181,7 +181,7 @@ function renderRoster(roster,canRemove){
 	 }).join(''):'<div class="empty"><span class="panda">📝</span>No class assignments yet.</div>';
 	 return '<section class="card"><div class="heading"><div class="heading-icon">📝</div><div><h2>Assignments</h2><p>'+(state.isTeacher?'Give the class a clear next step.':'Your class tasks — only your completion is visible to you.')+'</p></div></div><div class="body"><ul class="roster">'+list+'</ul></div></section>';
 	}
-	function renderAssignmentForm(){return '<section class="card"><div class="heading"><div class="heading-icon">➕</div><div><h2>Create class assignment</h2><p>Teachers only — learners see only their own completion.</p></div></div><div class="body"><div class="field"><label for="assignmentTitle">Title</label><input id="assignmentTitle" maxlength="120" placeholder="Practice greetings"></div><div class="field"><label for="assignmentDescription">Instructions (optional)</label><input id="assignmentDescription" maxlength="2000" placeholder="Listen, repeat, then mark it complete."></div><div class="field"><label for="assignmentDue">Due date (optional)</label><input id="assignmentDue" type="date"></div><button class="btn" type="button" id="createAssignmentBtn">Create assignment</button></div></section>'}
+	function renderAssignmentForm(){return '<section class="card"><div class="heading"><div class="heading-icon">➕</div><div><h2>Create class assignment</h2><p>Teachers only — learners see only their own completion.</p></div></div><div class="body"><div class="field"><label for="assignmentTitle">Title</label><input id="assignmentTitle" maxlength="120" placeholder="Practice greetings"></div><div class="field"><label for="assignmentDescription">Instructions (optional)</label><input id="assignmentDescription" maxlength="2000" placeholder="Listen, repeat, then mark it complete."></div><div class="field"><label for="assignmentLesson">Lesson (optional)</label><select id="assignmentLesson"><option value="">— no linked lesson —</option></select></div><div class="field"><label for="assignmentDue">Due date (optional)</label><input id="assignmentDue" type="date"></div><button class="btn" type="button" id="createAssignmentBtn">Create assignment</button></div></section>'}
 
 	function renderQuestForm(){
  return '<section class="card" id="questFormCard"><div class="heading"><div class="heading-icon">✏️</div><div><h2>Set the class quest</h2><p>Teachers only — pick one goal for the week.</p></div></div><div class="body">'+
@@ -232,7 +232,7 @@ function renderClassSpace(o){
  if(state.isTeacher) html+=renderMastery(o.mastery);
  html+=renderRoster(o.roster?o.roster.students:[],state.isTeacher);
 	 wireAssignments();
-	 if(state.isTeacher){fillLessonOptions();wireQuestForm();
+	 if(state.isTeacher){fillLessonOptions();fillAssignmentLessonOptions();wireQuestForm();
   var mct=document.getElementById('content');
   if(mct&&!mct.querySelector('.print-link')){var pl=document.createElement('a');pl.className='print-link btn';pl.href='worksheets.html';pl.style.cssText='display:inline-flex;margin:6px 0 18px;font-size:12px';pl.textContent='🖨️ Make a printable worksheet';mct.insertBefore(pl,mct.querySelector('section'));}
  }
@@ -257,12 +257,16 @@ function wireRoster(){
  });
 }
 
+	async function fillAssignmentLessonOptions(){
+	 try{var data=await (await fetch('/api/lessons')).json(),sel=$('assignmentLesson');if(!sel||!data||!data.lessons)return;data.lessons.forEach(function(l){var o=document.createElement('option');o.value=l.id;o.textContent='YCT '+l.level+' · '+l.title;sel.appendChild(o)})}catch(e){}
+	}
+
 	function wireAssignments(){
 	 var create=$('createAssignmentBtn');
 	 if(create) create.onclick=async function(){
-	  var title=($('assignmentTitle').value||'').trim(),description=($('assignmentDescription').value||'').trim(),dueDate=$('assignmentDue').value||null;
+	  var title=($('assignmentTitle').value||'').trim(),description=($('assignmentDescription').value||'').trim(),dueDate=$('assignmentDue').value||null,targetLessonId=$('assignmentLesson').value||null;
 	  if(!title){toast('Give the assignment a title first.');return} create.disabled=true;create.textContent='Creating…';
-	  try{await F.classroom.createAssignment({classCode:state.code,title:title,description:description,dueDate:dueDate});toast('Class assignment created ✓');await load()}catch(e){toast(e.message||'Could not create assignment')}finally{create.disabled=false;create.textContent='Create assignment'};
+	  try{await F.classroom.createAssignment({classCode:state.code,title:title,description:description,dueDate:dueDate,targetLessonId:targetLessonId});toast('Class assignment created ✓');await load()}catch(e){toast(e.message||'Could not create assignment')}finally{create.disabled=false;create.textContent='Create assignment'};
 	 };
 	 document.querySelectorAll('[data-complete-assignment]').forEach(function(btn){btn.onclick=async function(){btn.disabled=true;try{await F.classroom.completeAssignment(Number(btn.getAttribute('data-complete-assignment')));toast('Nice work — marked complete ✓');await load()}catch(e){toast(e.message||'Could not update assignment');btn.disabled=false}}});
 	}

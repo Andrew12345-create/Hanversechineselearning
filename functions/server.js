@@ -5864,9 +5864,21 @@ router.put('/parents/children/:childUserId/controls', parentWriteLimiter, async 
     const allowed = body.classroom_allowed;
     const sharing = body.share_classroom_profile;
     if (typeof allowed !== 'boolean' || typeof sharing !== 'boolean') return res.status(400).json({ success: false, error: 'Both classroom controls must be true or false.' });
-    await pool.query(`UPDATE children SET classroom_allowed = $1, share_classroom_profile = $2, controls_updated_at = NOW() WHERE child_id = $3`, [allowed, sharing, child.child_id]);
-    await pool.query(`UPDATE users SET share_leaderboard = $1 WHERE user_id = $2`, [sharing, child.user_id]);
-    return res.json({ success: true, controls: { classroom_allowed: allowed, share_classroom_profile: sharing } });
+    // Keep the parent-control record, roster visibility, and membership state
+    // atomic. Revoking participation removes an existing class membership too.
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query(`UPDATE children SET classroom_allowed = $1, share_classroom_profile = $2, controls_updated_at = NOW() WHERE child_id = $3`, [allowed, sharing, child.child_id]);
+      await client.query(`UPDATE users SET share_leaderboard = $1, class_code = CASE WHEN $1 = FALSE THEN NULL ELSE class_code END WHERE user_id = $2`, [sharing, child.user_id]);
+      await client.query('COMMIT');
+    } catch (transactionError) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw transactionError;
+    } finally {
+      client.release();
+    }
+    return res.json({ success: true, controls: { classroom_allowed: allowed, share_classroom_profile: sharing, classroomMembershipRemoved: !allowed } });
   } catch (error) { console.error('parent controls update:', error); return res.status(500).json({ success: false, error: 'Failed to update controls.' }); }
 });
 

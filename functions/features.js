@@ -1508,7 +1508,15 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       `SELECT class_id, class_name, class_code, teacher_id FROM classrooms WHERE class_code = $1`, [code]
     )).rows[0];
     if (!cls) { fail(res, 404, 'Class not found'); return { denied: true }; }
-    const me = (await pool.query(`SELECT class_code, role FROM users WHERE user_id = $1`, [req.userId])).rows[0];
+    const me = (await pool.query(`SELECT u.class_code, u.role, COALESCE(c.classroom_allowed, TRUE) AS classroom_allowed
+      FROM users u LEFT JOIN children c ON c.user_id = u.user_id AND c.is_active = TRUE
+      WHERE u.user_id = $1`, [req.userId])).rows[0];
+    // A parent can revoke classroom participation after a learner has joined.
+    // Enforce that decision on every read as a defence in depth, not only at join.
+    if (me && me.classroom_allowed === false) {
+      fail(res, 403, 'Classroom participation has been turned off by your parent');
+      return { denied: true };
+    }
     if (cls.teacher_id !== req.userId && !(me && me.class_code === cls.class_code)) {
       fail(res, 403, 'You are not in this class');
       return { denied: true };
@@ -1672,6 +1680,10 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       if (lessonId && lessonId.length > 80) return fail(res, 400, 'Invalid lesson reference');
       if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return fail(res, 400, 'Due date must be YYYY-MM-DD');
       await ensureFeatureSchema();
+      if (lessonId) {
+        const lesson = (await pool.query(`SELECT 1 FROM lessons WHERE lesson_id = $1 AND is_published = TRUE`, [lessonId])).rows[0];
+        if (!lesson) return fail(res, 400, 'Choose a published lesson for this assignment');
+      }
       const owns = (await pool.query(`SELECT 1 FROM classrooms WHERE class_code = $1 AND teacher_id = $2`, [code, req.userId])).rows[0];
       if (!owns) return fail(res, 403, 'Not your class');
       const row = (await pool.query(`INSERT INTO class_assignments (class_code, teacher_user_id, title, description, target_lesson_id, due_date)
@@ -2290,12 +2302,15 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
     try {
       const body = req.body || {};
       const targetXp = Number(body.targetXp);
-      const targetLessons = body.targetLessons === undefined ? 1 : Number(body.targetLessons);
-      const targetSpeaking = body.targetSpeaking === undefined ? 5 : Number(body.targetSpeaking);
       if (!DAILY_GOAL_PRESETS.xp.includes(targetXp)) return fail(res, 400, 'targetXp must be 20, 50, 100 or 200');
+      const today = todayISO();
+      // Older clients submit XP only. Preserve their lesson/speaking choices
+      // rather than quietly replacing them with new defaults.
+      const existing = (await pool.query(`SELECT target_lessons, target_speaking FROM daily_goals WHERE user_id = $1 AND goal_date = $2`, [req.userId, today])).rows[0];
+      const targetLessons = body.targetLessons === undefined ? Number(existing?.target_lessons ?? 1) : Number(body.targetLessons);
+      const targetSpeaking = body.targetSpeaking === undefined ? Number(existing?.target_speaking ?? 5) : Number(body.targetSpeaking);
       if (!DAILY_GOAL_PRESETS.lessons.includes(targetLessons)) return fail(res, 400, 'targetLessons must be 1, 2 or 3');
       if (!DAILY_GOAL_PRESETS.speaking.includes(targetSpeaking)) return fail(res, 400, 'targetSpeaking must be 0, 5 or 10');
-      const today = todayISO();
       const row = (await pool.query(
         `INSERT INTO daily_goals (user_id, goal_date, target_lessons, target_xp, target_speaking)
          VALUES ($1,$2,$3,$4,$5)
