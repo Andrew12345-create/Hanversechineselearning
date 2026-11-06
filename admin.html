@@ -1644,13 +1644,17 @@
 
     <form id="authForm">
       <div class="field">
-        <label for="adminPassword">Admin password</label>
+        <label for="adminEmail">HanVerse account email</label>
+        <input id="adminEmail" class="input" type="email" autocomplete="username" placeholder="you@example.com" required>
+      </div>
+      <div class="field">
+        <label for="adminPassword">Account password</label>
         <input
           id="adminPassword"
           class="input"
           type="password"
           autocomplete="current-password"
-          placeholder="Enter your admin password"
+          placeholder="Sign in, then verify administrator access"
           required
         >
       </div>
@@ -1791,6 +1795,17 @@
 
           <div class="header-actions">
             <button id="dashboardLessonButton" class="btn btn-primary btn-sm">＋ New lesson</button>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-bottom:18px;">
+          <div class="panel-header"><div><h3>Morning operations briefing</h3><p>Built from live database aggregates and provider checks. No AI-generated operational facts.</p></div><span id="briefingTimestamp" class="muted">Waiting for data…</span></div>
+          <div class="panel-body"><div id="briefingContent" class="empty">Loading verified operational metrics…</div>
+            <div class="toolbar" style="margin-top:12px;">
+              <button class="btn btn-sm" data-brief-section="parents">Review parent queue</button>
+              <button class="btn btn-sm" data-brief-section="analytics">Open analytics</button>
+              <button class="btn btn-sm" data-brief-section="audit">View audit log</button>
+            </div>
           </div>
         </div>
 
@@ -1960,7 +1975,11 @@
             <div class="panel-body">
               <div class="health-grid" id="healthGrid">
                 <div class="health-item"><small>Database</small><strong id="hDb">—</strong></div>
-                <div class="health-item"><small>OpenAI key</small><strong id="hOpenai">—</strong></div>
+                <div class="health-item"><small>Email provider</small><strong id="hEmail">—</strong></div>
+                <div class="health-item"><small>Panda AI</small><strong id="hOpenai">—</strong></div>
+                <div class="health-item"><small>Stripe webhooks</small><strong id="hStripe">—</strong></div>
+                <div class="health-item"><small>Deployment</small><strong id="hDeployment">—</strong></div>
+                <div class="health-item"><small>Last backup</small><strong id="hBackup">—</strong></div>
                 <div class="health-item"><small>Pending parents</small><strong id="hPending">—</strong></div>
                 <div class="health-item"><small>Banned users</small><strong id="hBanned">—</strong></div>
                 <div class="health-item"><small>Audit rows</small><strong id="hAudit">—</strong></div>
@@ -2053,6 +2072,7 @@
             <div id="userTable" class="table-wrap">
               <div class="loading">Loading users…</div>
             </div>
+            <div id="userPagination" class="toolbar" aria-live="polite"></div>
 
           </div>
         </div>
@@ -2325,6 +2345,10 @@
           <div class="audit-toolbar">
                 <input id="auditFilterText" class="input" type="text" placeholder="Search detail…">
                 <select id="auditFilterAction" class="input"><option value="">All actions</option></select>
+                <select id="auditFilterCategory" class="input"><option value="">All categories</option><option>security</option><option>user_management</option><option>moderation</option><option>parent_safety</option><option>content</option><option>communications</option></select>
+                <select id="auditFilterOutcome" class="input"><option value="">All outcomes</option><option value="success">Success</option><option value="failure">Failure</option><option value="denied">Denied</option></select>
+                <input id="auditFilterActor" class="input" type="text" placeholder="Administrator">
+                <input id="auditFilterTarget" class="input" type="text" placeholder="Target ID">
                 <input id="auditFilterFrom" class="input" type="date" title="From">
                 <input id="auditFilterTo" class="input" type="date" title="To">
                 <button id="auditExport" class="btn btn-sm">Export CSV</button>
@@ -2332,6 +2356,7 @@
               <div id="auditTable">
             <div class="empty">Loading audit log…</div>
           </div>
+          <div id="auditPagination" class="toolbar" aria-live="polite"></div>
         </div>
       </section>
 
@@ -2684,10 +2709,7 @@
           <span id="confirmDetails" class="muted" style="display:block;margin-top:3px;font-size:9px;"></span>
         </div>
 
-        <div class="field">
-          <label for="confirmPassword">Admin password</label>
-          <input id="confirmPassword" class="input" type="password" required placeholder="Enter admin password">
-        </div>
+        <p class="muted">Your administrator password will be confirmed securely before sending.</p>
 
         <div id="emailConfirmError" class="error"></div>
 
@@ -2739,17 +2761,19 @@
   "use strict";
 
   const API = "/api";
-  const TOKEN_KEY = "hanverse_admin_token";
   const SESSION_KEY = "hanverse_user";
 
   const state = {
-    token: localStorage.getItem(TOKEN_KEY) || "",
     admin: null,
+    briefingAnalytics: null,
+    briefingHealth: null,
     users: [],
     lessons: [],
     campaigns: [],
     userFilter: "all",
     userSearch: "",
+    userPage: 1,
+    userPagination: null,
     lessonSearch: "",
     lessonLevel: "",
     pendingEmail: null
@@ -2783,21 +2807,12 @@
     }
   }
 
-  function authHeaders() {
-    const headers = { "Content-Type": "application/json" };
-
-    if (state.token) {
-      headers.Authorization = `Bearer ${state.token}`;
-    }
-
-    return headers;
-  }
-
-  async function api(path, options = {}) {
+  async function api(path, options = {}, reauthAttempted = false) {
     const response = await fetch(API + path, {
       ...options,
+      credentials: "same-origin",
       headers: {
-        ...authHeaders(),
+        "Content-Type": "application/json",
         ...(options.headers || {})
       }
     });
@@ -2812,10 +2827,23 @@
     }
 
     if (response.status === 401) {
-      state.token = "";
-      localStorage.removeItem(TOKEN_KEY);
+      state.admin = null;
       showLogin("Your admin session has expired. Please sign in again.");
       throw new Error("Unauthorised admin session.");
+    }
+
+    if (response.status === 428 && data.code === "ADMIN_REAUTH_REQUIRED" && !reauthAttempted) {
+      const password = window.prompt("Confirm your administrator password to continue.");
+      if (!password) throw new Error("Administrator confirmation was cancelled.");
+      const reauth = await fetch(`${API}/admin/reauth`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password })
+      });
+      const reauthData = await reauth.json().catch(() => ({}));
+      if (!reauth.ok) throw new Error(reauthData.error || "Administrator verification failed.");
+      return api(path, options, true);
     }
 
     if (!response.ok) {
@@ -2884,32 +2912,37 @@
 
   /* ================= AUTH ================= */
 
-  async function login(password) {
+  async function login(email, password) {
     const sessionUser = getSessionUser();
-
-    if (!sessionUser.user_id) {
-      throw new Error("Please log in to HanVerse first.");
+    const signIn = await fetch(`${API}/login`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const signInData = await signIn.json().catch(() => ({}));
+    if (!signIn.ok || !signInData.token) {
+      throw new Error(signInData.message || signInData.error || "Sign in failed. Check your account details and verification status.");
     }
 
+    let normalSessionToken = signInData.token;
     const response = await fetch(`${API}/admin/verify-password`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${normalSessionToken}` },
       body: JSON.stringify({
-        userId: sessionUser.user_id,
         adminPassword: password
       })
     });
+    normalSessionToken = null;
 
     const data = await response.json().catch(() => ({}));
 
-    if (!response.ok || !data.adminToken) {
+    if (!response.ok || !data.success) {
       throw new Error(data.error || "Admin authentication failed.");
     }
 
-    state.token = data.adminToken;
     state.admin = data.user || sessionUser;
-
-    localStorage.setItem(TOKEN_KEY, state.token);
 
     showApp();
 
@@ -2917,7 +2950,8 @@
       loadUsers(),
       loadLessons(),
       loadAnalytics(),
-      loadCampaigns()
+      loadCampaigns(),
+      loadHealth()
     ]);
   }
 
@@ -2929,7 +2963,7 @@
     $("authError").textContent = "";
 
     try {
-      await login($("adminPassword").value);
+      await login($("adminEmail").value.trim(), $("adminPassword").value);
       $("adminPassword").value = "";
     } catch (error) {
       $("authError").textContent = error.message;
@@ -2940,12 +2974,9 @@
 
   $("logoutButton").addEventListener("click", () => {
     if (!confirm("Log out of the HanVerse Admin panel?")) return;
-
-    state.token = "";
-    state.admin = null;
-    localStorage.removeItem(TOKEN_KEY);
-
-    showLogin();
+    api("/admin/logout", { method: "POST", body: "{}" })
+      .catch((error) => notify(error.message || "Could not safely close the session.", "error"))
+      .finally(() => { state.admin = null; showLogin(); });
   });
 
   /* ================= NAVIGATION ================= */
@@ -2991,10 +3022,39 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function renderOperationalBriefing() {
+    const analytics = state.briefingAnalytics;
+    const health = state.briefingHealth;
+    if (!analytics && !health) return;
+    const observed = analytics?.generated_at || health?.observed_at || null;
+    $("briefingTimestamp").textContent = observed ? `Observed ${new Date(observed).toLocaleString("en-KE")}` : "Observation time unavailable";
+    const items = [];
+    const add = (label, value, source, at) => items.push({ label, value: value === undefined || value === null ? "Unavailable" : String(value), source, at });
+    if (analytics?.growth) {
+      add("New registrations today", analytics.growth.today, "users.created_at", analytics.generated_at);
+      add("New registrations · 7 days", analytics.growth.last_7_days, "users.created_at", analytics.generated_at);
+      add("New registrations · 30 days", analytics.growth.last_30_days, "users.created_at", analytics.generated_at);
+    }
+    if (analytics?.activity) add("Active learners · 24 hours", analytics.activity.last_24_hours, "users.last_active", analytics.generated_at);
+    if (analytics?.learning) add("Lessons completed", analytics.learning.total_lessons_completed, "users.lessons_completed aggregate", analytics.generated_at);
+    if (health) {
+      const email = health.services?.email;
+      const db = health.services?.database;
+      add("Parents awaiting review", health.pending_parents, "parents.is_verified = false", health.observed_at);
+      add("Email provider", email?.status || "Unknown", email?.source || "Brevo SMTP health probe", email?.checked_at || health.observed_at);
+      add("Database", db?.status === "healthy" ? `Healthy · ${db.latency_ms} ms` : db?.status || "Unknown", db?.source || "PostgreSQL health probe", db?.observed_at || health.observed_at);
+    }
+    $("briefingContent").innerHTML = `<ul style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 24px;padding:0;margin:0;list-style:none;">${items.map(item => `<li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;"><strong style="display:block;">${escapeHTML(item.label)}: ${escapeHTML(item.value)}</strong><small class="muted">Source: ${escapeHTML(item.source)} · ${item.at ? escapeHTML(new Date(item.at).toLocaleString("en-KE")) : "timestamp unavailable"}</small></li>`).join("")}</ul>`;
+  }
+
   document.querySelectorAll(".nav-button").forEach((button) => {
     button.addEventListener("click", () => {
       switchSection(button.dataset.section);
     });
+  });
+
+  document.querySelectorAll("[data-brief-section]").forEach((button) => {
+    button.addEventListener("click", () => switchSection(button.dataset.briefSection));
   });
 
   $("mobileMenu").addEventListener("click", () => {
@@ -3027,7 +3087,7 @@
     );
   }
 
-  async function loadUsers() {
+  async function loadUsers(page = state.userPage) {
     const table = $("userTable");
 
     table.innerHTML = Array.from({ length: 5 }, () =>
@@ -3035,14 +3095,20 @@
     ).join("");
 
     try {
-      const data = await api("/admin/overview");
+      state.userPage = Math.max(1, Number(page) || 1);
+      const params = new URLSearchParams({ page: String(state.userPage), pageSize: "50" });
+      if (state.userSearch.trim()) params.set("q", state.userSearch.trim());
+      if (state.userFilter !== "all") params.set("filter", state.userFilter);
+      const data = await api(`/admin/overview?${params.toString()}`);
 
       state.users = Array.isArray(data.users)
         ? data.users
         : [];
+      state.userPagination = data.pagination || null;
 
       renderUsers();
       updateUserCounts();
+      renderUserPagination();
       refreshRecipientCount();
     } catch (error) {
       table.innerHTML = `
@@ -3053,29 +3119,22 @@
     }
   }
 
+  function renderUserPagination() {
+    const host = $("userPagination");
+    const info = state.userPagination;
+    if (!host || !info) return;
+    const first = info.total ? ((info.page - 1) * info.pageSize + 1) : 0;
+    const last = Math.min(info.page * info.pageSize, info.total);
+    host.innerHTML = `<span class="muted" style="margin-right:auto">Showing ${first}–${last} of ${info.total}</span>
+      <button id="usersPrev" class="btn btn-sm" ${info.page <= 1 ? "disabled" : ""} aria-label="Previous page">Previous</button>
+      <span class="muted">Page ${info.page} of ${Math.max(1, info.totalPages)}</span>
+      <button id="usersNext" class="btn btn-sm" ${info.page >= info.totalPages ? "disabled" : ""} aria-label="Next page">Next</button>`;
+    $("usersPrev").addEventListener("click", () => loadUsers(info.page - 1));
+    $("usersNext").addEventListener("click", () => loadUsers(info.page + 1));
+  }
+
   function updateUserCounts() {
-    const users = state.users;
-
-    $("userCount").textContent = users.length;
-
-    const verified = users.filter((user) => bool(user.is_verified)).length;
-    const premium = users.filter((user) =>
-      bool(first(user.premium, user.is_premium))
-    ).length;
-    const parents = users.filter((user) =>
-      String(user.role || "").toLowerCase() === "parent"
-    ).length;
-    const banned = users.filter((user) => bool(user.is_banned)).length;
-
-    $("metricUsers").textContent = users.length;
-    $("metricPremium").textContent = premium;
-    $("metricPremiumRate").textContent =
-      `${users.length ? Math.round((premium / users.length) * 100) : 0}% conversion`;
-
-    $("snapshotVerified").textContent = verified;
-    $("snapshotPending").textContent = Math.max(users.length - verified, 0);
-    $("snapshotParents").textContent = parents;
-    $("snapshotBanned").textContent = banned;
+    $("userCount").textContent = state.userPagination?.total ?? "—";
   }
 
   function renderUsers() {
@@ -3247,14 +3306,11 @@
     if (!user) return;
 
     const banned = bool(user.is_banned);
-    let reason = null;
-
-    if (!banned) {
-      reason = prompt(
-        `Ban ${first(user.full_name, user.username, "this user")}? Reason (optional):`
-      );
-      if (reason === null) return;
-    }
+    const name = first(user.full_name, user.username, "this learner");
+    const action = banned ? "restore" : "suspend";
+    if (!confirm(`${action === "suspend" ? "Suspend" : "Restore"} ${name} (${user.email || "no email"})?`)) return;
+    const reason = prompt(`${action === "suspend" ? "Moderation" : "Restoration"} reason (8–500 characters):`);
+    if (reason === null) return;
 
     try {
       await api(`/admin/users/ban/${encodeURIComponent(id)}`, {
@@ -3300,11 +3356,14 @@
     const button = $("saveUserButton");
     button.disabled = true;
     $("userFormError").textContent = "";
+    const reason = prompt("Reason for this account profile change (8–500 characters):");
+    if (reason === null) { button.disabled = false; return; }
 
     const payload = {
       full_name: $("userFullName").value.trim(),
       username: $("userUsername").value.trim(),
       email: $("userEmail").value.trim(),
+      reason,
     };
 
     try {
@@ -3324,12 +3383,14 @@
   });
 
   async function verifyUser(id) {
-    if (!confirm("Verify this user?")) return;
+    if (!confirm("Verify this user? This confirms email status only; parent safety review is handled in Parent Safety.")) return;
+    const reason = prompt("Reason for changing email verification status (8–500 characters):");
+    if (reason === null) return;
 
     try {
       await api(`/admin/toggle-verification/${encodeURIComponent(id)}`, {
         method: "POST",
-        body: JSON.stringify({ verified: true })
+        body: JSON.stringify({ verified: true, reason })
       });
 
       notify("User verified.");
@@ -3340,11 +3401,19 @@
   }
 
   async function deleteUser(id) {
-    if (!confirm("Delete this user permanently? This cannot be undone.")) return;
-
     try {
+      const data = await api(`/admin/users/${encodeURIComponent(id)}/impact`);
+      const account = data.target || {};
+      const impactText = (data.impact || []).map((item) => `• ${item.count} record(s) in ${item.table}`).join("\n") || "• No linked database records found";
+      const summary = `Delete ${account.full_name || account.username || "account"} (${account.email || "no email"}) permanently?\n\nActual database impact:\n${impactText}\n\nThis cannot be undone.`;
+      if (!confirm(summary)) return;
+      const confirmUsername = prompt(`Type the account username exactly to confirm deletion: ${account.username || ""}`);
+      if (confirmUsername === null || confirmUsername !== account.username) return;
+      const reason = prompt("Reason for irreversible deletion (12–500 characters):");
+      if (reason === null) return;
       await api(`/admin/users/delete/${encodeURIComponent(id)}`, {
-        method: "DELETE"
+        method: "DELETE",
+        body: JSON.stringify({ confirmUsername, reason })
       });
 
       notify("User deleted.");
@@ -3362,13 +3431,15 @@
 
       button.classList.add("active");
       state.userFilter = button.dataset.userFilter;
-      renderUsers();
+      loadUsers(1);
     });
   });
 
+  let userSearchTimer = null;
   $("userSearch").addEventListener("input", () => {
     state.userSearch = $("userSearch").value;
-    renderUsers();
+    window.clearTimeout(userSearchTimer);
+    userSearchTimer = window.setTimeout(() => loadUsers(1), 250);
   });
 
   /* ================= LESSONS ================= */
@@ -3680,14 +3751,19 @@
   }
 
   async function deleteLesson(id) {
-    if (!confirm("Delete this lesson? This cannot be undone.")) {
-      return;
-    }
-
     try {
+      const data = await api(`/admin/lessons/${encodeURIComponent(id)}/impact`);
+      const lesson = data.lesson || {};
+      const title = lesson.title || lesson.lesson_title || String(id);
+      const impactText = (data.impact || []).map((item) => `• ${item.count} record(s) in ${item.table}`).join("\n") || "• No linked learning records found";
+      if (!confirm(`Delete lesson “${title}”?\n\nActual linked records:\n${impactText}\n\nDeletion is blocked if learner progress or assignments exist.`)) return;
+      const confirmTitle = prompt(`Type the lesson title exactly to confirm: ${title}`);
+      if (confirmTitle === null || confirmTitle !== title) return;
+      const reason = prompt("Reason for lesson deletion (12–500 characters):");
+      if (reason === null) return;
       await api(
         `/admin/lessons/${encodeURIComponent(id)}`,
-        { method: "DELETE" }
+        { method: "DELETE", body: JSON.stringify({ confirmTitle, reason }) }
       );
 
       notify("Lesson deleted.");
@@ -3862,6 +3938,8 @@
       const activity = data.activity || {};
       const learning = data.learning || {};
       const premium = data.premium || {};
+      state.briefingAnalytics = data;
+      renderOperationalBriefing();
 
       const set = (id, value) => {
         $(id).textContent = String(value ?? 0);
@@ -3885,6 +3963,12 @@
       set("aLessonsCompleted", Number(learning.total_lessons_completed || 0).toLocaleString());
       set("aAchievements", Number(learning.total_achievements || 0).toLocaleString());
       set("aBanned", users.banned);
+      set("metricUsers", users.total);
+      set("metricPremium", users.premium);
+      set("snapshotVerified", users.verified);
+      set("snapshotPending", users.unverified);
+      set("snapshotParents", users.parents);
+      set("snapshotBanned", users.banned);
 
       $("metricActive").textContent = activity.last_24_hours ?? 0;
       $("snapshotXP").textContent =
@@ -4226,7 +4310,6 @@ ${body}
           ? `${action.scheduled_for} · ${action.timezone}`
           : `Audience: ${audience} · ${$("recipientCount").textContent}`;
 
-    $("confirmPassword").value = "";
     $("emailConfirmError").textContent = "";
 
     closeModal("broadcastModal");
@@ -4239,14 +4322,6 @@ ${body}
     const action = state.pendingEmail;
 
     if (!action) return;
-
-    const password = $("confirmPassword").value.trim();
-
-    if (!password) {
-      $("emailConfirmError").textContent =
-        "Admin password is required.";
-      return;
-    }
 
     const button = $("confirmEmailButton");
     button.disabled = true;
@@ -4276,8 +4351,7 @@ ${body}
             body: JSON.stringify({
               subject: action.subject,
               message: action.message,
-              html,
-              adminPassword: password
+              html
             })
           }
         );
@@ -4286,8 +4360,7 @@ ${body}
           method: "POST",
           body: JSON.stringify({
             ...action,
-            html,
-            adminPassword: password
+            html
           })
         });
       }
@@ -4529,19 +4602,28 @@ ${body}
         <div>
           <strong>${escapeHTML(p.full_name || p.email)}</strong>
           <div style="font-size:13px;color:var(--muted);">${escapeHTML(p.email)} · Joined ${new Date(p.created_at).toLocaleDateString()}</div>
-          <div style="font-size:13px;margin-top:2px;">${p.is_verified ? '<span style="color:#16A34A;">✓ Verified</span>' : '<span style="color:#F59E0B;">⏳ Pending</span>'} · ${p.children_count || 0} children linked</div>
+          <div style="font-size:13px;margin-top:2px;">${p.is_verified ? '<span style="color:#16A34A;">✓ Verified</span>' : '<span style="color:#F59E0B;">⏳ Pending</span>'} · ${p.actual_children_count || 0} children linked</div>
         </div>
         <div style="display:flex;gap:8px;">
-          ${!p.is_verified ? `<button class="btn btn-sm" style="background:#16A34A;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, true)">Approve</button>
-          <button class="btn btn-sm" style="background:#EF4444;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, false)">Deny</button>` : ''}
+          ${!p.is_verified ? `<button class="btn btn-sm" style="background:#16A34A;color:#fff;" data-review-parent="${escapeHTML(p.parent_id || p.user_id)}" data-review-action="approve">Approve</button>
+          <button class="btn btn-sm" style="background:#EF4444;color:#fff;" data-review-parent="${escapeHTML(p.parent_id || p.user_id)}" data-review-action="deny">Deny</button>` : ''}
         </div>
       </div>`).join("");
+    container.querySelectorAll("[data-review-parent]").forEach((button) => {
+      button.addEventListener("click", () => verifyParent(button.dataset.reviewParent, button.dataset.reviewAction === "approve"));
+    });
   }
 
   async function verifyParent(parentId, approve) {
     try {
+      const parent = parentsCache.find(p => String(p.parent_id || p.user_id) === String(parentId));
+      const name = parent?.full_name || parent?.email || `parent ${parentId}`;
+      const action = approve ? "approve" : "deny";
+      if (!confirm(`${action === "approve" ? "Approve" : "Deny"} ${name} (${parent?.email || "email unavailable"})?`)) return;
+      const reason = prompt(`Review reason for ${action} (8–500 characters):`);
+      if (reason === null) return;
       const endpoint = approve ? "/admin/parents/verify/" : "/admin/parents/deny/";
-      await api(endpoint + parentId, { method: "POST" });
+      await api(endpoint + parentId, { method: "POST", body: JSON.stringify({ reason }) });
       loadParentQueue();
       loadPendingParentsBadge();
     } catch (e) { alert("Failed: " + e.message); }
@@ -4723,6 +4805,7 @@ ${body}
   $("bulkBan").addEventListener("click", async () => {
     const ids = Array.from(state.bulkSelected);
     if (!ids.length) return;
+    if (!confirm(`Suspend ${ids.length} selected learner account(s)?`)) return;
     const reason = prompt("Ban reason for " + ids.length + " user(s)?", "Terms violation");
     if (reason === null) return;
     const button = $("bulkBan"); button.disabled = true;
@@ -4768,6 +4851,7 @@ ${body}
   /* ================= AUDIT FILTERS + EXPORT ================= */
 
   state.auditRows = [];
+  state.auditPagination = null;
 
   function renderAuditLog() {
     const box = $("auditTable");
@@ -4778,19 +4862,7 @@ ${body}
       return;
     }
 
-    const text = ($("auditFilterText").value || "").toLowerCase();
-    const action = $("auditFilterAction").value;
-    const from = $("auditFilterFrom").value ? new Date($("auditFilterFrom").value) : null;
-    const to = $("auditFilterTo").value ? new Date($("auditFilterTo").value + "T23:59:59") : null;
-
-    const filtered = rows.filter((row) => {
-      const created = new Date(row.created_at);
-      if (action && row.action !== action) return false;
-      if (from && created < from) return false;
-      if (to && created > to) return false;
-      if (text && !((row.detail || "") + " " + (row.actor_label || "")).toLowerCase().includes(text)) return false;
-      return true;
-    });
+    const filtered = rows;
 
     if (!filtered.length) {
       box.innerHTML = '<div class="empty">No entries match these filters.</div>';
@@ -4802,20 +4874,26 @@ ${body}
           <thead>
             <tr>
               <th>Time</th>
+              <th>Event ID</th>
               <th>Admin</th>
               <th>Action</th>
-              <th>Detail</th>
-              <th>IP</th>
+              <th>Target</th>
+              <th>Reason</th>
+              <th>Outcome</th>
+              <th>Safe changes</th>
             </tr>
           </thead>
           <tbody>
             ${filtered.map((row) => `
               <tr>
                 <td><span class="muted" style="font-size:10px;white-space:nowrap;">${escapeHTML(new Date(row.created_at).toLocaleString("en-KE"))}</span></td>
+                <td><code style="font-size:9px;">${escapeHTML(row.event_id || row.id || "—")}</code></td>
                 <td><strong style="font-size:10px;">${escapeHTML(row.actor_label || "\u2014")}</strong></td>
                 <td><span class="pill blue" style="font-size:9px;">${escapeHTML(row.action || "")}</span></td>
-                <td><span style="font-size:10px;">${escapeHTML(row.detail || "\u2014")}</span></td>
-                <td><span class="muted" style="font-size:9px;">${escapeHTML(row.ip || "\u2014")}</span></td>
+                <td><span style="font-size:10px;">${escapeHTML([row.target_type, row.target_id].filter(Boolean).join(": ") || "—")}</span></td>
+                <td><span style="font-size:10px;">${escapeHTML(row.reason || "—")}</span></td>
+                <td><span class="pill ${row.outcome === "success" ? "green" : "red"}" style="font-size:9px;">${escapeHTML(row.outcome || "legacy")}</span></td>
+                <td><span style="font-size:9px;">${escapeHTML(JSON.stringify({ before: row.before_safe, after: row.after_safe }) || row.detail || "—")}</span></td>
               </tr>
             `).join("")}
           </tbody>
@@ -4830,27 +4908,62 @@ ${body}
     ).join("");
 
     try {
-      const data = await api("/admin/audit?limit=200");
+      const params = new URLSearchParams({ page: String(state.auditPage || 1), pageSize: "100" });
+      const filters = {
+        q: $("auditFilterText").value,
+        action: $("auditFilterAction").value,
+        category: $("auditFilterCategory").value,
+        outcome: $("auditFilterOutcome").value,
+        actor: $("auditFilterActor").value,
+        target: $("auditFilterTarget").value,
+        from: $("auditFilterFrom").value,
+        to: $("auditFilterTo").value
+      };
+      for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+      const data = await api(`/admin/audit?${params.toString()}`);
       state.auditRows = data.audit || [];
+      state.auditPagination = data.pagination || null;
 
-      const actions = Array.from(new Set(state.auditRows.map((r) => r.action).filter(Boolean))).sort();
-      $("auditFilterAction").innerHTML = '<option value="">All actions</option>' +
-        actions.map((a) => '<option value="' + escapeHTML(a) + '">' + escapeHTML(a) + '</option>').join("");
+      if (!$('auditFilterAction').dataset.loaded) {
+        const actions = Array.from(new Set(state.auditRows.map((r) => r.action).filter(Boolean))).sort();
+        $("auditFilterAction").innerHTML = '<option value="">All actions</option>' +
+          actions.map((a) => '<option value="' + escapeHTML(a) + '">' + escapeHTML(a) + '</option>').join("");
+        $('auditFilterAction').dataset.loaded = 'true';
+      }
 
       renderAuditLog();
+      const pagination = $('auditPagination');
+      const info = state.auditPagination;
+      pagination.innerHTML = info ? `<span class="muted" style="margin-right:auto">${info.total} event(s)</span>
+        <button id="auditPrev" class="btn btn-sm" ${info.page <= 1 ? "disabled" : ""}>Previous</button>
+        <span class="muted">Page ${info.page} of ${Math.max(1, info.totalPages)}</span>
+        <button id="auditNext" class="btn btn-sm" ${info.page >= info.totalPages ? "disabled" : ""}>Next</button>` : '';
+      if (info) {
+        $('auditPrev').addEventListener('click', () => { state.auditPage = info.page - 1; loadAuditLog(); });
+        $('auditNext').addEventListener('click', () => { state.auditPage = info.page + 1; loadAuditLog(); });
+      }
     } catch (error) {
       box.innerHTML = '<div class="empty">Couldn\u2019t load the audit log: ' + escapeHTML(error.message) + '</div>';
     }
   }
 
-  ["auditFilterText", "auditFilterAction", "auditFilterFrom", "auditFilterTo"].forEach((id) => {
-    $(id).addEventListener("input", renderAuditLog);
-    $(id).addEventListener("change", renderAuditLog);
+  state.auditPage = 1;
+  let auditSearchTimer = null;
+  ["auditFilterText", "auditFilterActor", "auditFilterTarget"].forEach((id) => {
+    $(id).addEventListener("input", () => {
+      window.clearTimeout(auditSearchTimer);
+      auditSearchTimer = window.setTimeout(() => { state.auditPage = 1; loadAuditLog(); }, 300);
+    });
+  });
+  ["auditFilterAction", "auditFilterCategory", "auditFilterOutcome", "auditFilterFrom", "auditFilterTo"].forEach((id) => {
+    $(id).addEventListener("change", () => { state.auditPage = 1; loadAuditLog(); });
   });
 
   $("auditExport").addEventListener("click", () => {
     downloadCsv("hanverse-audit.csv", state.auditRows.map((r) => ({
-      time: r.created_at, admin: r.actor_label || "", action: r.action || "", detail: r.detail || "", ip: r.ip || ""
+      event_id: r.event_id || "", time: r.created_at, actor_id: r.actor_id || "", admin: r.actor_label || "",
+      action: r.action || "", category: r.category || "", target_type: r.target_type || "", target_id: r.target_id || "",
+      reason: r.reason || "", outcome: r.outcome || "legacy", before: JSON.stringify(r.before_safe || {}), after: JSON.stringify(r.after_safe || {})
     })));
   });
 
@@ -4859,16 +4972,33 @@ ${body}
   async function loadHealth() {
     try {
       const data = await api("/admin/health");
-      $("hDb").textContent = data.db ? "Connected" : "Down";
-      $("hDb").style.color = data.db ? "var(--green)" : "var(--red)";
-      $("hOpenai").textContent = data.openai ? "Present" : "Missing";
-      $("hOpenai").style.color = data.openai ? "var(--green)" : "var(--red)";
+      const services = data.services || {};
+      state.briefingHealth = data;
+      renderOperationalBriefing();
+      const setHealth = (id, service, label) => {
+        const node = $(id);
+        const status = service?.status || "unknown";
+        node.textContent = label || (status === "healthy" ? "Healthy" : status === "unavailable" ? "Unavailable" : status === "degraded" ? "Degraded" : "Unknown");
+        node.style.color = status === "healthy" ? "var(--green)" : status === "degraded" || status === "unavailable" ? "var(--red)" : "var(--yellow)";
+        node.title = [service?.source, service?.observed_at || service?.checked_at, service?.detail].filter(Boolean).join(" · ");
+      };
+      setHealth("hDb", services.database, services.database?.latency_ms == null ? undefined : `Healthy · ${services.database.latency_ms} ms`);
+      setHealth("hEmail", services.email);
+      setHealth("hOpenai", services.ai, services.ai?.configured ? "Unknown · configured" : "Unavailable · not configured");
+      setHealth("hStripe", services.stripe, services.stripe?.configured ? "Unknown · webhook telemetry unavailable" : "Unavailable · not configured");
+      setHealth("hDeployment", services.deployment, services.deployment?.version ? services.deployment.version.slice(0, 12) : "Unavailable");
+      setHealth("hBackup", services.backup, services.backup?.last_success_at ? new Date(services.backup.last_success_at).toLocaleString("en-KE") : "Unavailable");
       $("hPending").textContent = data.pending_parents;
       $("hBanned").textContent = data.banned_users;
       $("hAudit").textContent = data.audit_rows;
       $("hLastAudit").textContent = data.last_audit_at ? new Date(data.last_audit_at).toLocaleString("en-KE") : "Never";
     } catch (e) {
       $("hDb").textContent = "Unavailable";
+      $("hDb").style.color = "var(--red)";
+      for (const id of ["hEmail", "hOpenai", "hStripe", "hDeployment", "hBackup"]) {
+        $(id).textContent = "Unknown";
+        $(id).style.color = "var(--yellow)";
+      }
     }
   }
 
@@ -5159,7 +5289,8 @@ ${body}
         loadUsers(),
         loadLessons(),
         loadAnalytics(),
-        loadCampaigns()
+        loadCampaigns(),
+        loadHealth()
       ]);
 
       notify("Admin data refreshed.");
@@ -5220,23 +5351,20 @@ ${body}
   /* ================= START ================= */
 
   (async () => {
-    if (!state.token) {
-      showLogin();
-      return;
-    }
-
-    state.admin = getSessionUser();
-    showApp();
-
     try {
+      const session = await api("/admin/session");
+      state.admin = { ...getSessionUser(), ...(session.user || {}) };
+      showApp();
       await Promise.all([
         loadUsers(),
         loadLessons(),
         loadAnalytics(),
-        loadCampaigns()
+        loadCampaigns(),
+        loadHealth()
       ]);
     } catch (error) {
-      console.error("Admin startup error:", error);
+      if (!document.querySelector("#authScreen.hidden")) return;
+      showLogin(error.message || "Sign in to your HanVerse account, then verify your administrator password.");
     }
   })();
 
