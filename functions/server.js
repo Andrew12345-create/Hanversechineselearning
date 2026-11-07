@@ -5377,15 +5377,39 @@ async function ensureLinkTables() {
 let adminTablesReady = false;
 async function ensureAdminTables() {
   if (adminTablesReady) return;
-  const required = await pool.query(`
-    SELECT column_name FROM information_schema.columns
-    WHERE table_schema = current_schema() AND table_name = 'admin_audit'
-      AND column_name = ANY($1::text[])
-  `, [['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at']]);
-  const missing = ['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at']
-    .filter(column => !required.rows.some(row => row.column_name === column));
-  if (missing.length) {
-    throw new Error('Admin security migration required: apply migrations/2026110501_admin_security.sql before enabling Admin operations.');
+  const requiredTables = ['admin_audit', 'admin_roles', 'admin_elevated_sessions', 'admin_auth_attempts'];
+  const tableResult = await pool.query(`
+    SELECT table_name FROM information_schema.tables
+    WHERE table_schema = current_schema() AND table_name = ANY($1::text[])
+  `, [requiredTables]);
+  const presentTables = new Set(tableResult.rows.map(row => row.table_name));
+  const missingTables = requiredTables.filter(table => !presentTables.has(table));
+  const requiredColumns = {
+    admin_audit: ['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at'],
+    admin_roles: ['role_key','permissions'],
+    admin_elevated_sessions: ['jti','user_id','expires_at','reauthenticated_at','revoked_at'],
+    admin_auth_attempts: ['scope','key_hash','window_started_at','attempts','locked_until'],
+    users: ['admin_role']
+  };
+  const expectedColumnPairs = Object.entries(requiredColumns)
+    .flatMap(([table, columns]) => columns.map(column => [table, column]));
+  const columnResult = await pool.query(`
+    SELECT table_name, column_name FROM information_schema.columns
+    WHERE table_schema = current_schema()
+      AND (table_name, column_name) IN (
+        SELECT required.table_name, required.column_name
+        FROM unnest($1::text[], $2::text[]) AS required(table_name, column_name)
+      )
+  `, [expectedColumnPairs.map(([table]) => table), expectedColumnPairs.map(([, column]) => column)]);
+  const presentColumns = new Set(columnResult.rows.map(row => `${row.table_name}.${row.column_name}`));
+  const missingColumns = Object.entries(requiredColumns)
+    .flatMap(([table, columns]) => columns
+      .filter(column => !presentColumns.has(`${table}.${column}`))
+      .map(column => `${table}.${column}`));
+  if (missingTables.length || missingColumns.length) {
+    const error = new Error('Admin security migration required: apply migrations/2026110501_admin_security.sql before enabling Admin operations.');
+    error.code = 'ADMIN_MIGRATION_REQUIRED';
+    throw error;
   }
   adminTablesReady = true;
 }
@@ -6826,6 +6850,7 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     if (!adminPassword || adminPassword.length > 256) {
       return res.status(401).json({ success: false, error: 'Administrator verification failed.' });
     }
+    await ensureAdminTables();
     const blocked = await recordAdminPasswordAttempt(auth.user_id, req);
     if (blocked) return res.status(429).json({ success: false, error: 'Too many verification attempts. Please try again later.' });
     const result = await pool.query(
@@ -6849,7 +6874,6 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     );
     const ip = String(req.headers['x-nf-client-connection-ip'] || req.ip || '').slice(0, 120);
     const userAgent = String(req.headers['user-agent'] || '').slice(0, 500);
-    await ensureAdminTables();
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -6873,8 +6897,22 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     setAdminSessionCookie(res, token);
     return res.json({ success: true, user: safeUser(user), expiresIn: ADMIN_SESSION_TTL_SECONDS });
   } catch (error) {
-    console.error('❌ Admin elevation failed:', error.message);
-    return res.status(503).json({ success: false, error: 'Administrator verification is temporarily unavailable.' });
+    if (error.code === 'ADMIN_MIGRATION_REQUIRED') {
+      console.error('❌ Admin elevation blocked: required security migration is missing or incomplete.');
+      return res.status(503).json({
+        success: false,
+        code: 'ADMIN_MIGRATION_REQUIRED',
+        error: 'Admin database setup is incomplete. The required security migration must be applied before Admin sign-in can finish.'
+      });
+    }
+    const referenceId = crypto.randomUUID();
+    console.error(`[admin-auth] elevation failed reference=${referenceId}:`, error.message);
+    return res.status(503).json({
+      success: false,
+      code: 'ADMIN_AUTH_UNAVAILABLE',
+      referenceId,
+      error: `Administrator verification is temporarily unavailable. Reference: ${referenceId}`
+    });
   }
 });
 

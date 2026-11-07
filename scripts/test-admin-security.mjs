@@ -16,6 +16,7 @@ function test(name, condition) {
 test('elevation requires a normal authenticated user session', /router\.post\('\/admin\/verify-password',[\s\S]{0,600}requireUser\(req, res\)/.test(server));
 test('elevation identity comes from authenticated session, not request body', /SELECT user_id, username, full_name, email, password_hash, is_admin, is_banned[\s\S]{0,100}WHERE user_id = \$1[\s\S]{0,50}\[auth\.user_id\]/.test(server) && !/const \{\s*userId,\s*adminPassword\s*\}\s*=\s*req\.body/.test(server));
 test('elevation returns generic credential failure', /Administrator verification failed\./.test(elevationRoute) && !/User not found\.|Invalid admin password\.|Access denied\. Administrator permissions/.test(elevationRoute));
+test('Admin elevation checks all security schema before writing attempt records and explains missing migration', /ADMIN_MIGRATION_REQUIRED/.test(elevationRoute) && /await ensureAdminTables\(\);[\s\S]{0,100}recordAdminPasswordAttempt/.test(elevationRoute));
 test('durable per-account and per-IP attempt throttles exist', /admin_auth_attempts/.test(server) && /admin-account:/.test(server) && /admin-ip:/.test(server));
 test('elevated access is a short HttpOnly Secure SameSite cookie', /ADMIN_SESSION_TTL_SECONDS = 15 \* 60/.test(server) && /HttpOnly; Secure; SameSite=Strict/.test(server));
 test('privileged requests require a live database-backed elevated session', /admin_elevated_sessions[\s\S]{0,350}revoked_at IS NULL[\s\S]{0,150}u\.is_admin = TRUE/.test(server));
