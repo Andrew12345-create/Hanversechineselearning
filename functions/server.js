@@ -1130,7 +1130,7 @@ function requiresAdminReauthentication(req) {
   const method = String(req.method || 'GET').toUpperCase();
   if (method === 'DELETE') return true;
   return method !== 'GET' && (
-    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns)/.test(path)
+    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns)/.test(path)
   );
 }
 
@@ -8211,10 +8211,12 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
       });
     }
 
-    if (!subject || !message) {
+    const cleanSubject = String(subject || '').trim();
+    const cleanMessage = String(message || '').trim();
+    if (!cleanSubject || cleanSubject.length > 180 || /[\r\n]/.test(cleanSubject) || !cleanMessage || cleanMessage.length > 10000) {
       return res.status(400).json({
         success: false,
-        error: 'Subject and message are required.'
+        error: 'Enter a one-line subject (up to 180 characters) and message (up to 10,000 characters).'
       });
     }
 
@@ -8231,30 +8233,39 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
     }
 
     const user = result.rows[0];
-    const fullName = user.full_name || user.username || 'User';
-
-const html = getHanVerseEmailHTML({
-  subject: String(subject).trim(),
-  message: String(message).trim(),
-  recipientName: user.full_name || user.username || 'HanVerse Friend',
-  senderName: 'HanVerse Team',
-  preheader: String(subject).trim()
-});
+    const html = getHanVerseEmailHTML({
+      subject: cleanSubject,
+      message: cleanMessage,
+      recipientName: user.full_name || user.username || 'HanVerse Friend',
+      senderName: 'HanVerse Team',
+      preheader: cleanSubject
+    });
 
     const emailResult = await sendEmail({
       to: user.email,
-      subject,
+      subject: cleanSubject,
       html
     });
 
     if (!emailResult.success) {
+      await auditAdmin(req, 'user.email', {
+        target_type: 'user',
+        target_id: userId,
+        outcome: 'failure',
+        after_safe: { provider_confirmed: false, subject: cleanSubject }
+      });
       return res.status(500).json({
         success: false,
         error: emailResult.error || 'Failed to send email.'
       });
     }
 
-    await auditAdmin(req, 'user.email', { target: req.params.id });
+    await auditAdmin(req, 'user.email', {
+      target_type: 'user',
+      target_id: userId,
+      outcome: 'success',
+      after_safe: { provider_confirmed: true, subject: cleanSubject }
+    });
     return res.json({
       success: true,
       message: 'Email sent successfully.'

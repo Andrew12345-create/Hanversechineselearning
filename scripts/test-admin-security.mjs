@@ -22,6 +22,7 @@ test('privileged requests require a live database-backed elevated session', /adm
 test('elevated JWT verifies issuer and audience claims', /jwt\.verify\(token, process\.env\.JWT_SECRET, \{ issuer: 'hanverse', audience: 'hanverse-admin' \}\)/.test(server));
 test('backend permission checks use database roles', /admin_roles r ON r\.role_key = u\.admin_role/.test(server) && /permissions\.includes\(permission\)/.test(server));
 test('feature-pack parent digest send has explicit communication permission and reauthentication', /path === '\/parents\/digest\/send'\) return 'communications\.manage'/.test(server) && /path === '\/parents\/digest\/send' \|\|/.test(server));
+test('individual support email requires recent reauthentication and validates headers/body size', server.includes('users\\/(ban|delete|update|email)') && /cleanSubject\.length > 180/.test(server) && /cleanMessage\.length > 10000/.test(server));
 test('destructive operations require recent password reauthentication', /ADMIN_REAUTH_REQUIRED/.test(server) && /reauthenticated_at/.test(server));
 test('user listing is paginated and selects safe fields', /LIMIT \$[\s\S]{0,100}OFFSET \$/.test(usersRoute) && /SELECT user_id, username, full_name, email/.test(usersRoute) && !/SELECT \* FROM users/.test(usersRoute));
 test('parent lists minimize fields and are bounded', /p\.parent_id, p\.user_id, p\.full_name, p\.email, p\.is_verified, p\.is_active/.test(server) && /LIMIT 250/.test(server) && /LIMIT 100/.test(server) && !/SELECT p\.\*, u\.username/.test(server));
