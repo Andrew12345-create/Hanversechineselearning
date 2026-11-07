@@ -36,6 +36,7 @@ test('Panda admin assistant is instructed to identify missing metrics and separa
 test('browser does not persist privileged bearer tokens', !/hanverse_admin_token|localStorage\.setItem\([^\n]*adminToken|state\.token/.test(admin));
 test('Admin sign-in obtains normal session then elevates in memory', /fetch\(`\$\{API\}\/login`/.test(admin) && /Authorization: `Bearer \$\{normalSessionToken\}`/.test(admin) && /normalSessionToken = null/.test(admin));
 test('browser uses same-origin cookies for Admin API calls', /credentials: "same-origin"/.test(admin) && /\/admin\/session/.test(admin));
+test('dashboard panel startup cannot present a successful sign-in as a failed login', /async function loadAdminWorkspace\(\)[\s\S]{0,220}Promise\.allSettled/.test(admin) && (admin.match(/await loadAdminWorkspace\(\)/g) || []).length === 2 && /finally \{[\s\S]{0,100}\$\("adminPassword"\)\.value = ""/.test(admin));
 test('Admin delete UI reads actual impact and requires typed confirmation', /\/admin\/users\/\$\{encodeURIComponent\(id\)\}\/impact/.test(admin) && /Type the account username exactly/.test(admin));
 test('Admin routes are served by this repository, not redirected away', !/from = "\/admin\.html"[\s\S]{0,120}https:\/\/learn-hanverse\.netlify\.app/.test(netlify) && /from = "\/admin"[\s\S]{0,80}to = "\/admin\.html"/.test(netlify));
 

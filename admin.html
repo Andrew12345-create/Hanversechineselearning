@@ -2910,6 +2910,20 @@
     $("sidebarAdminName").textContent = name;
   }
 
+  async function loadAdminWorkspace() {
+    const results = await Promise.allSettled([
+      loadUsers(),
+      loadLessons(),
+      loadAnalytics(),
+      loadCampaigns(),
+      loadHealth()
+    ]);
+    const failedPanels = results.filter((result) => result.status === "rejected").length;
+    if (failedPanels) {
+      notify(`Admin is signed in, but ${failedPanels} dashboard panel(s) could not start. Refresh to try again.`, "error");
+    }
+  }
+
   /* ================= AUTH ================= */
 
   async function login(email, password) {
@@ -2945,14 +2959,7 @@
     state.admin = data.user || sessionUser;
 
     showApp();
-
-    await Promise.all([
-      loadUsers(),
-      loadLessons(),
-      loadAnalytics(),
-      loadCampaigns(),
-      loadHealth()
-    ]);
+    await loadAdminWorkspace();
   }
 
   $("authForm").addEventListener("submit", async (event) => {
@@ -2968,6 +2975,7 @@
     } catch (error) {
       $("authError").textContent = error.message;
     } finally {
+      $("adminPassword").value = "";
       button.disabled = false;
     }
   });
@@ -5355,13 +5363,7 @@ ${body}
       const session = await api("/admin/session");
       state.admin = { ...getSessionUser(), ...(session.user || {}) };
       showApp();
-      await Promise.all([
-        loadUsers(),
-        loadLessons(),
-        loadAnalytics(),
-        loadCampaigns(),
-        loadHealth()
-      ]);
+      await loadAdminWorkspace();
     } catch (error) {
       if (!document.querySelector("#authScreen.hidden")) return;
       showLogin(error.message || "Sign in to your HanVerse account, then verify your administrator password.");
