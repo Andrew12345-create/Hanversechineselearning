@@ -625,6 +625,34 @@
 
     /* ---------- DASHBOARD ---------- */
 
+    /* ---------- COMMAND CENTRE OPERATIONS STRIP ---------- */
+    .ops-centre { margin: 0 0 16px; }
+    .ops-centre-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .ops-centre-head h3 { color:var(--navy); font-size:13px; font-weight:900; }
+    .ops-centre-head p { color:var(--muted); font-size:10px; margin-top:2px; }
+    .ops-centre-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .ops-service { min-width:0; display:flex; align-items:center; gap:10px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--white); box-shadow:var(--shadow); }
+    .ops-service-icon { width:34px; height:34px; flex:0 0 34px; display:grid; place-items:center; border-radius:11px; background:var(--blue-soft); font-size:15px; }
+    .ops-service-copy { min-width:0; }
+    .ops-service-copy strong { display:block; color:var(--navy); font-size:11px; }
+    .ops-service-copy span { display:block; margin-top:2px; color:var(--muted); font-size:10px; overflow-wrap:anywhere; }
+    .ops-state { display:inline-flex !important; align-items:center; gap:5px; font-weight:800; }
+    .ops-state::before { content:""; width:7px; height:7px; flex:0 0 7px; border-radius:50%; background:currentColor; }
+    .ops-state.healthy { color:var(--green); } .ops-state.warning { color:var(--yellow); }
+    .ops-state.problem { color:var(--red); } .ops-state.unknown { color:var(--muted); }
+    .ops-alerts { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:8px; margin-top:10px; }
+    .ops-alert { display:flex; align-items:flex-start; gap:9px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--white); }
+    .ops-alert strong { display:block; color:var(--navy); font-size:10px; }
+    .ops-alert span { display:block; margin-top:2px; color:var(--muted); font-size:10px; line-height:1.45; }
+    .ops-alert.critical { border-left:3px solid var(--red); } .ops-alert.warning { border-left:3px solid var(--yellow); } .ops-alert.info { border-left:3px solid var(--blue); }
+    .ops-empty { padding:12px; border:1px dashed var(--line); border-radius:12px; color:var(--muted); font-size:10px; background:var(--white); }
+    .top-command { display:inline-flex; align-items:center; gap:8px; }
+    .top-command kbd { padding:2px 5px; border:1px solid var(--line); border-radius:5px; background:var(--bg); color:var(--muted); font-size:9px; }
+    html[data-theme="dark"] .ops-service, html[data-theme="dark"] .ops-alert, html[data-theme="dark"] .ops-empty { background:#10233D; border-color:var(--line); }
+    html[data-theme="dark"] .ops-service-icon { background:#1B3A5C; }
+    @media (max-width: 900px) { .ops-centre-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (max-width: 520px) { .ops-centre-grid { grid-template-columns:1fr 1fr; gap:7px; } .ops-service { padding:9px; gap:7px; } .ops-service-icon { width:29px; height:29px; flex-basis:29px; } .ops-centre-head { align-items:flex-start; flex-direction:column; } }
+
     .metrics {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -1771,6 +1799,7 @@
 
       <div class="top-actions">
         <button id="themeToggle" class="btn btn-sm" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+        <button id="cmdkTopButton" class="btn btn-sm top-command" type="button" title="Search and navigate (Ctrl+K)" aria-label="Search and navigate">⌕ <span class="optional-label">Search</span> <kbd>Ctrl K</kbd></button>
         <button id="refreshButton" class="btn btn-sm">
           ↻ <span class="optional-label">Refresh</span>
         </button>
@@ -1808,6 +1837,17 @@
             </div>
           </div>
         </div>
+
+        <section class="ops-centre" aria-labelledby="opsCentreTitle">
+          <div class="ops-centre-head"><div><h3 id="opsCentreTitle">Live operations</h3><p>Service status and action signals from the Admin health endpoint. Unknown means telemetry is not configured.</p></div><span id="opsObservedAt" class="muted" aria-live="polite">Waiting for health check…</span></div>
+          <div class="ops-centre-grid" id="opsServiceGrid">
+            <article class="ops-service"><span class="ops-service-icon">🗄️</span><div class="ops-service-copy"><strong>Database</strong><span class="ops-state unknown">Checking…</span></div></article>
+            <article class="ops-service"><span class="ops-service-icon">⚡</span><div class="ops-service-copy"><strong>Admin API</strong><span class="ops-state unknown">Checking…</span></div></article>
+            <article class="ops-service"><span class="ops-service-icon">✉️</span><div class="ops-service-copy"><strong>Email</strong><span class="ops-state unknown">Checking…</span></div></article>
+            <article class="ops-service"><span class="ops-service-icon">💾</span><div class="ops-service-copy"><strong>Backup telemetry</strong><span class="ops-state unknown">Checking…</span></div></article>
+          </div>
+          <div id="opsAlerts" class="ops-alerts" aria-live="polite"><div class="ops-empty">Operational signals will appear after the first successful health check.</div></div>
+        </section>
 
         <div class="metrics">
 
@@ -4977,12 +5017,47 @@ ${body}
 
   /* ================= SYSTEM HEALTH ================= */
 
+  function renderOpsCentre(data) {
+    const services = data?.services || {};
+    const observed = data?.observed_at || null;
+    const statusMeta = (service) => {
+      const status = String(service?.status || "unknown").toLowerCase();
+      if (status === "healthy") return { label: "Healthy", tone: "healthy" };
+      if (status === "degraded" || status === "unavailable" || status === "error") return { label: status[0].toUpperCase() + status.slice(1), tone: status === "degraded" ? "warning" : "problem" };
+      if (status === "available") return { label: "Available · not a health probe", tone: "unknown" };
+      return { label: "Unknown · telemetry unavailable", tone: "unknown" };
+    };
+    const cards = [
+      { icon: "🗄️", label: "Database", service: services.database, detail: services.database?.latency_ms == null ? "PostgreSQL connectivity" : `${services.database.latency_ms} ms response` },
+      { icon: "⚡", label: "Admin API", service: services.api, detail: services.api?.response_time_ms == null ? "Health endpoint" : `${services.api.response_time_ms} ms response` },
+      { icon: "✉️", label: "Email provider", service: services.email, detail: services.email?.checked_at ? `Checked ${new Date(services.email.checked_at).toLocaleTimeString("en-KE")}` : "Provider probe timestamp unavailable" },
+      { icon: "💾", label: "Backup telemetry", service: services.backup, detail: services.backup?.last_success_at ? `Last success ${new Date(services.backup.last_success_at).toLocaleString("en-KE")}` : "No backup telemetry configured" }
+    ];
+    $("opsServiceGrid").innerHTML = cards.map(card => {
+      const meta = statusMeta(card.service);
+      const title = [card.service?.source, card.service?.detail].filter(Boolean).join(" · ");
+      return `<article class="ops-service" title="${escapeHTML(title)}"><span class="ops-service-icon">${card.icon}</span><div class="ops-service-copy"><strong>${card.label}</strong><span class="ops-state ${meta.tone}">${escapeHTML(meta.label)}</span><span>${escapeHTML(card.detail)}</span></div></article>`;
+    }).join("");
+    $("opsObservedAt").textContent = observed ? `Checked ${new Date(observed).toLocaleString("en-KE")}` : "Observation timestamp unavailable";
+    const alerts = [];
+    const db = statusMeta(services.database), api = statusMeta(services.api), email = statusMeta(services.email);
+    if (db.tone === "problem") alerts.push({ tone: "critical", icon: "🚨", title: "Database requires attention", detail: "The database health check did not report a healthy connection." });
+    if (api.tone === "problem") alerts.push({ tone: "critical", icon: "🚨", title: "Admin API requires attention", detail: "The Admin health endpoint reported an unavailable or failing API." });
+    if (email.tone === "problem" || email.tone === "warning") alerts.push({ tone: "warning", icon: "✉️", title: "Email provider status needs review", detail: email.label });
+    if (Number(data?.pending_parents) > 0) alerts.push({ tone: "warning", icon: "👪", title: `${Number(data.pending_parents)} parent verification request(s)`, detail: "Review the parent queue when appropriate." });
+    if (services.backup?.status === "unavailable") alerts.push({ tone: "info", icon: "💾", title: "Backup monitoring is not connected", detail: "No verified backup telemetry is configured. This does not prove that backups are missing." });
+    if (services.stripe?.configured && services.stripe?.webhook_health === "unknown") alerts.push({ tone: "info", icon: "💳", title: "Payment webhook telemetry unavailable", detail: "Stripe is configured, but webhook health is not currently measured by this endpoint." });
+    if (!alerts.length) alerts.push({ tone: "info", icon: "✓", title: "No active operational alerts", detail: "Based on the signals currently returned by the health endpoint." });
+    $("opsAlerts").innerHTML = alerts.map(alert => `<article class="ops-alert ${alert.tone}"><span aria-hidden="true">${alert.icon}</span><div><strong>${escapeHTML(alert.title)}</strong><span>${escapeHTML(alert.detail)}</span></div></article>`).join("");
+  }
+
   async function loadHealth() {
     try {
       const data = await api("/admin/health");
       const services = data.services || {};
       state.briefingHealth = data;
       renderOperationalBriefing();
+      renderOpsCentre(data);
       const setHealth = (id, service, label) => {
         const node = $(id);
         const status = service?.status || "unknown";
@@ -5125,6 +5200,8 @@ ${body}
       }).catch(() => {});
     }
   }
+
+  $("cmdkTopButton").addEventListener("click", cmdkOpen);
 
   function cmdkClose() {
     cmdk.overlay.classList.remove("open");
