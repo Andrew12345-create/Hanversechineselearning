@@ -47,5 +47,10 @@ for (let i = 0; i < inlineScripts.length; i++) {
   catch (error) { test(`Admin inline JavaScript parses (${i + 1}): ${error.message}`, false); }
 }
 
+test('operations command centre renders live database, API, email and backup telemetry', /id="opsServiceGrid"/.test(admin) && /function renderOpsCentre\(data\)/.test(admin) && /services\.database/.test(admin) && /services\.api/.test(admin) && /services\.email/.test(admin) && /services\.backup/.test(admin));
+test('operations panel distinguishes unknown telemetry from healthy services', /Unknown · telemetry unavailable/.test(admin) && /Available · not a health probe/.test(admin) && /No verified backup telemetry is configured/.test(admin));
+test('operations alert content is HTML-escaped before rendering', /escapeHTML\(alert\.title\)/.test(admin) && /escapeHTML\(alert\.detail\)/.test(admin) && /escapeHTML\(title\)/.test(admin));
+test('topbar exposes an accessible command palette button', /id="cmdkTopButton"/.test(admin) && /aria-label="Search and navigate"/.test(admin) && /addEventListener\("click", cmdkOpen\)/.test(admin));
+
 console.log(`\n${failed ? `${failed} failure(s)` : 'All Admin security checks passed'}`);
 process.exitCode = failed ? 1 : 0;
