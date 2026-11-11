@@ -1071,28 +1071,50 @@ function readCookie(req, name) {
   return null;
 }
 
-const ADMIN_SESSION_COOKIE = '__Host-hv_admin';
+// Netlify Dev serves the local app over plain HTTP (usually localhost:8888).
+// __Host- cookies require Secure and therefore cannot be used reliably over local HTTP.
+// Keep the production cookie name/flags unchanged; use a separate local-only cookie.
+const IS_LOCAL_NETLIFY_DEV =
+  process.env.NETLIFY_DEV === 'true' ||
+  process.env.NETLIFY_DEV === '1' ||
+  process.env.CONTEXT === 'dev';
+
+const ADMIN_SESSION_COOKIE = IS_LOCAL_NETLIFY_DEV ? 'hv_admin_local' : '__Host-hv_admin';
 const ADMIN_SESSION_TTL_SECONDS = 15 * 60;
+const ADMIN_COOKIE_SECURE = !IS_LOCAL_NETLIFY_DEV;
 
 function setAdminSessionCookie(res, token) {
-  res.setHeader('Set-Cookie', `${ADMIN_SESSION_COOKIE}=${encodeURIComponent(token)}; Path=/; Max-Age=${ADMIN_SESSION_TTL_SECONDS}; HttpOnly; Secure; SameSite=Strict`);
+  const secureFlag = ADMIN_COOKIE_SECURE ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `${ADMIN_SESSION_COOKIE}=${encodeURIComponent(token)}; Path=/; Max-Age=${ADMIN_SESSION_TTL_SECONDS}; HttpOnly${secureFlag}; SameSite=Strict`);
 }
 
 function clearAdminSessionCookie(res) {
-  res.setHeader('Set-Cookie', `${ADMIN_SESSION_COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict`);
+  const secureFlag = ADMIN_COOKIE_SECURE ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `${ADMIN_SESSION_COOKIE}=; Path=/; Max-Age=0; HttpOnly${secureFlag}; SameSite=Strict`);
 }
 
 function trustedAdminOrigin(req) {
   const origin = req.headers.origin;
   if (!origin) return true;
-  let normalized;
-  try { normalized = new URL(origin).origin; } catch { return false; }
+
+  let parsedOrigin;
+  try { parsedOrigin = new URL(origin); } catch { return false; }
+  const normalized = parsedOrigin.origin;
+
   const configured = [
     ...(process.env.ALLOWED_ORIGINS || 'https://hanverse.netlify.app,https://learn-hanverse.netlify.app,http://localhost:3000').split(','),
     process.env.PUBLIC_SITE_URL || '',
     process.env.URL || ''
   ].map(value => { try { return new URL(value.trim()).origin; } catch { return ''; } }).filter(Boolean);
-  return configured.includes(normalized);
+
+  if (configured.includes(normalized)) return true;
+
+  // Permit loopback origins on arbitrary Netlify Dev ports only in local dev.
+  // This does not relax the deployed production allowlist.
+  const isLoopbackHost = ['localhost', '127.0.0.1', '[::1]'].includes(parsedOrigin.hostname);
+  const isLocalHttpOrigin = ['http:', 'https:'].includes(parsedOrigin.protocol);
+  const isDevelopment = IS_LOCAL_NETLIFY_DEV || process.env.NODE_ENV !== 'production';
+  return Boolean(isDevelopment && isLoopbackHost && isLocalHttpOrigin);
 }
 
 function adminPermissionForRequest(req) {
