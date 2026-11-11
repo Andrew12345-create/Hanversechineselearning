@@ -1078,7 +1078,8 @@ const IS_LOCAL_NETLIFY_DEV =
   process.env.NETLIFY_DEV === 'true' ||
   process.env.NETLIFY_DEV === '1' ||
   process.env.CONTEXT === 'dev' ||
-  process.env.NODE_ENV !== 'production';
+  process.env.NODE_ENV === 'development' ||
+  process.env.NODE_ENV === 'test';
 
 const ADMIN_SESSION_COOKIE = IS_LOCAL_NETLIFY_DEV ? 'hv_admin_local' : '__Host-hv_admin';
 const ADMIN_SESSION_TTL_SECONDS = 15 * 60;
@@ -1114,7 +1115,7 @@ function trustedAdminOrigin(req) {
   // This does not relax the deployed production allowlist.
   const isLoopbackHost = ['localhost', '127.0.0.1', '[::1]'].includes(parsedOrigin.hostname);
   const isLocalHttpOrigin = ['http:', 'https:'].includes(parsedOrigin.protocol);
-  const isDevelopment = IS_LOCAL_NETLIFY_DEV || process.env.NODE_ENV !== 'production';
+  const isDevelopment = IS_LOCAL_NETLIFY_DEV;
   return Boolean(isDevelopment && isLoopbackHost && isLocalHttpOrigin);
 }
 
