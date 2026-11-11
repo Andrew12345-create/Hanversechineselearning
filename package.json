@@ -9,11 +9,7 @@
     "build": "echo 'No build step for static site' && exit 0",
     "start": "netlify dev",
     "dev": "netlify dev",
-    "start:local": "node start-local.js",
-    "dev:local": "HOST=localhost PORT=3000 NODE_ENV=development node --watch local-server.js",
-    "setup:db": "node init_local_db.js",
-    "test:connection": "node check_db.js",
-    "init:db": "node init_local_db.js"
+    "test:ci": "node scripts/ci-check.mjs"
   },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
