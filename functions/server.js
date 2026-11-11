@@ -1077,7 +1077,8 @@ function readCookie(req, name) {
 const IS_LOCAL_NETLIFY_DEV =
   process.env.NETLIFY_DEV === 'true' ||
   process.env.NETLIFY_DEV === '1' ||
-  process.env.CONTEXT === 'dev';
+  process.env.CONTEXT === 'dev' ||
+  process.env.NODE_ENV !== 'production';
 
 const ADMIN_SESSION_COOKIE = IS_LOCAL_NETLIFY_DEV ? 'hv_admin_local' : '__Host-hv_admin';
 const ADMIN_SESSION_TTL_SECONDS = 15 * 60;
