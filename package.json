@@ -10,7 +10,10 @@
     "start": "netlify dev",
     "dev": "netlify dev",
     "dev:local": "HOST=localhost PORT=3000 NODE_ENV=development node --watch local-server.js",
-    "test:admin": "node scripts/test-admin-security.mjs"
+    "test:admin": "node scripts/test-admin-security.mjs",
+    "test:admin-fixes": "node scripts/test-admin-fixes.mjs",
+    "test:regression": "node scripts/test-regression.mjs",
+    "test:ci": "node scripts/ci-check.mjs && node scripts/test-regression.mjs"
   },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
@@ -28,7 +31,6 @@
     "openai": "^6.45.0",
     "pg": "^8.21.0",
     "serverless-http": "^3.2.0",
-    "socket.io": "^4.8.1",
     "stripe": "^22.2.0"
   },
   "overrides": {
