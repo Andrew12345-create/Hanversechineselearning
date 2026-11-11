@@ -26,6 +26,14 @@ const { Pool } = pkg;
 const app = express();
 const router = express.Router();
 
+// The marketing deployment redirects all Admin UI traffic to the learning
+// deployment. Keep its legacy Admin API surface closed as well: the learning
+// branch is the sole supported Admin control plane.
+router.use('/admin', (req, res) => res.status(404).json({
+  success: false,
+  error: 'The Admin API is served by the HanVerse learning deployment.'
+}));
+
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
