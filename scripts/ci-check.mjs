@@ -10,6 +10,7 @@
 import { execSync } from 'node:child_process';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
+import vm from 'node:vm';
 
 const ROOT = process.cwd();
 const problems = [];
@@ -31,6 +32,27 @@ for (const f of tracked) {
   // Skip known browser-only scripts only if node --check chokes on top-level await-free DOM code? node --check is syntax-only, safe for all.
   const r = spawnSync(process.execPath, ['--check', path.join(ROOT, f)], { encoding: 'utf8' });
   if (r.status !== 0) problems.push(`${f} fails node --check:\n${(r.stderr || '').split('\n').slice(0, 4).join('\n')}`);
+}
+
+
+// 2b. Parse inline JavaScript in tracked HTML files. node --check does not
+// inspect scripts embedded in HTML, which allowed an Admin syntax error to ship.
+for (const f of tracked) {
+  if (!f.endsWith('.html')) continue;
+  const html = execSync(`git show :${f}`, { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 24 });
+  const scriptPattern = /<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi;
+  let match;
+  let scriptIndex = 0;
+  while ((match = scriptPattern.exec(html))) {
+    const source = match[1].trim();
+    scriptIndex += 1;
+    if (!source) continue;
+    try {
+      new vm.Script(source, { filename: `${f} inline script #${scriptIndex}` });
+    } catch (error) {
+      problems.push(`${f} inline script #${scriptIndex} syntax error: ${error.message}`);
+    }
+  }
 }
 
 // 3. Lockfile validity + sync
