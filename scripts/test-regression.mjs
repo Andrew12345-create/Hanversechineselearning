@@ -6,7 +6,7 @@
  */
 import { spawnSync } from 'node:child_process';
 
-const tests = [
+// Keep this list intentionally credential-free so CI never touches production services.\nconst tests = [
   'scripts/test-admin-security.mjs',
   'scripts/test-admin-fixes.mjs',
   'scripts/test-analytics-privacy.mjs',
