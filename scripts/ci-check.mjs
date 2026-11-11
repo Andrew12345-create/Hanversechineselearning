@@ -40,7 +40,7 @@ for (const f of tracked) {
 for (const f of tracked) {
   if (!f.endsWith('.html')) continue;
   const html = execSync(`git show :${f}`, { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 24 });
-  const scriptPattern = /<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi;
+  const scriptPattern = /<script\b[^>]*>([\s\S]*?)<\/script>/gi;
   let match;
   let scriptIndex = 0;
   while ((match = scriptPattern.exec(html))) {
