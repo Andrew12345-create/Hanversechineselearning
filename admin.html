@@ -5129,7 +5129,7 @@ ${body}
 
   /* ================= COMMAND PALETTE ================= */
 
-  const cmdk = { overlay: null, input: null, results: null, items: [], active: 0, lessonsLoaded: false };
+  const cmdk = { overlay: $("cmdkOverlay"), input: $("cmdkInput"), results: $("cmdkResults"), items: [], active: 0, lessonsLoaded: false };
 
   function cmdkBuildIndex() {
     const index = [];
@@ -5235,10 +5235,6 @@ ${body}
       cmdk.overlay.classList.contains("open") ? cmdkClose() : cmdkOpen();
     }
   });
-
-  cmdk.overlay = $("cmdkOverlay");
-  cmdk.input = $("cmdkInput");
-  cmdk.results = $("cmdkResults");
 
   ["All", "Pending", "Verified"].forEach(label => {
     const btn = $("parentFilter" + label);
