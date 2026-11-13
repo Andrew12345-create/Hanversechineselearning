@@ -78,6 +78,15 @@ CREATE TABLE IF NOT EXISTS admin_audit (
   ip TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- Repair partially-created legacy audit tables as well as fresh installs.
+-- All additions are nullable or have safe defaults so existing audit history is retained.
+ALTER TABLE admin_audit ADD COLUMN IF NOT EXISTS actor_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL;
+ALTER TABLE admin_audit ADD COLUMN IF NOT EXISTS actor_label TEXT;
+ALTER TABLE admin_audit ADD COLUMN IF NOT EXISTS action TEXT;
+ALTER TABLE admin_audit ADD COLUMN IF NOT EXISTS detail TEXT;
+ALTER TABLE admin_audit ADD COLUMN IF NOT EXISTS ip TEXT;
+ALTER TABLE admin_audit ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
 ALTER TABLE admin_audit ADD COLUMN IF NOT EXISTS event_id UUID DEFAULT gen_random_uuid();
 UPDATE admin_audit SET event_id = gen_random_uuid() WHERE event_id IS NULL;
 ALTER TABLE admin_audit ALTER COLUMN event_id SET NOT NULL;
