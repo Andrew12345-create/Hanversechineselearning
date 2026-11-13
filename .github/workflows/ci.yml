@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, hanverse-learn]
+    branches: [main, hanverse-learn, mobile-experience-2.0]
   pull_request:
 
 jobs:
@@ -17,5 +17,7 @@ jobs:
       - run: npm ci
       - name: Regression gate (markers, syntax, lockfile sync, secrets)
         run: node scripts/ci-check.mjs
+      - name: Mobile layout regression checks
+        run: npm run test:mobile
       - name: Dependency audit (blocks on high/critical)
         run: npm audit --audit-level=high
