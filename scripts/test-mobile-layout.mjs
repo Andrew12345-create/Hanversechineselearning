@@ -54,7 +54,12 @@ const admin = fs.readFileSync(path.join(root, "admin.html"), "utf8");
 assert(admin.includes("sidebar-backdrop"), "Admin mobile navigation must have a dismissible backdrop.");
 assert(admin.includes('aria-expanded="false"'), "Admin mobile menu must expose its expanded state accessibly.");
 
-if (failures.length) {
+
+assert(css.includes("--hv-gutter: clamp("), "Fluid layout must use viewport-aware page gutters.");
+assert(css.includes("grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hv-card-min)), 1fr))"), "Common card grids must auto-fit available width.");
+assert(css.includes("font-size: clamp(2rem, 1.35rem + 2.8vw, 4.4rem)"), "Headings must scale fluidly with viewport width.");
+assert(css.includes("overscroll-behavior-inline: contain"), "Scrollable tables must not widen the page or hijack vertical scrolling.");
+\nif (failures.length) {
   console.error("\nMobile layout regression checks failed:");
   for (const failure of failures) console.error(" - " + failure);
   process.exit(1);
