@@ -57,8 +57,7 @@
       (paths[name] || '') + '</svg>';
   }
 
-  var loggedIn = false;
-  try { loggedIn = !!localStorage.getItem('hanverse_user'); } catch (e) {}
+  var loggedIn = signedIn();
   var tabs = [
     { href: loggedIn ? 'dashboard.html' : 'https://hanverse.netlify.app/', label: 'Home', icon: 'home' },
     { href: 'learn.html', label: 'Learn', icon: 'learn' },
@@ -167,6 +166,7 @@
   function openSheet() {
     lastFocus = document.activeElement;
     sheet.classList.add('open');
+    document.body.classList.add('sheet-open');
     moreBtn.setAttribute('aria-expanded', 'true');
     panel.hidden = false;
     var first = panel.querySelector('a, button');
@@ -177,6 +177,7 @@
   function closeSheet() {
     if (!sheet.classList.contains('open')) return;
     sheet.classList.remove('open');
+    document.body.classList.remove('sheet-open');
     moreBtn.setAttribute('aria-expanded', 'false');
     panel.hidden = true;
     document.removeEventListener('keydown', onKey, true);
@@ -213,7 +214,9 @@
   var logoutBtn = document.getElementById('sheetLogout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
-      localStorage.removeItem('hanverse_user');
+      ['hanverse_token', 'hanverse_user', 'token', 'user', 'authToken', 'hanverse_session', 'hanverseSession'].forEach(function (key) {
+        try { localStorage.removeItem(key); } catch (e) {}
+      });
       window.location.href = 'login.html';
     });
   }
