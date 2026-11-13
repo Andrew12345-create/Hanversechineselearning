@@ -59,7 +59,8 @@ assert(css.includes("--hv-gutter: clamp("), "Fluid layout must use viewport-awar
 assert(css.includes("grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hv-card-min)), 1fr))"), "Common card grids must auto-fit available width.");
 assert(css.includes("font-size: clamp(2rem, 1.35rem + 2.8vw, 4.4rem)"), "Headings must scale fluidly with viewport width.");
 assert(css.includes("overscroll-behavior-inline: contain"), "Scrollable tables must not widen the page or hijack vertical scrolling.");
-\nif (failures.length) {
+
+if (failures.length) {
   console.error("\nMobile layout regression checks failed:");
   for (const failure of failures) console.error(" - " + failure);
   process.exit(1);
