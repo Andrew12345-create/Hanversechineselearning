@@ -50,6 +50,14 @@ const parents = fs.readFileSync(path.join(root, "parents.html"), "utf8");
 assert(!/<nav[^>]*class=["'][^"']*bottom-nav/i.test(parents), "Family portal must not render a second legacy bottom navigation beside the shared tab bar.");
 assert(parents.includes('src="bottom-nav.js'), "Family portal must use the shared app tab bar.");
 
+const learn = fs.readFileSync(path.join(root, "learn.html"), "utf8");
+assert(learn.includes("repeat(auto-fit,minmax(min(100%,235px),1fr))"), "Learn course cards must fluidly reflow without relying only on breakpoints.");
+assert(learn.includes("repeat(auto-fit,minmax(min(100%,175px),1fr))"), "Learn stats must fluidly reflow at intermediate widths.");
+const roadmap = fs.readFileSync(path.join(root, "roadmap.html"), "utf8");
+assert(roadmap.includes("repeat(auto-fit,minmax(min(100%,220px),1fr))"), "Roadmap milestones must auto-fit available width.");
+const adventures = fs.readFileSync(path.join(root, "adventures.html"), "utf8");
+assert(adventures.includes("repeat(auto-fit,minmax(min(100%,230px),1fr))"), "Adventure activity cards must auto-fit available width.");
+
 const admin = fs.readFileSync(path.join(root, "admin.html"), "utf8");
 assert(admin.includes("sidebar-backdrop"), "Admin mobile navigation must have a dismissible backdrop.");
 assert(admin.includes('aria-expanded="false"'), "Admin mobile menu must expose its expanded state accessibly.");
