@@ -665,6 +665,17 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
   }
 }
 
+@media (max-width: 760px) {
+  /* Some feature pages use their own .page/.content wrappers rather than
+     <main> or .wrap. Reserve the same footer clearance for those layouts. */
+  body.has-tabbar .page,
+  body.has-tabbar .main-container,
+  body.has-tabbar .dash-wrap,
+  body.has-tabbar .content {
+    padding-bottom: calc(var(--tabbar-space) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media (max-width: 480px) {
   .nav:not(.nav-auth) { width: calc(100% - 16px); }
   body:not(.has-tabbar) .nav:not(.nav-auth) .brand span { display: none; }
