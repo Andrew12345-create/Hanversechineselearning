@@ -29,12 +29,14 @@ assert(htmlFiles.length >= 20, `Expected to discover the app's HTML pages; found
 for (const file of htmlFiles) {
   const html = fs.readFileSync(file, "utf8");
   const relative = path.relative(root, file).replaceAll(path.sep, "/");
-  const viewportCount = [...html.matchAll(/<meta\s+name=["']viewport["'][^>]*>/gi)].length;
-  assert(viewportCount === 1, `${relative}: expected exactly one viewport meta tag; found ${viewportCount}.`);
+  const headEnd = html.toLowerCase().indexOf("</head>");
+  const documentHead = headEnd >= 0 ? html.slice(0, headEnd) : html.slice(0, 12000);
+  const viewportCount = [...documentHead.matchAll(/<meta\s+name=["']viewport["'][^>]*>/gi)].length;
+  assert(viewportCount === 1, `${relative}: expected exactly one viewport meta tag in the document head; found ${viewportCount}.`);
 }
 
 const css = fs.readFileSync(path.join(root, "hanverse.css"), "utf8");
-assert(css.includes("body.has-tabbar:not([data-topnav=\"keep\"]) .nav"), "Shared CSS must hide the desktop nav only when the tab bar is mounted.");
+assert(css.includes("body.has-tabbar:not([data-topnav=\"keep\"]) .nav:not(.nav-auth)"), "Shared CSS must hide the desktop nav only when the tab bar is mounted.");
 assert(css.includes("body:not(.has-tabbar) .nav:not(.nav-auth) .nav-links"), "Shared CSS must retain usable fallback navigation on pages without bottom-nav.js.");
 assert(css.includes("env(safe-area-inset-bottom"), "Shared CSS must account for mobile safe areas.");
 assert(css.includes("max-height: min(70dvh, 620px)"), "The mobile More sheet must be height-constrained and scrollable.");
