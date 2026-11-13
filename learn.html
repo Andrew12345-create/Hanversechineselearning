@@ -106,6 +106,15 @@
 .tour-skip:focus-visible,.tour-next:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 [data-theme="dark"] .tour-card{background:#12283A;border-color:rgba(36,68,88,.85)}
 [data-theme="dark"] .tour-card h2{color:#F1F5F9}
+
+/* Fluid card behaviour: columns follow available width instead of device labels. */
+.courses{grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr))}
+.stats{grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr))}
+.stepgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+.warmup-opts{grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+.hero,.next{min-width:0}
+.course,.stat,.step{min-width:0}
+
 </style>
 <div id="tour" hidden>
   <div id="tourBackdrop"></div>
