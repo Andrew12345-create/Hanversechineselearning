@@ -31,7 +31,12 @@
     @media print{body{background:#fff}.world-tabs,.world-hero,.world-stats,.panel-head,.world-btn,.roleplay-input,.mock-controls,.calendar-days,.story-grid,.scenario-grid,.mock-grid,.habitat-slots{display:none!important}.world-panel{display:none!important}#panel-family{display:block!important}.world-card{box-shadow:none;break-inside:avoid}.world-shell{max-width:none;padding:0}.activity-grid{grid-template-columns:repeat(2,1fr)}.family-card{border:1px solid #aaa}}
     @media(max-width:680px){.daily-trail{grid-template-columns:1fr}.trail-start{justify-self:start}.trail-steps{grid-template-columns:1fr}}
     @media(max-width:540px){.world-hero{grid-template-columns:1fr}.hero-panda img{width:clamp(100px,32vw,140px);margin:8px auto 0}.review-word{grid-template-columns:1fr}.world-tabs{scroll-snap-type:x proximity}.world-tab{scroll-snap-align:start}}
-  </style>
+  
+/* Fluid activity cards: preserve readable card widths at every viewport. */
+.story-grid,.activity-grid,.scenario-grid,.mock-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+.world-card,.planner,.daily-trail,.trail-step{min-width:0}
+
+</style>
 </head>
 <body>
 <div id="app-nav"></div>
