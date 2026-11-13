@@ -19,5 +19,7 @@ jobs:
         run: node scripts/ci-check.mjs
       - name: Mobile layout regression checks
         run: npm run test:mobile
+      - name: Admin security and UI regression checks
+        run: npm run test:admin
       - name: Dependency audit (blocks on high/critical)
         run: npm audit --audit-level=high
