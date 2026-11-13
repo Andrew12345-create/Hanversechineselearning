@@ -214,7 +214,7 @@
   var logoutBtn = document.getElementById('sheetLogout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
-      ['hanverse_token', 'hanverse_user', 'token', 'user', 'authToken', 'hanverse_session', 'hanverseSession'].forEach(function (key) {
+      ['hanverse_token', 'hanverse_user', 'token', 'user', 'authToken', 'hanverse_session', 'hanverseSession', 'hanverse_admin_token'].forEach(function (key) {
         try { localStorage.removeItem(key); } catch (e) {}
       });
       window.location.href = 'login.html';
