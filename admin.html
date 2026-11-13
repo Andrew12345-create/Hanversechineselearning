@@ -1653,6 +1653,179 @@
         max-width: none;
       }
     }
+
+    /* ---------- HANVERSE SITE-WIDE VISUAL ALIGNMENT ---------- */
+    :root {
+      --blue: #2563EB;
+      --blue-dark: #1D4ED8;
+      --blue-deep: #1D4ED8;
+      --blue-soft: #EAF3FF;
+      --navy: #183B66;
+      --ink: #244568;
+      --muted: #6683A3;
+      --line: #DCEBFA;
+      --bg: #F4F9FF;
+      --white: #FFFFFF;
+      --radius: 20px;
+      --shadow: 0 8px 26px rgba(37, 99, 235, .07);
+      --shadow-lg: 0 22px 60px rgba(37, 99, 235, .13);
+    }
+
+    body {
+      font-family: 'Nunito', 'Poppins', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 4% 0%, rgba(78,168,222,.14), transparent 25rem),
+        radial-gradient(circle at 96% 8%, rgba(116,198,157,.10), transparent 22rem),
+        #F4F9FF;
+      color: #244568;
+      letter-spacing: .005em;
+    }
+
+    h1, h2, h3, h4, .brand strong, .metric-value {
+      font-family: 'Nunito', 'Poppins', system-ui, sans-serif;
+      letter-spacing: -.025em;
+    }
+
+    .sidebar {
+      background: rgba(255,255,255,.97);
+      border-right-color: #DFECF9;
+      box-shadow: 8px 0 30px rgba(37,99,235,.035);
+    }
+    .brand { padding-bottom: 25px; }
+    .brand img { border-radius: 14px; }
+    .brand strong { color: #183B66; font-size: 18px; }
+    .brand span { color: #2563EB; }
+
+    .nav-label { color: #8AA4C0; }
+    .nav-button {
+      min-height: 41px;
+      border-radius: 13px;
+      color: #6683A3;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .nav-button:hover {
+      background: #F0F6FF;
+      color: #1D4ED8;
+      transform: translateX(2px);
+    }
+    .nav-button.active {
+      background: linear-gradient(100deg, #E5F0FF, #F0F7FF);
+      color: #1D4ED8;
+      box-shadow: inset 3px 0 0 #2563EB;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,.90);
+      border-bottom-color: #DFECF9;
+      box-shadow: 0 5px 24px rgba(37,99,235,.035);
+    }
+    .top-title h1 { color: #183B66; font-weight: 900; }
+    .content { padding-top: 30px; }
+
+    .section-header h2 {
+      color: #183B66;
+      font-size: clamp(23px, 2vw, 27px);
+      font-weight: 900;
+    }
+    .section-header p { color: #6683A3; font-size: 12px; }
+
+    .panel, .panda-card, .metric, .admin-card, .auth-card {
+      border-color: #DFECF9;
+      border-radius: 20px;
+      box-shadow: 0 8px 26px rgba(37,99,235,.065);
+    }
+    .panel { background: #FFFFFF; }
+    .panel-header { border-bottom-color: #EAF1F9; }
+    .panel-header h3 { color: #183B66; font-size: 13px; font-weight: 900; }
+    .panel-header p { color: #718BA8; font-size: 10px; }
+
+    .metric {
+      background: linear-gradient(145deg, #FFFFFF, #F8FBFF);
+      border: 1px solid #DFECF9;
+      border-radius: 18px;
+    }
+    .metric-value { color: #1D4ED8; }
+    .btn {
+      border-color: #D8E6F5;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563EB, #4388F5);
+      border-color: #2563EB;
+      box-shadow: 0 5px 14px rgba(37,99,235,.18);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #1D4ED8, #3478E8);
+      box-shadow: 0 7px 18px rgba(37,99,235,.22);
+    }
+    .btn-soft {
+      background: #EAF3FF;
+      border-color: #D5E7FF;
+      color: #1D4ED8;
+    }
+    .input, .select, .textarea {
+      border-color: #D8E6F5;
+      border-radius: 12px;
+      color: #244568;
+      background: #FFFFFF;
+    }
+    .input:focus, .select:focus, .textarea:focus {
+      border-color: #78A9F8;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.11);
+    }
+    th {
+      background: #F3F8FF;
+      color: #587796;
+      border-bottom-color: #DFECF9;
+    }
+    td { border-bottom-color: #EDF3FA; }
+    tbody tr:nth-child(even) { background: #FBFDFF; }
+    tbody tr:hover { background: #F1F7FF; }
+    .empty {
+      background: #F8FBFF;
+      border-color: #D6E6F7;
+      color: #6683A3;
+    }
+    .auth-card {
+      background: rgba(255,255,255,.97);
+      border-radius: 26px;
+    }
+    .auth-logo h1 { color: #183B66; }
+
+    html[data-theme="dark"] body {
+      background:
+        radial-gradient(circle at 4% 0%, rgba(37,99,235,.18), transparent 25rem),
+        #0B1B33;
+      color: #E8F1FA;
+    }
+    html[data-theme="dark"] .sidebar,
+    html[data-theme="dark"] .topbar {
+      background: rgba(12,31,55,.96);
+      border-color: #1E3A5F;
+    }
+    html[data-theme="dark"] .nav-button:hover { background: #14304F; color: #BFDBFE; }
+    html[data-theme="dark"] .nav-button.active { background: #173B68; color: #BFDBFE; }
+    html[data-theme="dark"] .panel,
+    html[data-theme="dark"] .panda-card,
+    html[data-theme="dark"] .metric,
+    html[data-theme="dark"] .admin-card,
+    html[data-theme="dark"] .auth-card { background: #10233D; border-color: #1E3A5F; }
+    html[data-theme="dark"] .metric-value { color: #93C5FD; }
+    html[data-theme="dark"] th { background: #0E2138; color: #A9C2DD; }
+    html[data-theme="dark"] td { color: #D6E5F4; }
+    html[data-theme="dark"] tbody tr:nth-child(even) { background: #0E2138; }
+    html[data-theme="dark"] tbody tr:hover { background: #14304F; }
+    html[data-theme="dark"] .input,
+    html[data-theme="dark"] .select,
+    html[data-theme="dark"] .textarea { background: #0E2138; color: #E8F1FA; border-color: #29496B; }
+
+    @media (max-width: 800px) {
+      .content { padding-top: 22px; }
+      .sidebar { background: #FFFFFF; }
+    }
+
   </style>
 </head>
 
