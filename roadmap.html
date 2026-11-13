@@ -47,6 +47,13 @@
 @media(max-width:700px){.hero{grid-template-columns:1fr;padding:27px 22px}.hero-art{display:flex;align-items:center;gap:10px;text-align:left}.hero-art img{width:105px;height:105px}.speech{margin:0}.toolbar,.pathhead{align-items:flex-start;flex-direction:column}.overall{width:100%;text-align:left}.lesson{grid-template-columns:45px 1fr;gap:10px}.node{width:45px;height:45px;border-radius:15px;font-size:1rem;border-width:3px}.timeline:before,.timeline-fill{left:20px;width:4px}.lesson-card{grid-template-columns:1fr}.lesson-right{text-align:left}.progress-mini{margin:7px 0 0;width:100%}.milestones{grid-template-columns:1fr}.pathbox{padding:20px 15px}}
 @media(max-width:700px){.next-step{grid-template-columns:auto 1fr}.next-step-link{grid-column:1/-1;justify-self:start}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Fluid milestone layout for intermediate widths and zoom levels. */
+.milestones{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.pathbox,.lesson-card,.mile{min-width:0}
+.lesson-card>*{min-width:0}
+.lesson-desc{overflow-wrap:anywhere}
+
 </style>
 </head>
 <body>
