@@ -1740,6 +1740,64 @@
       .top-actions .btn { padding: 7px 8px; font-size: 9px; }
       .metrics, .analytics-grid { gap: 6px; }
     }
+
+/* Premium Admin Studio finish */
+html { color-scheme: light; }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+.auth-screen {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: radial-gradient(circle at 12% 12%, rgba(37,99,235,.13), transparent 26rem),
+              radial-gradient(circle at 90% 88%, rgba(20,184,166,.10), transparent 24rem), var(--bg);
+  padding: clamp(18px, 4vw, 48px);
+}
+.auth-card {
+  width: min(460px, 100%); padding: clamp(24px, 4vw, 38px); border-radius: 28px;
+  box-shadow: 0 28px 90px rgba(15,35,64,.14); backdrop-filter: blur(18px);
+  animation: adminCardIn .42s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes adminCardIn { from { opacity:0; transform:translateY(12px) scale(.985); } to { opacity:1; transform:none; } }
+.auth-logo img { filter: drop-shadow(0 8px 14px rgba(37,99,235,.16)); }
+.auth-logo h1 { font-size: clamp(23px, 4vw, 28px); }
+.auth-logo p { font-size: 13px; }
+#authForm .field { margin-bottom: 16px; }
+#authForm .field label { color: var(--ink); font-size: 11px; }
+#authForm .input { min-height: 46px; padding: 12px 14px; font-size: 14px; border-radius: 12px; }
+#authButton { min-height: 48px; font-size: 12px; box-shadow: 0 10px 22px rgba(37,99,235,.2); }
+#authError:empty { display:none; }
+#authError:not(:empty) { margin: 0 0 14px; }
+.auth-alert { padding:14px 15px; border:1px solid #F4D28A; border-radius:14px; background:#FFFBEB; color:#78350F; text-align:left; font-size:12px; line-height:1.6; }
+.auth-alert strong { display:block; margin-bottom:5px; color:#92400E; font-size:13px; }
+.auth-alert ol { margin:8px 0 8px 18px; padding:0; }
+.auth-alert code { padding:2px 5px; border-radius:5px; background:rgba(146,64,14,.09); overflow-wrap:anywhere; }
+.auth-alert a { display:inline-flex; align-items:center; gap:6px; margin-top:5px; color:#1D4ED8; font-weight:900; text-decoration:underline; text-underline-offset:3px; }
+.sidebar { box-shadow:8px 0 32px rgba(15,35,64,.035); }
+.brand { border-radius:14px; transition:background var(--ease); }
+.brand:hover { background:var(--blue-soft); }
+.nav-label { letter-spacing:.14em; }
+.nav-button { min-height:42px; border:1px solid transparent; }
+.nav-button.active { box-shadow:inset 3px 0 0 var(--blue); }
+.topbar { box-shadow:0 4px 18px rgba(15,35,64,.035); }
+.content { width:100%; }
+.section-header { margin-bottom:22px; }
+.panel, .metric, .admin-card { transition:box-shadow var(--ease), border-color var(--ease), transform var(--ease); }
+.panel:hover { border-color:#C7D9EF; box-shadow:0 12px 34px rgba(15,35,64,.075); }
+.metric:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(15,35,64,.09); }
+.panel-header h3 { font-size:13px; }
+.panel-body { min-width:0; }
+.table-wrap, .table-responsive, .table-scroll { max-width:100%; overflow-x:auto; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+table { max-width:100%; }
+.btn, .nav-button, .input, .select, .textarea { transition:background var(--ease), border-color var(--ease), box-shadow var(--ease), transform var(--ease); }
+:where(button, a, input, select, textarea, [tabindex]):focus-visible { outline:3px solid rgba(37,99,235,.55); outline-offset:3px; }
+.btn:active { transform:translateY(1px); }
+#toastStack { z-index:1200; }
+.toast { backdrop-filter:blur(14px); border:1px solid var(--line); border-left:4px solid var(--blue); }
+html[data-theme="dark"] .auth-alert { background:#332705; border-color:#72551A; color:#FDE68A; }
+html[data-theme="dark"] .auth-alert strong { color:#FCD34D; }
+html[data-theme="dark"] .auth-alert a { color:#93C5FD; }
+@media (max-width:800px) { .content { padding-top:20px; } .section-header { gap:12px; } .panel { border-radius:15px; } .panel-body { padding:12px; } }
+@media (max-width:420px) { .auth-screen { padding:14px; } .auth-card { border-radius:22px; } .ops-centre-grid { grid-template-columns:minmax(0,1fr); } .top-actions .top-command kbd { display:none; } }
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+
 </style>
 </head>
 
