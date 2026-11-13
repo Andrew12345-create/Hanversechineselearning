@@ -828,3 +828,81 @@ body { width: 100%; max-width: 100%; }
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ============================================================
+   HANVERSE PREMIUM RESPONSIVE POLISH
+   Shared safeguards for dense content, floating tools and touch.
+   ============================================================ */
+:where(.grid, .row, .toolbar, .hero, .card, .panel, .section,
+       .header-inner, .nav-inner, .form-row, .field-row) > * {
+  min-width: 0;
+}
+:where(p, li, td, th, label, .description, .subtitle, .helper-text) {
+  overflow-wrap: anywhere;
+}
+:where(button, [role="button"], input[type="button"], input[type="submit"],
+       input[type="reset"], .btn, .button) {
+  touch-action: manipulation;
+}
+:where(button, input, select, textarea) {
+  max-width: 100%;
+}
+:where(.panda-chat, .ask-panda-panel) {
+  width: min(380px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: min(70dvh, 620px);
+}
+:where(.community-drawer, .sidebar-drawer, .mobile-drawer) {
+  max-width: min(420px, calc(100vw - 20px));
+  max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+:where(.table-wrap, .table-responsive, .table-scroll, .table-container) {
+  scrollbar-width: thin;
+}
+:where(.table-wrap, .table-responsive, .table-scroll, .table-container) table {
+  width: max-content;
+  min-width: 100%;
+}
+:where(.tabbar, .bottom-nav) {
+  padding-bottom: max(3px, env(safe-area-inset-bottom, 0px));
+}
+@media (max-width: 760px) {
+  :where(.panda-fab, .ask-panda-fab) {
+    right: max(14px, env(safe-area-inset-right, 0px));
+    bottom: calc(var(--tabbar-space, 0px) + 18px + env(safe-area-inset-bottom, 0px));
+    width: 54px;
+    height: 54px;
+  }
+  :where(.panda-chat, .ask-panda-panel) {
+    right: 12px;
+    bottom: calc(var(--tabbar-space, 0px) + 82px + env(safe-area-inset-bottom, 0px));
+    width: min(380px, calc(100vw - 24px));
+    max-height: calc(100dvh - var(--tabbar-space, 0px) - 112px);
+  }
+  :where(.table-wrap, .table-responsive, .table-scroll, .table-container) {
+    border-radius: 12px;
+  }
+}
+@media (max-width: 420px) {
+  :where(.panda-chat, .ask-panda-panel) {
+    right: 8px;
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+  }
+  :where(.panda-fab, .ask-panda-fab) {
+    right: 12px;
+    width: 50px;
+    height: 50px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
