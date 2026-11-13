@@ -710,3 +710,121 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
 @media (prefers-reduced-motion: reduce) {
   .tabbar *, .sheet *, .hud * { animation: none !important; transition: none !important; }
 }
+
+/* ============================================================
+   HANVERSE FLUID RESPONSIVE SYSTEM
+   Layouts scale continuously with available space. Breakpoints
+   remain only for genuine component changes (for example nav).
+   ============================================================ */
+:root {
+  --hv-gutter: clamp(14px, 3.2vw, 40px);
+  --hv-section-space: clamp(36px, 6vw, 88px);
+  --hv-card-gap: clamp(12px, 2vw, 24px);
+  --hv-card-min: clamp(210px, 27vw, 300px);
+  --hv-content-max: 1440px;
+}
+
+/* Fluid page frame, spacing and type scale. */
+html { font-size: clamp(15px, calc(14px + .22vw), 18px); }
+body { width: 100%; max-width: 100%; }
+:where(main, .container, .wrap, .page, .main-container, .content, .dash-wrap) {
+  min-width: 0;
+  max-width: 100%;
+}
+:where(main, .page, .main-container, .content, .dash-wrap) {
+  padding-inline: max(var(--hv-gutter), env(safe-area-inset-left, 0px));
+}
+.container, .wrap {
+  width: min(var(--hv-content-max), calc(100% - 2 * var(--hv-gutter)));
+  margin-inline: auto;
+}
+:where(section, .section) { min-width: 0; }
+:where(section, .section) + :where(section, .section) {
+  scroll-margin-top: clamp(76px, 9vh, 110px);
+}
+:where(h1) { font-size: clamp(2rem, 1.35rem + 2.8vw, 4.4rem); line-height: 1.06; }
+:where(h2) { font-size: clamp(1.55rem, 1.2rem + 1.5vw, 2.8rem); line-height: 1.12; }
+:where(h3) { font-size: clamp(1.15rem, 1rem + .65vw, 1.65rem); }
+:where(p, li) { line-height: 1.65; }
+:where(img, video, iframe, canvas) { max-width: 100%; }
+:where(img, video) { height: auto; }
+
+/* Common card collections reflow naturally instead of relying on
+   device-specific column counts. Explicitly specialized grids are
+   intentionally left untouched. */
+:where(.cards-grid, .card-grid, .features-grid, .feature-grid,
+       .dashboard-grid, .metrics-grid, .stats-grid, .stat-grid,
+       .course-grid, .lesson-grid, .admin-stats, .quick-actions-grid,
+       .resource-grid, .plans-grid, .benefits-grid) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hv-card-min)), 1fr));
+  gap: var(--hv-card-gap);
+  min-width: 0;
+}
+:where(.cards-grid, .card-grid, .features-grid, .feature-grid,
+       .dashboard-grid, .metrics-grid, .stats-grid, .stat-grid,
+       .course-grid, .lesson-grid, .admin-stats, .quick-actions-grid,
+       .resource-grid, .plans-grid, .benefits-grid) > * {
+  min-width: 0;
+  max-width: 100%;
+}
+:where(.split-layout, .two-column-layout, .content-columns, .dashboard-columns) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--hv-card-gap);
+}
+:where(.button-row, .actions-row, .form-actions, .toolbar-actions) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(8px, 1.4vw, 16px);
+}
+:where(.button-row, .actions-row, .form-actions, .toolbar-actions) > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Inputs and embedded media fit their parent; wide data stays inside
+   its own scroll region rather than stretching the whole document. */
+:where(input, select, textarea) { width: auto; max-width: 100%; }
+:where(form) { min-width: 0; }
+:where(table) { max-width: 100%; }
+:where(.table-wrap, .table-responsive, .table-scroll, .table-container) {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+:where(pre, code) { overflow-wrap: anywhere; }
+:where(pre) { max-width: 100%; overflow-x: auto; }
+:where(dialog, .modal, .modal-card, .modal-content, .drawer, .drawer-panel) {
+  max-width: min(100vw - 24px, 900px);
+}
+
+/* On narrow viewports, reduce only outer gutters and let controls wrap.
+   The content itself remains the same; no separate mobile page is used. */
+@media (max-width: 760px) {
+  :root {
+    --hv-gutter: clamp(12px, 4vw, 22px);
+    --hv-card-min: min(100%, 260px);
+    --hv-card-gap: 14px;
+  }
+  :where(.button-row, .actions-row, .form-actions, .toolbar-actions) > button,
+  :where(.button-row, .actions-row, .form-actions, .toolbar-actions) > a {
+    flex: 1 1 auto;
+  }
+  :where(.modal, .modal-card, .modal-content, .drawer, .drawer-panel) {
+    width: min(100% - 20px, 640px);
+    max-height: calc(100dvh - 20px);
+    overflow: auto;
+  }
+}
+@media (max-width: 420px) {
+  :root { --hv-gutter: 12px; }
+  :where(.cards-grid, .card-grid, .features-grid, .feature-grid,
+         .dashboard-grid, .metrics-grid, .stats-grid, .stat-grid,
+         .course-grid, .lesson-grid, .admin-stats, .quick-actions-grid,
+         .resource-grid, .plans-grid, .benefits-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
