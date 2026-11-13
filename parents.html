@@ -505,65 +505,6 @@
         }
 
         /* ============================================
-           BOTTOM NAV
-           ============================================ */
-        .bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: calc(10px + env(safe-area-inset-bottom));
-            left: 50%;
-            transform: translateX(-50%);
-            width: min(470px, calc(100% - 18px));
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            justify-content: space-between;
-            padding: 6px;
-            box-shadow: 0 18px 44px rgba(15, 35, 64, 0.18);
-            z-index: 990;
-            border: 1px solid rgba(213, 227, 240, 0.9);
-            border-radius: 999px;
-        }
-
-        .bottom-nav a {
-            text-decoration: none;
-            color: var(--muted);
-            font-size: .65rem;
-            font-weight: 700;
-            text-align: center;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            padding: 8px 0;
-            transition: var(--transition-smooth);
-            border-radius: 999px;
-            min-height: 48px;
-        }
-
-        .bottom-nav a.active {
-            color: var(--primary);
-            font-weight: 800;
-            background: var(--blue-50, #EFF6FF);
-        }
-
-        .bottom-nav a:hover {
-            color: var(--primary);
-        }
-
-        .bottom-nav a:focus-visible {
-            outline: 3px solid var(--sky, #7DD3FC);
-            outline-offset: 2px;
-        }
-
-        .nav-icon {
-            font-size: 22px;
-            line-height: 1;
-        }
-
-        /* ============================================
            PANDA CHAT
            ============================================ */
         .panda-fab {
@@ -1812,26 +1753,6 @@
     </div>
 
 
-
-    <!-- ===== BOTTOM NAV ===== -->
-    <nav class="bottom-nav">
-        <a href="index.html">
-            <span class="nav-icon">🏠</span>
-            Home
-        </a>
-        <a href="learn.html">
-            <span class="nav-icon">📚</span>
-            Learn
-        </a>
-        <a href="parents.html" class="active">
-            <span class="nav-icon">👪</span>
-            Parents
-        </a>
-        <a href="profile.html">
-            <span class="nav-icon">👤</span>
-            Profile
-        </a>
-    </nav>
 
     <!-- ===== PANDA FAB ===== -->
     <button class="panda-fab" id="pandaToggle" aria-label="Open Panda AI chat">🐼</button>
