@@ -59,6 +59,11 @@ assert(css.includes("--hv-gutter: clamp("), "Fluid layout must use viewport-awar
 assert(css.includes("grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hv-card-min)), 1fr))"), "Common card grids must auto-fit available width.");
 assert(css.includes("font-size: clamp(2rem, 1.35rem + 2.8vw, 4.4rem)"), "Headings must scale fluidly with viewport width.");
 assert(css.includes("overscroll-behavior-inline: contain"), "Scrollable tables must not widen the page or hijack vertical scrolling.");
+assert(css.includes("HANVERSE PREMIUM RESPONSIVE POLISH"), "Shared premium responsive safeguards must be present.");
+assert(css.includes("max-height: min(70dvh, 620px)"), "Floating chat tools must remain within the viewport.");
+assert(css.includes("env(safe-area-inset-right"), "Floating tools must respect horizontal safe areas.");
+assert(css.includes("overflow-wrap: anywhere"), "Long user-generated text must not force horizontal page overflow.");
+assert(css.includes("prefers-reduced-motion: reduce"), "Shared UI must respect reduced-motion preferences.");
 
 if (failures.length) {
   console.error("\nMobile layout regression checks failed:");
