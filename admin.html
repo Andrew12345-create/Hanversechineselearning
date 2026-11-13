@@ -1653,7 +1653,93 @@
         max-width: none;
       }
     }
-  </style>
+  
+    /* Mobile navigation drawer, touch targets and narrow-screen work area. */
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      border: 0;
+      background: rgba(15, 35, 64, .42);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+    }
+    .sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    @media (max-width: 800px) {
+      .sidebar {
+        width: min(300px, 86vw);
+        max-width: 86vw;
+        max-height: 100vh;
+        max-height: 100dvh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+      }
+      .main { min-width: 0; width: 100%; }
+      .topbar {
+        min-width: 0;
+        padding: env(safe-area-inset-top, 0px) 12px 0;
+        gap: 8px;
+      }
+      .mobile-menu {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: grid;
+        place-items: center;
+      }
+      .top-title { min-width: 0; }
+      .top-title h1 { font-size: 15px; overflow-wrap: anywhere; }
+      .top-actions { min-width: 0; flex-wrap: wrap; justify-content: flex-end; }
+      .top-actions .btn { min-height: 42px; padding: 8px 10px; }
+      .content {
+        width: 100%;
+        min-width: 0;
+        padding: 18px 12px calc(42px + env(safe-area-inset-bottom, 0px));
+      }
+      .section-header { align-items: flex-start; flex-direction: column; }
+      .header-actions { width: 100%; flex-wrap: wrap; }
+      .header-actions .btn { flex: 1 1 auto; min-height: 44px; }
+      .table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      .table-wrap table { min-width: 820px; }
+      .user-drawer, .drawer {
+        width: min(460px, 100vw);
+        max-width: 100vw;
+        max-height: 100dvh;
+        overflow-y: auto;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar { height: 64px; padding-left: 9px; padding-right: 9px; }
+      .top-title h1 { font-size: 14px; }
+      .content { padding-left: 10px; padding-right: 10px; }
+      .section-header h2 { font-size: 20px; }
+      .metrics, .analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .metric { min-width: 0; padding: 11px; }
+      .metric-value { font-size: clamp(18px, 6vw, 21px); }
+      .dashboard-three, .panda-side { grid-template-columns: 1fr; }
+      .ops-centre-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .ops-service { min-width: 0; }
+      .preview-modal { width: calc(100vw - 20px); margin: 10px auto; max-height: calc(100dvh - 20px); overflow-y: auto; }
+      input, select, textarea { min-width: 0; max-width: 100%; font-size: 16px; }
+      .btn, .nav-button { min-height: 44px; }
+    }
+
+    @media (max-width: 360px) {
+      .ops-centre-grid { grid-template-columns: 1fr; }
+      .top-actions { gap: 4px; }
+      .top-actions .btn { padding: 7px 8px; font-size: 9px; }
+      .metrics, .analytics-grid { gap: 6px; }
+    }
+</style>
 </head>
 
 <body>
@@ -1790,7 +1876,7 @@
   <div class="main">
 
     <header class="topbar">
-      <button id="mobileMenu" class="mobile-menu" aria-label="Open navigation">☰</button>
+      <button id="mobileMenu" class="mobile-menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
 
       <div class="top-title">
         <h1 id="pageTitle">Dashboard</h1>
@@ -3105,8 +3191,36 @@
     button.addEventListener("click", () => switchSection(button.dataset.briefSection));
   });
 
-  $("mobileMenu").addEventListener("click", () => {
-    $("sidebar").classList.toggle("open");
+  const mobileSidebar = $("sidebar");
+  const mobileMenuButton = $("mobileMenu");
+  const sidebarBackdrop = document.createElement("button");
+  sidebarBackdrop.type = "button";
+  sidebarBackdrop.className = "sidebar-backdrop";
+  sidebarBackdrop.setAttribute("aria-label", "Close navigation");
+  document.body.appendChild(sidebarBackdrop);
+
+  function closeMobileSidebar() {
+    mobileSidebar.classList.remove("open");
+    sidebarBackdrop.classList.remove("open");
+    mobileMenuButton.setAttribute("aria-expanded", "false");
+    mobileMenuButton.setAttribute("aria-label", "Open navigation");
+    document.body.classList.remove("sidebar-open");
+  }
+
+  mobileMenuButton.addEventListener("click", () => {
+    const opening = !mobileSidebar.classList.contains("open");
+    mobileSidebar.classList.toggle("open", opening);
+    sidebarBackdrop.classList.toggle("open", opening);
+    mobileMenuButton.setAttribute("aria-expanded", String(opening));
+    mobileMenuButton.setAttribute("aria-label", opening ? "Close navigation" : "Open navigation");
+    document.body.classList.toggle("sidebar-open", opening);
+  });
+  sidebarBackdrop.addEventListener("click", closeMobileSidebar);
+  mobileSidebar.querySelectorAll(".nav-button").forEach(button => {
+    button.addEventListener("click", closeMobileSidebar);
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeMobileSidebar();
   });
 
   /* ================= USERS ================= */
