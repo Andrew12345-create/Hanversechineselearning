@@ -1832,7 +1832,7 @@ html[data-theme="dark"] .auth-alert a { color:#93C5FD; }
         >
       </div>
 
-      <div id="authError" class="error"></div>
+      <div id="authError" class="error" role="alert" aria-live="assertive"></div>
 
       <button id="authButton" class="btn btn-primary" type="submit" style="width:100%;">
         🔐 Unlock Admin
@@ -3138,7 +3138,7 @@ html[data-theme="dark"] .auth-alert a { color:#93C5FD; }
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok || !data.success) {
-      throw new Error(data.error || "Admin authentication failed.");
+      throw Object.assign(new Error(data.error || "Admin authentication failed."), { code: data.code || null });
     }
 
     state.admin = data.user || sessionUser;
@@ -3158,7 +3158,17 @@ html[data-theme="dark"] .auth-alert a { color:#93C5FD; }
       await login($("adminEmail").value.trim(), $("adminPassword").value);
       $("adminPassword").value = "";
     } catch (error) {
-      $("authError").textContent = error.message;
+      const errorBox = $("authError");
+      if (error.code === "ADMIN_MIGRATION_REQUIRED") {
+        errorBox.innerHTML = '<div class="auth-alert"><strong>Admin database setup is required</strong>' +
+          '<p>Your administrator account is not the problem. The security tables and role permissions have not been installed in the PostgreSQL database used by this deployment.</p>' +
+          '<ol><li>Open the Neon project connected to this HanVerse deployment.</li><li>Open SQL Editor and select the correct production database.</li><li>Run the complete migration file below.</li><li>Return here and sign in again.</li></ol>' +
+          '<code>migrations/2026110501_admin_security.sql</code><br>' +
+          '<a href="https://github.com/Andrew12345-create/Hanversechineselearning/blob/hanverse-learn/migrations/2026110501_admin_security.sql" target="_blank" rel="noopener noreferrer">Open the reviewed SQL migration ↗</a>' +
+          '<div style="margin-top:7px;font-size:11px">The migration is additive and preserves existing administrator accounts. Do not paste database passwords or connection strings into this page.</div></div>';
+      } else {
+        errorBox.textContent = error.message || "Administrator sign-in could not be completed."; 
+      }
     } finally {
       $("adminPassword").value = "";
       button.disabled = false;
