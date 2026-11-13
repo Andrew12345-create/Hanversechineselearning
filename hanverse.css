@@ -489,8 +489,38 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
 
 /* ─── MOBILE: the floating pill + More sheet are the only global nav ─── */
 @media (max-width: 1024px) {
-  body:not([data-topnav="keep"]) .nav:not(.nav-auth),
-  body:not([data-topnav="keep"]) .mobile-menu { display: none !important; }
+  /* Hide the desktop header only when the app's replacement tab bar exists.
+     Pages such as invite.html intentionally have no bottom-nav.js and must
+     retain a usable navigation header on tablets and phones. */
+  body.has-tabbar:not([data-topnav="keep"]) .nav:not(.nav-auth),
+  body.has-tabbar:not([data-topnav="keep"]) .mobile-menu { display: none !important; }
+
+  /* Fallback navigation for pages that do not mount the learner tab bar. */
+  body:not(.has-tabbar) .nav:not(.nav-auth) {
+    height: auto;
+    min-height: 60px;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 18px;
+  }
+  body:not(.has-tabbar) .nav:not(.nav-auth) .nav-links {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  body:not(.has-tabbar) .nav:not(.nav-auth) .nav-links::-webkit-scrollbar { display: none; }
+  body:not(.has-tabbar) .nav:not(.nav-auth) .nav-links a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  body:not(.has-tabbar) main { padding-top: 112px; }
 }
 
 /* ─── SKELETON LOADING ─── */
@@ -562,4 +592,110 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
 @media (pointer: coarse) {
   button, input[type="button"], input[type="submit"], input[type="reset"],
   select, a[role="button"], .lesson-btn { min-height: 44px; }
+}
+
+
+/* ============================================================
+   HANVERSE MOBILE EXPERIENCE — shared responsive safeguards
+   Applied after the page styles so common app-shell behaviour is
+   consistent without replacing each page's visual design.
+   ============================================================ */
+@media (max-width: 760px) {
+  html { scroll-padding-top: 88px; }
+  body { min-width: 320px; }
+  .container { width: calc(100% - 24px); }
+  .section-head { margin-bottom: 28px; }
+  .section-head h2 { font-size: clamp(25px, 7vw, 36px); }
+  .section-head p { font-size: 14px; }
+
+  /* Keep controls usable on iOS/Android and prevent input focus zoom. */
+  input, select, textarea { font-size: 16px; }
+  button, input[type="button"], input[type="submit"], input[type="reset"],
+  select, a[role="button"] { touch-action: manipulation; }
+  button, input[type="button"], input[type="submit"], input[type="reset"],
+  select, a[role="button"] { min-height: 44px; }
+
+  /* Long data tables scroll inside their own region instead of widening
+     the whole viewport. */
+  .table-wrap, .table-responsive, .table-scroll, .table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-wrap table, .table-responsive table, .table-scroll table,
+  .table-container table { min-width: 620px; }
+  pre, .code-block { max-width: 100%; overflow-x: auto; }
+
+  /* Dialogs and drawers remain reachable above the on-screen keyboard. */
+  dialog, .modal, .modal-card, .modal-content, .drawer, .drawer-panel,
+  .preview-modal, .complete-modal-card {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* The floating app navigation respects notches and home indicators. */
+  .hud { top: max(8px, env(safe-area-inset-top, 0px)); }
+  .tabbar {
+    bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    width: calc(100% - 16px);
+  }
+  .sheet {
+    bottom: calc(var(--tabbar-h) + 20px + env(safe-area-inset-bottom, 0px));
+    max-height: min(70dvh, 620px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .sheet-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body.sheet-open { overflow: hidden; }
+
+  /* Keep floating help/chat controls above the persistent tab bar. */
+  body.has-tabbar .panda-fab,
+  body.has-tabbar .ask-panda-fab {
+    bottom: calc(var(--tabbar-space) + 18px + env(safe-area-inset-bottom, 0px));
+  }
+  body.has-tabbar .panda-chat,
+  body.has-tabbar .ask-panda-panel {
+    right: 12px;
+    bottom: calc(var(--tabbar-space) + 14px + env(safe-area-inset-bottom, 0px));
+    width: min(380px, calc(100vw - 24px));
+    max-height: calc(100dvh - 150px);
+  }
+}
+
+@media (max-width: 480px) {
+  .nav:not(.nav-auth) { width: calc(100% - 16px); }
+  body:not(.has-tabbar) .nav:not(.nav-auth) .brand span { display: none; }
+  body:not(.has-tabbar) .nav:not(.nav-auth) .nav-links a {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  .footer-inner { gap: 14px; }
+  .footer-links { gap: 10px 14px; }
+  .sheet { width: calc(100% - 12px); }
+  .sheet-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hud { gap: 5px; padding-inline: 8px; }
+  .hud-brand { gap: 6px; font-size: 14px; }
+  .hud-brand img { width: 27px; height: 27px; }
+  .hud-stats { gap: 4px; }
+  .hud-chip { padding: 6px 7px; font-size: 10px; }
+}
+
+@media (max-width: 360px) {
+  .tabbar { width: calc(100% - 10px); height: 56px; padding: 3px; }
+  .tabbar a, .tabbar .tabbar-more { gap: 2px; font-size: 8px; }
+  .tabbar a svg, .tabbar .tabbar-more svg { width: 18px; height: 18px; }
+  .hud-stats .hud-chip:nth-of-type(n + 2) { display: none; }
+  .sheet-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .sheet { max-height: 58dvh; }
+  .panda-chat, .ask-panda-panel { max-height: 58dvh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabbar *, .sheet *, .hud * { animation: none !important; transition: none !important; }
 }
