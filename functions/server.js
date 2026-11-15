@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
-import { computeEntitlement, hasAccess, PLAN_RANK, upgradeRequiredPayload } from './entitlements.js';
+import { computeEntitlement, hasAccess, PLAN_RANK } from './entitlements.js';
 import { registerAIRoutes } from './ai-routes.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
@@ -1130,7 +1130,7 @@ function requiresAdminReauthentication(req) {
   const method = String(req.method || 'GET').toUpperCase();
   if (method === 'DELETE') return true;
   return method !== 'GET' && (
-    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns)/.test(path)
+    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns)/.test(path)
   );
 }
 
@@ -5337,16 +5337,6 @@ async function ensureParentTables() {
   await pool.query(`ALTER TABLE children ADD COLUMN IF NOT EXISTS share_classroom_profile BOOLEAN NOT NULL DEFAULT TRUE`);
   await pool.query(`ALTER TABLE children ADD COLUMN IF NOT EXISTS controls_updated_at TIMESTAMPTZ`);
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS family_learning_pack_access (
-      parent_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-      child_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-      enabled BOOLEAN NOT NULL DEFAULT TRUE,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      PRIMARY KEY (parent_user_id, child_user_id)
-    )
-  `);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_pack_child ON family_learning_pack_access(child_user_id, enabled)`);
-  await pool.query(`
     CREATE TABLE IF NOT EXISTS parent_messages (
       message_id SERIAL PRIMARY KEY,
       parent_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
@@ -5387,39 +5377,15 @@ async function ensureLinkTables() {
 let adminTablesReady = false;
 async function ensureAdminTables() {
   if (adminTablesReady) return;
-  const requiredTables = ['admin_audit', 'admin_roles', 'admin_elevated_sessions', 'admin_auth_attempts'];
-  const tableResult = await pool.query(`
-    SELECT table_name FROM information_schema.tables
-    WHERE table_schema = current_schema() AND table_name = ANY($1::text[])
-  `, [requiredTables]);
-  const presentTables = new Set(tableResult.rows.map(row => row.table_name));
-  const missingTables = requiredTables.filter(table => !presentTables.has(table));
-  const requiredColumns = {
-    admin_audit: ['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at'],
-    admin_roles: ['role_key','permissions'],
-    admin_elevated_sessions: ['jti','user_id','expires_at','reauthenticated_at','revoked_at'],
-    admin_auth_attempts: ['scope','key_hash','window_started_at','attempts','locked_until'],
-    users: ['admin_role']
-  };
-  const expectedColumnPairs = Object.entries(requiredColumns)
-    .flatMap(([table, columns]) => columns.map(column => [table, column]));
-  const columnResult = await pool.query(`
-    SELECT table_name, column_name FROM information_schema.columns
-    WHERE table_schema = current_schema()
-      AND (table_name, column_name) IN (
-        SELECT required.table_name, required.column_name
-        FROM unnest($1::text[], $2::text[]) AS required(table_name, column_name)
-      )
-  `, [expectedColumnPairs.map(([table]) => table), expectedColumnPairs.map(([, column]) => column)]);
-  const presentColumns = new Set(columnResult.rows.map(row => `${row.table_name}.${row.column_name}`));
-  const missingColumns = Object.entries(requiredColumns)
-    .flatMap(([table, columns]) => columns
-      .filter(column => !presentColumns.has(`${table}.${column}`))
-      .map(column => `${table}.${column}`));
-  if (missingTables.length || missingColumns.length) {
-    const error = new Error('Admin security migration required: apply migrations/2026110501_admin_security.sql before enabling Admin operations.');
-    error.code = 'ADMIN_MIGRATION_REQUIRED';
-    throw error;
+  const required = await pool.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_schema = current_schema() AND table_name = 'admin_audit'
+      AND column_name = ANY($1::text[])
+  `, [['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at']]);
+  const missing = ['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at']
+    .filter(column => !required.rows.some(row => row.column_name === column));
+  if (missing.length) {
+    throw new Error('Admin security migration required: apply migrations/2026110501_admin_security.sql before enabling Admin operations.');
   }
   adminTablesReady = true;
 }
@@ -5965,29 +5931,6 @@ async function requireVerifiedParent(res, auth) {
   return row;
 }
 
-async function requirePremiumFamilyPack(res, parentUserId) {
-  const parent = (await pool.query(`SELECT user_id, premium, premium_until, membership_plan, membership_status,
-    trial_ends_at, trial_used, is_banned FROM users WHERE user_id = $1`, [parentUserId])).rows[0];
-  const entitlement = parent && !parent.is_banned ? computeEntitlement(parent) : null;
-  if (!entitlement || !hasAccess(entitlement, 'premium')) {
-    res.status(403).json(upgradeRequiredPayload('premium'));
-    return null;
-  }
-  return entitlement;
-}
-
-async function buildFamilyLearningPack(childUserId) {
-  try {
-    const words = (await pool.query(`SELECT word, pinyin, meaning, COALESCE(mastery_level, 0)::int AS mastery
-      FROM vocabulary_progress WHERE user_id = $1
-      ORDER BY last_reviewed DESC NULLS LAST, COALESCE(mastery_level, 0) ASC LIMIT 8`, [childUserId])).rows;
-    return { words };
-  } catch (error) {
-    console.warn('family pack vocabulary unavailable:', error.message);
-    return { words: [] };
-  }
-}
-
 function cleanAssignmentFields(body, res) {
   const title = String((body && body.title) || '').trim();
   const description = String((body && body.description) || '').trim();
@@ -6429,74 +6372,6 @@ router.get('/parents/:parentId/trend', async (req, res) => {
 });
 
 /* ==========================================
-  PREMIUM FAMILY LEARNING PACK
-========================================== */
-
-router.get('/parents/:parentId/family-learning-pack', async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
-    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
-    if (!await requireVerifiedParent(res, auth)) return;
-    if (!await requirePremiumFamilyPack(res, auth.user_id)) return;
-    await ensureParentTables();
-    const children = (await pool.query(`SELECT c.user_id, c.full_name, COALESCE(f.enabled, FALSE) AS enabled, f.updated_at
-      FROM children c JOIN parents p ON p.parent_id = c.parent_id
-      LEFT JOIN family_learning_pack_access f ON f.parent_user_id = p.user_id AND f.child_user_id = c.user_id
-      WHERE p.user_id = $1 AND c.is_active = TRUE ORDER BY c.full_name`, [auth.user_id])).rows;
-    return res.json({ success: true, children });
-  } catch (error) { console.error('family-pack list error:', error); return res.status(500).json({ success: false, error: 'Failed to load Family Learning Pack.' }); }
-});
-
-router.put('/parents/children/:childUserId/family-learning-pack', parentWriteLimiter, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
-    if (!await requireVerifiedParent(res, auth)) return;
-    if (!await requirePremiumFamilyPack(res, auth.user_id)) return;
-    if (typeof req.body?.enabled !== 'boolean') return res.status(400).json({ success: false, error: 'enabled must be true or false.' });
-    await ensureParentTables();
-    const child = await getOwnChild(res, auth, req.params.childUserId); if (!child) return;
-    const result = await pool.query(`INSERT INTO family_learning_pack_access (parent_user_id, child_user_id, enabled)
-      VALUES ($1,$2,$3) ON CONFLICT (parent_user_id, child_user_id)
-      DO UPDATE SET enabled = EXCLUDED.enabled, updated_at = NOW() RETURNING enabled, updated_at`, [auth.user_id, child.user_id, req.body.enabled]);
-    return res.json({ success: true, setting: result.rows[0] });
-  } catch (error) { console.error('family-pack setting error:', error); return res.status(500).json({ success: false, error: 'Failed to save Family Learning Pack.' }); }
-});
-
-router.get('/parents/:parentId/family-learning-pack/:childUserId', async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
-    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
-    if (!await requireVerifiedParent(res, auth)) return;
-    if (!await requirePremiumFamilyPack(res, auth.user_id)) return;
-    await ensureParentTables();
-    const child = await getOwnChild(res, auth, req.params.childUserId); if (!child) return;
-    const setting = (await pool.query(`SELECT enabled FROM family_learning_pack_access WHERE parent_user_id = $1 AND child_user_id = $2`, [auth.user_id, child.user_id])).rows[0];
-    if (!setting?.enabled) return res.status(404).json({ success: false, error: 'Family Learning Pack is not enabled for this child.' });
-    const pack = await buildFamilyLearningPack(child.user_id);
-    return res.json({ success: true, pack: { title: 'Family Learning Pack', childName: child.full_name, wordCount: pack.words.length, words: pack.words, generatedAt: new Date().toISOString() } });
-  } catch (error) { console.error('family-pack parent preview error:', error); return res.status(500).json({ success: false, error: 'Failed to prepare Family Learning Pack.' }); }
-});
-
-router.get('/family-learning-pack/me', async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
-    await ensureParentTables();
-    const link = (await pool.query(`SELECT p.user_id AS parent_user_id, c.full_name
-      FROM children c JOIN parents p ON p.parent_id = c.parent_id
-      JOIN family_learning_pack_access f ON f.parent_user_id = p.user_id AND f.child_user_id = c.user_id
-      WHERE c.user_id = $1 AND c.is_active = TRUE AND f.enabled = TRUE LIMIT 1`, [auth.user_id])).rows[0];
-    if (!link) return res.status(404).json({ success: false, error: 'Family Learning Pack is not enabled.' });
-    if (!await requirePremiumFamilyPack(res, link.parent_user_id)) return;
-    const pack = await buildFamilyLearningPack(auth.user_id);
-    return res.json({ success: true, pack: { title: 'Family Learning Pack', childName: link.full_name, wordCount: pack.words.length, words: pack.words, generatedAt: new Date().toISOString() } });
-  } catch (error) { console.error('family-pack learner error:', error); return res.status(500).json({ success: false, error: 'Failed to prepare Family Learning Pack.' }); }
-});
-
-/* ==========================================
   WORKSHEETS ENDPOINTS 📝
 ========================================== */
 
@@ -6544,16 +6419,15 @@ router.get('/worksheets', async (req, res) => {
   }
 });
 
-// GET: Download worksheet. Premium files are never disclosed without a trusted entitlement.
+// GET: Download worksheet
 router.get('/worksheets/download/:id', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
 
     const { id } = req.params;
 
     const result = await pool.query(`
-      SELECT worksheet_id, title, file_url, file_type, file_size, premium
+      SELECT worksheet_id, title, file_url, file_type, file_size
       FROM worksheets
       WHERE worksheet_id = $1 AND is_published = true
     `, [id]);
@@ -6566,12 +6440,6 @@ router.get('/worksheets/download/:id', async (req, res) => {
     }
 
     const worksheet = result.rows[0];
-    if (worksheet.premium) {
-      const user = (await pool.query(`SELECT premium, premium_until, membership_plan, membership_status, trial_ends_at, trial_used, is_banned
-        FROM users WHERE user_id = $1`, [auth.user_id])).rows[0];
-      const entitlement = user && !user.is_banned ? computeEntitlement(user) : null;
-      if (!entitlement || !hasAccess(entitlement, 'premium')) return res.status(403).json(upgradeRequiredPayload('premium'));
-    }
 
     await pool.query(`
       UPDATE worksheets 
@@ -6958,7 +6826,6 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     if (!adminPassword || adminPassword.length > 256) {
       return res.status(401).json({ success: false, error: 'Administrator verification failed.' });
     }
-    await ensureAdminTables();
     const blocked = await recordAdminPasswordAttempt(auth.user_id, req);
     if (blocked) return res.status(429).json({ success: false, error: 'Too many verification attempts. Please try again later.' });
     const result = await pool.query(
@@ -6982,6 +6849,7 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     );
     const ip = String(req.headers['x-nf-client-connection-ip'] || req.ip || '').slice(0, 120);
     const userAgent = String(req.headers['user-agent'] || '').slice(0, 500);
+    await ensureAdminTables();
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -7005,22 +6873,8 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     setAdminSessionCookie(res, token);
     return res.json({ success: true, user: safeUser(user), expiresIn: ADMIN_SESSION_TTL_SECONDS });
   } catch (error) {
-    if (error.code === 'ADMIN_MIGRATION_REQUIRED') {
-      console.error('❌ Admin elevation blocked: required security migration is missing or incomplete.');
-      return res.status(503).json({
-        success: false,
-        code: 'ADMIN_MIGRATION_REQUIRED',
-        error: 'Admin database setup is incomplete. The required security migration must be applied before Admin sign-in can finish.'
-      });
-    }
-    const referenceId = crypto.randomUUID();
-    console.error(`[admin-auth] elevation failed reference=${referenceId}:`, error.message);
-    return res.status(503).json({
-      success: false,
-      code: 'ADMIN_AUTH_UNAVAILABLE',
-      referenceId,
-      error: `Administrator verification is temporarily unavailable. Reference: ${referenceId}`
-    });
+    console.error('❌ Admin elevation failed:', error.message);
+    return res.status(503).json({ success: false, error: 'Administrator verification is temporarily unavailable.' });
   }
 });
 
@@ -8357,12 +8211,10 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
       });
     }
 
-    const cleanSubject = String(subject || '').trim();
-    const cleanMessage = String(message || '').trim();
-    if (!cleanSubject || cleanSubject.length > 180 || /[\r\n]/.test(cleanSubject) || !cleanMessage || cleanMessage.length > 10000) {
+    if (!subject || !message) {
       return res.status(400).json({
         success: false,
-        error: 'Enter a one-line subject (up to 180 characters) and message (up to 10,000 characters).'
+        error: 'Subject and message are required.'
       });
     }
 
@@ -8379,39 +8231,30 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
     }
 
     const user = result.rows[0];
-    const html = getHanVerseEmailHTML({
-      subject: cleanSubject,
-      message: cleanMessage,
-      recipientName: user.full_name || user.username || 'HanVerse Friend',
-      senderName: 'HanVerse Team',
-      preheader: cleanSubject
-    });
+    const fullName = user.full_name || user.username || 'User';
+
+const html = getHanVerseEmailHTML({
+  subject: String(subject).trim(),
+  message: String(message).trim(),
+  recipientName: user.full_name || user.username || 'HanVerse Friend',
+  senderName: 'HanVerse Team',
+  preheader: String(subject).trim()
+});
 
     const emailResult = await sendEmail({
       to: user.email,
-      subject: cleanSubject,
+      subject,
       html
     });
 
     if (!emailResult.success) {
-      await auditAdmin(req, 'user.email', {
-        target_type: 'user',
-        target_id: userId,
-        outcome: 'failure',
-        after_safe: { provider_confirmed: false, subject: cleanSubject }
-      });
       return res.status(500).json({
         success: false,
         error: emailResult.error || 'Failed to send email.'
       });
     }
 
-    await auditAdmin(req, 'user.email', {
-      target_type: 'user',
-      target_id: userId,
-      outcome: 'success',
-      after_safe: { provider_confirmed: true, subject: cleanSubject }
-    });
+    await auditAdmin(req, 'user.email', { target: req.params.id });
     return res.json({
       success: true,
       message: 'Email sent successfully.'
