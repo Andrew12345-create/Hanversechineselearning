@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
-import { computeEntitlement, hasAccess, PLAN_RANK } from './entitlements.js';
+import { computeEntitlement, hasAccess, PLAN_RANK, upgradeRequiredPayload } from './entitlements.js';
 import { registerAIRoutes } from './ai-routes.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
@@ -1130,7 +1130,7 @@ function requiresAdminReauthentication(req) {
   const method = String(req.method || 'GET').toUpperCase();
   if (method === 'DELETE') return true;
   return method !== 'GET' && (
-    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns)/.test(path)
+    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns)/.test(path)
   );
 }
 
@@ -5377,15 +5377,39 @@ async function ensureLinkTables() {
 let adminTablesReady = false;
 async function ensureAdminTables() {
   if (adminTablesReady) return;
-  const required = await pool.query(`
-    SELECT column_name FROM information_schema.columns
-    WHERE table_schema = current_schema() AND table_name = 'admin_audit'
-      AND column_name = ANY($1::text[])
-  `, [['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at']]);
-  const missing = ['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at']
-    .filter(column => !required.rows.some(row => row.column_name === column));
-  if (missing.length) {
-    throw new Error('Admin security migration required: apply migrations/2026110501_admin_security.sql before enabling Admin operations.');
+  const requiredTables = ['admin_audit', 'admin_roles', 'admin_elevated_sessions', 'admin_auth_attempts'];
+  const tableResult = await pool.query(`
+    SELECT table_name FROM information_schema.tables
+    WHERE table_schema = current_schema() AND table_name = ANY($1::text[])
+  `, [requiredTables]);
+  const presentTables = new Set(tableResult.rows.map(row => row.table_name));
+  const missingTables = requiredTables.filter(table => !presentTables.has(table));
+  const requiredColumns = {
+    admin_audit: ['event_id','actor_id','actor_label','action','category','target_type','target_id','reason','outcome','before_safe','after_safe','detail','ip','created_at'],
+    admin_roles: ['role_key','permissions'],
+    admin_elevated_sessions: ['jti','user_id','expires_at','reauthenticated_at','revoked_at'],
+    admin_auth_attempts: ['scope','key_hash','window_started_at','attempts','locked_until'],
+    users: ['admin_role']
+  };
+  const expectedColumnPairs = Object.entries(requiredColumns)
+    .flatMap(([table, columns]) => columns.map(column => [table, column]));
+  const columnResult = await pool.query(`
+    SELECT table_name, column_name FROM information_schema.columns
+    WHERE table_schema = current_schema()
+      AND (table_name, column_name) IN (
+        SELECT required.table_name, required.column_name
+        FROM unnest($1::text[], $2::text[]) AS required(table_name, column_name)
+      )
+  `, [expectedColumnPairs.map(([table]) => table), expectedColumnPairs.map(([, column]) => column)]);
+  const presentColumns = new Set(columnResult.rows.map(row => `${row.table_name}.${row.column_name}`));
+  const missingColumns = Object.entries(requiredColumns)
+    .flatMap(([table, columns]) => columns
+      .filter(column => !presentColumns.has(`${table}.${column}`))
+      .map(column => `${table}.${column}`));
+  if (missingTables.length || missingColumns.length) {
+    const error = new Error('Admin security migration required: apply migrations/2026110501_admin_security.sql before enabling Admin operations.');
+    error.code = 'ADMIN_MIGRATION_REQUIRED';
+    throw error;
   }
   adminTablesReady = true;
 }
@@ -6419,15 +6443,16 @@ router.get('/worksheets', async (req, res) => {
   }
 });
 
-// GET: Download worksheet
+// GET: Download worksheet. Premium files require an authenticated entitlement.
 router.get('/worksheets/download/:id', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
+    const auth = await requireUser(req, res); if (!auth) return;
 
     const { id } = req.params;
 
     const result = await pool.query(`
-      SELECT worksheet_id, title, file_url, file_type, file_size
+      SELECT worksheet_id, title, file_url, file_type, file_size, premium
       FROM worksheets
       WHERE worksheet_id = $1 AND is_published = true
     `, [id]);
@@ -6440,6 +6465,12 @@ router.get('/worksheets/download/:id', async (req, res) => {
     }
 
     const worksheet = result.rows[0];
+    if (worksheet.premium) {
+      const user = (await pool.query(`SELECT premium, premium_until, membership_plan, membership_status, trial_ends_at, trial_used, is_banned
+        FROM users WHERE user_id = $1`, [auth.user_id])).rows[0];
+      const entitlement = user && !user.is_banned ? computeEntitlement(user) : null;
+      if (!entitlement || !hasAccess(entitlement, 'premium')) return res.status(403).json(upgradeRequiredPayload('premium'));
+    }
 
     await pool.query(`
       UPDATE worksheets 
@@ -8211,10 +8242,12 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
       });
     }
 
-    if (!subject || !message) {
+    const cleanSubject = String(subject || '').trim();
+    const cleanMessage = String(message || '').trim();
+    if (!cleanSubject || cleanSubject.length > 180 || cleanSubject.includes(String.fromCharCode(10)) || cleanSubject.includes(String.fromCharCode(13)) || !cleanMessage || cleanMessage.length > 10000) {
       return res.status(400).json({
         success: false,
-        error: 'Subject and message are required.'
+        error: 'Enter a one-line subject (up to 180 characters) and message (up to 10,000 characters).'
       });
     }
 
@@ -8231,30 +8264,39 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
     }
 
     const user = result.rows[0];
-    const fullName = user.full_name || user.username || 'User';
-
-const html = getHanVerseEmailHTML({
-  subject: String(subject).trim(),
-  message: String(message).trim(),
-  recipientName: user.full_name || user.username || 'HanVerse Friend',
-  senderName: 'HanVerse Team',
-  preheader: String(subject).trim()
-});
+    const html = getHanVerseEmailHTML({
+      subject: cleanSubject,
+      message: cleanMessage,
+      recipientName: user.full_name || user.username || 'HanVerse Friend',
+      senderName: 'HanVerse Team',
+      preheader: cleanSubject
+    });
 
     const emailResult = await sendEmail({
       to: user.email,
-      subject,
+      subject: cleanSubject,
       html
     });
 
     if (!emailResult.success) {
+      await auditAdmin(req, 'user.email', {
+        target_type: 'user',
+        target_id: userId,
+        outcome: 'failure',
+        after_safe: { provider_confirmed: false, subject: cleanSubject }
+      });
       return res.status(500).json({
         success: false,
         error: emailResult.error || 'Failed to send email.'
       });
     }
 
-    await auditAdmin(req, 'user.email', { target: req.params.id });
+    await auditAdmin(req, 'user.email', {
+      target_type: 'user',
+      target_id: userId,
+      outcome: 'success',
+      after_safe: { provider_confirmed: true, subject: cleanSubject }
+    });
     return res.json({
       success: true,
       message: 'Email sent successfully.'
