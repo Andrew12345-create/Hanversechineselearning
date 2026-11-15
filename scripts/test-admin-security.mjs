@@ -37,6 +37,9 @@ test('Admin sign-in obtains normal session then elevates in memory', /fetch\(`\$
 test('browser uses same-origin cookies for Admin API calls', /credentials: "same-origin"/.test(admin) && /\/admin\/session/.test(admin));
 test('Admin delete UI reads actual impact and requires typed confirmation', /\/admin\/users\/\$\{encodeURIComponent\(id\)\}\/impact/.test(admin) && /Type the account username exactly/.test(admin));
 test('Admin routes are served by this repository, not redirected away', !/from = "\/admin\.html"[\s\S]{0,120}https:\/\/learn-hanverse\.netlify\.app/.test(netlify) && /from = "\/admin"[\s\S]{0,80}to = "\/admin\.html"/.test(netlify));
+test('CyberShield endpoint is protected by audit.read and uses existing admin security tables', server.includes("if (path === '/admin/security/overview') return 'audit.read'") && server.includes("router.get('/admin/security/overview', verifyAdminToken") && server.includes('admin_elevated_sessions') && server.includes('admin_auth_attempts'));
+test('CyberShield exposes aggregate telemetry without raw account or IP hashes', server.includes('active_elevated_sessions: Number(s.active_sessions || 0)') && server.includes('authentication_attempts_24h: Number(a.attempts_24h || 0)') && !server.includes('SELECT scope, key_hash'));
+test('CyberShield UI navigation, refresh and event rendering are wired', admin.includes('data-section="cybershield"') && admin.includes('if (section === "cybershield") loadCyberShield()') && admin.includes('api("/admin/security/overview")') && admin.includes('cyberShieldRefresh'));
 
 const inlineScripts = [...admin.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m => m[1]).filter(code => code.trim());
 for (let i = 0; i < inlineScripts.length; i++) {
