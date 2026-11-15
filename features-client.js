@@ -52,10 +52,31 @@
   window.HanVerseFeatures = {
     currentUserId,
     api,
+    /* Privacy-conscious product analytics: sends ONLY the event name to a
+       counter endpoint — no ids, no page content, no child data. Honours
+       Do-Not-Track. Fire-and-forget; failures are silently ignored. */
+    track(event) {
+      try {
+        if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
+        const known = ['page_view','signup_complete','lesson_start','lesson_complete',
+          'game_complete','review_session','talk_session','paywall_view',
+          'checkout_start','trial_start'];
+        if (!known.includes(event)) return;
+        fetch('/api/analytics/event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event }),
+          keepalive: true
+        }).catch(() => {});
+      } catch {}
+    },
     quests: {
       get: uid => api(`/quests/daily/${uid}`),
-      progress: (uid, kind, amount) => api('/quests/progress', { method: 'POST', body: { userId: uid, kind, amount } }),
       claimChest: uid => api('/quests/claim-chest', { method: 'POST', body: { userId: uid } })
+    },
+    mission: {
+      get: uid => api(`/mission/daily/${uid}`),
+      claim: uid => api('/mission/claim', { method: 'POST', body: { userId: uid } })
     },
     streak: {
       get: uid => api(`/streak/${uid}`),
@@ -83,10 +104,13 @@
       check: uid => api(`/achievements/check/${uid}`, { method: 'POST', body: { userId: uid } })
     },
     goals: {
-      setTarget: (uid, targetXp) => api('/goals/target', { method: 'POST', body: { userId: uid, targetXp } })
+      // uid remains accepted for older callers; server ignores client-supplied identity.
+      setTarget: (uid, targetXp) => api('/goals/target', { method: 'POST', body: { userId: uid, targetXp } }),
+      setDailyTargets: ({ targetXp, targetLessons, targetSpeaking }) => api('/goals/target', { method: 'POST', body: { targetXp, targetLessons, targetSpeaking } })
     },
     placement: {
-      submit: (uid, correct, total, answers) => api('/placement/submit', { method: 'POST', body: { userId: uid, correct, total, answers } })
+      grade: answers => api('/placement/grade', { method: 'POST', body: { answers } }),
+      submit: (uid, answers) => api('/placement/submit', { method: 'POST', body: { userId: uid, answers } })
     },
     games: {
       session: (uid, game, score, correct, total) => api('/games/session', { method: 'POST', body: { userId: uid, game, score, correct, total } })
@@ -111,7 +135,23 @@
     classroom: {
       join: (uid, classCode) => api('/classroom/join', { method: 'POST', body: { userId: uid, classCode } }),
       create: (className) => api('/classroom/create', { method: 'POST', body: { className } }),
-      roster: (classCode) => api('/classroom/roster/' + encodeURIComponent(classCode))
+      roster: (classCode) => api('/classroom/roster/' + encodeURIComponent(classCode)),
+      leave: () => api('/classroom/leave', { method: 'POST', body: {} }),
+      mine: () => api('/classroom/mine'),
+      aggregate: (classCode) => api('/classroom/aggregate/' + encodeURIComponent(classCode)),
+      mastery: (classCode) => api('/classroom/mastery/' + encodeURIComponent(classCode)),
+      questProgress: (classCode) => api('/classroom/quest-progress/' + encodeURIComponent(classCode)),
+      assignments: (classCode) => api('/classroom/assignments/' + encodeURIComponent(classCode)),
+      createAssignment: (assignment) => api('/classroom/assignments', { method: 'POST', body: assignment }),
+      completeAssignment: (assignmentId) => api('/classroom/assignments/' + encodeURIComponent(assignmentId) + '/complete', { method: 'POST', body: {} }),
+      setQuest: (classCode, quest) => api('/classroom/quest', {
+        method: 'POST',
+        body: { classCode, ...quest }
+      }),
+      removeMember: (classCode, targetUserId) => api('/classroom/remove-member', {
+        method: 'POST',
+        body: { classCode, targetUserId }
+      })
     }
   };
 
@@ -147,4 +187,7 @@
     chest()   { if (!enabled()) return; [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * .08, .3, 'triangle', .12)); },
     setEnabled(on) { try { localStorage.setItem('hanverse_sound', on ? 'on' : 'off'); } catch {} }
   };
+  if (typeof document !== 'undefined') {
+    window.HanVerseFeatures.track('page_view');
+  }
 })();

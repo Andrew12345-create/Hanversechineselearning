@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Words — Personal Vocabulary Universe | HanVerse</title>
+<meta name="description" content="Every Mandarin word you've met — search, listen, filter by mastery, and see what's due for review.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="Hanverse-logo2.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hanverse.css?v=1">
+<script src="js/auth-fetch.js?v=1"></script>
+<script src="features-client.js?v=1"></script>
+<script src="shared-nav.js?v=1"></script>
+<script src="nav-user.js?v=1"></script>
+<script src="bottom-nav.js?v=1"></script>
+<style>
+  .vocab-hero { max-width: 860px; margin: 0 auto; padding: 28px 16px 10px; }
+  .vocab-hero h1 { font-size: 1.6rem; color: var(--navy, #0F2340); margin: 4px 0 2px; }
+  .vocab-hero .sub { color: var(--muted, #5D7A9A); font-size: .9rem; }
+  .vocab-stats { display: flex; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+  .vocab-stat { flex: 1; min-width: 100px; background: #fff; border: 1.5px solid #D5E3F0; border-radius: 14px; padding: 12px 14px; }
+  .vocab-stat b { display: block; font-size: 1.4rem; color: var(--navy, #0F2340); }
+  .vocab-stat span { font-size: .72rem; color: var(--muted, #5D7A9A); font-weight: 700; }
+  .vocab-tools { display: flex; gap: 10px; margin: 12px 0 18px; flex-wrap: wrap; align-items: center; }
+  .vocab-search { flex: 1; min-width: 200px; padding: 11px 16px; border: 1.5px solid #D5E3F0; border-radius: 12px; font: inherit; font-size: .92rem; background: #fff; }
+  .vocab-search:focus-visible { outline: 3px solid #93C5FD; outline-offset: 1px; }
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { border: 1.5px solid #D5E3F0; background: #fff; color: #0F2340; border-radius: 999px; padding: 7px 14px; font-weight: 800; font-size: .76rem; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: #2563EB; border-color: #2563EB; color: #fff; }
+  .chip:focus-visible { outline: 3px solid #93C5FD; outline-offset: 1px; }
+  .word-grid { max-width: 860px; margin: 0 auto 80px; padding: 0 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .word-card { background: #fff; border: 1.5px solid #D5E3F0; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .word-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .word-hz { font-size: 1.7rem; font-weight: 700; color: #0F2340; font-family: 'Noto Sans SC', sans-serif; line-height: 1.15; }
+  .word-say { border: 0; background: #EFF6FF; color: #2563EB; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: .95rem; flex: none; }
+  .word-say:hover { background: #DBEAFE; }
+  .word-say:focus-visible { outline: 3px solid #93C5FD; outline-offset: 1px; }
+  .word-py { font-size: .78rem; color: #2563EB; font-weight: 800; }
+  .word-en { font-size: .85rem; color: #33475C; }
+  .word-meta { display: flex; gap: 6px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .mastery-dots { display: flex; gap: 3px; }
+  .mastery-dots i { width: 8px; height: 8px; border-radius: 50%; background: #E2E8F0; }
+  .mastery-dots i.on { background: #16A34A; }
+  .pill { font-size: .64rem; font-weight: 800; border-radius: 999px; padding: 2px 8px; }
+  .pill.due { background: #FEF3C7; color: #92400E; }
+  .pill.weak { background: #FEE2E2; color: #991B1B; }
+  .pill.src { background: #EFF6FF; color: #1E40AF; }
+  .state-box { max-width: 860px; margin: 40px auto 120px; padding: 0 16px; text-align: center; color: var(--muted, #5D7A9A); }
+  .state-box .big { font-size: 44px; display: block; margin-bottom: 8px; }
+  .spinner { width: 34px; height: 34px; margin: 0 auto 10px; border: 4px solid #DBEAFE; border-top-color: #2563EB; border-radius: 50%; animation: vspin .8s linear infinite; }
+  @keyframes vspin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+</style>
+</head>
+<body>
+  <header id="siteNav"></header>
+  <main>
+    <section class="vocab-hero">
+      <small class="sub" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.68rem">Personal Vocabulary Universe</small>
+      <h1>My Words <span aria-hidden="true">📖</span></h1>
+      <p class="sub">Every word you've met — tap 🔊 to hear it, filter by mastery, review what's due.</p>
+      <div class="vocab-stats" id="vocabStats" hidden>
+        <div class="vocab-stat"><b id="statTotal">0</b><span>WORDS MET</span></div>
+        <div class="vocab-stat"><b id="statMastered">0</b><span>MASTERED (4+)</span></div>
+        <div class="vocab-stat"><b id="statDue">0</b><span>DUE FOR REVIEW</span></div>
+        <div class="vocab-stat"><b id="statWeak">0</b><span>NEEDS WORK (0–2)</span></div>
+      </div>
+      <div class="vocab-tools">
+        <input class="vocab-search" id="vocabSearch" type="search" placeholder="Search 汉字, pinyin or meaning…" aria-label="Search vocabulary">
+        <div class="chip-row" role="group" aria-label="Filter by mastery">
+          <button class="chip" data-f="all" aria-pressed="true">All</button>
+          <button class="chip" data-f="due" aria-pressed="false">Due</button>
+          <button class="chip" data-f="weak" aria-pressed="false">Needs work</button>
+          <button class="chip" data-f="mastered" aria-pressed="false">Mastered</button>
+        </div>
+      </div>
+    </section>
+    <div class="state-box" id="vocabLoading" role="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span>Loading your words…</div>
+    <div class="state-box" id="vocabError" hidden><span class="big" aria-hidden="true">🐼</span><b>Couldn't load your words.</b><p id="vocabErrMsg">Please check your connection and try again.</p><button class="chip" id="vocabRetry">Try again</button></div>
+    <div class="state-box" id="vocabEmpty" hidden><span class="big" aria-hidden="true">🌱</span><b>No words yet!</b><p>Words you meet in lessons and review sessions appear here. Start a lesson to grow your garden.</p><a class="chip" href="learn.html" style="text-decoration:none;display:inline-block">Go to my lessons</a></div>
+    <div class="state-box" id="vocabNoMatch" hidden><span class="big" aria-hidden="true">🔍</span><b>No matches.</b><p>Try a different search or filter.</p></div>
+    <div class="word-grid" id="wordGrid" aria-live="polite"></div>
+  </main>
+<script>
+(function () {
+  "use strict";
+  var all = [];
+  var filter = "all";
+  var query = "";
+
+  function $(id) { return document.getElementById(id); }
+
+  function show(el) { el.hidden = false; }
+  function hide(el) { el.hidden = true; }
+
+  function say(text) {
+    try {
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = "zh-CN";
+      u.rate = 0.8;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    } catch (e) { /* speech unavailable — cards still show text */ }
+  }
+
+  function esc(v) {
+    return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function card(w) {
+    var m = Math.max(0, Math.min(5, Number(w.mastery) || 0));
+    var dots = "";
+    for (var i = 1; i <= 5; i++) dots += '<i class="' + (i <= m ? "on" : "") + '"></i>';
+    var weak = m <= 2;
+    var due = w.dueAt && new Date(w.dueAt) <= new Date();
+    return '<article class="word-card">'
+      + '<div class="word-top"><div><div class="word-hz" lang="zh">' + esc(w.word) + '</div>'
+      + (w.pinyin ? '<div class="word-py">' + esc(w.pinyin) + '</div>' : "") + '</div>'
+      + '<button class="word-say" data-say="' + esc(w.word) + '" aria-label="Hear ' + esc(w.word) + '">🔊</button></div>'
+      + (w.meaning ? '<div class="word-en">' + esc(w.meaning) + '</div>' : "")
+      + '<div class="word-meta"><span class="mastery-dots" aria-label="Mastery ' + m + ' of 5">' + dots + '</span>'
+      + (due ? '<span class="pill due">Due</span>' : "")
+      + (weak && m > 0 ? '<span class="pill weak">Weak</span>' : "")
+      + '<span class="pill src">' + (w.source === "lesson" ? "Lesson" : "Review") + '</span>'
+      + '</div></article>';
+  }
+
+  function render() {
+    var q = query.trim().toLowerCase();
+    var list = all.filter(function (w) {
+      if (filter === "due") { if (!(w.dueAt && new Date(w.dueAt) <= new Date())) return false; }
+      if (filter === "weak") { if (!((w.mastery || 0) <= 2)) return false; }
+      if (filter === "mastered") { if (!((w.mastery || 0) >= 4)) return false; }
+      if (!q) return true;
+      return (w.word || "").toLowerCase().indexOf(q) >= 0
+        || (w.pinyin || "").toLowerCase().indexOf(q) >= 0
+        || (w.meaning || "").toLowerCase().indexOf(q) >= 0;
+    });
+    hide($("vocabLoading")); hide($("vocabError")); hide($("vocabEmpty")); hide($("vocabNoMatch"));
+    if (!list.length) { show(all.length ? $("vocabNoMatch") : $("vocabEmpty")); }
+    $("wordGrid").innerHTML = list.map(card).join("");
+  }
+
+  function stats() {
+    var due = 0, mastered = 0, weak = 0;
+    all.forEach(function (w) {
+      var m = w.mastery || 0;
+      if (m >= 4) mastered++;
+      if (m > 0 && m <= 2) weak++;
+      if (w.dueAt && new Date(w.dueAt) <= new Date()) due++;
+    });
+    $("statTotal").textContent = all.length;
+    $("statMastered").textContent = mastered;
+    $("statDue").textContent = due;
+    $("statWeak").textContent = weak;
+    show($("vocabStats"));
+  }
+
+  function load() {
+    hide($("vocabError")); show($("vocabLoading"));
+    var FV = window.HanVerseFeatures;
+    if (!FV || !FV.currentUserId()) {
+      hide($("vocabLoading"));
+      $("vocabErrMsg").textContent = "Sign in to see your personal word collection.";
+      show($("vocabError"));
+      return;
+    }
+    FV.api("/vocabulary").then(function (d) {
+      all = [].concat(d?.words || [], d?.reviewOnly || []);
+      stats(); render();
+      if (!all.length) { hide($("vocabLoading")); show($("vocabEmpty")); }
+    }).catch(function (e) {
+      hide($("vocabLoading"));
+      $("vocabErrMsg").textContent = e?.message || "Please check your connection and try again.";
+      show($("vocabError"));
+    });
+  }
+
+  $("vocabSearch").addEventListener("input", function (e) { query = e.target.value; render(); });
+  document.querySelector(".chip-row").addEventListener("click", function (e) {
+    var b = e.target.closest(".chip");
+    if (!b) return;
+    filter = b.dataset.f;
+    this.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
+    render();
+  });
+  $("wordGrid").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-say]");
+    if (b) say(b.dataset.say);
+  });
+  $("vocabRetry").addEventListener("click", load);
+
+  load();
+})();
+</script>
+</body>
+</html>

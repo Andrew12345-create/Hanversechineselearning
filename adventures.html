@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Explore Mandarin story adventures, speaking practice, review, exam rooms and your panda habitat in HanVerse.">
+  <link rel="canonical" href="https://learn-hanverse.netlify.app/adventures.html">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="HanVerse">
+  <meta property="og:title" content="HanPan’s World | HanVerse"><meta property="og:description" content="Explore Mandarin story adventures, speaking practice, review, exam rooms and your panda habitat.">
+  <meta property="og:image" content="https://learn-hanverse.netlify.app/assets/mascot/states/hanpan-happy.png">
+  <meta name="twitter:card" content="summary"><meta name="twitter:title" content="HanPan’s World | HanVerse">
+  <meta name="twitter:description" content="Explore Mandarin story adventures, speaking practice, review, exam rooms and your panda habitat.">
+  <meta name="theme-color" content="#fff8ed">
+  <title>HanPan's World | HanVerse</title>
+  <link rel="icon" href="Hanverse-logo2.png"><link rel="stylesheet" href="hanverse.css?v=1">
+  <style>
+    :root{--world-ink:#263345;--world-muted:#66758a;--world-cream:#fff8ed;--world-blue:#4d7de2;--world-green:#13876b;--world-line:#e7ebf1;--world-shadow:0 18px 48px rgba(38,51,69,.09)}
+    .daily-trail{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin:0 0 19px;padding:20px 22px;border:1px solid #e8dfc7;border-radius:23px;background:linear-gradient(115deg,#fffdf7,#fff3d5 58%,#edf5ff);box-shadow:0 12px 32px #273b5a10}.trail-copy h2{margin:0 0 5px;font-size:1.15rem}.trail-copy p{margin:0;color:var(--world-muted);line-height:1.5;font-size:.9rem}.trail-steps{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0;padding:0;list-style:none}.trail-step{display:flex;align-items:center;gap:9px;min-width:0;padding:11px;background:#ffffffc9;border:1px solid #eee7d8;border-radius:15px}.trail-number{display:grid;place-items:center;flex:none;width:29px;height:29px;border-radius:50%;background:#edf3ff;color:#345a9e;font-weight:900}.trail-step-copy{min-width:0;flex:1}.trail-step-copy strong,.trail-step-copy small{display:block}.trail-step-copy strong{font-size:.82rem}.trail-step-copy small{margin-top:3px;color:var(--world-muted)}.trail-step button{flex:none;border:0;border-radius:10px;background:#edf3ff;color:#345a9e;padding:8px 10px;font:inherit;font-size:.78rem;font-weight:850;cursor:pointer}.trail-start{border:0;border-radius:13px;background:#263d68;color:#fff;padding:11px 14px;font:inherit;font-weight:850;white-space:nowrap;cursor:pointer}.trail-step button:focus-visible,.trail-start:focus-visible{outline:3px solid #efb93c;outline-offset:2px}
+    .review-actions[hidden],.review-meaning[hidden],.review-reveal[hidden]{display:none}.review-meaning{font-weight:750;margin:8px 0;color:var(--world-ink)}.review-reveal,.review-listen{margin:9px 5px 0 0;padding:8px 11px;border:1px solid #cad8f5;border-radius:10px;background:#f5f8ff;color:#345a9e;font:inherit;font-size:.85rem;font-weight:800;cursor:pointer}.review-reveal:focus-visible,.review-listen:focus-visible,.review-actions button:focus-visible{outline:3px solid #efb93c;outline-offset:2px}.review-prompt{width:100%;font-size:.72rem;color:var(--world-muted);font-weight:750}.review-actions button:disabled{opacity:.55;cursor:wait}
+    body{margin:0;background:linear-gradient(180deg,#fff8ed 0,#f6f9ff 390px,#f7fafb 100%);color:var(--world-ink);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+    .world-shell{max-width:1120px;margin:0 auto;padding:26px 20px 70px}.world-hero{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;padding:30px 34px;border-radius:30px;background:linear-gradient(120deg,#fff 0%,#fff3d9 65%,#e6f2ff 100%);box-shadow:var(--world-shadow);overflow:hidden}.eyebrow{font-size:.73rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#758199}.world-hero h1{font-size:clamp(2rem,5vw,3.35rem);line-height:1.03;margin:9px 0 12px}.world-hero p{max-width:650px;color:var(--world-muted);line-height:1.65;margin:0}.hero-panda{font-size:clamp(5rem,12vw,8.5rem);filter:drop-shadow(0 12px 12px #d5b88255);animation:bob 3s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-8px)}}
+    .world-stats{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 24px}.stat-chip{background:#fff;border:1px solid var(--world-line);border-radius:999px;padding:9px 14px;font-size:.84rem;font-weight:800;box-shadow:0 4px 12px #24354a0d}.world-tabs{display:flex;gap:8px;overflow:auto;padding:5px 1px 12px;scrollbar-width:thin}.world-tab{flex:none;border:1px solid #dfe5ef;background:#fff;color:#526176;border-radius:999px;padding:11px 16px;font-weight:850;cursor:pointer}.world-tab[aria-selected=true]{background:#263d68;color:white;border-color:#263d68;box-shadow:0 5px 14px #263d6830}.world-panel{display:none}.world-panel.active{display:block}.panel-head{margin:15px 0 17px}.panel-head h2{font-size:1.55rem;margin:0 0 5px}.panel-head p{color:var(--world-muted);margin:0;line-height:1.55}
+    .story-grid,.activity-grid,.scenario-grid,.mock-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.world-card{border:1px solid var(--world-line);border-radius:22px;background:#fff;box-shadow:var(--world-shadow);padding:20px}.story-icon{font-size:2.4rem}.world-card h3{margin:9px 0 7px}.world-card p{color:var(--world-muted);font-size:.93rem;line-height:1.55}.tag-row{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.tag{border-radius:999px;padding:5px 9px;background:#eef4ff;color:#34579a;font-size:.72rem;font-weight:850}.world-btn{border:0;border-radius:13px;background:var(--world-blue);color:#fff;padding:11px 15px;font-weight:850;cursor:pointer;box-shadow:0 5px 12px #4d7de233}.world-btn:hover{filter:brightness(.96);transform:translateY(-1px)}.world-btn.secondary{background:#edf3ff;color:#345a9e;box-shadow:none}.world-btn.green{background:var(--world-green)}.world-btn:disabled{opacity:.6;cursor:wait;transform:none}.world-btn:focus-visible,.world-tab:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #efb93c;outline-offset:2px}.muted{color:var(--world-muted)}.empty-state,.loading{border:1px dashed #ccd5e1;border-radius:18px;padding:22px;background:#ffffffb5;color:var(--world-muted)}
+    .play-card{max-width:760px;margin:12px auto;padding:24px;border:1px solid var(--world-line);border-radius:24px;background:white;box-shadow:var(--world-shadow)}.play-progress{font-size:.78rem;font-weight:900;color:var(--world-blue);letter-spacing:.07em;text-transform:uppercase}.play-card h3{font-size:1.35rem;line-height:1.35}.story-line{padding:14px 16px;border-radius:15px;background:#f2f7ff;font-size:1.08rem;font-weight:800;line-height:1.6}.choice-list{display:grid;gap:10px;margin:18px 0}.choice{border:1px solid #dbe3ef;border-radius:14px;text-align:left;background:#fff;padding:13px 15px;color:var(--world-ink);font-size:1rem;font-weight:750;cursor:pointer}.choice:hover{border-color:var(--world-blue);background:#f8faff}.choice:disabled{cursor:default;opacity:.82}.feedback{min-height:28px;font-weight:850;margin:10px 0;color:var(--world-green)}
+    .planner{display:grid;grid-template-columns:1.2fr .8fr;gap:15px}.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.day-cell{padding:11px 6px;border-radius:14px;text-align:center;background:#f6f8fb;border:1px solid #edf0f4}.day-cell strong{display:block;font-size:.74rem}.day-cell span{display:block;font-size:1.1rem;font-weight:900;margin-top:7px;color:var(--world-blue)}.review-list{display:grid;gap:11px}.review-word{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border-bottom:1px solid #edf0f4;padding:8px 0 13px}.review-word strong{font-size:1.12rem}.review-actions{display:flex;gap:6px;flex-wrap:wrap}.review-actions button{border:1px solid #dce3ef;border-radius:10px;background:#fff;padding:8px 10px;cursor:pointer;font-weight:800;color:#50627a}
+    .scenario-card{cursor:pointer;transition:.18s}.scenario-card:hover{transform:translateY(-3px);border-color:#a9bff0}.chat-log{min-height:220px;max-height:350px;overflow:auto;display:flex;flex-direction:column;gap:10px;background:#f7f9fc;padding:13px;border-radius:16px;margin:12px 0}.bubble{max-width:88%;padding:11px 13px;border-radius:16px;line-height:1.5}.bubble.panda{align-self:flex-start;background:#fff;border:1px solid #e8edf4}.bubble.learner{align-self:flex-end;background:#eaf0ff}.roleplay-input{display:flex;gap:9px}.roleplay-input input{flex:1;min-width:0;border:1px solid #d9e1ed;border-radius:13px;padding:12px;font:inherit}.voice-note{font-size:.78rem;color:var(--world-muted);margin-top:8px}
+    .mock-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.mock-controls select,.select-slot{border:1px solid #d5deea;border-radius:12px;padding:10px 12px;background:#fff;font:inherit;color:var(--world-ink)}.exam-choice{display:flex;gap:10px;align-items:center}.exam-choice input{accent-color:var(--world-blue)}.exam-best{margin-top:9px;font-size:.8rem;color:var(--world-muted)}
+    .habitat-scene{min-height:250px;border-radius:22px;background:linear-gradient(180deg,#c4e6ff 0 48%,#b8df9e 48% 76%,#8dc478 76%);position:relative;overflow:hidden;display:grid;place-items:center;font-size:5rem}.habitat-decor{position:absolute;font-size:3.2rem;filter:drop-shadow(0 7px 3px #27351d25)}.habitat-decor.garden{left:11%;bottom:12%}.habitat-decor.sky{right:13%;top:11%}.habitat-decor.home{right:15%;bottom:15%}.habitat-panda{font-size:5.5rem;z-index:1;filter:drop-shadow(0 10px 6px #25361d35)}.habitat-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}.habitat-slots label{display:grid;gap:7px;font-size:.78rem;font-weight:850}.unlock-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}.unlock-item{padding:7px 10px;background:#f5f7fa;border-radius:12px;font-size:.78rem}.unlock-item.locked{opacity:.55}.family-card{position:relative}.family-card .minutes{font-size:.76rem;font-weight:900;color:var(--world-green)}.phrase{background:#fff5dc;padding:9px 11px;border-radius:12px;font-weight:850}.family-card ol{padding-left:19px;color:var(--world-muted);line-height:1.6;font-size:.88rem}.complete-check{display:flex;align-items:center;gap:8px;margin-top:10px;font-weight:800;font-size:.83rem}.complete-check input{width:18px;height:18px;accent-color:var(--world-green)}
+    .hero-panda img{display:block;width:clamp(115px,19vw,180px);height:auto;object-fit:contain}.hidden{display:none!important}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:20;background:#243650;color:white;padding:12px 16px;border-radius:14px;box-shadow:var(--world-shadow);max-width:min(92vw,520px)}
+    @media(max-width:800px){.story-grid,.activity-grid,.scenario-grid,.mock-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.planner{grid-template-columns:1fr}.calendar-days{gap:4px}.day-cell{padding:8px 3px}}
+    @media(max-width:540px){.world-shell{padding:16px 13px 45px}.world-hero{padding:22px 20px;border-radius:23px;grid-template-columns:1fr auto}.hero-panda{font-size:4.5rem}.world-hero h1{font-size:2rem}.story-grid,.activity-grid,.scenario-grid,.mock-grid{grid-template-columns:1fr}.world-card{padding:17px}.habitat-slots{grid-template-columns:1fr}.roleplay-input{flex-wrap:wrap}.roleplay-input input{flex-basis:100%}.calendar-days{font-size:.7rem}.day-cell span{font-size:.95rem}}
+    @media print{body{background:#fff}.world-tabs,.world-hero,.world-stats,.panel-head,.world-btn,.roleplay-input,.mock-controls,.calendar-days,.story-grid,.scenario-grid,.mock-grid,.habitat-slots{display:none!important}.world-panel{display:none!important}#panel-family{display:block!important}.world-card{box-shadow:none;break-inside:avoid}.world-shell{max-width:none;padding:0}.activity-grid{grid-template-columns:repeat(2,1fr)}.family-card{border:1px solid #aaa}}
+    @media(max-width:680px){.daily-trail{grid-template-columns:1fr}.trail-start{justify-self:start}.trail-steps{grid-template-columns:1fr}}
+    @media(max-width:540px){.world-hero{grid-template-columns:1fr}.hero-panda img{width:clamp(100px,32vw,140px);margin:8px auto 0}.review-word{grid-template-columns:1fr}.world-tabs{scroll-snap-type:x proximity}.world-tab{scroll-snap-align:start}}
+  </style>
+</head>
+<body>
+<div id="app-nav"></div>
+<main class="world-shell">
+  <section class="world-hero">
+    <div><div class="eyebrow">YOUR LEARNING PLAYGROUND</div><h1>Welcome to HanPan’s World</h1><p>Follow a story, practise speaking, prepare for your exam, and build a cozy home for your panda. Every decoration is earned through learning.</p></div>
+    <div class="hero-panda" aria-hidden="true"><img src="assets/mascot/states/hanpan-happy.png" alt="" width="180" height="180" fetchpriority="high" decoding="async"></div>
+  </section>
+  <div class="world-stats" id="worldStats"><span class="stat-chip">Loading your world…</span></div>
+  <section class="daily-trail" aria-labelledby="trailTitle">
+    <div class="trail-copy"><div class="eyebrow">A LITTLE EVERY DAY</div><h2 id="trailTitle">Your 10-minute Mandarin trail</h2><p id="trailSummary">A gentle path through review, a story, and speaking practice. Choose one step or try all three.</p></div>
+    <button class="trail-start" id="trailStart" type="button">Start with review →</button>
+    <ol class="trail-steps" aria-label="Suggested learning steps">
+      <li class="trail-step"><span class="trail-number" aria-hidden="true">1</span><span class="trail-step-copy"><strong>Wake up your words</strong><small>3 minutes · quick review</small></span><button type="button" data-trail-panel="review" aria-label="Open the review planner">Open</button></li>
+      <li class="trail-step"><span class="trail-number" aria-hidden="true">2</span><span class="trail-step-copy"><strong>Follow a story clue</strong><small>5 minutes · read and listen</small></span><button type="button" data-trail-panel="stories" aria-label="Open story adventures">Open</button></li>
+      <li class="trail-step"><span class="trail-number" aria-hidden="true">3</span><span class="trail-step-copy"><strong>Say one new sentence</strong><small>2 minutes · speak with Panda</small></span><button type="button" data-trail-panel="speaking" aria-label="Open speaking practice">Open</button></li>
+    </ol>
+  </section>
+  <nav class="world-tabs" aria-label="HanPan's World activities" role="tablist">
+    <button class="world-tab" id="tab-stories" role="tab" aria-selected="true" aria-controls="panel-stories" data-panel="stories">📚 Story adventures</button>
+    <button class="world-tab" id="tab-review" role="tab" aria-selected="false" aria-controls="panel-review" data-panel="review">🧠 Review planner</button>
+    <button class="world-tab" id="tab-speaking" role="tab" aria-selected="false" aria-controls="panel-speaking" data-panel="speaking">💬 Speaking dojo</button>
+    <button class="world-tab" id="tab-exams" role="tab" aria-selected="false" aria-controls="panel-exams" data-panel="exams">🎯 Exam rooms</button>
+    <button class="world-tab" id="tab-habitat" role="tab" aria-selected="false" aria-controls="panel-habitat" data-panel="habitat">🏡 Panda habitat</button>
+    <button class="world-tab" id="tab-family" role="tab" aria-selected="false" aria-controls="panel-family" data-panel="family">👪 At-home cards</button>
+  </nav>
+
+  <section id="panel-stories" class="world-panel active" role="tabpanel" aria-labelledby="tab-stories" tabindex="0">
+    <div class="panel-head"><h2>Choose an adventure</h2><p>Read the scene, choose a Mandarin clue, and earn a small XP reward the first time you finish each chapter.</p></div>
+    <div id="storyGrid" class="story-grid"><div class="loading">Loading adventures…</div></div>
+    <div id="storyPlay" class="play-card hidden" aria-live="polite"></div>
+  </section>
+
+  <section id="panel-review" class="world-panel" role="tabpanel" aria-labelledby="tab-review" tabindex="0">
+    <div class="panel-head"><h2>A little review goes a long way</h2><p>Your saved vocabulary comes back when it is due. Try a short round today, then check what is coming up next.</p></div>
+    <div class="planner">
+      <article class="world-card"><h3>Next seven days</h3><div id="reviewCalendar" class="calendar-days"><div class="loading">Loading review plan…</div></div><p id="reviewDueLabel" class="muted"></p></article>
+      <article class="world-card"><h3>Words ready now</h3><div id="reviewList" class="review-list"><div class="loading">Loading your review deck…</div></div></article>
+    </div>
+  </section>
+
+  <section id="panel-speaking" class="world-panel" role="tabpanel" aria-labelledby="tab-speaking" tabindex="0">
+    <div class="panel-head"><h2>Speaking dojo</h2><p>Choose a real-life scene. Panda will keep the conversation short, friendly, and close to your level. You can type or use your microphone.</p></div>
+    <div id="scenarioGrid" class="scenario-grid">
+      <button class="world-card scenario-card" data-scenario="market"><span class="story-icon">🍎</span><h3>At the fruit stand</h3><p>Greet the seller, choose fruit, and say thank you.</p><span class="tag">YCT 1–2</span></button>
+      <button class="world-card scenario-card" data-scenario="classmate"><span class="story-icon">🎒</span><h3>Meet a classmate</h3><p>Say hello, share a hobby, and ask a simple question.</p><span class="tag">YCT 1–2</span></button>
+      <button class="world-card scenario-card" data-scenario="directions"><span class="story-icon">🗺️</span><h3>Find the library</h3><p>Ask where a place is and follow a helpful direction.</p><span class="tag">YCT 3–4</span></button>
+    </div>
+    <div id="roleplay" class="world-card hidden" style="margin-top:15px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><div class="eyebrow" id="scenarioLabel">GUIDED PRACTICE</div><h3 id="scenarioTitle">Speaking practice</h3></div><button id="endRoleplay" class="world-btn secondary">Choose another scene</button></div>
+      <p id="scenarioGoal" class="muted"></p><div id="phraseHints" class="tag-row"></div>
+      <div id="chatLog" class="chat-log" aria-live="polite"><div class="bubble panda">Choose a scene to begin.</div></div>
+      <div class="roleplay-input"><input id="roleplayInput" maxlength="300" placeholder="Type a short Mandarin reply…" aria-label="Your Mandarin reply"><button id="roleplayMic" class="world-btn secondary" type="button">🎙 Speak</button><button id="sendRoleplay" class="world-btn" type="button">Send</button></div>
+      <div class="voice-note" id="voicePrivacyNote">Voice recognition uses your browser and may send audio to its speech service. Recognized words reach Panda only when you choose Send. Typing is always available.</div>
+      <div id="voiceNote" class="voice-note" role="status" aria-live="polite">Microphone support depends on your browser.</div>
+    </div>
+  </section>
+
+  <section id="panel-exams" class="world-panel" role="tabpanel" aria-labelledby="tab-exams" tabindex="0">
+    <div class="panel-head"><h2>Practice rooms</h2><p>Try a short YCT or HSK checkpoint. These original HanVerse practice questions help you review; they are not official exam papers.</p></div>
+    <article class="world-card">
+      <div class="mock-controls"><label for="mockCourse"><strong>Course</strong></label><select id="mockCourse"><option>YCT</option><option>HSK</option></select><label for="mockLevel"><strong>Level</strong></label><select id="mockLevel"><option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option></select><button id="startMock" class="world-btn">Start practice room →</button></div>
+      <div id="mockBest" class="exam-best"></div>
+    </article>
+    <div id="mockPlay" class="play-card hidden" aria-live="polite"></div>
+  </section>
+
+  <section id="panel-habitat" class="world-panel" role="tabpanel" aria-labelledby="tab-habitat" tabindex="0">
+    <div class="panel-head"><h2>Make a home for HanPan</h2><p>Decorations unlock as your learning XP grows. Pick a garden, sky, and home item; your choices are saved to your account.</p></div>
+    <div class="planner"><article class="world-card"><div id="habitatScene" class="habitat-scene"><span class="habitat-decor garden" id="decorGarden"></span><span class="habitat-decor sky" id="decorSky"></span><span class="habitat-decor home" id="decorHome"></span><span class="habitat-panda">🐼</span></div><div class="habitat-slots">
+      <label>Garden<select class="select-slot" data-slot="garden"></select></label><label>Sky<select class="select-slot" data-slot="sky"></select></label><label>Home<select class="select-slot" data-slot="home"></select></label>
+    </div><button id="saveHabitat" class="world-btn green" style="margin-top:13px">Save my habitat</button></article>
+      <article class="world-card"><h3>Decorations you can grow into</h3><div id="decorList" class="unlock-list"></div><p id="habitatNext" class="muted"></p></article></div>
+  </section>
+
+  <section id="panel-family" class="world-panel" role="tabpanel" aria-labelledby="tab-family" tabindex="0">
+    <div class="panel-head"><h2>Five-minute family activities</h2><p>Simple, screen-light ways to practise the words children are learning. No Mandarin teaching experience needed. Print a card or pick one for today.</p><button class="world-btn secondary" onclick="window.print()">🖨 Print activity cards</button></div>
+    <div id="familyCards" class="activity-grid"></div>
+  </section>
+</main>
+<div id="worldToast" class="toast hidden" role="status" aria-live="polite"></div>
+<script src="features-client.js?v=1"></script><script src="shared-nav.js?v=1"></script><script src="nav-user.js?v=1"></script><script src="notifications-client.js?v=1"></script><script src="bottom-nav.js?v=1"></script><script src="adventures.js?v=1"></script>
+</body>
+</html>
