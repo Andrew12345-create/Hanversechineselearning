@@ -1,0 +1,2276 @@
+
+(() => {
+  "use strict";
+
+  const API = "/api";
+  const TOKEN_KEY = "hanverse_admin_token";
+  const SESSION_KEY = "hanverse_user";
+
+  const state = {
+    token: localStorage.getItem(TOKEN_KEY) || "",
+    admin: null,
+    users: [],
+    lessons: [],
+    campaigns: [],
+    userFilter: "all",
+    userSearch: "",
+    lessonSearch: "",
+    lessonLevel: "",
+    pendingEmail: null
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  const first = (...values) =>
+    values.find((value) => value !== undefined && value !== null && value !== "");
+
+  const bool = (value) =>
+    value === true ||
+    value === 1 ||
+    value === "1" ||
+    String(value).toLowerCase() === "true";
+
+  const escapeHTML = (value) =>
+    String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char]));
+
+  function getSessionUser() {
+    try {
+      return JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function authHeaders() {
+    const headers = { "Content-Type": "application/json" };
+
+    if (state.token) {
+      headers.Authorization = `Bearer ${state.token}`;
+    }
+
+    return headers;
+  }
+
+  async function api(path, options = {}) {
+    const response = await fetch(API + path, {
+      ...options,
+      headers: {
+        ...authHeaders(),
+        ...(options.headers || {})
+      }
+    });
+
+    const raw = await response.text();
+
+    let data = {};
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = { raw };
+    }
+
+    if (response.status === 401) {
+      state.token = "";
+      localStorage.removeItem(TOKEN_KEY);
+      showLogin("Your admin session has expired. Please sign in again.");
+      throw new Error("Unauthorised admin session.");
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error ||
+        data.message ||
+        data.raw ||
+        `Request failed (${response.status}).`
+      );
+    }
+
+    return data;
+  }
+
+  function notify(message, type = "ok") {
+    const stack = $("toastStack");
+
+    const toast = document.createElement("div");
+    toast.className = `toast ${type === "error" ? "error" : ""}`;
+    toast.textContent = message;
+
+    stack.appendChild(toast);
+
+    window.setTimeout(() => {
+      toast.style.opacity = "0";
+      window.setTimeout(() => toast.remove(), 220);
+    }, 3200);
+  }
+
+  function openModal(id) {
+    const modal = $(id);
+    if (modal) modal.classList.add("open");
+  }
+
+  function closeModal(id) {
+    const modal = $(id);
+    if (modal) modal.classList.remove("open");
+  }
+
+  function showLogin(message = "") {
+    $("authScreen").classList.remove("hidden");
+    $("app").classList.add("hidden");
+    $("authError").textContent = message;
+    window.setTimeout(() => $("adminPassword").focus(), 50);
+  }
+
+  function showApp() {
+    $("authScreen").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    updateAdminIdentity();
+    switchSection("dashboard");
+    loadPendingParentsBadge();
+  }
+
+  function updateAdminIdentity() {
+    const user = state.admin || getSessionUser();
+    const name = first(
+      user.full_name,
+      user.username,
+      user.email,
+      "Administrator"
+    );
+
+    $("sidebarAdminName").textContent = name;
+  }
+
+  /* ================= AUTH ================= */
+
+  async function login(password) {
+    const sessionUser = getSessionUser();
+
+    if (!sessionUser.user_id) {
+      throw new Error("Please log in to HanVerse first.");
+    }
+
+    const response = await fetch(`${API}/admin/verify-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: sessionUser.user_id,
+        adminPassword: password
+      })
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.adminToken) {
+      throw new Error(data.error || "Admin authentication failed.");
+    }
+
+    state.token = data.adminToken;
+    state.admin = data.user || sessionUser;
+
+    localStorage.setItem(TOKEN_KEY, state.token);
+
+    showApp();
+
+    await Promise.all([
+      loadUsers(),
+      loadLessons(),
+      loadAnalytics(),
+      loadCampaigns()
+    ]);
+  }
+
+  $("authForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const button = $("authButton");
+    button.disabled = true;
+    $("authError").textContent = "";
+
+    try {
+      await login($("adminPassword").value);
+      $("adminPassword").value = "";
+    } catch (error) {
+      $("authError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $("logoutButton").addEventListener("click", () => {
+    if (!confirm("Log out of the HanVerse Admin panel?")) return;
+
+    state.token = "";
+    state.admin = null;
+    localStorage.removeItem(TOKEN_KEY);
+
+    showLogin();
+  });
+
+  /* ================= NAVIGATION ================= */
+
+  const pageInfo = {
+    dashboard: ["Dashboard", "Your HanVerse command centre"],
+    users: ["Users", "Manage accounts, verification, roles and access"],
+    lessons: ["Lessons", "Manage the HanVerse learning library"],
+    analytics: ["Analytics", "Live HanVerse platform metrics"],
+    communications: ["Broadcasts", "Create and review email campaigns"],
+    panda: ["Panda AI", "Your admin-only HanVerse assistant"],
+    parents: ["Parent Verification", "Review and approve parent accounts"],
+    audit: ["Audit Log", "Every admin action, newest first"]
+  };
+
+  function switchSection(section) {
+    document.querySelectorAll(".section").forEach((element) => {
+      element.classList.toggle(
+        "active",
+        element.id === `${section}Section`
+      );
+    });
+
+    document.querySelectorAll(".nav-button").forEach((button) => {
+      button.classList.toggle(
+        "active",
+        button.dataset.section === section
+      );
+    });
+
+    $("pageTitle").textContent = pageInfo[section][0];
+    $("pageSubtitle").textContent = pageInfo[section][1];
+
+    $("sidebar").classList.remove("open");
+
+    if (section === "users") loadUsers();
+    if (section === "lessons") loadLessons();
+    if (section === "analytics") loadAnalytics();
+    if (section === "communications") loadCampaigns();
+    if (section === "parents") loadParentQueue();
+    if (section === "audit") loadAuditLog();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.querySelectorAll(".nav-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      switchSection(button.dataset.section);
+    });
+  });
+
+  $("mobileMenu").addEventListener("click", () => {
+    $("sidebar").classList.toggle("open");
+  });
+
+  /* ================= USERS ================= */
+
+  function matchesUserFilter(user) {
+    const role = String(user.role || "").toLowerCase();
+    const premium = bool(first(user.premium, user.is_premium));
+    const banned = bool(user.is_banned);
+    const verified = bool(user.is_verified);
+
+    if (state.userFilter === "pending" && verified) return false;
+    if (state.userFilter === "parents" && role !== "parent") return false;
+    if (state.userFilter === "premium" && !premium) return false;
+    if (state.userFilter === "banned" && !banned) return false;
+
+    const query = state.userSearch.trim().toLowerCase();
+
+    if (!query) return true;
+
+    return [
+      user.full_name,
+      user.username,
+      user.email
+    ].some((value) =>
+      String(value || "").toLowerCase().includes(query)
+    );
+  }
+
+  async function loadUsers() {
+    const table = $("userTable");
+
+    table.innerHTML = Array.from({ length: 5 }, () =>
+      '<div class="skel-row"><div class="skel-bar" style="width:26px;height:26px;border-radius:50%"></div><div class="skel-bar" style="width:38%"></div><div class="skel-bar" style="width:14%"></div><div class="skel-bar" style="width:12%;margin-left:auto"></div></div>'
+    ).join("");
+
+    try {
+      const data = await api("/admin/overview");
+
+      state.users = Array.isArray(data.users)
+        ? data.users
+        : [];
+
+      renderUsers();
+      updateUserCounts();
+      refreshRecipientCount();
+    } catch (error) {
+      table.innerHTML = `
+        <div class="empty">
+          Could not load users.<br>${escapeHTML(error.message)}
+        </div>
+      `;
+    }
+  }
+
+  function updateUserCounts() {
+    const users = state.users;
+
+    $("userCount").textContent = users.length;
+
+    const verified = users.filter((user) => bool(user.is_verified)).length;
+    const premium = users.filter((user) =>
+      bool(first(user.premium, user.is_premium))
+    ).length;
+    const parents = users.filter((user) =>
+      String(user.role || "").toLowerCase() === "parent"
+    ).length;
+    const banned = users.filter((user) => bool(user.is_banned)).length;
+
+    $("metricUsers").textContent = users.length;
+    $("metricPremium").textContent = premium;
+    $("metricPremiumRate").textContent =
+      `${users.length ? Math.round((premium / users.length) * 100) : 0}% conversion`;
+
+    $("snapshotVerified").textContent = verified;
+    $("snapshotPending").textContent = Math.max(users.length - verified, 0);
+    $("snapshotParents").textContent = parents;
+    $("snapshotBanned").textContent = banned;
+  }
+
+  function renderUsers() {
+    const users = state.users.filter(matchesUserFilter);
+
+    users.sort((a, b) => {
+      const key = state.userSort ? state.userSort.key : "name";
+      const dir = state.userSort && state.userSort.dir === "desc" ? -1 : 1;
+      let va, vb;
+      if (key === "name") { va = first(a.full_name, a.username, "").toLowerCase(); vb = first(b.full_name, b.username, "").toLowerCase(); }
+      else if (key === "role") { va = String(a.role || "student"); vb = String(b.role || "student"); }
+      else if (key === "status") { va = bool(a.is_verified) ? (bool(a.is_banned) ? 2 : 0) : 1; vb = bool(b.is_verified) ? (bool(b.is_banned) ? 2 : 0) : 1; }
+      else if (key === "xp") { va = Number(first(a.xp, 0)); vb = Number(first(b.xp, 0)); }
+      else if (key === "premium") { va = bool(first(a.premium, a.is_premium)) ? 1 : 0; vb = bool(first(b.premium, b.is_premium)) ? 1 : 0; }
+      else { va = new Date(a.created_at || 0).getTime(); vb = new Date(b.created_at || 0).getTime(); }
+      return va < vb ? -dir : va > vb ? dir : 0;
+    });
+
+    if (state.userSort) sortIndicator();
+
+    if (!users.length) {
+      $("userTable").innerHTML = `
+        <div class="empty">
+          No users match the current filter.
+        </div>
+      `;
+      return;
+    }
+
+    const rows = users.map((user) => {
+      const id = escapeHTML(user.user_id);
+      const name = escapeHTML(first(user.full_name, user.username, "User"));
+      const role = String(user.role || "student").toLowerCase();
+      const verified = bool(user.is_verified);
+      const banned = bool(user.is_banned);
+      const premium = bool(first(user.premium, user.is_premium));
+
+      const icon =
+        role === "admin" ? "👑" :
+        role === "parent" ? "👪" :
+        "🎓";
+
+      const joined = user.created_at
+        ? new Date(user.created_at).toLocaleDateString("en-KE")
+        : "—";
+
+      return `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">${icon}</div>
+              <div class="user-name">
+                <strong>${name}</strong>
+                <small>${escapeHTML(user.email || "")}</small>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="pill blue">${escapeHTML(role)}</span>
+          </td>
+
+          <td>
+            ${
+              banned
+                ? `<span class="pill red">🚫 Banned</span>`
+                : verified
+                  ? `<span class="pill green">✓ Verified</span>`
+                  : `<span class="pill yellow">⏳ Pending</span>`
+            }
+          </td>
+
+          <td>
+            <strong style="font-size:10px;color:var(--navy);">
+              ${Number(first(user.xp, 0)).toLocaleString()} XP
+            </strong>
+            <small class="muted" style="display:block;font-size:8px;">
+              Level ${escapeHTML(first(user.level, 1))}
+            </small>
+          </td>
+
+          <td>
+            ${
+              premium
+                ? `<span class="pill purple">★ Premium</span>`
+                : `<span class="muted" style="font-size:8px;">Standard</span>`
+            }
+          </td>
+
+          <td>
+            <span class="muted" style="font-size:8px;">${joined}</span>
+          </td>
+
+          <td>
+            <div class="row-actions">
+              <button class="btn btn-soft btn-sm" data-edit-user="${id}">Edit</button>
+              <button class="btn btn-sm" data-email-user="${id}">Email</button>
+
+              ${
+                verified
+                  ? ""
+                  : `<button class="btn btn-success btn-sm" data-verify-user="${id}">Verify</button>`
+              }
+
+              <button class="btn btn-soft btn-sm" data-ban-user="${id}">${
+                banned ? "Unban" : "Ban"
+              }</button>
+
+              <button class="btn btn-danger btn-sm" data-delete-user="${id}">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    $("userTable").innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="name">User <span class="sort-ind">↕</span></th>
+            <th data-sort="role">Role <span class="sort-ind">↕</span></th>
+            <th data-sort="status">Status <span class="sort-ind">↕</span></th>
+            <th data-sort="xp">Progress <span class="sort-ind">↕</span></th>
+            <th data-sort="premium">Plan <span class="sort-ind">↕</span></th>
+            <th data-sort="joined">Joined <span class="sort-ind">↕</span></th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+
+    document.querySelectorAll("[data-edit-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        editUser(button.dataset.editUser);
+      });
+    });
+
+    document.querySelectorAll("[data-email-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        openPersonalEmail(button.dataset.emailUser);
+      });
+    });
+
+    document.querySelectorAll("[data-verify-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        verifyUser(button.dataset.verifyUser);
+      });
+    });
+
+    document.querySelectorAll("[data-delete-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        deleteUser(button.dataset.deleteUser);
+      });
+    });
+
+    document.querySelectorAll("[data-ban-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleBanUser(button.dataset.banUser);
+      });
+    });
+  }
+
+  async function toggleBanUser(id) {
+    const user = state.users.find(
+      (item) => String(item.user_id) === String(id)
+    );
+
+    if (!user) return;
+
+    const banned = bool(user.is_banned);
+    let reason = null;
+
+    if (!banned) {
+      reason = prompt(
+        `Ban ${first(user.full_name, user.username, "this user")}? Reason (optional):`
+      );
+      if (reason === null) return;
+    }
+
+    try {
+      await api(`/admin/users/ban/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify({ banned: !banned, reason })
+      });
+
+      notify(banned ? "User unbanned." : "User banned.");
+      await loadUsers();
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  function editUser(id) {
+    const user = state.users.find(
+      (item) => String(item.user_id) === String(id)
+    );
+
+    if (!user) return;
+
+    $("userId").value = user.user_id;
+    $("userFullName").value = user.full_name || "";
+    $("userUsername").value = user.username || "";
+    $("userEmail").value = user.email || "";
+    $("userPassword").value = "";
+    $("userRole").value = user.role || "student";
+    $("userLevel").value = first(user.level, 1);
+    $("userXP").value = first(user.xp, 0);
+    $("userPremium").value = String(
+      bool(first(user.premium, user.is_premium))
+    );
+    $("userVerified").value = String(bool(user.is_verified));
+    $("userBanned").value = String(bool(user.is_banned));
+
+    $("userFormError").textContent = "";
+
+    openModal("userModal");
+  }
+
+  $("userForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const id = $("userId").value;
+
+    if (!id) {
+      $("userFormError").textContent = "No user selected.";
+      return;
+    }
+
+    const button = $("saveUserButton");
+    button.disabled = true;
+    $("userFormError").textContent = "";
+
+    const payload = {
+      full_name: $("userFullName").value.trim(),
+      username: $("userUsername").value.trim(),
+      email: $("userEmail").value.trim(),
+      role: $("userRole").value,
+      level: Number($("userLevel").value) || 1,
+      xp: Number($("userXP").value) || 0,
+      premium: $("userPremium").value === "true",
+      is_verified: $("userVerified").value === "true",
+      is_banned: $("userBanned").value === "true"
+    };
+
+    const password = $("userPassword").value.trim();
+
+    if (password) payload.password = password;
+
+    try {
+      await api(`/admin/users/update/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      closeModal("userModal");
+      notify("User updated successfully.");
+      await loadUsers();
+    } catch (error) {
+      $("userFormError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  async function verifyUser(id) {
+    if (!confirm("Verify this user?")) return;
+
+    try {
+      await api(`/admin/toggle-verification/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify({ verified: true })
+      });
+
+      notify("User verified.");
+      await loadUsers();
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  async function deleteUser(id) {
+    if (!confirm("Delete this user permanently? This cannot be undone.")) return;
+
+    try {
+      await api(`/admin/users/delete/${encodeURIComponent(id)}`, {
+        method: "DELETE"
+      });
+
+      notify("User deleted.");
+      await loadUsers();
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  document.querySelectorAll("[data-user-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-user-filter]").forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      button.classList.add("active");
+      state.userFilter = button.dataset.userFilter;
+      renderUsers();
+    });
+  });
+
+  $("userSearch").addEventListener("input", () => {
+    state.userSearch = $("userSearch").value;
+    renderUsers();
+  });
+
+  /* ================= LESSONS ================= */
+
+  async function loadLessons() {
+    $("lessonGrid").innerHTML = `<div class="loading">Loading lessons…</div>`;
+
+    try {
+      const data = await api("/admin/lessons");
+
+      state.lessons = Array.isArray(data.lessons)
+        ? data.lessons
+        : [];
+
+      $("lessonCount").textContent = state.lessons.length;
+      $("metricLessons").textContent = state.lessons.length;
+
+      renderLessons();
+    } catch (error) {
+      $("lessonGrid").innerHTML = `
+        <div class="empty">
+          Could not load lessons.<br>${escapeHTML(error.message)}
+        </div>
+      `;
+    }
+  }
+
+  function renderLessons() {
+    const query = state.lessonSearch.trim().toLowerCase();
+    const level = state.lessonLevel;
+
+    const lessons = state.lessons
+      .filter((lesson) => {
+        const lessonLevel = String(first(lesson.level, ""));
+
+        const matchesLevel =
+          !level || lessonLevel === level;
+
+        const matchesSearch =
+          !query ||
+          [
+            lesson.lesson_id,
+            lesson.title,
+            lesson.description
+          ].some((value) =>
+            String(value || "").toLowerCase().includes(query)
+          );
+
+        return matchesLevel && matchesSearch;
+      })
+      .sort((a, b) =>
+        Number(first(a.order_index, 999)) -
+        Number(first(b.order_index, 999))
+      );
+
+    if (!lessons.length) {
+      $("lessonGrid").innerHTML = `
+        <div class="empty">
+          No lessons match the current search.
+        </div>
+      `;
+      return;
+    }
+
+    $("lessonGrid").innerHTML = lessons.map((lesson) => {
+      const id = escapeHTML(first(lesson.lesson_id, ""));
+      const title = escapeHTML(first(lesson.title, "Untitled lesson"));
+      const description = escapeHTML(first(lesson.description, "No description yet."));
+      const levelValue = escapeHTML(first(lesson.level, "—"));
+      const order = escapeHTML(first(lesson.order_index, "—"));
+      const published = bool(lesson.is_published);
+      const premium = bool(lesson.premium);
+      const mediaCount = Number(first(lesson.media_count, 0));
+      const icon = escapeHTML(first(lesson.icon, "🐼"));
+
+      return `
+        <article class="lesson-card">
+
+          <div class="lesson-cover">
+            ${icon}
+
+            <span class="lesson-label">
+              #${order} · YCT ${levelValue}
+            </span>
+
+            <span class="lesson-state pill ${published ? "green" : "yellow"}">
+              ${published ? "Published" : "Draft"}
+            </span>
+          </div>
+
+          <div class="lesson-body">
+
+            <h3>${title}</h3>
+
+            <div class="lesson-meta">
+              <span class="pill blue">YCT ${levelValue}</span>
+              <span class="pill">${mediaCount} media</span>
+              ${premium ? `<span class="pill purple">★ Premium</span>` : ""}
+            </div>
+
+            <p>${description}</p>
+
+            <div class="row-actions">
+              <button class="btn btn-soft btn-sm" data-edit-lesson="${id}">
+                Edit
+              </button>
+
+              <button class="btn btn-danger btn-sm" data-delete-lesson="${id}">
+                Delete
+              </button>
+            </div>
+
+          </div>
+        </article>
+      `;
+    }).join("");
+
+    document.querySelectorAll("[data-edit-lesson]").forEach((button) => {
+      button.addEventListener("click", () => {
+        editLesson(button.dataset.editLesson);
+      });
+    });
+
+    document.querySelectorAll("[data-delete-lesson]").forEach((button) => {
+      button.addEventListener("click", () => {
+        deleteLesson(button.dataset.deleteLesson);
+      });
+    });
+  }
+
+  function newLesson() {
+    $("lessonModalTitle").textContent = "Create lesson";
+
+    $("lessonOriginalId").value = "";
+    $("lessonId").value = "";
+    $("lessonTitle").value = "";
+    $("lessonLevel").value = 1;
+    $("lessonOrder").value = state.lessons.length + 1;
+    $("lessonXP").value = 0;
+    $("lessonIcon").value = "🐼";
+    $("lessonPremium").value = "false";
+    $("lessonPublished").value = "false";
+    $("lessonDescription").value = "";
+    $("lessonContent").value = "";
+    $("lessonVocabulary").value = "[]";
+    $("lessonQuiz").value = "[]";
+    $("lessonObjectives").value = "[]";
+
+    $("lessonFormError").textContent = "";
+    $("mediaList").innerHTML =
+      `<div class="muted" style="font-size:8px;">Save the lesson first to manage media.</div>`;
+
+    openModal("lessonModal");
+  }
+
+  async function editLesson(id) {
+    try {
+      const data = await api(
+        `/admin/lessons/${encodeURIComponent(id)}`
+      );
+
+      const lesson = data.lesson || {};
+      const media = data.media || [];
+
+      $("lessonModalTitle").textContent = "Edit lesson";
+
+      $("lessonOriginalId").value = lesson.lesson_id || id;
+      $("lessonId").value = lesson.lesson_id || id;
+      $("lessonTitle").value = lesson.title || "";
+      $("lessonLevel").value = first(lesson.level, 1);
+      $("lessonOrder").value = first(lesson.order_index, 1);
+      $("lessonXP").value = first(lesson.xp, 0);
+      $("lessonIcon").value = first(lesson.icon, "🐼");
+      $("lessonPremium").value = String(bool(lesson.premium));
+      $("lessonPublished").value = String(bool(lesson.is_published));
+      $("lessonDescription").value = lesson.description || "";
+      $("lessonContent").value = lesson.content || "";
+
+      $("lessonVocabulary").value =
+        formatJSONField(lesson.vocabulary);
+
+      $("lessonQuiz").value =
+        formatJSONField(lesson.quiz);
+
+      $("lessonObjectives").value =
+        formatJSONField(lesson.learning_objectives);
+
+      $("lessonFormError").textContent = "";
+
+      renderMedia(media);
+      openModal("lessonModal");
+
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  function formatJSONField(value) {
+    if (value === null || value === undefined || value === "") {
+      return "[]";
+    }
+
+    if (typeof value === "string") {
+      try {
+        return JSON.stringify(JSON.parse(value), null, 2);
+      } catch {
+        return value;
+      }
+    }
+
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return "[]";
+    }
+  }
+
+  function parseJSONField(id, label) {
+    const raw = $(id).value.trim();
+
+    if (!raw) return [];
+
+    try {
+      return JSON.parse(raw);
+    } catch {
+      throw new Error(`${label} must contain valid JSON.`);
+    }
+  }
+
+  async function saveLesson() {
+    const originalId = $("lessonOriginalId").value.trim();
+
+    const lessonId = $("lessonId").value.trim();
+    const title = $("lessonTitle").value.trim();
+
+    if (!lessonId || !title) {
+      $("lessonFormError").textContent =
+        "Lesson ID and title are required.";
+      return;
+    }
+
+    let vocabulary;
+    let quiz;
+    let objectives;
+
+    try {
+      vocabulary = parseJSONField("lessonVocabulary", "Vocabulary");
+      quiz = parseJSONField("lessonQuiz", "Quiz");
+      objectives = parseJSONField("lessonObjectives", "Learning objectives");
+    } catch (error) {
+      $("lessonFormError").textContent = error.message;
+      return;
+    }
+
+    const payload = {
+      lesson_id: lessonId,
+      title,
+      description: $("lessonDescription").value.trim(),
+      content: $("lessonContent").value,
+      level: Number($("lessonLevel").value) || 1,
+      premium: $("lessonPremium").value === "true",
+      xp: Number($("lessonXP").value) || 0,
+      icon: $("lessonIcon").value.trim() || "🐼",
+      order_index: Number($("lessonOrder").value) || 1,
+      vocabulary,
+      quiz,
+      learning_objectives: objectives,
+      is_published: $("lessonPublished").value === "true"
+    };
+
+    const button = $("saveLessonButton");
+    button.disabled = true;
+    $("lessonFormError").textContent = "";
+
+    try {
+      let data;
+
+      if (originalId) {
+        data = await api(
+          `/admin/lessons/${encodeURIComponent(originalId)}`,
+          {
+            method: "PUT",
+            body: JSON.stringify(payload)
+          }
+        );
+      } else {
+        data = await api("/admin/lessons", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+      }
+
+      notify(data.message || "Lesson saved successfully.");
+
+      await loadLessons();
+
+      const savedId =
+        data.lesson?.lesson_id ||
+        data.lesson_id ||
+        lessonId;
+
+      await editLesson(savedId);
+
+    } catch (error) {
+      $("lessonFormError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function deleteLesson(id) {
+    if (!confirm("Delete this lesson? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await api(
+        `/admin/lessons/${encodeURIComponent(id)}`,
+        { method: "DELETE" }
+      );
+
+      notify("Lesson deleted.");
+      await loadLessons();
+
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  function renderMedia(media) {
+    if (!Array.isArray(media) || !media.length) {
+      $("mediaList").innerHTML =
+        `<div class="muted" style="font-size:8px;">No media added yet.</div>`;
+      return;
+    }
+
+    $("mediaList").innerHTML = media.map((item) => {
+      const type = item.media_type || "image";
+      const mediaId = escapeHTML(item.media_id);
+
+      const preview =
+        type === "image"
+          ? `<img src="${escapeHTML(item.media_url)}" alt="">`
+          : type === "video"
+            ? "▶"
+            : "🔊";
+
+      return `
+        <div class="media-row">
+
+          <div class="media-thumb">${preview}</div>
+
+          <div>
+            <strong style="font-size:9px;color:var(--navy);">
+              ${escapeHTML(first(item.title, item.media_url, "Media"))}
+            </strong>
+
+            <div class="muted" style="font-size:8px;">
+              ${escapeHTML(first(item.caption, type, ""))}
+            </div>
+          </div>
+
+          <button
+            class="btn btn-danger btn-sm"
+            data-delete-media="${mediaId}"
+          >
+            Delete
+          </button>
+
+        </div>
+      `;
+    }).join("");
+
+    document.querySelectorAll("[data-delete-media]").forEach((button) => {
+      button.addEventListener("click", () => {
+        deleteMedia(button.dataset.deleteMedia);
+      });
+    });
+  }
+
+  $("saveLessonButton").addEventListener("click", saveLesson);
+
+  $("addMediaButton").addEventListener("click", () => {
+    if (!$("lessonOriginalId").value.trim()) {
+      notify("Save the lesson first.", "error");
+      return;
+    }
+
+    $("mediaType").value = "image";
+    $("mediaURL").value = "";
+    $("mediaTitle").value = "";
+    $("mediaCaption").value = "";
+    $("mediaAlt").value = "";
+    $("mediaError").textContent = "";
+
+    openModal("mediaModal");
+  });
+
+  $("saveMediaButton").addEventListener("click", async () => {
+    const lessonId = $("lessonOriginalId").value.trim();
+
+    if (!lessonId) {
+      $("mediaError").textContent = "Save the lesson first.";
+      return;
+    }
+
+    const mediaURL = $("mediaURL").value.trim();
+
+    if (!mediaURL) {
+      $("mediaError").textContent = "Media URL is required.";
+      return;
+    }
+
+    const button = $("saveMediaButton");
+    button.disabled = true;
+    $("mediaError").textContent = "";
+
+    try {
+      await api(
+        `/admin/lessons/${encodeURIComponent(lessonId)}/media`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            media_type: $("mediaType").value,
+            media_url: mediaURL,
+            title: $("mediaTitle").value.trim(),
+            caption: $("mediaCaption").value.trim(),
+            alt_text: $("mediaAlt").value.trim(),
+            order_index: 999,
+            is_published: true
+          })
+        }
+      );
+
+      closeModal("mediaModal");
+      notify("Media added.");
+
+      await editLesson(lessonId);
+
+    } catch (error) {
+      $("mediaError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  async function deleteMedia(mediaId) {
+    const lessonId = $("lessonOriginalId").value.trim();
+
+    if (!confirm("Remove this media?")) return;
+
+    try {
+      await api(
+        `/admin/lessons/${encodeURIComponent(lessonId)}/media/${encodeURIComponent(mediaId)}`,
+        { method: "DELETE" }
+      );
+
+      notify("Media removed.");
+      await editLesson(lessonId);
+
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  $("lessonSearch").addEventListener("input", () => {
+    state.lessonSearch = $("lessonSearch").value;
+    renderLessons();
+  });
+
+  $("lessonLevelFilter").addEventListener("change", () => {
+    state.lessonLevel = $("lessonLevelFilter").value;
+    renderLessons();
+  });
+
+  /* ================= ANALYTICS ================= */
+
+  async function loadAnalytics() {
+    $("analyticsStatus").textContent = "Loading…";
+    $("analyticsStatus").className = "pill yellow";
+
+    try {
+      const data = await api("/admin/analytics");
+
+      if (!data.success) {
+        throw new Error(data.error || "Analytics request failed.");
+      }
+
+      const users = data.users || {};
+      const growth = data.growth || {};
+      const activity = data.activity || {};
+      const learning = data.learning || {};
+      const premium = data.premium || {};
+
+      const set = (id, value) => {
+        $(id).textContent = String(value ?? 0);
+      };
+
+      set("aUsers", users.total);
+      set("aVerified", users.verified);
+      set("aPremium", users.premium);
+      set("aParents", users.parents);
+      set("aStudents", users.students);
+      set("aToday", growth.today);
+      set("a7Days", growth.last_7_days);
+      set("a30Days", growth.last_30_days);
+      set("aActive24", activity.last_24_hours);
+      set("aActive7", activity.last_7_days);
+      set("aActive30", activity.last_30_days);
+      set("aTotalXP", Number(learning.total_xp || 0).toLocaleString());
+      set("aAverageXP", Number(learning.average_xp || 0).toLocaleString());
+      set("aAverageLevel", learning.average_level);
+      set("aAverageStreak", learning.average_streak);
+      set("aLessonsCompleted", Number(learning.total_lessons_completed || 0).toLocaleString());
+      set("aAchievements", Number(learning.total_achievements || 0).toLocaleString());
+      set("aBanned", users.banned);
+
+      $("metricActive").textContent = activity.last_24_hours ?? 0;
+      $("snapshotXP").textContent =
+        Number(learning.total_xp || 0).toLocaleString();
+
+      $("learningAverageXP").textContent =
+        Number(learning.average_xp || 0).toLocaleString();
+
+      $("learningAverageLevel").textContent =
+        learning.average_level ?? 0;
+
+      $("learningAverageStreak").textContent =
+        learning.average_streak ?? 0;
+
+      $("growthToday").textContent = growth.today ?? 0;
+      $("growthWeek").textContent = growth.last_7_days ?? 0;
+      $("growthMonth").textContent = growth.last_30_days ?? 0;
+
+      $("metricPremiumRate").textContent =
+        `${premium.conversion_percent || 0}% conversion`;
+
+      $("analyticsStatus").textContent = "Live";
+      $("analyticsStatus").className = "pill green";
+
+    } catch (error) {
+      $("analyticsStatus").textContent = "Unavailable";
+      $("analyticsStatus").className = "pill red";
+      notify(error.message, "error");
+    }
+  }
+
+  /* ================= EMAIL ================= */
+
+  function emailEscape(value) {
+    return escapeHTML(value);
+  }
+
+  function buildEmailHTML({ subject, message, username }) {
+    const safeSubject = emailEscape(subject || "HanVerse Update");
+    const safeUsername = emailEscape(username || "HanVerse Admin");
+
+    const body = String(message || "")
+      .split(/\n{2,}/)
+      .map((paragraph) => `
+        <p style="
+          margin:0 0 18px;
+          color:#333;
+          font-size:15px;
+          line-height:1.75;
+        ">
+          ${emailEscape(paragraph).replace(/\n/g, "<br>")}
+        </p>
+      `)
+      .join("");
+
+    return `
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${safeSubject}</title>
+</head>
+
+<body style="margin:0;padding:0;background:#F5F9FF;font-family:Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F9FF;">
+<tr>
+<td align="center" style="padding:28px 14px;">
+
+<table width="100%" cellpadding="0" cellspacing="0"
+       style="max-width:680px;background:#fff;border:1px solid #eee8dd;border-radius:20px;overflow:hidden;">
+
+<tr>
+<td style="background:#2563EB;padding:24px 30px;">
+  <div style="font-size:25px;font-weight:800;color:#fff;">🐼 HanVerse</div>
+  <div style="font-size:12px;color:#DBEAFE;margin-top:4px;">
+    Learn Chinese. Have fun. Grow.
+  </div>
+</td>
+</tr>
+
+<tr>
+<td style="padding:34px;">
+
+<div style="
+  display:inline-block;
+  background:#FFF4C7;
+  color:#8A6A00;
+  border-radius:999px;
+  padding:6px 11px;
+  font-size:11px;
+  font-weight:700;
+  margin-bottom:16px;
+">
+HANVERSE UPDATE
+</div>
+
+<h1 style="
+  margin:0 0 22px;
+  font-size:26px;
+  line-height:1.25;
+  color:#222;
+">
+${safeSubject}
+</h1>
+
+${body}
+
+<hr style="border:0;border-top:1px solid #eee8dd;margin:28px 0 20px;">
+
+<p style="margin:0;color:#777;font-size:12px;">
+  Written by <strong style="color:#333;">${safeUsername}</strong>
+</p>
+
+</td>
+</tr>
+
+<tr>
+<td style="background:#F7F8FA;padding:20px;text-align:center;">
+  <p style="margin:0;font-size:12px;font-weight:700;color:#555;">HanVerse</p>
+  <p style="margin:6px 0 0;font-size:11px;color:#888;">
+    Your fun, friendly way to learn Mandarin Chinese.
+  </p>
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+`;
+  }
+
+  function refreshRecipientCount() {
+    const audience =
+      document.querySelector('input[name="audience"]:checked')?.value ||
+      "verified";
+
+    let users = state.users.filter(
+      (user) => user.email && !bool(user.is_banned)
+    );
+
+    if (audience === "verified") {
+      users = users.filter((user) => bool(user.is_verified));
+    }
+
+    if (audience === "students") {
+      users = users.filter(
+        (user) => String(user.role || "").toLowerCase() === "student"
+      );
+    }
+
+    if (audience === "parents") {
+      users = users.filter(
+        (user) => String(user.role || "").toLowerCase() === "parent"
+      );
+    }
+
+    if (audience === "premium") {
+      users = users.filter((user) =>
+        bool(first(user.premium, user.is_premium))
+      );
+    }
+
+    if (audience === "non_premium") {
+      users = users.filter((user) =>
+        !bool(first(user.premium, user.is_premium))
+      );
+    }
+
+    $("recipientCount").textContent =
+      `${users.length} recipient${users.length === 1 ? "" : "s"}`;
+  }
+
+  function updateEmailPreview() {
+    const subject =
+      $("broadcastSubject").value.trim() || "HanVerse Update";
+
+    const message =
+      $("broadcastMessage").value || "Your message will appear here.";
+
+    const username = first(
+      state.admin?.full_name,
+      state.admin?.username,
+      "HanVerse Admin"
+    );
+
+    $("emailPreview").srcdoc = buildEmailHTML({
+      subject,
+      message,
+      username
+    });
+  }
+
+  function resetBroadcast() {
+    $("broadcastSubject").value = "";
+    $("broadcastMessage").value = "";
+    $("scheduleDate").value = "";
+    $("scheduleTime").value = "";
+
+    document.querySelector(
+      'input[name="audience"][value="verified"]'
+    ).checked = true;
+
+    document.querySelector(
+      'input[name="timing"][value="now"]'
+    ).checked = true;
+
+    $("scheduleBox").classList.add("hidden");
+    $("broadcastError").textContent = "";
+    $("personalRecipient").classList.add("hidden");
+    $("broadcastAudienceField").classList.remove("hidden");
+    $("broadcastTimingField").classList.remove("hidden");
+
+    state.pendingEmail = null;
+
+    refreshRecipientCount();
+    updateEmailPreview();
+  }
+
+  function openBroadcast() {
+    resetBroadcast();
+    openModal("broadcastModal");
+
+    window.setTimeout(() => {
+      $("broadcastSubject").focus();
+      updateEmailPreview();
+    }, 50);
+  }
+
+  function openPersonalEmail(userId) {
+    const user = state.users.find(
+      (item) => String(item.user_id) === String(userId)
+    );
+
+    if (!user) return;
+
+    resetBroadcast();
+
+    state.pendingEmail = {
+      mode: "personal",
+      campaign_type: "personal",
+      recipient_user_id: user.user_id,
+      recipient_email: user.email,
+      recipient_username: first(user.username, user.full_name, "HanVerse User"),
+      timing: "now",
+      scheduled_for: null,
+      timezone: "Africa/Nairobi"
+    };
+
+    $("personalRecipient").classList.remove("hidden");
+    $("personalRecipientEmail").textContent = user.email;
+
+    $("broadcastAudienceField").classList.add("hidden");
+    $("broadcastTimingField").classList.add("hidden");
+
+    openModal("broadcastModal");
+  }
+
+  $("broadcastForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const subject = $("broadcastSubject").value.trim();
+    const message = $("broadcastMessage").value.trim();
+
+    if (!subject || !message) {
+      $("broadcastError").textContent =
+        "Subject and message are required.";
+      return;
+    }
+
+    const personal = state.pendingEmail?.mode === "personal";
+
+    const timing = personal
+      ? "now"
+      : document.querySelector('input[name="timing"]:checked')?.value || "now";
+
+    const audience =
+      document.querySelector('input[name="audience"]:checked')?.value ||
+      "verified";
+
+    const action = personal
+      ? {
+          ...state.pendingEmail,
+          subject,
+          message
+        }
+      : {
+          mode: "broadcast",
+          campaign_type: "broadcast",
+          audience_type: audience,
+          subject,
+          message,
+          timing,
+          scheduled_for: null,
+          timezone: $("scheduleTimezone").value,
+          recipient_username: first(
+            state.admin?.username,
+            state.admin?.full_name,
+            "HanVerse Admin"
+          )
+        };
+
+    if (!personal && timing === "scheduled") {
+      if (!$("scheduleDate").value || !$("scheduleTime").value) {
+        $("broadcastError").textContent =
+          "Choose a date and time.";
+        return;
+      }
+
+      action.scheduled_for =
+        `${$("scheduleDate").value}T${$("scheduleTime").value}:00`;
+
+      if (new Date(action.scheduled_for) <= new Date()) {
+        $("broadcastError").textContent =
+          "The scheduled time must be in the future.";
+        return;
+      }
+    }
+
+    state.pendingEmail = action;
+
+    $("confirmSummary").textContent =
+      personal
+        ? `Send "${subject}" to ${action.recipient_email}`
+        : timing === "scheduled"
+          ? `Schedule "${subject}"`
+          : `Send "${subject}" now`;
+
+    $("confirmDetails").textContent =
+      personal
+        ? "This will send a personal email to the selected user."
+        : timing === "scheduled"
+          ? `${action.scheduled_for} · ${action.timezone}`
+          : `Audience: ${audience} · ${$("recipientCount").textContent}`;
+
+    $("confirmPassword").value = "";
+    $("emailConfirmError").textContent = "";
+
+    closeModal("broadcastModal");
+    openModal("emailConfirmModal");
+  });
+
+  $("emailConfirmForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const action = state.pendingEmail;
+
+    if (!action) return;
+
+    const password = $("confirmPassword").value.trim();
+
+    if (!password) {
+      $("emailConfirmError").textContent =
+        "Admin password is required.";
+      return;
+    }
+
+    const button = $("confirmEmailButton");
+    button.disabled = true;
+    $("emailConfirmError").textContent = "";
+
+    try {
+      const username = first(
+        action.recipient_username,
+        state.admin?.username,
+        state.admin?.full_name,
+        "HanVerse Admin"
+      );
+
+      const html = buildEmailHTML({
+        subject: action.subject,
+        message: action.message,
+        username
+      });
+
+      let data;
+
+      if (action.mode === "personal") {
+        data = await api(
+          `/admin/users/email/${encodeURIComponent(action.recipient_user_id)}`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              subject: action.subject,
+              message: action.message,
+              html,
+              adminPassword: password
+            })
+          }
+        );
+      } else {
+        data = await api("/admin/email/campaigns", {
+          method: "POST",
+          body: JSON.stringify({
+            ...action,
+            html,
+            adminPassword: password
+          })
+        });
+      }
+
+      closeModal("emailConfirmModal");
+      state.pendingEmail = null;
+
+      notify(data.message || "Email submitted successfully.");
+
+      await loadCampaigns();
+
+    } catch (error) {
+      $("emailConfirmError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  async function sendParentDigest() {
+    const button = $("sendDigestButton");
+    const status = $("digestStatus");
+    const parentInput = $("digestParentId");
+    const parentId = parentInput && parentInput.value ? Number(parentInput.value) : null;
+
+    button.disabled = true;
+    if (status) {
+      status.textContent = "Sending weekly digest…";
+      status.style.color = "#5D7A9A";
+    }
+
+    try {
+      const data = await api("/parents/digest/send", {
+        method: "POST",
+        body: parentId ? { parentId } : {}
+      });
+
+      const msg = `Digest complete — emailed to ${data.sent ?? 0} parent(s), skipped ${data.skipped ?? 0}.`;
+      if (status) {
+        status.textContent = `✅ ${msg}`;
+        status.style.color = "#16A34A";
+      }
+      notify(msg);
+    } catch (error) {
+      if (status) {
+        status.textContent = `❌ ${error.message}`;
+        status.style.color = "#DC2626";
+      }
+      notify(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function loadCampaigns() {
+    $("recentCampaigns").innerHTML =
+      `<div class="loading">Loading campaigns…</div>`;
+
+    try {
+      const data = await api("/admin/email/campaigns");
+
+      state.campaigns = Array.isArray(data.campaigns)
+        ? data.campaigns
+        : [];
+
+      renderCampaignSummary();
+
+    } catch (error) {
+      $("recentCampaigns").innerHTML = `
+        <div class="empty">
+          Could not load campaigns.<br>${escapeHTML(error.message)}
+        </div>
+      `;
+    }
+  }
+
+  function renderCampaignSummary() {
+    const campaigns = state.campaigns;
+
+    const scheduled = campaigns.filter(
+      (campaign) =>
+        String(campaign.status || "").toLowerCase() === "scheduled"
+    ).length;
+
+    const completed = campaigns.filter(
+      (campaign) =>
+        String(campaign.status || "").toLowerCase() === "completed"
+    ).length;
+
+    $("campaignCount").textContent = campaigns.length;
+    $("scheduledCount").textContent = scheduled;
+    $("completedCount").textContent = completed;
+
+    const recent = campaigns.slice(0, 5);
+
+    if (!recent.length) {
+      $("recentCampaigns").innerHTML =
+        `<div class="empty">No broadcasts yet.</div>`;
+      return;
+    }
+
+    $("recentCampaigns").innerHTML =
+      recent.map(renderCampaignRow).join("");
+
+    bindCampaignCancel($("recentCampaigns"));
+  }
+
+  function renderCampaignRow(campaign) {
+    const status = String(campaign.status || "unknown");
+    const statusClass =
+      status === "completed" ? "green" :
+      status === "scheduled" ? "blue" :
+      status === "failed" ? "red" :
+      status === "cancelled" ? "red" :
+      "yellow";
+
+    const date = campaign.scheduled_for
+      ? new Date(campaign.scheduled_for).toLocaleString("en-KE", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        })
+      : "Immediate";
+
+    return `
+      <div class="campaign">
+
+        <div>
+          <strong>${escapeHTML(campaign.subject || "(No subject)")}</strong>
+          <small>
+            ${escapeHTML(campaign.audience_type || "broadcast")}
+            · ${Number(campaign.total_recipients || 0)} recipients
+          </small>
+        </div>
+
+        <div>
+          <span class="pill ${statusClass}">
+            ${escapeHTML(status.replaceAll("_", " "))}
+          </span>
+        </div>
+
+        <div>
+          <small>${escapeHTML(date)}</small>
+        </div>
+
+        <div>
+          ${
+            status === "scheduled"
+              ? `<button class="btn btn-sm" data-cancel-campaign="${escapeHTML(campaign.campaign_id)}">Cancel</button>`
+              : ""
+          }
+        </div>
+
+      </div>
+    `;
+  }
+
+  function bindCampaignCancel(container) {
+    container.querySelectorAll("[data-cancel-campaign]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        if (!confirm("Cancel this scheduled broadcast?")) return;
+
+        try {
+          await api(
+            `/admin/email/campaigns/${encodeURIComponent(button.dataset.cancelCampaign)}/cancel`,
+            { method: "POST" }
+          );
+
+          notify("Broadcast cancelled.");
+          await loadCampaigns();
+
+        } catch (error) {
+          notify(error.message, "error");
+        }
+      });
+    });
+  }
+
+  async function loadCampaignHistory() {
+    $("campaignHistory").innerHTML =
+      `<div class="loading">Loading history…</div>`;
+
+    try {
+      const status = $("campaignStatusFilter").value;
+
+      const path = status
+        ? `/admin/email/campaigns?status=${encodeURIComponent(status)}`
+        : "/admin/email/campaigns";
+
+      const data = await api(path);
+
+      const campaigns = Array.isArray(data.campaigns)
+        ? data.campaigns
+        : [];
+
+      if (!campaigns.length) {
+        $("campaignHistory").innerHTML =
+          `<div class="empty">No campaigns found.</div>`;
+        return;
+      }
+
+      $("campaignHistory").innerHTML =
+        campaigns.map(renderCampaignRow).join("");
+
+      bindCampaignCancel($("campaignHistory"));
+
+    } catch (error) {
+      $("campaignHistory").innerHTML =
+        `<div class="empty">${escapeHTML(error.message)}</div>`;
+    }
+  }
+
+  /* ================= PARENT VERIFICATION ================= */
+
+  let parentFilter = "pending";
+  let parentsCache = [];
+
+  async function loadParentQueue() {
+    const container = $("parentsList");
+    container.innerHTML = '<div class="loading">Loading parents...</div>';
+    try {
+      const endpoint = parentFilter === "pending" ? "/admin/parents/pending" : "/admin/parents";
+      const data = await api(endpoint);
+      let list = data.parents || data.pendingParents || [];
+      if (parentFilter === "verified") list = list.filter(p => p.is_verified);
+      parentsCache = list;
+      renderParents();
+    } catch (e) {
+      container.innerHTML = '<p style="color:#EF4444;">Failed to load parents: ' + escapeHTML(e.message) + '</p>';
+    }
+  }
+
+  function renderParents() {
+    const container = $("parentsList");
+    if (!parentsCache.length) {
+      container.innerHTML = '<p style="color:var(--muted);padding:24px;">No parent accounts match this filter.</p>';
+      return;
+    }
+    container.innerHTML = parentsCache.map(p => `
+      <div class="user-card" style="display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid rgba(0,0,0,.06);">
+        <div>
+          <strong>${escapeHTML(p.full_name || p.email)}</strong>
+          <div style="font-size:13px;color:var(--muted);">${escapeHTML(p.email)} · Joined ${new Date(p.created_at).toLocaleDateString()}</div>
+          <div style="font-size:13px;margin-top:2px;">${p.is_verified ? '<span style="color:#16A34A;">✓ Verified</span>' : '<span style="color:#F59E0B;">⏳ Pending</span>'} · ${p.children_count || 0} children linked</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          ${!p.is_verified ? `<button class="btn btn-sm" style="background:#16A34A;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, true)">Approve</button>
+          <button class="btn btn-sm" style="background:#EF4444;color:#fff;" onclick="verifyParent(${p.parent_id || p.user_id}, false)">Deny</button>` : ''}
+        </div>
+      </div>`).join("");
+  }
+
+  async function verifyParent(parentId, approve) {
+    try {
+      const endpoint = approve ? "/admin/parents/verify/" : "/admin/parents/deny/";
+      await api(endpoint + parentId, { method: "POST" });
+      loadParentQueue();
+      loadPendingParentsBadge();
+    } catch (e) { alert("Failed: " + e.message); }
+  }
+  window.verifyParent = verifyParent;
+
+  /* ================= PENDING PARENTS BADGE ================= */
+
+  async function loadPendingParentsBadge() {
+    const badge = $("parentsPendingBadge");
+    if (!badge) return;
+
+    try {
+      const data = await api("/admin/parents/pending");
+      const count = Array.isArray(data.pendingParents) ? data.pendingParents.length : 0;
+      badge.textContent = String(count);
+      badge.hidden = count === 0;
+    } catch {
+      badge.hidden = true;
+    }
+  }
+
+  $("auditRefreshButton").addEventListener("click", () => loadAuditLog());
+
+  /* ================= PHASE B SURFACES (drawer + preview) ================= */
+
+  function openUserDetail(userId) {
+    const user = state.users.find((u) => String(u.user_id) === String(userId));
+    if (!user) return;
+    switchSection("users");
+    const editBtn = document.querySelector('[data-edit-user="' + String(userId) + '"]');
+    if (editBtn) editBtn.click();
+  }
+
+  function openLessonPreview(lessonId) {
+    openLessonPreviewModal(lessonId);
+  }
+
+  /* ================= THEME TOGGLE ================= */
+
+  function applyAdminTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    $("themeToggle").textContent = theme === "dark" ? "☀️" : "🌙";
+    try { localStorage.setItem("hanverse_admin_theme", theme); } catch (e) {}
+  }
+
+  applyAdminTheme((function () {
+    try { return localStorage.getItem("hanverse_admin_theme") || "light"; } catch (e) { return "light"; }
+  })());
+
+  $("themeToggle").addEventListener("click", () => {
+    applyAdminTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+
+  /* ================= USERS SORTING ================= */
+
+  state.userSort = { key: "name", dir: "asc" };
+
+  function sortIndicator() {
+    document.querySelectorAll("#userTable th[data-sort]").forEach((th) => {
+      th.classList.remove("sorted-asc", "sorted-desc");
+      if (th.dataset.sort === state.userSort.key) {
+        th.classList.add(state.userSort.dir === "asc" ? "sorted-asc" : "sorted-desc");
+        th.querySelector(".sort-ind").textContent = state.userSort.dir === "asc" ? "↑" : "↓";
+      } else {
+        th.querySelector(".sort-ind").textContent = "↕";
+      }
+    });
+  }
+
+  document.querySelectorAll("#userTable th[data-sort]").forEach((th) => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      state.userSort.dir = state.userSort.key === key && state.userSort.dir === "asc" ? "desc" : "asc";
+      state.userSort.key = key;
+      sortIndicator();
+      renderUsers();
+    });
+  });
+
+  /* ================= COMMAND PALETTE ================= */
+
+  const cmdk = { overlay: null, input: null, results: null, items: [], active: 0, lessonsLoaded: false };
+
+  function cmdkBuildIndex() {
+    const index = [];
+
+    Object.keys(pageInfo).forEach((section) => {
+      index.push({
+        icon: "🧭", label: "Go to " + pageInfo[section][0], hint: "Section",
+        run: () => switchSection(section)
+      });
+    });
+
+    state.users.forEach((user) => {
+      const name = first(user.full_name, user.username, "User");
+      index.push({
+        icon: String(user.role || "").toLowerCase() === "parent" ? "👪" : "🎓",
+        label: name + (user.email ? " · " + user.email : ""), hint: "User",
+        run: () => { switchSection("users"); openUserDetail(String(user.user_id)); }
+      });
+    });
+
+    state.lessons.forEach((lesson) => {
+      index.push({
+        icon: "📚", label: first(lesson.title, lesson.lesson_title, "Lesson"), hint: "Lesson",
+        run: () => { switchSection("lessons"); openLessonPreview(String(lesson.lesson_id)); }
+      });
+    });
+
+    return index;
+  }
+
+  function cmdkRender(query) {
+    const q = query.trim().toLowerCase();
+    const all = cmdkBuildIndex();
+    cmdk.items = (q ? all.filter((item) => item.label.toLowerCase().includes(q)) : all.slice(0, 12)).slice(0, 20);
+    cmdk.active = 0;
+
+    if (!cmdk.items.length) {
+      cmdk.results.innerHTML = '<div class="cmdk-empty">Nothing matches "' + escapeHTML(query) + '".</div>';
+      return;
+    }
+
+    cmdk.results.innerHTML = cmdk.items.map((item, i) => `
+      <div class="cmdk-item${i === 0 ? " active" : ""}" data-cmdk="${i}">
+        <span class="cmdk-icon">${item.icon}</span>
+        <span>${escapeHTML(item.label)}</span>
+        <span class="cmdk-hint">${escapeHTML(item.hint)}</span>
+      </div>
+    `).join("");
+  }
+
+  function cmdkHighlight() {
+    cmdk.results.querySelectorAll(".cmdk-item").forEach((el, i) => {
+      el.classList.toggle("active", i === cmdk.active);
+      if (i === cmdk.active) el.scrollIntoView({ block: "nearest" });
+    });
+  }
+
+  function cmdkOpen() {
+    cmdk.overlay.classList.add("open");
+    cmdk.input.value = "";
+    cmdkRender("");
+    cmdk.input.focus();
+
+    if (!state.lessons.length && !cmdk.lessonsLoaded) {
+      api("/admin/lessons").then((data) => {
+        state.lessons = Array.isArray(data.lessons) ? data.lessons : [];
+        cmdk.lessonsLoaded = true;
+      }).catch(() => {});
+    }
+  }
+
+  function cmdkClose() {
+    cmdk.overlay.classList.remove("open");
+  }
+
+  function cmdkRun(i) {
+    const item = cmdk.items[i];
+    if (!item) return;
+    cmdkClose();
+    item.run();
+  }
+
+  $("cmdkOverlay").addEventListener("click", (event) => {
+    if (event.target === $("cmdkOverlay")) cmdkClose();
+    const itemEl = event.target.closest("[data-cmdk]");
+    if (itemEl) cmdkRun(Number(itemEl.dataset.cmdk));
+  });
+
+  $("cmdkInput").addEventListener("input", (event) => cmdkRender(event.target.value));
+
+  $("cmdkInput").addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") { event.preventDefault(); cmdk.active = Math.min(cmdk.active + 1, cmdk.items.length - 1); cmdkHighlight(); }
+    else if (event.key === "ArrowUp") { event.preventDefault(); cmdk.active = Math.max(cmdk.active - 1, 0); cmdkHighlight(); }
+    else if (event.key === "Enter") { event.preventDefault(); cmdkRun(cmdk.active); }
+    else if (event.key === "Escape") { cmdkClose(); }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      cmdk.overlay.classList.contains("open") ? cmdkClose() : cmdkOpen();
+    }
+  });
+
+  cmdk.overlay = $("cmdkOverlay");
+  cmdk.input = $("cmdkInput");
+  cmdk.results = $("cmdkResults");
+
+  async function loadAuditLog() {
+    const box = $("auditTable");
+
+    try {
+      const data = await api("/admin/audit?limit=200");
+      const rows = data.audit || [];
+
+      if (!rows.length) {
+        box.innerHTML = '<div class="empty">No admin actions recorded yet.</div>';
+        return;
+      }
+
+      box.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Admin</th>
+              <th>Action</th>
+              <th>Detail</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((row) => `
+              <tr>
+                <td><span class="muted" style="font-size:10px;white-space:nowrap;">${
+                  escapeHTML(new Date(row.created_at).toLocaleString("en-KE"))
+                }</span></td>
+                <td><strong style="font-size:10px;">${escapeHTML(row.actor_label || "—")}</strong></td>
+                <td><span class="pill blue" style="font-size:9px;">${escapeHTML(row.action || "")}</span></td>
+                <td><span style="font-size:10px;">${escapeHTML(row.detail || "—")}</span></td>
+                <td><span class="muted" style="font-size:9px;">${escapeHTML(row.ip || "—")}</span></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    } catch (error) {
+      box.innerHTML = `<div class="empty">Couldn't load the audit log: ${escapeHTML(error.message)}</div>`;
+    }
+  }
+
+  ["All", "Pending", "Verified"].forEach(label => {
+    const btn = $("parentFilter" + label);
+    if (btn) btn.addEventListener("click", () => {
+      parentFilter = label.toLowerCase();
+      document.querySelectorAll("#parentsSection .btn-sm").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadParentQueue();
+    });
+  });
+
+  /* ================= PANDA ================= */
+
+  async function askPanda() {
+    const input = $("pandaInput");
+    const messages = $("pandaMessages");
+    const question = input.value.trim();
+
+    if (!question) return;
+
+    messages.insertAdjacentHTML(
+      "beforeend",
+      `
+        <div class="message me">
+          <div class="bubble">${escapeHTML(question)}</div>
+        </div>
+      `
+    );
+
+    input.value = "";
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+      const data = await api("/admin/panda-chat", {
+        method: "POST",
+        body: JSON.stringify({ message: question })
+      });
+
+      messages.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="message">
+            <span>🐼</span>
+            <div class="bubble">
+              ${escapeHTML(data.reply || "I’m still learning!")}
+            </div>
+          </div>
+        `
+      );
+
+    } catch {
+      messages.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="message">
+            <span>🐼</span>
+            <div class="bubble">
+              I could not reach Panda right now.
+            </div>
+          </div>
+        `
+      );
+    }
+
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  $("pandaSend").addEventListener("click", askPanda);
+
+  $("pandaInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      askPanda();
+    }
+  });
+
+  document.querySelectorAll("[data-prompt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      $("pandaInput").value = button.dataset.prompt;
+      $("pandaInput").focus();
+    });
+  });
+
+  /* ================= GENERAL EVENTS ================= */
+
+  $("quickUsers").addEventListener("click", () => switchSection("users"));
+  $("quickLessons").addEventListener("click", () => switchSection("lessons"));
+  $("quickBroadcast").addEventListener("click", openBroadcast);
+  $("quickPanda").addEventListener("click", () => switchSection("panda"));
+
+  $("dashboardLessonButton").addEventListener("click", () => {
+    newLesson();
+  });
+
+  $("newLessonButton").addEventListener("click", newLesson);
+
+  $("broadcastTopButton").addEventListener("click", openBroadcast);
+  $("newBroadcastButton").addEventListener("click", openBroadcast);
+
+  $("broadcastHistoryButton").addEventListener("click", () => {
+    openModal("historyModal");
+    loadCampaignHistory();
+  });
+
+  $("refreshCampaignsButton").addEventListener(
+    "click",
+    loadCampaigns
+  );
+
+  $("sendDigestButton").addEventListener("click", sendParentDigest);
+
+  $("refreshHistoryButton").addEventListener(
+    "click",
+    loadCampaignHistory
+  );
+
+  $("campaignStatusFilter").addEventListener(
+    "change",
+    loadCampaignHistory
+  );
+
+  $("refreshAnalyticsButton").addEventListener(
+    "click",
+    loadAnalytics
+  );
+
+  $("refreshButton").addEventListener("click", async () => {
+    const button = $("refreshButton");
+    button.disabled = true;
+
+    try {
+      await Promise.all([
+        loadUsers(),
+        loadLessons(),
+        loadAnalytics(),
+        loadCampaigns()
+      ]);
+
+      notify("Admin data refreshed.");
+    } catch (error) {
+      notify(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  document.querySelectorAll("[data-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      closeModal(button.dataset.close);
+    });
+  });
+
+  document.querySelectorAll(".modal").forEach((modal) => {
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        closeModal(modal.id);
+      }
+    });
+  });
+
+  document.querySelectorAll('input[name="audience"]').forEach((input) => {
+    input.addEventListener("change", refreshRecipientCount);
+  });
+
+  document.querySelectorAll('input[name="timing"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      $("scheduleBox").classList.toggle(
+        "hidden",
+        input.value !== "scheduled" || !input.checked
+      );
+    });
+  });
+
+  $("broadcastSubject").addEventListener(
+    "input",
+    updateEmailPreview
+  );
+
+  $("broadcastMessage").addEventListener(
+    "input",
+    updateEmailPreview
+  );
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      document.querySelectorAll(".modal.open").forEach((modal) => {
+        closeModal(modal.id);
+      });
+
+      $("sidebar").classList.remove("open");
+    }
+  });
+
+  /* ================= START ================= */
+
+  (async () => {
+    if (!state.token) {
+      showLogin();
+      return;
+    }
+
+    state.admin = getSessionUser();
+    showApp();
+
+    try {
+      await Promise.all([
+        loadUsers(),
+        loadLessons(),
+        loadAnalytics(),
+        loadCampaigns()
+      ]);
+    } catch (error) {
+      console.error("Admin startup error:", error);
+    }
+  })();
+
+})();
