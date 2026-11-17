@@ -20,6 +20,12 @@ const PORT = Number(process.env.PORT || 3000);
 
 const app = express();
 
+// The learning subdomain deliberately sends its root and index URL to the
+// separate marketing site. Keep local development aligned with that behavior.
+app.get(['/', '/index.html'], (_req, res) => {
+  res.redirect(302, 'https://hanverse.netlify.app/');
+});
+
 // Static files first (only existing files match)
 app.use(express.static(__dirname, { extensions: ['html'] }));
 
@@ -75,9 +81,9 @@ for (const name of LAMBDA_FNS) {
   });
 }
 
-// Fallback to index.html (mirrors netlify.toml 404 -> index.html)
+// Keep unknown URLs on a real 404 page; the learning app has no index.html.
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, 'index.html'));
+  res.status(404).sendFile(path.join(__dirname, '404.html'));
 });
 
 app.listen(PORT, HOST, () => {

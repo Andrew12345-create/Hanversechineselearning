@@ -1,397 +1,115 @@
 // ============================================================
-// HanVerse Service Worker
-// Designed for Netlify + Offline Support
+// HanVerse Service Worker — learn site (learn-hanverse)
+// Offline support for Netlify: precached shell + pages,
+// network-first navigations, stale-while-revalidate assets,
+// JSON 503 for API calls while offline.
+// Bump VERSION (and the ?v= query in pages) to atomically
+// refresh every cache on next deploy.
 // ============================================================
+'use strict';
 
-const CACHE_NAME = 'hanverse-v13';
-// Lesson content cache survives version bumps so previously studied
-// lessons stay available offline.
-const LESSON_CACHE = 'hanverse-lessons-v1';
+const VERSION = 'v2';
+const CACHE = 'hanverse-' + VERSION;
 
-// Real files only — every entry must exist at the site root.
-// (The previous list referenced /css/styles.css, /js/app.js and /images/*,
-// which never existed, so cache.addAll() rejected and the SW never installed.)
-const STATIC_ASSETS = [
-    '/index.html',
-    '/hanverse.css',
-    '/hanverse.js',
-    '/nav-user.js',
-    '/Hanverse-logo2.png',
-    '/assets/mascot/states/hanpan-waving.png',
-    '/assets/mascot/states/hanpan-happy.png',
-    '/assets/mascot/states/hanpan-idle.png',
-    '/assets/mascot/states/hanpan-thinking.png',
-    '/assets/mascot/states/hanpan-listening.png'
+const PRECACHE_URLS = [
+  '/offline.html',
+  '/learn.html', '/lesson.html', '/roadmap.html', '/practice.html',
+  '/talk.html', '/explore.html', '/profile.html', '/notifications.html',
+  '/settings.html', '/placement.html', '/dashboard.html', '/parents.html',
+  '/payment.html', '/login.html', '/signup.html', '/forgot-password.html',
+  '/reset-password.html', '/verify-email.html', '/banned.html', '/invite.html',
+  '/child-profile.html', '/parent-dashboard.html',
+  '/adventures.html', '/adventures.js?v=1',
+  '/vocabulary.html',
+  '/hanverse.css?v=1', '/hanverse.js?v=1', '/nav-user.js?v=1',
+  '/bottom-nav.js?v=1', '/shared-nav.js?v=1', '/features-client.js?v=1',
+  '/notifications-client.js?v=1', '/notifications.js?v=1',
+  '/js/auth-fetch.js?v=1',
+  '/manifest.json', '/Hanverse-logo.png', '/Hanverse-logo2.png'
 ];
 
-
-// ============================================================
-// INSTALL
-// ============================================================
-
-self.addEventListener('install', event => {
-    console.log('[HanVerse SW] Installing...');
-
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[HanVerse SW] Caching static assets...');
-
-                // Cache each file individually so one bad asset
-                // can never break the whole installation.
-                return Promise.all(
-                    STATIC_ASSETS.map(asset =>
-                        cache.add(asset).catch(err =>
-                            console.warn('[HanVerse SW] Skipped:', asset, err)
-                        )
-                    )
-                );
-            })
-            .then(() => {
-                console.log('[HanVerse SW] Installation complete.');
-
-                // Activate the new service worker immediately
-                return self.skipWaiting();
-            })
-            .catch(error => {
-                console.error(
-                    '[HanVerse SW] Installation failed:',
-                    error
-                );
-            })
-    );
+self.addEventListener('install', (event) => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    // Cache one-by-one: a single failed asset must not break install.
+    await Promise.all(PRECACHE_URLS.map(async (url) => {
+      try {
+        const res = await fetch(new Request(url, { cache: 'reload' }));
+        if (res && res.ok && !/\bno-store\b/i.test(res.headers.get('Cache-Control') || '')) await cache.put(url, res);
+      } catch (e) { /* offline or missing asset — skip */ }
+    }));
+    await self.skipWaiting();
+  })());
 });
 
-
-// ============================================================
-// ACTIVATE
-// ============================================================
-
-self.addEventListener('activate', event => {
-    console.log('[HanVerse SW] Activating...');
-
-    event.waitUntil(
-        caches.keys()
-            .then(cacheNames => {
-
-                return Promise.all(
-                    cacheNames
-                        .filter(cacheName => {
-                            return cacheName !== CACHE_NAME && cacheName !== LESSON_CACHE;
-                        })
-                        .map(cacheName => {
-                            console.log(
-                                '[HanVerse SW] Removing old cache:',
-                                cacheName
-                            );
-
-                            return caches.delete(cacheName);
-                        })
-                );
-            })
-            .then(() => {
-
-                console.log(
-                    '[HanVerse SW] Old caches removed.'
-                );
-
-                // Take control of open pages immediately
-                return self.clients.claim();
-            })
-    );
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/.netlify/')) return;
 
-// ============================================================
-// FETCH
-// ============================================================
-
-self.addEventListener('fetch', event => {
-
-    const request = event.request;
-    const url = new URL(request.url);
-
-
-    // --------------------------------------------------------
-    // Only handle GET requests
-    // --------------------------------------------------------
-
-    if (request.method !== 'GET') {
-        return;
-    }
-
-
-    // --------------------------------------------------------
-    // Lesson content API — NETWORK FIRST, cached for offline study
-    // --------------------------------------------------------
-
-    //
-    // GET reads of lesson content are cached in a dedicated cache so a
-    // child can keep studying a visited lesson without a connection.
-    // Everything else in the API stays network-only.
-    //
-
-    if (
-        request.method === 'GET' &&
-        /^\/(api|\.netlify\/functions\/server)\/(lessons|user|progress)(\/|$)/.test(url.pathname)
-    ) {
-
-        event.respondWith(
-            fetch(request)
-                .then(response => {
-
-                    if (response && response.status === 200) {
-
-                        const responseClone = response.clone();
-
-                        caches.open(LESSON_CACHE)
-                            .then(cache => {
-                                cache.put(request, responseClone);
-                            });
-                    }
-
-                    return response;
-                })
-                .catch(() => {
-
-                    console.log(
-                        '[HanVerse SW] Offline. ' +
-                        'Using cached lesson content.'
-                    );
-
-                    return caches.match(request)
-                        .then(cachedResponse => {
-
-                            if (cachedResponse) {
-                                return cachedResponse;
-                            }
-
-                            return new Response(
-                                JSON.stringify({
-                                    success: false,
-                                    error: 'You are offline and this lesson has not been downloaded yet. Open it once while connected.'
-                                }),
-                                {
-                                    status: 503,
-                                    headers: { 'Content-Type': 'application/json' }
-                                }
-                            );
-                        });
-                })
-        );
-
-        return;
-    }
-
-
-    // --------------------------------------------------------
-    // Never cache API requests
-    // --------------------------------------------------------
-
-    if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/.netlify/')) {
-        return;
-    }
-
-
-    // --------------------------------------------------------
-    // External resources
-    // --------------------------------------------------------
-
-    // Let external resources such as Google Fonts
-    // be handled normally by the browser.
-    if (url.origin !== self.location.origin) {
-        return;
-    }
-
-
-    // --------------------------------------------------------
-    // HTML / Navigation
-    // NETWORK FIRST
-    // --------------------------------------------------------
-
-    //
-    // This is the important part.
-    //
-    // Always try to get the newest HTML from Netlify first.
-    //
-    // Only use the cached page when the user is offline.
-    //
-
-    if (
-        request.mode === 'navigate' ||
-        url.pathname === '/' ||
-        url.pathname.endsWith('.html')
-    ) {
-
-        event.respondWith(
-            fetch(request)
-                .then(response => {
-
-                    if (
-                        response &&
-                        response.status === 200 &&
-                        response.type === 'basic'
-                    ) {
-
-                        const responseClone =
-                            response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(
-                                    request,
-                                    responseClone
-                                );
-                            });
-                    }
-
-                    return response;
-                })
-                .catch(() => {
-
-                    console.log(
-                        '[HanVerse SW] Network unavailable. ' +
-                        'Using cached HTML.'
-                    );
-
-                    return caches.match(request)
-                        .then(cachedResponse => {
-
-                            if (cachedResponse) {
-                                return cachedResponse;
-                            }
-
-                            return caches.match(
-                                '/index.html'
-                            );
-                        });
-                })
-        );
-
-        return;
-    }
-
-
-    // --------------------------------------------------------
-    // STATIC ASSETS
-    // CACHE FIRST
-    // --------------------------------------------------------
-
-    //
-    // CSS, JS and images can safely use the cache-first
-    // strategy because they are not the main HTML document.
-    //
-
+  // API calls: pass through; report offline as JSON 503 (clients already
+  // handle { success: false } shapes).
+  if (url.pathname.startsWith('/api/')) {
     event.respondWith(
-
-        caches.match(request)
-            .then(cachedResponse => {
-
-                if (cachedResponse) {
-
-                    // Return cached asset immediately
-                    // while checking for an updated version.
-                    fetch(request)
-                        .then(networkResponse => {
-
-                            if (
-                                networkResponse &&
-                                networkResponse.status === 200 &&
-                                networkResponse.type === 'basic'
-                            ) {
-
-                                const responseClone =
-                                    networkResponse.clone();
-
-                                caches.open(CACHE_NAME)
-                                    .then(cache => {
-
-                                        cache.put(
-                                            request,
-                                            responseClone
-                                        );
-                                    });
-                            }
-                        })
-                        .catch(() => {
-                            // Network unavailable.
-                            // Cached version is already available.
-                        });
-
-                    return cachedResponse;
-                }
-
-
-                // ------------------------------------------------
-                // Asset isn't cached yet
-                // ------------------------------------------------
-
-                return fetch(request)
-                    .then(networkResponse => {
-
-                        if (
-                            networkResponse &&
-                            networkResponse.status === 200 &&
-                            networkResponse.type === 'basic'
-                        ) {
-
-                            const responseClone =
-                                networkResponse.clone();
-
-                            caches.open(CACHE_NAME)
-                                .then(cache => {
-
-                                    cache.put(
-                                        request,
-                                        responseClone
-                                    );
-                                });
-                        }
-
-                        return networkResponse;
-                    })
-                    .catch(() => {
-
-                        return new Response(
-                            'HanVerse is currently offline.',
-                            {
-                                status: 503,
-                                statusText: 'Offline'
-                            }
-                        );
-                    });
-            })
+      fetch(req).catch(() => new Response(
+        JSON.stringify({ success: false, error: 'offline' }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      ))
     );
-});
+    return;
+  }
 
+  // Page navigations: network-first (fresh pages win), cache fallback,
+  // offline.html as the last resort.
+  if (req.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const res = await fetch(req);
+        if (res && res.ok && !url.search && !/\bno-store\b/i.test(res.headers.get('Cache-Control') || '')) {
+          const cache = await caches.open(CACHE);
+          cache.put(req, res.clone());
+        }
+        return res;
+      } catch (e) {
+        const cached = url.search ? null : await caches.match(req, { ignoreSearch: true });
+        if (cached) return cached;
+        const offline = await caches.match('/offline.html');
+        if (offline) return offline;
+        return new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+      }
+    })());
+    return;
+  }
 
-// ============================================================
-// MESSAGE HANDLER
-// ============================================================
+  // Static assets: stale-while-revalidate.
+  event.respondWith((async () => {
+    const cached = await caches.match(req, { ignoreSearch: true });
+    const network = fetch(req).then(res => {
+      if (res && res.ok && !/\bno-store\b/i.test(res.headers.get('Cache-Control') || '')) {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(req, clone));
+      }
+      return res;
+    }).catch(() => null);
 
-self.addEventListener('message', event => {
-
-    if (!event.data) {
-        return;
+    if (cached) {
+      event.waitUntil(network);
+      return cached;
     }
-
-    // Allow the website to force an immediate update
-    if (event.data.type === 'SKIP_WAITING') {
-
-        console.log(
-            '[HanVerse SW] Skip waiting requested.'
-        );
-
-        self.skipWaiting();
-    }
+    const res = await network;
+    if (res) return res;
+    const offline = await caches.match('/offline.html');
+    if (offline) return offline;
+    return new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+  })());
 });
-
-
-// ============================================================
-// DEBUG
-// ============================================================
-
-console.log(
-    '[HanVerse SW] Loaded:',
-    CACHE_NAME
-);

@@ -733,7 +733,7 @@ function getHanVerseEmailHTML({
 
     .top-bar {
       height:7px;
-      background:#2563EB;
+      background:#E63946;
     }
 
     .content {
@@ -752,7 +752,7 @@ function getHanVerseEmailHTML({
     }
 
     .brand {
-      color:#1D4ED8;
+      color:#E63946;
       font-size:28px;
       font-weight:800;
       letter-spacing:-0.5px;
@@ -784,7 +784,7 @@ function getHanVerseEmailHTML({
 
     .title {
       margin:0 0 25px;
-      color:#1D4ED8;
+      color:#E63946;
       font-size:30px;
       line-height:1.25;
       font-weight:800;
@@ -821,7 +821,7 @@ function getHanVerseEmailHTML({
     }
 
     .signature-name {
-      color:#1D4ED8;
+      color:#E63946;
       font-weight:800;
     }
 
@@ -845,7 +845,7 @@ function getHanVerseEmailHTML({
     }
 
     .footer .brand-footer {
-      color:#1D4ED8;
+      color:#E63946;
       font-size:14px;
       font-weight:800;
     }
@@ -857,7 +857,7 @@ function getHanVerseEmailHTML({
     }
 
     .footer a {
-      color:#1D4ED8;
+      color:#E63946;
       text-decoration:none;
       font-weight:600;
     }
@@ -5338,16 +5338,6 @@ async function ensureParentTables() {
   await pool.query(`ALTER TABLE children ADD COLUMN IF NOT EXISTS share_classroom_profile BOOLEAN NOT NULL DEFAULT TRUE`);
   await pool.query(`ALTER TABLE children ADD COLUMN IF NOT EXISTS controls_updated_at TIMESTAMPTZ`);
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS family_learning_pack_access (
-      parent_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-      child_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-      enabled BOOLEAN NOT NULL DEFAULT TRUE,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      PRIMARY KEY (parent_user_id, child_user_id)
-    )
-  `);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_family_pack_child ON family_learning_pack_access(child_user_id, enabled)`);
-  await pool.query(`
     CREATE TABLE IF NOT EXISTS parent_messages (
       message_id SERIAL PRIMARY KEY,
       parent_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
@@ -5966,29 +5956,6 @@ async function requireVerifiedParent(res, auth) {
   return row;
 }
 
-async function requirePremiumFamilyPack(res, parentUserId) {
-  const parent = (await pool.query(`SELECT user_id, premium, premium_until, membership_plan, membership_status,
-    trial_ends_at, trial_used, is_banned FROM users WHERE user_id = $1`, [parentUserId])).rows[0];
-  const entitlement = parent && !parent.is_banned ? computeEntitlement(parent) : null;
-  if (!entitlement || !hasAccess(entitlement, 'premium')) {
-    res.status(403).json(upgradeRequiredPayload('premium'));
-    return null;
-  }
-  return entitlement;
-}
-
-async function buildFamilyLearningPack(childUserId) {
-  try {
-    const words = (await pool.query(`SELECT word, pinyin, meaning, COALESCE(mastery_level, 0)::int AS mastery
-      FROM vocabulary_progress WHERE user_id = $1
-      ORDER BY last_reviewed DESC NULLS LAST, COALESCE(mastery_level, 0) ASC LIMIT 8`, [childUserId])).rows;
-    return { words };
-  } catch (error) {
-    console.warn('family pack vocabulary unavailable:', error.message);
-    return { words: [] };
-  }
-}
-
 function cleanAssignmentFields(body, res) {
   const title = String((body && body.title) || '').trim();
   const description = String((body && body.description) || '').trim();
@@ -6430,74 +6397,6 @@ router.get('/parents/:parentId/trend', async (req, res) => {
 });
 
 /* ==========================================
-  PREMIUM FAMILY LEARNING PACK
-========================================== */
-
-router.get('/parents/:parentId/family-learning-pack', async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
-    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
-    if (!await requireVerifiedParent(res, auth)) return;
-    if (!await requirePremiumFamilyPack(res, auth.user_id)) return;
-    await ensureParentTables();
-    const children = (await pool.query(`SELECT c.user_id, c.full_name, COALESCE(f.enabled, FALSE) AS enabled, f.updated_at
-      FROM children c JOIN parents p ON p.parent_id = c.parent_id
-      LEFT JOIN family_learning_pack_access f ON f.parent_user_id = p.user_id AND f.child_user_id = c.user_id
-      WHERE p.user_id = $1 AND c.is_active = TRUE ORDER BY c.full_name`, [auth.user_id])).rows;
-    return res.json({ success: true, children });
-  } catch (error) { console.error('family-pack list error:', error); return res.status(500).json({ success: false, error: 'Failed to load Family Learning Pack.' }); }
-});
-
-router.put('/parents/children/:childUserId/family-learning-pack', parentWriteLimiter, async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
-    if (!await requireVerifiedParent(res, auth)) return;
-    if (!await requirePremiumFamilyPack(res, auth.user_id)) return;
-    if (typeof req.body?.enabled !== 'boolean') return res.status(400).json({ success: false, error: 'enabled must be true or false.' });
-    await ensureParentTables();
-    const child = await getOwnChild(res, auth, req.params.childUserId); if (!child) return;
-    const result = await pool.query(`INSERT INTO family_learning_pack_access (parent_user_id, child_user_id, enabled)
-      VALUES ($1,$2,$3) ON CONFLICT (parent_user_id, child_user_id)
-      DO UPDATE SET enabled = EXCLUDED.enabled, updated_at = NOW() RETURNING enabled, updated_at`, [auth.user_id, child.user_id, req.body.enabled]);
-    return res.json({ success: true, setting: result.rows[0] });
-  } catch (error) { console.error('family-pack setting error:', error); return res.status(500).json({ success: false, error: 'Failed to save Family Learning Pack.' }); }
-});
-
-router.get('/parents/:parentId/family-learning-pack/:childUserId', async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
-    if (!parentIdAllowed(res, auth, req.params.parentId)) return;
-    if (!await requireVerifiedParent(res, auth)) return;
-    if (!await requirePremiumFamilyPack(res, auth.user_id)) return;
-    await ensureParentTables();
-    const child = await getOwnChild(res, auth, req.params.childUserId); if (!child) return;
-    const setting = (await pool.query(`SELECT enabled FROM family_learning_pack_access WHERE parent_user_id = $1 AND child_user_id = $2`, [auth.user_id, child.user_id])).rows[0];
-    if (!setting?.enabled) return res.status(404).json({ success: false, error: 'Family Learning Pack is not enabled for this child.' });
-    const pack = await buildFamilyLearningPack(child.user_id);
-    return res.json({ success: true, pack: { title: 'Family Learning Pack', childName: child.full_name, wordCount: pack.words.length, words: pack.words, generatedAt: new Date().toISOString() } });
-  } catch (error) { console.error('family-pack parent preview error:', error); return res.status(500).json({ success: false, error: 'Failed to prepare Family Learning Pack.' }); }
-});
-
-router.get('/family-learning-pack/me', async (req, res) => {
-  try {
-    if (!ensurePool(res)) return;
-    const auth = await requireUser(req, res); if (!auth) return;
-    await ensureParentTables();
-    const link = (await pool.query(`SELECT p.user_id AS parent_user_id, c.full_name
-      FROM children c JOIN parents p ON p.parent_id = c.parent_id
-      JOIN family_learning_pack_access f ON f.parent_user_id = p.user_id AND f.child_user_id = c.user_id
-      WHERE c.user_id = $1 AND c.is_active = TRUE AND f.enabled = TRUE LIMIT 1`, [auth.user_id])).rows[0];
-    if (!link) return res.status(404).json({ success: false, error: 'Family Learning Pack is not enabled.' });
-    if (!await requirePremiumFamilyPack(res, link.parent_user_id)) return;
-    const pack = await buildFamilyLearningPack(auth.user_id);
-    return res.json({ success: true, pack: { title: 'Family Learning Pack', childName: link.full_name, wordCount: pack.words.length, words: pack.words, generatedAt: new Date().toISOString() } });
-  } catch (error) { console.error('family-pack learner error:', error); return res.status(500).json({ success: false, error: 'Failed to prepare Family Learning Pack.' }); }
-});
-
-/* ==========================================
   WORKSHEETS ENDPOINTS 📝
 ========================================== */
 
@@ -6545,7 +6444,7 @@ router.get('/worksheets', async (req, res) => {
   }
 });
 
-// GET: Download worksheet. Premium files are never disclosed without a trusted entitlement.
+// GET: Download worksheet. Premium files require an authenticated entitlement.
 router.get('/worksheets/download/:id', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
@@ -6959,7 +6858,6 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     if (!adminPassword || adminPassword.length > 256) {
       return res.status(401).json({ success: false, error: 'Administrator verification failed.' });
     }
-    await ensureAdminTables();
     const blocked = await recordAdminPasswordAttempt(auth.user_id, req);
     if (blocked) return res.status(429).json({ success: false, error: 'Too many verification attempts. Please try again later.' });
     const result = await pool.query(
@@ -6983,6 +6881,7 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     );
     const ip = String(req.headers['x-nf-client-connection-ip'] || req.ip || '').slice(0, 120);
     const userAgent = String(req.headers['user-agent'] || '').slice(0, 500);
+    await ensureAdminTables();
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -7006,22 +6905,8 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     setAdminSessionCookie(res, token);
     return res.json({ success: true, user: safeUser(user), expiresIn: ADMIN_SESSION_TTL_SECONDS });
   } catch (error) {
-    if (error.code === 'ADMIN_MIGRATION_REQUIRED') {
-      console.error('❌ Admin elevation blocked: required security migration is missing or incomplete.');
-      return res.status(503).json({
-        success: false,
-        code: 'ADMIN_MIGRATION_REQUIRED',
-        error: 'Admin database setup is incomplete. The required security migration must be applied before Admin sign-in can finish.'
-      });
-    }
-    const referenceId = crypto.randomUUID();
-    console.error(`[admin-auth] elevation failed reference=${referenceId}:`, error.message);
-    return res.status(503).json({
-      success: false,
-      code: 'ADMIN_AUTH_UNAVAILABLE',
-      referenceId,
-      error: `Administrator verification is temporarily unavailable. Reference: ${referenceId}`
-    });
+    console.error('❌ Admin elevation failed:', error.message);
+    return res.status(503).json({ success: false, error: 'Administrator verification is temporarily unavailable.' });
   }
 });
 
@@ -7659,15 +7544,17 @@ router.post('/admin/email/campaigns', verifyAdminToken, async (req, res) => {
       throw error;
     } finally { client.release(); }
 
-    // Immediate campaigns are queued just like scheduled campaigns. The
-    // minute worker delivers them in bounded batches, avoiding serverless
-    // request timeouts and preventing partially-sent campaigns being reported
-    // as complete.
+    // If immediate send, process in background
     if (timing === 'now') {
-      return res.status(202).json({
+      // Start async processing
+      processCampaign(campaign.campaign_id).catch(err => {
+        console.error(`❌ Campaign ${campaign.campaign_id} processing error:`, err);
+      });
+
+      return res.status(201).json({
         success: true,
         campaign,
-        message: `Broadcast queued for ${recipients.length} opted-in recipient(s). Delivery will begin shortly.`
+        message: `Email campaign authorised and processing for ${recipients.length} recipient(s).`
       });
     }
 
@@ -7814,7 +7701,7 @@ function buildHanVerseCampaignEmail({
             <td
               align="center"
               style="
-                background:#2563EB;
+                background:#E63946;
                 padding:28px 20px 24px;
               "
             >
@@ -7882,7 +7769,7 @@ function buildHanVerseCampaignEmail({
                 class="email-title"
                 style="
                   margin:0 0 22px 0;
-                  color:#1D4ED8;
+                  color:#E63946;
                   font-size:29px;
                   line-height:1.25;
                   font-weight:800;
@@ -8014,7 +7901,7 @@ function buildHanVerseCampaignEmail({
 // CAMPAIGN PROCESSING FUNCTION
 // ============================================================
 
-async function processCampaign(campaignId, batchLimit = null) {
+async function processCampaign(campaignId) {
   try {
     if (!pool) {
       console.error(
@@ -8057,10 +7944,8 @@ async function processCampaign(campaignId, batchLimit = null) {
               AND pref.promotional_opt_in = TRUE
               AND pref.promotional_unsubscribed_at IS NULL
           )
-        ORDER BY r.recipient_id
-        LIMIT COALESCE($2::integer, 2147483647)
       `,
-      [campaignId, Number.isInteger(batchLimit) && batchLimit > 0 ? batchLimit : null]
+      [campaignId]
     );
 
     // Record recipients who opted out after the campaign was queued. They
@@ -8236,32 +8121,28 @@ async function processCampaign(campaignId, batchLimit = null) {
       throw new Error(`Campaign ${campaignId} paused because one or more delivery audit events could not be stored.`);
     }
 
-    const totalsResult = await pool.query(
-      `SELECT
-         COUNT(*) FILTER (WHERE status = 'sent')::int AS sent,
-         COUNT(*) FILTER (WHERE status = 'failed')::int AS failed,
-         COUNT(*) FILTER (WHERE status = 'skipped')::int AS skipped,
-         COUNT(*) FILTER (WHERE status = 'pending')::int AS pending
-       FROM email_campaign_recipients
-       WHERE campaign_id = $1`,
-      [campaignId]
-    );
-    const totals = totalsResult.rows[0] || { sent: 0, failed: 0, skipped: 0, pending: 0 };
-    const campaignStatus = Number(totals.pending) > 0 ? 'processing' : 'completed';
-
     await pool.query(
-      `UPDATE email_campaigns
-       SET status = $1, sent_count = $2, failed_count = $3,
-           sent_at = CASE WHEN $1 = 'completed' THEN NOW() ELSE sent_at END,
-           updated_at = NOW()
-       WHERE campaign_id = $4`,
-      [campaignStatus, totals.sent, totals.failed, campaignId]
+      `
+        UPDATE email_campaigns
+        SET
+          status = 'completed',
+          sent_count = $1,
+          failed_count = $2,
+          sent_at = NOW(),
+          updated_at = NOW()
+        WHERE campaign_id = $3
+      `,
+      [
+        sent,
+        failed,
+        campaignId
+      ]
     );
+
 
     console.log(
-      `✅ Campaign ${campaignId} batch: ${sent} sent, ${failed} failed; ${totals.pending} pending`
+      `✅ Campaign ${campaignId} completed: ${sent} sent, ${failed} failed`
     );
-    return { status: campaignStatus, sent: totals.sent, failed: totals.failed, skipped: totals.skipped, pending: totals.pending };
 
   } catch (error) {
 
@@ -8271,69 +8152,23 @@ async function processCampaign(campaignId, batchLimit = null) {
     );
 
 
-    let totals = { sent: 0, failed: 0, skipped: 0 };
     try {
-      const result = await pool.query(
-        `SELECT
-           COUNT(*) FILTER (WHERE status = 'sent')::int AS sent,
-           COUNT(*) FILTER (WHERE status = 'failed')::int AS failed,
-           COUNT(*) FILTER (WHERE status = 'skipped')::int AS skipped
-         FROM email_campaign_recipients
-         WHERE campaign_id = $1`,
+
+      await pool.query(
+        `
+          UPDATE email_campaigns
+          SET
+            status = 'failed',
+            updated_at = NOW()
+          WHERE campaign_id = $1
+        `,
         [campaignId]
       );
-      totals = result.rows[0] || totals;
-      await pool.query(
-        `UPDATE email_campaigns
-         SET status = 'failed', sent_count = $1, failed_count = $2, updated_at = NOW()
-         WHERE campaign_id = $3`,
-        [totals.sent, totals.failed, campaignId]
-      );
-    } catch (statusError) {
-      console.error(`Could not persist final status for campaign ${campaignId}:`, statusError.message);
-    }
-    return { status: 'failed', ...totals };
+
+    } catch (_) {}
 
   }
 }
-// INTERNAL SCHEDULED CAMPAIGN WORKER
-// HMAC derives from the existing JWT secret; no additional secret is required.
-router.post('/internal/email-campaigns/process-due', async (req, res) => {
-  if (!ensurePool(res)) return;
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) return res.status(503).json({ success: false, error: 'Scheduler authentication is not configured.' });
-  const expected = crypto.createHmac('sha256', jwtSecret).update('hanverse-scheduled-campaign-worker').digest();
-  const suppliedHeader = String(req.headers['x-hanverse-scheduler'] || '');
-  const supplied = /^[a-f0-9]{64}$/i.test(suppliedHeader) ? Buffer.from(suppliedHeader, 'hex') : Buffer.alloc(0);
-  if (supplied.length !== expected.length || !crypto.timingSafeEqual(supplied, expected)) {
-    return res.status(401).json({ success: false, error: 'Scheduler authentication failed.' });
-  }
-  const client = await pool.connect();
-  let lockAcquired = false;
-  try {
-    const lock = await client.query('SELECT pg_try_advisory_lock($1) AS locked', [87201944]);
-    lockAcquired = Boolean(lock.rows[0]?.locked);
-    if (!lockAcquired) return res.json({ success: true, busy: true, processed: 0 });
-    const due = await client.query(
-      `SELECT campaign_id FROM email_campaigns
-       WHERE status IN ('scheduled', 'processing') AND scheduled_for <= NOW()
-       ORDER BY scheduled_for ASC, campaign_id ASC LIMIT 1`
-    );
-    if (!due.rows.length) return res.json({ success: true, processed: 0, message: 'No due campaigns.' });
-    const campaignId = due.rows[0].campaign_id;
-    await client.query(`UPDATE email_campaigns SET status = 'processing', updated_at = NOW()
-                       WHERE campaign_id = $1 AND status IN ('scheduled', 'processing')`, [campaignId]);
-    const delivery = await processCampaign(campaignId, 8);
-    return res.json({ success: true, processed: 1, campaign_id: campaignId, delivery });
-  } catch (error) {
-    console.error('Scheduled campaign worker error:', error);
-    return res.status(500).json({ success: false, error: 'Scheduled campaign processing failed.' });
-  } finally {
-    if (lockAcquired) await client.query('SELECT pg_advisory_unlock($1)', [87201944]).catch(() => {});
-    client.release();
-  }
-});
-
 // CANCEL CAMPAIGN
 router.post('/admin/email/campaigns/:id/cancel', verifyAdminToken, async (req, res) => {
   try {
@@ -8410,7 +8245,7 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
 
     const cleanSubject = String(subject || '').trim();
     const cleanMessage = String(message || '').trim();
-    if (!cleanSubject || cleanSubject.length > 180 || /[\r\n]/.test(cleanSubject) || !cleanMessage || cleanMessage.length > 10000) {
+    if (!cleanSubject || cleanSubject.length > 180 || cleanSubject.includes(String.fromCharCode(10)) || cleanSubject.includes(String.fromCharCode(13)) || !cleanMessage || cleanMessage.length > 10000) {
       return res.status(400).json({
         success: false,
         error: 'Enter a one-line subject (up to 180 characters) and message (up to 10,000 characters).'

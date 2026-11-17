@@ -37,7 +37,7 @@
 
   function brandMarkup() {
     return (
-      '<a class="brand" href="index.html" aria-label="HanVerse home">' +
+      '<a class="brand" href="https://hanverse.netlify.app/" aria-label="HanVerse home">' +
         '<img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">' +
         '<span>HanVerse</span>' +
       '</a>'
@@ -48,12 +48,12 @@
     /* Signed in: render a skeleton chip immediately; nav-user.js upgrades it
        with the real name, avatar and account menu. Never flash Log in. */
     if (signedIn()) {
-      return '<a class="nav-user nav-user-chip nav-user-skeleton" href="https://learn-hanverse.netlify.app/profile.html" aria-label="Your account">' +
+      return '<a class="nav-user nav-user-chip nav-user-skeleton" href="profile.html" aria-label="Your account">' +
         '<span class="avatar" aria-hidden="true">🐼</span></a>';
     }
     return '<div class="nav-actions">' +
-      '<a class="nav-login" href="https://learn-hanverse.netlify.app/login.html">Log in</a>' +
-      '<a class="nav-cta" href="https://learn-hanverse.netlify.app/signup.html">Start Free <span aria-hidden="true">→</span></a>' +
+      '<a class="nav-login" href="login.html">Log in</a>' +
+      '<a class="nav-cta" href="signup.html">Start Free <span aria-hidden="true">→</span></a>' +
       '</div>';
   }
 
@@ -62,25 +62,14 @@
       '<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">' +
         brandMarkup() +
         '<div class="nav-links">' +
-          '<a href="about.html">About</a>' +
-          '<a href="pricing.html">Pricing</a>' +
-          '<a href="faq.html">FAQ</a>' +
-          '<a href="contact.html">Contact</a>' +
+          '<a href="learn.html">Learn</a>' +
+          '<a href="explore.html">Explore</a>' +
+          '<a href="practice.html">Practice</a>' +
+          '<a href="roadmap.html">Roadmap</a>' +
+          '<a href="parents.html">Parents</a>' +
         '</div>' +
         actionsMarkup() +
-        '<button class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">' +
-          '<span></span><span></span><span></span>' +
-        '</button>' +
-      '</nav>' +
-      '<div class="mobile-menu" id="mobileMenu" hidden>' +
-        '<a href="index.html">Home</a>' +
-        '<a href="about.html">About</a>' +
-        '<a href="pricing.html">Pricing</a>' +
-        '<a href="faq.html">FAQ</a>' +
-        '<a href="contact.html">Contact</a>' +
-        '<a href="https://learn-hanverse.netlify.app/login.html">Log in</a>' +
-        '<a class="mobile-cta" href="https://learn-hanverse.netlify.app/signup.html">Start Free →</a>' +
-      '</div>'
+      '</nav>'
     );
   }
 
@@ -105,41 +94,17 @@
             '<p>Learn Mandarin. Explore more.</p>' +
           '</div>' +
           '<div class="footer-links">' +
-            '<a href="about.html">About</a>' +
-            '<a href="pricing.html">Pricing</a>' +
-            '<a href="faq.html">FAQ</a>' +
-            '<a href="contact.html">Contact</a>' +
-            '<a href="https://learn-hanverse.netlify.app/login.html">Open the app →</a>' +
-            '<a href="terms.html">Terms</a>' +
-            '<a href="privacy.html">Privacy</a>' +
-            '<a href="refund-policy.html">Refunds</a>' +
-            '<a href="cookie-policy.html">Cookies</a>' +
+            '<a href="learn.html">Learn</a>' +
+            '<a href="explore.html">Explore</a>' +
+            '<a href="roadmap.html">Roadmap</a>' +
+            '<a href="parents.html">Parents</a>' +
+            '<a href="login.html">Log in</a>' +
+            '<a href="https://hanverse.netlify.app/terms.html">Terms</a>' +
+            '<a href="https://hanverse.netlify.app/privacy.html">Privacy</a>' +
+            '<a href="https://hanverse.netlify.app/refund-policy.html">Refunds</a>' +
+            '<a href="https://hanverse.netlify.app/cookie-policy.html">Cookies</a>' +
           '</div>' +
         '</div>' +
       '</footer>';
-  }
-
-  // --- Mobile burger menu ---
-  var burger = document.getElementById('navBurger');
-  var sheet = document.getElementById('mobileMenu');
-  if (burger && sheet) {
-    var setMenu = function (open) {
-      sheet.hidden = !open;
-      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
-      burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-      burger.classList.toggle('is-open', open);
-    };
-    burger.addEventListener('click', function () {
-      setMenu(sheet.hidden);
-    });
-    sheet.addEventListener('click', function (e) {
-      if (e.target && e.target.tagName === 'A') setMenu(false);
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !sheet.hidden) setMenu(false);
-    });
-    document.addEventListener('click', function (e) {
-      if (!sheet.hidden && !sheet.contains(e.target) && !burger.contains(e.target)) setMenu(false);
-    });
   }
 })();

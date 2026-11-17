@@ -105,8 +105,38 @@ exports.handler = async (event) => {
         }
 
 
+        /* ====================================================
+           AUTH — the user identity comes from the signed JWT
+           (HS256), never from the request body. A client-provided
+           userId can no longer attach a checkout to someone else.
+        ==================================================== */
+
+        const authHeader =
+            event.headers && (event.headers.authorization || event.headers.Authorization);
+
+        const token =
+            authHeader && authHeader.startsWith('Bearer ')
+                ? authHeader.slice(7)
+                : null;
+
+        let decodedToken = null;
+
+        if (token) {
+            try {
+                const jwt = require('jsonwebtoken');
+                const secret = process.env.JWT_SECRET;
+                if (secret) {
+                    decodedToken = jwt.verify(token, secret, { algorithms: ['HS256'] });
+                }
+            } catch (verifyError) {
+                decodedToken = null;
+            }
+        }
+
         const userId =
-            body.userId;
+            decodedToken && (decodedToken.user_id || decodedToken.id)
+                ? decodedToken.user_id || decodedToken.id
+                : null;
 
         const requestedPlan =
             body.plan;
@@ -118,12 +148,12 @@ exports.handler = async (event) => {
 
         if (!userId) {
 
-            return json(400, {
+            return json(401, {
 
                 success: false,
 
                 error:
-                    'Missing userId'
+                    'Sign in required'
 
             });
 
