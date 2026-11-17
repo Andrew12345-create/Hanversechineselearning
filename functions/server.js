@@ -1105,6 +1105,7 @@ function adminPermissionForRequest(req) {
   if (path === '/admin/overview') return 'users.read';
   if (path === '/admin/analytics') return 'analytics.read';
   if (path === '/admin/revenue') return 'finance.read';
+  if (path === '/admin/classrooms') return 'users.read';
   if (/^\/admin\/users\/[^/]+\/impact$/.test(path)) return 'users.delete';
   if (path.startsWith('/admin/email') || path.startsWith('/admin/users/email/')) return method === 'GET' ? 'communications.read' : 'communications.manage';
   if (path.startsWith('/admin/users/update/')) return 'users.edit';
@@ -7487,6 +7488,69 @@ router.get('/admin/revenue', verifyAdminToken, async (req, res) => {
   } catch (error) {
     console.error('❌ Admin revenue error:', error);
     return res.status(500).json({ success: false, error: 'Failed to load revenue data.' });
+  }
+});
+
+/* =========================================================
+   ADMIN CLASSROOM OVERSIGHT 🏫
+   Read-only view of teacher classrooms, membership and work.
+========================================================= */
+
+router.get('/admin/classrooms', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const observedAt = new Date().toISOString();
+    let classrooms = [];
+    let available = true;
+
+    try {
+      const result = await pool.query(`
+        SELECT c.class_id, c.class_name, c.class_code, c.created_at,
+               u.username AS teacher_username, u.full_name AS teacher_name,
+               (SELECT COUNT(*)::int FROM users m WHERE m.class_code = c.class_code) AS members,
+               (SELECT COUNT(*)::int FROM class_assignments a
+                 WHERE a.class_code = c.class_code AND a.is_active = TRUE) AS active_assignments,
+               (SELECT COUNT(*)::int FROM class_assignment_completions cc
+                 JOIN class_assignments a ON a.assignment_id = cc.assignment_id
+                 WHERE a.class_code = c.class_code) AS completions
+        FROM classrooms c
+        LEFT JOIN users u ON u.user_id = c.teacher_id
+        ORDER BY c.created_at DESC
+        LIMIT 100
+      `);
+      classrooms = result.rows.map(row => ({
+        class_id: row.class_id,
+        class_name: row.class_name,
+        class_code: row.class_code,
+        created_at: row.created_at,
+        teacher: row.teacher_name || row.teacher_username || null,
+        members: Number(row.members || 0),
+        active_assignments: Number(row.active_assignments || 0),
+        completions: Number(row.completions || 0)
+      }));
+    } catch (error) {
+      if (error.code !== '42P01') throw error;
+      available = false;
+    }
+
+    return res.json({
+      success: true,
+      available,
+      generated_at: observedAt,
+      totals: {
+        classrooms: classrooms.length,
+        members: classrooms.reduce((sum, item) => sum + item.members, 0),
+        active_assignments: classrooms.reduce((sum, item) => sum + item.active_assignments, 0),
+        completions: classrooms.reduce((sum, item) => sum + item.completions, 0)
+      },
+      classrooms,
+      source: available
+        ? 'classrooms / users.class_code / class_assignments aggregates'
+        : 'Classroom tables are not present in this database'
+    });
+  } catch (error) {
+    console.error('❌ Admin classroom oversight error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load classroom oversight.' });
   }
 });
 

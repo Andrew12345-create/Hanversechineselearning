@@ -1744,6 +1744,10 @@
         Lessons
         <span id="lessonCount" class="nav-count">0</span>
       </button>
+      <button class="nav-button" data-section="classrooms">
+        <span class="nav-icon">🏫</span>
+        Classrooms
+      </button>
     </nav>
 
     <div class="nav-label">Communications</div>
@@ -2161,6 +2165,55 @@
               <div class="loading">Loading lessons…</div>
             </div>
 
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= CLASSROOMS ================= -->
+
+      <section id="classroomsSection" class="section">
+
+        <div class="section-header">
+          <div>
+            <h2>Classroom oversight</h2>
+            <p>Read-only view of teacher classrooms, membership and assigned work. No learner email addresses are shown.</p>
+          </div>
+
+          <button id="refreshClassroomsButton" class="btn btn-soft btn-sm">↻ Refresh classrooms</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Classroom activity</h3>
+              <p>Aggregates from classroom membership and assignments</p>
+            </div>
+            <span id="classroomsStatus" class="pill blue">Ready</span>
+          </div>
+
+          <div class="panel-body">
+            <div class="analytics-grid">
+              <div class="analytics-card"><span>Classrooms</span><strong id="clsTotal">—</strong><small>Teacher-created</small></div>
+              <div class="analytics-card"><span>Members</span><strong id="clsMembers">—</strong><small>Joined learners</small></div>
+              <div class="analytics-card"><span>Active assignments</span><strong id="clsAssignments">—</strong><small>Open work</small></div>
+              <div class="analytics-card"><span>Completions</span><strong id="clsCompletions">—</strong><small>Recorded finishes</small></div>
+            </div>
+            <p id="classroomsSource" class="muted" style="margin:14px 0 0;">Waiting for data...</p>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:18px;">
+          <div class="panel-header">
+            <div>
+              <h3>Classrooms</h3>
+              <p>Newest first, limited to 100</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="classroomTable" class="table-wrap">
+              <div class="empty">Loading classrooms...</div>
+            </div>
           </div>
         </div>
 
@@ -3105,6 +3158,7 @@
     dashboard: ["Dashboard", "Your HanVerse command centre"],
     users: ["Users", "Manage accounts, verification, roles and access"],
     lessons: ["Lessons", "Manage the HanVerse learning library"],
+    classrooms: ["Classroom oversight", "Teacher classrooms, membership and assigned work"],
     analytics: ["Analytics", "Live HanVerse platform metrics"],
     revenue: ["Revenue & trials", "Membership revenue and trial follow-up"],
     communications: ["Broadcasts", "Create and review email campaigns"],
@@ -3135,6 +3189,7 @@
 
     if (section === "users") loadUsers();
     if (section === "lessons") loadLessons();
+    if (section === "classrooms") loadClassrooms();
     if (section === "analytics") loadAnalytics();
     if (section === "revenue") loadRevenue();
     if (section === "communications") loadCampaigns();
@@ -4041,6 +4096,62 @@
     state.lessonLevel = $("lessonLevelFilter").value;
     renderLessons();
   });
+
+  /* ================= CLASSROOMS ================= */
+
+  async function loadClassrooms() {
+    $("classroomsStatus").textContent = "Loading...";
+    $("classroomsStatus").className = "pill yellow";
+
+    try {
+      const data = await api("/admin/classrooms");
+
+      if (!data.success) {
+        throw new Error(data.error || "Classroom request failed.");
+      }
+
+      const totals = data.totals || {};
+      const set = (id, value) => {
+        $(id).textContent = Number(value || 0).toLocaleString();
+      };
+
+      set("clsTotal", totals.classrooms);
+      set("clsMembers", totals.members);
+      set("clsAssignments", totals.active_assignments);
+      set("clsCompletions", totals.completions);
+
+      const observed = data.generated_at ? new Date(data.generated_at).toLocaleString("en-KE") : "unknown";
+      $("classroomsSource").textContent = `Observed ${observed} · Source: ${data.source || "classroom aggregates"}.`;
+
+      const classrooms = Array.isArray(data.classrooms) ? data.classrooms : [];
+      $("classroomTable").innerHTML = classrooms.length
+        ? `<table>
+            <thead><tr><th>Classroom</th><th>Code</th><th>Teacher</th><th>Members</th><th>Active work</th><th>Completions</th><th>Created</th></tr></thead>
+            <tbody>${classrooms.map(item => `
+              <tr>
+                <td><strong>${escapeHTML(item.class_name || "Untitled classroom")}</strong></td>
+                <td>${escapeHTML(item.class_code || "—")}</td>
+                <td>${escapeHTML(item.teacher || "Unassigned")}</td>
+                <td>${Number(item.members || 0).toLocaleString()}</td>
+                <td>${Number(item.active_assignments || 0).toLocaleString()}</td>
+                <td>${Number(item.completions || 0).toLocaleString()}</td>
+                <td>${escapeHTML(formatDay(item.created_at))}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`
+        : `<div class="empty">${data.available === false ? "Classroom tables are not present in this database." : "No classrooms have been created yet."}</div>`;
+
+      $("classroomsStatus").textContent = data.available === false ? "Unavailable" : "Live";
+      $("classroomsStatus").className = data.available === false ? "pill yellow" : "pill green";
+
+    } catch (error) {
+      $("classroomsStatus").textContent = "Unavailable";
+      $("classroomsStatus").className = "pill red";
+      notify(error.message, "error");
+    }
+  }
+
+  $("refreshClassroomsButton").addEventListener("click", loadClassrooms);
 
   /* ================= ANALYTICS ================= */
 
