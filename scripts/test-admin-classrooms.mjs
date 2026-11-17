@@ -7,7 +7,7 @@ let failed = 0;
 const test = (name, value) => { console.log(`${value ? '✅' : '❌'} ${name}`); if (!value) failed++; };
 
 const routeStart = server.indexOf("router.get('/admin/classrooms'");
-const routeEnd = server.indexOf('ADMIN EMAIL BROADCAST', routeStart);
+const routeEnd = server.indexOf('/* ====', routeStart + 10);
 const route = routeStart >= 0 && routeEnd > routeStart ? server.slice(routeStart, routeEnd) : '';
 
 test('classroom oversight route is mounted behind admin authentication', /router\.get\('\/admin\/classrooms', verifyAdminToken, async \(req, res\)/.test(server));

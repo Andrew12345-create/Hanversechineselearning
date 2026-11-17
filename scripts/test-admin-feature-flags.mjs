@@ -8,7 +8,7 @@ const test = (name, value) => { console.log(`${value ? '✅' : '❌'} ${name}`);
 
 const readStart = server.indexOf("router.get('/admin/feature-flags'");
 const writeStart = server.indexOf("router.patch('/admin/feature-flags/:key'");
-const end = server.indexOf('ADMIN EMAIL BROADCAST', writeStart);
+const end = server.indexOf('router.', writeStart + 10);
 const readRoute = readStart >= 0 && writeStart > readStart ? server.slice(readStart, writeStart) : '';
 const writeRoute = writeStart >= 0 && end > writeStart ? server.slice(writeStart, end) : '';
 
@@ -16,7 +16,7 @@ test('feature flag read route is admin-authenticated', /router\.get\('\/admin\/f
 test('feature flag write route is admin-authenticated', /router\.patch\('\/admin\/feature-flags\/:key', verifyAdminToken, async \(req, res\)/.test(server));
 test('feature flag reads require system.read', /if \(path === '\/admin\/feature-flags'\) return method === 'GET' \? 'system\.read' : 'system\.manage';/.test(server));
 test('feature flag writes require system.manage', /if \(\/\^\\\/admin\\\/feature-flags\\\/\[\^\/\]\+\$\/\.test\(path\)\) return 'system\.manage';/.test(server));
-test('feature flag writes require a password step-up', /feature-flags\)\//.test(server) && /requiresAdminReauthentication/.test(server));
+test('feature flag writes require a password step-up', /feature-flags\|incidents\)\//.test(server) && /requiresAdminReauthentication/.test(server));
 test('feature flag key is validated', /\/\^\[a-z0-9_\]\{3,60\}\$\//.test(writeRoute));
 test('feature flag rollout is bounded to 0-100', /rollout < 0 \|\| rollout > 100/.test(writeRoute));
 test('feature flag update locks the row and audits before commit', /FOR UPDATE/.test(writeRoute) && /insertAdminAudit\(client, req, 'feature_flag\.update'[\s\S]{0,600}await client\.query\('COMMIT'\)/.test(writeRoute));

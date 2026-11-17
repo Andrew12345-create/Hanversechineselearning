@@ -1108,6 +1108,8 @@ function adminPermissionForRequest(req) {
   if (path === '/admin/classrooms') return 'users.read';
   if (path === '/admin/feature-flags') return method === 'GET' ? 'system.read' : 'system.manage';
   if (/^\/admin\/feature-flags\/[^/]+$/.test(path)) return 'system.manage';
+  if (path === '/admin/incidents') return method === 'GET' ? 'system.read' : 'system.manage';
+  if (/^\/admin\/incidents\/\d+$/.test(path)) return 'system.manage';
   if (/^\/admin\/users\/[^/]+\/impact$/.test(path)) return 'users.delete';
   if (path.startsWith('/admin/email') || path.startsWith('/admin/users/email/')) return method === 'GET' ? 'communications.read' : 'communications.manage';
   if (path.startsWith('/admin/users/update/')) return 'users.edit';
@@ -1134,7 +1136,7 @@ function requiresAdminReauthentication(req) {
   const method = String(req.method || 'GET').toUpperCase();
   if (method === 'DELETE') return true;
   return method !== 'GET' && (
-    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns|feature-flags)/.test(path)
+    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns|feature-flags|incidents)/.test(path)
   );
 }
 
@@ -7692,6 +7694,185 @@ router.patch('/admin/feature-flags/:key', verifyAdminToken, async (req, res) => 
     if (client) { try { await client.query('ROLLBACK'); } catch {} }
     console.error('❌ Admin feature flag update error:', error);
     return res.status(500).json({ success: false, error: 'Failed to update the feature flag.' });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+/* =========================================================
+   ADMIN INCIDENT CENTRE 🚨
+   A durable record of platform incidents. Writes need
+   system.manage plus a fresh password step-up and are audited.
+========================================================= */
+
+const INCIDENT_SEVERITIES = ['sev1', 'sev2', 'sev3', 'sev4'];
+const INCIDENT_STATUSES = ['open', 'monitoring', 'resolved'];
+
+let incidentsReady = false;
+async function ensureIncidentsTable() {
+  if (incidentsReady) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS incidents (
+      incident_id SERIAL PRIMARY KEY,
+      title VARCHAR(160) NOT NULL,
+      severity VARCHAR(8) NOT NULL DEFAULT 'sev3',
+      status VARCHAR(16) NOT NULL DEFAULT 'open',
+      summary TEXT,
+      started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      resolved_at TIMESTAMPTZ,
+      created_by INTEGER,
+      updated_by INTEGER,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_incidents_status ON incidents(status, started_at DESC)`);
+  incidentsReady = true;
+}
+
+router.get('/admin/incidents', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    await ensureIncidentsTable();
+    const result = await pool.query(`
+      SELECT i.incident_id, i.title, i.severity, i.status, i.summary,
+             i.started_at, i.resolved_at, i.updated_at,
+             c.username AS created_by, u.username AS updated_by
+      FROM incidents i
+      LEFT JOIN users c ON c.user_id = i.created_by
+      LEFT JOIN users u ON u.user_id = i.updated_by
+      ORDER BY CASE i.status WHEN 'open' THEN 0 WHEN 'monitoring' THEN 1 ELSE 2 END,
+               i.started_at DESC
+      LIMIT 50
+    `);
+    const incidents = result.rows.map(row => ({
+      incident_id: row.incident_id,
+      title: row.title,
+      severity: row.severity,
+      status: row.status,
+      summary: row.summary,
+      started_at: row.started_at,
+      resolved_at: row.resolved_at,
+      updated_at: row.updated_at,
+      created_by: row.created_by || null,
+      updated_by: row.updated_by || null
+    }));
+    return res.json({
+      success: true,
+      generated_at: new Date().toISOString(),
+      totals: {
+        open: incidents.filter(item => item.status === 'open').length,
+        monitoring: incidents.filter(item => item.status === 'monitoring').length,
+        resolved: incidents.filter(item => item.status === 'resolved').length
+      },
+      incidents,
+      source: 'incidents'
+    });
+  } catch (error) {
+    console.error('❌ Admin incident read error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load incidents.' });
+  }
+});
+
+router.post('/admin/incidents', verifyAdminToken, async (req, res) => {
+  const title = String(req.body?.title || '').trim().slice(0, 160);
+  const severity = String(req.body?.severity || 'sev3').toLowerCase();
+  const summary = typeof req.body?.summary === 'string' ? req.body.summary.trim().slice(0, 4000) : null;
+  if (title.length < 4) {
+    return res.status(400).json({ success: false, error: 'Give the incident a title of at least 4 characters.' });
+  }
+  if (!INCIDENT_SEVERITIES.includes(severity)) {
+    return res.status(400).json({ success: false, error: 'Severity must be sev1, sev2, sev3 or sev4.' });
+  }
+
+  let client = null;
+  try {
+    if (!ensurePool(res)) return;
+    await ensureIncidentsTable();
+    client = await pool.connect();
+    await client.query('BEGIN');
+    const created = await client.query(
+      `INSERT INTO incidents (title, severity, status, summary, created_by, updated_by)
+       VALUES ($1, $2, 'open', $3, $4, $4)
+       RETURNING incident_id, title, severity, status, summary, started_at`,
+      [title, severity, summary, req.adminUserId]
+    );
+    const row = created.rows[0];
+    await insertAdminAudit(client, req, 'incident.create', {
+      target_type: 'incident',
+      target_id: row.incident_id,
+      reason: typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 500) : null,
+      after_safe: { title: row.title, severity: row.severity, status: row.status }
+    });
+    await client.query('COMMIT');
+    return res.status(201).json({ success: true, incident: row });
+  } catch (error) {
+    if (client) { try { await client.query('ROLLBACK'); } catch {} }
+    console.error('❌ Admin incident create error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to open the incident.' });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+router.patch('/admin/incidents/:id', verifyAdminToken, async (req, res) => {
+  const incidentId = Number(req.params.id);
+  if (!Number.isInteger(incidentId) || incidentId <= 0) {
+    return res.status(400).json({ success: false, error: 'Unknown incident.' });
+  }
+  const hasStatus = req.body?.status !== undefined;
+  const hasSeverity = req.body?.severity !== undefined;
+  const hasSummary = req.body?.summary !== undefined;
+  if (!hasStatus && !hasSeverity && !hasSummary) {
+    return res.status(400).json({ success: false, error: 'Provide status, severity or summary.' });
+  }
+  const nextStatus = hasStatus ? String(req.body.status).toLowerCase() : null;
+  const nextSeverity = hasSeverity ? String(req.body.severity).toLowerCase() : null;
+  if (nextStatus && !INCIDENT_STATUSES.includes(nextStatus)) {
+    return res.status(400).json({ success: false, error: 'Status must be open, monitoring or resolved.' });
+  }
+  if (nextSeverity && !INCIDENT_SEVERITIES.includes(nextSeverity)) {
+    return res.status(400).json({ success: false, error: 'Severity must be sev1, sev2, sev3 or sev4.' });
+  }
+
+  let client = null;
+  try {
+    if (!ensurePool(res)) return;
+    await ensureIncidentsTable();
+    client = await pool.connect();
+    await client.query('BEGIN');
+    const current = await client.query(
+      `SELECT incident_id, title, severity, status, summary FROM incidents WHERE incident_id = $1 FOR UPDATE`,
+      [incidentId]
+    );
+    if (!current.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, error: 'Unknown incident.' });
+    }
+    const before = current.rows[0];
+    const status = nextStatus || before.status;
+    const severity = nextSeverity || before.severity;
+    const summary = hasSummary ? String(req.body.summary || '').slice(0, 4000) : before.summary;
+    const updated = await client.query(
+      `UPDATE incidents
+       SET status = $2, severity = $3, summary = $4, updated_by = $5, updated_at = NOW(),
+           resolved_at = CASE WHEN $2 = 'resolved' THEN COALESCE(resolved_at, NOW()) ELSE NULL END
+       WHERE incident_id = $1
+       RETURNING incident_id, title, severity, status, summary, started_at, resolved_at, updated_at`,
+      [incidentId, status, severity, summary, req.adminUserId]
+    );
+    await insertAdminAudit(client, req, 'incident.update', {
+      target_type: 'incident',
+      target_id: incidentId,
+      reason: typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 500) : null,
+      before_safe: { status: before.status, severity: before.severity },
+      after_safe: { status, severity }
+    });
+    await client.query('COMMIT');
+    return res.json({ success: true, incident: updated.rows[0] });
+  } catch (error) {
+    if (client) { try { await client.query('ROLLBACK'); } catch {} }
+    console.error('❌ Admin incident update error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update the incident.' });
   } finally {
     if (client) client.release();
   }

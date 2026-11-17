@@ -1858,6 +1858,11 @@
         <span class="nav-icon">🚩</span>
         Feature flags
       </button>
+      <button class="nav-button" data-section="incidents">
+        <span class="nav-icon">🚨</span>
+        Incidents
+        <span id="incidentsOpenBadge" class="pending-badge" hidden>0</span>
+      </button>
     </nav>
 
     <div class="nav-label">HanVerse AI</div>
@@ -2456,6 +2461,66 @@
               <div class="empty">Loading feature flags...</div>
             </div>
             <p id="flagsSource" class="muted" style="margin:14px 0 0;">Waiting for data...</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= INCIDENTS ================= -->
+
+      <section id="incidentsSection" class="section">
+
+        <div class="section-header">
+          <div>
+            <h2>Incident centre</h2>
+            <p>Open, monitor and resolve platform incidents. Every change needs a password confirmation and is audited.</p>
+          </div>
+
+          <button id="refreshIncidentsButton" class="btn btn-soft btn-sm">↻ Refresh incidents</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Open an incident</h3>
+              <p>Record what broke, how bad it is, and what you know so far</p>
+            </div>
+            <span id="incidentsStatus" class="pill blue">Ready</span>
+          </div>
+
+          <div class="panel-body">
+            <div class="field">
+              <label for="incidentTitle">Title</label>
+              <input id="incidentTitle" class="input" maxlength="160" placeholder="e.g. Lesson audio failing on Safari">
+            </div>
+            <div class="field">
+              <label for="incidentSeverity">Severity</label>
+              <select id="incidentSeverity" class="input">
+                <option value="sev1">SEV1 — platform down</option>
+                <option value="sev2">SEV2 — major feature broken</option>
+                <option value="sev3" selected>SEV3 — degraded</option>
+                <option value="sev4">SEV4 — minor</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="incidentSummary">What we know</label>
+              <textarea id="incidentSummary" class="textarea" maxlength="4000" placeholder="Symptoms, affected surface, first seen, workaround"></textarea>
+            </div>
+            <button id="createIncidentButton" class="btn btn-primary">Open incident</button>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:18px;">
+          <div class="panel-header">
+            <div>
+              <h3>Incident log</h3>
+              <p>Open first, then monitoring, then resolved. Latest 50.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="incidentTable" class="table-wrap">
+              <div class="empty">Loading incidents...</div>
+            </div>
           </div>
         </div>
 
@@ -3286,7 +3351,8 @@
     panda: ["Panda AI", "Your admin-only HanVerse assistant"],
     parents: ["Parent Verification", "Review and approve parent accounts"],
     audit: ["Audit Log", "Every admin action, newest first"],
-    flags: ["Feature flags", "Platform-wide rollout switches"]
+    flags: ["Feature flags", "Platform-wide rollout switches"],
+    incidents: ["Incident centre", "Open, monitor and resolve platform incidents"]
   };
 
   function switchSection(section) {
@@ -3318,6 +3384,7 @@
     if (section === "parents") loadParentQueue();
     if (section === "audit") loadAuditLog();
     if (section === "flags") loadFeatureFlags();
+    if (section === "incidents") loadIncidents();
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -4514,6 +4581,108 @@
   }
 
   $("refreshFlagsButton").addEventListener("click", loadFeatureFlags);
+
+  /* ================= INCIDENTS ================= */
+
+  const INCIDENT_LABELS = { sev1: "SEV1", sev2: "SEV2", sev3: "SEV3", sev4: "SEV4" };
+  const INCIDENT_PILLS = { open: "red", monitoring: "yellow", resolved: "green" };
+
+  async function loadIncidents() {
+    $("incidentsStatus").textContent = "Loading...";
+    $("incidentsStatus").className = "pill yellow";
+
+    try {
+      const data = await api("/admin/incidents");
+
+      if (!data.success) {
+        throw new Error(data.error || "Incident request failed.");
+      }
+
+      const incidents = Array.isArray(data.incidents) ? data.incidents : [];
+      const open = Number(data.totals?.open || 0);
+      const badge = $("incidentsOpenBadge");
+      badge.textContent = String(open);
+      badge.hidden = open === 0;
+
+      $("incidentTable").innerHTML = incidents.length
+        ? `<table>
+            <thead><tr><th>Incident</th><th>Severity</th><th>Status</th><th>Started</th><th>Resolved</th><th>Action</th></tr></thead>
+            <tbody>${incidents.map(item => `
+              <tr>
+                <td><strong>#${escapeHTML(String(item.incident_id))} · ${escapeHTML(item.title)}</strong>${item.summary ? `<br><small class="muted">${escapeHTML(String(item.summary).slice(0, 180))}</small>` : ""}</td>
+                <td>${escapeHTML(INCIDENT_LABELS[item.severity] || item.severity)}</td>
+                <td><span class="pill ${INCIDENT_PILLS[item.status] || ""}">${escapeHTML(item.status)}</span></td>
+                <td>${escapeHTML(formatDay(item.started_at))}</td>
+                <td>${escapeHTML(formatDay(item.resolved_at))}</td>
+                <td>${item.status === "resolved"
+                  ? `<button class="btn btn-sm" data-incident-status="${item.incident_id}" data-incident-next="open">Reopen</button>`
+                  : `<button class="btn btn-sm" data-incident-status="${item.incident_id}" data-incident-next="${item.status === "open" ? "monitoring" : "resolved"}">${item.status === "open" ? "Monitor" : "Resolve"}</button>`}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`
+        : `<div class="empty">No incidents recorded. That is the good outcome.</div>`;
+
+      document.querySelectorAll("[data-incident-status]").forEach(button => {
+        button.addEventListener("click", () => updateIncidentStatus(button.dataset.incidentStatus, button.dataset.incidentNext));
+      });
+
+      $("incidentsStatus").textContent = open ? `${open} open` : "Clear";
+      $("incidentsStatus").className = open ? "pill red" : "pill green";
+
+    } catch (error) {
+      $("incidentsStatus").textContent = "Unavailable";
+      $("incidentsStatus").className = "pill red";
+      notify(error.message, "error");
+    }
+  }
+
+  async function updateIncidentStatus(incidentId, status) {
+    const reason = window.prompt(`Reason for marking incident #${incidentId} ${status}? (optional)`);
+    if (reason === null) return;
+
+    try {
+      await api(`/admin/incidents/${encodeURIComponent(incidentId)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status, reason: reason.trim() || undefined })
+      });
+      notify(`Incident #${incidentId} is now ${status}.`);
+      await loadIncidents();
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  $("createIncidentButton").addEventListener("click", async () => {
+    const title = $("incidentTitle").value.trim();
+    if (title.length < 4) {
+      notify("Give the incident a title of at least 4 characters.", "error");
+      return;
+    }
+
+    const button = $("createIncidentButton");
+    button.disabled = true;
+
+    try {
+      await api("/admin/incidents", {
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          severity: $("incidentSeverity").value,
+          summary: $("incidentSummary").value.trim() || undefined
+        })
+      });
+      $("incidentTitle").value = "";
+      $("incidentSummary").value = "";
+      notify("Incident opened.");
+      await loadIncidents();
+    } catch (error) {
+      notify(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $("refreshIncidentsButton").addEventListener("click", loadIncidents);
 
   /* ================= EMAIL ================= */
 
