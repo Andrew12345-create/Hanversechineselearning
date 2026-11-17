@@ -1104,6 +1104,7 @@ function adminPermissionForRequest(req) {
   if (path === '/admin/logout') return 'session.logout';
   if (path === '/admin/overview') return 'users.read';
   if (path === '/admin/analytics') return 'analytics.read';
+  if (path === '/admin/revenue') return 'finance.read';
   if (/^\/admin\/users\/[^/]+\/impact$/.test(path)) return 'users.delete';
   if (path.startsWith('/admin/email') || path.startsWith('/admin/users/email/')) return method === 'GET' ? 'communications.read' : 'communications.manage';
   if (path.startsWith('/admin/users/update/')) return 'users.edit';
@@ -7350,6 +7351,142 @@ router.get('/admin/analytics', verifyAdminToken, async (req, res) => {
       success: false,
       error: 'Failed to load analytics data.'
     });
+  }
+});
+
+/* =========================================================
+   ADMIN REVENUE & TRIAL CONSOLE 💳
+   Read-only aggregates over the membership columns written by
+   the Stripe webhook. No payment state is mutated here.
+========================================================= */
+
+const REVENUE_PLAN_PRICES = { free: 0, yct: 4, premium: 10 };
+
+router.get('/admin/revenue', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    const observedAt = new Date().toISOString();
+
+    const [planResult, statusResult, trialResult, recentResult] = await Promise.all([
+      pool.query(`
+        SELECT COALESCE(NULLIF(membership_plan, ''), 'free') AS plan,
+               COUNT(*)::int AS accounts,
+               COUNT(*) FILTER (
+                 WHERE COALESCE(NULLIF(membership_status, ''), 'active') IN ('active', 'past_due')
+               )::int AS active
+        FROM users
+        WHERE COALESCE(is_banned, FALSE) = FALSE
+        GROUP BY 1
+      `),
+      pool.query(`
+        SELECT COALESCE(NULLIF(membership_status, ''), 'active') AS status,
+               COUNT(*)::int AS accounts
+        FROM users
+        WHERE COALESCE(NULLIF(membership_plan, ''), 'free') <> 'free'
+        GROUP BY 1
+      `),
+      pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE trial_ends_at > NOW())::int AS active,
+          COUNT(*) FILTER (
+            WHERE trial_ends_at > NOW() AND trial_ends_at <= NOW() + INTERVAL '48 hours'
+          )::int AS expiring_48h,
+          COUNT(*) FILTER (
+            WHERE COALESCE(trial_used, FALSE)
+              AND (trial_ends_at IS NULL OR trial_ends_at <= NOW())
+              AND COALESCE(NULLIF(membership_plan, ''), 'free') = 'free'
+          )::int AS expired_unconverted,
+          COUNT(*) FILTER (WHERE trial_ends_at >= NOW() - INTERVAL '30 days')::int AS started_30d
+        FROM users
+      `),
+      pool.query(`
+        SELECT user_id, username, full_name,
+               COALESCE(NULLIF(membership_plan, ''), 'free') AS membership_plan,
+               COALESCE(NULLIF(membership_status, ''), 'active') AS membership_status,
+               COALESCE(trial_used, FALSE) AS trial_used,
+               trial_ends_at, premium_until, created_at
+        FROM users
+        WHERE COALESCE(trial_used, FALSE) = TRUE
+           OR COALESCE(NULLIF(membership_plan, ''), 'free') <> 'free'
+        ORDER BY COALESCE(trial_ends_at, premium_until, created_at) DESC NULLS LAST
+        LIMIT 50
+      `)
+    ]);
+
+    const plans = ['free', 'yct', 'premium'].map(plan => {
+      const row = planResult.rows.find(item => item.plan === plan) || {};
+      const active = Number(row.active || 0);
+      const price = REVENUE_PLAN_PRICES[plan];
+      return {
+        plan,
+        price_usd: price,
+        accounts: Number(row.accounts || 0),
+        active,
+        mrr_usd: active * price
+      };
+    });
+
+    const mrr = plans.reduce((sum, item) => sum + item.mrr_usd, 0);
+    const payingAccounts = plans
+      .filter(item => item.plan !== 'free')
+      .reduce((sum, item) => sum + item.active, 0);
+    const statuses = {};
+    for (const row of statusResult.rows) statuses[row.status] = Number(row.accounts || 0);
+    const trials = trialResult.rows[0] || {};
+
+    return res.json({
+      success: true,
+      generated_at: observedAt,
+      stripe_configured: Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET),
+      pricing: {
+        currency: 'USD',
+        source: 'Published HanVerse plan prices',
+        yct: REVENUE_PLAN_PRICES.yct,
+        premium: REVENUE_PLAN_PRICES.premium
+      },
+      plans,
+      totals: {
+        paying_accounts: payingAccounts,
+        free_accounts: plans.find(item => item.plan === 'free')?.accounts || 0,
+        mrr_usd: mrr,
+        arr_usd: mrr * 12,
+        mrr_is_estimate: true
+      },
+      subscriptions: {
+        active: statuses.active || 0,
+        past_due: statuses.past_due || 0,
+        cancelled: statuses.cancelled || 0,
+        incomplete: statuses.incomplete || 0,
+        expired: statuses.expired || 0
+      },
+      trials: {
+        active: Number(trials.active || 0),
+        expiring_48h: Number(trials.expiring_48h || 0),
+        expired_unconverted: Number(trials.expired_unconverted || 0),
+        started_30d: Number(trials.started_30d || 0)
+      },
+      recent_accounts: recentResult.rows.map(row => ({
+        user_id: row.user_id,
+        username: row.username,
+        full_name: row.full_name,
+        membership_plan: row.membership_plan,
+        membership_status: row.membership_status,
+        trial_used: row.trial_used === true,
+        trial_ends_at: row.trial_ends_at,
+        premium_until: row.premium_until,
+        created_at: row.created_at
+      })),
+      sources: {
+        plans: 'users.membership_plan aggregate',
+        subscriptions: 'users.membership_status aggregate',
+        trials: 'users.trial_used / users.trial_ends_at aggregate',
+        recent_accounts: 'users membership projection (no email)',
+        observed_at: observedAt
+      }
+    });
+  } catch (error) {
+    console.error('❌ Admin revenue error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load revenue data.' });
   }
 });
 

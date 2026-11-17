@@ -1721,6 +1721,11 @@
         <span class="nav-icon">⌁</span>
         Analytics
       </button>
+
+      <button class="nav-button" data-section="revenue">
+        <span class="nav-icon">◈</span>
+        Revenue
+      </button>
     </nav>
 
     <div class="nav-label">People</div>
@@ -2209,6 +2214,73 @@
               <div class="analytics-card"><span>Achievements</span><strong id="aAchievements">—</strong><small>Total earned</small></div>
               <div class="analytics-card"><span>Banned</span><strong id="aBanned">—</strong><small>Restricted accounts</small></div>
 
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= REVENUE ================= -->
+
+      <section id="revenueSection" class="section">
+
+        <div class="section-header">
+          <div>
+            <h2>Revenue &amp; trials</h2>
+            <p>Read-only membership aggregates. Figures come from the Stripe webhook columns; nothing here changes billing.</p>
+          </div>
+
+          <button id="refreshRevenueButton" class="btn btn-soft btn-sm">↻ Refresh revenue</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Membership revenue</h3>
+              <p>Estimated recurring revenue from active paid plans</p>
+            </div>
+            <span id="revenueStatus" class="pill blue">Ready</span>
+          </div>
+
+          <div class="panel-body">
+            <div class="analytics-grid">
+              <div class="analytics-card"><span>Paying accounts</span><strong id="revPaying">—</strong><small>Active YCT + Premium</small></div>
+              <div class="analytics-card"><span>Estimated MRR</span><strong id="revMrr">—</strong><small>Plan price × active accounts</small></div>
+              <div class="analytics-card"><span>Estimated ARR</span><strong id="revArr">—</strong><small>MRR × 12</small></div>
+              <div class="analytics-card"><span>Free accounts</span><strong id="revFree">—</strong><small>No paid plan</small></div>
+              <div class="analytics-card"><span>Active trials</span><strong id="revTrialsActive">—</strong><small>Premium access, card-free</small></div>
+              <div class="analytics-card"><span>Expiring in 48h</span><strong id="revTrialsExpiring">—</strong><small>Follow-up window</small></div>
+              <div class="analytics-card"><span>Expired unconverted</span><strong id="revTrialsExpired">—</strong><small>Trial ended on free plan</small></div>
+              <div class="analytics-card"><span>Past due</span><strong id="revPastDue">—</strong><small>Dunning in progress</small></div>
+            </div>
+            <p id="revenueSource" class="muted" style="margin:14px 0 0;">Waiting for data...</p>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:18px;">
+          <div class="panel-header">
+            <div>
+              <h3>Plan breakdown</h3>
+              <p>Accounts per plan, excluding banned accounts</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="revenuePlanTable" class="table-wrap">
+              <div class="empty">Loading plan breakdown...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:18px;">
+          <div class="panel-header">
+            <div>
+              <h3>Recent trials and memberships</h3>
+              <p>Latest 50 accounts with a trial or paid plan. Email addresses are not included.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="revenueAccountTable" class="table-wrap">
+              <div class="empty">Loading accounts...</div>
             </div>
           </div>
         </div>
@@ -3034,6 +3106,7 @@
     users: ["Users", "Manage accounts, verification, roles and access"],
     lessons: ["Lessons", "Manage the HanVerse learning library"],
     analytics: ["Analytics", "Live HanVerse platform metrics"],
+    revenue: ["Revenue & trials", "Membership revenue and trial follow-up"],
     communications: ["Broadcasts", "Create and review email campaigns"],
     panda: ["Panda AI", "Your admin-only HanVerse assistant"],
     parents: ["Parent Verification", "Review and approve parent accounts"],
@@ -3063,6 +3136,7 @@
     if (section === "users") loadUsers();
     if (section === "lessons") loadLessons();
     if (section === "analytics") loadAnalytics();
+    if (section === "revenue") loadRevenue();
     if (section === "communications") loadCampaigns();
     if (section === "parents") loadParentQueue();
     if (section === "audit") loadAuditLog();
@@ -4047,6 +4121,101 @@
       notify(error.message, "error");
     }
   }
+
+  /* ================= REVENUE ================= */
+
+  function formatUsd(value) {
+    return `$${Number(value || 0).toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    })}`;
+  }
+
+  function formatDay(value) {
+    if (!value) return "—";
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? "—"
+      : date.toLocaleDateString("en-KE", { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  async function loadRevenue() {
+    $("revenueStatus").textContent = "Loading...";
+    $("revenueStatus").className = "pill yellow";
+
+    try {
+      const data = await api("/admin/revenue");
+
+      if (!data.success) {
+        throw new Error(data.error || "Revenue request failed.");
+      }
+
+      const totals = data.totals || {};
+      const trials = data.trials || {};
+      const subscriptions = data.subscriptions || {};
+
+      const set = (id, value) => {
+        $(id).textContent = String(value ?? 0);
+      };
+
+      set("revPaying", totals.paying_accounts);
+      set("revMrr", formatUsd(totals.mrr_usd));
+      set("revArr", formatUsd(totals.arr_usd));
+      set("revFree", totals.free_accounts);
+      set("revTrialsActive", trials.active);
+      set("revTrialsExpiring", trials.expiring_48h);
+      set("revTrialsExpired", trials.expired_unconverted);
+      set("revPastDue", subscriptions.past_due);
+
+      const observed = data.generated_at ? new Date(data.generated_at).toLocaleString("en-KE") : "unknown";
+      $("revenueSource").textContent =
+        `Observed ${observed} · MRR is an estimate from published plan prices (${formatUsd(data.pricing?.yct)} YCT, ${formatUsd(data.pricing?.premium)} Premium) × active accounts. Stripe ${data.stripe_configured ? "is configured" : "is not configured in this environment"}.`;
+
+      const planLabels = { free: "Free", yct: "YCT Course", premium: "Premium" };
+      const plans = Array.isArray(data.plans) ? data.plans : [];
+      $("revenuePlanTable").innerHTML = plans.length
+        ? `<table>
+            <thead><tr><th>Plan</th><th>Price</th><th>Accounts</th><th>Active</th><th>Estimated MRR</th></tr></thead>
+            <tbody>${plans.map(plan => `
+              <tr>
+                <td><strong>${escapeHTML(planLabels[plan.plan] || plan.plan)}</strong></td>
+                <td>${formatUsd(plan.price_usd)}</td>
+                <td>${Number(plan.accounts || 0).toLocaleString()}</td>
+                <td>${Number(plan.active || 0).toLocaleString()}</td>
+                <td>${formatUsd(plan.mrr_usd)}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`
+        : `<div class="empty">No plan data available.</div>`;
+
+      const accounts = Array.isArray(data.recent_accounts) ? data.recent_accounts : [];
+      $("revenueAccountTable").innerHTML = accounts.length
+        ? `<table>
+            <thead><tr><th>Account</th><th>Plan</th><th>Status</th><th>Trial ends</th><th>Premium until</th><th>Joined</th></tr></thead>
+            <tbody>${accounts.map(account => `
+              <tr>
+                <td><strong>${escapeHTML(account.full_name || account.username || `User #${account.user_id}`)}</strong><br><small class="muted">#${escapeHTML(String(account.user_id))}</small></td>
+                <td>${escapeHTML(planLabels[account.membership_plan] || account.membership_plan)}</td>
+                <td>${escapeHTML(account.membership_status || "active")}</td>
+                <td>${escapeHTML(formatDay(account.trial_ends_at))}</td>
+                <td>${escapeHTML(formatDay(account.premium_until))}</td>
+                <td>${escapeHTML(formatDay(account.created_at))}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`
+        : `<div class="empty">No trial or paid accounts yet.</div>`;
+
+      $("revenueStatus").textContent = "Live";
+      $("revenueStatus").className = "pill green";
+
+    } catch (error) {
+      $("revenueStatus").textContent = "Unavailable";
+      $("revenueStatus").className = "pill red";
+      notify(error.message, "error");
+    }
+  }
+
+  $("refreshRevenueButton").addEventListener("click", loadRevenue);
 
   /* ================= EMAIL ================= */
 
