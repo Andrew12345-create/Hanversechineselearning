@@ -16,38 +16,31 @@
   <meta name="twitter:description" content="Secure HanVerse administrator workspace.">
   <meta name="twitter:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
   <link rel="icon" href="Hanverse-logo2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="hanverse.css">
 
   <style>
+    /* Tokens come from hanverse.css. Only admin-specific aliases live here. */
     :root {
-      --blue: #2563EB;
-      --blue-dark: #1D4ED8;
-      --blue-deep: #1D4ED8;
-      --blue-soft: #DBEAFE;
-
-      --coral: #F97316;
+      --blue-deep: var(--blue-dark);
+      --blue-soft: var(--blue-100);
       --red: #DC2626;
-      --yellow: #F59E0B;
-      --green: #16A34A;
+      --yellow: var(--amber);
 
-      --navy: #0F2340;
-      --ink: #1E3A5F;
-      --muted: #5D7A9A;
-      --line: #D5E3F0;
-      --bg: #F5F9FF;
-      --white: #FFFFFF;
-
-      --success-bg: #ECFDF5;
+      --success-bg: var(--green-50);
       --success-text: #15803D;
-      --warning-bg: #FFFBEB;
+      --warning-bg: var(--amber-50);
       --warning-text: #A16207;
       --danger-bg: #FEF2F2;
       --danger-text: #B91C1C;
-      --purple-bg: #FAF5FF;
+      --purple-bg: var(--purple-50);
       --purple-text: #7E22CE;
 
-      --shadow: 0 8px 28px rgba(16, 33, 59, 0.07);
-      --shadow-lg: 0 24px 70px rgba(16, 33, 59, 0.16);
-      --radius: 18px;
+      --shadow: var(--shadow-sm);
+      --shadow-lg: 0 28px 72px rgba(15, 35, 64, 0.16);
+      --radius: var(--r-md);
       --ease: 0.22s cubic-bezier(.2,.8,.2,1);
     }
 
@@ -1653,6 +1646,98 @@
         max-width: none;
       }
     }
+    /* ---------- DESIGN SYSTEM ALIGNMENT ----------
+       Matches hanverse.css type scale, radii and elevation so the
+       console reads as part of the same product as the learner site. */
+
+    body { font-size: 14px; line-height: 1.6; }
+
+    .top-title h1 { font-size: 20px; }
+    .top-title p { font-size: 11.5px; }
+
+    .section-header h2 { font-size: 27px; letter-spacing: -.05em; }
+    .section-header p { font-size: 13px; }
+
+    .panel { border-radius: var(--r-lg); }
+    .panel-header { min-height: 64px; padding: 15px 18px; }
+    .panel-header h3 { font-size: 14px; }
+    .panel-header p { font-size: 11px; }
+    .panel-body { padding: 18px; }
+
+    .btn { min-height: 40px; padding: 9px 16px; font-size: 12px; }
+    .btn-sm { min-height: 34px; padding: 7px 12px; font-size: 11px; }
+    .btn:focus-visible,
+    .nav-button:focus-visible,
+    .quick-action:focus-visible,
+    .filter:focus-visible { outline: 3px solid rgba(37,99,235,.35); outline-offset: 2px; }
+
+    .nav-button { font-size: 13px; padding: 11px 12px; border-radius: 12px; }
+    .nav-button.active::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 50%;
+      width: 3px; height: 18px;
+      transform: translateY(-50%);
+      border-radius: 999px;
+      background: var(--blue);
+    }
+    .nav-label { font-size: 10px; }
+    .nav-count { font-size: 10px; padding: 2px 7px; }
+    .admin-card { border-radius: var(--r-sm); }
+    .admin-card strong { font-size: 12px; }
+    .admin-card small { font-size: 10px; }
+
+    .input, .select, .textarea { font-size: 13px; padding: 10px 12px; border-radius: var(--r-sm); }
+    .field label { font-size: 11px; }
+    .error { font-size: 11px; }
+
+    .pill { font-size: 10px; padding: 5px 9px; }
+    .empty { font-size: 12px; border-radius: var(--r-sm); }
+    .loading { font-size: 12px; }
+
+    .metric { border-radius: var(--r-md); transition: transform var(--ease), box-shadow var(--ease); }
+    .metric:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .metric-label { font-size: 10px; }
+    .metric-value { font-size: 30px; }
+    .metric-note { font-size: 10px; }
+
+    .quick-action strong { font-size: 12.5px; }
+    .quick-action span { font-size: 11px; }
+    .snapshot-row strong { font-size: 13px; }
+    .snapshot-row span { font-size: 11px; }
+    .safety-row { font-size: 11.5px; }
+
+    .analytics-card { border-radius: var(--r-md); transition: transform var(--ease), box-shadow var(--ease); }
+    .analytics-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-xs); }
+    .analytics-card span { font-size: 10px; }
+    .analytics-card strong { font-size: 26px; }
+    .analytics-card small { font-size: 10px; }
+
+    .table-wrap { border-radius: var(--r-sm); }
+    th { font-size: 10.5px; padding: 11px 12px; }
+    td { font-size: 12.5px; padding: 12px; }
+
+    .ops-centre-head h3 { font-size: 15px; }
+    .ops-centre-head p { font-size: 11.5px; }
+    .ops-service { border-radius: var(--r-sm); }
+    .ops-service-copy strong { font-size: 12.5px; }
+    .ops-service-copy span { font-size: 11px; }
+    .ops-alert { border-radius: var(--r-sm); }
+    .ops-alert strong { font-size: 11.5px; }
+    .ops-alert span { font-size: 11px; }
+    .ops-empty { font-size: 11.5px; border-radius: var(--r-sm); }
+
+    .toast { font-size: 12px; padding: 12px 14px; border-radius: var(--r-sm); }
+
+    .modal h2 { font-size: 20px; }
+    .auth-card h1 { font-size: 26px; }
+
+    @media (max-width: 700px) {
+      .section-header h2 { font-size: 23px; }
+      .metric-value { font-size: 26px; }
+      .analytics-card strong { font-size: 22px; }
+    }
+
   </style>
 </head>
 
