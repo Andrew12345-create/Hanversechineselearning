@@ -75,7 +75,7 @@ var KEY='hanverse_settings_v2';
 var defaults={notifications:true,reminderTime:'09:00',dailyGoal:'20',sound:true,hanzi:true,language:'English',appearance:'light'};
 var saved=Object.assign({},defaults),pending=Object.assign({},defaults);
 var bar=document.getElementById('saveBar'),toast=document.getElementById('toast');
-function toastMsg(message){if(window.Notify&&typeof window.Notify.toast==='function'){window.Notify.toast(message,'success',2800);return}toast.textContent=message;toast.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){toast.classList.remove('show')},2800)}
+function toastMsg(message){if(window.Notify&&typeof window.Notify.toast==='function'){window.Notify.toast(message,'success',2800);return}toast.textContent=message;toast.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){toast.classList.remove('show')},2800)}window.HVToast=toastMsg;
 function setToggle(el,on){el.classList.toggle('on',!!on);el.setAttribute('aria-pressed',String(!!on))}
 function changed(){return JSON.stringify(saved)!==JSON.stringify(pending)}
 function updateBar(){bar.classList.toggle('visible',changed())}
@@ -117,7 +117,7 @@ load();
 </script>
 <script>
 (function(){'use strict';
-function toastMsg(message){var t=document.getElementById('toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){t.classList.remove('show')},2800)}
+var toastMsg=window.HVToast||function(message){var t=document.getElementById('toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){t.classList.remove('show')},2800)};
 var btn=document.getElementById('joinClassBtn'),input=document.getElementById('classCodeInput');
 if(!btn||!input)return;
 btn.addEventListener('click',async function(){
@@ -190,7 +190,7 @@ if(cBtn&&cInput){
 <script>
 /* Flexible daily goals — fetched from the authenticated server source of truth. */
 (function(){'use strict';
-function toastMsg(message){var t=document.getElementById('toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){t.classList.remove('show')},2800)}
+var toastMsg=window.HVToast||function(message){var t=document.getElementById('toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(function(){t.classList.remove('show')},2800)};
 function options(items){return items.map(function(v){return '<option value="'+v+'">'+v+'</option>'}).join('')}
 var F=window.HanVerseFeatures;if(!F||!F.currentUserId())return;
 var section=document.createElement('section');section.className='card full';

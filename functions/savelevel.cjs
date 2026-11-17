@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const jwt = require('jsonwebtoken');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -7,26 +8,48 @@ const pool = new Pool({
   }
 });
 
+function json(statusCode, body) {
+  return {
+    statusCode,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  };
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({
-        error: 'Method Not Allowed'
-      })
-    };
+    return json(405, { success: false, error: 'Method Not Allowed' });
+  }
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    return json(503, { success: false, error: 'Level service is not configured.' });
+  }
+
+  const headers = event.headers || {};
+  const header = headers.authorization || headers.Authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) {
+    return json(401, { success: false, error: 'Sign in required.' });
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
+  } catch (error) {
+    return json(401, { success: false, error: 'Session expired — please sign in again.' });
+  }
+
+  const userId = decoded && (decoded.user_id || decoded.id);
+  if (!userId) {
+    return json(401, { success: false, error: 'Session expired — please sign in again.' });
   }
 
   try {
-    const { userId, level } = JSON.parse(event.body);
+    const { level } = JSON.parse(event.body || '{}');
 
-    if (!userId || !level) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'Missing userId or level'
-        })
-      };
+    if (!level || typeof level !== 'string' || level.length > 40) {
+      return json(400, { success: false, error: 'A valid level is required.' });
     }
 
     const result = await pool.query(
@@ -34,21 +57,13 @@ exports.handler = async (event) => {
       [level, userId]
     );
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        success: true,
-        user: result.rows[0]
-      })
-    };
+    if (!result.rows.length) {
+      return json(404, { success: false, error: 'User not found.' });
+    }
+
+    return json(200, { success: true, user: result.rows[0] });
   } catch (error) {
-    console.error('Save level error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        success: false,
-        error: error.message
-      })
-    };
+    console.error('Save level error:', error.message);
+    return json(500, { success: false, error: 'Could not save your level.' });
   }
 };

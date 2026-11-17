@@ -44,8 +44,8 @@ exports.handler = async (event, context) => {
 
         // 2. Hash the password using native crypto (PBKDF2)
         const salt = crypto.randomBytes(16).toString('hex');
-        const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-        const secureDbPassword = `${salt}:${hash}`;
+        const hash = crypto.pbkdf2Sync(password, salt, 210000, 64, 'sha512').toString('hex');
+        const secureDbPassword = `pbkdf2$210000$${salt}$${hash}`;
 
         // 3. DUAL-AUTHORIZATION ENGINE
         // Check if student records already exist with this parent email flagged as unlinked

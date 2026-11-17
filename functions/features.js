@@ -200,7 +200,8 @@ export async function ensureFeatureSchema(pgPool) {
     const sweep = await pool.query(
       `UPDATE users SET is_premium = FALSE, updated_at = NOW()
        WHERE is_premium = TRUE AND trial_used = TRUE
-         AND trial_ends_at IS NOT NULL AND trial_ends_at < NOW()`
+         AND trial_ends_at IS NOT NULL AND trial_ends_at < NOW()
+         AND (membership_plan IS NULL OR membership_plan = 'free')`
     );
     if (sweep.rowCount) console.log(`⏰ Trial sweep: expired premium for ${sweep.rowCount} user(s)`);
   } catch (e) {
@@ -247,8 +248,11 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 export function registerFeatureRoutes(router, pgPool, opts = {}) {
   pool = pgPool;
   // Optional admin guard (server.js passes its verifyAdminToken middleware).
-  // Falls back to open access when not provided (local dev).
-  const requireAdmin = opts.verifyAdminToken || ((_req, _res, next) => next());
+  // Refuses to mount admin routes without it rather than failing open.
+  if (typeof opts.verifyAdminToken !== 'function') {
+    throw new Error('features.js requires the shared admin verifier — refusing to mount admin routes without authorization');
+  }
+  const requireAdmin = opts.verifyAdminToken;
 
   /* --- AUTH: every user-scoped route must present a valid JWT. ---
      The verified token identity is injected into req.body/req.params so
@@ -1815,13 +1819,13 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
       const optIn = `u.share_leaderboard IS NOT FALSE`;
 
       const tones = await safe('tone_stats', async () => (await pool.query(
-        `SELECT ts.tone,
+        `SELECT ts.tone_pair AS tone,
                 COUNT(DISTINCT ts.user_id)::int AS students,
                 SUM(ts.seen)::int AS seen,
                 SUM(ts.correct)::int AS correct
          FROM tone_stats ts JOIN users u ON u.user_id = ts.user_id
          WHERE u.class_code = $1 AND ${optIn}
-         GROUP BY ts.tone ORDER BY ts.tone`, [v.code]
+         GROUP BY ts.tone_pair ORDER BY ts.tone_pair`, [v.code]
       )).rows.map(r => ({
         tone: r.tone,
         students: r.students,

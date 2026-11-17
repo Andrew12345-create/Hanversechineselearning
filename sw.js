@@ -81,7 +81,7 @@ self.addEventListener('fetch', (event) => {
         }
         return res;
       } catch (e) {
-        const cached = url.search ? null : await caches.match(req, { ignoreSearch: true });
+        const cached = await caches.match(req, { ignoreSearch: true });
         if (cached) return cached;
         const offline = await caches.match('/offline.html');
         if (offline) return offline;

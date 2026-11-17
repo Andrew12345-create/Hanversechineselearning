@@ -11,6 +11,7 @@ import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
 import { computeEntitlement, hasAccess, PLAN_RANK, upgradeRequiredPayload } from './entitlements.js';
 import { registerAIRoutes } from './ai-routes.js';
+import { underLimit, markUsage } from './ai-helpers.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
 import rateLimit from 'express-rate-limit';
@@ -3458,10 +3459,15 @@ router.post('/panda-chat', authLimiter, async (req, res) => {
 
   try {
 
+    /* Panda chat is a signed-in feature: the learner identity comes from the
+       verified token, never from the request body. */
+    const authUser = await requireUser(req, res);
+    if (!authUser) return;
+
+    const userId = authUser.user_id;
+
     const {
       message,
-      userId,
-      user_id,
       conversationId,
       conversation_id,
       level,
@@ -3505,6 +3511,29 @@ router.post('/panda-chat', authLimiter, async (req, res) => {
 
 
     /* ----------------------------------------
+       DAILY CAP + KILL SWITCH
+    ---------------------------------------- */
+
+    if (process.env.AI_DISABLED === '1') {
+
+      return res.status(503).json({
+        success: false,
+        error: 'Panda is taking a short break. Please try again later.'
+      });
+
+    }
+
+    if (!underLimit(userId, 'pandaChat')) {
+
+      return res.status(429).json({
+        success: false,
+        error: "You've reached today's Panda chat limit. Come back tomorrow."
+      });
+
+    }
+
+
+    /* ----------------------------------------
        OPENAI CHECK
     ---------------------------------------- */
 
@@ -3540,7 +3569,7 @@ router.post('/panda-chat', authLimiter, async (req, res) => {
     const conversationKey =
       conversationId ||
       conversation_id ||
-      `${userId || user_id || 'guest'}-panda`;
+      `${userId}-panda`;
 
 
     /* ----------------------------------------
@@ -3614,6 +3643,8 @@ topic and does not need to stay on a lesson.
     /* ----------------------------------------
        ASK OPENAI
     ---------------------------------------- */
+
+    markUsage(userId, 'pandaChat');
 
     const completion =
       await openai.chat.completions.create({
@@ -3757,14 +3788,34 @@ topic and does not need to stay on a lesson.
 // HELPER: Determine whether current user is premium
 // ============================================================
 
-function isExplorePremiumUser(req) {
-  const user = req.user || {};
+/* Resolve the caller's entitlement from the Bearer token when one is present.
+   Explore routes stay public, so a missing or invalid token simply means
+   "anonymous viewer" rather than a 401. */
+async function exploreViewerEntitlement(req) {
+  const header = req.headers.authorization || '';
+  if (!header.startsWith('Bearer ')) return null;
 
-  return (
-    user.premium === true ||
-    user.is_premium === true ||
-    user.isPremium === true
-  );
+  try {
+    const decoded = verifyJWTToken(header.slice(7));
+    const viewerId = decoded && (decoded.user_id || decoded.id);
+    if (!viewerId) return null;
+
+    const result = await pool.query(
+      `SELECT premium, premium_until, membership_plan, membership_status,
+              trial_used, trial_ends_at, is_banned
+       FROM users WHERE user_id = $1 LIMIT 1`,
+      [viewerId]
+    );
+    if (!result.rows.length || result.rows[0].is_banned) return null;
+
+    return computeEntitlement(result.rows[0]);
+  } catch (error) {
+    return null;
+  }
+}
+
+function exploreCanAccessPremium(entitlement) {
+  return !!entitlement && entitlement.active === true && entitlement.rank >= PLAN_RANK.premium;
 }
 
 
@@ -3889,7 +3940,7 @@ router.get('/explore/featured', async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
-    const canAccessPremium = isExplorePremiumUser(req);
+    const canAccessPremium = exploreCanAccessPremium(await exploreViewerEntitlement(req));
 
     const result = await pool.query(`
       SELECT
@@ -4124,11 +4175,11 @@ router.get('/explore', async (req, res) => {
     // RESPONSE
     // --------------------------------------------------------
 
+    const viewerEntitlement = await exploreViewerEntitlement(req);
+    const canAccessPremium = exploreCanAccessPremium(viewerEntitlement);
+
     const items = result.rows.map(item =>
-      mapExploreItem(
-        item,
-        isExplorePremiumUser(req)
-      )
+      mapExploreItem(item, canAccessPremium)
     );
 
     console.log(
@@ -4142,7 +4193,7 @@ router.get('/explore', async (req, res) => {
       count: items.length,
 
       access: {
-        premium: isExplorePremiumUser(req)
+        premium: canAccessPremium
       }
     });
 
@@ -4183,7 +4234,7 @@ router.get('/explore/series/:slug', async (req, res) => {
       });
     }
 
-    const canAccessPremium = isExplorePremiumUser(req);
+    const canAccessPremium = exploreCanAccessPremium(await exploreViewerEntitlement(req));
 
     const seriesResult = await pool.query(`
       SELECT

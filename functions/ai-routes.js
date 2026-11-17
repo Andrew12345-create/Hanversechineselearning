@@ -14,7 +14,7 @@
 
 import {
   aiChat, askJSON, sanitizeUserText, fenceUserContent,
-  underLimit, markUsage, usageSummary, cacheGet, cacheSet, hashKey, DAILY_LIMITS
+  underLimit, markUsage, usageFor, usageSummary, cacheGet, cacheSet, hashKey, DAILY_LIMITS
 } from './ai-helpers.js';
 
 const kidSafeRules = `
