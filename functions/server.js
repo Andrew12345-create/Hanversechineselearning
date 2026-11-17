@@ -1106,6 +1106,8 @@ function adminPermissionForRequest(req) {
   if (path === '/admin/analytics') return 'analytics.read';
   if (path === '/admin/revenue') return 'finance.read';
   if (path === '/admin/classrooms') return 'users.read';
+  if (path === '/admin/feature-flags') return method === 'GET' ? 'system.read' : 'system.manage';
+  if (/^\/admin\/feature-flags\/[^/]+$/.test(path)) return 'system.manage';
   if (/^\/admin\/users\/[^/]+\/impact$/.test(path)) return 'users.delete';
   if (path.startsWith('/admin/email') || path.startsWith('/admin/users/email/')) return method === 'GET' ? 'communications.read' : 'communications.manage';
   if (path.startsWith('/admin/users/update/')) return 'users.edit';
@@ -1132,7 +1134,7 @@ function requiresAdminReauthentication(req) {
   const method = String(req.method || 'GET').toUpperCase();
   if (method === 'DELETE') return true;
   return method !== 'GET' && (
-    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns)/.test(path)
+    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns|feature-flags)/.test(path)
   );
 }
 
@@ -7551,6 +7553,147 @@ router.get('/admin/classrooms', verifyAdminToken, async (req, res) => {
   } catch (error) {
     console.error('❌ Admin classroom oversight error:', error);
     return res.status(500).json({ success: false, error: 'Failed to load classroom oversight.' });
+  }
+});
+
+/* =========================================================
+   ADMIN FEATURE FLAGS 🚩
+   Platform-wide switches. Reads are open to system.read;
+   writes need system.manage plus a fresh password step-up.
+========================================================= */
+
+const FEATURE_FLAG_SEEDS = [
+  ['audio_first_lessons', 'Audio-first lessons', 'Play the lesson audio before the written prompt.', false],
+  ['story_world', 'Story World', 'Narrative lesson mode. Only enable once Mandarin copy is reviewed.', false],
+  ['speaking_roleplay', 'Guided speaking roleplay', 'Turn-based speaking practice with Panda.', false],
+  ['family_learning_pack', 'Family Learning Pack', 'Parent-controlled family plan surfaces.', true],
+  ['personal_learning_plan', 'Personal Learning Plan', 'Per-learner weekly plan generated from progress.', false]
+];
+
+let featureFlagsReady = false;
+async function ensureFeatureFlagsTable() {
+  if (featureFlagsReady) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS feature_flags (
+      flag_key TEXT PRIMARY KEY,
+      label TEXT NOT NULL,
+      description TEXT,
+      is_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+      rollout_percent INTEGER NOT NULL DEFAULT 0,
+      updated_by INTEGER,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+  for (const [key, label, description, enabled] of FEATURE_FLAG_SEEDS) {
+    await pool.query(
+      `INSERT INTO feature_flags (flag_key, label, description, is_enabled)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (flag_key) DO NOTHING`,
+      [key, label, description, enabled]
+    );
+  }
+  featureFlagsReady = true;
+}
+
+router.get('/admin/feature-flags', verifyAdminToken, async (req, res) => {
+  try {
+    if (!ensurePool(res)) return;
+    await ensureFeatureFlagsTable();
+    const result = await pool.query(`
+      SELECT f.flag_key, f.label, f.description, f.is_enabled, f.rollout_percent,
+             f.updated_at, u.username AS updated_by
+      FROM feature_flags f
+      LEFT JOIN users u ON u.user_id = f.updated_by
+      ORDER BY f.flag_key
+    `);
+    return res.json({
+      success: true,
+      generated_at: new Date().toISOString(),
+      flags: result.rows.map(row => ({
+        flag_key: row.flag_key,
+        label: row.label,
+        description: row.description,
+        is_enabled: row.is_enabled === true,
+        rollout_percent: Number(row.rollout_percent || 0),
+        updated_at: row.updated_at,
+        updated_by: row.updated_by || null
+      })),
+      source: 'feature_flags'
+    });
+  } catch (error) {
+    console.error('❌ Admin feature flags read error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to load feature flags.' });
+  }
+});
+
+router.patch('/admin/feature-flags/:key', verifyAdminToken, async (req, res) => {
+  const key = String(req.params.key || '').trim();
+  if (!/^[a-z0-9_]{3,60}$/.test(key)) {
+    return res.status(400).json({ success: false, error: 'Unknown feature flag.' });
+  }
+  const hasEnabled = typeof req.body?.is_enabled === 'boolean';
+  const hasRollout = req.body?.rollout_percent !== undefined;
+  if (!hasEnabled && !hasRollout) {
+    return res.status(400).json({ success: false, error: 'Provide is_enabled or rollout_percent.' });
+  }
+  let rollout = null;
+  if (hasRollout) {
+    rollout = Number(req.body.rollout_percent);
+    if (!Number.isInteger(rollout) || rollout < 0 || rollout > 100) {
+      return res.status(400).json({ success: false, error: 'Rollout must be a whole number between 0 and 100.' });
+    }
+  }
+
+  let client = null;
+  try {
+    if (!ensurePool(res)) return;
+    await ensureFeatureFlagsTable();
+    client = await pool.connect();
+    await client.query('BEGIN');
+    const current = await client.query(
+      `SELECT flag_key, is_enabled, rollout_percent FROM feature_flags WHERE flag_key = $1 FOR UPDATE`,
+      [key]
+    );
+    if (!current.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, error: 'Unknown feature flag.' });
+    }
+    const before = current.rows[0];
+    const nextEnabled = hasEnabled ? req.body.is_enabled : before.is_enabled;
+    const nextRollout = hasRollout ? rollout : Number(before.rollout_percent || 0);
+    const updated = await client.query(
+      `UPDATE feature_flags
+       SET is_enabled = $2, rollout_percent = $3, updated_by = $4, updated_at = NOW()
+       WHERE flag_key = $1
+       RETURNING flag_key, label, description, is_enabled, rollout_percent, updated_at`,
+      [key, nextEnabled, nextRollout, req.adminUserId]
+    );
+    await insertAdminAudit(client, req, 'feature_flag.update', {
+      target_type: 'feature_flag',
+      target_id: key,
+      reason: typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 500) : null,
+      before_safe: { is_enabled: before.is_enabled === true, rollout_percent: Number(before.rollout_percent || 0) },
+      after_safe: { is_enabled: nextEnabled === true, rollout_percent: nextRollout }
+    });
+    await client.query('COMMIT');
+    const row = updated.rows[0];
+    return res.json({
+      success: true,
+      flag: {
+        flag_key: row.flag_key,
+        label: row.label,
+        description: row.description,
+        is_enabled: row.is_enabled === true,
+        rollout_percent: Number(row.rollout_percent || 0),
+        updated_at: row.updated_at
+      }
+    });
+  } catch (error) {
+    if (client) { try { await client.query('ROLLBACK'); } catch {} }
+    console.error('❌ Admin feature flag update error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to update the feature flag.' });
+  } finally {
+    if (client) client.release();
   }
 });
 

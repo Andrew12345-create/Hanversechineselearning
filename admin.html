@@ -1854,6 +1854,10 @@
         <span class="nav-icon">📜</span>
         Audit Log
       </button>
+      <button class="nav-button" data-section="flags">
+        <span class="nav-icon">🚩</span>
+        Feature flags
+      </button>
     </nav>
 
     <div class="nav-label">HanVerse AI</div>
@@ -2420,6 +2424,38 @@
             <div id="revenueAccountTable" class="table-wrap">
               <div class="empty">Loading accounts...</div>
             </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= FEATURE FLAGS ================= -->
+
+      <section id="flagsSection" class="section">
+
+        <div class="section-header">
+          <div>
+            <h2>Feature flags</h2>
+            <p>Platform-wide switches. Every change needs a fresh password confirmation and is written to the audit log.</p>
+          </div>
+
+          <button id="refreshFlagsButton" class="btn btn-soft btn-sm">↻ Refresh flags</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Rollout switches</h3>
+              <p>Turn a surface on or off, and cap the share of learners who see it</p>
+            </div>
+            <span id="flagsStatus" class="pill blue">Ready</span>
+          </div>
+
+          <div class="panel-body">
+            <div id="flagsTable" class="table-wrap">
+              <div class="empty">Loading feature flags...</div>
+            </div>
+            <p id="flagsSource" class="muted" style="margin:14px 0 0;">Waiting for data...</p>
           </div>
         </div>
 
@@ -3249,7 +3285,8 @@
     communications: ["Broadcasts", "Create and review email campaigns"],
     panda: ["Panda AI", "Your admin-only HanVerse assistant"],
     parents: ["Parent Verification", "Review and approve parent accounts"],
-    audit: ["Audit Log", "Every admin action, newest first"]
+    audit: ["Audit Log", "Every admin action, newest first"],
+    flags: ["Feature flags", "Platform-wide rollout switches"]
   };
 
   function switchSection(section) {
@@ -3280,6 +3317,7 @@
     if (section === "communications") loadCampaigns();
     if (section === "parents") loadParentQueue();
     if (section === "audit") loadAuditLog();
+    if (section === "flags") loadFeatureFlags();
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -4412,6 +4450,70 @@
   }
 
   $("refreshRevenueButton").addEventListener("click", loadRevenue);
+
+  /* ================= FEATURE FLAGS ================= */
+
+  async function loadFeatureFlags() {
+    $("flagsStatus").textContent = "Loading...";
+    $("flagsStatus").className = "pill yellow";
+
+    try {
+      const data = await api("/admin/feature-flags");
+
+      if (!data.success) {
+        throw new Error(data.error || "Feature flag request failed.");
+      }
+
+      const flags = Array.isArray(data.flags) ? data.flags : [];
+      $("flagsTable").innerHTML = flags.length
+        ? `<table>
+            <thead><tr><th>Flag</th><th>State</th><th>Rollout</th><th>Updated</th><th>Action</th></tr></thead>
+            <tbody>${flags.map(flag => `
+              <tr>
+                <td><strong>${escapeHTML(flag.label || flag.flag_key)}</strong><br><small class="muted">${escapeHTML(flag.flag_key)}${flag.description ? ` · ${escapeHTML(flag.description)}` : ""}</small></td>
+                <td><span class="pill ${flag.is_enabled ? "green" : ""}">${flag.is_enabled ? "On" : "Off"}</span></td>
+                <td>${Number(flag.rollout_percent || 0)}%</td>
+                <td>${escapeHTML(formatDay(flag.updated_at))}${flag.updated_by ? `<br><small class="muted">${escapeHTML(flag.updated_by)}</small>` : ""}</td>
+                <td><button class="btn btn-sm" data-flag-toggle="${escapeHTML(flag.flag_key)}" data-flag-next="${flag.is_enabled ? "false" : "true"}">${flag.is_enabled ? "Turn off" : "Turn on"}</button></td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`
+        : `<div class="empty">No feature flags are defined yet.</div>`;
+
+      document.querySelectorAll("[data-flag-toggle]").forEach(button => {
+        button.addEventListener("click", () => updateFeatureFlag(button.dataset.flagToggle, button.dataset.flagNext === "true"));
+      });
+
+      const observed = data.generated_at ? new Date(data.generated_at).toLocaleString("en-KE") : "unknown";
+      $("flagsSource").textContent = `Observed ${observed} · Source: ${data.source || "feature_flags"}. Changes are audited and require a password step-up.`;
+
+      $("flagsStatus").textContent = "Live";
+      $("flagsStatus").className = "pill green";
+
+    } catch (error) {
+      $("flagsStatus").textContent = "Unavailable";
+      $("flagsStatus").className = "pill red";
+      notify(error.message, "error");
+    }
+  }
+
+  async function updateFeatureFlag(key, isEnabled) {
+    const reason = window.prompt(`Reason for turning ${key} ${isEnabled ? "on" : "off"}? (optional)`);
+    if (reason === null) return;
+
+    try {
+      await api(`/admin/feature-flags/${encodeURIComponent(key)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ is_enabled: isEnabled, reason: reason.trim() || undefined })
+      });
+      notify(`${key} is now ${isEnabled ? "on" : "off"}.`);
+      await loadFeatureFlags();
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  }
+
+  $("refreshFlagsButton").addEventListener("click", loadFeatureFlags);
 
   /* ================= EMAIL ================= */
 
