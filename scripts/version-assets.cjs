@@ -11,7 +11,7 @@ const ASSETS = [
   'hanverse.css', 'hanverse.js', 'nav-user.js', 'bottom-nav.js',
   'shared-nav.js', 'features-client.js', 'notifications-client.js',
   'notifications.js', 'panda-chat.css', 'panda-chat.js',
-  'js/auth-fetch.js', 'js/api.js', 'js/offline-manager.js'
+  'js/auth-fetch.js'
 ];
 
 const pages = fs.readdirSync(ROOT)
