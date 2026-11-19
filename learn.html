@@ -49,6 +49,26 @@
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .trial-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 18px;padding:15px 20px;background:linear-gradient(90deg,#EFF6FF,#FFF7ED);border:1px solid #BFDBFE;border-radius:18px;font-size:.78rem;line-height:1.5}.trial-banner b{font:900 .95rem var(--font-head);color:#1D4ED8}.trial-banner span{color:var(--muted)}.trial-banner-btn{padding:9px 18px;border-radius:999px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;font-weight:800;font-size:.75rem;white-space:nowrap;box-shadow:0 8px 20px rgba(249,115,22,.25)}
 .warmup{margin:0 0 18px}.warmup-card{background:#fff;border:1px solid var(--line);border-left:5px solid #F59E0B;border-radius:22px;padding:22px 26px;box-shadow:0 10px 30px rgba(37,99,235,.1)}.warmup-head{display:flex;align-items:center;gap:14px}.warmup-ico{width:46px;height:46px;border-radius:14px;background:var(--amber-50);display:grid;place-items:center;font-size:1.3rem;flex:none}.warmup-head h2{font:900 1.25rem var(--font-head);margin:2px 0}.warmup-head p{margin:0;color:var(--muted);font-size:.74rem;line-height:1.5}.warmup-streak{margin-left:auto;flex:none;padding:6px 12px;border-radius:999px;background:var(--amber-50);color:#B45309;font-weight:800;font-size:.7rem}.warmup-q{font:900 1.05rem var(--font-head);margin:16px 0 4px}.warmup-hanzi{font-family:var(--font-cn);font-size:2rem;font-weight:700;color:var(--blue);margin:6px 0 14px}.warmup-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.warmup-opt{padding:12px 14px;border:2px solid rgba(37,99,235,.15);border-radius:13px;background:#fff;font:700 .85rem Nunito,Inter,sans-serif;color:var(--navy);cursor:pointer;transition:all .15s;text-align:left}.warmup-opt:hover{border-color:var(--blue)}.warmup-opt.correct{border-color:#16A34A;background:rgba(22,163,74,.1);color:#15803D}.warmup-opt.wrong{border-color:#EF4444;background:rgba(239,68,68,.08);color:#DC2626}.warmup-opt:disabled{cursor:default;opacity:.75}.warmup-cta{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border:none;border-radius:12px;background:var(--blue);color:#fff;font-size:.75rem;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.18);margin-top:14px}.warmup-cta:hover{background:var(--blue-dark)}.warmup-done{display:flex;align-items:center;gap:10px;margin-top:14px;color:#15803D;font-weight:800;font-size:.85rem}
+/* ─── FIRST-RUN TOUR ─── */
+#tour{position:fixed;inset:0;z-index:1400;display:grid;place-items:center;padding:18px}
+#tour[hidden]{display:none}
+#tourBackdrop{position:absolute;inset:0;background:rgba(15,35,64,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.tour-card{position:relative;width:min(400px,100%);background:#fff;border:1px solid rgba(213,227,240,.9);border-radius:26px;box-shadow:var(--shadow-lg);padding:26px 22px 20px;text-align:center;font-family:Nunito,Inter,sans-serif;animation:tour-pop .35s cubic-bezier(.22,.9,.35,1)}
+@keyframes tour-pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.tour-mascot{width:76px;height:76px;border-radius:24px;object-fit:cover;margin:0 auto 10px;display:block;background:var(--blue-50)}
+.tour-emoji{font-size:44px;line-height:1;display:block;margin-bottom:8px}
+.tour-card h2{font-size:1.25rem;font-weight:900;color:var(--navy);margin:0 0 6px}
+.tour-card p{color:var(--muted);font-size:.86rem;line-height:1.6;margin:0}
+.tour-dots{display:flex;gap:7px;justify-content:center;margin:16px 0 14px}
+.tour-dot{width:8px;height:8px;border-radius:999px;background:var(--line);transition:background .2s,width .2s}
+.tour-dot.on{background:var(--blue);width:20px}
+.tour-actions{display:flex;gap:8px}
+.tour-skip{flex:1;border:0;background:var(--bg);color:var(--muted);font-weight:800;font-size:.8rem;border-radius:999px;min-height:46px;cursor:pointer;font-family:inherit;transition:background .18s}
+.tour-skip:hover{background:var(--blue-50);color:var(--blue)}
+.tour-next{flex:2;border:0;background:var(--blue);color:#fff;font-weight:900;font-size:.85rem;border-radius:999px;min-height:46px;cursor:pointer;font-family:Nunito,Inter,sans-serif;box-shadow:0 10px 22px rgba(37,99,235,.25);transition:background .18s,transform .18s}
+.tour-next:hover{background:var(--blue-dark)}
+.tour-next:active{transform:scale(.97)}
+.tour-skip:focus-visible,.tour-next:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -83,30 +103,6 @@
 
 <section class="error" id="error"><div class="errorbox"><img src="assets/mascot/states/hanpan-thinking.png" width="100" height="100" alt="HanPan thinking" loading="lazy" decoding="async"><h2>We couldn't load your learning journey.</h2><p id="errorText">Please try again.</p><button class="cta" id="retry">Try again</button></div></section>
 <section class="error" id="signedOut" aria-live="polite"><div class="errorbox"><img src="assets/mascot/states/hanpan-waving.png" width="100" height="100" alt="HanPan waving" loading="lazy" decoding="async"><h2>You're not signed in</h2><p id="signedOutText">Taking you to the log in page…</p><button class="cta" id="signedOutLogin">Log in now</button></div></section>
-<style>
-/* ─── FIRST-RUN TOUR ─── */
-#tour{position:fixed;inset:0;z-index:1400;display:grid;place-items:center;padding:18px}
-#tour[hidden]{display:none}
-#tourBackdrop{position:absolute;inset:0;background:rgba(15,35,64,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.tour-card{position:relative;width:min(400px,100%);background:#fff;border:1px solid rgba(213,227,240,.9);border-radius:26px;box-shadow:var(--shadow-lg);padding:26px 22px 20px;text-align:center;font-family:Nunito,Inter,sans-serif;animation:tour-pop .35s cubic-bezier(.22,.9,.35,1)}
-@keyframes tour-pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
-.tour-mascot{width:76px;height:76px;border-radius:24px;object-fit:cover;margin:0 auto 10px;display:block;background:var(--blue-50)}
-.tour-emoji{font-size:44px;line-height:1;display:block;margin-bottom:8px}
-.tour-card h2{font-size:1.25rem;font-weight:900;color:var(--navy);margin:0 0 6px}
-.tour-card p{color:var(--muted);font-size:.86rem;line-height:1.6;margin:0}
-.tour-dots{display:flex;gap:7px;justify-content:center;margin:16px 0 14px}
-.tour-dot{width:8px;height:8px;border-radius:999px;background:var(--line);transition:background .2s,width .2s}
-.tour-dot.on{background:var(--blue);width:20px}
-.tour-actions{display:flex;gap:8px}
-.tour-skip{flex:1;border:0;background:var(--bg);color:var(--muted);font-weight:800;font-size:.8rem;border-radius:999px;min-height:46px;cursor:pointer;font-family:inherit;transition:background .18s}
-.tour-skip:hover{background:var(--blue-50);color:var(--blue)}
-.tour-next{flex:2;border:0;background:var(--blue);color:#fff;font-weight:900;font-size:.85rem;border-radius:999px;min-height:46px;cursor:pointer;font-family:Nunito,Inter,sans-serif;box-shadow:0 10px 22px rgba(37,99,235,.25);transition:background .18s,transform .18s}
-.tour-next:hover{background:var(--blue-dark)}
-.tour-next:active{transform:scale(.97)}
-.tour-skip:focus-visible,.tour-next:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
-[data-theme="dark"] .tour-card{background:#12283A;border-color:rgba(36,68,88,.85)}
-[data-theme="dark"] .tour-card h2{color:#F1F5F9}
-</style>
 <div id="tour" hidden>
   <div id="tourBackdrop"></div>
   <div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourTitle">

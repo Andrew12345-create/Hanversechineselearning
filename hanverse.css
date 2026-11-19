@@ -58,6 +58,42 @@
   --font-head: 'Nunito', sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-cn:   'Noto Sans SC', sans-serif;
+
+  /* ---------------------------------------------
+     Legacy aliases.
+     Older pages were written against an earlier token
+     vocabulary (--text, --dark, --blue-deep, --radius-lg …)
+     that this file never defined, so var() resolved to
+     nothing and the declaration was dropped. These aliases
+     point the old names at the current palette so those
+     pages render as intended without rewriting them.
+     --------------------------------------------- */
+  --text:           var(--ink);
+  --text-2:         var(--muted);
+  --text-light:     var(--muted);
+  --text-secondary: var(--muted);
+  --dark:           var(--navy);
+  --page:           var(--bg);
+  --surface:        var(--white);
+  --border:         var(--line);
+
+  --blue-deep:      var(--blue-dark);
+  --blue-soft:      var(--blue-50);
+  --blue-light:     var(--blue-100);
+  --green-soft:     var(--green-50);
+  --green-light:    var(--green-50);
+  --pink:           #EC4899;
+
+  --radius-sm:      var(--r-sm);
+  --radius-md:      var(--r-md);
+  --radius-lg:      var(--r-lg);
+  --radius-xl:      var(--r-xl);
+  --radius-full:    var(--pill);
+
+  /* Animation offsets used by the landing-page keyframes.
+     Default to 0 so the transform is valid before JS sets them. */
+  --dx: 0px;
+  --dr: 0deg;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -547,6 +583,55 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
   filter: drop-shadow(0 0 10px rgba(249, 115, 22, .55));
 }
 .stat.streak-live { box-shadow: 0 0 0 1px rgba(249,115,22,.28), 0 10px 26px rgba(249,115,22,.14); }
+
+/* ─── GLOBAL MOTION SAFETY ───
+   Pages each carried their own reduced-motion rule, so a page that forgot one
+   still animated. This covers every page that loads hanverse.css. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── CHILD-FRIENDLY CARD LIFT ───
+   Cards respond to hover with a small lift and a warmer shadow. Kept to
+   transform + box-shadow so it stays cheap on low-end school devices. */
+.course, .stat, .step, .card, .panel, .quest-card, .warmup-card {
+  transition: transform .18s var(--ease-out), box-shadow .18s var(--ease-out);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .course:hover, .step:hover, .quest-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+  }
+  .stat:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* ─── FRIENDLY EMPTY / ERROR STATES ───
+   Mascot-led blocks read as encouragement rather than a system failure. */
+.errorbox, .empty-state {
+  border-radius: var(--r-lg);
+}
+.errorbox h2, .empty-state h2 {
+  font-family: var(--font-head);
+  font-weight: 900;
+  color: var(--navy);
+  letter-spacing: -.02em;
+}
+
+/* ─── PROGRESS BARS ───
+   Rounded track with a soft inner shadow so partial progress reads clearly
+   for younger learners at a glance. */
+.prowr, .progress-track {
+  background: var(--blue-50);
+  box-shadow: inset 0 1px 3px rgba(15,35,64,.08);
+}
 
 /* ─── REDUCED MOTION ─── */
 @media (prefers-reduced-motion: reduce) {
