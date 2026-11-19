@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dictionary — HanVerse</title>
+<meta name="description" content="Search HanVerse words by hanzi, pinyin or meaning, and save the ones you want to practise.">
+<link rel="canonical" href="https://learn-hanverse.netlify.app/dictionary.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hanverse.css?v=1">
+<style>
+  .dict-hero { padding: clamp(36px, 5vw, 64px) 0 clamp(16px, 2vw, 24px); }
+  .dict-hero h1 { font-family: var(--font-head); font-size: clamp(28px, 4.4vw, 46px); line-height: 1.05; letter-spacing: -.035em; color: var(--navy); margin: 10px 0 10px; }
+  .dict-hero p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 60ch; }
+
+  .dict-search { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  .dict-search input {
+    flex: 1 1 260px; min-width: 0; min-height: var(--touch);
+    padding: 0 16px; border: 1.5px solid var(--line); border-radius: var(--r-sm);
+    background: var(--white); color: var(--ink); font-size: 15px;
+  }
+  .dict-search input:focus { border-color: var(--blue-mid); }
+  .dict-search button { min-height: var(--touch); }
+
+  .dict-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .dict-chip {
+    min-height: 40px; padding: 0 16px; border-radius: var(--pill);
+    border: 1.5px solid var(--line); background: var(--white);
+    color: var(--muted); font-size: 13px; font-weight: 800; cursor: pointer;
+  }
+  .dict-chip[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-50); color: var(--blue-dark); }
+
+  .dict-body { padding-bottom: clamp(48px, 7vw, 88px); }
+  .dict-status { font-size: 13px; color: var(--soft); margin: 18px 0 12px; min-height: 1.2em; }
+
+  .dict-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .dict-card {
+    background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 18px 18px 16px; box-shadow: var(--shadow-xs);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .dict-card .hz { font-family: var(--font-cn); font-size: 30px; line-height: 1.15; color: var(--navy); }
+  .dict-card .py { font-size: 14px; font-weight: 700; color: var(--blue); }
+  .dict-card .mn { font-size: 14px; line-height: 1.5; color: var(--muted); }
+  .dict-card .ex { font-size: 12.5px; line-height: 1.5; color: var(--soft); border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 4px; }
+  .dict-card .ex .ex-hz { font-family: var(--font-cn); color: var(--ink); }
+  .dict-card .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
+  .dict-card .tag {
+    font-size: 11px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: var(--pill);
+    background: var(--blue-50); color: var(--blue-dark);
+  }
+  .dict-card .tag.unreviewed { background: var(--amber-50); color: #7A4A00; }
+  .dict-save {
+    min-height: 40px; padding: 0 14px; border-radius: var(--pill);
+    border: 1.5px solid var(--line); background: var(--white);
+    color: var(--muted); font-size: 12.5px; font-weight: 800; cursor: pointer;
+  }
+  .dict-save[aria-pressed="true"] { border-color: var(--green); background: rgba(22,163,74,.08); color: #15803D; }
+
+  .dict-empty {
+    border: 1px dashed var(--line); border-radius: var(--r-md);
+    padding: 28px 22px; text-align: center; color: var(--muted); font-size: 14px; line-height: 1.6;
+  }
+  .dict-empty strong { display: block; color: var(--navy); font-size: 16px; margin-bottom: 6px; }
+
+  .dict-saved { margin-top: 40px; }
+  .dict-saved h2 { font-family: var(--font-head); font-size: 20px; color: var(--navy); margin-bottom: 4px; }
+  .dict-saved p.hint { font-size: 13px; color: var(--soft); margin-bottom: 14px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="app-nav"></div>
+
+<main id="main">
+  <section class="dict-hero">
+    <div class="container">
+      <span class="kicker">HanVerse Dictionary</span>
+      <h1>Look up a word.</h1>
+      <p>Search by hanzi, by pinyin with or without tone marks, or by English meaning. Save a word to keep it close.</p>
+
+      <form class="dict-search" id="dictForm" role="search">
+        <label for="dictQuery" class="sr-only">Search the dictionary</label>
+        <input id="dictQuery" type="search" name="q" placeholder="你好, nihao, or hello" autocomplete="off" enterkeyhint="search">
+        <button class="btn-primary" type="submit">Search</button>
+      </form>
+
+      <div class="dict-filters" role="group" aria-label="Filter by level">
+        <button class="dict-chip" type="button" data-level="" aria-pressed="true">All levels</button>
+        <button class="dict-chip" type="button" data-level="1" aria-pressed="false">YCT 1</button>
+        <button class="dict-chip" type="button" data-level="2" aria-pressed="false">YCT 2</button>
+        <button class="dict-chip" type="button" data-level="3" aria-pressed="false">YCT 3</button>
+        <button class="dict-chip" type="button" data-level="4" aria-pressed="false">YCT 4</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="dict-body">
+    <div class="container">
+      <p class="dict-status" id="dictStatus" role="status" aria-live="polite">Loading the dictionary…</p>
+      <div class="dict-grid" id="dictResults" aria-live="polite"></div>
+
+      <section class="dict-saved" id="dictSavedSection" hidden>
+        <h2>Your saved words</h2>
+        <p class="hint">Saved to your account, so they follow you to any device.</p>
+        <div class="dict-grid" id="dictSaved" aria-live="polite"></div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<div id="app-footer"></div>
+<script src="shared-nav.js"></script>
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
+<script src="bottom-nav.js"></script>
+<script src="features-client.js?v=1"></script>
+<script>
+(function () {
+  'use strict';
+
+  var API = window.HanVerseFeatures;
+  var statusEl = document.getElementById('dictStatus');
+  var resultsEl = document.getElementById('dictResults');
+  var savedSection = document.getElementById('dictSavedSection');
+  var savedEl = document.getElementById('dictSaved');
+  var form = document.getElementById('dictForm');
+  var input = document.getElementById('dictQuery');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.dict-chip'));
+
+  var state = { q: '', level: '', saved: new Set(), signedIn: false };
+
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function sessionUser() {
+    try {
+      var raw = localStorage.getItem('hanverse_user');
+      if (!raw) return null;
+      var user = JSON.parse(raw);
+      return user && (user.user_id || user.userId || user.id) ? user : null;
+    } catch (e) { return null; }
+  }
+
+  function setStatus(text) { statusEl.textContent = text; }
+
+  function card(entry) {
+    var saved = state.saved.has(entry.id);
+    var levelTag = entry.level ? 'YCT ' + entry.level : (entry.reviewed ? 'Reviewed' : 'Awaiting review');
+    var tagClass = entry.reviewed ? 'tag' : 'tag unreviewed';
+    var example = entry.example && entry.example.hanzi
+      ? '<div class="ex"><span class="ex-hz" lang="zh-Hans">' + esc(entry.example.hanzi) + '</span>' +
+        (entry.example.pinyin ? ' · ' + esc(entry.example.pinyin) : '') +
+        (entry.example.meaning ? '<br>' + esc(entry.example.meaning) : '') + '</div>'
+      : '';
+    return '<article class="dict-card">' +
+      '<div class="hz" lang="zh-Hans">' + esc(entry.hanzi) + '</div>' +
+      '<div class="py">' + esc(entry.pinyin) + '</div>' +
+      '<div class="mn">' + esc(entry.meaning) + '</div>' +
+      example +
+      '<div class="foot">' +
+        '<span class="' + tagClass + '">' + esc(levelTag) + '</span>' +
+        '<button class="dict-save" type="button" data-save="' + esc(entry.id) + '" aria-pressed="' + (saved ? 'true' : 'false') + '">' +
+          (saved ? 'Saved' : 'Save') +
+        '</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function renderEmpty(title, body) {
+    resultsEl.innerHTML = '<div class="dict-empty"><strong>' + esc(title) + '</strong>' + esc(body) + '</div>';
+  }
+
+  function renderResults(payload) {
+    var results = payload.results || [];
+    if (!results.length) {
+      renderEmpty('No matches yet', state.q
+        ? 'Nothing matched "' + state.q + '". Try the hanzi, the pinyin without tones, or a simpler English word.'
+        : 'The dictionary is empty. An administrator can add entries from the admin console.');
+      return;
+    }
+    resultsEl.innerHTML = results.map(card).join('');
+    setStatus(results.length + ' of ' + payload.total + ' entries');
+  }
+
+  function renderSaved(entries) {
+    if (!entries.length) {
+      savedSection.hidden = true;
+      return;
+    }
+    savedSection.hidden = false;
+    savedEl.innerHTML = entries.map(card).join('');
+  }
+
+  function search() {
+    setStatus('Searching…');
+    var params = new URLSearchParams();
+    if (state.q) params.set('q', state.q);
+    if (state.level) params.set('level', state.level);
+    params.set('limit', '50');
+
+    API.api('/dictionary/search?' + params.toString())
+      .then(function (data) {
+        if (!data || data.success === false) throw new Error((data && data.error) || 'Search failed');
+        renderResults(data);
+      })
+      .catch(function (error) {
+        setStatus('Could not search right now.');
+        renderEmpty('Search unavailable', error.message || 'Please try again in a moment.');
+      });
+  }
+
+  function loadSaved() {
+    if (!state.signedIn) return;
+    API.api('/dictionary/saves')
+      .then(function (data) {
+        var entries = (data && data.entries) || [];
+        entries.forEach(function (entry) { state.saved.add(entry.id); });
+        renderSaved(entries);
+      })
+      .catch(function () { /* saves are optional; a failure must not block search */ });
+  }
+
+  function toggleSave(id, button) {
+    if (!state.signedIn) {
+      setStatus('Sign in to save words to your account.');
+      return;
+    }
+    var isSaved = state.saved.has(id);
+    var method = isSaved ? 'DELETE' : 'POST';
+    button.disabled = true;
+    API.api('/dictionary/saves/' + encodeURIComponent(id), { method: method })
+      .then(function (data) {
+        if (!data || data.success === false) throw new Error((data && data.error) || 'Could not update');
+        if (isSaved) state.saved.delete(id); else state.saved.add(id);
+        button.setAttribute('aria-pressed', isSaved ? 'false' : 'true');
+        button.textContent = isSaved ? 'Save' : 'Saved';
+        setStatus(isSaved ? 'Removed from your saved words.' : 'Saved to your account.');
+        loadSaved();
+      })
+      .catch(function (error) {
+        setStatus(error.message || 'Could not update that word.');
+      })
+      .then(function () { button.disabled = false; });
+  }
+
+  document.addEventListener('click', function (event) {
+    var saveBtn = event.target.closest('[data-save]');
+    if (saveBtn) {
+      toggleSave(Number(saveBtn.getAttribute('data-save')), saveBtn);
+      return;
+    }
+    var chip = event.target.closest('.dict-chip');
+    if (chip) {
+      chips.forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+      state.level = chip.getAttribute('data-level') || '';
+      search();
+    }
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    state.q = input.value.trim();
+    search();
+  });
+
+  var timer = null;
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      state.q = input.value.trim();
+      search();
+    }, 320);
+  });
+
+  state.signedIn = !!sessionUser();
+  loadSaved();
+  search();
+})();
+</script>
+</body>
+</html>

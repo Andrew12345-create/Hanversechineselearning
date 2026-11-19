@@ -66,6 +66,7 @@
           '<a href="explore.html">Explore</a>' +
           '<a href="practice.html">Practice</a>' +
           '<a href="roadmap.html">Roadmap</a>' +
+          '<a href="dictionary.html">Dictionary</a>' +
           '<a href="parents.html">Parents</a>' +
         '</div>' +
         actionsMarkup() +
@@ -97,12 +98,13 @@
             '<a href="learn.html">Learn</a>' +
             '<a href="explore.html">Explore</a>' +
             '<a href="roadmap.html">Roadmap</a>' +
+            '<a href="dictionary.html">Dictionary</a>' +
             '<a href="parents.html">Parents</a>' +
             '<a href="login.html">Log in</a>' +
-            '<a href="https://hanverse.netlify.app/terms.html">Terms</a>' +
-            '<a href="https://hanverse.netlify.app/privacy.html">Privacy</a>' +
-            '<a href="https://hanverse.netlify.app/refund-policy.html">Refunds</a>' +
-            '<a href="https://hanverse.netlify.app/cookie-policy.html">Cookies</a>' +
+            '<a href="terms.html">Terms</a>' +
+            '<a href="privacy.html">Privacy</a>' +
+            '<a href="refund-policy.html">Refunds</a>' +
+            '<a href="cookie-policy.html">Cookies</a>' +
           '</div>' +
         '</div>' +
       '</footer>';

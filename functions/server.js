@@ -14,6 +14,7 @@ import { registerAIRoutes } from './ai-routes.js';
 import { underLimit, markUsage } from './ai-helpers.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
+import { registerDictionaryRoutes, ensureDictionarySchema } from './dictionary.js';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 
@@ -50,8 +51,17 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'x-parent-id']
 }));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Body parsing: small by default so an unauthenticated caller cannot make the
+// function allocate megabytes before any token check runs. Only the admin
+// lesson editor, which posts whole lesson documents, gets the larger ceiling.
+const jsonSmall = express.json({ limit: '100kb' });
+const jsonLarge = express.json({ limit: '2mb' });
+const LARGE_BODY_PATHS = [/\/admin\/lessons(\/|$)/];
+app.use((req, res, next) => {
+  const parser = LARGE_BODY_PATHS.some(rx => rx.test(req.path || '')) ? jsonLarge : jsonSmall;
+  return parser(req, res, next);
+});
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
 /* ==========================================
   ENV / STARTUP DIAGNOSTICS LOGS 🔍
@@ -1201,18 +1211,44 @@ async function verifyAdminToken(req, res, next) {
 ========================================== */
 
 // SIGNUP 🚀
+// Shared limiter factory. Every write route that is not already covered by
+// authLimiter or parentWriteLimiter attaches one of these, so a single client
+// cannot hammer an expensive endpoint (AI calls, email sends, admin mutations).
+function makeLimiter({ windowMs, max, message }) {
+  return rateLimit({
+    keyGenerator: req => {
+      const h = req.headers || {};
+      return (req.ip || h['x-nf-client-connection-ip'] || h['x-forwarded-for'] || 'anon').split(',')[0].trim();
+    },
+    validate: false,
+    windowMs,
+    max,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: message }
+  });
+}
+
 // Basic brute-force guard on sensitive auth endpoints (per warm instance).
-const authLimiter = rateLimit({
-  keyGenerator: req => {
-    const h = req.headers || {};
-    return (req.ip || h['x-nf-client-connection-ip'] || h['x-forwarded-for'] || 'anon').split(',')[0].trim();
-  },
-  validate: false,
+const authLimiter = makeLimiter({
   windowMs: 15 * 60 * 1000,
   max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, error: 'Too many attempts — please wait 15 minutes and try again.' }
+  message: 'Too many attempts — please wait 15 minutes and try again.'
+});
+
+// General write guard for learner/parent mutations.
+const writeLimiter = makeLimiter({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: 'Too many requests — please slow down.'
+});
+
+// Admin mutations are already behind an elevated token; this only stops a
+// runaway script from hammering the console.
+const adminWriteLimiter = makeLimiter({
+  windowMs: 60 * 1000,
+  max: 90,
+  message: 'Too many admin requests — please slow down.'
 });
 
 function adminAttemptHash(value) {
@@ -1677,7 +1713,7 @@ router.get('/user/:userId', async (req, res) => {
 // body is never trusted (that was an account-takeover vector).
 const REFRESH_GRACE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-router.post('/auth/refresh', async (req, res) => {
+router.post('/auth/refresh', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -1747,7 +1783,7 @@ router.post('/auth/refresh', async (req, res) => {
 });
 
 // LOGOUT
-router.post('/auth/logout', async (req, res) => {
+router.post('/auth/logout', writeLimiter, async (req, res) => {
   return res.json({ success: true, message: 'Logged out successfully' });
 });
 
@@ -1970,7 +2006,7 @@ router.get('/verify-email', async (req, res) => {
 });
 
 // VERIFY EMAIL (POST - for API)
-router.post('/verify-email', async (req, res) => {
+router.post('/verify-email', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -2151,7 +2187,7 @@ router.post('/forgot-password', authLimiter, async (req, res) => {
 });
 
 // RESET PASSWORD
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -2676,7 +2712,7 @@ router.get('/parents/child/:childId/trend', async (req, res) => {
 });
 
 // ADD CHILD
-router.post('/parents/children', async (req, res) => {
+router.post('/parents/children', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -2841,7 +2877,7 @@ router.post('/parents/children', async (req, res) => {
 });
 
 // UPDATE CHILD
-router.put('/parents/child/:childId', async (req, res) => {
+router.put('/parents/child/:childId', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -2961,7 +2997,7 @@ router.put('/parents/child/:childId', async (req, res) => {
 });
 
 // UPDATE CHILD PROGRESS
-router.put('/parents/child/:childId/progress', async (req, res) => {
+router.put('/parents/child/:childId/progress', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -4998,7 +5034,7 @@ router.get('/progress/:userId/:lessonId', async (req, res) => {
 });
 
 // POST: Save or update user progress
-router.post('/progress', async (req, res) => {
+router.post('/progress', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -5307,7 +5343,7 @@ router.get('/notifications/:userId', async (req, res) => {
   }
 });
 
-router.post('/notifications/:userId/read-all', async (req, res) => {
+router.post('/notifications/:userId/read-all', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -5329,7 +5365,7 @@ router.post('/notifications/:userId/read-all', async (req, res) => {
   }
 });
 
-router.post('/notifications/:userId/:notificationId/read', async (req, res) => {
+router.post('/notifications/:userId/:notificationId/read', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -6698,7 +6734,7 @@ router.get('/stats', async (req, res) => {
 /* ==========================================
   PLACEMENT TEST ENDPOINT 🎯
 ========================================== */
-router.post('/placement', async (req, res) => {
+router.post('/placement', writeLimiter, async (req, res) => {
   try {
     const { userId } = req.body || {};
 
@@ -6741,7 +6777,7 @@ router.post('/placement', async (req, res) => {
 ========================================== */
 
 // Sync quiz results
-router.post('/sync/quizzes', async (req, res) => {
+router.post('/sync/quizzes', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -6787,7 +6823,7 @@ router.post('/sync/quizzes', async (req, res) => {
 });
 
 // Sync progress
-router.post('/sync/progress', async (req, res) => {
+router.post('/sync/progress', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -6893,7 +6929,7 @@ router.post('/sync/progress', async (req, res) => {
 });
 
 // Sync XP
-router.post('/sync/xp', async (req, res) => {
+router.post('/sync/xp', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -6907,7 +6943,7 @@ router.post('/sync/xp', async (req, res) => {
 });
 
 // Sync achievements
-router.post('/sync/achievements', async (req, res) => {
+router.post('/sync/achievements', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -6953,7 +6989,7 @@ router.post('/sync/achievements', async (req, res) => {
 });
 
 // Sync streak
-router.post('/sync/streak', async (req, res) => {
+router.post('/sync/streak', writeLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -7085,7 +7121,7 @@ router.get('/admin/session', verifyAdminToken, async (req, res) => {
   return res.json({ success: true, user: { user_id: req.user.user_id, username: req.adminActor.label } });
 });
 
-router.post('/admin/reauth', verifyAdminToken, async (req, res) => {
+router.post('/admin/reauth', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!trustedAdminOrigin(req)) return res.status(403).json({ success: false, error: 'Request origin is not allowed.' });
     const password = String(req.body?.password || '');
@@ -7124,7 +7160,7 @@ router.post('/admin/reauth', verifyAdminToken, async (req, res) => {
   }
 });
 
-router.post('/admin/logout', verifyAdminToken, async (req, res) => {
+router.post('/admin/logout', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     const client = await pool.connect();
     try {
@@ -7679,7 +7715,7 @@ router.get('/admin/feature-flags', verifyAdminToken, async (req, res) => {
   }
 });
 
-router.patch('/admin/feature-flags/:key', verifyAdminToken, async (req, res) => {
+router.patch('/admin/feature-flags/:key', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   const key = String(req.params.key || '').trim();
   if (!/^[a-z0-9_]{3,60}$/.test(key)) {
     return res.status(400).json({ success: false, error: 'Unknown feature flag.' });
@@ -7824,7 +7860,7 @@ router.get('/admin/incidents', verifyAdminToken, async (req, res) => {
   }
 });
 
-router.post('/admin/incidents', verifyAdminToken, async (req, res) => {
+router.post('/admin/incidents', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   const title = String(req.body?.title || '').trim().slice(0, 160);
   const severity = String(req.body?.severity || 'sev3').toLowerCase();
   const summary = typeof req.body?.summary === 'string' ? req.body.summary.trim().slice(0, 4000) : null;
@@ -7865,7 +7901,7 @@ router.post('/admin/incidents', verifyAdminToken, async (req, res) => {
   }
 });
 
-router.patch('/admin/incidents/:id', verifyAdminToken, async (req, res) => {
+router.patch('/admin/incidents/:id', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   const incidentId = Number(req.params.id);
   if (!Number.isInteger(incidentId) || incidentId <= 0) {
     return res.status(400).json({ success: false, error: 'Unknown incident.' });
@@ -7994,7 +8030,7 @@ router.get('/admin/email/campaigns', verifyAdminToken, async (req, res) => {
 });
 
 // CREATE CAMPAIGN
-router.post('/admin/email/campaigns', verifyAdminToken, async (req, res) => {
+router.post('/admin/email/campaigns', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -8860,7 +8896,7 @@ async function processCampaign(campaignId) {
   }
 }
 // CANCEL CAMPAIGN
-router.post('/admin/email/campaigns/:id/cancel', verifyAdminToken, async (req, res) => {
+router.post('/admin/email/campaigns/:id/cancel', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -8919,7 +8955,7 @@ router.post('/admin/email/campaigns/:id/cancel', verifyAdminToken, async (req, r
    ADMIN EMAIL INDIVIDUAL USER
 ========================================================= */
 
-router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
+router.post('/admin/users/email/:id', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -9006,7 +9042,7 @@ router.post('/admin/users/email/:id', verifyAdminToken, async (req, res) => {
    ADMIN USER UPDATE
 ========================================================= */
 
-router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
+router.post('/admin/users/update/:id', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   if (!ensurePool(res)) return;
   const userId = Number(req.params.id);
   if (!Number.isSafeInteger(userId) || userId <= 0) return res.status(400).json({ success: false, error: 'Invalid user ID.' });
@@ -9058,7 +9094,7 @@ router.post('/admin/users/update/:id', verifyAdminToken, async (req, res) => {
    ADMIN BAN / UNBAN USER
 ========================================================= */
 
-router.post('/admin/users/ban/:id', verifyAdminToken, async (req, res) => {
+router.post('/admin/users/ban/:id', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   if (!ensurePool(res)) return;
   const userId = Number(req.params.id);
   const banned = req.body?.banned !== false;
@@ -9190,7 +9226,7 @@ router.get('/admin/users/:id/impact', verifyAdminToken, async (req, res) => {
   } finally { client.release(); }
 });
 
-router.delete('/admin/users/delete/:id', verifyAdminToken, async (req, res) => {
+router.delete('/admin/users/delete/:id', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   if (!ensurePool(res)) return;
   const userId = Number(req.params.id);
   const reason = String(req.body?.reason || '').trim();
@@ -9231,7 +9267,7 @@ router.delete('/admin/users/delete/:id', verifyAdminToken, async (req, res) => {
    ADMIN TOGGLE VERIFICATION
 ========================================================= */
 
-router.post('/admin/toggle-verification/:userId', verifyAdminToken, async (req, res) => {
+router.post('/admin/toggle-verification/:userId', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   if (!ensurePool(res)) return;
   const userId = Number(req.params.userId);
   const requested = req.body?.verified;
@@ -9321,7 +9357,7 @@ router.get('/admin/parents/pending', verifyAdminToken, async (req, res) => {
   }
 });
 
-router.post('/admin/parents/verify/:parentId', verifyAdminToken, async (req, res) => {
+router.post('/admin/parents/verify/:parentId', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   if (!ensurePool(res)) return;
   const parentId = Number(req.params.parentId);
   const reason = String(req.body?.reason || '').trim();
@@ -9352,7 +9388,7 @@ router.post('/admin/parents/verify/:parentId', verifyAdminToken, async (req, res
   } finally { client.release(); }
 });
 
-router.post('/admin/parents/deny/:parentId', verifyAdminToken, async (req, res) => {
+router.post('/admin/parents/deny/:parentId', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   if (!ensurePool(res)) return;
   const parentId = Number(req.params.parentId);
   const reason = String(req.body?.reason || '').trim();
@@ -9451,7 +9487,7 @@ router.get('/admin/lessons/:lessonId', verifyAdminToken, async (req, res) => {
 });
 
 // CREATE LESSON
-router.post('/admin/lessons', verifyAdminToken, async (req, res) => {
+router.post('/admin/lessons', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -9524,7 +9560,7 @@ router.post('/admin/lessons', verifyAdminToken, async (req, res) => {
 });
 
 // UPDATE LESSON
-router.put('/admin/lessons/:lessonId', verifyAdminToken, async (req, res) => {
+router.put('/admin/lessons/:lessonId', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -9606,7 +9642,7 @@ router.put('/admin/lessons/:lessonId', verifyAdminToken, async (req, res) => {
 });
 
 // DELETE LESSON
-router.delete('/admin/lessons/:lessonId', verifyAdminToken, async (req, res) => {
+router.delete('/admin/lessons/:lessonId', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   if (!ensurePool(res)) return;
   const lessonId = String(req.params.lessonId || '').trim();
   const reason = String(req.body?.reason || '').trim();
@@ -9677,7 +9713,7 @@ router.get('/admin/lessons/:lessonId/media', verifyAdminToken, async (req, res) 
 });
 
 // ADD MEDIA
-router.post('/admin/lessons/:lessonId/media', verifyAdminToken, async (req, res) => {
+router.post('/admin/lessons/:lessonId/media', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -9754,7 +9790,7 @@ router.post('/admin/lessons/:lessonId/media', verifyAdminToken, async (req, res)
 });
 
 // UPDATE MEDIA
-router.put('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, async (req, res) => {
+router.put('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -9827,7 +9863,7 @@ router.put('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, async (r
 });
 
 // DELETE MEDIA
-router.delete('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, async (req, res) => {
+router.delete('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -9976,7 +10012,7 @@ router.get('/admin/audit', verifyAdminToken, async (req, res) => {
    ADMIN PANDA (data-aware assistant for the admin console)
 ========================================================= */
 
-router.post('/admin/panda-chat', verifyAdminToken, async (req, res) => {
+router.post('/admin/panda-chat', verifyAdminToken, adminWriteLimiter, async (req, res) => {
   try {
     if (!ensurePool(res)) return;
 
@@ -10067,12 +10103,20 @@ console.log('✅ Admin routes registered successfully!');
   registerAIRoutes(router, pool, { requireUser, verifyAdminToken });
   registerSecureGrading(router, pool, { requireUser });
   registerWorldRoutes(router, pool, { requireUser });
+  registerDictionaryRoutes(router, pool, { requireUser, verifyAdminToken });
 ensureFeatureSchema(pool)
   .then(() => {
     console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
   })
   .catch((e) => {
     console.warn('⚠️ Feature pack setup failed (non-fatal):', e.message);
+  });
+ensureDictionarySchema(pool)
+  .then(() => {
+    console.log('✅ Dictionary routes registered (search, saves, admin review)');
+  })
+  .catch((e) => {
+    console.warn('⚠️ Dictionary setup failed (non-fatal):', e.message);
   });
 
 app.use('/api', router);

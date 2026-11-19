@@ -8,7 +8,7 @@
 // ============================================================
 'use strict';
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = 'hanverse-' + VERSION;
 
 const PRECACHE_URLS = [
@@ -20,8 +20,10 @@ const PRECACHE_URLS = [
   '/reset-password.html', '/verify-email.html', '/banned.html', '/invite.html',
   '/child-profile.html', '/parent-dashboard.html',
   '/adventures.html', '/adventures.js?v=1',
-  '/vocabulary.html',
-  '/hanverse.css?v=1', '/hanverse.js?v=1', '/nav-user.js?v=1',
+  '/vocabulary.html', '/class.html', '/worksheets.html', '/dictionary.html',
+  '/index.html', '/terms.html', '/privacy.html',
+  '/refund-policy.html', '/cookie-policy.html',
+  '/hanverse.css?v=1', '/legal.css?v=1', '/hanverse.js?v=1', '/nav-user.js?v=1',
   '/bottom-nav.js?v=1', '/shared-nav.js?v=1', '/features-client.js?v=1',
   '/notifications-client.js?v=1', '/notifications.js?v=1',
   '/js/auth-fetch.js?v=1',
