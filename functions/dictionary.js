@@ -79,11 +79,34 @@ export async function ensureDictionarySchema(pgPool) {
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
 
-  await q(`CREATE UNIQUE INDEX IF NOT EXISTS idx_dictionary_hanzi_pinyin
-           ON dictionary_entries (hanzi, pinyin_plain)`);
+  /* CC-CEDICT senses run to 669 characters and a word can have several
+     readings that differ only by tone (好 hǎo / hào), so `meaning` is TEXT
+     and a row is keyed by (hanzi, pinyin) rather than the tone-stripped form.
+     varchar -> text is a metadata-only change; it is guarded so the lock is
+     only taken once. */
+  const meaningType = await pool.query(
+    `SELECT data_type FROM information_schema.columns
+      WHERE table_name = 'dictionary_entries' AND column_name = 'meaning'`
+  );
+  if (meaningType.rows[0] && meaningType.rows[0].data_type !== 'text') {
+    await q(`ALTER TABLE dictionary_entries ALTER COLUMN meaning TYPE TEXT`);
+  }
+  await q(`ALTER TABLE dictionary_entries ADD COLUMN IF NOT EXISTS traditional VARCHAR(120)`);
+
+  await q(`CREATE UNIQUE INDEX IF NOT EXISTS idx_dictionary_hanzi_reading
+           ON dictionary_entries (hanzi, pinyin)`);
+  await q(`DROP INDEX IF EXISTS idx_dictionary_hanzi_pinyin`);
   await q(`CREATE INDEX IF NOT EXISTS idx_dictionary_hanzi ON dictionary_entries (hanzi)`);
   await q(`CREATE INDEX IF NOT EXISTS idx_dictionary_pinyin_plain ON dictionary_entries (pinyin_plain)`);
   await q(`CREATE INDEX IF NOT EXISTS idx_dictionary_level ON dictionary_entries (level)`);
+  try {
+    await q(`CREATE EXTENSION IF NOT EXISTS pg_trgm`);
+    await q(`CREATE INDEX IF NOT EXISTS idx_dictionary_hanzi_trgm ON dictionary_entries USING gin (hanzi gin_trgm_ops)`);
+    await q(`CREATE INDEX IF NOT EXISTS idx_dictionary_pinyin_trgm ON dictionary_entries USING gin (pinyin_plain gin_trgm_ops)`);
+    await q(`CREATE INDEX IF NOT EXISTS idx_dictionary_meaning_trgm ON dictionary_entries USING gin (LOWER(meaning) gin_trgm_ops)`);
+  } catch (error) {
+    console.warn('dictionary: pg_trgm unavailable, substring search will be slower:', error.message);
+  }
   await q(`CREATE INDEX IF NOT EXISTS idx_dictionary_reviewed ON dictionary_entries (reviewed)`);
 
   await q(`CREATE TABLE IF NOT EXISTS dictionary_saves (
@@ -101,7 +124,7 @@ export async function ensureDictionarySchema(pgPool) {
       await pool.query(
         `INSERT INTO dictionary_entries (hanzi, pinyin, pinyin_plain, meaning, part_of_speech, source)
          VALUES ($1, $2, $3, $4, $5, 'starter')
-         ON CONFLICT (hanzi, pinyin_plain) DO NOTHING`,
+         ON CONFLICT (hanzi, pinyin) DO NOTHING`,
         [entry.hanzi, entry.pinyin, plainPinyin(entry.pinyin), entry.meaning, entry.pos]
       );
     }
@@ -110,7 +133,7 @@ export async function ensureDictionarySchema(pgPool) {
   schemaReady = true;
 }
 
-const PUBLIC_COLUMNS = `entry_id, hanzi, pinyin, meaning, part_of_speech,
+const PUBLIC_COLUMNS = `entry_id, hanzi, traditional, pinyin, meaning, part_of_speech,
   measure_word, level, example_hanzi, example_pinyin, example_meaning,
   reviewed, source`;
 
@@ -118,6 +141,7 @@ function shape(row, savedIds) {
   return {
     id: row.entry_id,
     hanzi: row.hanzi,
+    traditional: row.traditional || null,
     pinyin: row.pinyin,
     meaning: row.meaning,
     partOfSpeech: row.part_of_speech || null,
@@ -183,6 +207,7 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
 
       const where = [];
       const params = [];
+      let rank = '0';
       if (raw) {
         const plain = plainPinyin(raw);
         params.push(`%${raw}%`, `%${plain}%`, `%${raw.toLowerCase()}%`);
@@ -194,18 +219,25 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
       }
       const clause = where.length ? `WHERE ${where.join(' AND ')}` : '';
 
+      const countParams = params.slice();
+      if (raw) {
+        params.push(raw, plainPinyin(raw));
+        const a = params.length - 1;
+        const b = params.length;
+        rank = `CASE WHEN hanzi = $${a} THEN 0 WHEN pinyin_plain = $${b} THEN 1
+                     WHEN hanzi LIKE $${a} || '%' THEN 2 WHEN pinyin_plain LIKE $${b} || '%' THEN 3 ELSE 4 END`;
+      }
       params.push(limit, offset);
       const rows = await pool.query(
         `SELECT ${PUBLIC_COLUMNS} FROM dictionary_entries
          ${clause}
-         ORDER BY reviewed DESC, level NULLS LAST, hanzi
+         ORDER BY ${rank}, reviewed DESC, level NULLS LAST, char_length(hanzi), hanzi, entry_id
          LIMIT $${params.length - 1} OFFSET $${params.length}`,
         params
       );
 
-      const countParams = params.slice(0, params.length - 2);
       const total = await pool.query(
-        `SELECT COUNT(*)::int AS n FROM dictionary_entries ${clause}`,
+        `SELECT COUNT(*)::int AS n FROM (SELECT 1 FROM dictionary_entries ${clause} LIMIT 1000) capped`,
         countParams
       );
 
@@ -323,7 +355,7 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
       const body = req.body || {};
       const hanzi = String(body.hanzi || '').trim().slice(0, 40);
       const pinyin = String(body.pinyin || '').trim().slice(0, 160);
-      const meaning = String(body.meaning || '').trim().slice(0, 400);
+      const meaning = String(body.meaning || '').trim().slice(0, 1000);
       if (!hanzi || !pinyin || !meaning) return fail(res, 400, 'hanzi, pinyin and meaning are required');
 
       const level = body.level === undefined || body.level === null || body.level === ''
@@ -336,7 +368,7 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
            (hanzi, pinyin, pinyin_plain, meaning, part_of_speech, measure_word, level,
             example_hanzi, example_pinyin, example_meaning, source)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'admin')
-         ON CONFLICT (hanzi, pinyin_plain) DO UPDATE SET
+         ON CONFLICT (hanzi, pinyin) DO UPDATE SET
            meaning = EXCLUDED.meaning,
            part_of_speech = EXCLUDED.part_of_speech,
            measure_word = EXCLUDED.measure_word,

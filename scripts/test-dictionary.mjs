@@ -6,6 +6,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { plainPinyin } from '../functions/dictionary.js';
+import { parseCedict, numberedToMarked } from './cedict-lib.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -64,8 +65,8 @@ console.log('\nSchema');
 check('schema is idempotent', () => {
   assert(/CREATE TABLE IF NOT EXISTS dictionary_entries/.test(dict), 'entries table not guarded');
   assert(/CREATE TABLE IF NOT EXISTS dictionary_saves/.test(dict), 'saves table not guarded');
-  assert(/CREATE UNIQUE INDEX IF NOT EXISTS idx_dictionary_hanzi_pinyin/.test(dict), 'unique index not guarded');
-  assert(/ON CONFLICT \(hanzi, pinyin_plain\) DO NOTHING/.test(dict), 'starter seed not conflict-safe');
+  assert(/CREATE UNIQUE INDEX IF NOT EXISTS idx_dictionary_hanzi_reading/.test(dict), 'unique index not guarded');
+  assert(/ON CONFLICT \(hanzi, pinyin\) DO NOTHING/.test(dict), 'starter seed not conflict-safe');
   return 'IF NOT EXISTS + ON CONFLICT';
 });
 
@@ -173,6 +174,63 @@ check('offline and sitemap updated', () => {
   assert(/\/dictionary\.html/.test(sw), 'not precached');
   assert(/dictionary\.html/.test(sitemap), 'not in sitemap');
   return 'precache + sitemap';
+});
+
+console.log('\nCC-CEDICT import');
+
+const FIXTURE = [
+  '# comment',
+  '好 好 [hao3] /good/well/',
+  '好 好 [hao4] /to be fond of/',
+  '你好 你好 [ni3 hao3] /hello/',
+  '中國 中国 [Zhong1 guo2] /China/',
+  '女 女 [nu:3] /female/',
+  '嗎 吗 [ma5] /question particle/',
+  '點兒 点儿 [dian3 r5] /a bit/',
+  '裡 里 [li3] /inside/',
+  '裏 里 [li3] /lining/'
+].join('\n');
+
+check('parser keeps both readings of 好', () => {
+  const { entries } = parseCedict(FIXTURE);
+  const hao = entries.filter(e => e.hanzi === '好').map(e => e.pinyin).sort();
+  assert(hao.length === 2 && hao.includes('hǎo') && hao.includes('hào'), 'got ' + hao.join(','));
+  return hao.join(' / ');
+});
+
+check('parser marks tones, ü and neutral tone', () => {
+  assert(numberedToMarked('ni3 hao3') === 'nǐ hǎo', 'ni3 hao3');
+  assert(numberedToMarked('nu:3') === 'nǚ', 'nu:3');
+  assert(numberedToMarked('ma5') === 'ma', 'ma5');
+  return 'nǐ hǎo, nǚ, ma';
+});
+
+check('parser merges traditional forms of one word', () => {
+  const li = parseCedict(FIXTURE).entries.find(e => e.hanzi === '里');
+  assert(li && li.traditional === '裡/裏', 'got ' + (li && li.traditional));
+  return li.traditional;
+});
+
+check('parser output is searchable without tones', () => {
+  const zg = parseCedict(FIXTURE).entries.find(e => e.hanzi === '中国');
+  assert(zg && zg.pinyinPlain === plainPinyin('Zhōng guó') && zg.pinyinPlain === zg.pinyinPlain.toLowerCase(), 'plain form');
+  return zg.pinyinPlain;
+});
+
+check('import never overwrites and needs --confirm', () => {
+  const imp = read('scripts/import-cedict.mjs');
+  assert(/ON CONFLICT \(hanzi, pinyin\) DO NOTHING/.test(imp), 'not conflict-safe');
+  assert(/--confirm/.test(imp) && /FALSE\)/.test(imp), 'no confirm gate or reviewed default');
+  assert(/TYPE TEXT/.test(dict), 'meaning not widened for long senses');
+  return 'DO NOTHING, dry run by default, meaning TEXT';
+});
+
+check('page credits CC-CEDICT and its licence', () => {
+  const page = read('dictionary.html');
+  assert(/mdbg\.net\/chinese\/dictionary\?page=cc-cedict/.test(page), 'no source link');
+  assert(/creativecommons\.org\/licenses\/by-sa\/4\.0/.test(page), 'no licence link');
+  assert(/not been checked against the YCT/.test(page), 'no YCT disclaimer');
+  return 'attribution + licence + disclaimer';
 });
 
 console.log(`\n${passed}/${passed + failed} checks passed\n`);

@@ -108,6 +108,14 @@
         <p class="hint">Saved to your account, so they follow you to any device.</p>
         <div class="dict-grid" id="dictSaved" aria-live="polite"></div>
       </section>
+
+      <p class="hint dict-attribution" id="dictAttribution">
+        Most entries come from <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict" target="_blank" rel="noopener">CC-CEDICT</a>
+        (MDBG), licensed under
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.
+        We merged entries that share a word and reading, and wrote pinyin with tone marks.
+        These entries are community-edited and have not been checked against the YCT syllabus, so treat them as a guide, not an official reference.
+      </p>
     </div>
   </section>
 </main>
@@ -161,6 +169,7 @@
       : '';
     return '<article class="dict-card">' +
       '<div class="hz" lang="zh-Hans">' + esc(entry.hanzi) + '</div>' +
+      (entry.traditional ? '<div class="py">Traditional: <span lang="zh-Hant">' + esc(entry.traditional) + '</span></div>' : '') +
       '<div class="py">' + esc(entry.pinyin) + '</div>' +
       '<div class="mn">' + esc(entry.meaning) + '</div>' +
       example +
@@ -186,7 +195,7 @@
       return;
     }
     resultsEl.innerHTML = results.map(card).join('');
-    setStatus(results.length + ' of ' + payload.total + ' entries');
+    setStatus(results.length + ' of ' + (payload.total >= 1000 ? '1000+' : payload.total) + ' entries');
   }
 
   function renderSaved(entries) {
