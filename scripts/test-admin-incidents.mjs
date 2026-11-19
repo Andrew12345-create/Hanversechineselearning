@@ -15,8 +15,8 @@ const createRoute = createStart >= 0 && patchStart > createStart ? server.slice(
 const patchRoute = patchStart >= 0 && end > patchStart ? server.slice(patchStart, end) : '';
 
 test('incident read route is admin-authenticated', /router\.get\('\/admin\/incidents', verifyAdminToken, async \(req, res\)/.test(server));
-test('incident create route is admin-authenticated', /router\.post\('\/admin\/incidents', verifyAdminToken, async \(req, res\)/.test(server));
-test('incident update route is admin-authenticated', /router\.patch\('\/admin\/incidents\/:id', verifyAdminToken, async \(req, res\)/.test(server));
+test('incident create route is admin-authenticated', /router\.post\('\/admin\/incidents', verifyAdminToken, (?:adminWriteLimiter, )?async \(req, res\)/.test(server));
+test('incident update route is admin-authenticated', /router\.patch\('\/admin\/incidents\/:id', verifyAdminToken, (?:adminWriteLimiter, )?async \(req, res\)/.test(server));
 test('incident reads require system.read and writes system.manage', /if \(path === '\/admin\/incidents'\) return method === 'GET' \? 'system\.read' : 'system\.manage';/.test(server) && /if \(\/\^\\\/admin\\\/incidents\\\/\\d\+\$\/\.test\(path\)\) return 'system\.manage';/.test(server));
 test('incident writes require a password step-up', /feature-flags\|incidents\)\//.test(server));
 test('incident severity is validated', /INCIDENT_SEVERITIES = \['sev1', 'sev2', 'sev3', 'sev4'\]/.test(server) && /Severity must be sev1, sev2, sev3 or sev4/.test(createRoute));

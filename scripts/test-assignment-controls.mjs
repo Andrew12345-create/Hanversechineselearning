@@ -11,7 +11,7 @@ test('learner completion is self-scoped by authenticated user', /router\.post\('
 test('parent assignment writes still check family ownership', /router\.post\('\/parents\/:parentId\/assignments'[\s\S]{0,900}getOwnChild\(res, auth/.test(server));
 test('parent controls use owned-child relationship verification', /router\.put\('\/parents\/children\/:childUserId\/controls'[\s\S]{0,650}getOwnChild\(res, auth/.test(server));
 test('controls only accept real booleans', /typeof allowed !== 'boolean' \|\| typeof sharing !== 'boolean'/.test(server));
-test('classroom privacy control synchronizes existing roster privacy flag', /UPDATE users SET share_leaderboard = \$1 WHERE user_id = \$2/.test(server));
+test('classroom privacy control synchronizes existing roster privacy flag', /UPDATE users SET share_leaderboard = \$1[\s\S]{0,160}WHERE user_id = \$2/.test(server));
 test('classroom join enforces parent classroom permission server-side', /classroom\/join[\s\S]{0,850}classroom_allowed === false/.test(features));
 test('parent hub visibly exposes Controls & Privacy', /data-tab="controls"/.test(parents) && /Controls & Privacy/.test(parents));
 test('controls render child data with escaping', /escapeHtml\(child\.full_name\)/.test(parents));

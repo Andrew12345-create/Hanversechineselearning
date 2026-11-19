@@ -18,7 +18,7 @@ const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => mat
 const redirects = read('netlify.toml');
 
 test('sitemap has a valid urlset root', /^<\?xml[^>]+>\s*<urlset\b/.test(sitemap));
-test('sitemap lists only the intended public Explore page', locations.length === 1 && locations[0] === `${site}/explore.html`);
+test('sitemap lists only the intended public pages', locations.length === 2 && locations.includes(`${site}/explore.html`) && locations.includes(`${site}/dictionary.html`));
 test('sitemap excludes the redirecting learning-app root', !locations.includes(`${site}/`));
 test('sitemap excludes private or personalised pages', noindex.every(page => !locations.includes(`${site}/${page}`)));
 test('sitemap excludes generic lesson shell', !locations.includes(`${site}/lesson.html`));

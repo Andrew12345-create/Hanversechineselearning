@@ -13,7 +13,7 @@ const readRoute = readStart >= 0 && writeStart > readStart ? server.slice(readSt
 const writeRoute = writeStart >= 0 && end > writeStart ? server.slice(writeStart, end) : '';
 
 test('feature flag read route is admin-authenticated', /router\.get\('\/admin\/feature-flags', verifyAdminToken, async \(req, res\)/.test(server));
-test('feature flag write route is admin-authenticated', /router\.patch\('\/admin\/feature-flags\/:key', verifyAdminToken, async \(req, res\)/.test(server));
+test('feature flag write route is admin-authenticated', /router\.patch\('\/admin\/feature-flags\/:key', verifyAdminToken, (?:adminWriteLimiter, )?async \(req, res\)/.test(server));
 test('feature flag reads require system.read', /if \(path === '\/admin\/feature-flags'\) return method === 'GET' \? 'system\.read' : 'system\.manage';/.test(server));
 test('feature flag writes require system.manage', /if \(\/\^\\\/admin\\\/feature-flags\\\/\[\^\/\]\+\$\/\.test\(path\)\) return 'system\.manage';/.test(server));
 test('feature flag writes require a password step-up', /feature-flags\|incidents\)\//.test(server) && /requiresAdminReauthentication/.test(server));
