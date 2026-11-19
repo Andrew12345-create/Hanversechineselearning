@@ -189,7 +189,7 @@
   var moreEl = document.getElementById('dictMore');
   var moreBtn = document.getElementById('dictMoreBtn');
 
-  var state = { q: '', level: '', saved: new Set(), signedIn: false, offset: 0, total: 0, seq: 0, byId: {}, writer: null, entry: null };
+  var state = { q: '', level: '', saved: new Set(), signedIn: false, offset: 0, total: 0, seq: 0, byId: {}, writer: null, entry: null, audio: null, audioUrls: [] };
 
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
@@ -400,22 +400,34 @@
       state.audio.pause();
       state.audio = null;
     }
+    (state.audioUrls || []).forEach(function (url) { URL.revokeObjectURL(url); });
+    state.audioUrls = [];
   }
 
+  /* Netlify serves function responses chunked with no length, which Chrome
+     refuses to decode as media, so each clip is fetched as a blob first. */
   function playClips(clips) {
     stopAudio();
     if (!clips || !clips.length) return;
     var index = 0;
     function next() {
       if (index >= clips.length) return;
-      var audio = new Audio(clips[index]);
+      var url = clips[index];
       index += 1;
-      state.audio = audio;
-      audio.addEventListener('ended', next);
-      audio.addEventListener('error', next);
-      audio.play().catch(function (err) {
-        if (err && err.name === 'NotSupportedError') next();
-      });
+      fetch(url)
+        .then(function (res) {
+          if (!res.ok) throw new Error('audio ' + res.status);
+          return res.blob();
+        })
+        .then(function (blob) {
+          var objectUrl = URL.createObjectURL(blob);
+          state.audioUrls.push(objectUrl);
+          var audio = new Audio(objectUrl);
+          state.audio = audio;
+          audio.addEventListener('ended', next);
+          audio.play().catch(next);
+        })
+        .catch(next);
     }
     next();
   }
