@@ -16,6 +16,8 @@
   <meta name="twitter:title" content="HanVerse Premium">
   <meta name="twitter:description" content="Upgrade to HanVerse Premium: unlimited lessons, advanced practice games and the full Mandarin adventure.">
   <meta name="twitter:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="hanverse.css?v=1">
@@ -650,11 +652,12 @@ body{
 
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <div id="app-nav"></div>
 
 <div class="payment-shell">
 
-<div class="payment-container">
+<div class="payment-container" id="main">
 
 <!-- LEFT SIDE -->
 
@@ -718,7 +721,7 @@ Everything stays connected to your HanVerse account.
 
 <div class="plan-title">Membership options</div>
 
-<div class="plans">
+<div class="plans" aria-live="polite">
 
 <div class="plan" id="plan-free" data-plan="free" onclick="selectPlan('free')">
   <div class="plan-name">Free</div>

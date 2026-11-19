@@ -16,6 +16,8 @@
   <meta name="twitter:title" content="Notifications | HanVerse">
   <meta name="twitter:description" content="Your HanVerse notifications: lesson updates, achievements and announcements.">
   <meta name="twitter:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="hanverse.css?v=1">
 <script src="js/auth-fetch.js?v=1"></script>
@@ -176,7 +178,7 @@
             <h1 class="header-title">Notifications</h1>
             <button class="mark-all-btn" onclick="markAllRead()">Mark all read</button>
         </header>
-        <main class="main-content" id="notificationsList">
+        <main class="main-content" id="notificationsList" aria-live="polite">
             <div class="notification-card unread">
                 <div class="notification-icon" style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);">🔥</div>
                 <div class="notification-content">

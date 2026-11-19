@@ -58,6 +58,7 @@ h1{font-size:28px;font-weight:900;margin-bottom:6px;}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <noscript>
   <div style="max-width:640px;margin:40px auto;padding:28px;font-family:Inter,sans-serif;text-align:center;">
     <h1 style="font-size:1.6rem;">Find Your Level with HanPan 🐼</h1>
@@ -67,8 +68,8 @@ h1{font-size:28px;font-weight:900;margin-bottom:6px;}
   </div>
 </noscript>
 <div id="app-nav"></div>
-<div class="container">
-<div class="card" id="card"></div>
+<div class="container" id="main">
+<div class="card" id="card" aria-live="polite"></div>
 </div>
 <script>
 const QUESTIONS = [
@@ -187,7 +188,7 @@ async function submitAndShowResult() {
   }
   const note = document.getElementById("lockedNote");
   if (note) {
-    if (saveState === "saved") note.innerHTML = `🔒 Your level is saved to your account. Want to jump levels? The <strong>End-of-Year Exam</strong> is coming soon!`;
+    if (saveState === "saved") note.innerHTML = `🔒 Your level is saved to your account. You can retake this quiz at any time to change it.`;
     else if (saveState === "local") note.textContent = "🔒 Your level is saved on this device — we'll sync it to your account next time you're online.";
     else note.textContent = "🔒 Sign in and retake the quiz so your level is saved and your roadmap follows it.";
   }
