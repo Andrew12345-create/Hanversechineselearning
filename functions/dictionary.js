@@ -349,9 +349,36 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
       const upstream = await fetch(`${AUDIO_BASE}/${dir}/${file}`);
       if (!upstream.ok) return fail(res, 404, 'No recording for that word');
       const buffer = Buffer.from(await upstream.arrayBuffer());
+      const total = buffer.length;
       res.set('Content-Type', 'audio/mpeg');
+      res.set('Accept-Ranges', 'bytes');
       res.set('Cache-Control', 'public, max-age=604800, immutable');
-      res.send(buffer);
+
+      /* Browsers refuse to decode a media response that arrives chunked with
+         no length and no range support, so serve byte ranges explicitly. */
+      const match = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers.range || ''));
+      if (match && (match[1] || match[2])) {
+        let start = match[1] === '' ? null : Number(match[1]);
+        let end = match[2] === '' ? null : Number(match[2]);
+        if (start === null) {
+          start = Math.max(total - end, 0);
+          end = total - 1;
+        } else if (end === null || end >= total) {
+          end = total - 1;
+        }
+        if (start > end || start >= total) {
+          res.status(416).set('Content-Range', `bytes */${total}`);
+          return res.end();
+        }
+        const chunk = buffer.subarray(start, end + 1);
+        res.status(206);
+        res.set('Content-Range', `bytes ${start}-${end}/${total}`);
+        res.set('Content-Length', String(chunk.length));
+        return res.end(chunk);
+      }
+
+      res.set('Content-Length', String(total));
+      res.end(buffer);
     } catch (error) {
       console.error('dictionary audio clip:', error.message);
       if (!res.headersSent) fail(res, 502, 'Could not load audio');

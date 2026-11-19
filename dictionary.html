@@ -412,7 +412,10 @@
       index += 1;
       state.audio = audio;
       audio.addEventListener('ended', next);
-      audio.play().catch(function () { /* autoplay blocked; the button still works */ });
+      audio.addEventListener('error', next);
+      audio.play().catch(function (err) {
+        if (err && err.name === 'NotSupportedError') next();
+      });
     }
     next();
   }
