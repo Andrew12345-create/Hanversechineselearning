@@ -90,6 +90,11 @@
   --radius-xl:      var(--r-xl);
   --radius-full:    var(--pill);
 
+  /* Motion. --ease-out is the standard curve for interface feedback;
+     --ease-spring keeps a little life for playful, non-essential motion. */
+  --ease-out:    cubic-bezier(.22,1,.36,1);
+  --ease-spring: cubic-bezier(.34,1.56,.64,1);
+
   /* Animation offsets used by the landing-page keyframes.
      Default to 0 so the transform is valid before JS sets them. */
   --dx: 0px;
@@ -117,6 +122,23 @@ img { display: block; }
 :where(input, select, textarea) { min-width: 0; }
 .cn { font-family: var(--font-cn); }
 .nunito { font-family: var(--font-head); }
+
+/* ─── TYPOGRAPHIC POLISH ───
+   Small, site-wide refinements that make dense pages read as a product
+   rather than a prototype: balanced headings, aligned numerals, a visible
+   selection colour and anchor offsets that clear sticky headers. */
+::selection { background: var(--blue-100); color: var(--navy); }
+:where(h1, h2, h3) { text-wrap: balance; }
+:where(p, li) { text-wrap: pretty; }
+:where([class*="stat"], [class*="count"], [class*="score"], [class*="xp"], .num) {
+  font-variant-numeric: tabular-nums;
+}
+:where([id]) { scroll-margin-top: 96px; }
+@media print {
+  :where(nav, .tabbar, .sheet, .nav-cta, .btn-primary, .btn-coral, .btn-ghost) { display: none !important; }
+  body { background: #fff; color: #000; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 11px; color: #444; }
+}
 
 /* ─── KEYFRAMES (shared) ─── */
 @keyframes shimmer {
@@ -160,7 +182,7 @@ img { display: block; }
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border-radius: var(--r-md); font-weight: 800; cursor: pointer;
   position: relative; overflow: hidden;
-  transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s, background .2s, border-color .2s;
+  transition: transform .22s var(--ease-out), box-shadow .22s, background .2s, border-color .2s;
 }
 .btn-primary, .btn-coral {
   min-height: 50px; padding: 0 24px; border: 0; color: #fff; font-size: 14px;
@@ -236,7 +258,7 @@ img { display: block; }
 }
 .brand img {
   width: 38px; height: 38px; object-fit: contain; border-radius: 11px;
-  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  transition: transform .3s var(--ease-spring);
 }
 .brand:hover img { transform: rotate(-8deg) scale(1.15); }
 
@@ -336,7 +358,6 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
   --tabbar-h: 62px;
   --tabbar-space: 92px;
   --touch: 48px;
-  --ease-out: cubic-bezier(.22, 1, .36, 1);
   --z-nav: 1000;
   --z-menu: 999;
   --z-tabbar: 990;

@@ -2424,11 +2424,6 @@
             }).join('');
         }
 
-        function populateChildSelects() {
-            /* Child selects lived in the removed assignment/message modals;
-               nothing to populate until those features are DB-backed. */
-        }
-
         // ==========================================
         // CHILD ACTIONS
         // ==========================================
@@ -2831,7 +2826,6 @@
         // INITIALIZATION
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🐼 Advanced Parent Dashboard loading...');
 
             const parentUser = getParentUser();
             if (!parentUser || !parentUser.user_id) {

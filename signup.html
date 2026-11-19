@@ -43,7 +43,7 @@ a{color:inherit}button,input{font:inherit}.hidden{display:none!important}
         const API_BASE = '/api';
         const SESSION_KEY = 'hanverse_user';
         const VERSION = '2.0.0';
-        const DEBUG = true; // Set to false in production
+        const DEBUG = false;
 
         let selectedRole = 'parent';
 
@@ -766,7 +766,7 @@ function getReferralFromUrl() {
 const referralCode = getReferralFromUrl();
 if (referralCode) {
     sessionStorage.setItem('hanverse_referral', referralCode);
-    console.log('📌 Referral detected:', referralCode);
+    log('📌 Referral detected:', referralCode);
 }
 
 // ============================================================
@@ -893,7 +893,7 @@ async function signupUser() {
         const referral = sessionStorage.getItem('hanverse_referral');
         if (referral) {
             requestData.referral = referral;
-            console.log('📌 Adding referral to signup:', referral);
+            log('📌 Adding referral to signup:', referral);
         }
 
         log('📤 Sending signup request:', { ...requestData, password: '***' });

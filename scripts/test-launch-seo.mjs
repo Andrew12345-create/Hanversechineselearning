@@ -17,8 +17,30 @@ const sitemap = read('sitemap.xml');
 const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
 const redirects = read('netlify.toml');
 
+// The sitemap contract is derived from the pages themselves rather than a
+// hand-maintained count: a URL may be listed only if the page exists, is not
+// noindex, and is not blocked in robots.txt. Every other page must be absent.
+const robots = read('robots.txt');
+const blocked = new Set(
+  [...robots.matchAll(/^Disallow:\s*\/(\S*)/gim)]
+    .map(match => match[1].trim())
+    .filter(Boolean)
+    .map(entry => (entry.endsWith('.html') ? entry : `${entry.replace(/\/$/, '')}.html`))
+);
+const pages = fs.readdirSync(root).filter(file => file.endsWith('.html'));
+const isNoindex = page => /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(read(page));
+const listed = new Set(locations.map(url => new URL(url).pathname.replace(/^\//, '') || 'index.html'));
+// The learning-app host 302s its root to the marketing site, so index.html is
+// public but must never be advertised from this sitemap.
+const REDIRECT_ROOT = 'index.html';
+
 test('sitemap has a valid urlset root', /^<\?xml[^>]+>\s*<urlset\b/.test(sitemap));
-test('sitemap lists only the intended public pages', locations.length === 2 && locations.includes(`${site}/explore.html`) && locations.includes(`${site}/dictionary.html`));
+test('every sitemap URL is a real page', [...listed].every(page => pages.includes(page)));
+test('sitemap lists no noindex page', [...listed].every(page => !isNoindex(page)));
+test('sitemap lists no robots.txt-blocked page', [...listed].every(page => !blocked.has(page)));
+test('sitemap lists every public page', pages
+  .filter(page => !isNoindex(page) && !blocked.has(page) && page !== REDIRECT_ROOT)
+  .every(page => listed.has(page)));
 test('sitemap excludes the redirecting learning-app root', !locations.includes(`${site}/`));
 test('sitemap excludes private or personalised pages', noindex.every(page => !locations.includes(`${site}/${page}`)));
 test('sitemap excludes generic lesson shell', !locations.includes(`${site}/lesson.html`));

@@ -21,10 +21,13 @@ const PORT = Number(process.env.PORT || 3000);
 const app = express();
 
 // The learning subdomain deliberately sends its root and index URL to the
-// separate marketing site. Keep local development aligned with that behavior.
-app.get(['/', '/index.html'], (_req, res) => {
-  res.redirect(302, 'https://hanverse.netlify.app/');
-});
+// separate marketing site. Keep local development aligned with that behavior,
+// unless LOCAL_ROOT=1 is set so the marketing page can be previewed locally.
+if (process.env.LOCAL_ROOT !== '1') {
+  app.get(['/', '/index.html'], (_req, res) => {
+    res.redirect(302, 'https://hanverse.netlify.app/');
+  });
+}
 
 // Static files first (only existing files match)
 app.use(express.static(__dirname, { extensions: ['html'] }));
