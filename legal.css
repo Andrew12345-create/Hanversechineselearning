@@ -1,0 +1,86 @@
+/* legal.css — shared layout for the policy pages (terms, privacy, refunds, cookies).
+   Extends hanverse.css tokens; does not redefine them. */
+
+.legal-hero { padding: clamp(40px, 6vw, 72px) 0 clamp(20px, 3vw, 32px); }
+.legal-hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(30px, 4.4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -.035em;
+  color: var(--navy);
+  margin-top: 10px;
+}
+.legal-hero .updated { margin-top: 12px; font-size: 13px; color: var(--soft); }
+
+.legal-draft {
+  margin: 0 0 28px;
+  padding: 14px 18px;
+  border: 1px solid var(--amber);
+  border-left-width: 4px;
+  border-radius: var(--r-sm);
+  background: var(--amber-50);
+  color: #7A4A00;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.legal-draft strong { color: #5C3700; }
+
+.legal-body { padding-bottom: clamp(48px, 7vw, 88px); }
+.legal-body .container { max-width: 860px; }
+.legal-body section { margin-bottom: 34px; }
+.legal-body h2 {
+  font-family: var(--font-head);
+  font-size: clamp(19px, 2.2vw, 24px);
+  color: var(--navy);
+  margin-bottom: 10px;
+  letter-spacing: -.02em;
+}
+.legal-body h3 {
+  font-family: var(--font-head);
+  font-size: 16px;
+  color: var(--ink);
+  margin: 18px 0 6px;
+}
+.legal-body p,
+.legal-body li {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.legal-body p + p { margin-top: 10px; }
+.legal-body ul,
+.legal-body ol { margin: 10px 0 0 20px; display: grid; gap: 7px; }
+.legal-body a { color: var(--blue); text-decoration: underline; }
+.legal-body a:hover { color: var(--blue-dark); }
+
+.legal-placeholder {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: var(--coral-50);
+  border: 1px dashed var(--coral);
+  color: #8A3B00;
+  font-size: .92em;
+  font-weight: 700;
+}
+
+.legal-toc {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 18px 22px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-xs);
+}
+.legal-toc h2 { font-size: 15px; margin-bottom: 10px; }
+.legal-toc ol { margin-left: 18px; }
+.legal-toc a { text-decoration: none; }
+.legal-toc a:hover { text-decoration: underline; }
+
+.legal-contact {
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  border-radius: var(--r-md);
+  padding: 20px 22px;
+}
+.legal-contact p { color: var(--ink); }

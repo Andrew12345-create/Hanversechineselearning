@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HanVerse — Learn Mandarin, Explore More</title>
+<meta name="description" content="HanVerse is a Mandarin learning platform for young learners and their families: YCT-aligned lessons, practice games, and parent-controlled progress.">
+<link rel="canonical" href="https://learn-hanverse.netlify.app/">
+<meta property="og:title" content="HanVerse — Learn Mandarin, Explore More">
+<meta property="og:description" content="YCT-aligned Mandarin lessons, practice games, and parent-controlled progress for young learners.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hanverse.css?v=1">
+<style>
+  .hero { padding: clamp(48px, 8vw, 96px) 0 clamp(32px, 5vw, 64px); }
+  .hero-grid { display: grid; gap: clamp(28px, 5vw, 56px); grid-template-columns: 1fr; align-items: center; }
+  @media (min-width: 900px) { .hero-grid { grid-template-columns: 1.1fr .9fr; } }
+  .hero h1 { font-family: var(--font-head); font-size: clamp(34px, 6vw, 64px); line-height: 1.02; letter-spacing: -.04em; color: var(--navy); margin: 14px 0 18px; }
+  .hero h1 .cn { display: block; font-size: .52em; letter-spacing: 0; color: var(--blue); margin-top: 10px; }
+  .hero p.lede { font-size: clamp(16px, 1.6vw, 19px); line-height: 1.65; color: var(--muted); max-width: 54ch; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .hero-note { margin-top: 16px; font-size: 13px; color: var(--soft); }
+  .hero-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: clamp(20px, 3vw, 32px); }
+  .hero-card h2 { font-family: var(--font-head); font-size: 18px; color: var(--navy); margin-bottom: 14px; }
+  .hero-card ul { list-style: none; display: grid; gap: 12px; }
+  .hero-card li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: var(--muted); }
+  .hero-card li span.tick { color: var(--green); font-weight: 800; flex-shrink: 0; }
+  .pillars { padding: clamp(32px, 5vw, 64px) 0 clamp(48px, 7vw, 88px); }
+  .pillar-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .pillar { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px; box-shadow: var(--shadow-xs); }
+  .pillar h3 { font-family: var(--font-head); font-size: 17px; color: var(--navy); margin-bottom: 8px; }
+  .pillar p { font-size: 14px; line-height: 1.6; color: var(--muted); }
+  .pillar a { display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 700; color: var(--blue); }
+  .pillar a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="app-nav"></div>
+
+<main id="main">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="kicker">Mandarin for young learners</span>
+        <h1>Learn Mandarin.<span class="cn" lang="zh-Hans">学习中文，探索更多</span></h1>
+        <p class="lede">Structured YCT-aligned lessons, practice games and a parent hub that keeps progress, screen time and classroom access under a guardian's control.</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="signup.html">Start free</a>
+          <a class="btn-ghost" href="learn.html">See the lessons</a>
+        </div>
+        <p class="hero-note">Free tier available. Paid plans from $4/month. 7-day trial, no card required, never auto-renews.</p>
+      </div>
+      <aside class="hero-card" aria-label="What HanVerse includes">
+        <h2>Built for families</h2>
+        <ul>
+          <li><span class="tick" aria-hidden="true">✓</span><span>Parent-first accounts for learners under 13</span></li>
+          <li><span class="tick" aria-hidden="true">✓</span><span>Classroom participation a guardian can switch off</span></li>
+          <li><span class="tick" aria-hidden="true">✓</span><span>No child-to-child messaging, ever</span></li>
+          <li><span class="tick" aria-hidden="true">✓</span><span>Progress, streaks and assignments in one parent view</span></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="pillars" aria-labelledby="pillars-head">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Where to start</span>
+        <h2 id="pillars-head">Four ways into the language</h2>
+      </div>
+      <div class="pillar-grid">
+        <article class="pillar">
+          <h3>Learn</h3>
+          <p>Level-by-level lessons with characters, pinyin and tone practice, plus a daily warm-up.</p>
+          <a href="learn.html">Open lessons</a>
+        </article>
+        <article class="pillar">
+          <h3>Practice</h3>
+          <p>Flashcards, listening, speaking and quiz games that reinforce what a lesson introduced.</p>
+          <a href="practice.html">Play a game</a>
+        </article>
+        <article class="pillar">
+          <h3>Roadmap</h3>
+          <p>See the whole YCT path, what is unlocked now and what comes next.</p>
+          <a href="roadmap.html">View the roadmap</a>
+        </article>
+        <article class="pillar">
+          <h3>Parents</h3>
+          <p>Link a child, set daily goals, review progress and manage classroom access.</p>
+          <a href="parents.html">Open the parent hub</a>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="app-footer"></div>
+<script src="shared-nav.js"></script>
+<script src="hanverse.js"></script>
+<script src="nav-user.js"></script>
+</body>
+</html>
