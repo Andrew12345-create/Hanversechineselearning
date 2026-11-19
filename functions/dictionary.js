@@ -471,6 +471,30 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
     }
   });
 
+  /* Enrol every saved word into the spaced-repetition deck. The review table
+     belongs to the feature pack, so this fails closed with a clear message
+     instead of creating a second copy of that schema here. */
+  router.post('/dictionary/saves/review', requireAuth, async (req, res) => {
+    try {
+      await ensureDictionarySchema();
+      const table = await pool.query(`SELECT to_regclass('public.review_queue') AS name`);
+      if (!table.rows[0].name) return fail(res, 503, 'Review is not available yet');
+      const result = await pool.query(
+        `INSERT INTO review_queue (user_id, word, pinyin, meaning, interval_days, ease, due_at, lapses)
+         SELECT $1, e.hanzi, e.pinyin, LEFT(e.meaning, 200), 1, 2.3, NOW(), 0
+         FROM dictionary_saves s
+         JOIN dictionary_entries e ON e.entry_id = s.entry_id
+         WHERE s.user_id = $1
+         ON CONFLICT (user_id, word) DO NOTHING`,
+        [req.userId]
+      );
+      ok(res, { enrolled: result.rowCount || 0 });
+    } catch (error) {
+      console.error('dictionary review enrol:', error.message);
+      if (!res.headersSent) fail(res, 500, 'Could not add those words to review');
+    }
+  });
+
   router.post('/dictionary/saves/:id', requireAuth, async (req, res) => {
     try {
       await ensureDictionarySchema();

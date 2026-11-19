@@ -130,9 +130,11 @@ check('level filter is validated', () => {
 });
 
 check('saves require a verified session', () => {
-  const saves = dict.match(/router\.(get|post|delete)\('\/dictionary\/saves[^']*', requireAuth/g) || [];
-  assert(saves.length === 3, `only ${saves.length} of 3 save routes are authenticated`);
-  return '3 authenticated routes';
+  const all = dict.match(/router\.(get|post|delete)\('\/dictionary\/saves[^']*'/g) || [];
+  const guarded = dict.match(/router\.(get|post|delete)\('\/dictionary\/saves[^']*', requireAuth/g) || [];
+  assert(all.length >= 3, `expected at least 3 save routes, found ${all.length}`);
+  assert(guarded.length === all.length, `${all.length - guarded.length} save routes are unauthenticated`);
+  return `${all.length} authenticated routes`;
 });
 
 check('admin authoring requires the admin verifier', () => {
@@ -291,6 +293,26 @@ check('detail view autoplays strokes and audio', () => {
   assert(/id="dictAudio"/.test(page), 'no audio button');
   assert(/stopAudio\(\)/.test(page), 'audio not stopped on close');
   return 'strokes + audio on open, stopped on close';
+});
+
+check('saved words can be enrolled into review', () => {
+  assert(/router\.post\('\/dictionary\/saves\/review'/.test(dict), 'no review enrol route');
+  assert(/to_regclass\('public\.review_queue'\)/.test(dict), 'review table not probed');
+  assert(/ON CONFLICT \(user_id, word\) DO NOTHING/.test(dict), 'enrol not idempotent');
+  assert(/WHERE s\.user_id = \$1/.test(dict), 'enrol not scoped to the signed-in user');
+  const page = read('dictionary.html');
+  assert(/id="dictReviewBtn"/.test(page) && /enrollSaved/.test(page), 'no review button');
+  assert((page.match(/function renderSaved\(/g) || []).length === 1, 'duplicate renderSaved');
+  return 'scoped, idempotent, one renderSaved';
+});
+
+check('level tagging only uses taught vocabulary', () => {
+  const script = read('scripts/tag-levels.mjs');
+  assert(/FROM lesson_vocabulary lv/.test(script), 'not sourced from lessons');
+  assert(/MIN\(l\.level\)/.test(script), 'not taking the lowest level');
+  assert(/--confirm/.test(script), 'no confirm gate');
+  assert(/dry run: nothing written/.test(script), 'dry run not the default');
+  return 'lessons only, lowest level, dry run default';
 });
 
 check('page credits CC-CEDICT and its licence', () => {

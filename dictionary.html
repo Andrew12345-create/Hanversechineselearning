@@ -92,6 +92,8 @@
   .dict-saved { margin-top: 40px; }
   .dict-saved h2 { font-family: var(--font-head); font-size: 20px; color: var(--navy); margin-bottom: 4px; }
   .dict-saved p.hint { font-size: 13px; color: var(--soft); margin-bottom: 14px; }
+  .dict-saved-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .dict-saved-actions .hint { margin: 0; }
 </style>
 </head>
 <body>
@@ -132,6 +134,10 @@
       <section class="dict-saved" id="dictSavedSection" hidden>
         <h2>Your saved words</h2>
         <p class="hint">Saved to your account, so they follow you to any device.</p>
+        <div class="dict-saved-actions">
+          <button class="btn-ghost" type="button" id="dictReviewBtn">Add saved words to review</button>
+          <span class="hint" id="dictReviewStatus" role="status" aria-live="polite"></span>
+        </div>
         <div class="dict-grid" id="dictSaved" aria-live="polite"></div>
       </section>
 
@@ -183,6 +189,8 @@
   var resultsEl = document.getElementById('dictResults');
   var savedSection = document.getElementById('dictSavedSection');
   var savedEl = document.getElementById('dictSaved');
+  var reviewBtn = document.getElementById('dictReviewBtn');
+  var reviewStatus = document.getElementById('dictReviewStatus');
   var form = document.getElementById('dictForm');
   var input = document.getElementById('dictQuery');
   var chips = Array.prototype.slice.call(document.querySelectorAll('.dict-chip'));
@@ -267,6 +275,23 @@
     savedEl.innerHTML = entries.map(card).join('');
   }
 
+  function enrollSaved() {
+    reviewBtn.disabled = true;
+    reviewStatus.textContent = 'Adding to review...';
+    API.api('/dictionary/saves/review', { method: 'POST' })
+      .then(function (data) {
+        if (!data || data.success === false) throw new Error((data && data.error) || 'Could not add to review');
+        var n = data.enrolled || 0;
+        reviewStatus.textContent = n
+          ? n + (n === 1 ? ' word added to review.' : ' words added to review.')
+          : 'Those words are already in your review deck.';
+      })
+      .catch(function (error) {
+        reviewStatus.textContent = error.message || 'Could not add to review.';
+      })
+      .then(function () { reviewBtn.disabled = false; });
+  }
+
   function search(append) {
     if (!append) {
       state.offset = 0;
@@ -307,15 +332,6 @@
         });
       })
       .catch(function () { /* level chips stay hidden; search still works */ });
-  }
-
-  function renderSaved(entries) {
-    if (!entries.length) {
-      savedSection.hidden = true;
-      return;
-    }
-    savedSection.hidden = false;
-    savedEl.innerHTML = entries.map(card).join('');
   }
 
   function loadSaved() {
@@ -548,6 +564,8 @@
     search(true);
     moreBtn.disabled = false;
   });
+
+  reviewBtn.addEventListener('click', enrollSaved);
 
   state.signedIn = !!sessionUser();
   loadSaved();
