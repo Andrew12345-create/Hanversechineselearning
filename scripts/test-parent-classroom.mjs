@@ -54,8 +54,8 @@ for (const frag of ['btnPrint', 'window.print()', 'Trace the characters', 'Match
   check(`worksheets has ${frag}`, worksheets.includes(frag));
 }
 check('worksheets escapes all words (XSS)', worksheets.includes("replace(/[&<>\"']/g"));
-check('worksheets loads Family Learning Pack through an authenticated server endpoint', worksheets.includes("'/family-learning-pack/me'"));
-check('worksheets never bypasses Premium family controls with starter words', !worksheets.includes('FALLBACK'));
+check('worksheets loads vocabulary from the authed family pack API', worksheets.includes('family-learning-pack/me'));
+check('worksheets no longer falls back to hardcoded starter words', !worksheets.includes('FALLBACK'));
 check('worksheets has print CSS', worksheets.includes('@media print'));
 check('worksheets is noindex', worksheets.includes('noindex'));
 check('robots disallows worksheets', readFileSync('robots.txt', 'utf8').includes('Disallow: /worksheets.html'));

@@ -1137,6 +1137,7 @@ function adminPermissionForRequest(req) {
     return 'content.edit';
   }
   if (path === '/admin/health') return 'system.read';
+  if (path === '/admin/security/overview') return 'audit.read';
   if (path === '/admin/audit') return 'audit.read';
   if (path === '/admin/panda-chat') return 'ai.manage';
   return null;
@@ -9903,6 +9904,41 @@ router.delete('/admin/lessons/:lessonId/media/:mediaId', verifyAdminToken, admin
 /* =========================================================
    ADMIN AUDIT LOG
 ========================================================= */
+
+router.get('/admin/security/overview', verifyAdminToken, async (req, res) => {
+  if (!ensurePool(res)) return;
+  const observedAt = new Date().toISOString();
+  try {
+    await ensureAdminTables();
+    const [sessions, attempts, events] = await Promise.all([
+      pool.query(`SELECT COUNT(*) AS active_sessions FROM admin_elevated_sessions WHERE revoked_at IS NULL AND expires_at > NOW()`),
+      pool.query(`SELECT COUNT(*) FILTER (WHERE locked_until > NOW()) AS active_lockouts,
+        COUNT(*) FILTER (WHERE window_started_at >= NOW() - INTERVAL '24 hours') AS tracked_accounts_24h,
+        COALESCE(SUM(attempts) FILTER (WHERE window_started_at >= NOW() - INTERVAL '24 hours'), 0) AS attempts_24h
+        FROM admin_auth_attempts`),
+      pool.query(`SELECT event_id, actor_label, action, outcome, detail, created_at FROM admin_audit
+        WHERE category = 'security' OR outcome IN ('failure', 'denied')
+        ORDER BY created_at DESC, id DESC LIMIT 20`)
+    ]);
+    const s = sessions.rows[0] || {}, a = attempts.rows[0] || {};
+    return res.json({ success: true, observed_at: observedAt,
+      source: 'admin_elevated_sessions, admin_auth_attempts, admin_audit',
+      metrics: {
+        active_elevated_sessions: Number(s.active_sessions || 0),
+        active_lockouts: Number(a.active_lockouts || 0),
+        tracked_accounts_24h: Number(a.tracked_accounts_24h || 0),
+        authentication_attempts_24h: Number(a.attempts_24h || 0)
+      },
+      events: events.rows.map(row => ({ event_id: row.event_id, actor: row.actor_label || 'Administrator',
+        action: row.action, outcome: row.outcome, detail: String(row.detail || '').slice(0, 300), created_at: row.created_at }))
+    });
+  } catch (error) {
+    console.error('Admin CyberShield overview failed:', error);
+    return res.status(error.code === 'ADMIN_MIGRATION_REQUIRED' ? 503 : 500).json({
+      success: false, error: error.code === 'ADMIN_MIGRATION_REQUIRED' ? error.message : 'Security telemetry is temporarily unavailable.'
+    });
+  }
+});
 
 router.get('/admin/health', verifyAdminToken, async (req, res) => {
   if (!ensurePool(res)) return;

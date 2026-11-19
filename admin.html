@@ -618,34 +618,6 @@
 
     /* ---------- DASHBOARD ---------- */
 
-    /* ---------- COMMAND CENTRE OPERATIONS STRIP ---------- */
-    .ops-centre { margin: 0 0 16px; }
-    .ops-centre-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
-    .ops-centre-head h3 { color:var(--navy); font-size:13px; font-weight:900; }
-    .ops-centre-head p { color:var(--muted); font-size:10px; margin-top:2px; }
-    .ops-centre-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
-    .ops-service { min-width:0; display:flex; align-items:center; gap:10px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--white); box-shadow:var(--shadow); }
-    .ops-service-icon { width:34px; height:34px; flex:0 0 34px; display:grid; place-items:center; border-radius:11px; background:var(--blue-soft); font-size:15px; }
-    .ops-service-copy { min-width:0; }
-    .ops-service-copy strong { display:block; color:var(--navy); font-size:11px; }
-    .ops-service-copy span { display:block; margin-top:2px; color:var(--muted); font-size:10px; overflow-wrap:anywhere; }
-    .ops-state { display:inline-flex !important; align-items:center; gap:5px; font-weight:800; }
-    .ops-state::before { content:""; width:7px; height:7px; flex:0 0 7px; border-radius:50%; background:currentColor; }
-    .ops-state.healthy { color:var(--green); } .ops-state.warning { color:var(--yellow); }
-    .ops-state.problem { color:var(--red); } .ops-state.unknown { color:var(--muted); }
-    .ops-alerts { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:8px; margin-top:10px; }
-    .ops-alert { display:flex; align-items:flex-start; gap:9px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--white); }
-    .ops-alert strong { display:block; color:var(--navy); font-size:10px; }
-    .ops-alert span { display:block; margin-top:2px; color:var(--muted); font-size:10px; line-height:1.45; }
-    .ops-alert.critical { border-left:3px solid var(--red); } .ops-alert.warning { border-left:3px solid var(--yellow); } .ops-alert.info { border-left:3px solid var(--blue); }
-    .ops-empty { padding:12px; border:1px dashed var(--line); border-radius:12px; color:var(--muted); font-size:10px; background:var(--white); }
-    .top-command { display:inline-flex; align-items:center; gap:8px; }
-    .top-command kbd { padding:2px 5px; border:1px solid var(--line); border-radius:5px; background:var(--bg); color:var(--muted); font-size:9px; }
-    html[data-theme="dark"] .ops-service, html[data-theme="dark"] .ops-alert, html[data-theme="dark"] .ops-empty { background:#10233D; border-color:var(--line); }
-    html[data-theme="dark"] .ops-service-icon { background:#1B3A5C; }
-    @media (max-width: 900px) { .ops-centre-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media (max-width: 520px) { .ops-centre-grid { grid-template-columns:1fr 1fr; gap:7px; } .ops-service { padding:9px; gap:7px; } .ops-service-icon { width:29px; height:29px; flex-basis:29px; } .ops-centre-head { align-items:flex-start; flex-direction:column; } }
-
     .metrics {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -1646,6 +1618,7 @@
         max-width: none;
       }
     }
+
     /* ---------- DESIGN SYSTEM ALIGNMENT ----------
        Matches hanverse.css type scale, radii and elevation so the
        console reads as part of the same product as the learner site. */
@@ -1736,6 +1709,178 @@
       .section-header h2 { font-size: 23px; }
       .metric-value { font-size: 26px; }
       .analytics-card strong { font-size: 22px; }
+    }
+
+    /* ---------- HANVERSE SITE-WIDE VISUAL ALIGNMENT ---------- */
+    :root {
+      --blue: #2563EB;
+      --blue-dark: #1D4ED8;
+      --blue-deep: #1D4ED8;
+      --blue-soft: #EAF3FF;
+      --navy: #183B66;
+      --ink: #244568;
+      --muted: #6683A3;
+      --line: #DCEBFA;
+      --bg: #F4F9FF;
+      --white: #FFFFFF;
+      --radius: 20px;
+      --shadow: 0 8px 26px rgba(37, 99, 235, .07);
+      --shadow-lg: 0 22px 60px rgba(37, 99, 235, .13);
+    }
+
+    body {
+      font-family: 'Nunito', 'Poppins', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 4% 0%, rgba(78,168,222,.14), transparent 25rem),
+        radial-gradient(circle at 96% 8%, rgba(116,198,157,.10), transparent 22rem),
+        #F4F9FF;
+      color: #244568;
+      letter-spacing: .005em;
+    }
+
+    h1, h2, h3, h4, .brand strong, .metric-value {
+      font-family: 'Nunito', 'Poppins', system-ui, sans-serif;
+      letter-spacing: -.025em;
+    }
+
+    .sidebar {
+      background: rgba(255,255,255,.97);
+      border-right-color: #DFECF9;
+      box-shadow: 8px 0 30px rgba(37,99,235,.035);
+    }
+    .brand { padding-bottom: 25px; }
+    .brand img { border-radius: 14px; }
+    .brand strong { color: #183B66; font-size: 18px; }
+    .brand span { color: #2563EB; }
+
+    .nav-label { color: #8AA4C0; }
+    .nav-button {
+      min-height: 41px;
+      border-radius: 13px;
+      color: #6683A3;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .nav-button:hover {
+      background: #F0F6FF;
+      color: #1D4ED8;
+      transform: translateX(2px);
+    }
+    .nav-button.active {
+      background: linear-gradient(100deg, #E5F0FF, #F0F7FF);
+      color: #1D4ED8;
+      box-shadow: inset 3px 0 0 #2563EB;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,.90);
+      border-bottom-color: #DFECF9;
+      box-shadow: 0 5px 24px rgba(37,99,235,.035);
+    }
+    .top-title h1 { color: #183B66; font-weight: 900; }
+    .content { padding-top: 30px; }
+
+    .section-header h2 {
+      color: #183B66;
+      font-size: clamp(23px, 2vw, 27px);
+      font-weight: 900;
+    }
+    .section-header p { color: #6683A3; font-size: 12px; }
+
+    .panel, .panda-card, .metric, .admin-card, .auth-card {
+      border-color: #DFECF9;
+      border-radius: 20px;
+      box-shadow: 0 8px 26px rgba(37,99,235,.065);
+    }
+    .panel { background: #FFFFFF; }
+    .panel-header { border-bottom-color: #EAF1F9; }
+    .panel-header h3 { color: #183B66; font-size: 13px; font-weight: 900; }
+    .panel-header p { color: #718BA8; font-size: 10px; }
+
+    .metric {
+      background: linear-gradient(145deg, #FFFFFF, #F8FBFF);
+      border: 1px solid #DFECF9;
+      border-radius: 18px;
+    }
+    .metric-value { color: #1D4ED8; }
+    .btn {
+      border-color: #D8E6F5;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563EB, #4388F5);
+      border-color: #2563EB;
+      box-shadow: 0 5px 14px rgba(37,99,235,.18);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #1D4ED8, #3478E8);
+      box-shadow: 0 7px 18px rgba(37,99,235,.22);
+    }
+    .btn-soft {
+      background: #EAF3FF;
+      border-color: #D5E7FF;
+      color: #1D4ED8;
+    }
+    .input, .select, .textarea {
+      border-color: #D8E6F5;
+      border-radius: 12px;
+      color: #244568;
+      background: #FFFFFF;
+    }
+    .input:focus, .select:focus, .textarea:focus {
+      border-color: #78A9F8;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.11);
+    }
+    th {
+      background: #F3F8FF;
+      color: #587796;
+      border-bottom-color: #DFECF9;
+    }
+    td { border-bottom-color: #EDF3FA; }
+    tbody tr:nth-child(even) { background: #FBFDFF; }
+    tbody tr:hover { background: #F1F7FF; }
+    .empty {
+      background: #F8FBFF;
+      border-color: #D6E6F7;
+      color: #6683A3;
+    }
+    .auth-card {
+      background: rgba(255,255,255,.97);
+      border-radius: 26px;
+    }
+    .auth-logo h1 { color: #183B66; }
+
+    html[data-theme="dark"] body {
+      background:
+        radial-gradient(circle at 4% 0%, rgba(37,99,235,.18), transparent 25rem),
+        #0B1B33;
+      color: #E8F1FA;
+    }
+    html[data-theme="dark"] .sidebar,
+    html[data-theme="dark"] .topbar {
+      background: rgba(12,31,55,.96);
+      border-color: #1E3A5F;
+    }
+    html[data-theme="dark"] .nav-button:hover { background: #14304F; color: #BFDBFE; }
+    html[data-theme="dark"] .nav-button.active { background: #173B68; color: #BFDBFE; }
+    html[data-theme="dark"] .panel,
+    html[data-theme="dark"] .panda-card,
+    html[data-theme="dark"] .metric,
+    html[data-theme="dark"] .admin-card,
+    html[data-theme="dark"] .auth-card { background: #10233D; border-color: #1E3A5F; }
+    html[data-theme="dark"] .metric-value { color: #93C5FD; }
+    html[data-theme="dark"] th { background: #0E2138; color: #A9C2DD; }
+    html[data-theme="dark"] td { color: #D6E5F4; }
+    html[data-theme="dark"] tbody tr:nth-child(even) { background: #0E2138; }
+    html[data-theme="dark"] tbody tr:hover { background: #14304F; }
+    html[data-theme="dark"] .input,
+    html[data-theme="dark"] .select,
+    html[data-theme="dark"] .textarea { background: #0E2138; color: #E8F1FA; border-color: #29496B; }
+
+    @media (max-width: 800px) {
+      .content { padding-top: 22px; }
+      .sidebar { background: #FFFFFF; }
     }
 
   </style>
@@ -1863,6 +2008,10 @@
         Incidents
         <span id="incidentsOpenBadge" class="pending-badge" hidden>0</span>
       </button>
+      <button class="nav-button" data-section="cybershield">
+        <span class="nav-icon">🛡️</span>
+        CyberShield
+      </button>
     </nav>
 
     <div class="nav-label">HanVerse AI</div>
@@ -1902,7 +2051,6 @@
 
       <div class="top-actions">
         <button id="themeToggle" class="btn btn-sm" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
-        <button id="cmdkTopButton" class="btn btn-sm top-command" type="button" title="Search and navigate (Ctrl+K)" aria-label="Search and navigate">⌕ <span class="optional-label">Search</span> <kbd>Ctrl K</kbd></button>
         <button id="refreshButton" class="btn btn-sm">
           ↻ <span class="optional-label">Refresh</span>
         </button>
@@ -1940,17 +2088,6 @@
             </div>
           </div>
         </div>
-
-        <section class="ops-centre" aria-labelledby="opsCentreTitle">
-          <div class="ops-centre-head"><div><h3 id="opsCentreTitle">Live operations</h3><p>Service status and action signals from the Admin health endpoint. Unknown means telemetry is not configured.</p></div><span id="opsObservedAt" class="muted" aria-live="polite">Waiting for health check…</span></div>
-          <div class="ops-centre-grid" id="opsServiceGrid">
-            <article class="ops-service"><span class="ops-service-icon">🗄️</span><div class="ops-service-copy"><strong>Database</strong><span class="ops-state unknown">Checking…</span></div></article>
-            <article class="ops-service"><span class="ops-service-icon">⚡</span><div class="ops-service-copy"><strong>Admin API</strong><span class="ops-state unknown">Checking…</span></div></article>
-            <article class="ops-service"><span class="ops-service-icon">✉️</span><div class="ops-service-copy"><strong>Email</strong><span class="ops-state unknown">Checking…</span></div></article>
-            <article class="ops-service"><span class="ops-service-icon">💾</span><div class="ops-service-copy"><strong>Backup telemetry</strong><span class="ops-state unknown">Checking…</span></div></article>
-          </div>
-          <div id="opsAlerts" class="ops-alerts" aria-live="polite"><div class="ops-empty">Operational signals will appear after the first successful health check.</div></div>
-        </section>
 
         <div class="metrics">
 
@@ -2682,6 +2819,25 @@
 
       </section>
 
+      <!-- ================= CYBERSHIELD ================= -->
+      <section id="cybershieldSection" class="section">
+        <div class="section-header">
+          <div><h2>CyberShield</h2><p>Read-only security signals from administrator sessions, authentication controls and the audit trail.</p></div>
+          <button id="cyberShieldRefresh" class="btn btn-soft btn-sm" type="button">↻ Refresh</button>
+        </div>
+        <div class="metrics">
+          <div class="metric"><span class="metric-label">Active elevated sessions</span><strong id="cyberActiveSessions" class="metric-value">—</strong><span class="metric-note">Unrevoked, unexpired admin sessions</span></div>
+          <div class="metric"><span class="metric-label">Active lockouts</span><strong id="cyberLockouts" class="metric-value">—</strong><span class="metric-note">Authentication scopes currently locked</span></div>
+          <div class="metric"><span class="metric-label">Authentication attempts · 24h</span><strong id="cyberAttempts24h" class="metric-value">—</strong><span class="metric-note">Recorded attempts across tracked scopes</span></div>
+          <div class="metric"><span class="metric-label">Tracked accounts · 24h</span><strong id="cyberTracked24h" class="metric-value">—</strong><span class="metric-note">Hashed account/IP scopes; no identifiers exposed</span></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div><h3>Security events</h3><p id="cyberObservedAt" class="muted">Waiting for telemetry…</p></div></div>
+          <div class="panel-body" id="cyberEvents"><div class="empty">Security events will appear here when available.</div></div>
+        </div>
+        <p class="muted" style="margin-top:12px;">Stored security telemetry only; no IP geolocation, device fingerprinting, intrusion detection or live threat scanning is performed.</p>
+      </section>
+
       <!-- ================= AUDIT LOG ================= -->
       <section id="auditSection" class="section">
         <div class="section-header">
@@ -3261,20 +3417,6 @@
     $("sidebarAdminName").textContent = name;
   }
 
-  async function loadAdminWorkspace() {
-    const results = await Promise.allSettled([
-      loadUsers(),
-      loadLessons(),
-      loadAnalytics(),
-      loadCampaigns(),
-      loadHealth()
-    ]);
-    const failedPanels = results.filter((result) => result.status === "rejected").length;
-    if (failedPanels) {
-      notify(`Admin is signed in, but ${failedPanels} dashboard panel(s) could not start. Refresh to try again.`, "error");
-    }
-  }
-
   /* ================= AUTH ================= */
 
   async function login(email, password) {
@@ -3310,7 +3452,14 @@
     state.admin = data.user || sessionUser;
 
     showApp();
-    await loadAdminWorkspace();
+
+    await Promise.all([
+      loadUsers(),
+      loadLessons(),
+      loadAnalytics(),
+      loadCampaigns(),
+      loadHealth()
+    ]);
   }
 
   $("authForm").addEventListener("submit", async (event) => {
@@ -3326,7 +3475,6 @@
     } catch (error) {
       $("authError").textContent = error.message;
     } finally {
-      $("adminPassword").value = "";
       button.disabled = false;
     }
   });
@@ -3352,7 +3500,8 @@
     parents: ["Parent Verification", "Review and approve parent accounts"],
     audit: ["Audit Log", "Every admin action, newest first"],
     flags: ["Feature flags", "Platform-wide rollout switches"],
-    incidents: ["Incident centre", "Open, monitor and resolve platform incidents"]
+    incidents: ["Incident centre", "Open, monitor and resolve platform incidents"],
+    cybershield: ["CyberShield", "Administrator access and security signals"]
   };
 
   function switchSection(section) {
@@ -3385,6 +3534,7 @@
     if (section === "audit") loadAuditLog();
     if (section === "flags") loadFeatureFlags();
     if (section === "incidents") loadIncidents();
+    if (section === "cybershield") loadCyberShield();
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -5585,6 +5735,30 @@ ${body}
       `;
   }
 
+  async function loadCyberShield() {
+    const refresh = $("cyberShieldRefresh"), events = $("cyberEvents");
+    if (refresh) refresh.disabled = true;
+    events.innerHTML = '<div class="loading">Loading security telemetry…</div>';
+    try {
+      const data = await api("/admin/security/overview");
+      if (!data.success) throw new Error(data.error || "Security telemetry unavailable.");
+      const metrics = data.metrics || {};
+      $("cyberActiveSessions").textContent = String(metrics.active_elevated_sessions ?? "—");
+      $("cyberLockouts").textContent = String(metrics.active_lockouts ?? "—");
+      $("cyberAttempts24h").textContent = String(metrics.authentication_attempts_24h ?? "—");
+      $("cyberTracked24h").textContent = String(metrics.tracked_accounts_24h ?? "—");
+      $("cyberObservedAt").textContent = data.observed_at ? "Observed " + new Date(data.observed_at).toLocaleString("en-KE") : "Observation time unavailable";
+      const rows = Array.isArray(data.events) ? data.events : [];
+      events.innerHTML = rows.length ? `<div class="table-wrap"><table><thead><tr><th>When</th><th>Administrator</th><th>Event</th><th>Outcome</th><th>Details</th></tr></thead><tbody>
+        ${rows.map(row => `<tr><td>${escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString("en-KE") : "—")}</td><td>${escapeHTML(row.actor || "Administrator")}</td><td>${escapeHTML(row.action || "Security event")}</td><td><span class="pill ${row.outcome === "success" ? "green" : "red"}">${escapeHTML(row.outcome || "unknown")}</span></td><td>${escapeHTML(row.detail || "—")}</td></tr>`).join("")}
+        </tbody></table></div>` : '<div class="empty">No matching security events are recorded.</div>';
+    } catch (error) {
+      events.innerHTML = '<div class="empty">Could not load CyberShield: ' + escapeHTML(error.message) + '</div>';
+      for (const id of ["cyberActiveSessions", "cyberLockouts", "cyberAttempts24h", "cyberTracked24h"]) $(id).textContent = "—";
+    } finally { if (refresh) refresh.disabled = false; }
+  }
+  $("cyberShieldRefresh").addEventListener("click", loadCyberShield);
+
   async function loadAuditLog() {
     const box = $("auditTable");
     box.innerHTML = Array.from({ length: 4 }, () =>
@@ -5653,47 +5827,12 @@ ${body}
 
   /* ================= SYSTEM HEALTH ================= */
 
-  function renderOpsCentre(data) {
-    const services = data?.services || {};
-    const observed = data?.observed_at || null;
-    const statusMeta = (service) => {
-      const status = String(service?.status || "unknown").toLowerCase();
-      if (status === "healthy") return { label: "Healthy", tone: "healthy" };
-      if (status === "degraded" || status === "unavailable" || status === "error") return { label: status[0].toUpperCase() + status.slice(1), tone: status === "degraded" ? "warning" : "problem" };
-      if (status === "available") return { label: "Available · not a health probe", tone: "unknown" };
-      return { label: "Unknown · telemetry unavailable", tone: "unknown" };
-    };
-    const cards = [
-      { icon: "🗄️", label: "Database", service: services.database, detail: services.database?.latency_ms == null ? "PostgreSQL connectivity" : `${services.database.latency_ms} ms response` },
-      { icon: "⚡", label: "Admin API", service: services.api, detail: services.api?.response_time_ms == null ? "Health endpoint" : `${services.api.response_time_ms} ms response` },
-      { icon: "✉️", label: "Email provider", service: services.email, detail: services.email?.checked_at ? `Checked ${new Date(services.email.checked_at).toLocaleTimeString("en-KE")}` : "Provider probe timestamp unavailable" },
-      { icon: "💾", label: "Backup telemetry", service: services.backup, detail: services.backup?.last_success_at ? `Last success ${new Date(services.backup.last_success_at).toLocaleString("en-KE")}` : "No backup telemetry configured" }
-    ];
-    $("opsServiceGrid").innerHTML = cards.map(card => {
-      const meta = statusMeta(card.service);
-      const title = [card.service?.source, card.service?.detail].filter(Boolean).join(" · ");
-      return `<article class="ops-service" title="${escapeHTML(title)}"><span class="ops-service-icon">${card.icon}</span><div class="ops-service-copy"><strong>${card.label}</strong><span class="ops-state ${meta.tone}">${escapeHTML(meta.label)}</span><span>${escapeHTML(card.detail)}</span></div></article>`;
-    }).join("");
-    $("opsObservedAt").textContent = observed ? `Checked ${new Date(observed).toLocaleString("en-KE")}` : "Observation timestamp unavailable";
-    const alerts = [];
-    const db = statusMeta(services.database), api = statusMeta(services.api), email = statusMeta(services.email);
-    if (db.tone === "problem") alerts.push({ tone: "critical", icon: "🚨", title: "Database requires attention", detail: "The database health check did not report a healthy connection." });
-    if (api.tone === "problem") alerts.push({ tone: "critical", icon: "🚨", title: "Admin API requires attention", detail: "The Admin health endpoint reported an unavailable or failing API." });
-    if (email.tone === "problem" || email.tone === "warning") alerts.push({ tone: "warning", icon: "✉️", title: "Email provider status needs review", detail: email.label });
-    if (Number(data?.pending_parents) > 0) alerts.push({ tone: "warning", icon: "👪", title: `${Number(data.pending_parents)} parent verification request(s)`, detail: "Review the parent queue when appropriate." });
-    if (services.backup?.status === "unavailable") alerts.push({ tone: "info", icon: "💾", title: "Backup monitoring is not connected", detail: "No verified backup telemetry is configured. This does not prove that backups are missing." });
-    if (services.stripe?.configured && services.stripe?.webhook_health === "unknown") alerts.push({ tone: "info", icon: "💳", title: "Payment webhook telemetry unavailable", detail: "Stripe is configured, but webhook health is not currently measured by this endpoint." });
-    if (!alerts.length) alerts.push({ tone: "info", icon: "✓", title: "No active operational alerts", detail: "Based on the signals currently returned by the health endpoint." });
-    $("opsAlerts").innerHTML = alerts.map(alert => `<article class="ops-alert ${alert.tone}"><span aria-hidden="true">${alert.icon}</span><div><strong>${escapeHTML(alert.title)}</strong><span>${escapeHTML(alert.detail)}</span></div></article>`).join("");
-  }
-
   async function loadHealth() {
     try {
       const data = await api("/admin/health");
       const services = data.services || {};
       state.briefingHealth = data;
       renderOperationalBriefing();
-      renderOpsCentre(data);
       const setHealth = (id, service, label) => {
         const node = $(id);
         const status = service?.status || "unknown";
@@ -5836,8 +5975,6 @@ ${body}
       }).catch(() => {});
     }
   }
-
-  $("cmdkTopButton").addEventListener("click", cmdkOpen);
 
   function cmdkClose() {
     cmdk.overlay.classList.remove("open");
@@ -6076,7 +6213,13 @@ ${body}
       const session = await api("/admin/session");
       state.admin = { ...getSessionUser(), ...(session.user || {}) };
       showApp();
-      await loadAdminWorkspace();
+      await Promise.all([
+        loadUsers(),
+        loadLessons(),
+        loadAnalytics(),
+        loadCampaigns(),
+        loadHealth()
+      ]);
     } catch (error) {
       if (!document.querySelector("#authScreen.hidden")) return;
       showLogin(error.message || "Sign in to your HanVerse account, then verify your administrator password.");

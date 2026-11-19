@@ -1,0 +1,131 @@
+# HanVerse — Manual Test Checklist
+
+Automated checks can't reach the login server, payments, or the live community
+socket, so please tap through these on a real phone (and one desktop browser).
+Tick items as you go; report anything that looks wrong with the page name.
+
+## 1. First visit / logged out
+- [ ] Open the site on your phone → Home page loads, blue pill nav floats on top.
+- [ ] Tap the ☰ hamburger → mobile menu opens with Home / Learn / Practice / Explore / Roadmap.
+- [ ] Tap a link in it → menu closes and page loads.
+- [ ] Nav links all work (no 404s): Learn, Explore, Practice, Roadmap, Parents.
+
+## 2. Account
+- [ ] Sign up with a fresh email → account created, verification banner appears.
+- [ ] Verify email via the link → "verified" state on login.
+- [ ] Log in → nav shows your avatar chip with your name.
+- [ ] Tap the chip → dropdown with Profile / Log Out works, closes on outside tap or Esc.
+- [ ] Log out → returns to login page, logged-out nav returns.
+- [ ] Forgot / reset password end-to-end.
+- [ ] Invite link: open an invite URL, sign up through it (referral is recorded).
+
+## 3. Learning
+- [ ] Learn page loads your courses while logged in (stats + course cards, not the error box).
+- [ ] Open a lesson → heading clears the nav on desktop AND mobile.
+- [ ] Complete a lesson step → XP pop, mascot reacts, next step loads.
+- [ ] Finish a lesson → celebration shows, XP recorded on profile.
+- [ ] Practice page → score bar shows Score / Streak / Lives / Combo, games start and score.
+- [ ] Talk to Panda → sends a message, replies arrive, mic button prompts if denied.
+- [ ] Roadmap → milestones render, level selector works.
+
+## 4. Community (live features)
+- [ ] In a lesson, open the community drawer → connects ("Learning community live").
+- [ ] Other learners appear (test with two devices if possible).
+
+## 5. Profile & settings
+- [ ] Profile: XP, level progress, badges, heatmap, recent words all render.
+- [ ] Theme toggle ☾ → dark mode applies everywhere **including the nav bar**; reload keeps it.
+- [ ] Settings: change nickname/avatar → reflected in nav chip.
+- [ ] Ask Panda box on profile sends a question and shows a reply.
+
+## 6. Parents
+- [ ] Parent dashboard loads a child's stats while logged in as a parent.
+
+## 7. Payments (use test mode)
+- [ ] Upgrade flow on payment.html → checkout opens, success returns you logged-in.
+- [ ] Premium badge/state reflects on profile.
+
+## 8. Install / offline (PWA — after deploying to Netlify)
+- [ ] On Android Chrome: banner or menu "Add to Home screen" → installs with the HanVerse icon.
+- [ ] Open installed app → standalone (no browser bar).
+- [ ] Load a page once, turn on airplane mode, reopen → HanPan offline page or cached view, no raw browser error.
+- [ ] Back online → everything works again.
+
+## 9. Admin
+- [ ] admin.html unlocks with the admin password.
+- [ ] Dashboard metrics populate; Users / Lessons / Broadcasts sections open.
+- [ ] Send a test broadcast → arrives on a learner account.
+- [ ] Generated broadcast email preview shows the blue HanVerse header.
+
+## 10. Share preview
+- [ ] Paste a page URL into WhatsApp / Telegram → HanVerse title, description and logo appear.
+
+---
+
+Notes for the reviewer:
+- Nothing here requires tools — just a phone, a desktop, and the deployed site.
+- Flows marked "live" (community, broadcasts) need two devices or a friend to test fully.
+- If a section shows the HanPan error box where data should be, note the page and
+  what you clicked — that usually means the server function returned an error.
+
+## Trial spotlight + Word of the Day + Panda buddy — QA
+
+1. **Trial proof:** run `node scripts/trial-selftest.mjs` — 7/7: trial starts
+   (exactly 7 days), re-start blocked, scheduled sweep expires it, no re-trial.
+2. **index.html hero:** ribbon "7-DAY FREE TRIAL" is the first element; primary
+   button says "Start 7-Day Free Trial"; "No credit card required" line under
+   CTAs. Signed-in users additionally see a trial-spot chip (days left / start /
+   see plans).
+3. **Word of the Day card** under the hero: same word for all users each day,
+   🔊 Hear it (TTS) + 📤 Share (native share / clipboard).
+4. **learn.html banner:** shows "Free trial active — N days left" with a green
+   edge while the trial runs (previously it vanished after starting).
+5. **Panda buddy (practice.html):** 🐼 bottom-left reacts to every answer
+   (cheers, 🔥 streak every 5-in-a-row, encouragement on misses) across all
+   games via the sound-event hook.
+
+## Visibility + Speak Aloud — QA after deploying this batch
+
+1. **Old sessions must re-login once.** If feature cards were missing, you'll now
+   *see* "🔑 Sign in to join this week's league" on the leaderboard card instead
+   of nothing. After logging in, the league card shows your cohort.
+2. **League card always visible:** signed-out CTA → loaded league → empty state →
+   explicit error with ↻ Retry. On practice.html AND roadmap.html.
+3. **Speak Aloud (new, replaces the old redirect):** Practice → 🗣️ card →
+   hear the model → tap mic → say the word in Mandarin → scored 0-100%.
+   Needs Chrome/Edge + mic permission; other browsers get a clear notice +
+   Panda-chat fallback. XP feeds this week's league. Failing (<50%) costs a ❤️.
+4. **Session expiry mid-use:** any 401 clears the stale session, the nav chip
+   disappears, and cards show the sign-in CTA next time they render.
+
+## Security hardening (P0) — QA after deploying this batch
+
+1. **Re-login required once.** Feature endpoints now demand a real session.
+   Anyone who was signed in before this deploy must log out and back in
+   (quests/streak/review/leaderboard cards stay hidden until then).
+2. **Leaderboard cheating is closed.** Post a game score from the app — it works;
+   posting someone else's userId via curl now returns 401.
+3. **Trial actually ends.** Start the 7-day trial, then (or on the admin panel)
+   confirm `GET /api/trial/status` reports expired after `trial_ends_at`.
+4. **Rate limits.** Hammer login with a wrong password ~30 times — you should see
+   "Too many attempts" (per serverless instance).
+5. Local check: `node scripts/smoke-features.mjs` (29/29) and
+   `node scripts/authz-test.mjs` (11/11) must pass.
+
+## P1 retention pack — QA checklist
+
+1. **Hearts** (practice page): floating ❤️ pill bottom-right shows 5 hearts.
+   Answer wrong in tones/builder/review/quiz → one heart empties. At 0 hearts a
+   modal offers gem refill (100) or mistake practice (+1). Clearing the review
+   deck grants +1 ❤️. Premium accounts show ❤️ ∞.
+2. **Leagues** (practice + roadmap leaderboard cards): now shows your Bamboo →
+   Diamond league cohort (top 5 = green promote zone), not the global board.
+   Rotation runs hourly via `functions/league-rotate.js` (top 5 promote,
+   bottom 5 demote each Monday).
+3. **Achievements** (profile): server-earned badges (First Steps, Sharp Ear,
+   Week Warrior, Treasure Hunter, Word Collector, Level Placed…) append to the
+   existing milestone grid with 🏅.
+4. **Daily goal** (settings): new 🎯 card — pick 20/50/100/200 XP/day; feeds
+   the daily quest card on Learn.
+5. New tables created automatically: `user_hearts`, `leagues` (+ unique index
+   on `achievements(user_id, achievement_type)`).

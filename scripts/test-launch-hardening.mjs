@@ -92,11 +92,14 @@ check('footer legal links are relative', () => {
   return 'all four relative';
 });
 
-check('legal pages are marked as drafts', () => {
+check('legal pages carry real contact details and no placeholders', () => {
   for (const page of ['terms.html', 'privacy.html', 'refund-policy.html', 'cookie-policy.html']) {
-    assert(/legal-draft/.test(read(page)), `${page} has no draft banner`);
+    const html = read(page);
+    assert(/<title>[^<]+<\/title>/.test(html), `${page} has no title`);
+    assert(/mailto:/.test(html), `${page} has no contact route`);
+    assert(!/REGISTERED ENTITY NAME|BUSINESS ADDRESS|CONTACT EMAIL|JURISDICTION/.test(html), `${page} still has unfilled placeholders`);
   }
-  return '4 draft banners';
+  return '4 pages with real contact details';
 });
 
 console.log('\nPromises');
