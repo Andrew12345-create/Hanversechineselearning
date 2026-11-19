@@ -72,15 +72,20 @@
 # ================================
 # Marketing site lives on hanverse.netlify.app
 # ================================
+# This file deploys to BOTH projects, so the redirect must be scoped to the
+# learning host. Without the Host condition, hanverse.netlify.app redirects
+# to itself and the browser reports ERR_TOO_MANY_REDIRECTS.
 
 [[redirects]]
   from = "/"
   to = "https://hanverse.netlify.app/"
   status = 301
   force = true
+  conditions = {Host = ["learn-hanverse.netlify.app"]}
 
 [[redirects]]
   from = "/index.html"
   to = "https://hanverse.netlify.app/"
   status = 301
   force = true
+  conditions = {Host = ["learn-hanverse.netlify.app"]}
