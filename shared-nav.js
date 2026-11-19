@@ -105,6 +105,7 @@
             '<a href="privacy.html">Privacy</a>' +
             '<a href="refund-policy.html">Refunds</a>' +
             '<a href="cookie-policy.html">Cookies</a>' +
+            '<a href="compliance.html">Child Safety</a>' +
           '</div>' +
         '</div>' +
       '</footer>';

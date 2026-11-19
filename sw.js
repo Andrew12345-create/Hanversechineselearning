@@ -22,7 +22,7 @@ const PRECACHE_URLS = [
   '/adventures.html', '/adventures.js?v=1',
   '/vocabulary.html', '/class.html', '/worksheets.html', '/dictionary.html',
   '/index.html', '/terms.html', '/privacy.html',
-  '/refund-policy.html', '/cookie-policy.html',
+  '/refund-policy.html', '/cookie-policy.html', '/compliance.html',
   '/hanverse.css?v=1', '/legal.css?v=1', '/hanverse.js?v=1', '/nav-user.js?v=1',
   '/bottom-nav.js?v=1', '/shared-nav.js?v=1', '/features-client.js?v=1',
   '/notifications-client.js?v=1', '/notifications.js?v=1',

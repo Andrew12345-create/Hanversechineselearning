@@ -73,7 +73,7 @@ check('no unauthenticated write route is left unlimited', () => {
 
 console.log('\nMissing pages');
 
-for (const page of ['index.html', 'terms.html', 'privacy.html', 'refund-policy.html', 'cookie-policy.html']) {
+for (const page of ['index.html', 'terms.html', 'privacy.html', 'refund-policy.html', 'cookie-policy.html', 'compliance.html']) {
   check(`${page} exists`, () => {
     assert(existsSync(join(root, page)), `${page} missing`);
     const html = read(page);
@@ -89,11 +89,12 @@ check('footer legal links are relative', () => {
   assert(/href="privacy\.html"/.test(nav), 'relative privacy link missing');
   assert(/href="refund-policy\.html"/.test(nav), 'relative refund link missing');
   assert(/href="cookie-policy\.html"/.test(nav), 'relative cookie link missing');
-  return 'all four relative';
+  assert(/href="compliance\.html"/.test(nav), 'relative compliance link missing');
+  return 'all five relative';
 });
 
 check('legal pages carry real contact details and no placeholders', () => {
-  for (const page of ['terms.html', 'privacy.html', 'refund-policy.html', 'cookie-policy.html']) {
+  for (const page of ['terms.html', 'privacy.html', 'refund-policy.html', 'cookie-policy.html', 'compliance.html']) {
     const html = read(page);
     assert(/<title>[^<]+<\/title>/.test(html), `${page} has no title`);
     assert(/mailto:/.test(html), `${page} has no contact route`);
