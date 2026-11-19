@@ -11,7 +11,7 @@ const stamp =
   process.env.COMMIT_REF?.slice(0, 7) ||
   process.env.NETLIFY_BUILD_ID ||
   String(Date.now());
-const version = `v2-${stamp}`;
+const version = `v3-${stamp}`;
 
 let sw = fs.readFileSync(swPath, 'utf8');
 if (/const VERSION = 'v\d[^']*';/.test(sw)) {
