@@ -380,6 +380,13 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 }
 .skip-link:focus { top: 12px; }
 
+/* Action controls converted from <a href="#"> to real buttons keep the
+   original link styling without inheriting the UA button chrome. */
+:where(button).btn, :where(button).btn-s, :where(button).btn-p,
+:where(button).btn-secondary, :where(button).fam-link, :where(button).p-back {
+  border: 0; font: inherit; color: inherit; cursor: pointer; text-align: inherit;
+}
+
 /* ─── FLOATING BOTTOM TAB BAR (primary destinations, every viewport) ─── */
 .tabbar {
   position: fixed; z-index: var(--z-tabbar);

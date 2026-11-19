@@ -22,6 +22,6 @@ if (run.status !== 0) {
   process.exit(1);
 }
 
-const summary = output.split('\n').filter(Boolean).pop() || 'clean';
+const summary = output.split('\n').filter(Boolean).find(line => /pages,/.test(line)) || 'clean';
 console.log(`  ok  public site audit — ${summary}`);
 console.log('\n1/1 checks passed');

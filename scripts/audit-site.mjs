@@ -22,7 +22,11 @@ for (const file of cssFiles) {
 }
 
 const findings = [];
-const add = (page, kind, detail) => findings.push({ page, kind, detail });
+// Kinds that are known debt rather than release blockers. They are still
+// reported, but they do not fail the gate: inline handlers need the CSP
+// migration, and a few utility pages have no <main> landmark yet.
+const WARN = new Set(['inline-handler', 'no-main-landmark', 'no-skip-link']);
+const add = (page, kind, detail) => findings.push({ page, kind, detail, severity: WARN.has(kind) ? 'warn' : 'error' });
 
 // Tokens referenced by the shared stylesheets must exist in :root, and a
 // token must be defined once so later blocks cannot silently win.
@@ -90,12 +94,28 @@ for (const page of pages) {
     if (!/\balt=/.test(m[0])) add(page, 'img-no-alt', m[0].slice(0, 60));
   }
 
-  // Debug logging left in a shipped page leaks internals to the console.
-  for (const line of html.split(/\r?\n/)) {
-    if (/console\.(log|debug|info)\(/.test(line) && !/DEBUG/.test(line)) {
-      add(page, 'debug-log', line.trim().slice(0, 70));
+  // Production hygiene: leftover debug output, unfinished copy, and markup
+  // that would block a stricter CSP or leak the opener window.
+  for (const block of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)) {
+    for (const line of block[1].split('\n')) {
+      // console.log behind a DEBUG guard is intentional and stays.
+      if (/\bconsole\.(log|debug|info)\s*\(/.test(line) && !/\bDEBUG\b/.test(line)) {
+        add(page, 'console-leftover', line.trim().slice(0, 60));
+      }
     }
   }
+  for (const m of html.matchAll(/\b(TODO|FIXME|XXX|HACK)\b/g)) add(page, 'unfinished-marker', m[1]);
+  if (/lorem ipsum|placeholder text/i.test(html)) add(page, 'placeholder-copy', 'body copy');
+  for (const m of html.matchAll(/<[^>]+\bon(?:click|change|submit|input|load|error)\s*=/gi)) {
+    add(page, 'inline-handler', m[0].slice(0, 50));
+  }
+  for (const m of html.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi)) {
+    if (!/rel=["'][^"']*noopener/.test(m[0])) add(page, 'blank-no-noopener', m[0].slice(0, 60));
+  }
+  for (const m of html.matchAll(/<a\b[^>]*href=["']#["']/gi)) add(page, 'dead-anchor', m[0].slice(0, 50));
+
+  if (!/<main\b/i.test(html)) add(page, 'no-main-landmark', 'body');
+  if (!/class=["'][^"']*skip/i.test(html) && !/href=["']#main/i.test(html)) add(page, 'no-skip-link', 'body');
 
   if (!/<html[^>]*\blang=/.test(html)) add(page, 'no-lang', 'html element');
   if (!/<meta[^>]+name="viewport"/i.test(html)) add(page, 'no-viewport', 'head');
@@ -123,17 +143,19 @@ if (existsSync(join(root, 'sitemap.xml'))) {
     if (!listed.has(page)) add('sitemap.xml', 'sitemap-missing', page);
   }
 }
-
-const byKind = findings.reduce((acc, f) => {  acc[f.kind] = (acc[f.kind] || 0) + 1;
+const byKind = findings.reduce((acc, f) => {
+  acc[f.kind] = (acc[f.kind] || 0) + 1;
   return acc;
 }, {});
+const errors = findings.filter(f => f.severity === 'error');
+const warnings = findings.filter(f => f.severity === 'warn');
 
 if (asJson) {
-  console.log(JSON.stringify({ pages: pages.length, byKind, findings }, null, 2));
+  console.log(JSON.stringify({ pages: pages.length, byKind, errors: errors.length, warnings: warnings.length, findings }, null, 2));
 } else {
-  for (const f of findings) console.log(`${f.page}\t${f.kind}\t${f.detail}`);
-  console.log(`\n${pages.length} pages, ${findings.length} findings`);
+  for (const f of findings) console.log(`${f.severity}\t${f.page}\t${f.kind}\t${f.detail}`);
+  console.log(`\n${pages.length} pages, ${errors.length} errors, ${warnings.length} warnings`);
   for (const [kind, n] of Object.entries(byKind)) console.log(`  ${kind}: ${n}`);
 }
 
-process.exit(findings.length ? 1 : 0);
+process.exit(errors.length ? 1 : 0);
