@@ -39,6 +39,38 @@ export function plainPinyin(value) {
     .trim();
 }
 
+/* Marked pinyin back to the numbered form the audio-cmn files are named with
+   (nǐ -> ni3, nǚ -> nu3, ma -> ma5). */
+const MARKED_TONES = {
+  ā: ['a', 1], á: ['a', 2], ǎ: ['a', 3], à: ['a', 4],
+  ē: ['e', 1], é: ['e', 2], ě: ['e', 3], è: ['e', 4],
+  ī: ['i', 1], í: ['i', 2], ǐ: ['i', 3], ì: ['i', 4],
+  ō: ['o', 1], ó: ['o', 2], ǒ: ['o', 3], ò: ['o', 4],
+  ū: ['u', 1], ú: ['u', 2], ǔ: ['u', 3], ù: ['u', 4],
+  ǖ: ['u', 1], ǘ: ['u', 2], ǚ: ['u', 3], ǜ: ['u', 4],
+  ń: ['n', 2], ň: ['n', 3], ǹ: ['n', 4], ḿ: ['m', 2]
+};
+
+export function markedToNumbered(syllable) {
+  const raw = String(syllable ?? '').normalize('NFC').toLowerCase().trim();
+  if (!raw) return '';
+  let tone = 5;
+  let base = '';
+  for (const ch of raw) {
+    const mapped = MARKED_TONES[ch];
+    if (mapped) {
+      base += mapped[0];
+      tone = mapped[1];
+    } else if (ch === 'ü') {
+      base += 'u';
+    } else if (/[a-z]/.test(ch)) {
+      base += ch;
+    }
+  }
+  if (!base) return '';
+  return `${base}${tone}`;
+}
+
 const STARTER_ENTRIES = [
   { hanzi: '你好', pinyin: 'nǐ hǎo', meaning: 'hello', pos: 'phrase' },
   { hanzi: '谢谢', pinyin: 'xiè xie', meaning: 'thank you', pos: 'phrase' },
@@ -283,6 +315,74 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
     } catch (error) {
       console.error('dictionary strokes:', error.message);
       if (!res.headersSent) fail(res, 502, 'Could not load stroke data');
+    }
+  });
+
+  /* Word audio comes from audio-cmn, the same CC BY-SA recording set Dong
+     Chinese uses for word pronunciation (Yue Tan / Chen Wang). Clips are
+     proxied so the page keeps one origin and the CDN is never hotlinked. */
+  const AUDIO_BASE = 'https://cdn.jsdelivr.net/gh/hugolpz/audio-cmn@master/64k';
+  const audioExists = new Map();
+
+  async function hasClip(path) {
+    if (audioExists.has(path)) return audioExists.get(path);
+    let found = false;
+    try {
+      const head = await fetch(`${AUDIO_BASE}/${path}`, { method: 'HEAD' });
+      found = head.ok;
+    } catch (error) {
+      found = false;
+    }
+    if (audioExists.size >= 4000) audioExists.clear();
+    audioExists.set(path, found);
+    return found;
+  }
+
+  router.get('/dictionary/audio/clip/:dir/:file', searchLimiter, async (req, res) => {
+    try {
+      const dir = String(req.params.dir || '');
+      const file = String(req.params.file || '');
+      if (!['hsk', 'syllabs'].includes(dir) ||
+          !/^cmn-(?:[a-z]+[1-5]?|[\u4E00-\u9FFF_]{1,8})\.mp3$/.test(file)) {
+        return fail(res, 400, 'Unknown audio clip');
+      }
+      const upstream = await fetch(`${AUDIO_BASE}/${dir}/${file}`);
+      if (!upstream.ok) return fail(res, 404, 'No recording for that word');
+      const buffer = Buffer.from(await upstream.arrayBuffer());
+      res.set('Content-Type', 'audio/mpeg');
+      res.set('Cache-Control', 'public, max-age=604800, immutable');
+      res.send(buffer);
+    } catch (error) {
+      console.error('dictionary audio clip:', error.message);
+      if (!res.headersSent) fail(res, 502, 'Could not load audio');
+    }
+  });
+
+  router.get('/dictionary/audio/:word', searchLimiter, async (req, res) => {
+    try {
+      const word = String(req.params.word || '');
+      if (!/^[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]{1,8}$/.test(word)) {
+        return fail(res, 400, 'Audio is only available for Chinese words');
+      }
+      const clips = [];
+      if (await hasClip(`hsk/cmn-${word}.mp3`)) {
+        clips.push(`/api/dictionary/audio/clip/hsk/cmn-${word}.mp3`);
+      } else {
+        const syllables = String(req.query.pinyin || '').trim().split(/\s+/).filter(Boolean);
+        for (const syllable of syllables.slice(0, 8)) {
+          const numbered = markedToNumbered(syllable);
+          if (!numbered) continue;
+          const name = `cmn-${numbered}.mp3`;
+          if (await hasClip(`syllabs/${name}`)) clips.push(`/api/dictionary/audio/clip/syllabs/${name}`);
+          else if (numbered.endsWith('5') && (await hasClip(`syllabs/cmn-${numbered.slice(0, -1)}1.mp3`))) {
+            clips.push(`/api/dictionary/audio/clip/syllabs/cmn-${numbered.slice(0, -1)}1.mp3`);
+          }
+        }
+      }
+      ok(res, { word, clips, source: 'audio-cmn (CC BY-SA)' });
+    } catch (error) {
+      console.error('dictionary audio:', error.message);
+      if (!res.headersSent) fail(res, 502, 'Could not load audio');
     }
   });
 

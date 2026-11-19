@@ -5,7 +5,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { plainPinyin } from '../functions/dictionary.js';
+import { plainPinyin, markedToNumbered } from '../functions/dictionary.js';
 import { parseCedict, numberedToMarked } from './cedict-lib.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -264,6 +264,33 @@ check('word opens an expanded view with stroke animation', () => {
   assert(/animateCharacter\(\)/.test(page) && /\.quiz\(\)/.test(page), 'no animation or practice');
   assert(/charDataLoader: loadStrokes/.test(page), 'writer does not use the proxy');
   return 'dialog + animate + practise';
+});
+
+check('word audio comes from audio-cmn and is proxied', () => {
+  assert(/audio-cmn/.test(dict), 'no audio-cmn source');
+  assert(/router\.get\('\/dictionary\/audio\/:word'/.test(dict), 'no word audio route');
+  assert(/router\.get\('\/dictionary\/audio\/clip\/:dir\/:file'/.test(dict), 'no clip proxy');
+  assert(/\['hsk', 'syllabs'\]\.includes\(dir\)/.test(dict), 'clip dir not whitelisted');
+  assert(/markedToNumbered/.test(dict), 'no pinyin fallback for syllable clips');
+  return 'hsk word clip, syllable fallback, whitelisted dirs';
+});
+
+check('marked pinyin converts to audio file names', () => {
+  assert(markedToNumbered('nǐ') === 'ni3', 'nǐ');
+  assert(markedToNumbered('hǎo') === 'hao3', 'hǎo');
+  assert(markedToNumbered('nǚ') === 'nu3', 'nǚ');
+  assert(markedToNumbered('ma') === 'ma5', 'ma');
+  assert(markedToNumbered('lüè') === 'lue4', 'lüè');
+  return 'ni3, hao3, nu3, ma5, lue4';
+});
+
+check('detail view autoplays strokes and audio', () => {
+  const page = read('dictionary.html');
+  assert(/animateCharacter\(\);\s*\n\s*playWord\(entry\)/.test(page), 'open does not autoplay both');
+  assert(/delayBetweenStrokes: 300/.test(page), 'stroke animation too slow to feel automatic');
+  assert(/id="dictAudio"/.test(page), 'no audio button');
+  assert(/stopAudio\(\)/.test(page), 'audio not stopped on close');
+  return 'strokes + audio on open, stopped on close';
 });
 
 check('page credits CC-CEDICT and its licence', () => {

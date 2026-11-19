@@ -140,6 +140,9 @@
         (MDBG), licensed under
         <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.
         We merged entries that share a word and reading, and wrote pinyin with tone marks.
+        Pronunciation audio comes from
+        <a href="https://github.com/hugolpz/audio-cmn" target="_blank" rel="noopener">audio-cmn</a>
+        (recordings by Yue Tan and Chen Wang, CC BY-SA).
         These entries are community-edited and have not been checked against the YCT syllabus, so treat them as a guide, not an official reference.
       </p>
     </div>
@@ -156,6 +159,7 @@
     <p class="dict-modal-tr" id="dictModalTraditional" hidden></p>
     <p class="dict-modal-mn" id="dictModalMeaning"></p>
     <div class="dict-modal-actions">
+      <button class="btn-ghost" type="button" id="dictAudio">Hear it</button>
       <button class="btn-ghost" type="button" id="dictAnimate">Play strokes</button>
       <button class="btn-ghost" type="button" id="dictQuiz">Practise</button>
     </div>
@@ -357,6 +361,7 @@
   var writerEl = document.getElementById('dictWriter');
   var animateBtn = document.getElementById('dictAnimate');
   var quizBtn = document.getElementById('dictQuiz');
+  var audioBtn = document.getElementById('dictAudio');
 
   function firstHanzi(text) {
     var match = String(text || '').match(/[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/);
@@ -384,8 +389,50 @@
       radicalColor: '#2563EB',
       highlightColor: '#93C5FD',
       showOutline: true,
+      strokeAnimationSpeed: 1.5,
+      delayBetweenStrokes: 300,
       charDataLoader: loadStrokes
     });
+  }
+
+  function stopAudio() {
+    if (state.audio) {
+      state.audio.pause();
+      state.audio = null;
+    }
+  }
+
+  function playClips(clips) {
+    stopAudio();
+    if (!clips || !clips.length) return;
+    var index = 0;
+    function next() {
+      if (index >= clips.length) return;
+      var audio = new Audio(clips[index]);
+      index += 1;
+      state.audio = audio;
+      audio.addEventListener('ended', next);
+      audio.play().catch(function () { /* autoplay blocked; the button still works */ });
+    }
+    next();
+  }
+
+  function playWord(entry) {
+    if (!entry) return;
+    audioBtn.disabled = true;
+    fetch('/api/dictionary/audio/' + encodeURIComponent(entry.hanzi) +
+          '?pinyin=' + encodeURIComponent(entry.pinyin || ''))
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var clips = (data && data.clips) || [];
+        audioBtn.hidden = !clips.length;
+        audioBtn.disabled = false;
+        if (clips.length) playClips(clips);
+      })
+      .catch(function () {
+        audioBtn.disabled = false;
+        audioBtn.hidden = true;
+      });
   }
 
   function openDetail(entry) {
@@ -407,15 +454,21 @@
     document.body.style.overflow = 'hidden';
     state.writer = drawWriter(char);
     if (state.writer) state.writer.animateCharacter();
+    playWord(entry);
   }
 
   function closeDetail() {
     modal.hidden = true;
     document.body.style.overflow = '';
+    stopAudio();
     state.writer = null;
     state.entry = null;
     writerEl.innerHTML = '';
   }
+
+  audioBtn.addEventListener('click', function () {
+    if (state.entry) playWord(state.entry);
+  });
 
   animateBtn.addEventListener('click', function () {
     if (state.writer) state.writer.animateCharacter();
