@@ -15,6 +15,7 @@ import { underLimit, markUsage } from './ai-helpers.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
 import { registerDictionaryRoutes, ensureDictionarySchema } from './dictionary.js';
+import { registerComplianceRoutes, ensureComplianceSchema } from './compliance.js';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 
@@ -107,6 +108,10 @@ if (databaseUrl) {
       })
       .then(() => {
         console.log('✅ User schema converged (role, current_yct, premium, counters)');
+        return ensureComplianceSchema(pool);
+      })
+      .then(() => {
+        console.log('✅ Compliance schema converged (consent, deletion, retention, MFA)');
       })
       .catch((error) => {
         console.error('❌ Database connection failed:', error.message);
@@ -1321,7 +1326,7 @@ async function requireUser(req, res) {
   }
 
   const r = await pool.query(
-    'SELECT user_id, is_admin, is_banned, role, parent_id FROM users WHERE user_id = $1',
+    'SELECT user_id, is_admin, is_banned, role, parent_id, COALESCE(token_version, 0) AS token_version FROM users WHERE user_id = $1',
     [id]
   );
   const user = r.rows[0];
@@ -1331,6 +1336,13 @@ async function requireUser(req, res) {
   }
   if (user.is_banned) {
     res.status(403).json({ success: false, error: 'Account is banned.' });
+    return null;
+  }
+  /* Tokens issued before logout-all carry no tv claim, which reads as 0.
+     Any bump past that invalidates them. */
+  const tokenVersion = Number(decoded.tv || 0);
+  if (tokenVersion !== Number(user.token_version || 0)) {
+    res.status(401).json({ success: false, error: 'Session revoked — please sign in again.' });
     return null;
   }
 
@@ -10140,6 +10152,7 @@ console.log('✅ Admin routes registered successfully!');
   registerSecureGrading(router, pool, { requireUser });
   registerWorldRoutes(router, pool, { requireUser });
   registerDictionaryRoutes(router, pool, { requireUser, verifyAdminToken });
+  registerComplianceRoutes(router, pool, { requireUser, verifyAdminToken });
 ensureFeatureSchema(pool)
   .then(() => {
     console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
