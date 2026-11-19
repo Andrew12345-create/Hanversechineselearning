@@ -36,6 +36,29 @@
   .dict-status { font-size: 13px; color: var(--soft); margin: 18px 0 12px; min-height: 1.2em; }
 
   .dict-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .dict-more { display: flex; justify-content: center; margin-top: 22px; }
+  .dict-more[hidden] { display: none; }
+
+  .dict-card { cursor: pointer; }
+  .dict-modal { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 18px; }
+  .dict-modal[hidden] { display: none; }
+  .dict-modal-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.55); }
+  .dict-modal-card {
+    position: relative; width: min(420px, 100%); max-height: 88vh; overflow: auto;
+    background: var(--white); border-radius: var(--r-lg); padding: 22px;
+    box-shadow: 0 30px 70px rgba(15,23,42,.3); text-align: center;
+  }
+  .dict-modal-close {
+    position: absolute; top: 10px; right: 10px; width: 36px; height: 36px;
+    border: 0; border-radius: 50%; background: var(--blue-50); color: var(--navy);
+    font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  .dict-writer { width: 200px; height: 200px; margin: 6px auto 10px; }
+  .dict-modal-card h2 { font-family: var(--font-head); font-size: 34px; color: var(--navy); margin: 0 0 4px; }
+  .dict-modal-py { font-size: 15px; font-weight: 700; color: var(--blue-dark); margin: 0 0 2px; }
+  .dict-modal-tr { font-size: 13px; color: var(--soft); margin: 0 0 10px; }
+  .dict-modal-mn { font-size: 14px; color: var(--muted); line-height: 1.6; margin: 0 0 16px; text-align: left; }
+  .dict-modal-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .dict-card {
     background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md);
     padding: 18px 18px 16px; box-shadow: var(--shadow-xs);
@@ -88,12 +111,12 @@
         <button class="btn-primary" type="submit">Search</button>
       </form>
 
-      <div class="dict-filters" role="group" aria-label="Filter by level">
+      <div class="dict-filters" id="dictFilters" role="group" aria-label="Filter by level">
         <button class="dict-chip" type="button" data-level="" aria-pressed="true">All levels</button>
-        <button class="dict-chip" type="button" data-level="1" aria-pressed="false">YCT 1</button>
-        <button class="dict-chip" type="button" data-level="2" aria-pressed="false">YCT 2</button>
-        <button class="dict-chip" type="button" data-level="3" aria-pressed="false">YCT 3</button>
-        <button class="dict-chip" type="button" data-level="4" aria-pressed="false">YCT 4</button>
+        <button class="dict-chip" type="button" data-level="1" aria-pressed="false" hidden>YCT 1</button>
+        <button class="dict-chip" type="button" data-level="2" aria-pressed="false" hidden>YCT 2</button>
+        <button class="dict-chip" type="button" data-level="3" aria-pressed="false" hidden>YCT 3</button>
+        <button class="dict-chip" type="button" data-level="4" aria-pressed="false" hidden>YCT 4</button>
       </div>
     </div>
   </section>
@@ -102,6 +125,9 @@
     <div class="container">
       <p class="dict-status" id="dictStatus" role="status" aria-live="polite">Loading the dictionary…</p>
       <div class="dict-grid" id="dictResults" aria-live="polite"></div>
+      <div class="dict-more" id="dictMore" hidden>
+        <button class="btn-ghost" type="button" id="dictMoreBtn">Load more words</button>
+      </div>
 
       <section class="dict-saved" id="dictSavedSection" hidden>
         <h2>Your saved words</h2>
@@ -120,12 +146,30 @@
   </section>
 </main>
 
+<div class="dict-modal" id="dictModal" hidden>
+  <div class="dict-modal-backdrop" data-close></div>
+  <div class="dict-modal-card" role="dialog" aria-modal="true" aria-labelledby="dictModalTitle">
+    <button class="dict-modal-close" type="button" data-close aria-label="Close">&times;</button>
+    <div class="dict-writer" id="dictWriter" aria-hidden="true"></div>
+    <h2 id="dictModalTitle" lang="zh-Hans"></h2>
+    <p class="dict-modal-py" id="dictModalPinyin"></p>
+    <p class="dict-modal-tr" id="dictModalTraditional" hidden></p>
+    <p class="dict-modal-mn" id="dictModalMeaning"></p>
+    <div class="dict-modal-actions">
+      <button class="btn-ghost" type="button" id="dictAnimate">Play strokes</button>
+      <button class="btn-ghost" type="button" id="dictQuiz">Practise</button>
+    </div>
+    <p class="hint" id="dictModalNote"></p>
+  </div>
+</div>
+
 <div id="app-footer"></div>
 <script src="shared-nav.js"></script>
 <script src="hanverse.js"></script>
 <script src="nav-user.js"></script>
 <script src="bottom-nav.js"></script>
 <script src="features-client.js?v=1"></script>
+<script src="vendor/hanzi-writer.min.js"></script>
 <script>
 (function () {
   'use strict';
@@ -138,8 +182,10 @@
   var form = document.getElementById('dictForm');
   var input = document.getElementById('dictQuery');
   var chips = Array.prototype.slice.call(document.querySelectorAll('.dict-chip'));
+  var moreEl = document.getElementById('dictMore');
+  var moreBtn = document.getElementById('dictMoreBtn');
 
-  var state = { q: '', level: '', saved: new Set(), signedIn: false };
+  var state = { q: '', level: '', saved: new Set(), signedIn: false, offset: 0, total: 0, seq: 0, byId: {}, writer: null, entry: null };
 
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
@@ -160,6 +206,7 @@
 
   function card(entry) {
     var saved = state.saved.has(entry.id);
+    state.byId[entry.id] = entry;
     var levelTag = entry.level ? 'YCT ' + entry.level : (entry.reviewed ? 'Reviewed' : 'Awaiting review');
     var tagClass = entry.reviewed ? 'tag' : 'tag unreviewed';
     var example = entry.example && entry.example.hanzi
@@ -167,7 +214,7 @@
         (entry.example.pinyin ? ' · ' + esc(entry.example.pinyin) : '') +
         (entry.example.meaning ? '<br>' + esc(entry.example.meaning) : '') + '</div>'
       : '';
-    return '<article class="dict-card">' +
+    return '<article class="dict-card" data-open="' + esc(entry.id) + '" tabindex="0" role="button" aria-label="Open ' + esc(entry.hanzi) + '">' +
       '<div class="hz" lang="zh-Hans">' + esc(entry.hanzi) + '</div>' +
       (entry.traditional ? '<div class="py">Traditional: <span lang="zh-Hant">' + esc(entry.traditional) + '</span></div>' : '') +
       '<div class="py">' + esc(entry.pinyin) + '</div>' +
@@ -186,16 +233,25 @@
     resultsEl.innerHTML = '<div class="dict-empty"><strong>' + esc(title) + '</strong>' + esc(body) + '</div>';
   }
 
-  function renderResults(payload) {
+  function renderResults(payload, append) {
     var results = payload.results || [];
-    if (!results.length) {
+    if (!results.length && !append) {
       renderEmpty('No matches yet', state.q
         ? 'Nothing matched "' + state.q + '". Try the hanzi, the pinyin without tones, or a simpler English word.'
         : 'The dictionary is empty. An administrator can add entries from the admin console.');
+      moreEl.hidden = true;
       return;
     }
-    resultsEl.innerHTML = results.map(card).join('');
-    setStatus(results.length + ' of ' + (payload.total >= 1000 ? '1000+' : payload.total) + ' entries');
+    var html = results.map(card).join('');
+    if (append) resultsEl.insertAdjacentHTML('beforeend', html);
+    else resultsEl.innerHTML = html;
+
+    state.offset = (payload.offset || 0) + results.length;
+    state.total = payload.total || 0;
+    var shown = state.offset;
+    var label = state.total >= 1000 ? '1000+' : String(state.total);
+    setStatus(shown + ' of ' + label + ' entries');
+    moreEl.hidden = !results.length || shown >= state.total;
   }
 
   function renderSaved(entries) {
@@ -207,22 +263,55 @@
     savedEl.innerHTML = entries.map(card).join('');
   }
 
-  function search() {
-    setStatus('Searching…');
+  function search(append) {
+    if (!append) {
+      state.offset = 0;
+      resultsEl.innerHTML = '';
+      moreEl.hidden = true;
+    }
+    setStatus(append ? 'Loading more words...' : 'Searching...');
     var params = new URLSearchParams();
     if (state.q) params.set('q', state.q);
     if (state.level) params.set('level', state.level);
     params.set('limit', '50');
+    params.set('offset', String(state.offset));
 
+    var seq = ++state.seq;
     API.api('/dictionary/search?' + params.toString())
       .then(function (data) {
+        if (seq !== state.seq) return;
         if (!data || data.success === false) throw new Error((data && data.error) || 'Search failed');
-        renderResults(data);
+        renderResults(data, append);
       })
       .catch(function (error) {
+        if (seq !== state.seq) return;
         setStatus('Could not search right now.');
         renderEmpty('Search unavailable', error.message || 'Please try again in a moment.');
       });
+  }
+
+  function loadLevels() {
+    API.api('/dictionary/levels')
+      .then(function (data) {
+        var counts = {};
+        ((data && data.levels) || []).forEach(function (row) {
+          if (row && row.level) counts[row.level] = row.total;
+        });
+        chips.forEach(function (chip) {
+          var level = chip.getAttribute('data-level');
+          if (level) chip.hidden = !counts[level];
+        });
+      })
+      .catch(function () { /* level chips stay hidden; search still works */ });
+  }
+
+  function renderSaved(entries) {
+    if (!entries.length) {
+      savedSection.hidden = true;
+      return;
+    }
+    savedSection.hidden = false;
+    savedEl.innerHTML = entries.map(card).join('');
   }
 
   function loadSaved() {
@@ -259,10 +348,108 @@
       .then(function () { button.disabled = false; });
   }
 
+  var modal = document.getElementById('dictModal');
+  var modalTitle = document.getElementById('dictModalTitle');
+  var modalPinyin = document.getElementById('dictModalPinyin');
+  var modalTraditional = document.getElementById('dictModalTraditional');
+  var modalMeaning = document.getElementById('dictModalMeaning');
+  var modalNote = document.getElementById('dictModalNote');
+  var writerEl = document.getElementById('dictWriter');
+  var animateBtn = document.getElementById('dictAnimate');
+  var quizBtn = document.getElementById('dictQuiz');
+
+  function firstHanzi(text) {
+    var match = String(text || '').match(/[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/);
+    return match ? match[0] : '';
+  }
+
+  function loadStrokes(char, onComplete, onError) {
+    fetch('/api/dictionary/strokes/' + encodeURIComponent(char))
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data || data.success === false || !data.strokes) throw new Error((data && data.error) || 'No stroke data');
+        onComplete(data.strokes);
+      })
+      .catch(onError);
+  }
+
+  function drawWriter(char) {
+    writerEl.innerHTML = '';
+    if (!char || !window.HanziWriter) return null;
+    return window.HanziWriter.create(writerEl, char, {
+      width: 200,
+      height: 200,
+      padding: 8,
+      strokeColor: '#1E3A8A',
+      radicalColor: '#2563EB',
+      highlightColor: '#93C5FD',
+      showOutline: true,
+      charDataLoader: loadStrokes
+    });
+  }
+
+  function openDetail(entry) {
+    if (!entry) return;
+    state.entry = entry;
+    modalTitle.textContent = entry.hanzi;
+    modalPinyin.textContent = entry.pinyin || '';
+    modalTraditional.hidden = !entry.traditional;
+    modalTraditional.textContent = entry.traditional ? 'Traditional: ' + entry.traditional : '';
+    modalMeaning.textContent = entry.meaning || '';
+    var char = firstHanzi(entry.hanzi);
+    modalNote.textContent = char
+      ? 'Stroke order for ' + char + (entry.hanzi.length > 1 ? ' (first character of ' + entry.hanzi + ')' : '') + '.'
+      : 'Stroke animation is only available for Chinese characters.';
+    animateBtn.disabled = !char;
+    quizBtn.disabled = !char;
+    writerEl.style.display = char ? '' : 'none';
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    state.writer = drawWriter(char);
+    if (state.writer) state.writer.animateCharacter();
+  }
+
+  function closeDetail() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    state.writer = null;
+    state.entry = null;
+    writerEl.innerHTML = '';
+  }
+
+  animateBtn.addEventListener('click', function () {
+    if (state.writer) state.writer.animateCharacter();
+  });
+
+  quizBtn.addEventListener('click', function () {
+    if (state.writer) state.writer.quiz();
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !modal.hidden) {
+      closeDetail();
+      return;
+    }
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.closest('[data-open]')) {
+      event.preventDefault();
+      var cardEl = event.target.closest('[data-open]');
+      openDetail(state.byId[Number(cardEl.getAttribute('data-open'))]);
+    }
+  });
+
   document.addEventListener('click', function (event) {
+    if (event.target.closest('[data-close]')) {
+      closeDetail();
+      return;
+    }
     var saveBtn = event.target.closest('[data-save]');
     if (saveBtn) {
       toggleSave(Number(saveBtn.getAttribute('data-save')), saveBtn);
+      return;
+    }
+    var openCard = event.target.closest('[data-open]');
+    if (openCard) {
+      openDetail(state.byId[Number(openCard.getAttribute('data-open'))]);
       return;
     }
     var chip = event.target.closest('.dict-chip');
@@ -288,8 +475,15 @@
     }, 320);
   });
 
+  moreBtn.addEventListener('click', function () {
+    moreBtn.disabled = true;
+    search(true);
+    moreBtn.disabled = false;
+  });
+
   state.signedIn = !!sessionUser();
   loadSaved();
+  loadLevels();
   search();
 })();
 </script>

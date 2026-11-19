@@ -207,7 +207,10 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
 
       const where = [];
       const params = [];
-      let rank = '0';
+      /* A bare integer in ORDER BY is read as an output-column position, so an
+         empty query used to fail with "ORDER BY position 0 is not in select
+         list". The cast keeps it an expression. */
+      let rank = '0::int';
       if (raw) {
         const plain = plainPinyin(raw);
         params.push(`%${raw}%`, `%${plain}%`, `%${raw.toLowerCase()}%`);
@@ -245,6 +248,7 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
         query: raw,
         level,
         total: total.rows[0].n,
+        capped: total.rows[0].n >= 1000,
         limit,
         offset,
         results: rows.rows.map(row => shape(row))
@@ -252,6 +256,33 @@ export function registerDictionaryRoutes(router, pgPool, opts = {}) {
     } catch (error) {
       console.error('dictionary search:', error.message);
       if (!res.headersSent) fail(res, 500, 'Could not search the dictionary');
+    }
+  });
+
+  /* Stroke data for the writing animation. Fetched server-side so the page
+     keeps its strict connect-src, and cached because a character's strokes
+     never change. */
+  const strokeCache = new Map();
+  router.get('/dictionary/strokes/:char', searchLimiter, async (req, res) => {
+    try {
+      const char = String(req.params.char || '');
+      if (!/^[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]$/.test(char)) {
+        return fail(res, 400, 'Stroke data is only available for one Chinese character at a time');
+      }
+      res.set('Cache-Control', 'public, max-age=604800, immutable');
+      if (strokeCache.has(char)) return ok(res, { char, strokes: strokeCache.get(char) });
+
+      const upstream = await fetch(
+        `https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${encodeURIComponent(char)}.json`
+      );
+      if (!upstream.ok) return fail(res, 404, 'No stroke data for that character');
+      const strokes = await upstream.json();
+      if (strokeCache.size >= 800) strokeCache.clear();
+      strokeCache.set(char, strokes);
+      ok(res, { char, strokes });
+    } catch (error) {
+      console.error('dictionary strokes:', error.message);
+      if (!res.headersSent) fail(res, 502, 'Could not load stroke data');
     }
   });
 

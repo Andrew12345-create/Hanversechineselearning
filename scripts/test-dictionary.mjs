@@ -97,9 +97,31 @@ check('search is public but rate limited', () => {
 });
 
 check('search caps page size', () => {
-  assert(/Math\.min\(Math\.max\(Number\(req\.query\.limit\) \|\| 20, 1\), 50\)/.test(dict), 'limit not clamped to 50');
+  assert(/Math\.min\(Math\.max\(Number\(req\.query\.limit\) \|\| 20, 1\), 50\)/.test(dict), 'limit not clamped');
   assert(/Math\.max\(Number\(req\.query\.offset\) \|\| 0, 0\)/.test(dict), 'offset not clamped');
-  return 'limit ≤ 50';
+  return 'limit ≤ 50, offset ≥ 0';
+});
+
+check('empty query still returns a page', () => {
+  assert(/let rank = '0::int'/.test(dict), 'ORDER BY constant would be read as a column position');
+  assert(!/ORDER BY 0[,)]/.test(dict), 'bare ORDER BY 0 present');
+  return 'rank defaults to 0::int';
+});
+
+check('page can load more words', () => {
+  const page = read('dictionary.html');
+  assert(/id="dictMoreBtn"/.test(page), 'no load-more control');
+  assert(/params\.set\('offset'/.test(page), 'offset never sent');
+  assert(/search\(true\)/.test(page), 'load more does not append');
+  assert(/seq !== state\.seq/.test(page), 'stale responses can overwrite newer results');
+  return 'offset paging + stale-response guard';
+});
+
+check('level chips hide when nothing is levelled', () => {
+  const page = read('dictionary.html');
+  assert(/loadLevels\(\)/.test(page), 'levels never fetched');
+  assert(/chip\.hidden = !counts\[level\]/.test(page), 'empty level chips stay visible');
+  return 'chips follow /dictionary/levels';
 });
 
 check('level filter is validated', () => {
@@ -223,6 +245,25 @@ check('import never overwrites and needs --confirm', () => {
   assert(/--confirm/.test(imp) && /FALSE\)/.test(imp), 'no confirm gate or reviewed default');
   assert(/TYPE TEXT/.test(dict), 'meaning not widened for long senses');
   return 'DO NOTHING, dry run by default, meaning TEXT';
+});
+
+check('stroke data is proxied and cached', () => {
+  assert(/router\.get\('\/dictionary\/strokes\/:char'/.test(dict), 'no stroke route');
+  assert(/hanzi-writer-data/.test(dict), 'no upstream stroke source');
+  assert(/strokeCache/.test(dict), 'stroke data not cached');
+  assert(/\\u4E00-\\u9FFF/.test(dict), 'stroke route does not restrict to one hanzi');
+  return 'single hanzi, cached, server-side fetch';
+});
+
+check('word opens an expanded view with stroke animation', () => {
+  const page = read('dictionary.html');
+  assert(/vendor\/hanzi-writer\.min\.js/.test(page), 'Hanzi Writer not loaded');
+  assert(existsSync(join(root, 'vendor/hanzi-writer.min.js')), 'vendored library missing');
+  assert(/id="dictModal"/.test(page) && /role="dialog"/.test(page), 'no dialog');
+  assert(/data-open="/.test(page), 'cards are not clickable');
+  assert(/animateCharacter\(\)/.test(page) && /\.quiz\(\)/.test(page), 'no animation or practice');
+  assert(/charDataLoader: loadStrokes/.test(page), 'writer does not use the proxy');
+  return 'dialog + animate + practise';
 });
 
 check('page credits CC-CEDICT and its licence', () => {
