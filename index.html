@@ -374,6 +374,8 @@ main { padding-top: 100px; }
 .hero-blob {
   position: absolute; pointer-events: none; z-index: 0;
   filter: blur(60px);
+  /* Decorative only: never let a 550px blob widen a 320px phone. */
+  max-width: 100%;
 }
 .hero-blob-1 {
   width: 550px; height: 550px;

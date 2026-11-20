@@ -685,11 +685,11 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
   .hud-chip { padding: 6px 7px; font-size: 10px; }
   .hud-stats .hud-chip:nth-of-type(n + 2) { display: none; }
   .tabbar { width: calc(100% - 12px); height: 58px; padding: 4px; }
-  .tabbar a, .tabbar .tabbar-more { font-size: 9px; }
+  .tabbar a, .tabbar .tabbar-more { font-size: 11px; }
   .tabbar a svg, .tabbar .tabbar-more svg { width: 20px; height: 20px; }
   .sheet { width: calc(100% - 16px); padding-inline: 10px; border-radius: 22px; }
   .sheet-grid { grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)); }
-  .sheet-item { min-height: 60px; padding: 9px 2px; font-size: 10px; }
+  .sheet-item { min-height: 60px; padding: 9px 2px; font-size: 12px; }
 }
 
 /* Touch-first controls remain comfortable without enlarging desktop toolbars. */
@@ -697,3 +697,30 @@ body[data-hud="off"] .header .header-inner { padding-right: 62px; }
   button, input[type="button"], input[type="submit"], input[type="reset"],
   select, a[role="button"], .lesson-btn { min-height: 44px; }
 }
+
+/* ─── MOBILE FLOOR ───
+   Pages were written with 8–10px labels, which is unreadable on a phone and
+   fails WCAG 1.4.4 at 200% zoom. Rather than rewrite 40 page stylesheets, lift
+   the floor on small screens only: anything under 12px becomes 12px. Desktop
+   typography is untouched. */
+@media (max-width: 640px) {
+  :where(small, .kicker, .tabbar a, .tabbar .tabbar-more, .sheet-item,
+         .lesson-label, .lesson-desc, .lesson-cn, .state, .lesson-btn,
+         .next-step-copy .kicker, .next-step-copy p, .next-step-link,
+         .level-meta, .course-bottom, .metric span, .quick span,
+         .games-tab-label, .perfect-dismiss-hint, .membership p,
+         .nav-user, .nav-login, .nav-cta,
+         .role-desc, .field-error, .field-hint, .strength-label, .req) {
+    font-size: max(12px, 0.75rem);
+  }
+  /* Tap targets: 44px is the minimum comfortable touch size. */
+  .tabbar a, .tabbar .tabbar-more { min-height: 44px; }
+  .lesson-btn, .next-step-link { min-height: 44px; padding-block: 10px; }
+  /* Long words, URLs and Chinese text must not force a horizontal scroll. */
+  :where(p, li, td, th, dd, figcaption, blockquote, .card, .lesson-card) { overflow-wrap: anywhere; }
+  /* Tables scroll inside their own box instead of widening the page. */
+  :where(table) { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* Decorative blobs are clipped so they never create a scrollbar. */
+  :where(body) { overflow-x: clip; }
+}
+
