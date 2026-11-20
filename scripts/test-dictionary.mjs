@@ -189,7 +189,7 @@ check('page uses the shared api helper', () => {
 });
 
 check('nav entries added', () => {
-  assert(/href="dictionary\.html">Dictionary/.test(nav), 'shared-nav missing entry');
+  assert(/appLink\('dictionary\.html'\) \+ '">Dictionary/.test(nav), 'shared-nav missing entry');
   assert(/href: 'dictionary\.html'/.test(bottom), 'bottom-nav missing entry');
   return 'top nav + More sheet';
 });

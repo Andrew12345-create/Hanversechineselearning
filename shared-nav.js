@@ -30,14 +30,20 @@
     } catch (e) { return false; }
   }
 
-  var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  /* The marketing site and the learning app are separate hosts, so every
+     cross-host link has to be absolute. A relative "learn.html" on the
+     marketing host would 404 once the split is live. */
+  var APP = 'https://learn-hanverse.netlify.app';
+  var MARKETING = 'https://hanverse.netlify.app';
+  var appLink = function (page) { return APP + '/' + page; };
+  var siteLink = function (page) { return MARKETING + '/' + page; };
 
   var navMount = document.getElementById('app-nav');
   var footMount = document.getElementById('app-footer');
 
   function brandMarkup() {
     return (
-      '<a class="brand" href="https://hanverse.netlify.app/" aria-label="HanVerse home">' +
+      '<a class="brand" href="' + MARKETING + '/" aria-label="HanVerse home">' +
         '<img src="Hanverse-logo2.png" alt="HanVerse logo" width="38" height="38">' +
         '<span>HanVerse</span>' +
       '</a>'
@@ -48,12 +54,12 @@
     /* Signed in: render a skeleton chip immediately; nav-user.js upgrades it
        with the real name, avatar and account menu. Never flash Log in. */
     if (signedIn()) {
-      return '<a class="nav-user nav-user-chip nav-user-skeleton" href="profile.html" aria-label="Your account">' +
+      return '<a class="nav-user nav-user-chip nav-user-skeleton" href="' + appLink('profile.html') + '" aria-label="Your account">' +
         '<span class="avatar" aria-hidden="true">🐼</span></a>';
     }
     return '<div class="nav-actions">' +
-      '<a class="nav-login" href="login.html">Log in</a>' +
-      '<a class="nav-cta" href="signup.html">Start Free <span aria-hidden="true">→</span></a>' +
+      '<a class="nav-login" href="' + appLink('login.html') + '">Log in</a>' +
+      '<a class="nav-cta" href="' + appLink('signup.html') + '">Start Free <span aria-hidden="true">→</span></a>' +
       '</div>';
   }
 
@@ -62,12 +68,12 @@
       '<nav class="nav" id="navbar" role="navigation" aria-label="Main navigation">' +
         brandMarkup() +
         '<div class="nav-links">' +
-          '<a href="learn.html">Learn</a>' +
-          '<a href="explore.html">Explore</a>' +
-          '<a href="practice.html">Practice</a>' +
-          '<a href="roadmap.html">Roadmap</a>' +
-          '<a href="dictionary.html">Dictionary</a>' +
-          '<a href="parents.html">Parents</a>' +
+          '<a href="' + appLink('learn.html') + '">Learn</a>' +
+          '<a href="' + appLink('explore.html') + '">Explore</a>' +
+          '<a href="' + appLink('practice.html') + '">Practice</a>' +
+          '<a href="' + appLink('roadmap.html') + '">Roadmap</a>' +
+          '<a href="' + appLink('dictionary.html') + '">Dictionary</a>' +
+          '<a href="' + appLink('parents.html') + '">Parents</a>' +
         '</div>' +
         actionsMarkup() +
       '</nav>'
@@ -95,17 +101,17 @@
             '<p>Learn Mandarin. Explore more.</p>' +
           '</div>' +
           '<div class="footer-links">' +
-            '<a href="learn.html">Learn</a>' +
-            '<a href="explore.html">Explore</a>' +
-            '<a href="roadmap.html">Roadmap</a>' +
-            '<a href="dictionary.html">Dictionary</a>' +
-            '<a href="parents.html">Parents</a>' +
-            '<a href="login.html">Log in</a>' +
-            '<a href="terms.html">Terms</a>' +
-            '<a href="privacy.html">Privacy</a>' +
-            '<a href="refund-policy.html">Refunds</a>' +
-            '<a href="cookie-policy.html">Cookies</a>' +
-            '<a href="compliance.html">Child Safety</a>' +
+            '<a href="' + appLink('learn.html') + '">Learn</a>' +
+            '<a href="' + appLink('explore.html') + '">Explore</a>' +
+            '<a href="' + appLink('roadmap.html') + '">Roadmap</a>' +
+            '<a href="' + appLink('dictionary.html') + '">Dictionary</a>' +
+            '<a href="' + appLink('parents.html') + '">Parents</a>' +
+            '<a href="' + appLink('login.html') + '">Log in</a>' +
+            '<a href="' + siteLink('terms.html') + '">Terms</a>' +
+            '<a href="' + siteLink('privacy.html') + '">Privacy</a>' +
+            '<a href="' + siteLink('refund-policy.html') + '">Refunds</a>' +
+            '<a href="' + siteLink('cookie-policy.html') + '">Cookies</a>' +
+            '<a href="' + siteLink('compliance.html') + '">Child Safety</a>' +
           '</div>' +
         '</div>' +
       '</footer>';

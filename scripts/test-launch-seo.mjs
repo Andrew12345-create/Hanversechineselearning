@@ -2,8 +2,10 @@
 'use strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
+const { MARKETING_PAGES } = await import('./site-map.mjs');
 const site = 'https://learn-hanverse.netlify.app';
 const indexable = ['explore.html'];
 const noindex = ['learn.html', 'roadmap.html', 'practice.html', 'placement.html', 'lesson.html', 'talk.html'];
@@ -13,14 +15,20 @@ const test = (name, ok) => {
   if (!ok) failed++;
 };
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
-const sitemap = read('sitemap.xml');
+// The deployed artifact is dist/, produced per host by scripts/build-split.mjs.
+// Check the marketing build, because that is the host search engines index.
+execFileSync(process.execPath, [path.join(root, 'scripts', 'build-split.mjs')], {
+  cwd: root, env: { ...process.env, SITE_TARGET: 'marketing' }, stdio: 'pipe'
+});
+const distRead = file => fs.readFileSync(path.join(root, 'dist', file), 'utf8');
+const sitemap = distRead('sitemap.xml');
 const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
 const redirects = read('netlify.toml');
 
 // The sitemap contract is derived from the pages themselves rather than a
 // hand-maintained count: a URL may be listed only if the page exists, is not
 // noindex, and is not blocked in robots.txt. Every other page must be absent.
-const robots = read('robots.txt');
+const robots = distRead('robots.txt');
 const blocked = new Set(
   [...robots.matchAll(/^Disallow:\s*\/(\S*)/gim)]
     .map(match => match[1].trim())
@@ -38,8 +46,10 @@ test('sitemap has a valid urlset root', /^<\?xml[^>]+>\s*<urlset\b/.test(sitemap
 test('every sitemap URL is a real page', [...listed].every(page => pages.includes(page)));
 test('sitemap lists no noindex page', [...listed].every(page => !isNoindex(page)));
 test('sitemap lists no robots.txt-blocked page', [...listed].every(page => !blocked.has(page)));
-test('sitemap lists every public page', pages
-  .filter(page => !isNoindex(page) && !blocked.has(page) && page !== REDIRECT_ROOT)
+// Only marketing pages belong on the marketing host; app pages are 301'd to
+// learn-hanverse and are covered by scripts/test-site-structure.mjs.
+test('sitemap lists every public marketing page', MARKETING_PAGES
+  .filter(page => page !== REDIRECT_ROOT && !isNoindex(page) && !blocked.has(page))
   .every(page => listed.has(page)));
 test('sitemap excludes the redirecting learning-app root', !locations.includes(`${site}/`));
 test('sitemap excludes private or personalised pages', noindex.every(page => !locations.includes(`${site}/${page}`)));

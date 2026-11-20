@@ -1,6 +1,6 @@
 [build]
-  command = "node scripts/bump-sw-version.cjs"
-  publish = "."
+  command = "node scripts/bump-sw-version.cjs && node scripts/build-split.mjs"
+  publish = "dist"
   functions = "functions"
 
 [build.environment]
@@ -27,53 +27,14 @@
 # ================================
 # Clean page URLs
 # ================================
-
-[[redirects]]
-  from = "/parents"
-  to = "/parents.html"
-  status = 200
-
-[[redirects]]
-  from = "/learn"
-  to = "/learn.html"
-  status = 200
-
-[[redirects]]
-  from = "/profile"
-  to = "/profile.html"
-  status = 200
-
-[[redirects]]
-  from = "/admin"
-  to = "/admin.html"
-  status = 200
-
-[[redirects]]
-  from = "/verify-email"
-  to = "/verify-email.html"
-  status = 200
-
-
-[[redirects]]
-  from = "/placement"
-  to = "/placement.html"
-  status = 200
-
-[[redirects]]
-  from = "/invite"
-  to = "/invite.html"
-  status = 200
-
-[[redirects]]
-  from = "/notifications"
-  to = "/notifications.html"
-  status = 200
+# Clean URLs are generated per host into dist/_redirects by
+# scripts/build-split.mjs, because each host only serves its own pages and the
+# cross-host 301s have to be evaluated before the rewrites.
 
 # ================================
 # Root handling
 # ================================
-# This file deploys to BOTH learn-hanverse and hanverse. A root redirect to
-# https://hanverse.netlify.app/ therefore looped on the marketing host and
-# produced ERR_TOO_MANY_REDIRECTS. Netlify redirect conditions support
-# Language, Country and Role but not Host, so the redirect cannot be scoped
-# to one host from here. Both hosts now serve index.html at the root.
+# This file deploys to BOTH learn-hanverse and hanverse. A root redirect here
+# would loop on the marketing host, and Netlify redirect conditions support
+# Language, Country and Role but not Host. The app host's "/" -> marketing 301
+# is therefore written into dist/_redirects only when SITE_TARGET=app.

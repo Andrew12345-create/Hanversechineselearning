@@ -122,27 +122,9 @@ for (const page of pages) {
   if (!/<title>[^<]+<\/title>/i.test(html)) add(page, 'no-title', 'head');
 }
 
-// The sitemap must list public pages and must not list disallowed ones.
-// noindex pages and the redirecting root are public-but-unlisted by design.
-if (existsSync(join(root, 'sitemap.xml'))) {
-  const sitemap = readFileSync(join(root, 'sitemap.xml'), 'utf8');
-  const listed = new Set([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1].split('/').pop() || 'index.html'));
-  const robots = existsSync(join(root, 'robots.txt')) ? readFileSync(join(root, 'robots.txt'), 'utf8') : '';
-  const blocked = new Set([...robots.matchAll(/^Disallow:\s*\/(\S+)/gm)].map(m => m[1]));
-  for (const page of pages) {
-    if (blocked.has(page)) {
-      if (listed.has(page)) add('sitemap.xml', 'sitemap-lists-blocked', page);
-      continue;
-    }
-    if (page === 'index.html') continue; // 302s to the marketing host
-    const html = readFileSync(join(root, page), 'utf8');
-    if (/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html)) {
-      if (listed.has(page)) add('sitemap.xml', 'sitemap-lists-noindex', page);
-      continue;
-    }
-    if (!listed.has(page)) add('sitemap.xml', 'sitemap-missing', page);
-  }
-}
+// Sitemap/robots correctness is owned by scripts/test-site-structure.mjs,
+// which checks the per-host build output rather than the repo root.
+
 const byKind = findings.reduce((acc, f) => {
   acc[f.kind] = (acc[f.kind] || 0) + 1;
   return acc;

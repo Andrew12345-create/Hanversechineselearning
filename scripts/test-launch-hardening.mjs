@@ -83,14 +83,14 @@ for (const page of ['index.html', 'terms.html', 'privacy.html', 'refund-policy.h
   });
 }
 
-check('footer legal links are relative', () => {
-  assert(!/hanverse\.netlify\.app\/terms\.html/.test(nav), 'absolute terms link still present');
-  assert(/href="terms\.html"/.test(nav), 'relative terms link missing');
-  assert(/href="privacy\.html"/.test(nav), 'relative privacy link missing');
-  assert(/href="refund-policy\.html"/.test(nav), 'relative refund link missing');
-  assert(/href="cookie-policy\.html"/.test(nav), 'relative cookie link missing');
-  assert(/href="compliance\.html"/.test(nav), 'relative compliance link missing');
-  return 'all five relative';
+check('footer legal links point at the marketing host', () => {
+  // Legal pages live on hanverse.netlify.app; the app host 301s to them, so a
+  // relative link would cost a redirect hop on every page.
+  assert(/var MARKETING = 'https:\/\/hanverse\.netlify\.app'/.test(nav), 'no marketing host constant');
+  for (const page of ['terms', 'privacy', 'refund-policy', 'cookie-policy', 'compliance']) {
+    assert(new RegExp(`siteLink\\('${page}\\.html'\\)`).test(nav), `${page} link missing`);
+  }
+  return 'all five absolute to the marketing host';
 });
 
 check('legal pages carry real contact details and no placeholders', () => {
