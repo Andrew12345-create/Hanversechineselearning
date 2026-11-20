@@ -27,10 +27,23 @@ const target =
     : process.env.SITE_NAME === 'learn-hanverse' ? 'app'
       : 'all');
 
+// A Netlify build must never silently fall back to "all": that would publish
+// every page on both hosts and undo the split. Fail loudly instead.
+if (process.env.NETLIFY === 'true' && target === 'all') {
+  console.error(
+    `✗ build-split: running on Netlify but SITE_NAME="${process.env.SITE_NAME || ''}" ` +
+    'did not match a known site. Refusing to publish the full tree to both hosts.\n' +
+    '  Set SITE_TARGET=marketing or SITE_TARGET=app in the project environment.'
+  );
+  process.exit(1);
+}
+
 if (!['marketing', 'app', 'all'].includes(target)) {
   console.error(`✗ build-split: unknown SITE_TARGET "${target}"`);
   process.exit(1);
 }
+
+console.log(`build-split: target=${target}${process.env.SITE_NAME ? ` (SITE_NAME=${process.env.SITE_NAME})` : ''}`);
 
 // Static assets every page needs. Directories are copied whole.
 const ASSET_FILES = [

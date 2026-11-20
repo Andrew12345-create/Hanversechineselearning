@@ -91,6 +91,35 @@ check('marketing build ships every marketing page',
   MARKETING_PAGES.every(page => marketingBuild.includes(page)),
   MARKETING_PAGES.filter(page => !marketingBuild.includes(page)).join(', '));
 
+// A Netlify build that cannot identify its site must fail rather than publish
+// the full tree to both hosts.
+check('netlify build refuses an unknown site name', () => {
+  let status = 0;
+  try {
+    execFileSync(process.execPath, [join(root, 'scripts', 'build-split.mjs')], {
+      cwd: root,
+      env: { ...process.env, NETLIFY: 'true', SITE_NAME: 'not-a-hanverse-site', SITE_TARGET: '', DIST_DIR: dist },
+      stdio: 'pipe'
+    });
+  } catch (error) {
+    status = error.status;
+  }
+  assert(status === 1, `expected exit 1, got ${status}`);
+  return 'exits 1 instead of publishing everything';
+});
+
+check('netlify build maps SITE_NAME to a target', () => {
+  for (const [name, expected] of [['hanverse', 'marketing'], ['learn-hanverse', 'app']]) {
+    const out = execFileSync(process.execPath, [join(root, 'scripts', 'build-split.mjs')], {
+      cwd: root,
+      env: { ...process.env, NETLIFY: 'true', SITE_NAME: name, SITE_TARGET: '', DIST_DIR: dist },
+      stdio: 'pipe'
+    }).toString();
+    assert(out.includes(`target=${expected}`), `${name} -> ${expected}`);
+  }
+  return 'hanverse -> marketing, learn-hanverse -> app';
+});
+
 const marketingRedirects = readFileSync(join(dist, '_redirects'), 'utf8');
 check('marketing host 301s app pages to the app host',
   APP_PAGES.every(page => marketingRedirects.includes(`${APP_HOST}/${page}  301!`)),
