@@ -288,6 +288,9 @@
                 if (u && (u.user_id || u.userId || u.id)) { user = u; authToken = p.token || u.token || ""; break; }
             } catch (e) {}
         }
+        if (!authToken) {
+            try { authToken = localStorage.getItem("hanverse_token") || localStorage.getItem("token") || ""; } catch (e) {}
+        }
         if (!user) { location.replace("login.html?next=" + encodeURIComponent("dashboard.html")); return; }
         if (String(user.role || '').toLowerCase() === 'parent') { location.replace("parents.html?view=dashboard"); return; }
         var id = user.user_id || user.userId || user.id;
