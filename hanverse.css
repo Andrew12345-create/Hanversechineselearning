@@ -310,6 +310,26 @@ img { display: block; }
 main { padding-top: 100px; }
 @media (max-width: 660px) {
   main { padding-top: 90px; }
+  /* The shared nav has no hamburger, so let the links scroll instead of
+     squeezing to one character per line on narrow screens. */
+  .nav-links {
+    flex: 0 1 auto; min-width: 0; justify-content: flex-start;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a { white-space: nowrap; flex: 0 0 auto; }
+}
+
+/* Below ~480px the brand and the auth group alone are wider than the pill,
+   because both are flex-shrink:0. Drop the wordmark to the logo and hide the
+   secondary "Log in" link so the primary CTA stays fully visible. */
+@media (max-width: 480px) {
+  .nav { gap: 8px; padding: 0 8px; }
+  .brand { font-size: 0; gap: 0; }
+  .brand img { width: 34px; height: 34px; }
+  .nav-login { display: none; }
+  .nav-cta { height: 40px; padding: 0 13px; font-size: 12.5px; }
+  .nav-actions { gap: 0; }
 }
 
 /* Shared legal-page prose wrapper (terms/privacy/cookies/refunds). */

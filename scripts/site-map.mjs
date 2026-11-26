@@ -16,6 +16,7 @@ export const APP_HOST = 'https://learn-hanverse.netlify.app';
 // be indexed on the marketing host.
 export const MARKETING_PAGES = [
   'index.html',
+  'demo.html',
   'about.html',
   'pricing.html',
   'faq.html',

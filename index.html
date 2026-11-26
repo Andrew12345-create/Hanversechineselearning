@@ -1031,6 +1031,11 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 /* ─── REVEAL ─── */
 .reveal { opacity: 0; transform: translateY(28px) scale(.98); }
 .reveal.visible { opacity: 1; transform: none; transition: opacity .7s ease, transform .7s cubic-bezier(.25,.46,.45,.94); }
+/* Deep-linked sections must be visible immediately: no transition to wait on,
+   so the computed opacity is 1 even before the section is painted. */
+.reveal.reveal-instant { transition: none !important; }
+/* Keep anchored sections clear of the fixed nav. */
+section[id] { scroll-margin-top: 96px; }
 
 /* Stagger children inside revealed sections */
 .stagger-children > * { opacity: 0; transform: translateY(28px) scale(.97); }
@@ -1135,7 +1140,7 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
       </p>
       <div class="hero-actions">
         <a class="btn-coral" id="heroTrialCta" href="https://learn-hanverse.netlify.app/signup.html">Start 7-Day Free Trial <span aria-hidden="true">→</span></a>
-        <a class="btn-ghost" href="#worlds">Explore HanVerse ↓</a>
+        <a class="btn-ghost" href="demo.html">Try a free lesson — no signup</a>
       </div>
       <p class="hero-nocard" id="heroNoCard">✓ No credit card required &nbsp;·&nbsp; ✓ Cancel anytime &nbsp;·&nbsp; ✓ Keep your progress</p>
       <div class="hero-trust">
@@ -1185,7 +1190,7 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
 
         <a class="map-node mn1" href="https://learn-hanverse.netlify.app/learn.html" aria-label="Start learning">🌱<small>Start</small></a>
         <a class="map-node mn2" href="https://learn-hanverse.netlify.app/lesson.html?id=1" aria-label="Greetings lesson">👋<small>Greetings</small></a>
-        <a class="map-node mn3" href="https://learn-hanverse.netlify.app/learn.html" aria-label="Everyday Chinese">🔢<small>Everyday</small></a>
+        <a class="map-node mn3" href="demo.html" aria-label="Everyday Chinese demo lesson">🔢<small>Everyday</small></a>
         <a class="map-node mn4" href="https://learn-hanverse.netlify.app/explore.html" aria-label="Chinese culture">🏮<small>Culture</small></a>
 
       </div>
@@ -1200,8 +1205,8 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
       <div class="wotd-hanzi" id="wotdHanzi">字</div>
       <div class="wotd-meta">
         <div class="wotd-kicker">字 · WORD OF THE DAY · <span id="wotdDate"></span></div>
-        <div class="wotd-py" id="wotdPinyin">—</div>
-        <div class="wotd-mean" id="wotdMean">—</div>
+        <div class="wotd-py" id="wotdPinyin">nǐ hǎo</div>
+        <div class="wotd-mean" id="wotdMean">hello</div>
       </div>
       <div class="wotd-actions">
         <button class="wotd-btn speak" id="wotdSpeak">🔊 Hear it</button>
@@ -1241,7 +1246,7 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
       <article class="world-zone">
         <div class="zone-icon-wrap">📖</div><h3>Stories</h3>
         <p>Meet Mandarin through memorable stories, videos and visual learning experiences.</p>
-        <a class="zone-link" href="https://learn-hanverse.netlify.app/learn.html">Discover Stories →</a>
+        <a class="zone-link" href="demo.html">Discover Stories →</a>
         <div class="zone-panda"><img src="assets/mascot/states/hanpan-listening.png" alt="" width="70" height="70" loading="lazy" decoding="async"></div>
       </article>
       <article class="world-zone">
@@ -1355,21 +1360,21 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
             <div class="progress-bar"><span id="nextBar"></span></div>
           </div>
         </div>
-        <div class="db-status"><span class="db-dot" id="dbDot"></span><span id="dbStatus">Waiting for account data</span></div>
+        <div class="db-status"><span class="db-dot" id="dbDot"></span><span id="dbStatus">Sample data — sign in to see your own</span></div>
       </div>
       <div class="panel">
         <h3>Your stats</h3>
-        <p>Live values from your HanVerse account.</p>
+        <p id="statsNote">A sample week inside HanVerse. Sign in to see your own.</p>
         <div class="stats-grid">
-          <div class="stat-card"><b id="statXp">0</b><span>XP earned</span></div>
-          <div class="stat-card"><b id="statStreak">0</b><span>Day streak</span></div>
-          <div class="stat-card"><b id="statDone">0</b><span>Lessons done</span></div>
-          <div class="stat-card"><b id="statPercent">0%</b><span>Overall progress</span></div>
+          <div class="stat-card"><b id="statXp">240</b><span>XP earned</span></div>
+          <div class="stat-card"><b id="statStreak">3</b><span>Day streak</span></div>
+          <div class="stat-card"><b id="statDone">4</b><span>Lessons done</span></div>
+          <div class="stat-card"><b id="statPercent">18%</b><span>Overall progress</span></div>
         </div>
         <div class="level-card">
           <small>CURRENT LEVEL</small>
           <strong id="statLevel">YCT 1 · Level 1</strong>
-          <div class="level-track"><span id="levelTrack"></span></div>
+          <div class="level-track"><span id="levelTrack" style="width:18%"></span></div>
         </div>
       </div>
     </div>
@@ -1424,12 +1429,13 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
     <div class="panda-copy">
       <span class="kicker">Your Mandarin practice buddy</span>
       <h2 class="nunito">Meet <span class="grad-text">Panda.</span></h2>
-      <p>Sometimes the best way to learn a language is simply to try. Panda gives learners a friendly, safe place to ask questions, practise Chinese and build real confidence.</p>
+      <p>Panda is HanVerse's AI practice buddy. Learners can ask lesson questions and try Chinese in a friendly, low-pressure space. It is <strong>off by default</strong>: a parent or guardian turns it on from the Parent Hub, and can turn it off again at any time.</p>
       <div class="panda-features">
         <div class="pf-card"><b>🗣 Speak</b><span>Practise real conversations.</span></div>
         <div class="pf-card"><b>👂 Listen</b><span>Hear Mandarin naturally.</span></div>
         <div class="pf-card"><b>💡 Learn</b><span>Get help when stuck.</span></div>
       </div>
+      <p style="margin-top:18px;font-size:14px;line-height:1.7;">Panda answers are learning aids, never grades. Only the lesson question and the minimum context needed to answer it are sent to the model — never your child's name, email or account ID. <a href="compliance.html" style="color:var(--blue);font-weight:700">Read the child-safety detail →</a></p>
       <div style="margin-top:24px;"><a class="btn-primary" href="https://learn-hanverse.netlify.app/talk.html">Meet Panda →</a></div>
     </div>
   </div>
@@ -1468,6 +1474,166 @@ footer { padding: 32px 0 48px; background: var(--white); border-top: 1px solid v
         <div class="snap-stat"><b id="snapLessons">0</b><span>Lessons</span></div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ── OPEN DEMO ── -->
+<section class="reveal" id="demo" style="padding:70px 0;background:linear-gradient(135deg,#0F2340 0%,#1E3A5F 55%,#1D4ED8 100%);">
+  <div class="container" style="display:flex;align-items:center;gap:44px;flex-wrap:wrap;justify-content:space-between;">
+    <div style="flex:1;min-width:290px;max-width:560px;">
+      <span class="kicker" style="color:#7DD3FC">No signup needed</span>
+      <h2 class="nunito" style="color:#fff;font-size:clamp(30px,4vw,48px);line-height:1.04;letter-spacing:-.03em;margin:10px 0 12px;">Try a real lesson<br><span style="color:#FDBA74">before you decide.</span></h2>
+      <p style="color:#C7D9EC;font-size:16px;line-height:1.75;max-width:520px;">Five steps, three real YCT 1 words, one quick quiz. It runs in the browser with no account, no card and nothing saved about your child.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;">
+        <a class="btn-coral" href="demo.html">Open the free lesson <span aria-hidden="true">→</span></a>
+        <a class="btn-ghost" href="#pricing" style="background:rgba(255,255,255,.10);color:#fff;border-color:rgba(255,255,255,.30)">See the plans</a>
+      </div>
+    </div>
+    <div style="flex:0 1 320px;min-width:260px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:26px;backdrop-filter:blur(10px);">
+      <div style="font:900 11px Nunito,sans-serif;letter-spacing:.14em;color:#7DD3FC">STEP 1 OF 5 · YCT 1</div>
+      <div style="font-family:'Noto Sans SC',sans-serif;font-size:64px;line-height:1.1;color:#fff;margin:8px 0 2px;">你好</div>
+      <div style="font:800 18px Nunito,sans-serif;color:#93C5FD">nǐ hǎo</div>
+      <div style="color:#C7D9EC;font-size:14px;margin-top:2px;">hello</div>
+      <div style="height:8px;border-radius:999px;background:rgba(255,255,255,.16);margin-top:20px;overflow:hidden;"><span style="display:block;height:100%;width:20%;border-radius:999px;background:linear-gradient(90deg,#38BDF8,#14B8A6)"></span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font:700 11px Inter,sans-serif;color:#9FB6CE;"><span>PROGRESS</span><span>20%</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROOF ── -->
+<section class="reveal" id="proof" style="padding:80px 0;background:#fff;">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Inside the product</span>
+      <h2>See the lesson.<br>Hear from <em class="grad-text">families.</em></h2>
+      <p>A real slice of the curriculum, and what parents tell us after the first week.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;align-items:start;">
+
+      <article class="panel" style="padding:0;overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#EFF6FF,#FFF7ED);padding:26px 26px 22px;border-bottom:1.5px solid var(--line);">
+          <div style="font:900 11px Nunito,sans-serif;letter-spacing:.14em;color:var(--coral)">SAMPLE LESSON · YCT 1 · GREETINGS</div>
+          <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-top:10px;">
+            <span style="font-family:'Noto Sans SC',sans-serif;font-size:56px;line-height:1;color:var(--navy)">你好</span>
+            <span style="font:800 18px Nunito,sans-serif;color:var(--blue)">nǐ hǎo</span>
+            <span style="color:var(--muted);font-size:14px">hello</span>
+          </div>
+        </div>
+        <div style="padding:22px 26px 26px;">
+          <p style="color:var(--muted);font-size:14px;line-height:1.7;margin:0 0 14px;">你 (nǐ) means <em>you</em>, 好 (hǎo) means <em>good</em>. Children hear it, say it, then match it to a picture before the quiz.</p>
+          <ul style="list-style:none;padding:0;margin:0 0 20px;display:grid;gap:8px;">
+            <li style="font-size:14px;color:var(--ink);font-weight:600;">✓ Listen and repeat with HanPan</li>
+            <li style="font-size:14px;color:var(--ink);font-weight:600;">✓ Match the word to its meaning</li>
+            <li style="font-size:14px;color:var(--ink);font-weight:600;">✓ Earn XP for the first correct answer</li>
+          </ul>
+          <a class="btn-primary" href="demo.html" style="width:100%;justify-content:center;">Play this lesson free →</a>
+        </div>
+      </article>
+
+      <div>
+        <div id="testimonialList" style="display:grid;gap:16px;"></div>
+        <div id="testimonialFallback" class="panel" style="padding:26px;">
+          <div style="font-size:26px;line-height:1;">🐼</div>
+          <h3 style="font:900 19px Nunito,sans-serif;color:var(--navy);margin:10px 0 8px;">Parent reviews are being collected</h3>
+          <p style="color:var(--muted);font-size:14px;line-height:1.7;margin:0 0 16px;">HanVerse is new, and we would rather show you nothing than invent a quote. Families in the first trial cohort are sending feedback now — real reviews will appear here as they arrive.</p>
+          <a class="btn-ghost" href="demo.html" style="display:inline-flex;">Judge the lesson yourself →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section class="reveal" id="pricing" style="padding:80px 0;background:linear-gradient(180deg,#F5F9FF,#EFF6FF);">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Plans, in plain words</span>
+      <h2>Free stays free.<br>Paid is <em class="grad-text">optional.</em></h2>
+      <p>One free plan that never expires, and two paid plans that start with a 7-day trial. No card for the trial, no card for the free plan.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:1020px;margin:0 auto;">
+
+      <div class="panel" style="padding:26px;">
+        <h3 style="font:900 18px Nunito,sans-serif;color:var(--navy);margin:0;">Free</h3>
+        <div style="font:900 32px Nunito,sans-serif;color:var(--blue-deep,#1E40AF);margin:8px 0 2px;">$0 <small style="font:600 13px Inter,sans-serif;color:var(--muted)">forever</small></div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6;margin:6px 0 14px;">No card, no expiry, no trial clock.</p>
+        <ul style="list-style:none;padding:0;margin:0;display:grid;gap:8px;font-size:13.5px;color:var(--ink);font-weight:600;">
+          <li>✓ First lesson of every YCT level</li>
+          <li>✓ Daily warm-up and the open demo lesson</li>
+          <li>✓ XP, streaks and badges</li>
+          <li>✓ Parent Hub and progress view</li>
+        </ul>
+        <a class="btn-ghost" href="https://learn-hanverse.netlify.app/signup.html" style="display:flex;justify-content:center;margin-top:18px;">Start free</a>
+      </div>
+
+      <div class="panel" style="padding:26px;border:2px solid var(--blue);box-shadow:0 18px 44px rgba(37,99,235,.16);">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <h3 style="font:900 18px Nunito,sans-serif;color:var(--navy);margin:0;">YCT Course</h3>
+          <span style="background:var(--blue);color:#fff;font:800 10px Nunito,sans-serif;padding:4px 10px;border-radius:999px;letter-spacing:.06em;">MOST POPULAR</span>
+        </div>
+        <div style="font:900 32px Nunito,sans-serif;color:var(--blue-deep,#1E40AF);margin:8px 0 2px;">$4 <small style="font:600 13px Inter,sans-serif;color:var(--muted)">/ month</small></div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6;margin:6px 0 14px;">7 days free, then $4/month. Cancel before day 7 and you are never charged.</p>
+        <ul style="list-style:none;padding:0;margin:0;display:grid;gap:8px;font-size:13.5px;color:var(--ink);font-weight:600;">
+          <li>✓ Every YCT 1–4 lesson</li>
+          <li>✓ All video lessons</li>
+          <li>✓ Full practice review deck</li>
+          <li>✓ Progress across every world</li>
+        </ul>
+        <a class="btn-coral" href="https://learn-hanverse.netlify.app/payment.html?plan=yct" style="display:flex;justify-content:center;margin-top:18px;">Start 7-day trial</a>
+      </div>
+
+      <div class="panel" style="padding:26px;">
+        <h3 style="font:900 18px Nunito,sans-serif;color:var(--navy);margin:0;">Premium</h3>
+        <div style="font:900 32px Nunito,sans-serif;color:var(--blue-deep,#1E40AF);margin:8px 0 2px;">$10 <small style="font:600 13px Inter,sans-serif;color:var(--muted)">/ month</small></div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.6;margin:6px 0 14px;">7 days free, then $10/month. Everything, including worksheets.</p>
+        <ul style="list-style:none;padding:0;margin:0;display:grid;gap:8px;font-size:13.5px;color:var(--ink);font-weight:600;">
+          <li>✓ Everything in YCT Course</li>
+          <li>✓ Premium printable worksheets</li>
+          <li>✓ Every world, game and story</li>
+          <li>✓ Priority support</li>
+        </ul>
+        <a class="btn-ghost" href="https://learn-hanverse.netlify.app/payment.html?plan=premium" style="display:flex;justify-content:center;margin-top:18px;">Try Premium free</a>
+      </div>
+
+    </div>
+    <p style="max-width:760px;margin:26px auto 0;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.7;">
+      <strong style="color:var(--navy)">What happens when the trial ends?</strong> On day 8 the paid plan starts at the price shown and is billed monthly. Cancel any time before then from your account and nothing is charged — the free plan keeps working. Prices in USD. <a href="pricing.html" style="color:var(--blue);font-weight:700">Full pricing page →</a>
+    </p>
+  </div>
+</section>
+
+<!-- ── SAFETY ── -->
+<section class="reveal" id="safety" style="padding:80px 0;background:#fff;">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker coral">Children first</span>
+      <h2>Built for ages 5–12,<br>and for their <em class="grad-text">parents.</em></h2>
+      <p>HanVerse holds information about children, so the safeguards are specific rather than a paragraph of reassurance.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;max-width:1020px;margin:0 auto;">
+      <div class="panel" style="padding:24px;">
+        <div style="font-size:22px;">👨‍👩‍👧</div>
+        <h3 style="font:900 16px Nunito,sans-serif;color:var(--navy);margin:10px 0 6px;">Parental consent</h3>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0;">An account for a child under 13 is created through a parent or guardian. Consent is recorded against the purpose, the notice version and the date, and can be withdrawn.</p>
+      </div>
+      <div class="panel" style="padding:24px;">
+        <div style="font-size:22px;">🐼</div>
+        <h3 style="font:900 16px Nunito,sans-serif;color:var(--navy);margin:10px 0 6px;">Panda is opt-in</h3>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0;">The AI buddy is off by default and switched on from the Parent Hub. Only the lesson question is sent — never a name, email or account ID.</p>
+      </div>
+      <div class="panel" style="padding:24px;">
+        <div style="font-size:22px;">🏅</div>
+        <h3 style="font:900 16px Nunito,sans-serif;color:var(--navy);margin:10px 0 6px;">Display names only</h3>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0;">Leaderboards show a display name, never a real name, and a parent can remove their child from them entirely.</p>
+      </div>
+      <div class="panel" style="padding:24px;">
+        <div style="font-size:22px;">🗑</div>
+        <h3 style="font:900 16px Nunito,sans-serif;color:var(--navy);margin:10px 0 6px;">Deletion on request</h3>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.7;margin:0;">A parent can request a copy, a correction or deletion. Requests are queued, reviewed and resolved with a recorded outcome.</p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:26px;"><a href="compliance.html" style="color:var(--blue);font-weight:800;font-size:14px;">Read the full child-safety and data page →</a></p>
   </div>
 </section>
 
@@ -1772,8 +1938,9 @@ function renderPersonal() {
     $("welcomeText").textContent = "Create an account to save lessons, XP, progress and your learning streak.";
     $("continueBtn").href = "https://learn-hanverse.netlify.app/signup.html";
     $("continueBtn").textContent = "Start Learning →";
-    $("dbStatus").textContent = "Sign in to load live account data";
+    $("dbStatus").textContent = "Sample data — sign in to see your own";
     $("dbDot").classList.remove("live");
+    if ($("statsNote")) $("statsNote").textContent = "A sample week inside HanVerse. Sign in to see your own.";
     return;
   }
   const first = nameOf(user);
@@ -1894,6 +2061,29 @@ if ("IntersectionObserver" in window) {
     });
   }, { threshold: .08, rootMargin: "0px 0px -40px 0px" });
   document.querySelectorAll(".reveal, .stagger-children").forEach(item => observer.observe(item));
+  /* A deep link (e.g. demo.html -> index.html#pricing) must never land on a
+     section that is still at opacity 0, and a throttled or missed observer
+     callback must not hide content permanently. */
+  const revealNow = el => {
+    if (!el) return;
+    el.classList.add("visible", "reveal-instant");
+  };
+  const fromHash = () => {
+    if (!location.hash || location.hash.length < 2) return;
+    let target = null;
+    try { target = document.querySelector(location.hash); } catch (e) { return; }
+    if (!target) return;
+    revealNow(target);
+    target.querySelectorAll(".reveal, .stagger-children").forEach(revealNow);
+    /* The browser's own hash scroll runs before fonts and images settle the
+       layout, so it can land at 0 and leave the section unpainted (and its
+       opacity transition never starts). Scroll explicitly once we are here. */
+    target.scrollIntoView({ block: "start", behavior: "auto" });
+  };
+  fromHash();
+  window.addEventListener("hashchange", fromHash);
+  window.addEventListener("load", fromHash);
+  setTimeout(() => document.querySelectorAll(".reveal:not(.visible)").forEach(revealNow), 2500);
 } else {
   document.querySelectorAll(".reveal, .stagger-children").forEach(item => item.classList.add("visible"));
 }
@@ -2059,5 +2249,35 @@ if ("IntersectionObserver" in window) {
 })();
 </script>
 <script src="notifications-client.js"></script>
+<script>
+/* Testimonials: rendered only from real, published quotes in testimonials.json.
+   While the list is empty the honest fallback card stays visible. */
+(function () {
+  "use strict";
+  var list = document.getElementById("testimonialList");
+  var fallback = document.getElementById("testimonialFallback");
+  if (!list || !fallback) return;
+  fetch("testimonials.json", { cache: "no-cache" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      var items = Array.isArray(data) ? data : (data && Array.isArray(data.quotes) ? data.quotes : []);
+      items = items.filter(function (q) { return q && q.quote && q.name; }).slice(0, 3);
+      if (!items.length) return;
+      list.innerHTML = items.map(function (q) {
+        var stars = "★★★★★".slice(0, Math.max(1, Math.min(5, Number(q.stars) || 5)));
+        return '<figure class="panel" style="padding:22px;margin:0;">' +
+          '<div style="color:#F59E0B;font-size:14px;letter-spacing:.12em;">' + stars + '</div>' +
+          '<blockquote style="margin:10px 0 12px;color:var(--ink);font-size:14.5px;line-height:1.7;">“' +
+          String(q.quote).replace(/[<>]/g, "") + '”</blockquote>' +
+          '<figcaption style="font:800 12.5px Nunito,sans-serif;color:var(--navy);">' +
+          String(q.name).replace(/[<>]/g, "") +
+          (q.detail ? '<span style="display:block;font:600 12px Inter,sans-serif;color:var(--muted);margin-top:2px;">' + String(q.detail).replace(/[<>]/g, "") + '</span>' : '') +
+          '</figcaption></figure>';
+      }).join("");
+      fallback.style.display = "none";
+    })
+    .catch(function () { /* keep the fallback card */ });
+})();
+</script>
 </body>
 </html>

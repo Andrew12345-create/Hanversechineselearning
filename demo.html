@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free Mandarin Demo Lesson — HanVerse</title>
+<link rel="canonical" href="https://hanverse.netlify.app/demo.html">
+<meta name="description" content="Try a real HanVerse lesson free, with no signup. Learn 你好, 谢谢 and 再见 with HanPan the panda, then take the full YCT 1-4 pathway.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Free Mandarin Demo Lesson | HanVerse">
+<meta property="og:description" content="A real HanVerse lesson, open to everyone. No account, no card, no signup.">
+<meta property="og:url" content="https://hanverse.netlify.app/demo.html">
+<meta property="og:image" content="https://hanverse.netlify.app/Hanverse-logo2.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hanverse.netlify.app/Hanverse-logo2.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hanverse.css">
+<style>
+.demo-wrap{max-width:820px;margin:0 auto;padding:28px 20px 80px}
+.demo-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.demo-badge{display:inline-flex;align-items:center;gap:8px;background:var(--green-50,#ECFDF5);color:#15803D;border:1.5px solid #BBF7D0;border-radius:999px;padding:7px 14px;font:800 12px Nunito,sans-serif;letter-spacing:.04em}
+.demo-xp{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line,#D5E3F0);border-radius:999px;padding:7px 14px;font:800 13px Nunito,sans-serif;color:var(--navy,#0F2340)}
+.demo-bar{height:10px;border-radius:999px;background:#E2ECF7;overflow:hidden;margin:0 0 26px}
+.demo-bar span{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#2563EB,#38BDF8,#14B8A6);transition:width .45s cubic-bezier(.22,1,.36,1)}
+.demo-card{background:#fff;border:1.5px solid var(--line,#D5E3F0);border-radius:26px;padding:34px 30px;box-shadow:0 18px 50px rgba(15,35,64,.10)}
+.demo-step{display:none}
+.demo-step.on{display:block;animation:stepIn .32s cubic-bezier(.22,1,.36,1)}
+@keyframes stepIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.demo-kicker{font:900 11px Nunito,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--coral,#F97316)}
+.demo-hanzi{font-family:'Noto Sans SC',sans-serif;font-size:clamp(64px,13vw,104px);line-height:1.05;color:var(--navy,#0F2340);margin:10px 0 4px;letter-spacing:.02em}
+.demo-py{font:800 20px Nunito,sans-serif;color:var(--blue,#2563EB)}
+.demo-mean{font-size:16px;color:var(--muted,#5D7A9A);margin-top:4px}
+.demo-note{margin-top:18px;padding:14px 16px;border-radius:14px;background:var(--blue-50,#EFF6FF);border:1px solid #DBEAFE;color:#1E3A5F;font-size:14px;line-height:1.6}
+.demo-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.demo-btn{min-height:48px;padding:0 24px;border-radius:14px;border:0;font:800 14px Nunito,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .18s,box-shadow .18s;text-decoration:none}
+.demo-btn:active{transform:scale(.97)}
+.demo-btn.go{background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;box-shadow:0 10px 26px rgba(37,99,235,.28)}
+.demo-btn.ghost{background:#fff;color:var(--navy,#0F2340);border:1.5px solid var(--line,#D5E3F0)}
+.demo-btn.say{background:var(--coral-50,#FFF7ED);color:#C2410C;border:1.5px solid #FED7AA}
+.demo-btn[disabled]{opacity:.45;cursor:not-allowed}
+.demo-opts{display:grid;gap:12px;margin-top:20px}
+.demo-opt{min-height:56px;padding:14px 18px;border-radius:16px;border:1.5px solid var(--line,#D5E3F0);background:#fff;font:700 15px Inter,sans-serif;color:var(--navy,#0F2340);text-align:left;cursor:pointer;transition:border-color .18s,background .18s,transform .18s}
+.demo-opt:hover{border-color:#93C5FD;background:#F8FBFF}
+.demo-opt.right{border-color:#16A34A;background:#ECFDF5;color:#15803D}
+.demo-opt.wrong{border-color:#DC2626;background:#FEF2F2;color:#B91C1C}
+.demo-fb{margin-top:16px;font:700 14px Inter,sans-serif;min-height:22px}
+.demo-fb.ok{color:#15803D}
+.demo-fb.no{color:#B91C1C}
+.demo-done{text-align:center}
+.demo-done .big{font:900 44px Nunito,sans-serif;color:var(--blue,#2563EB);line-height:1}
+.demo-done h2{font:900 clamp(26px,4vw,36px) Nunito,sans-serif;color:var(--navy,#0F2340);margin:8px 0 6px}
+.demo-done p{color:var(--muted,#5D7A9A);font-size:15px;line-height:1.7;max-width:520px;margin:0 auto}
+.demo-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:26px}
+.demo-strip div{background:#F8FBFF;border:1.5px solid var(--line,#D5E3F0);border-radius:16px;padding:14px;text-align:center}
+.demo-strip b{display:block;font:900 20px Nunito,sans-serif;color:var(--navy,#0F2340)}
+.demo-strip span{font-size:12px;color:var(--muted,#5D7A9A);font-weight:700}
+.demo-foot{margin-top:22px;text-align:center;font-size:13px;color:var(--muted,#5D7A9A)}
+.demo-foot a{color:var(--blue,#2563EB);font-weight:700}
+@media(max-width:520px){.demo-card{padding:24px 18px}.demo-actions .demo-btn{width:100%;justify-content:center}}
+</style>
+</head>
+<body data-topnav="keep">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="app-nav"></div>
+<main id="main">
+<div class="demo-wrap">
+
+  <div class="demo-top">
+    <span class="demo-badge">✓ OPEN LESSON · NO SIGNUP</span>
+    <span class="demo-xp">⭐ <span id="xp">0</span> XP</span>
+  </div>
+  <div class="demo-bar" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar"><span id="barFill"></span></div>
+
+  <div class="demo-card">
+
+    <section class="demo-step on" id="s1" aria-labelledby="s1h">
+      <div class="demo-kicker">YCT 1 · Greetings · Step 1 of 5</div>
+      <h1 class="demo-hanzi" id="s1h">你好</h1>
+      <div class="demo-py">nǐ hǎo</div>
+      <div class="demo-mean">hello</div>
+      <div class="demo-note"><strong>Say it:</strong> “nee how”. 你 (nǐ) means <em>you</em> and 好 (hǎo) means <em>good</em> — together they are the everyday hello.</div>
+      <div class="demo-actions">
+        <button class="demo-btn say" data-say="你好">🔊 Hear it</button>
+        <button class="demo-btn go" data-next="2">Got it →</button>
+      </div>
+    </section>
+
+    <section class="demo-step" id="s2" aria-labelledby="s2h">
+      <div class="demo-kicker">YCT 1 · Greetings · Step 2 of 5</div>
+      <h1 class="demo-hanzi" id="s2h">谢谢</h1>
+      <div class="demo-py">xiè xie</div>
+      <div class="demo-mean">thank you</div>
+      <div class="demo-note"><strong>Say it:</strong> “shyeh shyeh”. The second syllable is light and quick — Chinese often softens a repeated syllable like this.</div>
+      <div class="demo-actions">
+        <button class="demo-btn say" data-say="谢谢">🔊 Hear it</button>
+        <button class="demo-btn go" data-next="3">Got it →</button>
+      </div>
+    </section>
+
+    <section class="demo-step" id="s3" aria-labelledby="s3h">
+      <div class="demo-kicker">YCT 1 · Greetings · Step 3 of 5</div>
+      <h1 class="demo-hanzi" id="s3h">再见</h1>
+      <div class="demo-py">zài jiàn</div>
+      <div class="demo-mean">goodbye</div>
+      <div class="demo-note"><strong>Say it:</strong> “dzai jyen”. Literally “again see” — see you again.</div>
+      <div class="demo-actions">
+        <button class="demo-btn say" data-say="再见">🔊 Hear it</button>
+        <button class="demo-btn go" data-next="4">Practise →</button>
+      </div>
+    </section>
+
+    <section class="demo-step" id="s4" aria-labelledby="s4h">
+      <div class="demo-kicker">Quick practice · Step 4 of 5</div>
+      <h2 id="s4h" style="font:900 clamp(22px,3.4vw,30px) Nunito,sans-serif;color:var(--navy,#0F2340);margin:8px 0 0">What does <span style="font-family:'Noto Sans SC',sans-serif">谢谢</span> mean?</h2>
+      <div class="demo-opts" id="opts">
+        <button class="demo-opt" data-ok="0">Goodbye</button>
+        <button class="demo-opt" data-ok="1">Thank you</button>
+        <button class="demo-opt" data-ok="0">Hello</button>
+      </div>
+      <div class="demo-fb" id="fb" role="status" aria-live="polite"></div>
+      <div class="demo-actions">
+        <button class="demo-btn go" data-next="5" id="next4" disabled>Continue →</button>
+      </div>
+    </section>
+
+    <section class="demo-step demo-done" id="s5" aria-labelledby="s5h">
+      <div class="big" id="finalXp">+30 XP</div>
+      <h2 id="s5h">Lesson complete! 🐼</h2>
+      <p>You just learned three real YCT 1 words. HanVerse continues from here with structured lessons, games, stories and HanPan beside your child the whole way.</p>
+      <div class="demo-strip">
+        <div><b>3</b><span>WORDS LEARNED</span></div>
+        <div><b>1</b><span>LESSON DONE</span></div>
+        <div><b>30</b><span>XP EARNED</span></div>
+      </div>
+      <div class="demo-actions" style="justify-content:center">
+        <a class="demo-btn go" href="https://learn-hanverse.netlify.app/signup.html">Start 7-day free trial →</a>
+        <a class="demo-btn ghost" href="index.html#pricing">Compare plans</a>
+      </div>
+      <p class="demo-foot">No card needed for the trial. The free plan stays free forever — <a href="index.html#pricing">see what each plan includes</a>.</p>
+    </section>
+
+  </div>
+
+  <p class="demo-foot">This open lesson needs no account and stores nothing about your child. <a href="compliance.html">How we protect children's data →</a></p>
+</div>
+</main>
+<div id="app-footer"></div>
+<script src="shared-nav.js"></script>
+<script>
+(function () {
+  "use strict";
+  var xp = 0, step = 1, total = 5;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function paint() {
+    var pct = Math.round(((step - 1) / (total - 1)) * 100);
+    $("barFill").style.width = pct + "%";
+    $("bar").setAttribute("aria-valuenow", String(pct));
+    $("xp").textContent = String(xp);
+  }
+
+  function show(n) {
+    step = n;
+    for (var i = 1; i <= total; i++) {
+      var el = $("s" + i);
+      if (el) el.classList.toggle("on", i === n);
+    }
+    paint();
+    var head = $("s" + n);
+    if (head) {
+      var focusable = head.querySelector("button:not([disabled]), a");
+      if (focusable) focusable.focus({ preventScroll: true });
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.addEventListener("click", function (e) {
+    var say = e.target.closest("[data-say]");
+    if (say) {
+      var text = say.getAttribute("data-say");
+      try {
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = "zh-CN"; u.rate = 0.75;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      } catch (err) { /* speech unavailable */ }
+      return;
+    }
+    var next = e.target.closest("[data-next]");
+    if (next && !next.disabled) {
+      var n = parseInt(next.getAttribute("data-next"), 10);
+      if (n === 4) xp += 10;
+      if (n === 5) xp += 20;
+      show(n);
+    }
+  });
+
+  $("opts").addEventListener("click", function (e) {
+    var btn = e.target.closest(".demo-opt");
+    if (!btn || $("next4").disabled === false) return;
+    var ok = btn.getAttribute("data-ok") === "1";
+    btn.classList.add(ok ? "right" : "wrong");
+    if (ok) {
+      $("fb").textContent = "Correct — 谢谢 (xiè xie) means thank you. +10 XP";
+      $("fb").className = "demo-fb ok";
+      $("next4").disabled = false;
+    } else {
+      $("fb").textContent = "Not quite. 谢谢 means thank you — try again.";
+      $("fb").className = "demo-fb no";
+      setTimeout(function () { btn.classList.remove("wrong"); }, 900);
+    }
+  });
+
+  paint();
+})();
+</script>
+</body>
+</html>

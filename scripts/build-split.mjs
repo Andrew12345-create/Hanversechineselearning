@@ -51,7 +51,7 @@ const ASSET_FILES = [
   'hanverse.js', 'shared-nav.js', 'bottom-nav.js', 'nav-user.js',
   'features-client.js', 'notifications-client.js', 'notifications.js',
   'adventures.js', 'panda-chat.js',
-  'manifest.json', 'sw.js', '_headers',
+  'manifest.json', 'sw.js', '_headers', 'testimonials.json',
   'Hanverse-logo.png', 'Hanverse-logo2.png', 'pay-hanverse-subscription-card.png'
 ];
 const ASSET_DIRS = ['assets', 'js', 'vendor', '.well-known'];
