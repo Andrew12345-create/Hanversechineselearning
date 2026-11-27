@@ -189,6 +189,66 @@ async function ensureUserColumns() {
     ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR(255);
     ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN NOT NULL DEFAULT FALSE;
   `);
+  // Create the canonical family profile tables before feature modules
+  // attempt to add classroom controls or use parent-child relationships.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS parents (
+      parent_id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+      full_name VARCHAR(150),
+      email VARCHAR(255),
+      is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      children_count INTEGER NOT NULL DEFAULT 0,
+      verified_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS children (
+      child_id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+      parent_id INTEGER REFERENCES parents(parent_id) ON DELETE SET NULL,
+      full_name VARCHAR(150),
+      age INTEGER,
+      level INTEGER NOT NULL DEFAULT 1,
+      username VARCHAR(50),
+      email VARCHAR(255),
+      password_hash VARCHAR(255),
+      current_yct INTEGER NOT NULL DEFAULT 1,
+      current_hsk INTEGER NOT NULL DEFAULT 0,
+      last_active DATE,
+      days_active INTEGER NOT NULL DEFAULT 0,
+      lessons_completed INTEGER NOT NULL DEFAULT 0,
+      achievements_count INTEGER NOT NULL DEFAULT 0,
+      progress_percentage NUMERIC(5,2) NOT NULL DEFAULT 0,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      classroom_allowed BOOLEAN NOT NULL DEFAULT TRUE,
+      share_classroom_profile BOOLEAN NOT NULL DEFAULT TRUE,
+      controls_updated_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_parents_user ON parents(user_id);
+    CREATE INDEX IF NOT EXISTS idx_children_parent ON children(parent_id, is_active);
+    CREATE INDEX IF NOT EXISTS idx_children_user ON children(user_id);
+  `);
+  await pool.query(`
+    ALTER TABLE parents ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+    ALTER TABLE parents ADD COLUMN IF NOT EXISTS children_count INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE parents ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS classroom_allowed BOOLEAN NOT NULL DEFAULT TRUE;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS share_classroom_profile BOOLEAN NOT NULL DEFAULT TRUE;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS controls_updated_at TIMESTAMPTZ;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS current_yct INTEGER NOT NULL DEFAULT 1;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS current_hsk INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS last_active DATE;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS days_active INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS lessons_completed INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS achievements_count INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS progress_percentage NUMERIC(5,2) NOT NULL DEFAULT 0;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+    ALTER TABLE children ADD COLUMN IF NOT EXISTS level INTEGER NOT NULL DEFAULT 1;
+  `);
   await pool.query(`
     CREATE TABLE IF NOT EXISTS user_progress (
       progress_id SERIAL PRIMARY KEY,
