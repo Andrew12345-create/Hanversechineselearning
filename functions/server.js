@@ -1287,7 +1287,11 @@ function requiresAdminReauthentication(req) {
   const method = String(req.method || 'GET').toUpperCase();
   if (method === 'DELETE') return true;
   return method !== 'GET' && (
-    path === '/parents/digest/send' || /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns|feature-flags|incidents)/.test(path)
+    path === '/parents/digest/send' ||
+    path === '/admin/mfa/enroll' ||
+    path === '/admin/mfa/confirm' ||
+    /^\/admin\/compliance\/(retention\/purge|deletion-requests\/\d+)$/.test(path) ||
+    /^\/admin\/(users\/(ban|delete|update|email)|toggle-verification|parents\/(verify|deny)|lessons|email\/campaigns|feature-flags|incidents)/.test(path)
   );
 }
 
