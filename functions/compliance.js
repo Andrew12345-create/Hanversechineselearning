@@ -46,6 +46,7 @@ export const RETENTION_SCHEDULE = [
   { category: 'security_events', days: 365, basis: 'Security monitoring and incident investigation' },
   { category: 'notifications', days: 180, basis: 'In-app notification history' },
   { category: 'game_sessions', days: 365, basis: 'Learning activity records' },
+  { category: 'ai_usage_daily', days: 60, basis: 'Daily AI usage and abuse-prevention counters' },
   { category: 'admin_audit', days: 730, basis: 'Privileged action accountability' },
   { category: 'consent_records', days: null, basis: 'Retained while the account exists — proves lawful basis' },
   { category: 'deletion_requests', days: 730, basis: 'Evidence that erasure was carried out' }
@@ -56,7 +57,8 @@ export const RETENTION_SCHEDULE = [
 const PURGEABLE = {
   security_events: 'created_at',
   notifications: 'created_at',
-  game_sessions: 'created_at'
+  game_sessions: 'created_at',
+  ai_usage_daily: 'usage_date'
 };
 
 /* ── TOTP (RFC 6238) ────────────────────────────────────────
