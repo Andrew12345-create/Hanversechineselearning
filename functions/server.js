@@ -7090,7 +7090,7 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
       [user.user_id]
     );
     if (mfaResult.rows[0]?.enabled) {
-      const mfaCode = String(req.body?.mfaCode || '').replace(/\\s/g, '');
+      const mfaCode = String(req.body?.mfaCode || '').replace(/\s/g, '');
       if (!mfaCode) {
         return res.status(428).json({
           success: false,
