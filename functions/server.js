@@ -14,7 +14,7 @@ import { underLimit, markUsage, aiChat } from './ai-helpers.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
 import { registerDictionaryRoutes, ensureDictionarySchema } from './dictionary.js';
-import { registerComplianceRoutes, ensureComplianceSchema } from './compliance.js';
+import { registerComplianceRoutes, ensureComplianceSchema, verifyTotp } from './compliance.js';
 import rateLimit from 'express-rate-limit';
 import paymentSchema from './payment-schema.cjs';
 import jwt from 'jsonwebtoken';
@@ -7081,6 +7081,33 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
       console.warn(`[admin-auth] elevation rejected ip=${req.headers['x-nf-client-connection-ip'] || req.ip || 'unknown'}`);
       return res.status(401).json({ success: false, error: 'Administrator verification failed.' });
     }
+
+    // If this administrator has enrolled TOTP, require the second factor
+    // before issuing any privileged session cookie.
+    await ensureComplianceSchema(pool);
+    const mfaResult = await pool.query(
+      'SELECT secret, enabled FROM admin_mfa WHERE user_id = $1',
+      [user.user_id]
+    );
+    if (mfaResult.rows[0]?.enabled) {
+      const mfaCode = String(req.body?.mfaCode || '').replace(/\\s/g, '');
+      if (!mfaCode) {
+        return res.status(428).json({
+          success: false,
+          code: 'ADMIN_MFA_REQUIRED',
+          error: 'Enter the six-digit code from your authenticator app.'
+        });
+      }
+      if (!verifyTotp(mfaResult.rows[0].secret, mfaCode)) {
+        await recordAdminPasswordAttempt(auth.user_id, req);
+        return res.status(401).json({
+          success: false,
+          code: 'ADMIN_MFA_INVALID',
+          error: 'The authenticator code is incorrect. Please try again.'
+        });
+      }
+    }
+
     await clearAdminPasswordAttempts(user.user_id, req);
     const jti = crypto.randomUUID();
     const token = jwt.sign(
