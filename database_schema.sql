@@ -46,6 +46,49 @@ CREATE INDEX idx_email ON users(email);
 CREATE INDEX idx_username ON users(username);
 CREATE INDEX idx_users_role ON users(role);
 
+-- Parent and child profile tables. users.is_verified is email verification;
+-- parents.is_verified is the separate administrator safety-review decision.
+CREATE TABLE IF NOT EXISTS parents (
+    parent_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    full_name VARCHAR(150),
+    email VARCHAR(255),
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    children_count INTEGER NOT NULL DEFAULT 0,
+    verified_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_parents_user ON parents(user_id);
+
+CREATE TABLE IF NOT EXISTS children (
+    child_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    parent_id INTEGER REFERENCES parents(parent_id) ON DELETE SET NULL,
+    full_name VARCHAR(150),
+    age INTEGER,
+    level INTEGER NOT NULL DEFAULT 1,
+    username VARCHAR(50),
+    email VARCHAR(255),
+    password_hash VARCHAR(255),
+    current_yct INTEGER NOT NULL DEFAULT 1,
+    current_hsk INTEGER NOT NULL DEFAULT 0,
+    last_active DATE,
+    days_active INTEGER NOT NULL DEFAULT 0,
+    lessons_completed INTEGER NOT NULL DEFAULT 0,
+    achievements_count INTEGER NOT NULL DEFAULT 0,
+    progress_percentage NUMERIC(5,2) NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    classroom_allowed BOOLEAN NOT NULL DEFAULT TRUE,
+    share_classroom_profile BOOLEAN NOT NULL DEFAULT TRUE,
+    controls_updated_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_children_parent ON children(parent_id, is_active);
+CREATE INDEX IF NOT EXISTS idx_children_user ON children(user_id);
+
 -- Profile tables (exist in the live DB; created/maintained by server.js):
 --   parents(parent_id PK, user_id UNIQUE→users, full_name, email, is_verified=<admin safety review>, ...)
 --   children(child_id PK, user_id UNIQUE→users, parent_id→parents, child fields ...)
