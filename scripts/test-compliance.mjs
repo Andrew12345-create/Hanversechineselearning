@@ -98,6 +98,7 @@ test('requireUser rejects a stale token version', /tokenVersion !== Number\(user
 test('requireUser selects token_version', /COALESCE\(token_version, 0\) AS token_version/.test(server));
 test('every newly issued JWT carries the current token_version', /jwt\.sign\(\{ \.\.\.payload, tv: tokenVersion \}/.test(server) && /tv: user\.token_version \|\| 0/.test(server));
 test('session refresh rejects revoked tokens and reloads the current token version', /decoded\.tv \|\| 0\) !== Number\(result\.rows\[0\]\.token_version \|\| 0/.test(server) && /trial_ends_at, trial_used, token_version/.test(server));
+test('logout-all also revokes elevated administrator sessions', /u\.token_version, u\.admin_role/.test(server) && /decoded\.tv \|\| 0\) !== Number\(user\.token_version \|\| 0/.test(server) && /UPDATE admin_elevated_sessions SET revoked_at = NOW\(\)/.test(server));
 
 console.log('▶ Admin MFA');
 
