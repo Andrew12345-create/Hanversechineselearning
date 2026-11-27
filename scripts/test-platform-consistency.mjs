@@ -134,6 +134,7 @@ test('safe session profiles preserve the separate trial and Premium feature flag
 
 test('AI daily limits are persistent and atomic across serverless instances', () => {
   assert.match(aiHelpers, /CREATE TABLE IF NOT EXISTS ai_usage_daily/);
+  assert.match(baseSchema, /CREATE TABLE IF NOT EXISTS ai_usage_daily/);
   assert.match(aiHelpers, /ON CONFLICT \(user_id, usage_date, task\)/);
   assert.match(aiHelpers, /WHERE ai_usage_daily\.calls < \$3/);
   assert.match(aiHelpers, /export async function consumeAIUsage/);
