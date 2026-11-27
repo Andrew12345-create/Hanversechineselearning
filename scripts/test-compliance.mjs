@@ -81,6 +81,7 @@ test('users gain a token_version column', /ALTER TABLE users ADD COLUMN IF NOT E
 test('logout-all bumps the version', /SET token_version = COALESCE\(token_version, 0\) \+ 1/.test(mod));
 test('requireUser rejects a stale token version', /tokenVersion !== Number\(user\.token_version \|\| 0\)/.test(server) && /Session revoked/.test(server));
 test('requireUser selects token_version', /COALESCE\(token_version, 0\) AS token_version/.test(server));
+test('every newly issued JWT carries the current token_version', /jwt\.sign\(\{ \.\.\.payload, tv: tokenVersion \}/.test(server) && /tv: user\.token_version \|\| 0/.test(server));
 
 console.log('▶ Admin MFA');
 
