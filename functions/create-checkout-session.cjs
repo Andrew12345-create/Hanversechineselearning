@@ -254,97 +254,28 @@ exports.handler = async (event) => {
 
 
         /* ====================================================
-           CURRENT MEMBERSHIP
+           CURRENT MEMBERSHIP — shared entitlement engine
         ==================================================== */
 
-        let currentPlan =
-            user.membership_plan ||
-            'free';
+        const { computeEntitlement } = await import('./entitlements.js');
+        const entitlement = computeEntitlement(user);
+        const currentPlan = entitlement.plan === 'trial' ? 'premium' : entitlement.plan;
+        const membershipActive =
+            entitlement.active === true &&
+            entitlement.source !== 'trial' &&
+            entitlement.rank > 0;
 
-
-        /*
-         * Backwards compatibility with
-         * older Premium accounts.
-         */
-
-        if (
-            currentPlan === 'free' &&
-            user.premium === true
-        ) {
-
-            currentPlan =
-                'premium';
-
-        }
-
-
-        let membershipActive =
-            user.membership_status === 'active';
-
-
-        /* ====================================================
-           EXPIRY CHECK
-        ==================================================== */
-
-        if (
-            membershipActive &&
-            user.premium_until
-        ) {
-
-            const expiry =
-                new Date(
-                    user.premium_until
-                );
-
-
-            if (
-                !Number.isNaN(
-                    expiry.getTime()
-                ) &&
-                expiry <= new Date()
-            ) {
-
-                membershipActive =
-                    false;
-
-            }
-
-        }
-
-
-        /* ====================================================
-           ONLY ONE PAID PLAN
-        ==================================================== */
-
-        if (
-            currentPlan !== 'free' &&
-            membershipActive
-        ) {
-
-            const planName =
-                currentPlan === 'yct'
-                    ? 'YCT Course'
-                    : 'Premium';
-
-
+        // Active and past-due paid memberships remain protected from a
+        // second subscription. A no-card trial may still be upgraded.
+        if (membershipActive) {
+            const planName = currentPlan === 'yct' ? 'YCT Course' : 'Premium';
             return json(409, {
-
                 success: false,
-
-                code:
-                    'ACTIVE_MEMBERSHIP',
-
-                current_plan:
-                    currentPlan,
-
-                requested_plan:
-                    requestedPlan,
-
-                error:
-                    `You already have an active ${planName} membership. Only one paid membership can be active at a time.`
-
+                code: 'ACTIVE_MEMBERSHIP',
+                current_plan: currentPlan,
+                requested_plan: requestedPlan,
+                error: `You already have an active ${planName} membership. Only one paid membership can be active at a time.`
             });
-
         }
 
 
