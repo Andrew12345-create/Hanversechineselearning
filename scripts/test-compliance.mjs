@@ -85,9 +85,9 @@ test('resolve records who acted', /resolved_by = \$3/.test(mod));
 
 console.log('▶ Retention');
 
-test('schedule covers every purgeable table', Object.keys({ security_events: 1, notifications: 1, game_sessions: 1 }).every(t => RETENTION_SCHEDULE.some(r => r.category === t)));
+test('schedule covers every purgeable table', Object.keys({ security_events: 1, notifications: 1, game_sessions: 1, ai_usage_daily: 1 }).every(t => RETENTION_SCHEDULE.some(r => r.category === t)));
 test('purge is dry-run unless confirm is true', /dryRun: !confirm/.test(mod) && /req\.body\.confirm === true/.test(mod));
-test('purge only touches an allow-list', /const PURGEABLE = \{/.test(mod) && /for \(const \[table, column\] of Object\.entries\(PURGEABLE\)\)/.test(mod));
+test('purge only touches an allow-list', /const PURGEABLE = \{/.test(mod) && /for \(const \[table, column\] of Object\.entries\(PURGEABLE\)\)/.test(mod) && /ai_usage_daily: 'usage_date'/.test(mod));
 test('no DROP or TRUNCATE anywhere in the module', !/\b(DROP TABLE|TRUNCATE)\b/i.test(mod));
 
 console.log('▶ Session revocation');
