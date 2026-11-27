@@ -10,7 +10,7 @@ import serverless from 'serverless-http';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
 import { computeEntitlement, hasAccess, PLAN_RANK, upgradeRequiredPayload } from './entitlements.js';
 import { registerAIRoutes } from './ai-routes.js';
-import { underLimit, markUsage, aiChat } from './ai-helpers.js';
+import { consumeAIUsage, aiChat } from './ai-helpers.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
 import { registerDictionaryRoutes, ensureDictionarySchema } from './dictionary.js';
@@ -3727,13 +3727,11 @@ router.post('/panda-chat', authLimiter, async (req, res) => {
 
     }
 
-    if (!underLimit(userId, 'pandaChat')) {
-
+    if (!await consumeAIUsage(pool, userId, 'pandaChat')) {
       return res.status(429).json({
         success: false,
         error: "You've reached today's Panda chat limit. Come back tomorrow."
       });
-
     }
 
 
@@ -3833,7 +3831,6 @@ topic and does not need to stay on a lesson.
        ASK OPENAI
     ---------------------------------------- */
 
-    markUsage(userId, 'pandaChat');
 
     const completion = await aiChat({
       tier: 'fast',
