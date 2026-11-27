@@ -12,7 +12,7 @@
   <meta property="og:title" content="HanVerse Admin">
   <meta property="og:description" content="Secure HanVerse administrator workspace.">
   <meta property="og:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="HanVerse Admin">
   <meta name="twitter:description" content="Secure HanVerse administrator workspace.">
   <meta name="twitter:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="hanverse.css">
+  <link rel="stylesheet" href="hanverse.css?v=2">
 
   <style>
     /* Tokens come from hanverse.css. Only admin-specific aliases live here. */
@@ -547,7 +547,7 @@
       color: var(--ink);
       padding: 9px 11px;
       outline: none;
-      font-size: 10px;
+      font-size: 13px;
       transition: border-color var(--ease), box-shadow var(--ease);
     }
 
@@ -569,7 +569,7 @@
       display: block;
       margin-bottom: 5px;
       color: #475569;
-      font-size: 9px;
+      font-size: 12px;
       font-weight: 900;
     }
 
@@ -1884,6 +1884,75 @@
       .sidebar { background: #FFFFFF; }
     }
 
+
+    /* ─── READABILITY FLOOR ─── */
+    .pill, .muted, .metric-label, .metric-note, .nav-label, .nav-count,
+    .field label, th, td, .cmdk-item, .drawer-fact small, .lesson-meta,
+    .communication-stat span, .campaign small, .analytics-card span,
+    .analytics-card small, .snapshot-row span, .safety-row span,
+    .ops-service-copy span, .ops-alert span, .health-item small,
+    .user-name small, .preview-chip, .preview-vocab .vcard .pinyin,
+    .preview-vocab .vcard .meaning, .toast, .empty, .loading {
+      font-size: 12px;
+    }
+
+    /* ─── FOCUS VISIBILITY ─── */
+    .input:focus-visible, .select:focus-visible, .textarea:focus-visible,
+    .btn:focus-visible, .nav-button:focus-visible, .quick-action:focus-visible,
+    .filter:focus-visible, .p-tab:focus-visible, .cmdk-item:focus-visible,
+    .drawer-close:focus-visible, .close-button:focus-visible,
+    th[data-sort]:focus-visible, .prompt:focus-visible,
+    input[type="checkbox"]:focus-visible, .bulk-bar .btn:focus-visible {
+      outline: 3px solid rgba(37,99,235,.55);
+      outline-offset: 2px;
+    }
+    html[data-theme="dark"] .input:focus-visible,
+    html[data-theme="dark"] .btn:focus-visible,
+    html[data-theme="dark"] .nav-button:focus-visible {
+      outline-color: rgba(147,197,253,.8);
+    }
+
+    /* ─── STICKY TABLE HEADERS ─── */
+    .table-wrap { max-height: 72vh; overflow: auto; }
+    .table-wrap thead th { position: sticky; top: 0; z-index: 2; }
+
+    /* ─── BULK SELECTION ─── */
+    .bulk-col { width: 34px; text-align: center; padding-left: 10px !important; padding-right: 4px !important; }
+    .bulk-col input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--blue); cursor: pointer; }
+    tbody tr:has(.bulk-col input:checked) { background: rgba(37,99,235,.07); }
+    html[data-theme="dark"] tbody tr:has(.bulk-col input:checked) { background: #14304F; }
+
+    /* ─── DENSITY ─── */
+    html[data-density="compact"] td { padding-top: 5px; padding-bottom: 5px; }
+    html[data-density="compact"] .user-avatar { width: 26px; height: 26px; font-size: 12px; }
+    html[data-density="compact"] .metric { padding: 10px 12px; }
+    html[data-density="compact"] .metric-value { font-size: 20px; }
+
+    /* ─── SHORTCUTS OVERLAY ─── */
+    .keys-overlay { position: fixed; inset: 0; z-index: 120; display: none; place-items: center;
+      background: rgba(9,20,38,.55); padding: 20px; }
+    .keys-overlay.open { display: grid; }
+    .keys-card { width: min(460px, 100%); background: #fff; border: 1px solid var(--line);
+      border-radius: 20px; padding: 22px 24px; box-shadow: var(--shadow-lg); }
+    html[data-theme="dark"] .keys-card { background: #10233D; }
+    .keys-card h2 { font: 900 17px 'Nunito', sans-serif; margin-bottom: 4px; }
+    .keys-card p { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+    .keys-row { display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .keys-row:last-of-type { border-bottom: 0; }
+    .keys-row kbd { font: 700 11px Inter, sans-serif; padding: 3px 8px; border-radius: 6px;
+      background: var(--bg); border: 1px solid var(--line); color: var(--navy); }
+    .keys-close { margin-top: 14px; width: 100%; }
+
+    /* ─── MOTION ─── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
 </head>
 
@@ -2054,6 +2123,7 @@
 
       <div class="top-actions">
         <button id="themeToggle" class="btn btn-sm" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+        <button id="densityToggle" class="btn btn-sm" title="Toggle row density" aria-label="Toggle row density" aria-pressed="false">⇕</button>
         <button id="refreshButton" class="btn btn-sm">
           ↻ <span class="optional-label">Refresh</span>
         </button>
@@ -3703,6 +3773,7 @@
 
       return `
         <tr>
+          <td class="bulk-col"><input type="checkbox" data-bulk-user="${id}" aria-label="Select ${name}"></td>
           <td>
             <div class="user-cell">
               <div class="user-avatar">${icon}</div>
@@ -3774,6 +3845,7 @@
       <table>
         <thead>
           <tr>
+            <th class="bulk-col"><input type="checkbox" id="bulkSelectAll" aria-label="Select all users on this page"></th>
             <th data-sort="name">User <span class="sort-ind">↕</span></th>
             <th data-sort="role">Role <span class="sort-ind">↕</span></th>
             <th data-sort="status">Status <span class="sort-ind">↕</span></th>
@@ -6229,6 +6301,59 @@ ${body}
     }
   })();
 
+  /* ================= DENSITY + SHORTCUTS ================= */
+
+  function applyDensity(mode) {
+    document.documentElement.setAttribute("data-density", mode);
+    const btn = $("densityToggle");
+    if (btn) {
+      btn.textContent = mode === "compact" ? "▤" : "⇕";
+      btn.setAttribute("aria-pressed", mode === "compact" ? "true" : "false");
+    }
+    try { localStorage.setItem("hanverse_admin_density", mode); } catch (e) {}
+  }
+
+  applyDensity((function () {
+    try { return localStorage.getItem("hanverse_admin_density") || "comfortable"; } catch (e) { return "comfortable"; }
+  })());
+
+  $("densityToggle").addEventListener("click", () => {
+    applyDensity(document.documentElement.getAttribute("data-density") === "compact" ? "comfortable" : "compact");
+  });
+
+  const keysOverlay = $("keysOverlay");
+
+  function keysOpen() {
+    keysOverlay.classList.add("open");
+    $("keysClose").focus();
+  }
+
+  function keysClose() {
+    keysOverlay.classList.remove("open");
+  }
+
+  $("keysClose").addEventListener("click", keysClose);
+  keysOverlay.addEventListener("click", (event) => {
+    if (event.target === keysOverlay) keysClose();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName) || event.target.isContentEditable;
+    if (event.key === "?" && !typing) {
+      event.preventDefault();
+      keysOverlay.classList.contains("open") ? keysClose() : keysOpen();
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "j") {
+      event.preventDefault();
+      $("themeToggle").click();
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "d") {
+      event.preventDefault();
+      $("densityToggle").click();
+    }
+  });
+
+
 })();
 </script>
 
@@ -6275,6 +6400,20 @@ ${body}
       <input id="cmdkInput" type="text" placeholder="Search users, lessons, or jump to…" autocomplete="off">
       <div id="cmdkResults" class="cmdk-results"></div>
       <div class="cmdk-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+    </div>
+  </div>
+
+  <!-- Keyboard shortcuts -->
+  <div id="keysOverlay" class="keys-overlay" role="dialog" aria-modal="true" aria-labelledby="keysTitle">
+    <div class="keys-card">
+      <h2 id="keysTitle">Keyboard shortcuts</h2>
+      <p>Work the console without leaving the keyboard.</p>
+      <div class="keys-row"><span>Command palette</span><kbd>Ctrl K</kbd></div>
+      <div class="keys-row"><span>This help</span><kbd>?</kbd></div>
+      <div class="keys-row"><span>Close dialog or drawer</span><kbd>Esc</kbd></div>
+      <div class="keys-row"><span>Toggle dark mode</span><kbd>Ctrl J</kbd></div>
+      <div class="keys-row"><span>Toggle density</span><kbd>Ctrl D</kbd></div>
+      <button id="keysClose" class="btn btn-primary keys-close">Got it</button>
     </div>
   </div>
 
