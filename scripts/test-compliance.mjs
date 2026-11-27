@@ -56,7 +56,7 @@ test('consent writes are rate limited', /router\.post\('\/compliance\/consents',
 
 console.log('▶ Subject resolution');
 
-test('guardian link is checked against children.parent_user_id', /FROM children[\s\S]{0,160}parent_user_id = \$2/.test(mod));
+test('guardian link follows the verified children → parents → user relationship', /JOIN parents p ON p\.parent_id = c\.parent_id/.test(mod) && /p\.user_id = \$2/.test(mod) && /COALESCE\(p\.is_verified, FALSE\) = TRUE/.test(mod));
 test('unlinked subject is refused with 403', /You cannot change consent for that account/.test(mod));
 test('client-supplied subject is never trusted alone', /resolveSubject\(pool, auth, req\.body\.subject\)/.test(mod) && /guardianOwnsChild\(db, self, target\)/.test(mod));
 
