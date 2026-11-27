@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import {
   base32Encode, base32Decode, totpCode, verifyTotp, generateTotpSecret,
+  encryptTotpSecret, decryptTotpSecret,
   CONSENT_PURPOSES, OPTIONAL_PURPOSES, RETENTION_SCHEDULE
 } from '../functions/compliance.js';
 
@@ -43,6 +44,20 @@ test('wrong code is rejected', !verifyTotp(secret, '000000') || totpCode(secret)
 test('non-numeric code is rejected', !verifyTotp(secret, 'abcdef'));
 test('short code is rejected', !verifyTotp(secret, '12345'));
 test('a different secret does not verify', !verifyTotp(generateTotpSecret(), totpCode(secret)));
+test('MFA seeds are encrypted at rest and decrypt for TOTP verification', (() => {
+  const previous = process.env.ADMIN_MFA_ENCRYPTION_KEY;
+  process.env.ADMIN_MFA_ENCRYPTION_KEY = 'test-only-mfa-encryption-key-with-enough-entropy';
+  try {
+    const encrypted = encryptTotpSecret(secret);
+    return encrypted.startsWith('enc:v1:')
+      && !encrypted.includes(secret)
+      && decryptTotpSecret(encrypted) === secret
+      && decryptTotpSecret(secret) === secret;
+  } finally {
+    if (previous === undefined) delete process.env.ADMIN_MFA_ENCRYPTION_KEY;
+    else process.env.ADMIN_MFA_ENCRYPTION_KEY = previous;
+  }
+})());
 
 console.log('▶ Consent model');
 
@@ -87,7 +102,7 @@ console.log('▶ Admin MFA');
 
 test('MFA enrolment is admin-authenticated', /router\.post\('\/admin\/mfa\/enroll', verifyAdminToken, writeLimiter/.test(mod));
 test('MFA confirm is admin-authenticated', /router\.post\('\/admin\/mfa\/confirm', verifyAdminToken, writeLimiter/.test(mod));
-test('MFA secret is stored per admin user', /CREATE TABLE IF NOT EXISTS admin_mfa[\s\S]{0,200}user_id INTEGER PRIMARY KEY/.test(mod));
+test('MFA secret is stored per admin user and encrypted at rest', /CREATE TABLE IF NOT EXISTS admin_mfa[\s\S]{0,200}user_id INTEGER PRIMARY KEY/.test(mod) && /encryptTotpSecret\(secret\)/.test(mod) && /decryptTotpSecret\(r\.rows\[0\]\.secret\)/.test(mod));
 test('failed MFA confirmation is logged', /mfa_confirm_failed/.test(mod));
 test('enrolment returns an otpauth URI', /otpauth:\/\/totp\//.test(mod));
 
