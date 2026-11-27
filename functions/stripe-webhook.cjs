@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const Stripe = require('stripe');
+const { ensurePaymentSchema } = require('./payment-schema.cjs');
 
 
 /* ============================================================
@@ -36,13 +37,13 @@ function getPlanAmount(plan) {
 
   if (plan === 'premium') {
 
-    return 1000;
+    return 10;
 
   }
 
   if (plan === 'yct') {
 
-    return 400;
+    return 4;
 
   }
 
@@ -158,6 +159,7 @@ exports.handler = async (event) => {
 
   try {
 
+    await ensurePaymentSchema(pool);
 
     /* ========================================================
        CHECKOUT COMPLETED
@@ -367,6 +369,8 @@ exports.handler = async (event) => {
 
           premium = $2,
 
+          is_premium = $2,
+
           premium_until = $3,
 
           stripe_customer_id = $4,
@@ -404,47 +408,34 @@ exports.handler = async (event) => {
       await pool.query(
 
         `
-        UPDATE payments
-
-        SET
-
-          plan = $1,
-
-          amount_cents = $2,
-
-          currency = 'usd',
-
+        INSERT INTO payments (
+          user_id, stripe_customer_id, stripe_checkout_session_id,
+          plan, amount, currency, status, stripe_subscription_id,
+          current_period_start, current_period_end, created_at, updated_at
+        )
+        VALUES ($1, $2, $3, $4, $5, 'usd', 'active', $6, $7, $8, NOW(), NOW())
+        ON CONFLICT (stripe_checkout_session_id) DO UPDATE SET
+          user_id = EXCLUDED.user_id,
+          stripe_customer_id = EXCLUDED.stripe_customer_id,
+          plan = EXCLUDED.plan,
+          amount = EXCLUDED.amount,
+          currency = EXCLUDED.currency,
           status = 'active',
-
-          stripe_customer_id = $3,
-
-          stripe_subscription_id = $4,
-
-          current_period_start = $5,
-
-          current_period_end = $6,
-
+          stripe_subscription_id = EXCLUDED.stripe_subscription_id,
+          current_period_start = EXCLUDED.current_period_start,
+          current_period_end = EXCLUDED.current_period_end,
           updated_at = NOW()
-
-        WHERE stripe_checkout_session_id = $7
         `,
 
         [
-
-          plan,
-
-          getPlanAmount(plan),
-
+          userId,
           customerId,
-
+          session.id,
+          plan,
+          getPlanAmount(plan),
           subscriptionId,
-
           periodStart,
-
-          periodEnd,
-
-          session.id
-
+          periodEnd
         ]
 
       );
@@ -541,6 +532,8 @@ exports.handler = async (event) => {
           membership_status = $2,
 
           premium = $3,
+
+          is_premium = $3,
 
           premium_until = $4,
 
@@ -682,6 +675,8 @@ exports.handler = async (event) => {
           membership_status = 'cancelled',
 
           premium = FALSE,
+
+          is_premium = FALSE,
 
           premium_until = NULL,
 
