@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const Stripe = require('stripe');
-const { ensurePaymentSchema } = require('./payment-schema.cjs');
+const { ensurePaymentSchema } = require('../lib/payment-schema.cjs');
 
 
 /* ============================================================
