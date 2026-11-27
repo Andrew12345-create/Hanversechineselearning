@@ -16,6 +16,7 @@
      allow-list. Nothing here drops or truncates.
    ========================================================= */
 import crypto from 'node:crypto';
+import { ensureAIUsageSchema } from './ai-helpers.js';
 import rateLimit from 'express-rate-limit';
 
 let pool = null;
@@ -484,6 +485,7 @@ export function registerComplianceRoutes(router, sharedPool, deps) {
   });
 
   router.post('/admin/compliance/retention/purge', verifyAdminToken, writeLimiter, async (req, res) => {
+    await ensureAIUsageSchema(pool);
     const confirm = req.body && req.body.confirm === true;
     const report = [];
     for (const [table, column] of Object.entries(PURGEABLE)) {
