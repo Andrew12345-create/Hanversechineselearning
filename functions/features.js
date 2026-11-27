@@ -1459,7 +1459,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
           digestAiPara = await upgradeParentDigestEmail(kids.map(k => {
             const row = rowsByKid.get(k.user_id) || {};
             return { name: k.full_name || ('Learner ' + k.user_id), weeklyXp: row.weekXp || 0, lessons: row.lessons || 0, streakDays: k.streak_days || 0 };
-          }));
+          }), { pool, userId: req.userId });
         } catch (e) { console.warn('digest ai:', e && e.message); }
 
         const html = `
