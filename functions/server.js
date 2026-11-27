@@ -1248,6 +1248,9 @@ function adminPermissionForRequest(req) {
   if (path === '/admin/session') return 'session.read';
   if (path === '/admin/reauth') return 'session.reauth';
   if (path === '/admin/logout') return 'session.logout';
+  if (path === '/admin/mfa/status') return 'session.read';
+  if (path === '/admin/mfa/enroll' || path === '/admin/mfa/confirm') return 'session.reauth';
+  if (path === '/admin/compliance' || path.startsWith('/admin/compliance/')) return method === 'GET' ? 'audit.read' : 'audit.manage';
   if (path === '/admin/overview') return 'users.read';
   if (path === '/admin/analytics') return 'analytics.read';
   if (path === '/admin/revenue') return 'finance.read';
