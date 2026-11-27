@@ -229,9 +229,17 @@ async function logSecurityEvent(db, eventType, userId, req, detail) {
 
 /* A guardian may act for a child only through a verified link. */
 async function guardianOwnsChild(db, guardianUserId, childUserId) {
+  // The canonical profile relationship is children.parent_id -> parents.parent_id,
+  // while parents.user_id identifies the guardian's authenticated account.
+  // parents.is_verified is the safety-review gate (not users.is_verified,
+  // which means email verification).
   const r = await db.query(
-    `SELECT 1 FROM children
-      WHERE user_id = $1 AND parent_user_id = $2 AND COALESCE(is_verified, TRUE) = TRUE
+    `SELECT 1
+       FROM children c
+       JOIN parents p ON p.parent_id = c.parent_id
+      WHERE c.user_id = $1
+        AND p.user_id = $2
+        AND COALESCE(p.is_verified, FALSE) = TRUE
       LIMIT 1`,
     [childUserId, guardianUserId]
   );
