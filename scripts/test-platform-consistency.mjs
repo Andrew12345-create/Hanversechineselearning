@@ -92,3 +92,11 @@ test('membership lookup derives identity from JWT and shares entitlement logic',
   assert.doesNotMatch(premiumCheck, /const \{\s*userId\s*\} = body/);
   assert.match(paymentPage, /Authorization': 'Bearer ' \+ stored\.token/);
 });
+
+test('standalone billing endpoints honor bans and logout-all token revocation', () => {
+  assert.match(checkout, /COALESCE\(token_version, 0\) AS token_version/);
+  assert.match(checkout, /Number\(decodedToken\.tv \|\| 0\) !== Number\(user\.token_version \|\| 0\)/);
+  assert.match(checkout, /if \(user\.is_banned\)/);
+  assert.match(premiumCheck, /Number\(decoded\.tv \|\| 0\) !== Number\(result\.rows\[0\]\.token_version \|\| 0\)/);
+  assert.match(premiumCheck, /if \(result\.rows\[0\]\.is_banned\)/);
+});
