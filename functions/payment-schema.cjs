@@ -69,8 +69,7 @@ async function ensurePaymentSchema(pool) {
       CREATE INDEX IF NOT EXISTS idx_payments_subscription
         ON payments(stripe_subscription_id);
       CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_checkout_session
-        ON payments(stripe_checkout_session_id)
-        WHERE stripe_checkout_session_id IS NOT NULL;
+        ON payments(stripe_checkout_session_id);
     `);
   })().catch(error => {
     readyByPool.delete(pool);
