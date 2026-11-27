@@ -12,6 +12,8 @@ const compliance = read('functions/compliance.js');
 const admin = read('admin.html');
 const premiumCheck = read('functions/check-premium.cjs');
 const paymentPage = read('payment.html');
+const aiHelpers = read('functions/ai-helpers.js');
+const aiRoutes = read('functions/ai-routes.js');
 
 test('Panda uses the shared AI gateway and server startup does not require an OpenAI key', () => {
   assert.match(server, /import \{ underLimit, markUsage, aiChat \} from '\.\/ai-helpers\.js'/);
@@ -128,4 +130,18 @@ test('safe session profiles preserve the separate trial and Premium feature flag
   assert.match(server, /const entitlement = computeEntitlement\(user\)/);
   assert.match(server, /is_premium: premiumAccess/);
   assert.match(server, /trial_active: entitlement\.trialActive === true/);
+});
+
+test('AI daily limits are persistent and atomic across serverless instances', () => {
+  assert.match(aiHelpers, /CREATE TABLE IF NOT EXISTS ai_usage_daily/);
+  assert.match(aiHelpers, /ON CONFLICT \(user_id, usage_date, task\)/);
+  assert.match(aiHelpers, /WHERE ai_usage_daily\.calls < \$3/);
+  assert.match(aiHelpers, /export async function consumeAIUsage/);
+  assert.match(aiHelpers, /export async function getAIUsage/);
+  assert.match(aiRoutes, /consumeAIUsage\(pool, userId, 'lessonHelp'\)/);
+  assert.match(aiRoutes, /consumeAIUsage\(pool, userId, 'quizExplain'\)/);
+  assert.match(aiRoutes, /consumeAIUsage\(pool, userId, 'practice'\)/);
+  assert.match(aiRoutes, /consumeAIUsage\(pool, req\.adminUserId, 'adminDraft'\)/);
+  assert.doesNotMatch(aiRoutes, /underLimit\(/);
+  assert.match(server, /consumeAIUsage\(pool, userId, 'pandaChat'\)/);
 });
