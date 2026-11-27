@@ -44,6 +44,8 @@ let featureSchemaError = null;
 let featureSchemaReady = Promise.resolve();
 let dictionarySchemaError = null;
 let dictionarySchemaReady = Promise.resolve();
+let paymentSchemaError = null;
+let paymentSchemaReady = Promise.resolve();
 router.use((req, res, next) => {
   if (!pool) return next();
   const path = String(req.path || '');
@@ -55,9 +57,11 @@ router.use((req, res, next) => {
   ];
   const needsFeatureSchema = featurePrefixes.some(prefix => path === prefix || path.startsWith(prefix + '/'));
   const needsDictionarySchema = path === '/dictionary' || path.startsWith('/dictionary/') || path === '/admin/dictionary' || path.startsWith('/admin/dictionary/');
+  const needsPaymentSchema = path === '/admin/revenue';
   const waits = [coreSchemaReady];
   if (needsFeatureSchema) waits.push(featureSchemaReady);
   if (needsDictionarySchema) waits.push(dictionarySchemaReady);
+  if (needsPaymentSchema) waits.push(paymentSchemaReady);
 
   Promise.all(waits).then(() => {
     if (coreSchemaError) {
@@ -68,6 +72,9 @@ router.use((req, res, next) => {
     }
     if (needsDictionarySchema && dictionarySchemaError) {
       return res.status(503).json({ success: false, error: 'The dictionary is temporarily preparing its database.' });
+    }
+    if (needsPaymentSchema && paymentSchemaError) {
+      return res.status(503).json({ success: false, error: 'Payment reporting is temporarily preparing its database.' });
     }
     return next();
   }).catch(() => res.status(503).json({ success: false, error: 'HanVerse database is temporarily unavailable.' }));
@@ -144,9 +151,8 @@ if (databaseUrl) {
         console.log('✅ User and progress schema converged');
         return ensureComplianceSchema(pool);
       })
-      .then(() => ensurePaymentSchema(pool))
       .then(() => {
-        console.log('✅ Core database schema converged (users, progress, compliance, payments)');
+        console.log('✅ Core database schema converged (users, progress, compliance)');
       })
       .catch((error) => {
         coreSchemaError = error;
@@ -10328,6 +10334,18 @@ dictionarySchemaReady = coreSchemaReady
   .catch((e) => {
     dictionarySchemaError = e;
     console.warn('⚠️ Dictionary setup failed; dictionary routes will return 503:', e.message);
+  });
+paymentSchemaReady = coreSchemaReady
+  .then(() => {
+    if (coreSchemaError) throw coreSchemaError;
+    return ensurePaymentSchema(pool);
+  })
+  .then(() => {
+    console.log('✅ Payment schema ready');
+  })
+  .catch((e) => {
+    paymentSchemaError = e;
+    console.warn('⚠️ Payment schema setup failed; billing routes will report unavailable:', e.message);
   });
 
 app.use('/api', router);
