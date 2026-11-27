@@ -131,6 +131,39 @@ export function generateTotpSecret() {
   return base32Encode(crypto.randomBytes(20));
 }
 
+/* Encrypt TOTP seeds at rest. Set ADMIN_MFA_ENCRYPTION_KEY to a stable
+   32-byte-or-longer secret; JWT_SECRET is the backwards-compatible fallback. */
+function mfaEncryptionKey() {
+  const material = process.env.ADMIN_MFA_ENCRYPTION_KEY || process.env.JWT_SECRET;
+  if (!material) throw new Error('ADMIN_MFA_ENCRYPTION_KEY (or JWT_SECRET fallback) is required for admin MFA.');
+  return crypto.createHash('sha256').update(material).digest();
+}
+
+export function encryptTotpSecret(secret) {
+  const value = String(secret || '');
+  if (value.startsWith('enc:v1:')) return value;
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', mfaEncryptionKey(), iv);
+  const encrypted = Buffer.concat([cipher.update(value, 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `enc:v1:${iv.toString('base64url')}:${tag.toString('base64url')}:${encrypted.toString('base64url')}`;
+}
+
+export function decryptTotpSecret(stored) {
+  const value = String(stored || '');
+  if (!value.startsWith('enc:v1:')) return value; // migrate legacy plaintext records on schema setup
+  const parts = value.split(':');
+  if (parts.length !== 5) throw new Error('Stored admin MFA secret has an invalid encrypted format.');
+  const [, version, ivText, tagText, encryptedText] = parts;
+  if (version !== 'v1') throw new Error('Unsupported admin MFA secret encryption version.');
+  const decipher = crypto.createDecipheriv('aes-256-gcm', mfaEncryptionKey(), Buffer.from(ivText, 'base64url'));
+  decipher.setAuthTag(Buffer.from(tagText, 'base64url'));
+  return Buffer.concat([
+    decipher.update(Buffer.from(encryptedText, 'base64url')),
+    decipher.final()
+  ]).toString('utf8');
+}
+
 /* ── Schema ───────────────────────────────────────────────── */
 export async function ensureComplianceSchema(sharedPool) {
   if (schemaReady) return;
@@ -185,14 +218,26 @@ export async function ensureComplianceSchema(sharedPool) {
 
     CREATE TABLE IF NOT EXISTS admin_mfa (
       user_id INTEGER PRIMARY KEY,
-      secret VARCHAR(64) NOT NULL,
+      secret TEXT NOT NULL,
       enabled BOOLEAN NOT NULL DEFAULT FALSE,
       confirmed_at TIMESTAMP,
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
 
-  await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS token_version INTEGER NOT NULL DEFAULT 0`);
+  await db.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS token_version INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE admin_mfa ALTER COLUMN secret TYPE TEXT;
+  `);
+
+  // Upgrade existing plaintext TOTP seeds in place. New writes are always encrypted.
+  const legacyMfa = await db.query(`SELECT user_id, secret FROM admin_mfa WHERE secret NOT LIKE 'enc:v1:%'`);
+  for (const row of legacyMfa.rows) {
+    await db.query('UPDATE admin_mfa SET secret = $1 WHERE user_id = $2', [
+      encryptTotpSecret(row.secret),
+      row.user_id
+    ]);
+  }
 
   for (const row of RETENTION_SCHEDULE) {
     await db.query(
@@ -485,7 +530,7 @@ export function registerComplianceRoutes(router, sharedPool, deps) {
       `INSERT INTO admin_mfa (user_id, secret, enabled, confirmed_at)
        VALUES ($1, $2, FALSE, NULL)
        ON CONFLICT (user_id) DO UPDATE SET secret = EXCLUDED.secret, enabled = FALSE, confirmed_at = NULL`,
-      [req.adminUserId, secret]
+      [req.adminUserId, encryptTotpSecret(secret)]
     );
     const label = encodeURIComponent(`HanVerse:${req.adminUserId}`);
     ok(res, {
@@ -499,7 +544,7 @@ export function registerComplianceRoutes(router, sharedPool, deps) {
     const r = await pool.query('SELECT secret, enabled FROM admin_mfa WHERE user_id = $1', [req.adminUserId]);
     if (!r.rowCount) return fail(res, 400, 'Start enrolment first.');
     if (r.rows[0].enabled) return ok(res, { alreadyEnabled: true });
-    if (!verifyTotp(r.rows[0].secret, code)) {
+    if (!verifyTotp(decryptTotpSecret(r.rows[0].secret), code)) {
       await logSecurityEvent(pool, 'mfa_confirm_failed', req.adminUserId, req, 'bad code');
       return fail(res, 400, 'That code is not valid. Check your authenticator and try again.');
     }
