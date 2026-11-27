@@ -23,10 +23,9 @@ const pool = new Pool({
    STRIPE
 ============================================================ */
 
-const stripe =
-  Stripe(
-    process.env.STRIPE_SECRET_KEY
-  );
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
 
 
 /* ============================================================
@@ -76,6 +75,10 @@ exports.handler = async (event) => {
 
     };
 
+  }
+
+  if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return { statusCode: 503, body: 'Stripe webhook is not configured.' };
   }
 
 
