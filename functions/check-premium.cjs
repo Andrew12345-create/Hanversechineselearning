@@ -1,344 +1,75 @@
 const { Pool } = require('pg');
+const jwt = require('jsonwebtoken');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: true
-  }
+  connectionString: process.env.DATABASE_URL || process.env.NEON_DATABASE_URL,
+  ssl: { rejectUnauthorized: true }
 });
 
+function json(statusCode, data) {
+  return {
+    statusCode,
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    body: JSON.stringify(data)
+  };
+}
 
 exports.handler = async (event) => {
-
-  /*
-  ============================================================
-  HANVERSE MEMBERSHIP STATUS
-  ============================================================
-  Returns the user's actual membership information.
-
-  Possible plans:
-
-  free
-  yct
-  premium
-
-  Possible statuses:
-
-  active
-  cancelled
-  past_due
-  expired
-  incomplete
-  ============================================================
-  */
-
-
-  /* ==========================================================
-     METHOD CHECK
-  ========================================================== */
-
   if (event.httpMethod !== 'POST') {
-
-    return {
-      statusCode: 405,
-
-      headers: {
-        'Content-Type': 'application/json'
-      },
-
-      body: JSON.stringify({
-        success: false,
-        premium: false,
-        membership_plan: 'free',
-        membership_status: 'active',
-        error: 'Method not allowed'
-      })
-    };
-
+    return json(405, { success: false, error: 'Method not allowed' });
   }
 
+  if (!process.env.JWT_SECRET) {
+    return json(503, { success: false, error: 'Membership service is not configured.' });
+  }
+
+  const headers = event.headers || {};
+  const authHeader = headers.authorization || headers.Authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) {
+    return json(401, { success: false, error: 'Sign in required.' });
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+  } catch {
+    return json(401, { success: false, error: 'Session expired. Please sign in again.' });
+  }
+
+  const userId = decoded && (decoded.user_id || decoded.id);
+  if (!userId || !Number.isInteger(Number(userId))) {
+    return json(401, { success: false, error: 'Invalid session.' });
+  }
 
   try {
-
-    /* ========================================================
-       PARSE REQUEST
-    ======================================================== */
-
-    let body;
-
-    try {
-
-      body =
-        JSON.parse(
-          event.body || '{}'
-        );
-
-    } catch (error) {
-
-      return {
-        statusCode: 400,
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        body: JSON.stringify({
-          success: false,
-          premium: false,
-          membership_plan: 'free',
-          membership_status: 'active',
-          error: 'Invalid JSON request'
-        })
-      };
-
-    }
-
-
-    const {
-      userId
-    } = body;
-
-
-    /* ========================================================
-       USER ID REQUIRED
-    ======================================================== */
-
-    if (!userId) {
-
-      return {
-        statusCode: 400,
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        body: JSON.stringify({
-          success: false,
-          premium: false,
-          membership_plan: 'free',
-          membership_status: 'active',
-          error: 'Missing userId'
-        })
-      };
-
-    }
-
-
-    /* ========================================================
-       GET USER MEMBERSHIP
-    ======================================================== */
-
-    const result =
-      await pool.query(
-        `
-        SELECT
-          user_id,
-          premium,
-          premium_until,
-          membership_plan,
-          membership_status
-        FROM users
+    const result = await pool.query(
+      `SELECT user_id, premium, premium_until, membership_plan, membership_status,
+              trial_ends_at, trial_used
+         FROM users
         WHERE user_id = $1
-        LIMIT 1
-        `,
-        [userId]
-      );
-
-
-    /* ========================================================
-       USER NOT FOUND
-    ======================================================== */
-
-    if (result.rows.length === 0) {
-
-      return {
-        statusCode: 404,
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        body: JSON.stringify({
-          success: false,
-          premium: false,
-          membership_plan: 'free',
-          membership_status: 'active',
-          error: 'User not found'
-        })
-      };
-
-    }
-
-
-    const user =
-      result.rows[0];
-
-
-    /* ========================================================
-       NORMALISE MEMBERSHIP PLAN
-    ======================================================== */
-
-    let membershipPlan =
-      user.membership_plan || 'free';
-
-    let membershipStatus =
-      user.membership_status || 'active';
-
-
-    /*
-      Backwards compatibility:
-
-      Older HanVerse accounts may only have
-      premium = true without membership_plan.
-    */
-
-    if (
-      membershipPlan === 'free' &&
-      user.premium === true
-    ) {
-
-      membershipPlan =
-        'premium';
-
-    }
-
-
-    /* ========================================================
-       DETERMINE WHETHER MEMBERSHIP IS ACTIVE
-    ======================================================== */
-
-    let membershipActive =
-      membershipStatus === 'active';
-
-
-    /*
-      If this is a Premium subscription and
-      premium_until exists, make sure it hasn't expired.
-    */
-
-    if (
-      membershipActive &&
-      user.premium_until
-    ) {
-
-      const expiry =
-        new Date(
-          user.premium_until
-        );
-
-      const now =
-        new Date();
-
-
-      if (
-        Number.isNaN(
-          expiry.getTime()
-        )
-      ) {
-
-        membershipActive = false;
-
-      }
-      else if (
-        expiry <= now
-      ) {
-
-        membershipActive = false;
-
-        /*
-          Do not silently change the database here.
-          Stripe/webhook remains responsible for
-          authoritative membership changes.
-        */
-
-      }
-
-    }
-
-
-    /*
-      Premium boolean should only be true when:
-
-      1. The membership plan is premium
-      2. The membership is active
-      3. The membership has not expired
-    */
-
-    const premiumActive =
-      membershipPlan === 'premium' &&
-      membershipActive &&
-      user.premium === true;
-
-
-    /* ========================================================
-       RESPONSE
-    ======================================================== */
-
-    return {
-
-      statusCode: 200,
-
-      headers: {
-        'Content-Type': 'application/json'
-      },
-
-      body: JSON.stringify({
-
-        success: true,
-
-        premium:
-          premiumActive,
-
-        membership_plan:
-          membershipPlan,
-
-        membership_status:
-          membershipActive
-            ? 'active'
-            : membershipStatus,
-
-        premium_until:
-          user.premium_until || null
-
-      })
-
-    };
-
-  }
-
-  catch (error) {
-
-    console.error(
-      'HanVerse membership check error:',
-      error
+        LIMIT 1`,
+      [Number(userId)]
     );
+    if (!result.rows.length) return json(404, { success: false, error: 'User not found.' });
 
+    const { computeEntitlement } = await import('./entitlements.js');
+    const entitlement = computeEntitlement(result.rows[0]);
+    const plan = entitlement.plan === 'trial' ? 'premium' : entitlement.plan;
 
-    return {
-
-      statusCode: 500,
-
-      headers: {
-        'Content-Type': 'application/json'
-      },
-
-      body: JSON.stringify({
-
-        success: false,
-
-        premium: false,
-
-        membership_plan: 'free',
-
-        membership_status: 'active',
-
-        error:
-          'Unable to check membership status'
-
-      })
-
-    };
-
+    return json(200, {
+      success: true,
+      premium: entitlement.active === true && entitlement.rank >= 2,
+      membership_plan: plan,
+      membership_status: entitlement.status,
+      premium_until: entitlement.trialActive
+        ? result.rows[0].trial_ends_at
+        : result.rows[0].premium_until || null,
+      trial_active: entitlement.trialActive === true,
+      trial_ends_at: result.rows[0].trial_ends_at || null
+    });
+  } catch (error) {
+    console.error('HanVerse membership check error:', error.message);
+    return json(500, { success: false, error: 'Unable to check membership status.' });
   }
-
 };
