@@ -100,3 +100,9 @@ test('standalone billing endpoints honor bans and logout-all token revocation', 
   assert.match(premiumCheck, /Number\(decoded\.tv \|\| 0\) !== Number\(result\.rows\[0\]\.token_version \|\| 0\)/);
   assert.match(premiumCheck, /if \(result\.rows\[0\]\.is_banned\)/);
 });
+
+test('checkout blocks duplicate paid plans using the shared entitlement engine', () => {
+  assert.match(checkout, /await import\('\.\/entitlements\.js'\)/);
+  assert.match(checkout, /computeEntitlement\(user\)/);
+  assert.match(checkout, /entitlement\.source !== 'trial'/);
+});
