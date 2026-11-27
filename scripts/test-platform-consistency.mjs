@@ -26,7 +26,8 @@ test('Panda uses the shared AI gateway and server startup does not require an Op
 
 test('core schema readiness gates API requests on cold starts', () => {
   assert.match(server, /let coreSchemaReady = Promise\.resolve\(\)/);
-  assert.match(server, /coreSchemaReady\.then\(\(\) =>/);
+  assert.match(server, /const waits = \[coreSchemaReady\]/);
+  assert.match(server, /Promise\.all\(waits\)\.then\(/);
   assert.match(server, /ensurePaymentSchema\(pool\)/);
   assert.match(server, /\.\.\/lib\/payment-schema\.cjs/);
 });
