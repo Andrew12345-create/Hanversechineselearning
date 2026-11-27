@@ -282,7 +282,6 @@ ${kidSafeRules}`
         ]
       });
 
-      markUsage(userId, 'quizExplain');
       if (!answer.ok) {
         const fallback = 'Not quite — the right answer is "' + (correctOption?.option_text || '?') + '". You will get the next one! 💪';
         return res.json({ success: true, wasCorrect: false, explanation: fallback, degraded: true });
