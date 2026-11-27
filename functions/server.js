@@ -16,7 +16,7 @@ import { registerWorldRoutes } from './world-routes.js';
 import { registerDictionaryRoutes, ensureDictionarySchema } from './dictionary.js';
 import { registerComplianceRoutes, ensureComplianceSchema, verifyTotp } from './compliance.js';
 import rateLimit from 'express-rate-limit';
-import paymentSchema from './payment-schema.cjs';
+import paymentSchema from '../lib/payment-schema.cjs';
 import jwt from 'jsonwebtoken';
 
 dotenv.config();
