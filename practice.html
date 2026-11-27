@@ -22,7 +22,10 @@
   <meta property="og:title" content="Play &amp; Practice Chinese | HanVerse">
   <meta property="og:description" content="Practise Mandarin through games — character recognition, vocabulary quizzes and writing practice, hosted by HanPan.">
   <meta property="og:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image:alt" content="HanVerse, Mandarin for children aged 5 to 12">
+  <meta property="og:url" content="https://learn-hanverse.netlify.app/practice.html">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Play &amp; Practice Chinese | HanVerse">
   <meta name="twitter:description" content="Practise Mandarin through games — character recognition, vocabulary quizzes and writing practice, hosted by HanPan.">
   <meta name="twitter:image" content="https://learn-hanverse.netlify.app/Hanverse-logo2.png">
@@ -134,8 +137,8 @@
 
         button:focus-visible,
         a:focus-visible {
-            outline: 3px solid var(--blue-light);
-            outline-offset: 2px;
+            outline: 3px solid var(--blue);
+            outline-offset: 3px;
         }
 
 
@@ -2488,6 +2491,68 @@
 
         }
 
+        /* ── polish ── */
+        .game-stat-value,
+        .best-score,
+        .game-score {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .game-button,
+        .start-button,
+        .practice-button,
+        .quiz-option,
+        .move-button {
+            transition:
+                background .18s ease,
+                border-color .18s ease,
+                transform .18s ease,
+                box-shadow .18s ease;
+        }
+
+        .game-button:active,
+        .start-button:active,
+        .practice-button:active,
+        .quiz-option:active,
+        .move-button:active {
+            transform: scale(.97);
+        }
+
+        .game-button:hover,
+        .start-button:hover,
+        .practice-button:hover {
+            box-shadow: 0 10px 24px rgba(37,99,235,.24);
+        }
+
+        .quiz-option:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(15,35,64,.07);
+        }
+
+        .hero h1 {
+            text-wrap: balance;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .001ms !important;
+                scroll-behavior: auto !important;
+            }
+            .mode-card:hover,
+            .quiz-option:hover,
+            .falling-character:hover {
+                transform: none;
+            }
+            .game-button:active,
+            .start-button:active,
+            .practice-button:active,
+            .quiz-option:active,
+            .move-button:active {
+                transform: none;
+            }
+        }
     </style>
 
 </head>
@@ -7837,5 +7902,35 @@
 <script src="notifications-client.js?v=1"></script>
 <script src="bottom-nav.js?v=1"></script>
 
+<script>
+/* Tag dynamically rendered Chinese so screen readers and speech synthesis pick a
+   Mandarin voice instead of reading the characters as English. */
+(function () {
+  "use strict";
+  var CJK = /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/;
+  var SKIP = { STYLE: 1, SCRIPT: 1, NOSCRIPT: 1, TEMPLATE: 1, TEXTAREA: 1 };
+  function tag(root) {
+    if (!root || root.nodeType !== 1) return;
+    var list = [root];
+    if (root.querySelectorAll) {
+      list = list.concat(Array.prototype.slice.call(root.querySelectorAll("*")));
+    }
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      if (SKIP[el.tagName] || el.hasAttribute("lang") || el.children.length) continue;
+      if (CJK.test(el.textContent || "")) el.setAttribute("lang", "zh-Hans");
+    }
+  }
+  tag(document.body);
+  if ("MutationObserver" in window) {
+    new MutationObserver(function (records) {
+      for (var i = 0; i < records.length; i++) {
+        var added = records[i].addedNodes;
+        for (var j = 0; j < added.length; j++) tag(added[j]);
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+})();
+</script>
 </body>
 </html>
