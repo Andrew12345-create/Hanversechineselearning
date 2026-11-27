@@ -6,6 +6,7 @@
    ========================================================= */
 import { upgradeParentDigestEmail } from './parent-digest-ai.js';
 import { computeEntitlement, hasAccess } from './entitlements.js';
+import { ensureAIUsageSchema } from './ai-helpers.js';
 import crypto from 'node:crypto';
 import rateLimit from 'express-rate-limit';
 
@@ -843,6 +844,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
   router.get('/account/entitlement', requireAuth, async (req, res) => {
     try {
       await ensureFeatureSchema();
+      await ensureAIUsageSchema(pool);
       const uid_ = req.userId;
       const rows = await pool.query(
         `SELECT premium, premium_until, membership_plan, membership_status,
