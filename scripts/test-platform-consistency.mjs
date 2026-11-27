@@ -160,3 +160,7 @@ test('legacy parent_user_id relationships are migrated to canonical parent IDs',
   assert.match(server, /column_name = 'parent_user_id'/);
   assert.match(server, /SET parent_id = p\.parent_id[\s\S]{0,160}p\.user_id = c\.parent_user_id/);
 });
+
+test('admin AI drafting endpoint is permission-mapped', () => {
+  assert.match(server, /path === '\/admin\/ai\/draft' \|\| path\.startsWith\('\/admin\/ai\/'\)/);
+});
