@@ -209,6 +209,8 @@ exports.handler = async (event) => {
                     premium_until,
                     membership_plan,
                     membership_status,
+                    trial_ends_at,
+                    trial_used,
                     stripe_customer_id,
                     stripe_subscription_id,
                     is_banned,
