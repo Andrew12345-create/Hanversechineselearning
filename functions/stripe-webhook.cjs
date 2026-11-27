@@ -557,7 +557,7 @@ exports.handler = async (event) => {
             ? 'active'
             : subscription.status,
 
-          plan === 'premium' && active,
+          plan === 'premium' && (active || subscription.status === 'past_due'),
 
           active
             ? periodEnd
