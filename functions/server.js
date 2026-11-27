@@ -1351,7 +1351,7 @@ async function verifyAdminToken(req, res, next) {
     if (!permission) return res.status(403).json({ success: false, error: 'This administrative action is not enabled.' });
     const session = await pool.query(
       `SELECT s.user_id, s.reauthenticated_at, u.username, u.is_admin, u.is_banned,
-              u.admin_role, r.permissions
+              u.token_version, u.admin_role, r.permissions
        FROM admin_elevated_sessions s JOIN users u ON u.user_id = s.user_id
        LEFT JOIN admin_roles r ON r.role_key = u.admin_role
        WHERE s.jti = $1 AND s.user_id = $2 AND s.revoked_at IS NULL
@@ -1363,6 +1363,14 @@ async function verifyAdminToken(req, res, next) {
       return res.status(401).json({ success: false, error: 'Admin session expired. Please sign in again.' });
     }
     const user = session.rows[0];
+    if (Number(decoded.tv || 0) !== Number(user.token_version || 0)) {
+      await pool.query(
+        'UPDATE admin_elevated_sessions SET revoked_at = NOW() WHERE jti = $1 AND revoked_at IS NULL',
+        [jti]
+      );
+      clearAdminSessionCookie(res);
+      return res.status(401).json({ success: false, error: 'Admin session revoked. Please sign in again.' });
+    }
     const permissions = Array.isArray(user.permissions) ? user.permissions : [];
     if (!['session.read', 'session.reauth', 'session.logout'].includes(permission) && !permissions.includes('*') && !permissions.includes(permission)) {
       return res.status(403).json({ success: false, error: 'You do not have permission to perform this action.' });
@@ -7224,7 +7232,8 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     const blocked = await recordAdminPasswordAttempt(auth.user_id, req);
     if (blocked) return res.status(429).json({ success: false, error: 'Too many verification attempts. Please try again later.' });
     const result = await pool.query(
-      `SELECT user_id, username, full_name, email, password_hash, is_admin, is_banned
+      `SELECT user_id, username, full_name, email, password_hash, is_admin, is_banned,
+              COALESCE(token_version, 0) AS token_version
        FROM users WHERE user_id = $1`,
       [auth.user_id]
     );
@@ -7265,7 +7274,7 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
     await clearAdminPasswordAttempts(user.user_id, req);
     const jti = crypto.randomUUID();
     const token = jwt.sign(
-      { purpose: 'admin_elevation', user_id: user.user_id, jti },
+      { purpose: 'admin_elevation', user_id: user.user_id, jti, tv: Number(user.token_version || 0) },
       process.env.JWT_SECRET,
       { expiresIn: ADMIN_SESSION_TTL_SECONDS, issuer: 'hanverse', audience: 'hanverse-admin' }
     );
