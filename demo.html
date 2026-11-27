@@ -11,12 +11,48 @@
 <meta property="og:description" content="A real HanVerse lesson, open to everyone. No account, no card, no signup.">
 <meta property="og:url" content="https://hanverse.netlify.app/demo.html">
 <meta property="og:image" content="https://hanverse.netlify.app/Hanverse-logo2.png">
-<meta name="twitter:card" content="summary">
+<meta property="og:site_name" content="HanVerse">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image:alt" content="HanVerse, Mandarin for children aged 5 to 12">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free Mandarin Demo Lesson | HanVerse">
+<meta name="twitter:description" content="A real HanVerse lesson, open to everyone. No account, no card, no signup.">
 <meta name="twitter:image" content="https://hanverse.netlify.app/Hanverse-logo2.png">
+<meta name="theme-color" content="#2563EB">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="hanverse.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LearningResource",
+      "name": "HanVerse open demo lesson: YCT 1 greetings",
+      "description": "A free five-step Mandarin lesson teaching 你好, 谢谢 and 再见, with audio and a short quiz. No account required.",
+      "url": "https://hanverse.netlify.app/demo.html",
+      "learningResourceType": "Lesson",
+      "educationalLevel": "Beginner",
+      "teaches": "Mandarin Chinese greetings",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "provider": {
+        "@type": "Organization",
+        "name": "HanVerse",
+        "url": "https://hanverse.netlify.app/"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://hanverse.netlify.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Free demo lesson", "item": "https://hanverse.netlify.app/demo.html" }
+      ]
+    }
+  ]
+}
+</script>
 <style>
 .demo-wrap{max-width:820px;margin:0 auto;padding:28px 20px 80px}
 .demo-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
@@ -58,6 +94,36 @@
 .demo-strip span{font-size:12px;color:var(--muted,#5D7A9A);font-weight:700}
 .demo-foot{margin-top:22px;text-align:center;font-size:13px;color:var(--muted,#5D7A9A)}
 .demo-foot a{color:var(--blue,#2563EB);font-weight:700}
+/* ── polish ── */
+.demo-wrap{position:relative}
+.demo-wrap::before{content:"";position:absolute;inset:-40px 0 auto;height:340px;z-index:-1;pointer-events:none;
+  background:radial-gradient(60% 100% at 50% 0%,rgba(37,99,235,.10),transparent 70%)}
+.demo-card{transition:box-shadow .3s ease,border-color .3s ease;scroll-margin-top:112px}
+.demo-card:focus-within{border-color:#BFDBFE;box-shadow:0 22px 60px rgba(15,35,64,.14)}
+.demo-bar{box-shadow:inset 0 1px 2px rgba(15,35,64,.10)}
+.demo-bar span{box-shadow:0 0 12px rgba(56,189,248,.55)}
+.demo-xp{font-variant-numeric:tabular-nums}
+.demo-done .big{font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.demo-btn{position:relative;overflow:hidden;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease,background .2s ease,border-color .2s ease}
+.demo-btn.go::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.38) 48%,transparent 64%);
+  transform:translateX(-130%);transition:transform .6s ease}
+.demo-btn.go:hover::after{transform:translateX(130%)}
+.demo-btn.go:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(37,99,235,.34)}
+.demo-btn.ghost:hover{transform:translateY(-2px);border-color:#93C5FD;background:#F8FBFF}
+.demo-btn.say:hover{transform:translateY(-2px);border-color:#FDBA74;background:#FFF1E6}
+.demo-btn:focus-visible,.demo-opt:focus-visible{outline:3px solid rgba(37,99,235,.55);outline-offset:3px}
+.demo-opt{transition:border-color .18s,background .18s,transform .18s,box-shadow .18s}
+.demo-opt:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,35,64,.07)}
+.demo-opt.right{box-shadow:0 8px 22px rgba(22,163,74,.18)}
+.demo-strip div{transition:transform .22s ease,box-shadow .22s ease}
+.demo-strip div:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,35,64,.08)}
+.demo-badge{box-shadow:0 4px 14px rgba(22,163,74,.14)}
+.demo-hanzi{text-wrap:balance}
+@media(prefers-reduced-motion:reduce){
+  .demo-btn.go::after{display:none}
+  .demo-btn:hover,.demo-opt:hover,.demo-strip div:hover{transform:none}
+}
 @media(max-width:520px){.demo-card{padding:24px 18px}.demo-actions .demo-btn{width:100%;justify-content:center}}
 </style>
 </head>
@@ -71,13 +137,13 @@
     <span class="demo-badge">✓ OPEN LESSON · NO SIGNUP</span>
     <span class="demo-xp">⭐ <span id="xp">0</span> XP</span>
   </div>
-  <div class="demo-bar" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar"><span id="barFill"></span></div>
+  <div class="demo-bar" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Step 1 of 5" id="bar"><span id="barFill"></span></div>
 
   <div class="demo-card">
 
     <section class="demo-step on" id="s1" aria-labelledby="s1h">
       <div class="demo-kicker">YCT 1 · Greetings · Step 1 of 5</div>
-      <h1 class="demo-hanzi" id="s1h">你好</h1>
+      <h1 class="demo-hanzi" id="s1h" lang="zh-Hans">你好</h1>
       <div class="demo-py">nǐ hǎo</div>
       <div class="demo-mean">hello</div>
       <div class="demo-note"><strong>Say it:</strong> “nee how”. 你 (nǐ) means <em>you</em> and 好 (hǎo) means <em>good</em> — together they are the everyday hello.</div>
@@ -89,7 +155,7 @@
 
     <section class="demo-step" id="s2" aria-labelledby="s2h">
       <div class="demo-kicker">YCT 1 · Greetings · Step 2 of 5</div>
-      <h1 class="demo-hanzi" id="s2h">谢谢</h1>
+      <h2 class="demo-hanzi" id="s2h" lang="zh-Hans">谢谢</h2>
       <div class="demo-py">xiè xie</div>
       <div class="demo-mean">thank you</div>
       <div class="demo-note"><strong>Say it:</strong> “shyeh shyeh”. The second syllable is light and quick — Chinese often softens a repeated syllable like this.</div>
@@ -101,7 +167,7 @@
 
     <section class="demo-step" id="s3" aria-labelledby="s3h">
       <div class="demo-kicker">YCT 1 · Greetings · Step 3 of 5</div>
-      <h1 class="demo-hanzi" id="s3h">再见</h1>
+      <h2 class="demo-hanzi" id="s3h" lang="zh-Hans">再见</h2>
       <div class="demo-py">zài jiàn</div>
       <div class="demo-mean">goodbye</div>
       <div class="demo-note"><strong>Say it:</strong> “dzai jyen”. Literally “again see” — see you again.</div>
@@ -113,7 +179,7 @@
 
     <section class="demo-step" id="s4" aria-labelledby="s4h">
       <div class="demo-kicker">Quick practice · Step 4 of 5</div>
-      <h2 id="s4h" style="font:900 clamp(22px,3.4vw,30px) Nunito,sans-serif;color:var(--navy,#0F2340);margin:8px 0 0">What does <span style="font-family:'Noto Sans SC',sans-serif">谢谢</span> mean?</h2>
+      <h2 id="s4h" style="font:900 clamp(22px,3.4vw,30px) Nunito,sans-serif;color:var(--navy,#0F2340);margin:8px 0 0">What does <span lang="zh-Hans" style="font-family:'Noto Sans SC',sans-serif">谢谢</span> mean?</h2>
       <div class="demo-opts" id="opts">
         <button class="demo-opt" data-ok="0">Goodbye</button>
         <button class="demo-opt" data-ok="1">Thank you</button>
@@ -158,6 +224,7 @@
     var pct = Math.round(((step - 1) / (total - 1)) * 100);
     $("barFill").style.width = pct + "%";
     $("bar").setAttribute("aria-valuenow", String(pct));
+    $("bar").setAttribute("aria-valuetext", "Step " + step + " of " + total);
     $("xp").textContent = String(xp);
   }
 
@@ -173,7 +240,9 @@
       var focusable = head.querySelector("button:not([disabled]), a");
       if (focusable) focusable.focus({ preventScroll: true });
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var card = document.querySelector(".demo-card");
+    if (card) card.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
   }
 
   document.addEventListener("click", function (e) {
@@ -191,7 +260,6 @@
     var next = e.target.closest("[data-next]");
     if (next && !next.disabled) {
       var n = parseInt(next.getAttribute("data-next"), 10);
-      if (n === 4) xp += 10;
       if (n === 5) xp += 20;
       show(n);
     }
@@ -203,6 +271,8 @@
     var ok = btn.getAttribute("data-ok") === "1";
     btn.classList.add(ok ? "right" : "wrong");
     if (ok) {
+      xp += 10;
+      paint();
       $("fb").textContent = "Correct — 谢谢 (xiè xie) means thank you. +10 XP";
       $("fb").className = "demo-fb ok";
       $("next4").disabled = false;

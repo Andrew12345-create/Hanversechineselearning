@@ -6,9 +6,66 @@
   <meta property="og:title" content="Pricing | HanVerse">
   <meta property="og:description" content="Start free forever. Unlock the full YCT pathway from $4/month. 7-day free trial, cancel anytime.">
   <meta property="og:image" content="https://hanverse.netlify.app/Hanverse-logo2.png">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:site_name" content="HanVerse">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:url" content="https://hanverse.netlify.app/pricing.html">
+  <meta property="og:image:alt" content="HanVerse, Mandarin for children aged 5 to 12">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pricing | HanVerse">
+  <meta name="twitter:description" content="Start free forever. Unlock the full YCT pathway from $4/month. 7-day free trial, cancel anytime.">
   <meta name="twitter:image" content="https://hanverse.netlify.app/Hanverse-logo2.png">
+  <meta name="theme-color" content="#2563EB">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="hanverse.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Product",
+      "name": "HanVerse",
+      "description": "A Mandarin learning product for children aged 5 to 12, aligned to the YCT 1-4 curriculum.",
+      "url": "https://hanverse.netlify.app/pricing.html",
+      "brand": { "@type": "Brand", "name": "HanVerse" },
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "First lesson of every YCT level, games, XP, streaks and the Parent Hub. No card, no expiry.",
+          "availability": "https://schema.org/InStock",
+          "url": "https://learn-hanverse.netlify.app/signup.html"
+        },
+        {
+          "@type": "Offer",
+          "name": "YCT Course",
+          "price": "4",
+          "priceCurrency": "USD",
+          "description": "Every YCT 1-4 lesson, all video lessons and the full practice review deck, after a 7-day free trial.",
+          "availability": "https://schema.org/InStock",
+          "url": "https://learn-hanverse.netlify.app/payment.html?plan=yct"
+        },
+        {
+          "@type": "Offer",
+          "name": "Premium",
+          "price": "10",
+          "priceCurrency": "USD",
+          "description": "Everything in YCT Course plus printable worksheets, every world and priority support, after a 7-day free trial.",
+          "availability": "https://schema.org/InStock",
+          "url": "https://learn-hanverse.netlify.app/payment.html?plan=premium"
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://hanverse.netlify.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://hanverse.netlify.app/pricing.html" }
+      ]
+    }
+  ]
+}
+</script>
 <style>
 .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;max-width:1000px;margin:30px auto}
 .plan{background:#fff;border:1px solid var(--line,#E2E8F0);border-radius:22px;padding:26px;box-shadow:0 10px 30px rgba(37,99,235,.08);position:relative}
@@ -27,6 +84,32 @@
 .pick.free{background:var(--blue-50,#EFF6FF);color:var(--blue,#2563EB)}
 .pick.go{background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;box-shadow:0 10px 24px rgba(249,115,22,.28)}
 .fine{max-width:760px;margin:26px auto 60px;color:var(--muted,#64748B);font-size:13px;line-height:1.6;padding:0 20px}
+/* ── polish ── */
+.plans{position:relative}
+.plan{transition:transform .24s cubic-bezier(.2,.8,.2,1),box-shadow .24s ease,border-color .24s ease}
+.plan:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(37,99,235,.14)}
+.plan.hot:hover{box-shadow:0 24px 56px rgba(37,99,235,.22)}
+.plan .price{font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.plan .badge{box-shadow:0 6px 18px rgba(37,99,235,.32)}
+.plan li{padding-left:24px}
+.plan .pick{position:relative;overflow:hidden;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease,background .2s ease}
+.plan .pick:hover{transform:translateY(-2px)}
+.pick.free:hover{background:var(--blue-100,#DBEAFE)}
+.pick.go::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.42) 48%,transparent 64%);
+  transform:translateX(-130%);transition:transform .6s ease}
+.pick.go:hover::after{transform:translateX(130%)}
+.pick.go:hover{box-shadow:0 16px 34px rgba(249,115,22,.36)}
+.plan .pick:focus-visible{outline:3px solid rgba(37,99,235,.55);outline-offset:3px}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:18px 0 16px;border-radius:12px}
+.table-scroll table{margin:0;min-width:520px}
+.table-scroll tbody tr:hover{background:#F8FBFF}
+.table-scroll td,.table-scroll th{white-space:nowrap}
+.legal h1{text-wrap:balance}
+@media(prefers-reduced-motion:reduce){
+  .plan:hover,.plan .pick:hover{transform:none}
+  .pick.go::after{display:none}
+}
 </style></head>
 <body data-topnav="keep">
 
@@ -58,10 +141,10 @@
       <div class="price">$4 <small>/ month</small></div>
       <p class="desc">The full YCT pathway — every lesson, video and practice session.</p>
       <ul>
-        <li>✓ All YCT 1–4 lessons</li>
-        <li>✓ All video lessons</li>
-        <li>✓ Full practice review deck</li>
-        <li>✓ Progress across every world</li>
+        <li>All YCT 1–4 lessons</li>
+        <li>All video lessons</li>
+        <li>Full practice review deck</li>
+        <li>Progress across every world</li>
         <li class="no">Premium worksheets</li>
         <li class="no">Priority support</li>
       </ul>
@@ -72,11 +155,11 @@
       <div class="price">$10 <small>/ month</small></div>
       <p class="desc">The complete HanVerse premium experience.</p>
       <ul>
-        <li>✓ Everything in YCT Course</li>
-        <li>✓ Premium worksheets</li>
-        <li>✓ Every world, game &amp; story</li>
-        <li>✓ Priority support</li>
-        <li>✓ Cancel anytime</li>
+        <li>Everything in YCT Course</li>
+        <li>Premium worksheets</li>
+        <li>Every world, game &amp; story</li>
+        <li>Priority support</li>
+        <li>Cancel anytime</li>
       </ul>
       <a class="pick free" href="https://learn-hanverse.netlify.app/payment.html?plan=premium">Try Premium free</a>
     </div>
@@ -84,14 +167,15 @@
   <div class="fine">
     <h2 style="font:900 20px Nunito,sans-serif;color:var(--navy,#0F2340);margin:0 0 10px;">What happens when the trial ends?</h2>
     <p style="margin:0 0 14px;">The 7-day trial gives full access to the plan you picked. On day 8 that plan starts at the price shown above and is billed monthly, in USD. If you cancel before day 8, nothing is charged and your account drops back to the free plan — the free plan never expires and needs no card.</p>
+    <div class="table-scroll">
     <table style="width:100%;border-collapse:collapse;margin:18px 0 16px;font-size:13.5px;">
       <caption style="caption-side:top;text-align:left;font:800 13px Nunito,sans-serif;color:var(--navy,#0F2340);padding-bottom:8px;">Free and paid, side by side</caption>
       <thead>
         <tr style="text-align:left;color:var(--muted,#64748B);font:800 11px Nunito,sans-serif;letter-spacing:.08em;">
-          <th style="padding:8px 10px;border-bottom:1.5px solid #E2E8F0;">WHAT YOU GET</th>
-          <th style="padding:8px 10px;border-bottom:1.5px solid #E2E8F0;">FREE</th>
-          <th style="padding:8px 10px;border-bottom:1.5px solid #E2E8F0;">YCT $4</th>
-          <th style="padding:8px 10px;border-bottom:1.5px solid #E2E8F0;">PREMIUM $10</th>
+          <th scope="col" style="padding:8px 10px;border-bottom:1.5px solid #E2E8F0;">WHAT YOU GET</th>
+          <th scope="col" style="padding:8px 10px;border-bottom:1.5px solid #E2E8F0;">FREE</th>
+          <th scope="col" style="padding:8px 10px;border-bottom:1.5px solid #E2E8F0;">YCT $4</th>
+          <th scope="col" style="padding:8px 10px;border-bottom:1.5px solid #E2E8F0;">PREMIUM $10</th>
         </tr>
       </thead>
       <tbody style="color:var(--text,#0F172A);font-weight:600;">
@@ -104,6 +188,7 @@
         <tr><td style="padding:9px 10px;">Priority support</td><td style="padding:9px 10px;color:#94A3B8;">—</td><td style="padding:9px 10px;color:#94A3B8;">—</td><td style="padding:9px 10px;">✓</td></tr>
       </tbody>
     </table>
+    </div>
     <p style="margin:0 0 10px;"><strong>Not ready to choose?</strong> <a href="demo.html">Take the open lesson first</a> — five steps, no account, nothing saved.</p>
     <p style="margin:0;">Cancel anytime from your account — no phone calls, no forms. Questions? Read the <a href="faq.html">FAQ</a> or email <a href="mailto:andrewmunamwangi@gmail.com">andrewmunamwangi@gmail.com</a>.</p>
   </div>

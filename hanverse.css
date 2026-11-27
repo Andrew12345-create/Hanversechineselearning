@@ -325,8 +325,10 @@ main { padding-top: 100px; }
    secondary "Log in" link so the primary CTA stays fully visible. */
 @media (max-width: 480px) {
   .nav { gap: 8px; padding: 0 8px; }
-  .brand { font-size: 0; gap: 0; }
-  .brand img { width: 34px; height: 34px; }
+  /* Specificity beats the later 640px block that re-sets .brand font-size,
+     which would otherwise keep the wordmark and squeeze .nav-links to a sliver. */
+  .nav .brand { font-size: 0; gap: 0; }
+  .nav .brand img { width: 34px; height: 34px; }
   .nav-login { display: none; }
   .nav-cta { height: 40px; padding: 0 13px; font-size: 12.5px; }
   .nav-actions { gap: 0; }

@@ -6,13 +6,14 @@
 <meta name="theme-color" content="#2563EB">
 <title>HanVerse | Learn Chinese. One Adventure at a Time.</title>
 <link rel="canonical" href="https://hanverse.netlify.app/">
+<meta property="og:url" content="https://hanverse.netlify.app/">
 <meta name="description" content="A Mandarin adventure for children. Learn Chinese through stories, games and HanPan the panda. Free to start.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="HanVerse">
   <meta property="og:title" content="HanVerse — Learn Chinese. One Adventure at a Time.">
   <meta property="og:description" content="A Mandarin adventure for children. Learn Chinese through stories, games and HanPan the panda. Free to start.">
   <meta property="og:image" content="https://hanverse.netlify.app/Hanverse-logo2.png">
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://hanverse.netlify.app/Hanverse-logo2.png">
   <meta name="twitter:title" content="HanVerse — Learn Chinese. One Adventure at a Time.">
   <meta name="twitter:description" content="A Mandarin adventure for children. Learn Chinese through stories, games and HanPan the panda. Free to start.">
@@ -23,7 +24,7 @@
 <link rel="preload" as="image" href="assets/mascot/states/hanpan-happy.png">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="hanverse.css">
-<script src="js/auth-fetch.js"></script>
+<script src="js/auth-fetch.js" defer></script>
 
 <style>
 /* =============================================
@@ -60,6 +61,7 @@
   --r-md:  18px;
   --r-lg:  26px;
   --r-xl:  36px;
+  --blue-deep: #1E40AF;
   --pill:  999px;
 }
 
@@ -77,7 +79,7 @@ button { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 .container { width: min(1180px, calc(100% - 32px)); margin: auto; }
 .nunito { font-family: 'Nunito', sans-serif; }
-img { content-visibility: auto; max-width: 100%; display: block; }
+img { max-width: 100%; display: block; }
 
 /* ─── ANIMATED GRADIENT TEXT ─── */
 .grad-text {
@@ -1087,7 +1089,132 @@ section[id] { scroll-margin-top: 96px; }
   .snap-stats { grid-template-columns: repeat(3, 1fr); }
   .footer-inner { flex-direction: column; align-items: flex-start; }
 }
+/* =============================================
+   LANDING POLISH — index.html only
+   ============================================= */
+::selection { background: rgba(37,99,235,.18); color: var(--navy); }
+
+/* Type scale: a landing hero should own the fold */
+.hero-copy h1 { font-size: clamp(44px, 7.2vw, 86px); line-height: .95; letter-spacing: -.045em; }
+.hero-sub { font-size: clamp(16px, 1.55vw, 19px); line-height: 1.72; max-width: 46ch; }
+.hero { position: relative; isolation: isolate; }
+.hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(15,35,64,.055) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 70%);
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 70%);
+}
+.hero-layout { position: relative; z-index: 1; }
+
+/* Buttons: lift plus a single shine sweep */
+.btn-coral, .btn-primary, .btn-ghost {
+  position: relative; overflow: hidden;
+  transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s ease, background .22s ease;
+}
+.btn-coral::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 32%, rgba(255,255,255,.42) 48%, transparent 64%);
+  transform: translateX(-130%); transition: transform .62s ease;
+}
+.btn-coral:hover::after { transform: translateX(130%); }
+.btn-coral:hover, .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(249,115,22,.30); }
+.btn-primary:hover { box-shadow: 0 18px 40px rgba(37,99,235,.30); }
+.btn-ghost:hover { transform: translateY(-2px); }
+
+/* Visible keyboard focus everywhere */
+:where(a, button, iframe):focus-visible {
+  outline: 3px solid rgba(37,99,235,.55); outline-offset: 3px; border-radius: 12px;
+}
+
+/* Cards breathe on hover instead of sitting flat */
+.panel { transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease; }
+.panel:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.world-zone { transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, border-color .28s ease; }
+.world-zone:hover { transform: translateY(-6px); }
+.wotd-card { transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease; }
+.wotd-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.hero-trust-item { transition: transform .2s ease, background .2s ease; }
+.hero-trust-item:hover { transform: translateY(-1px); }
+
+/* Animated gradient ring on the featured plan */
+#pricing .panel:nth-child(2) { position: relative; }
+#pricing .panel:nth-child(2)::before {
+  content: ""; position: absolute; inset: -2px; border-radius: inherit; padding: 2px;
+  background: linear-gradient(120deg, #2563EB, #38BDF8, #14B8A6, #2563EB);
+  background-size: 300% 100%; animation: gradShift 6s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+}
+
+/* Anchors clear the sticky nav */
+section[id] { scroll-margin-top: 96px; }
+
+/* Numbers should not jitter while counting */
+.stat-card b, .snap-stat b, .wc-stat { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-coral::after, #pricing .panel:nth-child(2)::before { animation: none !important; transition: none !important; }
+  .panel:hover, .world-zone:hover, .wotd-card:hover, .hero-trust-item:hover,
+  .btn-coral:hover, .btn-primary:hover, .btn-ghost:hover { transform: none; }
+}
+
+/* The shared nav is re-declared in this page's inline style above (lines ~296,
+   ~311, ~1068), and inline rules win over hanverse.css. Restore the narrow
+   screen behaviour here, last, so it actually applies on this page. */
+@media (max-width: 660px) {
+  .nav-links {
+    flex: 0 1 auto; min-width: 0; justify-content: flex-start;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a { white-space: nowrap; flex: 0 0 auto; }
+}
+@media (max-width: 480px) {
+  .nav { gap: 8px; padding: 0 8px; }
+  .brand { font-size: 0; gap: 0; }
+  .brand img { width: 34px; height: 34px; }
+  .nav-login { display: none; }
+  .nav-cta { height: 40px; padding: 0 13px; font-size: 12.5px; }
+  .nav-actions { gap: 0; }
+}
+
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://hanverse.netlify.app/#org",
+      "name": "HanVerse",
+      "url": "https://hanverse.netlify.app/",
+      "logo": "https://hanverse.netlify.app/Hanverse-logo2.png",
+      "description": "Mandarin learning for children ages 5 to 12, aligned to the YCT 1-4 curriculum."
+    },
+    {
+      "@type": "Product",
+      "name": "HanVerse",
+      "description": "A Mandarin adventure for children ages 5-12 with structured YCT 1-4 lessons, games, stories and a panda learning buddy.",
+      "brand": { "@id": "https://hanverse.netlify.app/#org" },
+      "offers": [
+        { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+        { "@type": "Offer", "name": "YCT Course", "price": "4", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+        { "@type": "Offer", "name": "Premium", "price": "10", "priceCurrency": "USD", "availability": "https://schema.org/InStock" }
+      ]
+    },
+    {
+      "@type": "Course",
+      "name": "HanVerse YCT 1-4 Mandarin for children",
+      "description": "Structured Mandarin lessons for children ages 5-12, following the YCT 1-4 curriculum.",
+      "provider": { "@id": "https://hanverse.netlify.app/#org" },
+      "educationalLevel": "Beginner to intermediate",
+      "inLanguage": "en",
+      "teaches": "Mandarin Chinese"
+    }
+  ]
+}
+</script>
 </head>
 
 <body data-topnav="keep">
@@ -1097,7 +1224,7 @@ section[id] { scroll-margin-top: 96px; }
 <!-- LOADING -->
 <div class="route-loading" id="routeLoading" aria-hidden="true">
   <div class="loading-inner">
-    <img class="loading-panda-img" src="assets/mascot/states/hanpan-idle.png" alt="HanPan" width="72" height="72" decoding="async" loading="lazy" decoding="async">
+    <img class="loading-panda-img" src="assets/mascot/states/hanpan-idle.png" alt="HanPan" width="72" height="72" loading="lazy" decoding="async">
     <p>Opening your HanVerse…</p>
   </div>
 </div>
@@ -1157,7 +1284,7 @@ section[id] { scroll-margin-top: 96px; }
       <!-- HanPan, live at the top -->
       <div class="hero-panda">
         <div class="hero-panda-say" id="hanpanSay">你好! 👋<span class="py">nǐ hǎo · hello</span></div>
-        <iframe src="panda-wave.html" title="HanPan waving hello — click him to wave" loading="lazy"></iframe>
+        <iframe src="panda-wave.html" title="HanPan waving hello — click him to wave" width="300" height="300" loading="lazy" style="border:0;display:block"></iframe>
       </div>
       <div class="hero-chip c1">⭐ Earn XP</div>
       <div class="hero-chip c2">🔥 Build your streak</div>
@@ -1177,11 +1304,11 @@ section[id] { scroll-margin-top: 96px; }
         <div class="wc-top">
           <span class="wc-label">YOUR HANVERSE WORLD</span>
           <div class="wc-stats">
-            <span class="wc-stat" id="heroXp">⭐ 0 XP</span>
-            <span class="wc-stat" id="heroStreak">🔥 0</span>
+            <span class="wc-stat" id="heroXp">⭐ 240 XP</span>
+            <span class="wc-stat" id="heroStreak">🔥 3</span>
           </div>
         </div>
-        <div class="wc-heading nunito">Your first word: <span class="grad-text" id="wcWord">你好</span> <span class="wc-word-py" id="wcWordPy">nǐ hǎo · “hello”</span></div>
+        <div class="wc-heading nunito">Your first word: <span class="grad-text" id="wcWord" lang="zh-Hans">你好</span> <span class="wc-word-py" id="wcWordPy">nǐ hǎo · “hello”</span></div>
         <div class="wc-sub" id="mapSub">Choose a path. Learn. Practise. Grow.</div>
 
         <svg class="wc-path" viewBox="0 0 500 330" preserveAspectRatio="none" aria-hidden="true">
@@ -1202,15 +1329,15 @@ section[id] { scroll-margin-top: 96px; }
 <section class="wotd-section" aria-label="Word of the Day">
   <div class="container">
     <div class="wotd-card" id="wotdCard">
-      <div class="wotd-hanzi" id="wotdHanzi">字</div>
+      <div class="wotd-hanzi" id="wotdHanzi" lang="zh-Hans">字</div>
       <div class="wotd-meta">
         <div class="wotd-kicker">字 · WORD OF THE DAY · <span id="wotdDate"></span></div>
         <div class="wotd-py" id="wotdPinyin">nǐ hǎo</div>
         <div class="wotd-mean" id="wotdMean">hello</div>
       </div>
       <div class="wotd-actions">
-        <button class="wotd-btn speak" id="wotdSpeak">🔊 Hear it</button>
-        <button class="wotd-btn share" id="wotdShare">📤 Share</button>
+        <button class="wotd-btn speak" id="wotdSpeak" aria-label="Hear today’s word pronounced">🔊 Hear it</button>
+        <button class="wotd-btn share" id="wotdShare" aria-label="Share today’s word">📤 Share</button>
       </div>
     </div>
   </div>
@@ -1246,7 +1373,7 @@ section[id] { scroll-margin-top: 96px; }
       <article class="world-zone">
         <div class="zone-icon-wrap">📖</div><h3>Stories</h3>
         <p>Meet Mandarin through memorable stories, videos and visual learning experiences.</p>
-        <a class="zone-link" href="demo.html">Discover Stories →</a>
+        <a class="zone-link" href="demo.html">Preview a Lesson →</a>
         <div class="zone-panda"><img src="assets/mascot/states/hanpan-listening.png" alt="" width="70" height="70" loading="lazy" decoding="async"></div>
       </article>
       <article class="world-zone">
@@ -1355,9 +1482,9 @@ section[id] { scroll-margin-top: 96px; }
         <div class="lesson-card">
           <div class="lesson-icon" id="nextIcon">📚</div>
           <div style="flex:1;">
-            <strong id="nextTitle">Your next lesson will appear here.</strong>
+            <strong id="nextTitle">Greetings · 你好</strong>
             <small id="nextMeta">Live lesson data loads when you're signed in.</small>
-            <div class="progress-bar"><span id="nextBar"></span></div>
+            <div class="progress-bar"><span id="nextBar" style="width:40%"></span></div>
           </div>
         </div>
         <div class="db-status"><span class="db-dot" id="dbDot"></span><span id="dbStatus">Sample data — sign in to see your own</span></div>
@@ -1393,7 +1520,7 @@ section[id] { scroll-margin-top: 96px; }
       <div class="word-card">
         <div>
           <span class="word-label-tag">TODAY'S WORD</span>
-          <div class="hanzi">你好</div>
+          <div class="hanzi" lang="zh-Hans">你好</div>
           <div class="pinyin">nǐ hǎo</div>
           <div class="meaning">hello</div>
           <button class="audio-btn" id="audio" aria-label="Hear 你好">🔊</button>
@@ -1409,7 +1536,7 @@ section[id] { scroll-margin-top: 96px; }
             <button class="answer" data-correct="true">Hello</button>
             <button class="answer" data-correct="false">Goodbye</button>
           </div>
-          <div class="quiz-result" id="result"></div>
+          <div class="quiz-result" id="result" role="status" aria-live="polite"></div>
         </div>
         <a class="btn-coral" href="https://learn-hanverse.netlify.app/signup.html" style="margin-top:20px; display:inline-flex;">Start the Full Journey →</a>
       </div>
@@ -1423,8 +1550,7 @@ section[id] { scroll-margin-top: 96px; }
     <div class="panda-stage">
       <div class="panda-bubble">Let's practise! 🐼</div>
       <div class="panda-orbit">✨</div>
-      <iframe class="panda-img" src="panda-wave.html" title="HanPan waving hello — click him to wave again"
-              width="230" height="230" loading="lazy" style="border:0"></iframe>
+      <img class="panda-img" src="assets/mascot/states/hanpan-waving.png" alt="HanPan the panda waving hello" width="230" height="230" loading="lazy" decoding="async">
     </div>
     <div class="panda-copy">
       <span class="kicker">Your Mandarin practice buddy</span>
@@ -1461,17 +1587,17 @@ section[id] { scroll-margin-top: 96px; }
         <div class="snap-avatar"><img src="assets/mascot/states/hanpan-idle.png" alt="HanPan" width="52" height="52" loading="lazy" decoding="async"></div>
         <div class="snap-meta">
           <strong>Learning snapshot</strong>
-          <small id="snapshotLabel">Live account data when signed in</small>
+          <small id="snapshotLabel">Sample data — sign in to see your own</small>
         </div>
       </div>
       <div class="snap-bar-wrap">
-        <div class="snap-bar"><span id="snapshotBar"></span></div>
-        <div class="snap-labels"><span>Mandarin journey</span><span id="snapshotPercent">0%</span></div>
+        <div class="snap-bar"><span id="snapshotBar" style="width:18%"></span></div>
+        <div class="snap-labels"><span>Mandarin journey</span><span id="snapshotPercent">18%</span></div>
       </div>
       <div class="snap-stats">
-        <div class="snap-stat"><b id="snapXp">0</b><span>XP</span></div>
-        <div class="snap-stat"><b id="snapStreak">0</b><span>Streak</span></div>
-        <div class="snap-stat"><b id="snapLessons">0</b><span>Lessons</span></div>
+        <div class="snap-stat"><b id="snapXp">240</b><span>XP</span></div>
+        <div class="snap-stat"><b id="snapStreak">3</b><span>Streak</span></div>
+        <div class="snap-stat"><b id="snapLessons">4</b><span>Lessons</span></div>
       </div>
     </div>
   </div>
@@ -1491,7 +1617,7 @@ section[id] { scroll-margin-top: 96px; }
     </div>
     <div style="flex:0 1 320px;min-width:260px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:26px;backdrop-filter:blur(10px);">
       <div style="font:900 11px Nunito,sans-serif;letter-spacing:.14em;color:#7DD3FC">STEP 1 OF 5 · YCT 1</div>
-      <div style="font-family:'Noto Sans SC',sans-serif;font-size:64px;line-height:1.1;color:#fff;margin:8px 0 2px;">你好</div>
+      <div lang="zh-Hans" style="font-family:'Noto Sans SC',sans-serif;font-size:64px;line-height:1.1;color:#fff;margin:8px 0 2px;">你好</div>
       <div style="font:800 18px Nunito,sans-serif;color:#93C5FD">nǐ hǎo</div>
       <div style="color:#C7D9EC;font-size:14px;margin-top:2px;">hello</div>
       <div style="height:8px;border-radius:999px;background:rgba(255,255,255,.16);margin-top:20px;overflow:hidden;"><span style="display:block;height:100%;width:20%;border-radius:999px;background:linear-gradient(90deg,#38BDF8,#14B8A6)"></span></div>
@@ -1514,7 +1640,7 @@ section[id] { scroll-margin-top: 96px; }
         <div style="background:linear-gradient(135deg,#EFF6FF,#FFF7ED);padding:26px 26px 22px;border-bottom:1.5px solid var(--line);">
           <div style="font:900 11px Nunito,sans-serif;letter-spacing:.14em;color:var(--coral)">SAMPLE LESSON · YCT 1 · GREETINGS</div>
           <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-top:10px;">
-            <span style="font-family:'Noto Sans SC',sans-serif;font-size:56px;line-height:1;color:var(--navy)">你好</span>
+            <span lang="zh-Hans" style="font-family:'Noto Sans SC',sans-serif;font-size:56px;line-height:1;color:var(--navy)">你好</span>
             <span style="font:800 18px Nunito,sans-serif;color:var(--blue)">nǐ hǎo</span>
             <span style="color:var(--muted);font-size:14px">hello</span>
           </div>
@@ -1730,11 +1856,14 @@ function spawnConfetti(x, y) {
       shape: Math.random() > .5 ? 'rect' : 'circle'
     });
   }
+  if (!confettiRunning) { confettiRunning = true; requestAnimationFrame(drawConfetti); }
 }
 
+let confettiRunning = false;
 function drawConfetti() {
   ctx2.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
   confettiPieces = confettiPieces.filter(p => p.life > 0);
+  if (!confettiPieces.length) { confettiRunning = false; return; }
   confettiPieces.forEach(p => {
     p.x += p.vx; p.y += p.vy;
     p.vy += .28; // gravity
@@ -1756,9 +1885,9 @@ function drawConfetti() {
   });
   requestAnimationFrame(drawConfetti);
 }
-drawConfetti();
 
 /* ── COUNTER ANIMATION ── */
+const NUMBER_FMT = new Intl.NumberFormat();
 function animateCounter(el, target, suffix = '', duration = 900) {
   const start = performance.now();
   const from = 0;
@@ -1766,7 +1895,7 @@ function animateCounter(el, target, suffix = '', duration = 900) {
     const t = Math.min(1, (now - start) / duration);
     const ease = 1 - Math.pow(1 - t, 3);
     const val = Math.round(from + (target - from) * ease);
-    el.textContent = new Intl.NumberFormat().format(val) + suffix;
+    el.textContent = NUMBER_FMT.format(val) + suffix;
     if (t < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
@@ -1908,6 +2037,7 @@ function calculateOverall() {
   return Math.round(state.lessons.reduce((sum, lesson) => sum + progressFor(lesson), 0) / state.lessons.length);
 }
 
+const SAMPLE_LEVEL = { 1: 62, 2: 34, 3: 12, 4: 0 };
 function renderJourney() {
   const grouped = [1, 2, 3, 4].map(level => {
     const items = state.lessons.filter(l => lessonLevel(l) === level);
@@ -1920,11 +2050,12 @@ function renderJourney() {
     const level = Number(card.dataset.level);
     const data = grouped.find(x => x.level === level);
     const fill = card.querySelector(".j-bar span");
-    setTimeout(() => { fill.style.width = (data?.percent || 0) + "%"; }, 400);
+    const pct = state.user ? (data?.percent || 0) : (SAMPLE_LEVEL[level] || 0);
+    setTimeout(() => { fill.style.width = pct + "%"; }, 400);
     card.classList.toggle("complete", (data?.percent || 0) >= 100);
     card.classList.toggle("active", level === currentLevel);
   });
-  const max = grouped.filter(x => x.percent > 0).length;
+  const max = state.user ? grouped.filter(x => x.percent > 0).length : 3;
   setTimeout(() => {
     $("journeyFill").style.width = (Math.min(100, Math.max(0, max - 1) / 3 * 100)) + "%";
   }, 600);
@@ -1986,15 +2117,15 @@ function renderPersonal() {
 }
 
 function renderLoggedOutDefaults() {
-  $("heroXp").textContent = "⭐ 0 XP"; $("heroStreak").textContent = "🔥 0";
-  $("snapshotBar").style.width = "0%"; $("snapshotPercent").textContent = "0%";
+  $("heroXp").textContent = "⭐ 240 XP"; $("heroStreak").textContent = "🔥 3";
+  $("snapshotBar").style.width = "18%"; $("snapshotPercent").textContent = "18%";
 }
 
 async function loadAppData() {
   state.user = await loadUser();
   if (!state.user) {
     renderLoggedOutDefaults();
-    try { await loadLessons(); renderJourney(); } catch (err) { console.warn("Public lesson journey unavailable:", err.message); }
+    try { await loadLessons(); renderJourney(); } catch (err) { console.warn("Public lesson journey unavailable:", err.message); renderJourney(); }
     return;
   }
   try {
