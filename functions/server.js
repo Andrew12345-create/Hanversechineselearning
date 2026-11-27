@@ -7,25 +7,22 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
-import OpenAI from 'openai';
 import { registerFeatureRoutes, ensureFeatureSchema } from './features.js';
 import { computeEntitlement, hasAccess, PLAN_RANK, upgradeRequiredPayload } from './entitlements.js';
 import { registerAIRoutes } from './ai-routes.js';
-import { underLimit, markUsage } from './ai-helpers.js';
+import { underLimit, markUsage, aiChat } from './ai-helpers.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
 import { registerDictionaryRoutes, ensureDictionarySchema } from './dictionary.js';
 import { registerComplianceRoutes, ensureComplianceSchema } from './compliance.js';
 import rateLimit from 'express-rate-limit';
+import paymentSchema from './payment-schema.cjs';
 import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
 const { Pool } = pkg;
+const { ensurePaymentSchema } = paymentSchema;
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -38,6 +35,20 @@ function escapeHtml(value) {
 ========================================== */
 const app = express();
 const router = express.Router();
+
+// API requests wait for the core schema to finish converging on cold starts.
+// Optional feature/dictionary setup remains independently recoverable.
+let coreSchemaError = null;
+let coreSchemaReady = Promise.resolve();
+router.use((req, res, next) => {
+  if (!pool) return next();
+  coreSchemaReady.then(() => {
+    if (coreSchemaError) {
+      return res.status(503).json({ success: false, error: 'HanVerse is preparing its database. Please retry shortly.' });
+    }
+    return next();
+  }).catch(() => res.status(503).json({ success: false, error: 'HanVerse database is temporarily unavailable.' }));
+});
 
 // Security middleware
 app.use(helmet({
@@ -101,20 +112,22 @@ if (databaseUrl) {
       connectionTimeoutMillis: 15000
     });
 
-    pool.query('SELECT 1')
+    coreSchemaReady = pool.query('SELECT 1')
       .then(() => {
         console.log('✅ Database connected');
         return ensureUserColumns();
       })
       .then(() => {
-        console.log('✅ User schema converged (role, current_yct, premium, counters)');
+        console.log('✅ User and progress schema converged');
         return ensureComplianceSchema(pool);
       })
+      .then(() => ensurePaymentSchema(pool))
       .then(() => {
-        console.log('✅ Compliance schema converged (consent, deletion, retention, MFA)');
+        console.log('✅ Core database schema converged (users, progress, compliance, payments)');
       })
       .catch((error) => {
-        console.error('❌ Database connection failed:', error.message);
+        coreSchemaError = error;
+        console.error('❌ Core database schema initialization failed:', error.message);
       });
 
   } catch (error) {
@@ -147,6 +160,15 @@ async function ensureUserColumns() {
     ALTER TABLE users ADD COLUMN IF NOT EXISTS chinese_level VARCHAR(20) NOT NULL DEFAULT 'YCT 1';
     ALTER TABLE users ADD COLUMN IF NOT EXISTS lessons_completed INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS achievements_count INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_plan VARCHAR(30) NOT NULL DEFAULT 'free';
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_status VARCHAR(30) NOT NULL DEFAULT 'active';
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255);
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR(255);
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN NOT NULL DEFAULT FALSE;
+  `);
+  await pool.query(`
+    ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS xp_earned INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS time_spent INTEGER NOT NULL DEFAULT 0;
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);
   // Backfill: every user with a parents-table row is a parent, every user
@@ -3582,23 +3604,8 @@ router.post('/panda-chat', authLimiter, async (req, res) => {
     }
 
 
-    /* ----------------------------------------
-       OPENAI CHECK
-    ---------------------------------------- */
-
-    if (!process.env.OPENAI_API_KEY) {
-
-      console.error(
-        '❌ PANDA: OPENAI_API_KEY missing'
-      );
-
-      return res.status(500).json({
-        success: false,
-        error: 'Panda is currently unavailable.'
-      });
-
-    }
-
+    /* AI provider availability is resolved by the shared gateway.
+       OpenAI is preferred; Gemini is used automatically when configured. */
 
     /* ----------------------------------------
        LEARNER LEVEL
@@ -3695,28 +3702,23 @@ topic and does not need to stay on a lesson.
 
     markUsage(userId, 'pandaChat');
 
-    const completion =
-      await openai.chat.completions.create({
+    const completion = await aiChat({
+      tier: 'fast',
+      messages,
+      temperature: 0.8,
+      maxTokens: 300
+    });
 
-        model:
-          process.env.PANDA_CHAT_MODEL ||
-          'gpt-4o-mini',
-
-        messages,
-
-        temperature: 0.8,
-
-        max_tokens: 300
-
+    if (!completion.ok) {
+      return res.status(503).json({
+        success: false,
+        error: completion.reason === 'NO_PROVIDER'
+          ? 'Panda is not configured on this server yet.'
+          : 'Panda is temporarily unavailable.'
       });
+    }
 
-
-    const reply =
-      completion
-        ?.choices?.[0]
-        ?.message
-        ?.content
-        ?.trim();
+    const reply = completion.text;
 
 
     /* ----------------------------------------
@@ -10072,10 +10074,7 @@ router.post('/admin/panda-chat', verifyAdminToken, adminWriteLimiter, async (req
       return res.status(400).json({ success: false, error: 'Message is too long.' });
     }
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({ success: false, error: 'AI is not configured on this server.' });
-    }
-
+    // Shared gateway supports OpenAI with Gemini fallback.
     let stats = { users: '?', children: '?', pending_parents: '?', lessons: '?' };
     try {
       const [u, c, pp, l] = await Promise.all([
@@ -10094,8 +10093,8 @@ router.post('/admin/panda-chat', verifyAdminToken, adminWriteLimiter, async (req
       console.error('Admin Panda stats error:', e.message);
     }
 
-    const completion = await openai.chat.completions.create({
-      model: process.env.PANDA_CHAT_MODEL || 'gpt-4o-mini',
+    const completion = await aiChat({
+      tier: 'admin',
       messages: [
         {
           role: 'system',
@@ -10112,10 +10111,13 @@ Answer admin questions using these stats where relevant and identify PostgreSQL 
         { role: 'user', content: message }
       ],
       temperature: 0.4,
-      max_tokens: 250
+      maxTokens: 250
     });
 
-    const reply = completion?.choices?.[0]?.message?.content?.trim();
+    if (!completion.ok) {
+      return res.status(503).json({ success: false, error: 'Panda is temporarily unavailable.' });
+    }
+    const reply = completion.text;
     if (!reply) {
       return res.status(502).json({ success: false, error: 'Panda could not respond.' });
     }
