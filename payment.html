@@ -1165,11 +1165,10 @@ async function loadMembership() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    ...(stored.token ? { 'Authorization': 'Bearer ' + stored.token } : {})
                 },
-                body: JSON.stringify({
-                    userId: stored.user_id
-                })
+                body: JSON.stringify({})
             }
         );
 
