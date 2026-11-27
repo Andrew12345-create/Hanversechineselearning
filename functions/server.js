@@ -438,7 +438,7 @@ function verifyJWTToken(token) {
 function getFrontendBaseUrl() {
   if (process.env.PUBLIC_SITE_URL) return process.env.PUBLIC_SITE_URL.replace(/\/$/, '');
   if (process.env.URL) return process.env.URL.replace(/\/$/, '');
-  return 'https://hanverse.netlify.app';
+  return 'https://learn-hanverse.netlify.app';
 }
 
 /* ==========================================
@@ -3657,7 +3657,7 @@ router.post('/send-invite', authLimiter, async (req, res) => {
           <p style="font-size:16px;color:#374151;"><strong>${escapeHtml(name)}</strong> thinks you'd love learning Mandarin Chinese with HanPan the panda.</p>
           ${msg}
           <p style="font-size:15px;color:#374151;">HanVerse makes learning Mandarin fun for kids and families with interactive lessons, games, and YCT exam prep.</p>
-          <a href="https://hanverse.netlify.app/signup" style="display:inline-block;margin:20px 0;padding:14px 32px;background:#2563EB;color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;">Join HanVerse Free</a>
+          <a href="https://learn-hanverse.netlify.app/signup" style="display:inline-block;margin:20px 0;padding:14px 32px;background:#2563EB;color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;">Join HanVerse Free</a>
           <p style="font-size:13px;color:#9CA3AF;margin-top:24px;">If you didn't expect this email, just ignore it.</p>
         </div>`
       });
