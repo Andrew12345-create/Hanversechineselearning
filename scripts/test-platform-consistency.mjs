@@ -115,3 +115,11 @@ test('admin MFA and compliance routes are permission-mapped and sensitive change
   assert.match(server, /path === '\/admin\/mfa\/enroll'/);
   assert.match(server, /retention\\\/purge\|deletion-requests/);
 });
+
+test('CyberShield exposes administrator MFA enrollment and verification controls', () => {
+  assert.match(admin, /id="adminMfaSetup"/);
+  assert.match(admin, /id="adminMfaSecret"/);
+  assert.match(admin, /id="adminMfaUri"/);
+  assert.match(admin, /api\("\/admin\/mfa\/enroll"/);
+  assert.match(admin, /api\("\/admin\/mfa\/confirm"/);
+});
