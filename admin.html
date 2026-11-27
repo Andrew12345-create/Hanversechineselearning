@@ -1953,6 +1953,38 @@
         scroll-behavior: auto !important;
       }
     }
+
+    /* ─── OPS PULSE ───
+       A live status strip under the topbar. It answers "is the platform
+       healthy right now" without opening a section, and it pauses polling
+       while the tab is hidden so a background tab costs nothing. */
+    .ops-pulse {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 7px 22px; min-height: 34px;
+      background: #fff; border-bottom: 1px solid var(--line);
+      font-size: 12px; color: var(--muted);
+      position: sticky; top: 0; z-index: 40;
+    }
+    html[data-theme="dark"] .ops-pulse { background: #10233D; border-bottom-color: #1E3A5F; }
+    .ops-pulse .ops-item { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .ops-pulse strong { color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; }
+    html[data-theme="dark"] .ops-pulse strong { color: #E6F0FA; }
+    .ops-sep { width: 1px; height: 12px; background: var(--line); }
+    html[data-theme="dark"] .ops-sep { background: #1E3A5F; }
+    .ops-spacer { flex: 1 1 auto; }
+    .ops-clock { font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+    .ops-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex: none;
+      background: #94A3B8; box-shadow: 0 0 0 3px rgba(148,163,184,.18);
+    }
+    .ops-dot.ok { background: #10B981; box-shadow: 0 0 0 3px rgba(16,185,129,.18); animation: opsBreathe 2.4s ease-in-out infinite; }
+    .ops-dot.degraded { background: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,.2); }
+    .ops-dot.down { background: #EF4444; box-shadow: 0 0 0 3px rgba(239,68,68,.2); }
+    @keyframes opsBreathe { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+    @media (max-width: 760px) {
+      .ops-pulse { padding: 6px 14px; gap: 8px; font-size: 11px; }
+      .ops-pulse .ops-clock { display: none; }
+    }
   </style>
 </head>
 
@@ -2133,6 +2165,19 @@
         </button>
       </div>
     </header>
+
+    <div class="ops-pulse" id="opsPulse" role="status" aria-live="polite" aria-label="Live platform status">
+      <span class="ops-dot" id="opsDot" aria-hidden="true"></span>
+      <span class="ops-item"><strong id="opsState">Connecting…</strong></span>
+      <span class="ops-sep" aria-hidden="true"></span>
+      <span class="ops-item">API <strong id="opsLatency">—</strong></span>
+      <span class="ops-sep" aria-hidden="true"></span>
+      <span class="ops-item">Uptime <strong id="opsUptime">—</strong></span>
+      <span class="ops-sep" aria-hidden="true"></span>
+      <span class="ops-item">Next check <strong id="opsCountdown">—</strong></span>
+      <span class="ops-spacer"></span>
+      <span class="ops-item ops-clock" id="opsClock">—</span>
+    </div>
 
     <main id="main" class="content">
 
@@ -3335,6 +3380,66 @@
     </div>
   </div>
 </div>
+
+  <!-- Bulk actions bar -->
+  <div id="bulkBar" class="bulk-bar">
+    <span id="bulkCount">0 selected</span>
+    <button id="bulkBan" class="btn btn-danger btn-sm">Ban</button>
+    <button id="bulkEmail" class="btn btn-soft btn-sm">Email</button>
+    <button id="bulkExport" class="btn btn-sm">Export CSV</button>
+    <button id="bulkClear" class="btn btn-sm">Clear</button>
+  </div>
+
+  <!-- Command palette -->
+  <div id="cmdkOverlay" class="cmdk-overlay" role="dialog" aria-label="Command palette">
+    <div class="cmdk">
+      <input id="cmdkInput" type="text" placeholder="Search users, lessons, or jump to..." autocomplete="off">
+      <div id="cmdkResults" class="cmdk-results"></div>
+      <div class="cmdk-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+    </div>
+  </div>
+
+  <!-- Keyboard shortcuts -->
+  <div id="keysOverlay" class="keys-overlay" role="dialog" aria-modal="true" aria-labelledby="keysTitle">
+    <div class="keys-card">
+      <h2 id="keysTitle">Keyboard shortcuts</h2>
+      <p>Work the console without leaving the keyboard.</p>
+      <div class="keys-row"><span>Command palette</span><kbd>Ctrl K</kbd></div>
+      <div class="keys-row"><span>This help</span><kbd>?</kbd></div>
+      <div class="keys-row"><span>Close dialog or drawer</span><kbd>Esc</kbd></div>
+      <div class="keys-row"><span>Toggle dark mode</span><kbd>Ctrl J</kbd></div>
+      <div class="keys-row"><span>Toggle density</span><kbd>Ctrl D</kbd></div>
+      <button id="keysClose" class="btn btn-primary keys-close">Got it</button>
+    </div>
+  </div>
+
+  <!-- User detail drawer -->
+  <div id="drawerOverlay" class="drawer-overlay"></div>
+  <aside id="userDrawer" class="drawer" aria-label="User details">
+    <div class="drawer-head">
+      <div class="user-avatar" id="drawerAvatar">🎓</div>
+      <div>
+        <h3 id="drawerName">—</h3>
+        <small id="drawerEmail">—</small>
+      </div>
+      <button id="drawerClose" class="drawer-close" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-facts" id="drawerFacts"></div>
+      <div class="drawer-actions" id="drawerActions"></div>
+    </div>
+  </aside>
+
+  <!-- Lesson preview modal -->
+  <div id="previewOverlay" class="preview-overlay">
+    <div class="preview-modal">
+      <div class="preview-head">
+        <h3 id="previewTitle">Lesson preview</h3>
+        <button id="previewClose" class="preview-close" aria-label="Close">✕</button>
+      </div>
+      <div class="preview-body" id="previewBody"></div>
+    </div>
+  </div>
 
 <script>
 (() => {
@@ -6339,6 +6444,13 @@ ${body}
 
   document.addEventListener("keydown", (event) => {
     const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName) || event.target.isContentEditable;
+    if (event.key === "Escape") {
+      // Escape closes whichever overlay is on top, wherever focus happens to be.
+      if ($("cmdkOverlay").classList.contains("open")) { cmdkClose(); return; }
+      if (keysOverlay.classList.contains("open")) { keysClose(); return; }
+      if ($("userDrawer").classList.contains("open")) { closeUserDrawer(); return; }
+      if ($("previewOverlay").classList.contains("open")) { $("previewOverlay").classList.remove("open"); return; }
+    }
     if (event.key === "?" && !typing) {
       event.preventDefault();
       keysOverlay.classList.contains("open") ? keysClose() : keysOpen();
@@ -6353,69 +6465,78 @@ ${body}
     }
   });
 
+  /* ─── OPS PULSE ───
+     Polls /api/health on a 30s cadence, measures round-trip latency, and
+     stops entirely while the tab is hidden so a background tab costs nothing. */
+  const OPS_INTERVAL = 30000;
+  const ops = { timer: null, tick: 0, latency: null, ok: null };
+
+  function opsRender() {
+    const dot = $("opsDot");
+    const stateEl = $("opsState");
+    if (!dot || !stateEl) return;
+    const tone = ops.ok === null ? "" : ops.ok ? (ops.latency > 800 ? " degraded" : " ok") : " down";
+    dot.className = `ops-dot${tone}`;
+    stateEl.textContent = ops.ok === null
+      ? "Connecting…"
+      : ops.ok ? (ops.latency > 800 ? "Degraded" : "Operational") : "Unreachable";
+    $("opsLatency").textContent = ops.latency === null ? "—" : `${ops.latency} ms`;
+  }
+
+  async function opsProbe() {
+    const started = performance.now();
+    try {
+      const response = await fetch(`${API}/health`, { credentials: "same-origin", cache: "no-store" });
+      ops.latency = Math.round(performance.now() - started);
+      ops.ok = response.ok;
+      if (response.ok) {
+        const body = await response.json().catch(() => null);
+        if (body && Number.isFinite(body.uptime_s)) {
+          const s = body.uptime_s;
+          $("opsUptime").textContent = s >= 86400
+            ? `${Math.floor(s / 86400)}d ${Math.floor((s % 86400) / 3600)}h`
+            : s >= 3600
+              ? `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`
+              : `${Math.floor(s / 60)}m`;
+        }
+      }
+    } catch {
+      ops.latency = null;
+      ops.ok = false;
+    }
+    ops.tick = OPS_INTERVAL / 1000;
+    opsRender();
+  }
+
+  function opsStart() {
+    if (ops.timer) return;
+    opsProbe();
+    ops.timer = setInterval(() => {
+      if (document.hidden) return;
+      ops.tick -= 1;
+      if (ops.tick <= 0) { opsProbe(); return; }
+      const el = $("opsCountdown");
+      if (el) el.textContent = `${ops.tick}s`;
+    }, 1000);
+  }
+
+  function opsStop() {
+    if (ops.timer) { clearInterval(ops.timer); ops.timer = null; }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) opsStop(); else opsStart();
+  });
+
+  setInterval(() => {
+    const el = $("opsClock");
+    if (el) el.textContent = new Date().toLocaleTimeString("en-KE", { hour12: false });
+  }, 1000);
+
+  opsStart();
 
 })();
 </script>
-
-  <!-- User detail drawer -->
-  <div id="drawerOverlay" class="drawer-overlay"></div>
-  <aside id="userDrawer" class="drawer" aria-label="User details">
-    <div class="drawer-head">
-      <div class="user-avatar" id="drawerAvatar">🎓</div>
-      <div>
-        <h3 id="drawerName">—</h3>
-        <small id="drawerEmail">—</small>
-      </div>
-      <button id="drawerClose" class="drawer-close" aria-label="Close">✕</button>
-    </div>
-    <div class="drawer-body">
-      <div class="drawer-facts" id="drawerFacts"></div>
-      <div class="drawer-actions" id="drawerActions"></div>
-    </div>
-  </aside>
-
-  <!-- Lesson preview modal -->
-  <div id="previewOverlay" class="preview-overlay">
-    <div class="preview-modal">
-      <div class="preview-head">
-        <h3 id="previewTitle">Lesson preview</h3>
-        <button id="previewClose" class="preview-close" aria-label="Close">✕</button>
-      </div>
-      <div class="preview-body" id="previewBody"></div>
-    </div>
-  </div>
-
-  <!-- Bulk actions bar -->
-  <div id="bulkBar" class="bulk-bar">
-    <span id="bulkCount">0 selected</span>
-    <button id="bulkBan" class="btn btn-danger btn-sm">Ban</button>
-    <button id="bulkEmail" class="btn btn-soft btn-sm">Email</button>
-    <button id="bulkExport" class="btn btn-sm">Export CSV</button>
-    <button id="bulkClear" class="btn btn-sm">Clear</button>
-  </div>
-
-  <!-- Command palette -->
-  <div id="cmdkOverlay" class="cmdk-overlay" role="dialog" aria-label="Command palette">
-    <div class="cmdk">
-      <input id="cmdkInput" type="text" placeholder="Search users, lessons, or jump to…" autocomplete="off">
-      <div id="cmdkResults" class="cmdk-results"></div>
-      <div class="cmdk-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
-    </div>
-  </div>
-
-  <!-- Keyboard shortcuts -->
-  <div id="keysOverlay" class="keys-overlay" role="dialog" aria-modal="true" aria-labelledby="keysTitle">
-    <div class="keys-card">
-      <h2 id="keysTitle">Keyboard shortcuts</h2>
-      <p>Work the console without leaving the keyboard.</p>
-      <div class="keys-row"><span>Command palette</span><kbd>Ctrl K</kbd></div>
-      <div class="keys-row"><span>This help</span><kbd>?</kbd></div>
-      <div class="keys-row"><span>Close dialog or drawer</span><kbd>Esc</kbd></div>
-      <div class="keys-row"><span>Toggle dark mode</span><kbd>Ctrl J</kbd></div>
-      <div class="keys-row"><span>Toggle density</span><kbd>Ctrl D</kbd></div>
-      <button id="keysClose" class="btn btn-primary keys-close">Got it</button>
-    </div>
-  </div>
 
 </body>
 </html>
