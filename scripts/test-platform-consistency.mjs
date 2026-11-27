@@ -14,6 +14,8 @@ const premiumCheck = read('functions/check-premium.cjs');
 const paymentPage = read('payment.html');
 const aiHelpers = read('functions/ai-helpers.js');
 const aiRoutes = read('functions/ai-routes.js');
+const parentDigest = read('functions/parent-digest-ai.js');
+const features = read('functions/features.js');
 
 test('Panda uses the shared AI gateway and server startup does not require an OpenAI key', () => {
   assert.match(server, /import \{ underLimit, markUsage, aiChat \} from '\.\/ai-helpers\.js'/);
@@ -145,4 +147,11 @@ test('AI daily limits are persistent and atomic across serverless instances', ()
   assert.match(aiRoutes, /consumeAIUsage\(pool, req\.adminUserId, 'adminDraft'\)/);
   assert.doesNotMatch(aiRoutes, /underLimit\(/);
   assert.match(server, /consumeAIUsage\(pool, userId, 'pandaChat'\)/);
+});
+
+test('all AI entry points use shared persistent usage limits', () => {
+  assert.match(aiHelpers, /parentDigest: 5/);
+  assert.match(parentDigest, /consumeAIUsage\(pool, userId, 'parentDigest'\)/);
+  assert.match(features, /upgradeParentDigestEmail\([\s\S]{0,500}pool, userId: req\.userId/);
+  assert.match(server, /consumeAIUsage\(pool, req\.adminUserId, 'adminChat'\)/);
 });
