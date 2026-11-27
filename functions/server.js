@@ -14,7 +14,7 @@ import { consumeAIUsage, aiChat } from './ai-helpers.js';
 import { registerSecureGrading } from './secure-grading.js';
 import { registerWorldRoutes } from './world-routes.js';
 import { registerDictionaryRoutes, ensureDictionarySchema } from './dictionary.js';
-import { registerComplianceRoutes, ensureComplianceSchema, verifyTotp } from './compliance.js';
+import { registerComplianceRoutes, ensureComplianceSchema, verifyTotp, decryptTotpSecret } from './compliance.js';
 import rateLimit from 'express-rate-limit';
 import paymentSchema from '../lib/payment-schema.cjs';
 import jwt from 'jsonwebtoken';
@@ -7228,7 +7228,7 @@ router.post('/admin/verify-password', authLimiter, async (req, res) => {
           error: 'Enter the six-digit code from your authenticator app.'
         });
       }
-      if (!verifyTotp(mfaResult.rows[0].secret, mfaCode)) {
+      if (!verifyTotp(decryptTotpSecret(mfaResult.rows[0].secret), mfaCode)) {
         await recordAdminPasswordAttempt(auth.user_id, req);
         return res.status(401).json({
           success: false,
