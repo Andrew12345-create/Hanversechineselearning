@@ -15,6 +15,18 @@ async function ensurePaymentSchema(pool) {
 
   const ready = (async () => {
     await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS premium BOOLEAN NOT NULL DEFAULT FALSE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_until TIMESTAMPTZ;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_plan VARCHAR(30) NOT NULL DEFAULT 'free';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_status VARCHAR(30) NOT NULL DEFAULT 'active';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN NOT NULL DEFAULT FALSE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMPTZ;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_used BOOLEAN NOT NULL DEFAULT FALSE;
+    `);
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS payments (
         payment_id BIGSERIAL PRIMARY KEY,
         user_id INTEGER,
