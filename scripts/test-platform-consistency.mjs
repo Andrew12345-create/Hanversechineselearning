@@ -6,7 +6,7 @@ const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), '
 const server = read('functions/server.js');
 const checkout = read('functions/create-checkout-session.cjs');
 const webhook = read('functions/stripe-webhook.cjs');
-const paymentSchema = read('functions/payment-schema.cjs');
+const paymentSchema = read('lib/payment-schema.cjs');
 const baseSchema = read('database_schema.sql');
 const compliance = read('functions/compliance.js');
 const admin = read('admin.html');
@@ -24,6 +24,7 @@ test('core schema readiness gates API requests on cold starts', () => {
   assert.match(server, /let coreSchemaReady = Promise\.resolve\(\)/);
   assert.match(server, /coreSchemaReady\.then\(\(\) =>/);
   assert.match(server, /ensurePaymentSchema\(pool\)/);
+  assert.match(server, /\.\.\/lib\/payment-schema\.cjs/);
 });
 
 test('membership and progress columns are converged for fresh and existing databases', () => {
