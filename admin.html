@@ -22,7 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="hanverse.css?v=2">
 
-  <style>
+  <style><style>
     /* Tokens come from hanverse.css. Only admin-specific aliases live here. */
     :root {
       --blue-deep: var(--blue-dark);
@@ -104,7 +104,7 @@
       line-height: 1.5;
     }
 
-    h1, h2, h3, .brand strong, .metric-value {
+    h1, h2, h3, .admin-brand strong, .metric-value {
       font-family: 'Nunito', 'Inter', sans-serif;
     }
 
@@ -175,7 +175,7 @@
       transition: transform var(--ease);
     }
 
-    .brand {
+    .admin-brand {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -183,21 +183,21 @@
       text-decoration: none;
     }
 
-    .brand img {
+    .admin-brand img {
       width: 42px;
       height: 42px;
       object-fit: contain;
       border-radius: 12px;
     }
 
-    .brand strong {
+    .admin-brand strong {
       display: block;
       color: var(--navy);
       font-size: 16px;
       letter-spacing: -0.04em;
     }
 
-    .brand span {
+    .admin-brand span {
       color: var(--blue);
       font-size: 9px;
       font-weight: 800;
@@ -214,7 +214,7 @@
       letter-spacing: .12em;
     }
 
-    .nav {
+    .admin-nav {
       display: grid;
       gap: 3px;
     }
@@ -1739,7 +1739,7 @@
       letter-spacing: .005em;
     }
 
-    h1, h2, h3, h4, .brand strong, .metric-value {
+    h1, h2, h3, h4, .admin-brand strong, .metric-value {
       font-family: 'Nunito', 'Poppins', system-ui, sans-serif;
       letter-spacing: -.025em;
     }
@@ -1749,10 +1749,10 @@
       border-right-color: #DFECF9;
       box-shadow: 8px 0 30px rgba(37,99,235,.035);
     }
-    .brand { padding-bottom: 25px; }
-    .brand img { border-radius: 14px; }
-    .brand strong { color: #183B66; font-size: 18px; }
-    .brand span { color: #2563EB; }
+    .admin-brand { padding-bottom: 25px; }
+    .admin-brand img { border-radius: 14px; }
+    .admin-brand strong { color: #183B66; font-size: 18px; }
+    .admin-brand span { color: #2563EB; }
 
     .nav-label { color: #8AA4C0; }
     .nav-button {
@@ -2008,7 +2008,7 @@
       input, select, textarea { min-height: 44px; }
       :where(p, .muted, .prompt, .pending-badge, .recipient-count,
              .bubble, kbd, .nav-label, .field label,
-             .brand span, .preview-label span,
+             .admin-brand span, .preview-label span,
              strong[style*="font-size:10px"]) {
         /* !important is deliberate: :where() has zero specificity, so any
            `.card p { font-size: 10px }` would otherwise win and the floor
@@ -2018,10 +2018,292 @@
       /* Long ids, emails and URLs must not widen the page. */
       :where(p, li, td, th, dd, .bubble, .prompt) { overflow-wrap: anywhere; }
     }
-  </style>
+  
+
+    /* ==========================================================
+       HANVERSE ADMIN — LAYOUT ISOLATION & RESPONSIVE HARDENING
+       Keep the admin console independent from the public-site
+       floating navigation and shared component selectors.
+       ========================================================== */
+    body.admin-page {
+      min-width: 320px;
+      overflow-x: hidden;
+      isolation: isolate;
+    }
+
+    /* The shared site stylesheet uses .nav for a floating pill.
+       Admin navigation is deliberately a normal sidebar stack. */
+    .admin-page .sidebar .admin-nav {
+      position: static !important;
+      inset: auto !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      transform: none !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      height: auto !important;
+      min-height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      gap: 4px !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      overflow: visible !important;
+    }
+
+    /* Isolate the sidebar identity from the public-site .brand pill. */
+    .admin-page .sidebar .admin-brand {
+      position: static !important;
+      inset: auto !important;
+      transform: none !important;
+      width: 100% !important;
+      min-width: 0;
+      max-width: none !important;
+      height: auto !important;
+      min-height: 0 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: flex-start !important;
+      gap: 10px;
+      padding: 5px 9px 23px !important;
+      margin: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      text-decoration: none;
+      white-space: normal;
+    }
+    .admin-page .sidebar .admin-brand img {
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      object-fit: contain;
+      border-radius: 14px;
+    }
+    .admin-page .sidebar .admin-brand strong {
+      display: block;
+      color: var(--navy);
+      font-size: 18px;
+      line-height: 1.15;
+    }
+    .admin-page .sidebar .admin-brand span {
+      display: block;
+      color: var(--blue);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .admin-page .sidebar {
+      width: 250px;
+      height: 100vh;
+      height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: #C7D8EA transparent;
+    }
+    .admin-page .main {
+      width: calc(100% - 250px);
+      min-width: 0;
+      min-height: 100vh;
+    }
+    .admin-page .content {
+      width: 100%;
+      max-width: 1560px;
+      min-width: 0;
+      padding: clamp(20px, 2.2vw, 34px) clamp(16px, 2.4vw, 36px) 64px;
+    }
+    .admin-page .topbar {
+      min-width: 0;
+      padding-inline: clamp(14px, 2vw, 30px);
+    }
+    .admin-page .top-actions {
+      min-width: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    /* The health strip follows the topbar; two sticky bars at top:0
+       otherwise compete and can cover one another while scrolling. */
+    .admin-page .ops-pulse {
+      position: relative;
+      top: auto;
+      z-index: 20;
+    }
+
+    .admin-page .metrics,
+    .admin-page .analytics-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .admin-page .dashboard-grid,
+    .admin-page .dashboard-three,
+    .admin-page .composer-grid,
+    .admin-page .panda-layout {
+      min-width: 0;
+    }
+    .admin-page .panel,
+    .admin-page .metric,
+    .admin-page .analytics-card,
+    .admin-page .table-wrap {
+      min-width: 0;
+    }
+    .admin-page .table-wrap {
+      max-width: 100%;
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .admin-page table {
+      max-width: 100%;
+    }
+    .admin-page input,
+    .admin-page select,
+    .admin-page textarea {
+      max-width: 100%;
+    }
+    .admin-page button,
+    .admin-page a {
+      -webkit-tap-highlight-color: transparent;
+    }
+    .admin-page :focus-visible {
+      scroll-margin-block: 90px;
+    }
+
+    @media (max-width: 1180px) {
+      .admin-page .metrics,
+      .admin-page .analytics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .admin-page .dashboard-grid {
+        grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+      }
+      .admin-page .dashboard-three {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .admin-page .sidebar {
+        z-index: 1300;
+        transform: translateX(-105%);
+        box-shadow: 18px 0 48px rgba(15, 35, 64, .18);
+      }
+      .admin-page .sidebar.open {
+        transform: translateX(0);
+      }
+      .admin-page .main {
+        width: 100%;
+        margin-left: 0;
+      }
+      .admin-page .mobile-menu {
+        display: inline-grid;
+        place-items: center;
+        flex: 0 0 40px;
+      }
+      .admin-page .dashboard-grid,
+      .admin-page .composer-grid,
+      .admin-page .panda-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .admin-page .preview-wrap {
+        position: static;
+      }
+      .admin-page .panda-side {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .admin-page .topbar {
+        min-height: 64px;
+        height: auto;
+        padding-block: 10px;
+        gap: 9px;
+      }
+      .admin-page .top-title h1 { font-size: 17px; }
+      .admin-page .top-title p { display: none; }
+      .admin-page .top-actions { gap: 5px; }
+      .admin-page .top-actions .btn { min-width: 38px; padding-inline: 9px; }
+      .admin-page .optional-label { display: none; }
+      .admin-page .content { padding: 20px 14px 48px; }
+      .admin-page .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .admin-page .section-header h2 { font-size: 23px; }
+      .admin-page .header-actions { width: 100%; }
+      .admin-page .metrics,
+      .admin-page .analytics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+      }
+      .admin-page .dashboard-three,
+      .admin-page .panda-side {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .admin-page .communication-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .admin-page .campaign {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .admin-page .toolbar {
+        align-items: stretch;
+      }
+      .admin-page .search {
+        min-width: 100%;
+      }
+      .admin-page .audit-toolbar .input {
+        max-width: none;
+        flex: 1 1 145px;
+      }
+      .admin-page .email-preview { height: 420px; }
+      .admin-page .bulk-bar {
+        width: calc(100% - 20px);
+        justify-content: center;
+        flex-wrap: wrap;
+        border-radius: 18px;
+        bottom: 10px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .admin-page .metrics,
+      .admin-page .analytics-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .admin-page .communication-stats {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .admin-page .top-actions .btn:nth-child(2) { display: none; }
+      .admin-page .panel-body { padding: 13px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .admin-page *,
+      .admin-page *::before,
+      .admin-page *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+</style>
 </head>
 
-<body>
+<body class="admin-page">
 
 <a class="skip-link" href="#main">Skip to content</a>
 
@@ -2069,7 +2351,7 @@
 
   <aside id="sidebar" class="sidebar">
 
-    <a href="index.html" class="brand">
+    <a href="index.html" class="admin-brand">
       <img src="Hanverse-logo2.png" alt="HanVerse">
       <div>
         <strong>HanVerse</strong>
@@ -2078,7 +2360,7 @@
     </a>
 
     <div class="nav-label">Overview</div>
-    <nav class="nav">
+    <nav class="admin-nav">
       <button class="nav-button active" data-section="dashboard">
         <span class="nav-icon">⌂</span>
         Dashboard
