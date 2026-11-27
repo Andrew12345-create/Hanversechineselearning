@@ -3265,6 +3265,20 @@
           <div class="metric"><span class="metric-label">Authentication attempts · 24h</span><strong id="cyberAttempts24h" class="metric-value">—</strong><span class="metric-note">Recorded attempts across tracked scopes</span></div>
           <div class="metric"><span class="metric-label">Tracked accounts · 24h</span><strong id="cyberTracked24h" class="metric-value">—</strong><span class="metric-note">Hashed account/IP scopes; no identifiers exposed</span></div>
         </div>
+        <div class="panel" id="adminMfaPanel">
+          <div class="panel-header">
+            <div><h3>Administrator authenticator</h3><p id="adminMfaStatus" class="muted" aria-live="polite">Checking authenticator status…</p></div>
+            <button id="adminMfaSetup" class="btn btn-soft btn-sm" type="button">Set up authenticator</button>
+          </div>
+          <div class="panel-body" id="adminMfaEnrollment" hidden>
+            <p class="muted">Add this account to an authenticator app using the secret below or the otpauth URI. Keep the secret private.</p>
+            <div class="field"><label>Setup secret</label><code id="adminMfaSecret" style="display:block;overflow-wrap:anywhere;padding:10px;border-radius:8px;background:var(--surface-2,#f3f5f8);"></code></div>
+            <div class="field"><label>Authenticator URI</label><code id="adminMfaUri" style="display:block;overflow-wrap:anywhere;padding:10px;border-radius:8px;background:var(--surface-2,#f3f5f8);font-size:11px;"></code></div>
+            <div class="field"><label for="adminMfaCode">Six-digit verification code</label><input id="adminMfaCode" class="input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000"></div>
+            <div id="adminMfaError" class="error" aria-live="polite"></div>
+            <button id="adminMfaConfirm" class="btn btn-primary btn-sm" type="button">Verify and enable MFA</button>
+          </div>
+        </div>
         <div class="panel">
           <div class="panel-header"><div><h3>Security events</h3><p id="cyberObservedAt" class="muted">Waiting for telemetry…</p></div></div>
           <div class="panel-body" id="cyberEvents"><div class="empty">Security events will appear here when available.</div></div>
@@ -6252,7 +6266,72 @@ ${body}
       `;
   }
 
+  async function loadAdminMfa() {
+    const status = $("adminMfaStatus");
+    const setup = $("adminMfaSetup");
+    if (!status || !setup) return;
+    try {
+      const data = await api("/admin/mfa/status");
+      if (data.enabled) {
+        status.textContent = "Enabled. A six-digit authenticator code is required at every new administrator sign-in.";
+        setup.textContent = "Authenticator enabled";
+        setup.disabled = true;
+      } else {
+        status.textContent = data.enrolled
+          ? "An authenticator setup has started but has not been confirmed."
+          : "Not enabled. Set up an authenticator to add a second sign-in factor.";
+        setup.textContent = data.enrolled ? "Restart setup" : "Set up authenticator";
+        setup.disabled = false;
+      }
+    } catch (error) {
+      status.textContent = "Could not load authenticator status: " + error.message;
+      setup.disabled = true;
+    }
+  }
+
+  $("adminMfaSetup").addEventListener("click", async () => {
+    const button = $("adminMfaSetup");
+    button.disabled = true;
+    $("adminMfaError").textContent = "";
+    try {
+      const data = await api("/admin/mfa/enroll", { method: "POST", body: "{}" });
+      $("adminMfaSecret").textContent = data.secret || "";
+      $("adminMfaUri").textContent = data.otpauth || "";
+      $("adminMfaCode").value = "";
+      $("adminMfaEnrollment").hidden = false;
+      $("adminMfaStatus").textContent = "Setup started. Add the secret to your authenticator app, then verify a current code.";
+    } catch (error) {
+      $("adminMfaError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+      await loadAdminMfa();
+    }
+  });
+
+  $("adminMfaConfirm").addEventListener("click", async () => {
+    const code = $("adminMfaCode").value.trim();
+    if (!/^\d{6}$/.test(code)) {
+      $("adminMfaError").textContent = "Enter the six-digit code shown in your authenticator app.";
+      return;
+    }
+    const button = $("adminMfaConfirm");
+    button.disabled = true;
+    $("adminMfaError").textContent = "";
+    try {
+      await api("/admin/mfa/confirm", { method: "POST", body: JSON.stringify({ code }) });
+      $("adminMfaEnrollment").hidden = true;
+      $("adminMfaCode").value = "";
+      notify("Administrator authenticator enabled. Your next sign-in will require a code.");
+      await loadAdminMfa();
+    } catch (error) {
+      $("adminMfaError").textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
   async function loadCyberShield() {
+    void loadAdminMfa();
     const refresh = $("cyberShieldRefresh"), events = $("cyberEvents");
     if (refresh) refresh.disabled = true;
     events.innerHTML = '<div class="loading">Loading security telemetry…</div>';
