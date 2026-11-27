@@ -1985,6 +1985,37 @@
       .ops-pulse { padding: 6px 14px; gap: 8px; font-size: 11px; }
       .ops-pulse .ops-clock { display: none; }
     }
+    .ops-spark { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+    .ops-spark i {
+      display: block; width: 3px; border-radius: 1px; background: #10B981;
+      transition: height .3s ease, background .3s ease;
+    }
+    .ops-spark i.warn { background: #F59E0B; }
+    .ops-spark i.bad { background: #EF4444; }
+    @media (max-width: 760px) { .ops-spark { display: none; } }
+
+    /* ─── MOBILE FLOOR ───
+       The console was built desktop-first: 34px buttons and 9–10px labels are
+       fine with a mouse and unusable with a thumb. Lift the floor on small
+       screens only, so desktop density is untouched. */
+    @media (max-width: 800px) {
+      .btn, .btn-sm, .btn-primary, .btn-soft, .btn-danger,
+      .sidebar-logout, .skip-link, .drawer-close, .close-button {
+        min-height: 44px;
+      }
+      .btn-sm { padding-block: 10px; }
+      .close-button, .drawer-close { min-width: 44px; min-height: 44px; }
+      input, select, textarea { min-height: 44px; }
+      :where(p, .muted, .prompt, .pending-badge, .recipient-count,
+             .bubble, kbd, .nav-label, .field label) {
+        /* !important is deliberate: :where() has zero specificity, so any
+           `.card p { font-size: 10px }` would otherwise win and the floor
+           would silently do nothing. */
+        font-size: max(12px, 0.75rem) !important;
+      }
+      /* Long ids, emails and URLs must not widen the page. */
+      :where(p, li, td, th, dd, .bubble, .prompt) { overflow-wrap: anywhere; }
+    }
   </style>
 </head>
 
@@ -2171,6 +2202,7 @@
       <span class="ops-item"><strong id="opsState">Connecting…</strong></span>
       <span class="ops-sep" aria-hidden="true"></span>
       <span class="ops-item">API <strong id="opsLatency">—</strong></span>
+      <span class="ops-spark" id="opsSpark" aria-hidden="true"></span>
       <span class="ops-sep" aria-hidden="true"></span>
       <span class="ops-item">Uptime <strong id="opsUptime">—</strong></span>
       <span class="ops-sep" aria-hidden="true"></span>
@@ -6469,7 +6501,7 @@ ${body}
      Polls /api/health on a 30s cadence, measures round-trip latency, and
      stops entirely while the tab is hidden so a background tab costs nothing. */
   const OPS_INTERVAL = 30000;
-  const ops = { timer: null, tick: 0, latency: null, ok: null };
+  const ops = { timer: null, tick: 0, latency: null, ok: null, history: [] };
 
   function opsRender() {
     const dot = $("opsDot");
@@ -6478,9 +6510,28 @@ ${body}
     const tone = ops.ok === null ? "" : ops.ok ? (ops.latency > 800 ? " degraded" : " ok") : " down";
     dot.className = `ops-dot${tone}`;
     stateEl.textContent = ops.ok === null
-      ? "Connecting…"
+      ? "Connecting..."
       : ops.ok ? (ops.latency > 800 ? "Degraded" : "Operational") : "Unreachable";
     $("opsLatency").textContent = ops.latency === null ? "—" : `${ops.latency} ms`;
+    opsSparkRender();
+  }
+
+  /* Latency sparkline: the last 12 probes, scaled against the worst sample so
+     a spike is visible at a glance without a chart library. */
+  function opsSparkRender() {
+    const host = $("opsSpark");
+    if (!host) return;
+    const samples = ops.history.slice(-12);
+    if (!samples.length) { host.replaceChildren(); return; }
+    const peak = Math.max(...samples, 1);
+    host.replaceChildren(...samples.map(value => {
+      const bar = document.createElement("i");
+      bar.style.height = `${Math.max(3, Math.round((value / peak) * 14))}px`;
+      if (value > 800) bar.className = "bad";
+      else if (value > 400) bar.className = "warn";
+      return bar;
+    }));
+    host.title = `Last ${samples.length} probes · peak ${peak} ms`;
   }
 
   async function opsProbe() {
@@ -6489,6 +6540,8 @@ ${body}
       const response = await fetch(`${API}/health`, { credentials: "same-origin", cache: "no-store" });
       ops.latency = Math.round(performance.now() - started);
       ops.ok = response.ok;
+      ops.history.push(ops.latency);
+      if (ops.history.length > 24) ops.history.shift();
       if (response.ok) {
         const body = await response.json().catch(() => null);
         if (body && Number.isFinite(body.uptime_s)) {
