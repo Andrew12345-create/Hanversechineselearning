@@ -31,8 +31,8 @@ const TIMEOUT_MS = 20_000;
 const CACHE_TTL_MS = 30 * 60 * 1000;      // 30 min
 const CACHE_MAX = 300;                     // entries per process
 
-/* Daily per-user caps (per serverless instance; production instances
-   are few and short-lived, so real-world caps are approximate). */
+/* Daily per-user caps are enforced atomically in PostgreSQL, shared by
+   every serverless instance. The in-memory map below is observability only. */
 export const DAILY_LIMITS = {
   lessonHelp: 25,
   quizExplain: 40,
@@ -79,6 +79,66 @@ export function underLimit(userId, task) {
 export function markUsage(userId, task) {
   const rec = usageFor(userId);
   rec.counts[task] = (rec.counts[task] || 0) + 1;
+}
+
+const aiUsageReady = new WeakMap();
+
+export async function ensureAIUsageSchema(pool) {
+  if (!pool || typeof pool.query !== 'function') throw new Error('A PostgreSQL pool is required for AI usage accounting.');
+  if (aiUsageReady.has(pool)) return aiUsageReady.get(pool);
+  const ready = (async () => {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ai_usage_daily (
+        user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+        usage_date DATE NOT NULL,
+        task VARCHAR(40) NOT NULL,
+        calls INTEGER NOT NULL DEFAULT 0 CHECK (calls >= 0),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (user_id, usage_date, task)
+      );
+      CREATE INDEX IF NOT EXISTS idx_ai_usage_daily_date ON ai_usage_daily(usage_date);
+      DELETE FROM ai_usage_daily WHERE usage_date < ((NOW() AT TIME ZONE 'UTC')::date - 60);
+    `);
+  })().catch(error => {
+    aiUsageReady.delete(pool);
+    throw error;
+  });
+  aiUsageReady.set(pool, ready);
+  return ready;
+}
+
+/** Atomically reserve one daily AI allowance across all serverless instances. */
+export async function consumeAIUsage(pool, userId, task) {
+  const id = Number(userId);
+  if (!Number.isInteger(id) || id <= 0 || !Object.prototype.hasOwnProperty.call(DAILY_LIMITS, task)) return false;
+  await ensureAIUsageSchema(pool);
+  const result = await pool.query(
+    `INSERT INTO ai_usage_daily (user_id, usage_date, task, calls)
+     VALUES ($1, (NOW() AT TIME ZONE 'UTC')::date, $2, 1)
+     ON CONFLICT (user_id, usage_date, task)
+     DO UPDATE SET calls = ai_usage_daily.calls + 1, updated_at = NOW()
+       WHERE ai_usage_daily.calls < $3
+     RETURNING calls`,
+    [id, task, DAILY_LIMITS[task]]
+  );
+  if (!result.rowCount) return false;
+  markUsage(id, task);
+  return true;
+}
+
+/** Persistent daily usage for the signed-in account. */
+export async function getAIUsage(pool, userId) {
+  const id = Number(userId);
+  if (!Number.isInteger(id) || id <= 0) throw new Error('A valid user ID is required.');
+  await ensureAIUsageSchema(pool);
+  const result = await pool.query(
+    `SELECT task, calls FROM ai_usage_daily
+      WHERE user_id = $1 AND usage_date = (NOW() AT TIME ZONE 'UTC')::date`,
+    [id]
+  );
+  const counts = Object.fromEntries(result.rows.map(row => [row.task, Number(row.calls) || 0]));
+  return { date: todayKey(), counts };
 }
 
 export function usageSummary() {
