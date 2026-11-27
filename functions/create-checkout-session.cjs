@@ -9,9 +9,9 @@ const pool = new Pool({
     }
 });
 
-const stripe = Stripe(
-    process.env.STRIPE_SECRET_KEY
-);
+const stripe = process.env.STRIPE_SECRET_KEY
+    ? Stripe(process.env.STRIPE_SECRET_KEY)
+    : null;
 
 const APP_BASE_URL = (process.env.PUBLIC_SITE_URL || process.env.URL || 'https://learn-hanverse.netlify.app').replace(/\/+$/, '');
 
@@ -77,6 +77,10 @@ exports.handler = async (event) => {
             error: 'Method not allowed'
         });
 
+    }
+
+    if (!stripe) {
+        return json(503, { success: false, error: 'Payments are not configured on this server.' });
     }
 
 
