@@ -155,3 +155,8 @@ test('all AI entry points use shared persistent usage limits', () => {
   assert.match(features, /upgradeParentDigestEmail\([\s\S]{0,500}pool, userId: req\.userId/);
   assert.match(server, /consumeAIUsage\(pool, req\.adminUserId, 'adminChat'\)/);
 });
+
+test('legacy parent_user_id relationships are migrated to canonical parent IDs', () => {
+  assert.match(server, /column_name = 'parent_user_id'/);
+  assert.match(server, /SET parent_id = p\.parent_id[\s\S]{0,160}p\.user_id = c\.parent_user_id/);
+});
