@@ -39,7 +39,8 @@ export const DAILY_LIMITS = {
   practice: 8,
   adminDraft: 40,
   pandaChat: 30,
-  adminChat: 50
+  adminChat: 50,
+  parentDigest: 5
 };
 
 /* instance-level usage + cache bookkeeping */
