@@ -898,6 +898,7 @@ export function registerFeatureRoutes(router, pgPool, opts = {}) {
           vocabulary: await safe(`SELECT word, pinyin, meaning, mastery_level, review_count, last_reviewed FROM vocabulary_progress WHERE user_id = $1`)
         },
         reviews: await safe(`SELECT word, interval_days, ease, due_at, lapses FROM review_queue WHERE user_id = $1`),
+        ai_usage: await safe(`SELECT task, usage_date, calls FROM ai_usage_daily WHERE user_id = $1 ORDER BY usage_date DESC`),
         notifications: await safe(`SELECT title, message, type, is_read, created_at FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 500`),
         family_links: await safe(`SELECT parent_user_id, child_user_id, child_email, status, created_at, responded_at FROM account_links WHERE parent_user_id = $1 OR child_user_id = $1`)
       };
