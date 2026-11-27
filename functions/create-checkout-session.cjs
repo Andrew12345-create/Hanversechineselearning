@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const Stripe = require('stripe');
+const { ensurePaymentSchema } = require('./payment-schema.cjs');
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -11,6 +12,8 @@ const pool = new Pool({
 const stripe = Stripe(
     process.env.STRIPE_SECRET_KEY
 );
+
+const APP_BASE_URL = (process.env.PUBLIC_SITE_URL || process.env.URL || 'https://learn-hanverse.netlify.app').replace(/\\/+$/, '');
 
 
 /* ============================================================
@@ -183,6 +186,8 @@ exports.handler = async (event) => {
 
         const selectedPlan =
             PLANS[requestedPlan];
+
+        await ensurePaymentSchema(pool);
 
 
         /* ====================================================
@@ -472,14 +477,14 @@ exports.handler = async (event) => {
 
 
                 success_url:
-                    'https://hanverse.netlify.app/payment.html?payment=success&plan='
+                    APP_BASE_URL + '/payment.html?payment=success&plan='
                     + encodeURIComponent(
                         requestedPlan
                     ),
 
 
                 cancel_url:
-                    'https://hanverse.netlify.app/payment.html?payment=cancelled'
+                    APP_BASE_URL + '/payment.html?payment=cancelled'
 
             });
 
