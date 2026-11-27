@@ -47,7 +47,7 @@ exports.handler = async (event) => {
     await ensureMembershipSchema(pool);
     const result = await pool.query(
       `SELECT user_id, premium, premium_until, membership_plan, membership_status,
-              trial_ends_at, trial_used
+              trial_ends_at, trial_used, is_banned, COALESCE(token_version, 0) AS token_version
          FROM users
         WHERE user_id = $1
         LIMIT 1`,
