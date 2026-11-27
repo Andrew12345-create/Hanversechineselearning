@@ -2007,7 +2007,9 @@
       .close-button, .drawer-close { min-width: 44px; min-height: 44px; }
       input, select, textarea { min-height: 44px; }
       :where(p, .muted, .prompt, .pending-badge, .recipient-count,
-             .bubble, kbd, .nav-label, .field label) {
+             .bubble, kbd, .nav-label, .field label,
+             .brand span, .preview-label span,
+             strong[style*="font-size:10px"]) {
         /* !important is deliberate: :where() has zero specificity, so any
            `.card p { font-size: 10px }` would otherwise win and the floor
            would silently do nothing. */
