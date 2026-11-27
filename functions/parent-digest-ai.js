@@ -9,9 +9,9 @@
    a deterministic paragraph when the AI is unavailable.
    ============================================================ */
 
-import { aiChat } from './ai-helpers.js';
+import { aiChat, consumeAIUsage } from './ai-helpers.js';
 
-export async function upgradeParentDigestEmail(rows) {
+export async function upgradeParentDigestEmail(rows, { pool, userId } = {}) {
   const facts = rows.map(r =>
     `${r.name}: ${r.weeklyXp} XP this week, ${r.lessons} lesson${r.lessons === 1 ? '' : 's'} completed, ${r.streakDays} day streak`
   ).join('\n');
@@ -24,6 +24,7 @@ export async function upgradeParentDigestEmail(rows) {
     "\nA few minutes of practice a few times a week keeps the streak (and the learning) alive!";
 
   try {
+    if (!pool || !await consumeAIUsage(pool, userId, 'parentDigest')) return deterministic;
     const r = await aiChat({
       tier: 'fast',
       maxTokens: 160,
