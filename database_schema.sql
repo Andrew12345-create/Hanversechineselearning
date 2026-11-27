@@ -185,6 +185,18 @@ CREATE TABLE vocabulary_progress (
 CREATE INDEX idx_user_vocab ON vocabulary_progress(user_id, mastery_level);
 
 
+-- Persistent per-user AI usage counters; the runtime service also converges this table.
+CREATE TABLE IF NOT EXISTS ai_usage_daily (
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    usage_date DATE NOT NULL,
+    task VARCHAR(40) NOT NULL,
+    calls INTEGER NOT NULL DEFAULT 0 CHECK (calls >= 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, usage_date, task)
+);
+CREATE INDEX IF NOT EXISTS idx_ai_usage_daily_date ON ai_usage_daily(usage_date);
+
 -- Subscription/payment ledger. Amounts are stored in major currency units.
 -- Runtime convergence in functions/payment-schema.cjs also upgrades existing DBs.
 CREATE TABLE IF NOT EXISTS payments (
