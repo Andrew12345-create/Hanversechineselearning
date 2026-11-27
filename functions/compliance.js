@@ -239,6 +239,8 @@ async function guardianOwnsChild(db, guardianUserId, childUserId) {
        JOIN parents p ON p.parent_id = c.parent_id
       WHERE c.user_id = $1
         AND p.user_id = $2
+        AND COALESCE(c.is_active, TRUE) = TRUE
+        AND COALESCE(p.is_active, TRUE) = TRUE
         AND COALESCE(p.is_verified, FALSE) = TRUE
       LIMIT 1`,
     [childUserId, guardianUserId]
