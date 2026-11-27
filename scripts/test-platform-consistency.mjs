@@ -10,6 +10,8 @@ const paymentSchema = read('functions/payment-schema.cjs');
 const baseSchema = read('database_schema.sql');
 const compliance = read('functions/compliance.js');
 const admin = read('admin.html');
+const premiumCheck = read('functions/check-premium.cjs');
+const paymentPage = read('payment.html');
 
 test('Panda uses the shared AI gateway and server startup does not require an OpenAI key', () => {
   assert.match(server, /import \{ underLimit, markUsage, aiChat \} from '\.\/ai-helpers\.js'/);
@@ -81,4 +83,12 @@ test('feature and dictionary endpoints wait for their own schema initialization'
 
 test('administrator dictionary endpoints have explicit content permissions', () => {
   assert.match(server, /path === '\/admin\/dictionary' \|\| path\.startsWith\('\/admin\/dictionary\/'\)/);
+});
+
+test('membership lookup derives identity from JWT and shares entitlement logic', () => {
+  assert.match(premiumCheck, /jwt\.verify\(token, process\.env\.JWT_SECRET/);
+  assert.match(premiumCheck, /await import\('\.\/entitlements\.js'\)/);
+  assert.match(premiumCheck, /computeEntitlement\(result\.rows\[0\]\)/);
+  assert.doesNotMatch(premiumCheck, /const \{\s*userId\s*\} = body/);
+  assert.match(paymentPage, /Authorization': 'Bearer ' \+ stored\.token/);
 });
