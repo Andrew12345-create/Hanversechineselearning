@@ -63,3 +63,22 @@ test('enrolled administrators must complete TOTP before elevation', () => {
   assert.match(admin, /data\.code === "ADMIN_MFA_REQUIRED"/);
   assert.match(admin, /mfaCode: String\(code\)\.trim\(\)/);
 });
+
+test('fresh and existing databases receive the parent-child profile tables', () => {
+  assert.match(server, /CREATE TABLE IF NOT EXISTS parents/);
+  assert.match(server, /CREATE TABLE IF NOT EXISTS children/);
+  assert.match(baseSchema, /CREATE TABLE IF NOT EXISTS parents/);
+  assert.match(baseSchema, /CREATE TABLE IF NOT EXISTS children/);
+  assert.match(server, /ALTER TABLE children ADD COLUMN IF NOT EXISTS classroom_allowed/);
+});
+
+test('feature and dictionary endpoints wait for their own schema initialization', () => {
+  assert.match(server, /featureSchemaReady = coreSchemaReady/);
+  assert.match(server, /dictionarySchemaReady = coreSchemaReady/);
+  assert.match(server, /if \(needsFeatureSchema\) waits\.push\(featureSchemaReady\)/);
+  assert.match(server, /if \(needsDictionarySchema\) waits\.push\(dictionarySchemaReady\)/);
+});
+
+test('administrator dictionary endpoints have explicit content permissions', () => {
+  assert.match(server, /path === '\/admin\/dictionary' \|\| path\.startsWith\('\/admin\/dictionary\/'\)/);
+});
