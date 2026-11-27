@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
+const { ensurePaymentSchema } = require('./payment-schema.cjs');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || process.env.NEON_DATABASE_URL,
@@ -43,6 +44,7 @@ exports.handler = async (event) => {
   }
 
   try {
+    await ensurePaymentSchema(pool);
     const result = await pool.query(
       `SELECT user_id, premium, premium_until, membership_plan, membership_status,
               trial_ends_at, trial_used
