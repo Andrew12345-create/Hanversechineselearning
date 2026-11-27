@@ -237,8 +237,6 @@ async function ensureUserColumns() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     CREATE INDEX IF NOT EXISTS idx_parents_user ON parents(user_id);
-    CREATE INDEX IF NOT EXISTS idx_children_parent ON children(parent_id, is_active);
-    CREATE INDEX IF NOT EXISTS idx_children_user ON children(user_id);
   `);
   await pool.query(`
     ALTER TABLE parents ADD COLUMN IF NOT EXISTS full_name VARCHAR(150);
@@ -269,6 +267,8 @@ async function ensureUserColumns() {
     ALTER TABLE children ADD COLUMN IF NOT EXISTS progress_percentage NUMERIC(5,2) NOT NULL DEFAULT 0;
     ALTER TABLE children ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
     ALTER TABLE children ADD COLUMN IF NOT EXISTS level INTEGER NOT NULL DEFAULT 1;
+    CREATE INDEX IF NOT EXISTS idx_children_parent ON children(parent_id, is_active);
+    CREATE INDEX IF NOT EXISTS idx_children_user ON children(user_id);
     DO $family_migration$
     BEGIN
       IF EXISTS (
