@@ -267,6 +267,22 @@ async function ensureUserColumns() {
     ALTER TABLE children ADD COLUMN IF NOT EXISTS progress_percentage NUMERIC(5,2) NOT NULL DEFAULT 0;
     ALTER TABLE children ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
     ALTER TABLE children ADD COLUMN IF NOT EXISTS level INTEGER NOT NULL DEFAULT 1;
+    DO $family_migration$
+    BEGIN
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = current_schema()
+          AND table_name = 'children'
+          AND column_name = 'parent_user_id'
+      ) THEN
+        EXECUTE 'UPDATE children c
+                   SET parent_id = p.parent_id
+                  FROM parents p
+                 WHERE p.user_id = c.parent_user_id
+                   AND c.parent_id IS NULL';
+      END IF;
+    END
+    $family_migration$;
   `);
   await pool.query(`
     CREATE TABLE IF NOT EXISTS user_progress (
