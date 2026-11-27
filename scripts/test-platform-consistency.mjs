@@ -94,6 +94,7 @@ test('membership lookup derives identity from JWT and shares entitlement logic',
   assert.match(premiumCheck, /jwt\.verify\(token, process\.env\.JWT_SECRET/);
   assert.match(premiumCheck, /await import\('\.\/entitlements\.js'\)/);
   assert.match(premiumCheck, /computeEntitlement\(result\.rows\[0\]\)/);
+  assert.match(premiumCheck, /ensureMembershipSchema\(pool\)/);
   assert.doesNotMatch(premiumCheck, /const \{\s*userId\s*\} = body/);
   assert.match(paymentPage, /Authorization': 'Bearer ' \+ stored\.token/);
 });
