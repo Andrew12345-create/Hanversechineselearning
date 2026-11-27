@@ -107,3 +107,11 @@ test('checkout blocks duplicate paid plans using the shared entitlement engine',
   assert.match(checkout, /computeEntitlement\(user\)/);
   assert.match(checkout, /entitlement\.source !== 'trial'/);
 });
+
+test('admin MFA and compliance routes are permission-mapped and sensitive changes require reauthentication', () => {
+  assert.match(server, /path === '\/admin\/mfa\/status'\) return 'session\.read'/);
+  assert.match(server, /path === '\/admin\/mfa\/enroll' \|\| path === '\/admin\/mfa\/confirm'/);
+  assert.match(server, /path === '\/admin\/compliance' \|\| path\.startsWith\('\/admin\/compliance\/'\)/);
+  assert.match(server, /path === '\/admin\/mfa\/enroll'/);
+  assert.match(server, /retention\\\/purge\|deletion-requests/);
+});
