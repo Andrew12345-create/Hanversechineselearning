@@ -10230,6 +10230,9 @@ router.post('/admin/panda-chat', verifyAdminToken, adminWriteLimiter, async (req
     if (message.length > 2000) {
       return res.status(400).json({ success: false, error: 'Message is too long.' });
     }
+    if (!await consumeAIUsage(pool, req.adminUserId, 'adminChat')) {
+      return res.status(429).json({ success: false, error: 'The daily administrator Panda limit has been reached.' });
+    }
 
     // Shared gateway supports OpenAI with Gemini fallback.
     let stats = { users: '?', children: '?', pending_parents: '?', lessons: '?' };
