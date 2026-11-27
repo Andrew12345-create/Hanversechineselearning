@@ -54,6 +54,10 @@ exports.handler = async (event) => {
       [Number(userId)]
     );
     if (!result.rows.length) return json(404, { success: false, error: 'User not found.' });
+    if (result.rows[0].is_banned) return json(403, { success: false, error: 'This account is banned.' });
+    if (Number(decoded.tv || 0) !== Number(result.rows[0].token_version || 0)) {
+      return json(401, { success: false, error: 'Session revoked. Please sign in again.' });
+    }
 
     const { computeEntitlement } = await import('./entitlements.js');
     const entitlement = computeEntitlement(result.rows[0]);
