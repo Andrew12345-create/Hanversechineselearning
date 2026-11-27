@@ -822,6 +822,8 @@ exports.handler = async (event) => {
 
           premium = $2,
 
+          is_premium = $2,
+
           premium_until = $3,
 
           updated_at = NOW()
