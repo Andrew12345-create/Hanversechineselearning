@@ -38,7 +38,8 @@ export const DAILY_LIMITS = {
   quizExplain: 40,
   practice: 8,
   adminDraft: 40,
-  pandaChat: 30
+  pandaChat: 30,
+  adminChat: 50
 };
 
 /* instance-level usage + cache bookkeeping */
