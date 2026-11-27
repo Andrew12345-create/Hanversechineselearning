@@ -210,7 +210,9 @@ exports.handler = async (event) => {
                     membership_plan,
                     membership_status,
                     stripe_customer_id,
-                    stripe_subscription_id
+                    stripe_subscription_id,
+                    is_banned,
+                    COALESCE(token_version, 0) AS token_version
 
                 FROM users
 
@@ -242,6 +244,13 @@ exports.handler = async (event) => {
 
         const user =
             userResult.rows[0];
+
+        if (user.is_banned) {
+            return json(403, { success: false, error: 'This account cannot start a payment.' });
+        }
+        if (Number(decodedToken.tv || 0) !== Number(user.token_version || 0)) {
+            return json(401, { success: false, error: 'Session revoked. Please sign in again.' });
+        }
 
 
         /* ====================================================
