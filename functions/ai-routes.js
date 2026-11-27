@@ -14,7 +14,7 @@
 
 import {
   aiChat, askJSON, sanitizeUserText, fenceUserContent,
-  underLimit, markUsage, usageFor, usageSummary, cacheGet, cacheSet, hashKey, DAILY_LIMITS
+  consumeAIUsage, getAIUsage, usageSummary, cacheGet, cacheSet, hashKey, DAILY_LIMITS
 } from './ai-helpers.js';
 
 const kidSafeRules = `
@@ -122,10 +122,6 @@ export function registerAIRoutes(router, pool, { requireUser, verifyAdminToken }
       if (!question) return fail(res, 400, 'Ask Panda a question first.');
       if (!lessonId) return fail(res, 400, 'Lesson ID is required.');
 
-      if (!underLimit(userId, 'lessonHelp')) {
-        return fail(res, 429, 'Panda needs a rest — try again tomorrow. 🐼');
-      }
-
       const ctx = await lessonContext(lessonId);
       if (!ctx) return fail(res, 404, 'Lesson not found.');
 
@@ -133,6 +129,9 @@ export function registerAIRoutes(router, pool, { requireUser, verifyAdminToken }
       const cached = cacheGet(cacheKey);
       if (cached) {
         return res.json({ success: true, reply: cached, cached: true, usage: usageSummary() });
+      }
+      if (!await consumeAIUsage(pool, userId, 'lessonHelp')) {
+        return fail(res, 429, 'Panda needs a rest — try again tomorrow. 🐼');
       }
 
       const vocabBlock = ctx.vocabulary.length
@@ -176,7 +175,6 @@ ${kidSafeRules}`
         ]
       });
 
-      markUsage(userId, 'lessonHelp');
       if (!answer.ok) {
         return res.json({
           success: true,
@@ -213,10 +211,6 @@ ${kidSafeRules}`
         return fail(res, 400, 'lessonId, questionId and userAnswerOptionId are required.');
       }
 
-      if (!underLimit(userId, 'quizExplain')) {
-        return fail(res, 429, 'That is a lot of questions for one day! Try again tomorrow. 🐼');
-      }
-
       const q = await pool.query(
         `SELECT question_text FROM lesson_quiz_questions
           WHERE question_id = $1 AND lesson_id = $2 LIMIT 1`,
@@ -235,6 +229,9 @@ ${kidSafeRules}`
       if (!chosen) {
         return fail(res, 400, 'Choose one of the available answers.');
       }
+      if (!await consumeAIUsage(pool, userId, 'quizExplain')) {
+        return fail(res, 429, 'That is a lot of questions for one day! Try again tomorrow. 🐼');
+      }
 
       const wasCorrect = chosen.is_correct === true;
       const correctOption = options.find(option => option.is_correct === true);
@@ -243,7 +240,6 @@ ${kidSafeRules}`
 
       /* Deterministic first: correct answers get instant praise, no AI needed. */
       if (wasCorrect) {
-        markUsage(userId, 'quizExplain');
         return res.json({
           success: true,
           wasCorrect: true,
@@ -256,8 +252,7 @@ ${kidSafeRules}`
       const cacheKey = 'qe:' + hashKey(questionId + '|' + chosen.option_id);
       const cached = cacheGet(cacheKey);
       if (cached) {
-        markUsage(userId, 'quizExplain');
-        return res.json({ success: true, wasCorrect: false, explanation: cached, cached: true });
+          return res.json({ success: true, wasCorrect: false, explanation: cached, cached: true });
       }
 
       const optionLines = options
@@ -323,13 +318,12 @@ ${kidSafeRules}`
       const kind = KINDS.hasOwnProperty(body.kind) ? body.kind : 'mcq';
 
       if (!lessonId) return fail(res, 400, 'Lesson ID is required.');
-      if (!underLimit(userId, 'practice')) {
-        return fail(res, 429, 'Practice maker is out of ink for today! Come back tomorrow. 🐼');
-      }
-
       const ctx = await lessonContext(lessonId);
       if (!ctx) return fail(res, 404, 'Lesson not found.');
       if (!ctx.vocabulary.length) return fail(res, 400, 'This lesson has no vocabulary to practise yet.');
+      if (!await consumeAIUsage(pool, userId, 'practice')) {
+        return fail(res, 429, 'Practice maker is out of ink for today! Come back tomorrow. 🐼');
+      }
 
       const vocabBlock = ctx.vocabulary
         .map(v => `${v.chinese} (${v.pinyin || '?'}) — ${v.english || '?'}`).join('\n');
@@ -371,7 +365,6 @@ Do not use vocabulary outside the list.`,
       if (!result.ok) {
         return fail(res, 503, 'Practice maker is busy right now — try again soon.');
       }
-      markUsage(userId, 'practice');
 
       return res.json({
         success: true,
@@ -404,6 +397,9 @@ Do not use vocabulary outside the list.`,
 
       const ctx = await lessonContext(lessonId);
       if (!ctx) return fail(res, 404, 'Lesson not found.');
+      if (!await consumeAIUsage(pool, req.adminUserId, 'adminDraft')) {
+        return fail(res, 429, 'The daily admin drafting limit has been reached.');
+      }
       const vocabBlock = ctx.vocabulary
         .map(v => `${v.chinese} (${v.pinyin || '?'}) — ${v.english || '?'}`).join('\n') || '(none)';
 
@@ -422,7 +418,6 @@ JSON schema: ${task === 'examples' ? '{"items":[{"chinese":"...","pinyin":"...",
       });
 
       if (!result.ok) return fail(res, 503, 'Draft generation failed — try again.');
-      markUsage('admin:' + (req.authUser?.user_id || 'x'), 'adminDraft');
 
       return res.json({
         success: true,
@@ -446,15 +441,20 @@ JSON schema: ${task === 'examples' ? '{"items":[{"chinese":"...","pinyin":"...",
      Observability: self-usage for the signed-in user.
      GET /ai/usage
   ------------------------------------------------------------ */
-  router.get('/ai/usage', auth, (req, res) => {
-    const userId = req.authUser?.user_id;
-    const rec = usageFor(userId);
-    return res.json({
-      success: true,
-      date: rec.date,
-      limits: DAILY_LIMITS,
-      used: rec.counts,
-      instance: usageSummary()
-    });
+  router.get('/ai/usage', auth, async (req, res) => {
+    try {
+      const userId = req.authUser?.user_id;
+      const rec = await getAIUsage(pool, userId);
+      return res.json({
+        success: true,
+        date: rec.date,
+        limits: DAILY_LIMITS,
+        used: rec.counts,
+        instance: usageSummary()
+      });
+    } catch (error) {
+      console.error('❌ ai/usage:', error.message);
+      return fail(res, 503, 'AI usage information is temporarily unavailable.');
+    }
   });
 }
