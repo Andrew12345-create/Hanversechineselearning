@@ -10,7 +10,7 @@ const { ensurePaymentSchema } = require('../lib/payment-schema.cjs');
 const pool = new Pool({
 
   connectionString:
-    process.env.DATABASE_URL,
+    process.env.DATABASE_URL || process.env.NEON_DATABASE_URL,
 
   ssl: {
     rejectUnauthorized: true
