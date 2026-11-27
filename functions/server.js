@@ -1261,6 +1261,7 @@ function adminPermissionForRequest(req) {
   if (path === '/admin/health') return 'system.read';
   if (path === '/admin/security/overview') return 'audit.read';
   if (path === '/admin/audit') return 'audit.read';
+  if (path === '/admin/dictionary' || path.startsWith('/admin/dictionary/')) return method === 'GET' ? 'content.read' : 'content.edit';
   if (path === '/admin/panda-chat') return 'ai.manage';
   return null;
 }
