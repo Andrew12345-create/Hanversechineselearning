@@ -346,6 +346,8 @@ function ensurePool(res) {
 }
 
 function safeUser(user) {
+  const entitlement = computeEntitlement(user);
+  const premiumAccess = entitlement.active === true && entitlement.rank >= PLAN_RANK.premium;
   return {
     user_id: user.user_id,
     id: user.user_id,
@@ -367,8 +369,11 @@ function safeUser(user) {
     is_verified: user.is_verified || false,
     isVerified: user.is_verified || false,
     premium: user.premium || false,
-    is_premium: user.is_premium ?? user.premium ?? false,
-    isPremium: user.is_premium ?? user.premium ?? false,
+    is_premium: premiumAccess,
+    isPremium: premiumAccess,
+    membership_plan: entitlement.plan === 'trial' ? 'premium' : entitlement.plan,
+    membership_status: entitlement.status,
+    trial_active: entitlement.trialActive === true,
     premium_until: user.premium_until || null,
     trial_ends_at: user.trial_ends_at || null,
     trial_used: user.trial_used || false,
