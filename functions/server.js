@@ -1913,13 +1913,18 @@ router.post('/auth/refresh', writeLimiter, async (req, res) => {
     const result = await pool.query(
       `SELECT user_id, username, full_name, email, xp, level, streak_days,
               profile_picture, is_admin, is_banned, is_verified,
-              premium, premium_until, role, lessons_completed, achievements_count
+              premium, premium_until, membership_plan, membership_status,
+              is_premium, trial_ends_at, trial_used, token_version,
+              role, lessons_completed, achievements_count
       FROM users WHERE user_id = $1 AND is_banned = false`,
       [userId]
     );
 
     if (!result.rows.length) {
       return res.status(404).json({ success: false, error: 'User not found' });
+    }
+    if (Number(decoded.tv || 0) !== Number(result.rows[0].token_version || 0)) {
+      return res.status(401).json({ success: false, error: 'Session revoked. Please sign in again.' });
     }
 
     await pool.query(
