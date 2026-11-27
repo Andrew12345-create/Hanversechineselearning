@@ -26,11 +26,29 @@ The logged-in HanVerse learning app, split out of the main marketing repo.
 
 ## Local dev
 
+Run commands from this repository root (the folder containing this README,
+`package.json`, and `netlify.toml`). Running `netlify dev` from the parent
+`hanverse-learn` folder starts a static server there and cannot resolve this
+repository's serverless-function dependencies.
+
+**Windows PowerShell:** if your terminal is currently in the parent
+`hanverse-learn` folder, launch the checked-in helper:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\\Hanversechineselearning\\start-hanverse.ps1
+```
+
+The helper switches to this repository root, checks the Node/npm setup,
+installs the exact locked dependencies with `npm ci` only when needed, and
+then starts Netlify Dev.
+
+**Manual start from this repository root:**
+
 ```bash
-npm install
-npm run dev:local   # static + API via local-server.js
+npm ci
+npm start           # Netlify Dev
 # or
-npm start           # netlify dev
+npm run dev:local   # static + API via local-server.js
 ```
 
 ## Environment variables
