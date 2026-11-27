@@ -3927,17 +3927,38 @@
     }
 
     let normalSessionToken = signInData.token;
-    const response = await fetch(`${API}/admin/verify-password`, {
+    const elevationUrl = `${API}/admin/verify-password`;
+    const elevationHeaders = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${normalSessionToken}`
+    };
+    let elevationBody = { adminPassword: password };
+    let response = await fetch(elevationUrl, {
       method: "POST",
       credentials: "same-origin",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${normalSessionToken}` },
-      body: JSON.stringify({
-        adminPassword: password
-      })
+      headers: elevationHeaders,
+      body: JSON.stringify(elevationBody)
     });
-    normalSessionToken = null;
+    let data = await response.json().catch(() => ({}));
 
-    const data = await response.json().catch(() => ({}));
+    // Administrators who enrolled an authenticator must complete the
+    // second factor before the server creates the privileged session.
+    if (response.status === 428 && data.code === "ADMIN_MFA_REQUIRED") {
+      const code = window.prompt("Enter the six-digit code from your authenticator app.");
+      if (!code) {
+        normalSessionToken = null;
+        throw new Error("Administrator sign-in cancelled. Your authenticator code is required.");
+      }
+      elevationBody = { adminPassword: password, mfaCode: String(code).trim() };
+      response = await fetch(elevationUrl, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: elevationHeaders,
+        body: JSON.stringify(elevationBody)
+      });
+      data = await response.json().catch(() => ({}));
+    }
+    normalSessionToken = null;
 
     if (!response.ok || !data.success) {
       throw new Error(data.error || "Admin authentication failed.");
