@@ -125,6 +125,7 @@ test('CyberShield exposes administrator MFA enrollment and verification controls
 });
 
 test('safe session profiles preserve the separate trial and Premium feature flag', () => {
-  assert.match(server, /is_premium: user\.is_premium \?\? user\.premium \?\? false/);
-  assert.match(server, /trial_ends_at: user\.trial_ends_at \|\| null/);
+  assert.match(server, /const entitlement = computeEntitlement\(user\)/);
+  assert.match(server, /is_premium: premiumAccess/);
+  assert.match(server, /trial_active: entitlement\.trialActive === true/);
 });
