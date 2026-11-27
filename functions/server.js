@@ -40,11 +40,34 @@ const router = express.Router();
 // Optional feature/dictionary setup remains independently recoverable.
 let coreSchemaError = null;
 let coreSchemaReady = Promise.resolve();
+let featureSchemaError = null;
+let featureSchemaReady = Promise.resolve();
+let dictionarySchemaError = null;
+let dictionarySchemaReady = Promise.resolve();
 router.use((req, res, next) => {
   if (!pool) return next();
-  coreSchemaReady.then(() => {
+  const path = String(req.path || '');
+  const featurePrefixes = [
+    '/quests', '/mission', '/streak', '/vocabulary', '/review', '/account',
+    '/placement', '/analytics', '/games', '/learning', '/leaderboard',
+    '/referrals', '/trial', '/admin/trial-emails', '/parents/digest',
+    '/classroom', '/pet', '/gems', '/hearts', '/achievements', '/goals'
+  ];
+  const needsFeatureSchema = featurePrefixes.some(prefix => path === prefix || path.startsWith(prefix + '/'));
+  const needsDictionarySchema = path === '/dictionary' || path.startsWith('/dictionary/') || path === '/admin/dictionary' || path.startsWith('/admin/dictionary/');
+  const waits = [coreSchemaReady];
+  if (needsFeatureSchema) waits.push(featureSchemaReady);
+  if (needsDictionarySchema) waits.push(dictionarySchemaReady);
+
+  Promise.all(waits).then(() => {
     if (coreSchemaError) {
       return res.status(503).json({ success: false, error: 'HanVerse is preparing its database. Please retry shortly.' });
+    }
+    if (needsFeatureSchema && featureSchemaError) {
+      return res.status(503).json({ success: false, error: 'This learning service is temporarily preparing its database.' });
+    }
+    if (needsDictionarySchema && dictionarySchemaError) {
+      return res.status(503).json({ success: false, error: 'The dictionary is temporarily preparing its database.' });
     }
     return next();
   }).catch(() => res.status(503).json({ success: false, error: 'HanVerse database is temporarily unavailable.' }));
@@ -10194,19 +10217,29 @@ console.log('✅ Admin routes registered successfully!');
   registerWorldRoutes(router, pool, { requireUser });
   registerDictionaryRoutes(router, pool, { requireUser, verifyAdminToken });
   registerComplianceRoutes(router, pool, { requireUser, verifyAdminToken });
-ensureFeatureSchema(pool)
+featureSchemaReady = coreSchemaReady
   .then(() => {
-    console.log('✅ Feature pack routes registered (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
+    if (coreSchemaError) throw coreSchemaError;
+    return ensureFeatureSchema(pool);
+  })
+  .then(() => {
+    console.log('✅ Feature pack schema ready (quests, streak, review, games, leaderboard, referrals, trial, classroom, digest)');
   })
   .catch((e) => {
-    console.warn('⚠️ Feature pack setup failed (non-fatal):', e.message);
+    featureSchemaError = e;
+    console.warn('⚠️ Feature pack setup failed; affected routes will return 503:', e.message);
   });
-ensureDictionarySchema(pool)
+dictionarySchemaReady = coreSchemaReady
   .then(() => {
-    console.log('✅ Dictionary routes registered (search, saves, admin review)');
+    if (coreSchemaError) throw coreSchemaError;
+    return ensureDictionarySchema(pool);
+  })
+  .then(() => {
+    console.log('✅ Dictionary schema ready (search, saves, admin review)');
   })
   .catch((e) => {
-    console.warn('⚠️ Dictionary setup failed (non-fatal):', e.message);
+    dictionarySchemaError = e;
+    console.warn('⚠️ Dictionary setup failed; dictionary routes will return 503:', e.message);
   });
 
 app.use('/api', router);
