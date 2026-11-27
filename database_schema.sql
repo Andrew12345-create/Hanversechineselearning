@@ -27,6 +27,9 @@ CREATE TABLE users (
     stripe_customer_id VARCHAR(255),
     stripe_subscription_id VARCHAR(255),
     is_premium BOOLEAN NOT NULL DEFAULT FALSE,
+    trial_ends_at TIMESTAMPTZ,
+    trial_used BOOLEAN NOT NULL DEFAULT FALSE,
+    token_version INTEGER NOT NULL DEFAULT 0,
     current_yct INTEGER NOT NULL DEFAULT 1,         -- placement-locked YCT level
     current_hsk INTEGER NOT NULL DEFAULT 0,         -- HSK track position (0 = not started)
     chinese_level VARCHAR(20) NOT NULL DEFAULT 'YCT 1',  -- display string, mirrors current_yct
