@@ -167,6 +167,18 @@ async function ensureUserColumns() {
     ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN NOT NULL DEFAULT FALSE;
   `);
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS user_progress (
+      progress_id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+      course_type VARCHAR(10) NOT NULL CHECK (course_type IN ('YCT', 'HSK')),
+      course_level INTEGER NOT NULL,
+      lesson_id INTEGER NOT NULL,
+      completed BOOLEAN DEFAULT FALSE,
+      score INTEGER,
+      xp_earned INTEGER NOT NULL DEFAULT 0,
+      time_spent INTEGER NOT NULL DEFAULT 0,
+      completed_at TIMESTAMP
+    );
     ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS xp_earned INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS time_spent INTEGER NOT NULL DEFAULT 0;
   `);
