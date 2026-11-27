@@ -13,7 +13,7 @@ const stripe = Stripe(
     process.env.STRIPE_SECRET_KEY
 );
 
-const APP_BASE_URL = (process.env.PUBLIC_SITE_URL || process.env.URL || 'https://learn-hanverse.netlify.app').replace(/\\/+$/, '');
+const APP_BASE_URL = (process.env.PUBLIC_SITE_URL || process.env.URL || 'https://learn-hanverse.netlify.app').replace(/\/+$/, '');
 
 
 /* ============================================================
