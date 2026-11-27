@@ -399,7 +399,8 @@ function generateToken(payload = {}, expiresIn = '8h') {
     throw new Error('JWT_SECRET is not configured.');
   }
   
-  return jwt.sign(payload, secret, { expiresIn });
+  const tokenVersion = Number.isInteger(Number(payload.tv)) && Number(payload.tv) >= 0 ? Number(payload.tv) : 0;
+  return jwt.sign({ ...payload, tv: tokenVersion }, secret, { expiresIn });
 }
 
 function generateSecureToken(length = 32) {
@@ -1725,7 +1726,8 @@ router.post('/signup', authLimiter, async (req, res) => {
         user_id: newUser.user_id,
         email: newUser.email,
         role: newUser.role || 'student',
-        is_admin: newUser.is_admin || false
+        is_admin: newUser.is_admin || false,
+        tv: newUser.token_version || 0
       }),
       user: safeUser(newUser),
       isNewUser: true
@@ -1804,7 +1806,8 @@ router.post('/login', authLimiter, async (req, res) => {
       user_id: user.user_id,
       email: user.email,
       role: user.role || 'student',
-      is_admin: user.is_admin || false
+      is_admin: user.is_admin || false,
+      tv: user.token_version || 0
     });
 
     return res.json({
@@ -1929,7 +1932,8 @@ router.post('/auth/refresh', writeLimiter, async (req, res) => {
       user_id: result.rows[0].user_id,
       email: result.rows[0].email,
       role: result.rows[0].role || 'student',
-      is_admin: result.rows[0].is_admin || false
+      is_admin: result.rows[0].is_admin || false,
+      tv: result.rows[0].token_version || 0
     });
 
     return res.json({
