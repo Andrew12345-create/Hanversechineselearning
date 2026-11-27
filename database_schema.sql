@@ -22,6 +22,11 @@ CREATE TABLE users (
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,     -- email verified
     premium BOOLEAN NOT NULL DEFAULT FALSE,
     premium_until TIMESTAMP,
+    membership_plan VARCHAR(30) NOT NULL DEFAULT 'free',
+    membership_status VARCHAR(30) NOT NULL DEFAULT 'active',
+    stripe_customer_id VARCHAR(255),
+    stripe_subscription_id VARCHAR(255),
+    is_premium BOOLEAN NOT NULL DEFAULT FALSE,
     current_yct INTEGER NOT NULL DEFAULT 1,         -- placement-locked YCT level
     current_hsk INTEGER NOT NULL DEFAULT 0,         -- HSK track position (0 = not started)
     chinese_level VARCHAR(20) NOT NULL DEFAULT 'YCT 1',  -- display string, mirrors current_yct
@@ -55,6 +60,8 @@ CREATE TABLE user_progress (
     lesson_id INTEGER NOT NULL,
     completed BOOLEAN DEFAULT FALSE,
     score INTEGER,
+    xp_earned INTEGER NOT NULL DEFAULT 0,
+    time_spent INTEGER NOT NULL DEFAULT 0,
     completed_at TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
@@ -130,3 +137,24 @@ CREATE TABLE vocabulary_progress (
 );
 
 CREATE INDEX idx_user_vocab ON vocabulary_progress(user_id, mastery_level);
+
+
+-- Subscription/payment ledger. Amounts are stored in major currency units.
+-- Runtime convergence in functions/payment-schema.cjs also upgrades existing DBs.
+CREATE TABLE IF NOT EXISTS payments (
+    payment_id BIGSERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
+    stripe_customer_id VARCHAR(255),
+    stripe_checkout_session_id VARCHAR(255) UNIQUE,
+    plan VARCHAR(30) NOT NULL DEFAULT 'free',
+    amount NUMERIC(10,2) NOT NULL DEFAULT 0,
+    currency VARCHAR(10) NOT NULL DEFAULT 'usd',
+    status VARCHAR(30) NOT NULL DEFAULT 'checkout_created',
+    stripe_subscription_id VARCHAR(255),
+    current_period_start TIMESTAMPTZ,
+    current_period_end TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_payments_user_created ON payments(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_payments_subscription ON payments(stripe_subscription_id);
