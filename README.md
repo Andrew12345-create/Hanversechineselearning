@@ -54,3 +54,5 @@ npm run dev:local   # static + API via local-server.js
 ## Environment variables
 
 See `.env.example` (annotated) — the deploy checklist is in there.
+
+**Administrator MFA encryption:** set a stable `ADMIN_MFA_ENCRYPTION_KEY` in Netlify/Vercel and local environments before enrolling administrators. TOTP seeds are encrypted with AES-256-GCM. If this variable is absent, HanVerse derives the encryption key from `JWT_SECRET` for backwards compatibility; keep that secret stable or existing MFA enrollments will need to be reset. Existing plaintext MFA seeds are encrypted automatically during compliance schema convergence.
